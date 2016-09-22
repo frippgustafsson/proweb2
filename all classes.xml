@@ -1,0 +1,4034 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.1.2 (Build 206U)" ts="2016-09-22 14:57:30">
+<Class name="EF.contextDataRegistrationMock">
+<Description><![CDATA[
+<!-- ;vc;-
+;vc;    Object: EF.contextDataRegistration.CLS/EV.4
+;vc; Component: CLS.EF.contextDataRegistration
+;vc;  Location: SmallDev
+;vc; Date/Time: 02-Sep-16 14:23
+;vc;      User: JeremyW
+;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>EF.contextDataRegistration.CLS/EV.4</td><td>CLS.EF.contextDataRegistration</td><td>SmallDev</td><td style='white-space: nowrap;'>02-Sep-16 14:23</td><td>JeremyW</td></tr></table>
+]]></Description>
+<Super>EF.contextDataRegistration</Super>
+<TimeChanged>64178,51986.405601</TimeChanged>
+<TimeCreated>63755,56082.660879</TimeCreated>
+
+<Property name="tempPurchaseID">
+<Type>%Integer</Type>
+</Property>
+
+<Property name="isAmendment">
+<Type>%Boolean</Type>
+<InitialExpression>"0"</InitialExpression>
+</Property>
+
+<Property name="attendeeCategoryID">
+<Type>%Integer</Type>
+</Property>
+
+<Property name="currencyID">
+<Type>%Integer</Type>
+</Property>
+
+<Property name="tempPersonID">
+<Type>%Integer</Type>
+</Property>
+
+<Property name="loggedInPersonID">
+<Description>
+if website is private, this will be set to the cod.objPerson.ID of that logged in person</Description>
+<Type>%Integer</Type>
+</Property>
+
+<Property name="isBackendBooking">
+<Type>%Boolean</Type>
+<InitialExpression>"0"</InitialExpression>
+</Property>
+
+<Property name="pricingHorologUTC">
+<Type>%Integer</Type>
+</Property>
+
+<Property name="isTestMode">
+<Type>%Boolean</Type>
+<InitialExpression>0</InitialExpression>
+</Property>
+
+<Property name="prowebMode">
+<Type>%String</Type>
+<Cardinality>one</Cardinality>
+<Parameter name="VALUELIST" value=",&quot;edit&quot;,&quot;preview&quot;"/>
+</Property>
+
+<Property name="context">
+<Type>%String</Type>
+<InitialExpression>"registration"</InitialExpression>
+</Property>
+
+<Property name="backendPersonID">
+<Type>%Integer</Type>
+</Property>
+
+<Property name="pageID">
+<Type>%Integer</Type>
+</Property>
+
+<Property name="listID">
+<Type>%Integer</Type>
+</Property>
+
+<Property name="isBackendSuperUser">
+<Type>%Boolean</Type>
+<InitialExpression>0</InitialExpression>
+</Property>
+
+<Method name="createNew">
+<ClassMethod>1</ClassMethod>
+<ReturnType>EF.contextDataRegistration</ReturnType>
+<Implementation><![CDATA[
+	#dim mockTempPersonID as %Integer = 100
+	#dim mockBackendUserD as %Integer = 1
+	#dim mockEventID as %Integer = 15235
+	#dim mockPageID as %Integer = 122589
+	
+	
+	set contextData = ..%New()
+	
+	set contextData.componentName = "Main List"
+	set contextData.eventID = mockEventID
+	set contextData.pageID = mockPageID
+	set contextData.languageID=1
+	set contextData.tempPersonID = mockTempPersonID
+	set contextData.loggedInPersonID = mockBackendUserD
+	set contextData.attendeeCategoryID=1
+	set contextData.currencyID=1
+	set contextData.isAmendment=0
+	set contextData.tempPurchaseID=1
+	set contextData.isBackendBooking=0
+	set contextData.pricingHorologUTC=##class(shared.timeFunctions).getCurrentHorologUTC()
+	set contextData.prowebMode="preview"
+	set contextData.sessionID="mockSession"
+	
+	return contextData
+]]></Implementation>
+</Method>
+</Class>
+
+
+<Class name="EF.pageController.page">
+<Description><![CDATA[
+<!-- ;vc;-
+;vc;    Object: EF.pageController.page.CLS/EV.14
+;vc; Component: CLS.EF.pageController.page
+;vc;  Location: SmallDev
+;vc; Date/Time: 02-Sep-16 14:23
+;vc;      User: JeremyW
+;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>EF.pageController.page.CLS/EV.14</td><td>CLS.EF.pageController.page</td><td>SmallDev</td><td style='white-space: nowrap;'>02-Sep-16 14:23</td><td>JeremyW</td></tr></table>
+]]></Description>
+<Super>EF.pageController.containerElement</Super>
+<TimeChanged>64177,28337.607697</TimeChanged>
+<TimeCreated>63350,62788.509584</TimeCreated>
+
+<Property name="sessionID">
+<Type>%String</Type>
+<Required>1</Required>
+<Parameter name="MAXLEN" value="250"/>
+<Parameter name="TRUNCATE" value="1"/>
+</Property>
+
+<Property name="objEvent">
+<Type>setup.objEvent</Type>
+</Property>
+
+<Property name="identifier">
+<Type>%String</Type>
+<InitialExpression>"page_controller"</InitialExpression>
+<Required>1</Required>
+</Property>
+
+<Parameter name="returnPage">
+</Parameter>
+
+<Property name="allPageElements">
+<Type>EF.pageController.element</Type>
+<Collection>array</Collection>
+<Transient>1</Transient>
+</Property>
+
+<Property name="hasError">
+<Type>%Boolean</Type>
+<InitialExpression>0</InitialExpression>
+</Property>
+
+<Property name="isPageReadOnly">
+<Type>%Boolean</Type>
+<InitialExpression>0</InitialExpression>
+</Property>
+
+<Property name="isReload">
+<Type>%Boolean</Type>
+<InitialExpression>0</InitialExpression>
+<Transient>1</Transient>
+</Property>
+
+<Property name="submitButtonClickedIdentifier">
+<Type>%String</Type>
+<Transient>1</Transient>
+<Parameter name="MAXLEN" value="255"/>
+</Property>
+
+<Property name="allAJAXPageElements">
+<Type>EF.pageController.element</Type>
+<Collection>array</Collection>
+<Transient>1</Transient>
+</Property>
+
+<Property name="contextData">
+<Type>EF.contextData</Type>
+<Transient>1</Transient>
+</Property>
+
+<Property name="warningMessages">
+<Type>%String</Type>
+<Transient>1</Transient>
+<Parameter name="MAXLEN" value="32000"/>
+</Property>
+
+<Property name="isSettingsPageModal">
+<Type>%Boolean</Type>
+<InitialExpression>0</InitialExpression>
+</Property>
+
+<Property name="requestData">
+<Type>%ArrayOfDataTypes</Type>
+</Property>
+
+<Property name="eventConfiguration">
+<Type>setup.eventConfiguration</Type>
+<Transient>1</Transient>
+</Property>
+
+<Parameter name="isSystemPage">
+<Default>0</Default>
+</Parameter>
+
+<Parameter name="useAutomaticAudit">
+<Default>1</Default>
+</Parameter>
+
+<Index name="sessionIDIndex">
+<Properties>sessionID</Properties>
+</Index>
+
+<Method name="createNew">
+<ClassMethod>1</ClassMethod>
+<FormalSpec><![CDATA[contextData:EF.contextData,&arrayOfRequestData:%String,clearDown=1,eventConfiguration:setup.eventConfiguration]]></FormalSpec>
+<ReturnType>EF.pageController.page</ReturnType>
+<Implementation><![CDATA[
+	set pageController=..%New()
+	set pageController.sessionID=contextData.sessionID
+	if (pageController.isSystemPage() = 0)&&(contextData.eventID) {
+		do pageController.objEventSetObjectId(contextData.eventID)
+	}
+	do pageController.createRequestData(.arrayOfRequestData)
+	set pageController.contextData = contextData
+	set pageController.page=pageController
+	do pageController.allPageElements.SetAt(pageController,pageController.identifier)
+	if clearDown {
+		do pageController.clearDownOld()
+		do pageController.deleteForCurrentSession()
+	}
+	do pageController.%Save()
+	if $D(eventConfiguration) {
+		set pageController.eventConfiguration=eventConfiguration	
+	}
+	do pageController.load()
+	return pageController
+]]></Implementation>
+</Method>
+
+<Method name="getEventConfiguration">
+<Implementation><![CDATA[
+	if '$IsObject(..eventConfiguration) {
+		do ..loadEventConfiguration()
+	} 
+	return ..eventConfiguration
+]]></Implementation>
+</Method>
+
+<Method name="loadEventConfiguration">
+<Implementation><![CDATA[	set ..eventConfiguration=##class(setup.eventConfiguration).createForEventID(..getEventID())
+]]></Implementation>
+</Method>
+
+<Method name="open">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>pageControllerID,contextData:EF.contextData</FormalSpec>
+<ReturnType>EF.pageController.page</ReturnType>
+<Implementation><![CDATA[
+	set pageController=##class(EF.pageController.page).%OpenId(pageControllerID)
+	do pageController.%Reload()
+	if (pageController.sessionID'=contextData.sessionID) {
+		throw ##class(shared.exceptions.generalException).%New("Invalid session for page")	
+	}
+	if (pageController.isSystemPage() = 0) {
+		if (pageController.objEvent.%Id() '= contextData.eventID) {
+			throw ##class(shared.exceptions.generalException).%New("Invalid event for page")	
+		}
+	}
+	set pageController.contextData = contextData
+	do pageController.updateAllPageElements()
+	do pageController.reloadUIComponents()
+	set pageController.isReload=1
+	do pageController.load()
+	quit pageController
+]]></Implementation>
+</Method>
+
+<Method name="createRequestData">
+<FormalSpec><![CDATA[&arrayOfRequestData:%String]]></FormalSpec>
+<Implementation><![CDATA[
+	set name=""
+	for {
+		set name=$O(arrayOfRequestData(name))
+		if name="" quit
+		set value=$G(arrayOfRequestData(name))
+		do ..requestData.SetAt(value,name)	
+	}
+]]></Implementation>
+</Method>
+
+<Method name="load">
+<Implementation><![CDATA[
+	do ..loadData()
+	do ..updateUIComponents()
+]]></Implementation>
+</Method>
+
+<Method name="save">
+<Implementation><![CDATA[
+	if '(..isPageReadOnly) {
+		do ..saveData()
+		do ..saveInFormModals()
+		if ..#useAutomaticAudit {
+			do ..auditChanges()
+		}
+	}
+]]></Implementation>
+</Method>
+
+<Method name="saveInFormModals">
+<Implementation><![CDATA[
+	set key=""
+	for {
+		set element=..allPageElements.GetNext(.key)
+		if key="" quit
+		if ($IsObject(element))&&(element.%IsA("EF.pageController.buttons.openInFormModal")) {
+			do element.modalContents.save()
+		}
+ 	}
+]]></Implementation>
+</Method>
+
+<Method name="isSystemPage">
+<Implementation><![CDATA[	return ..#isSystemPage
+]]></Implementation>
+</Method>
+
+<Method name="saveData">
+<Implementation><![CDATA[	throw ##class(shared.exceptions.generalException).%New("Not implemented")
+]]></Implementation>
+</Method>
+
+<Method name="processDelete">
+<FormalSpec>deleteButtonIdentifier</FormalSpec>
+<Implementation><![CDATA[
+	set deleteButton=..getElementByIdentifier(deleteButtonIdentifier)
+	set deleteMethod=deleteButton.deleteMethod
+	do $Method($this,deleteMethod,deleteButton)
+]]></Implementation>
+</Method>
+
+<Method name="auditChanges">
+<Implementation><![CDATA[
+	set key=""
+	do {
+		set element=..allPageElements.GetNext(.key)
+		if ('$IsObject(element)) continue
+	    if element.isUpdated() {
+		 	do element.auditLine()   
+	    }
+ 	} While (key '= "")
+]]></Implementation>
+</Method>
+
+<Method name="clearDownOld">
+<Description>
+Clear down all data from more than 2 days old</Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec>daysToKeep=2</FormalSpec>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	set rs=##class(%ResultSet).%New("%Library.DynamicQuery:SQL")
+	set query="SELECT ID FROM EF_pageController.page WHERE xCRstamp < DATEADD(dd,?,CURRENT_TIMESTAMP)"
+	do rs.Prepare(query)
+	do rs.Execute(-daysToKeep)
+	while rs.Next()	{
+		set pageController=##class(EF.pageController.page).%OpenId(rs.Get("ID"),,.sc)
+		if 'sc {
+			throw ##class(shared.exceptions.generalStatusException).CreateFromStatus(sc)	
+		}
+		do pageController.delete()
+	}
+]]></Implementation>
+</Method>
+
+<Method name="deleteForCurrentSession">
+<Description>
+Deletes old data with the same sessionID and loadingClass</Description>
+<Implementation><![CDATA[
+	set rs=##class(%ResultSet).%New("%Library.DynamicQuery:SQL")
+	Set tableName=##class(EF.utils.classes).getFullTableRefFromFullClassName(..%ClassName(1))
+	set query="SELECT ID FROM "_##class(EF.encoders.sql).encodeTableName(tableName)_" WHERE (sessionID = ?)"
+	do rs.Prepare(query)
+	do rs.Execute(..sessionID)
+	while rs.Next()	{
+		set pageController=##class(EF.pageController.page).%OpenId(rs.Get("ID"))
+		do pageController.delete()
+	}
+]]></Implementation>
+</Method>
+
+<Method name="clearDownModalTempData">
+<Description>
+Clears down elements with isModalTempData = 1 before loading the page</Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec>pageControllerID</FormalSpec>
+<Implementation><![CDATA[
+	set query="SELECT ID FROM EF_pageController.element WHERE page = ? AND isModalTempData = 1"
+	set rs=##class(%ResultSet).%New("%Library.DynamicQuery:SQL")
+	do rs.Prepare(query)
+	do rs.Execute(pageControllerID)
+	while rs.Next()	{
+		set element=##class(EF.pageController.element).%OpenId(rs.Get("ID"),,.sc)
+		if $IsObject(element) {
+			do element.delete()
+		}
+	}
+]]></Implementation>
+</Method>
+
+<Method name="removeModalTempDataFlagForPage">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>pageControllerID</FormalSpec>
+<Implementation><![CDATA[
+	&SQL(UPDATE EF_pageController.element 
+		SET isModalTempData=0
+		WHERE page = :pageControllerID AND isModalTempData = 1
+	)
+]]></Implementation>
+</Method>
+
+<Method name="canUpdate">
+<Description>
+Checks whether we are allowed to update this data set</Description>
+<FormalSpec>sessionID</FormalSpec>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	set ok=0
+	set (userID,function)=""
+	&SQL(SELECT xCRUserID,function INTO :tmp,:tmp2 FROM pageClasses.objPageDataPageDetails
+		WHERE sessionID = :sessionID
+		AND loadingClass=:loadingClass
+		AND ID = :pageDataPageDetailsID
+	)
+	if +SQLCODE=0 {
+		set ok=1
+		set userID=tmp,function=tmp2
+	}
+	if $l(function) {
+		if '##class(access.objFunction).hasFunctionByAccessID(userID,function) {	
+			set ok=0
+		}
+	}
+	quit ok
+]]></Implementation>
+</Method>
+
+<Method name="getElementByIdentifier">
+<FormalSpec>identifier</FormalSpec>
+<ReturnType>EF.pageController.element</ReturnType>
+<Implementation><![CDATA[
+	set element=..allPageElements.GetAt(identifier)	
+ 	quit element
+]]></Implementation>
+</Method>
+
+<Method name="renderHTMLControlFromTag">
+<FormalSpec><![CDATA[&attrs]]></FormalSpec>
+<Implementation><![CDATA[
+	set identifier=$G(attrs("identifier"))
+	set element=..getElementByIdentifier(identifier)
+	if $IsObject(element) {
+		do element.render()
+	} elseif $Get(attrs("prowebcomponentname"))'="" {
+		do ##class(EF.pages.frontend.base).outputProwebListRowsExperimental(attrs("prowebcomponentname"), 122589) // #################
+	}
+	quit
+]]></Implementation>
+</Method>
+
+<Method name="renderContainerStartFromTag">
+<FormalSpec><![CDATA[&attrs]]></FormalSpec>
+<Implementation><![CDATA[
+	set uiComponent=..getUIComponentFromTag(.attrs)
+	if $IsObject(uiComponent) {
+		do uiComponent.renderStart()
+	}
+	quit
+]]></Implementation>
+</Method>
+
+<Method name="renderContainerEndFromTag">
+<FormalSpec><![CDATA[&attrs]]></FormalSpec>
+<Implementation><![CDATA[
+	set uiComponent=..getUIComponentFromTag(.attrs)
+	if $IsObject(uiComponent) {
+		do uiComponent.renderEnd()
+	}
+	quit
+]]></Implementation>
+</Method>
+
+<Method name="getUIComponentFromTag">
+<FormalSpec><![CDATA[&attrs]]></FormalSpec>
+<ReturnType>EF.ui.components.base</ReturnType>
+<Implementation><![CDATA[
+	set identifier=$G(attrs("identifier"))
+	set type=$G(attrs("type"))
+	set uiComponent=""
+	if $l(identifier) {
+		set element=..getElementByIdentifier(identifier)
+		if $IsObject(element) {
+			set uiComponent=element.uiComponent
+		}
+	} elseif $l(type) {
+		set uiComponent=$CASE(type,
+			"column":..getUIComponentColumnFromTag(.attrs),
+			"well":..getUIComponentWellFromTag(.attrs),
+			"row":..getUIComponentRowFromTag(.attrs),
+			"modal-body":..getUIComponentModalBodyFromTag(.attrs),
+			"panel-body":..getUIComponentPanelBodyFromTag(.attrs),
+			"modal-footer":..getUIComponentModalFooterFromTag(.attrs),
+			:""
+		)
+	}
+	quit uiComponent
+]]></Implementation>
+</Method>
+
+<Method name="getUIComponentModalBodyFromTag">
+<FormalSpec><![CDATA[&attrs]]></FormalSpec>
+<ReturnType>EF.ui.components.backend.well</ReturnType>
+<Implementation><![CDATA[
+	set uiComponent=##class(EF.ui.components.backend.modalBody).%New()
+	
+	quit uiComponent
+]]></Implementation>
+</Method>
+
+<Method name="getUIComponentPanelBodyFromTag">
+<FormalSpec><![CDATA[&attrs]]></FormalSpec>
+<ReturnType>EF.ui.components.backend.well</ReturnType>
+<Implementation><![CDATA[
+	set uiComponent=##class(EF.ui.components.backend.panelBody).%New()
+	
+	quit uiComponent
+]]></Implementation>
+</Method>
+
+<Method name="getUIComponentModalFooterFromTag">
+<FormalSpec><![CDATA[&attrs]]></FormalSpec>
+<ReturnType>EF.ui.components.backend.well</ReturnType>
+<Implementation><![CDATA[
+	set uiComponent=##class(EF.ui.components.backend.modalFooter).%New()
+	
+	quit uiComponent
+]]></Implementation>
+</Method>
+
+<Method name="getUIComponentWellFromTag">
+<FormalSpec><![CDATA[&attrs]]></FormalSpec>
+<ReturnType>EF.ui.components.backend.well</ReturnType>
+<Implementation><![CDATA[
+	set width=$G(attrs("width"))
+	set uiComponent=##class(EF.ui.components.backend.well).%New()
+	if width {
+		set uiComponent.width=width
+	}
+	quit uiComponent
+]]></Implementation>
+</Method>
+
+<Method name="getUIComponentColumnFromTag">
+<FormalSpec><![CDATA[&attrs]]></FormalSpec>
+<ReturnType>EF.ui.components.backend.well</ReturnType>
+<Implementation><![CDATA[
+	set width=$G(attrs("width"))
+	set uiComponent=##class(EF.ui.components.backend.column).%New()
+	if width {
+		set uiComponent.width=width
+	}
+	quit uiComponent
+]]></Implementation>
+</Method>
+
+<Method name="getUIComponentRowFromTag">
+<FormalSpec><![CDATA[&attrs]]></FormalSpec>
+<ReturnType>EF.ui.components.backend.well</ReturnType>
+<Implementation><![CDATA[
+	set uiComponent=##class(EF.ui.components.backend.row).%New()
+	quit uiComponent
+]]></Implementation>
+</Method>
+
+<Method name="showElementFromTag">
+<FormalSpec><![CDATA[&attrs]]></FormalSpec>
+<Implementation><![CDATA[
+	set show=0
+	set type=$G(attrs("type"))
+	if $l(type) {
+		set show=1
+	} else {
+		set identifier=$G(attrs("identifier"))
+		set element=..getElementByIdentifier(identifier)
+		if $IsObject(element) {
+			set show=1
+		}
+	}
+	quit show
+]]></Implementation>
+</Method>
+
+<Method name="reloadUIComponents">
+<Implementation><![CDATA[
+	set key=""
+	for {
+		set element=..allPageElements.GetNext(.key)
+		if key="" quit
+		if '$IsObject(element.uiComponent) {
+			do element.reloadUIComponent()
+		}
+ 	}
+]]></Implementation>
+</Method>
+
+<Method name="updateUIComponents">
+<Implementation><![CDATA[
+	set key=""
+	for {
+		set element=..allPageElements.GetNext(.key)
+		if key="" quit
+	    do element.updateUIComponent()
+ 	}
+]]></Implementation>
+</Method>
+
+<Method name="updateUIComponent">
+<Implementation><![CDATA[	quit
+]]></Implementation>
+</Method>
+
+<Method name="updateFromRequest">
+<Implementation><![CDATA[
+	set key=""
+	do {
+		set element=..allPageElements.GetNext(.key)
+		if ('$IsObject(element)) continue
+	    do element.updateValueFromRequest()
+ 	} While (key '= "")
+]]></Implementation>
+</Method>
+
+<Method name="validatePage">
+<Implementation><![CDATA[
+	set ..hasError=0
+	do ..validateElement()
+	if '..hasError {
+	 	do ..validate()
+	}
+ 	do ..updateErrorMessages()
+]]></Implementation>
+</Method>
+
+<Method name="isAnyElementUpdated">
+<Implementation><![CDATA[
+	set isUpdated=0
+	set key=""
+	for {
+		set element=..allPageElements.GetNext(.key)
+		if key="" quit
+		if element.isUpdated() {
+			set isUpdated=1	
+		}
+ 	}	
+ 	quit isUpdated
+]]></Implementation>
+</Method>
+
+<Method name="existsByIdentifier">
+<FormalSpec>identifier</FormalSpec>
+<ReturnType>%Boolean</ReturnType>
+<Implementation><![CDATA[
+	set out=0
+	set element=..getElementByIdentifier(identifier)
+	if $IsObject(element) {
+		set out=1
+	}
+	quit out
+]]></Implementation>
+</Method>
+
+<Method name="isUpdatedByIdentifier">
+<FormalSpec>identifier</FormalSpec>
+<ReturnType>%Boolean</ReturnType>
+<Implementation><![CDATA[
+	set isUpdated=0
+	set element=..getElementByIdentifier(identifier)
+	if $IsObject(element) {
+		set isUpdated=element.isUpdated()
+	}
+	quit isUpdated
+]]></Implementation>
+</Method>
+
+<Method name="getValueByIdentifier">
+<FormalSpec>identifier</FormalSpec>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	set element=..getElementByIdentifier(identifier)
+	if '$IsObject(element) throw ##class(shared.exceptions.generalException).%New("identifier does not exist")
+	quit element.value
+]]></Implementation>
+</Method>
+
+<Method name="getErrorDisplayElement">
+<ReturnType>EF.pageController.element</ReturnType>
+<Implementation><![CDATA[
+	set key=""
+	for {
+		set element=..elementChildren.GetNext(.key)
+		if key="" quit
+		if element.%IsA("EF.pageController.containerElements.panel") {
+			return element	
+		}
+ 	}
+ 	return $this
+]]></Implementation>
+</Method>
+
+<Method name="addErrorMessagesToElement">
+<FormalSpec>elementIdentifier:%String,listOfErrors:%ListOfDataTypes</FormalSpec>
+<Implementation><![CDATA[
+	set element=..getElementByIdentifier(elementIdentifier)
+	for i=1:1:listOfErrors.Count() {
+		do element.setErrorMessage(listOfErrors.GetAt(i))	
+	}
+]]></Implementation>
+</Method>
+
+<Method name="setErrorMessage">
+<FormalSpec>errorMessage</FormalSpec>
+<Implementation><![CDATA[
+	set panel=..getErrorDisplayElement()
+	if panel'=$this {
+		do panel.setErrorMessage(errorMessage)
+	}
+	do ##super(errorMessage)
+]]></Implementation>
+</Method>
+
+<Method name="getDataSetForElement">
+<FormalSpec>elementID</FormalSpec>
+<Implementation><![CDATA[
+	set chartElement=..getElementByIdentifier(elementID)
+	return chartElement.getDataSet()
+]]></Implementation>
+</Method>
+
+<Method name="loadData">
+</Method>
+
+<Method name="validate">
+<Implementation><![CDATA[	Throw ##class(shared.exceptions.generalException).%New("Not implemented")
+]]></Implementation>
+</Method>
+
+<Method name="getSuccessURL">
+<Implementation><![CDATA[	return ..#returnPage
+]]></Implementation>
+</Method>
+
+<Method name="getAJAXUpdateReturnData">
+<Description>
+This can be used to return data from a modal when saved via ajax.</Description>
+<ReturnType>%ZEN.proxyObject</ReturnType>
+<Implementation><![CDATA[	return ""
+]]></Implementation>
+</Method>
+
+<Storage name="Default">
+<Type>%Library.CacheStorage</Type>
+<DefaultData>pageDefaultData</DefaultData>
+<Data name="pageDefaultData">
+<Subscript>"page"</Subscript>
+<Value name="1">
+<Value>sessionID</Value>
+</Value>
+<Value name="2">
+<Value>objEvent</Value>
+</Value>
+<Value name="3">
+<Value>hasError</Value>
+</Value>
+<Value name="4">
+<Value>isPageReadOnly</Value>
+</Value>
+<Value name="5">
+<Value>isSettingsPageModal</Value>
+</Value>
+<Value name="6">
+<Value>requestData</Value>
+</Value>
+</Data>
+</Storage>
+</Class>
+
+
+<Class name="EF.pageController.proweb.list">
+<Description>
+a list of proweb items</Description>
+<Super>%RegisteredObject</Super>
+<TimeChanged>64183,52826.49015</TimeChanged>
+<TimeCreated>63992,66338.902496</TimeCreated>
+
+<Property name="listItems">
+<Type>EF.pageController.proweb.listItem</Type>
+<Collection>list</Collection>
+</Property>
+
+<Property name="contextDataRegistration">
+<Type>EF.contextDataRegistration</Type>
+<Required>1</Required>
+</Property>
+
+<Property name="isProwebEditMode">
+<Type>%Boolean</Type>
+<Required>1</Required>
+</Property>
+
+<Method name="createNew">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>contextDataRegistration:EF.contextDataRegistration</FormalSpec>
+<ReturnType>EF.pageController.proweb.list</ReturnType>
+<Implementation><![CDATA[
+	set list = ..%New()
+	set list.contextDataRegistration = contextDataRegistration
+	return list
+]]></Implementation>
+</Method>
+
+<Method name="populateFromListObject">
+<FormalSpec>objList:sc.xModules.objList</FormalSpec>
+<Implementation><![CDATA[
+	#dim listItem as EF.pageController.proweb.listItem
+	#dim previousGuestItem as EF.pageController.proweb.listItem
+	#dim inputElement as EF.pageController.proweb.listItems.inputElementCOD
+	
+	if '$IsObject(objList) throw ##class(shared.exceptions.generalException).%New("No list object passed in to populate EF.pageController.proweb.list")
+	
+	set rsListItems=##class(%ResultSet).%New("sc.xModules.objList:qGetChildren")
+	do rsListItems.Execute(objList.%Id())
+	while rsListItems.Next() {	
+		set dataID = rsListItems.Get("ID")
+		set prowebItem = ##class(sc.objData).%OpenId(dataID)
+
+		set listItem = ..createControllerForProwebItem(prowebItem)
+		
+		if listItem.isOkToAddToList() {
+			do ..addListItem(listItem)
+		}
+	}
+]]></Implementation>
+</Method>
+
+<Method name="createControllerForProwebItem">
+<FormalSpec>prowebItem</FormalSpec>
+<Private>1</Private>
+<Implementation><![CDATA[
+	if prowebItem.dataType = "objCODitem" { 
+		set listItem = ##class(EF.pageController.proweb.listItems.inputElementCOD).%New()
+		do listItem.populateFromProwebItem(prowebItem, ..contextDataRegistration)
+		set listItem.uiComponentType = listItem.getUiComponentTypeFromProwebItem(prowebItem)
+		
+	} elseif prowebItem.dataType = "objText" {
+		set listItem = ##class(EF.pageController.proweb.listItems.textBlock).%New()
+		do listItem.populateFromProwebObject(prowebItem)
+	
+	} elseif prowebItem.dataType = "objFormDivider" {
+		set listItem = ##class(EF.pageController.proweb.listItems.divider).%New()
+
+	} else {
+		throw ##class(shared.exceptions.generalException).%New("proweb item type not implemented yet")	
+	}
+	
+	return listItem
+]]></Implementation>
+</Method>
+
+<Method name="addListItem">
+<FormalSpec>listItem:EF.pageController.proweb.listItem</FormalSpec>
+<Implementation><![CDATA[
+	do ..listItems.Insert(listItem)
+	set listItem.htmlID = ..generateHtmlID(..listItems.Count())
+]]></Implementation>
+</Method>
+
+<Method name="generateHtmlID">
+<FormalSpec>displayOrder:%Integer</FormalSpec>
+<Private>1</Private>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	set baseName = $Replace(..contextDataRegistration.componentName," ","")
+	return ##class(shared.stringFunctions).encryptURLsafe(baseName_"|"_displayOrder) // ## may need enhancing ##
+]]></Implementation>
+</Method>
+
+<Method name="render">
+<Implementation><![CDATA[
+	#dim listItem As EF.pageController.proweb.listItem
+	#dim displayOrder as %Integer=0
+	
+	for  {
+		set listItem = ..listItems.GetNext(.displayOrder)
+		if displayOrder="" quit
+		
+		do listItem.render() 
+	}
+]]></Implementation>
+</Method>
+
+<Method name="debugTarget">
+<ClassMethod>1</ClassMethod>
+<Implementation><![CDATA[
+	#dim contextData as EF.contextDataRegistrationMock
+	set contextData = ##class(EF.contextDataRegistrationMock).createNew()
+
+	set list = ##class(EF.pageController.proweb.list).createNew(contextData)
+	set listID = ##class(sc.xModules.objList).getListIDFromPageIDAndComponentName(contextData.pageID, contextData.componentName)
+	
+	set listObject=##class(sc.xModules.objList).%OpenId(listID)
+	do list.populateFromListObject(listObject)
+
+	do list.render()
+]]></Implementation>
+</Method>
+</Class>
+
+
+<Class name="EF.pageController.proweb.listItem">
+<Super>%RegisteredObject,EF.htmlGenerator</Super>
+<TimeChanged>64183,49805.875937</TimeChanged>
+<TimeCreated>63992,65826.878579</TimeCreated>
+
+<Property name="htmlID">
+<Type>%String</Type>
+<Parameter name="MAXLEN" value="255"/>
+</Property>
+
+<Property name="uiComponentType">
+<Type>%String</Type>
+<Required>1</Required>
+<Parameter name="VALUELIST" value=",textInput"/>
+</Property>
+
+<Method name="isOkToAddToList">
+<ReturnType>%Boolean</ReturnType>
+<Implementation><![CDATA[	return 1
+]]></Implementation>
+</Method>
+
+<Method name="render">
+<Implementation><![CDATA[	// not implemented
+]]></Implementation>
+</Method>
+
+<Method name="getUiComponentTypeFromProwebItem">
+<FormalSpec>prowebItem:sc.objData</FormalSpec>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	if prowebItem.dataType="objCODitem" {
+		if prowebItem.type = "text" {
+			return "textInput"
+		}
+	
+	} else {
+		throw ##class(shared.exceptions.generalException).%New("Failed to resolve the UI component type")	
+	}
+]]></Implementation>
+</Method>
+</Class>
+
+
+<Class name="EF.pageController.proweb.listItems.divider">
+<Super>EF.pageController.proweb.listItem</Super>
+<TimeChanged>64183,53088.836253</TimeChanged>
+<TimeCreated>64183,52893.320101</TimeCreated>
+
+<Method name="render">
+<Implementation><![CDATA[
+	set uiComponent = ##class(EF.ui.components.frontend.divider).%New(..htmlID)
+	do uiComponent.render()
+]]></Implementation>
+</Method>
+</Class>
+
+
+<Class name="EF.pageController.proweb.listItems.inputElement">
+<Super>EF.pageController.proweb.listItem</Super>
+<TimeChanged>64183,50009.553451</TimeChanged>
+<TimeCreated>63992,62141.625478</TimeCreated>
+
+<Property name="labelText">
+<Type>%String</Type>
+<Parameter name="MAXLEN" value="32000"/>
+</Property>
+
+<Property name="hasMandatoryMarker">
+<Type>%Boolean</Type>
+</Property>
+
+<Property name="helpText">
+<Type>%String</Type>
+<Parameter name="MAXLEN" value="32000"/>
+</Property>
+
+<Property name="value">
+<Type>%String</Type>
+<Parameter name="MAXLEN" value="32000"/>
+</Property>
+
+<Method name="render">
+<Implementation><![CDATA[
+	#dim uiComponent as EF.ui.components.base
+	set uiComponent = $CLASSMETHOD("EF.ui.components.frontend."_..uiComponentType,"%New",..htmlID)
+	set uiComponent.label = ..labelText
+	set uiComponent.hasMandatoryMarker = ..hasMandatoryMarker
+	set uiComponent.helpText = ..helpText
+	set uiComponent.value = ..value
+	do uiComponent.render()
+]]></Implementation>
+</Method>
+</Class>
+
+
+<Class name="EF.pageController.proweb.listItems.inputElementCOD">
+<Description>
+Used for all input field on a registration page that are regular database items, as opposed to table booking and ticketing questions.</Description>
+<Super>EF.pageController.proweb.listItems.inputElement</Super>
+<TimeChanged>64183,50022.065345</TimeChanged>
+<TimeCreated>64055,42548.552153</TimeCreated>
+
+<Method name="populateFromProwebItem">
+<FormalSpec>prowebItem:sc.objData,contextDataRegistration:EF.contextDataRegistration</FormalSpec>
+<Implementation><![CDATA[
+	#dim prowebID as %integer = prowebItem.%Id()
+	#dim itemName as %String = ##class(sc.xModules.objCODitem).getCODItemName(prowebID)
+	#dim tempPersonID as %String = contextDataRegistration.tempPersonID  
+	
+	if '$IsObject(prowebItem) {
+		throw ##class(shared.exceptions.generalException).%New("No proweb item passed in")
+	}
+	set ..labelText = ##class(sc.objData).getQuestionPrompt(prowebID, contextDataRegistration.languageID)
+	set ..helpText = prowebItem.helpText
+	set ..hasMandatoryMarker = prowebItem.mandatory
+	set ..value = ##class(eCom.tempCodData).get(tempPersonID, itemName)
+]]></Implementation>
+</Method>
+</Class>
+
+
+<Class name="EF.pageController.proweb.listItems.textBlock">
+<Super>EF.pageController.proweb.listItem</Super>
+<TimeChanged>64183,53072.605755</TimeChanged>
+<TimeCreated>64183,49747.663252</TimeCreated>
+
+<Property name="text">
+<Type>%String</Type>
+<Parameter name="MAXLEN" value="1000000"/>
+</Property>
+
+<Method name="populateFromProwebObject">
+<FormalSpec>prowebItem:sc.objData,contextDataRegistration:EF.contextDataRegistration</FormalSpec>
+<Implementation><![CDATA[
+	#dim prowebID as %integer = prowebItem.%Id()
+	
+	if '$IsObject(prowebItem) {
+		throw ##class(shared.exceptions.generalException).%New("No proweb item passed in")
+	}
+
+	set ..text = prowebItem.description
+]]></Implementation>
+</Method>
+
+<Method name="render">
+<Implementation><![CDATA[
+	set uiComponent = ##class(EF.ui.components.frontend.textBlock).%New(..htmlID)
+	set uiComponent.text = ..text
+	do uiComponent.render()
+]]></Implementation>
+</Method>
+</Class>
+
+
+<Class name="EF.pageController.proweb.listTestCase">
+<Super>EF.ISC.UnitTest.TestCase</Super>
+<TimeChanged>64183,52453.657733</TimeChanged>
+<TimeCreated>64183,49819.459938</TimeCreated>
+
+<Method name="TestBasicInputTextField">
+<Implementation><![CDATA[
+	#dim contextData as EF.contextDataRegistrationMock
+	#dim inputElement as EF.pageController.proweb.listItems.inputElementCOD
+	#dim listItem as EF.pageController.proweb.listItems.inputElementCOD
+	
+	set contextData = ##class(EF.contextDataRegistrationMock).createNew()
+
+	set list = ##class(EF.pageController.proweb.list).%New()
+	
+	set listItem = ##class(EF.pageController.proweb.listItems.inputElementCOD).%New()
+	set listItem.labelText = "First input field"
+	set listItem.uiComponentType = "textInput"
+	set listItem.hasMandatoryMarker = 0
+	do list.addListItem(listItem)
+	
+	// test basic field
+	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(list,"render")
+	set returnedHTML = $ZStrip(returnedHTML,"*WC")
+	set expectedHTML = "<divclass='rowdraggableTR'><divclass='col-sm-4ef_proweb_form_prompt'><labelclass=""control-label""for=""|2401"">Firstinputfield</label></div><divclass='col-sm-8ef_proweb_form_prompt'><inputtype=""text""class=""form-control""title=""""id=""|2401""name=""""value=""""placeholder=""""></div></div>"
+	do $$$AssertEquals(returnedHTML,expectedHTML)
+
+
+	// test mandatory field
+	set listItem.hasMandatoryMarker = 1
+	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(list,"render")
+	set returnedHTML = $ZStrip(returnedHTML,"*WC")
+	set expectedHTML = "<divclass='rowdraggableTR'><divclass='col-sm-4ef_proweb_form_promptef-required-field'><labelclass=""control-label""for=""|2401"">Firstinputfield</label></div><divclass='col-sm-8ef_proweb_form_prompt'><inputtype=""text""class=""form-control""title=""""id=""|2401""name=""""value=""""placeholder=""""></div></div>"
+	do $$$AssertEquals(returnedHTML,expectedHTML)
+
+	// test with a second field
+	set listItem2 = ##class(EF.pageController.proweb.listItems.inputElementCOD).%New()
+	set listItem2.labelText = "Second input field"
+	set listItem2.uiComponentType = "textInput"
+	set listItem2.hasMandatoryMarker = 0
+	do list.addListItem(listItem2)
+
+	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(list,"render")
+	set returnedHTML = $ZStrip(returnedHTML,"*WC")
+	set expectedHTML = "<divclass='rowdraggableTR'><divclass='col-sm-4ef_proweb_form_promptef-required-field'><labelclass=""control-label""for=""|2401"">Firstinputfield</label></div><divclass='col-sm-8ef_proweb_form_prompt'><inputtype=""text""class=""form-control""title=""""id=""|2401""name=""""value=""""placeholder=""""></div></div><divclass='rowdraggableTR'><divclass='col-sm-4ef_proweb_form_prompt'><labelclass=""control-label""for=""|2500"">Secondinputfield</label></div><divclass='col-sm-8ef_proweb_form_prompt'><inputtype=""text""class=""form-control""title=""""id=""|2500""name=""""value=""""placeholder=""""></div></div>"
+	do $$$AssertEquals(returnedHTML,expectedHTML)
+]]></Implementation>
+</Method>
+
+<Method name="TestTextBlock">
+<Implementation><![CDATA[
+	#dim contextData as EF.contextDataRegistrationMock
+	#dim listItem as EF.pageController.proweb.listItems.textBlock
+	
+	set contextData = ##class(EF.contextDataRegistrationMock).createNew()
+
+	set list = ##class(EF.pageController.proweb.list).%New()
+	
+	set listItem = ##class(EF.pageController.proweb.listItems.textBlock).%New()
+	set listItem.text = "Lorem ipsum dolor sit amet, faucibus sagittis dui commodo integer. Vitae fringilla amet, wisi amet suspendisse ut vitae per vitae, pellentesque mi dis nisl tellus donec tempor, laoreet viverra, pellentesque ultricies conubia justo lorem. Torquent nibh risus aliquam fusce lacus in, non mus. Integer velit, volutpat a vel, tincidunt justo mattis, commodo lacus volutpat luctus felis. Sit adipiscing aliquet aenean fringilla nullam ac, velit dui, cum felis a nullam dapibus, condimentum pulvinar quis posuere integer justo."
+	set listItem.uiComponentType = "textBlock"
+	do list.addListItem(listItem)
+	
+	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(list,"render")
+	set returnedHTML = $ZStrip(returnedHTML,"*WC")
+	set expectedHTML = "<divclass='rowdraggableTR'><divclass='col-sm-12'>Loremipsumdolorsitamet,faucibussagittisduicommodointeger.Vitaefringillaamet,wisiametsuspendisseutvitaepervitae,pellentesquemidisnisltellusdonectempor,laoreetviverra,pellentesqueultriciesconubiajustolorem.Torquentnibhrisusaliquamfuscelacusin,nonmus.Integervelit,volutpatavel,tinciduntjustomattis,commodolacusvolutpatluctusfelis.Sitadipiscingaliquetaeneanfringillanullamac,velitdui,cumfelisanullamdapibus,condimentumpulvinarquisposuereintegerjusto.</div></div>"
+	do $$$AssertEquals(returnedHTML,expectedHTML)
+]]></Implementation>
+</Method>
+</Class>
+
+
+<Class name="EF.pages.frontend.base">
+<Description><![CDATA[
+Common page that all frontend pages could/should inherit from.
+<!-- ;vc;
+;vc;    Object: EF.pages.frontend.base.CLS/EV.9
+;vc; Component: CLS.EF.pages.frontend.base
+;vc;  Location: SmallDev
+;vc; Date/Time: 02-Sep-16 14:23
+;vc;      User: JeremyW
+;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>EF.pages.frontend.base.CLS/EV.9</td><td>CLS.EF.pages.frontend.base</td><td>SmallDev</td><td style='white-space: nowrap;'>02-Sep-16 14:23</td><td>JeremyW</td></tr></table>
+]]></Description>
+<Language>cache</Language>
+<ProcedureBlock>0</ProcedureBlock>
+<Super>shared.pCSPmanage</Super>
+<TimeChanged>64183,50178.064547</TimeChanged>
+<TimeCreated>63635,40114.778424</TimeCreated>
+
+<Parameter name="showRegistrationProgressBar">
+<Default>0</Default>
+</Parameter>
+
+<Parameter name="hasRegistrationQuestions">
+<Default>0</Default>
+</Parameter>
+
+<Parameter name="efUsePageController">
+<Type>%Boolean</Type>
+<Default>0</Default>
+</Parameter>
+
+<Method name="OnPage">
+<ClassMethod>1</ClassMethod>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+	
+	Do ..OnPageCSPROOT()
+	
+	Quit $$$OK
+]]></Implementation>
+</Method>
+
+<Method name="OnPageCSPROOT">
+<ClassMethod>1</ClassMethod>
+<ReturnType>%Boolean</ReturnType>
+<Implementation><![CDATA[
+	;Do ##class(shared.pageMethods).createBackendVariables()
+	do ..OnPagePageTop()
+	do ..initPageController()
+	do ..OnPagePageContent()
+	do ..OnPagePageBottom()
+]]></Implementation>
+</Method>
+
+<Method name="initPageController">
+<ClassMethod>1</ClassMethod>
+<Implementation><![CDATA[
+	set contextData = ##class(EF.contextDataRegistration).createFromFrontendCSPSession()
+	if ..usePageController() {
+		set contextData = ##class(EF.contextData).createFromBackendCSPSession()
+		set pageControllerID=%request.Get("pageControllerID")
+		merge requestData=%request.Data
+		
+		if pageControllerID {
+			try {
+				do ..beforePageControllerReload(pageControllerID)
+				set pageController=##class(EF.pageController.page).open(pageControllerID,contextData)
+			} catch {
+				// force a reload if there is a problem opening the page
+				set pageControllerID=""
+			}
+		}
+		if 'pageControllerID {
+			set pageController=$CLASSMETHOD(..getPageDataClassName(),"createNew",contextData,.requestData)
+			do pageController.%Save()
+		}
+		
+		set pageControllerID=pageController.%Id()
+	}
+]]></Implementation>
+</Method>
+
+<Method name="OnPagePageTop">
+<ClassMethod>1</ClassMethod>
+<Implementation><![CDATA[
+	w ##class(shared.pageMethods).outputFrontendHeader()
+	Write !,"<head>"
+	Write !
+ 	do ##class(layout.objTemplate).writeBit("","{{ef_header}}")
+	Write !
+	Do ..Include("frontendHTTPheader.csp")
+	Write !
+	Do ..Include("colourScheme.csp")
+	do ..OnPagePageHeaderCSS()
+	Write !,!,"</head>"
+	Write !,"<body class=""bodyBackground"">"
+	Write !,!,!,!
+	set app=##class(sc.objData).applicationPath()
+	if ..#hasRegistrationQuestions {
+		set isCOD = 1
+	}
+	do ##class(cspRealEV.system.proweb.templatestart).OnPageCSPROOT()
+	
+ 	do ##class(layout.objTemplate).writeBit("{{ef_header}}","{{ef_banner}}")
+ 	do ##class(layout.objTemplate).writeBit("{{ef_banner}}","{{ef_main_progress}}")
+ 	if ..#showRegistrationProgressBar {
+		if ($G(%session.Data("mode"))="preview")!($G(%session.Data("inSitePageEditing"))) {
+			if '%request.Get("hideButtons") {
+				Do ..Include("progress.csp")
+			}
+		}
+ 	}
+ 	do ##class(layout.objTemplate).writeBit("{{ef_main_progress}}","{{ef_main_header}}")
+]]></Implementation>
+</Method>
+
+<Method name="OnPagePageHeaderCSS">
+<ClassMethod>1</ClassMethod>
+</Method>
+
+<Method name="OnPagePageBottom">
+<ClassMethod>1</ClassMethod>
+<Implementation><![CDATA[
+	do ##class(layout.objTemplate).writeBit("{{ef_main_buttons}}","{{ef_footer}}")
+	do ##class(layout.objTemplate).writeBit("{{ef_footer}}","")
+	Do ..Include("editingFooter.csp")
+	set app=##class(sc.objData).applicationPath()
+	do ##class(cspRealEV.system.proweb.templatestop).OnPageCSPROOT()
+	Write !,!,"</body>"
+	Write !,"</html>",!
+]]></Implementation>
+</Method>
+
+<Method name="OnPagePageContent">
+<ClassMethod>1</ClassMethod>
+</Method>
+
+<Method name="outputProwebListRows">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>componentName,pageID,isHTMLTable:%Boolean,paramIsRepeatedList:%Boolean=0</FormalSpec>
+<Implementation><![CDATA[
+	if +%session.Get("useExperimentalCMS")=0 {
+		set beforeItem=##class(sc.xModules.objPage).getBeforeItem(pageID)
+		new pageURL,app
+		// Clear previously set component 
+		KILL %session.Data("beforeRow")
+		KILL %session.Data("afterRow")
+		KILL %session.Data("beforeItem")
+		KILL %session.Data("afterItem")
+		KILL %session.Data("componentName")
+		// retrieve the passed component name
+		set %session.Data("beforeRow")=""
+		set %session.Data("afterRow")=""
+		if isHTMLTable {
+			set %session.Data("beforeItem")=(beforeItem)
+			set %session.Data("afterItem")="</TD></TR>"
+		} else {
+			set %session.Data("beforeItem")=""
+			set %session.Data("afterItem")="" 	
+		}
+		set %session.Data("componentName")=componentName
+		set isRepeatedList=paramIsRepeatedList
+		set app=##class(sc.objData).applicationPath()
+		set pageURL=app_"/system/proweb/tagFree.csp"
+		do ##class(cspRealEV.system.proweb.tagfree).OnPageCSPROOT()
+		
+	} elseif +%session.Get("useExperimentalCMS")=1 {
+		do ..outputProwebListRowsExperimental(componentName, pageID, paramIsRepeatedList)
+	}
+]]></Implementation>
+</Method>
+
+<Method name="outputProwebListRowsExperimental">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>componentName,pageID</FormalSpec>
+<ProcedureBlock>1</ProcedureBlock>
+<Implementation><![CDATA[
+	#dim list as sc.CMS.list
+	#dim contextDataRegistration as EF.contextDataRegistration = ##class(EF.contextDataRegistration).createFromFrontendCSPSession()
+	
+	set contextDataRegistration.tempPersonID = $G(%session.Data("eventsforce","frontend","currentPersonID"))
+	set contextDataRegistration.prowebMode = $G(%session.Data("mode"))
+
+	set floatingMenuCounter = %session.Data("floatCount") // ### needs refactoring ###
+	
+	set listID = ##class(sc.xModules.objList).getListIDFromPageIDAndComponentName(pageID,componentName)
+	set objList = ##class(sc.xModules.objList).%OpenId(listID)
+	if '$IsObject(objList) {
+		throw ##class(shared.exceptions.generalException).%New("No objList")	
+	}
+	
+	set list = ##class(EF.pageController.proweb.list).createNew(contextDataRegistration)	
+	if '$IsObject(list) {
+		throw ##class(shared.exceptions.generalException).%New("No list created")
+	}	
+	do list.populateFromListObject(objList)
+	do list.render()
+]]></Implementation>
+</Method>
+
+<Method name="outputProwebList">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>componentName,pageID</FormalSpec>
+<Implementation><![CDATA[
+	&html<<table border=0 cellpadding=0 cellspacing=0 class="black10px" width="100%">>
+	do ..outputProwebListRows(componentName,pageID,1)
+	&html<</table>>
+]]></Implementation>
+</Method>
+
+<Method name="isPageBeingEditedOrPreviewed">
+<ClassMethod>1</ClassMethod>
+<ReturnType>%Boolean</ReturnType>
+<Implementation><![CDATA[	return ##class(shared.pageMethodsFrontend).isPageBeingEditedOrPreviewed()
+]]></Implementation>
+</Method>
+
+<Method name="beforePageControllerReload">
+<Description>
+################ these methods shuld be moved to a super class ######################</Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec>pageControllerID</FormalSpec>
+</Method>
+
+<Method name="usePageController">
+<ClassMethod>1</ClassMethod>
+<Private>1</Private>
+<ReturnType>%Boolean</ReturnType>
+<Implementation><![CDATA[	Quit ..#efUsePageController
+]]></Implementation>
+</Method>
+
+<Method name="getPageDataClassName">
+<ClassMethod>1</ClassMethod>
+<Private>1</Private>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[	Quit "EF.pageController.pagesFrontend."_$PIECE($PIECE(..#CSPFILE,"\",$LENGTH(..#CSPFILE,"\")),".",1)
+]]></Implementation>
+</Method>
+</Class>
+
+
+<Class name="EF.ui.components.base">
+<Description><![CDATA[
+<!-- ;vc;-
+;vc;    Object: EF.ui.components.base.CLS/EV.12
+;vc; Component: CLS.EF.ui.components.base
+;vc;  Location: SmallDev
+;vc; Date/Time: 02-Sep-16 14:24
+;vc;      User: JeremyW
+;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>EF.ui.components.base.CLS/EV.12</td><td>CLS.EF.ui.components.base</td><td>SmallDev</td><td style='white-space: nowrap;'>02-Sep-16 14:24</td><td>JeremyW</td></tr></table>
+]]></Description>
+<Super>%RegisteredObject,EF.htmlGenerator</Super>
+<TimeChanged>64182,41374.783484</TimeChanged>
+<TimeCreated>63355,56488.955478</TimeCreated>
+
+<Property name="htmlID">
+<Type>%String</Type>
+</Property>
+
+<Property name="hasError">
+<Type>%Boolean</Type>
+<InitialExpression>0</InitialExpression>
+</Property>
+
+<Property name="classes">
+<Type>%String</Type>
+</Property>
+
+<Property name="childComponents">
+<Type>EF.ui.components.base</Type>
+<Collection>list</Collection>
+</Property>
+
+<Property name="parentComponent">
+<Type>EF.ui.components.base</Type>
+</Property>
+
+<Property name="enableDisableDependencyList">
+<Type>EF.ui.components.dependencyList</Type>
+</Property>
+
+<Property name="showHideDependencyList">
+<Type>EF.ui.components.dependencyList</Type>
+</Property>
+
+<Property name="toggleClassDependencyList">
+<Type>EF.ui.components.dependencyList</Type>
+</Property>
+
+<Property name="toggleClassDependencyClassName">
+<Type>%String</Type>
+</Property>
+
+<Property name="containerClasses">
+<Type>%String</Type>
+</Property>
+
+<Property name="isDisabled">
+<Type>%Boolean</Type>
+<InitialExpression>0</InitialExpression>
+</Property>
+
+<Property name="extraAttributes">
+<Type>EF.ui.components.attribute</Type>
+<Collection>list</Collection>
+</Property>
+
+<Method name="getDefaultContainerClasses">
+<ClassMethod>1</ClassMethod>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[	Return ""
+]]></Implementation>
+</Method>
+
+<Method name="%OnNew">
+<FormalSpec>htmlID:%String</FormalSpec>
+<Private>1</Private>
+<ReturnType>%Status</ReturnType>
+<ServerOnly>1</ServerOnly>
+<Implementation><![CDATA[
+	If ($DATA(htmlID)) {
+		Set ..htmlID=htmlID
+	} else {
+		Set ..htmlID="ef_control_"_$TR(##class(%SYSTEM.Util).CreateGUID(),"-","")
+	}
+	
+	Set ..classes=..getDefaultClasses()
+	
+	set ..containerClasses=..getDefaultContainerClasses()
+	
+    Quit $$$OK
+]]></Implementation>
+</Method>
+
+<Method name="addChild">
+<FormalSpec>uiComponent:EF.ui.components.base</FormalSpec>
+<Implementation><![CDATA[
+	
+	do ..childComponents.Insert(uiComponent)
+	set uiComponent.parentComponent=$this
+]]></Implementation>
+</Method>
+
+<Method name="getDefaultClasses">
+<ClassMethod>1</ClassMethod>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[	Return ""
+]]></Implementation>
+</Method>
+
+<Method name="addClass">
+<FormalSpec>className</FormalSpec>
+<Implementation><![CDATA[
+	if $l(..classes) {
+		set ..classes=..classes_" "_className
+	} else {
+		set ..classes=className
+	}
+]]></Implementation>
+</Method>
+
+<Method name="removeClass">
+<FormalSpec>className</FormalSpec>
+<Implementation><![CDATA[
+	set updatedClasses=..classes
+	for i=1:1:$length(updatedClasses," ") {
+		if $piece(updatedClasses," ",i)=className {
+			set $piece(updatedClasses," ",i,*)=$piece(updatedClasses," ",i+1,*)	
+		}
+	}
+	set ..classes=updatedClasses
+]]></Implementation>
+</Method>
+
+<Method name="renderChildren">
+<Implementation><![CDATA[
+	set key=""
+	for {
+		set uiComponent=..childComponents.GetNext(.key)
+		if key="" quit
+		if $IsObject(uiComponent) {
+			do ..renderChildComponent(uiComponent)
+		}
+	}
+]]></Implementation>
+</Method>
+
+<Method name="renderJSForElementAndChildren">
+<Implementation><![CDATA[
+	do ..renderJS()
+	set key=""
+	for {
+		set uiComponent=..childComponents.GetNext(.key)
+		if key="" quit
+		if $IsObject(uiComponent) {
+			do uiComponent.renderJSForElementAndChildren()
+		}
+	}
+]]></Implementation>
+</Method>
+
+<Method name="renderChildComponent">
+<FormalSpec>uiComponent:EF.ui.components.base</FormalSpec>
+<Implementation><![CDATA[	do uiComponent.render()
+]]></Implementation>
+</Method>
+
+<Method name="render">
+<Implementation><![CDATA[	do ..renderChildren()
+]]></Implementation>
+</Method>
+
+<Method name="getRendered">
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	
+	set out=##class(EF.utils.outputRedirection).redirectMethodOutputToString($this,"render")
+	quit out
+]]></Implementation>
+</Method>
+
+<Method name="getRenderedJSForElementAndChildren">
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	
+	set out=##class(EF.utils.outputRedirection).redirectMethodOutputToString($this,"renderJSForElementAndChildren")
+	quit out
+]]></Implementation>
+</Method>
+
+<Method name="renderJS">
+</Method>
+
+<Method name="addAttribute">
+<FormalSpec>name,value</FormalSpec>
+<Implementation><![CDATA[	do ##class(EF.ui.components.attribute).addAttributeToList(..extraAttributes,name,value)
+]]></Implementation>
+</Method>
+
+<Method name="getExtraAttributes">
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+ 
+	set attributes=""
+	if $IsObject(..enableDisableDependencyList) {
+		set dependencyListJSON=##class(shared.jsonFunctions).getObjectAsJSONString(..enableDisableDependencyList)
+		set attributes="data-enable-disable-dependency-list="""_..encodeForHTMLAttribute(dependencyListJSON)_""" "
+	}
+	if $IsObject(..showHideDependencyList) {
+		set dependencyListJSON=##class(shared.jsonFunctions).getObjectAsJSONString(..showHideDependencyList)
+		set attributes=attributes_"data-show-hide-dependency-list="""_..encodeForHTMLAttribute(dependencyListJSON)_""" "
+	}
+	if $IsObject(..toggleClassDependencyList) {
+		set dependencyListJSON=##class(shared.jsonFunctions).getObjectAsJSONString(..toggleClassDependencyList)
+		set attributes=attributes_"data-toggle-class-dependency-list="""_..encodeForHTMLAttribute(dependencyListJSON)_""" "
+		set attributes=attributes_"data-toggle-class-dependency-class-name="""_..encodeForHTMLAttribute(..toggleClassDependencyClassName)_""" "
+	}
+	return attributes_##class(EF.ui.components.attribute).getAttributesAsHTML(..extraAttributes)
+]]></Implementation>
+</Method>
+</Class>
+
+
+<Class name="EF.ui.components.frontend.divider">
+<Super>EF.ui.components.frontend.prowebBase</Super>
+<TimeChanged>64183,53845.149762</TimeChanged>
+<TimeCreated>64183,53112.09307</TimeCreated>
+
+<Method name="render">
+<Implementation><![CDATA[
+	do ..renderRowOpening()
+		do ..renderCellOpening()
+			write "<hr class='ef_form_divider''> "
+		do ..renderCellClosing()
+	do ..renderRowClosing()
+]]></Implementation>
+</Method>
+</Class>
+
+
+<Class name="EF.ui.components.frontend.inputElement">
+<Super>EF.ui.components.frontend.prowebBase</Super>
+<TimeChanged>64183,42770.441837</TimeChanged>
+<TimeCreated>64183,40678.260093</TimeCreated>
+
+<Method name="renderLabelCellOpeningMandatory">
+<Implementation><![CDATA[	write "<div class='col-sm-4 ef_proweb_form_prompt ef-required-field'>"
+]]></Implementation>
+</Method>
+
+<Method name="renderLabelCellOpening">
+<Implementation><![CDATA[	write "<div class='col-sm-4 ef_proweb_form_prompt'>"
+]]></Implementation>
+</Method>
+
+<Method name="renderInputElementCellOpening">
+<Implementation><![CDATA[	write "<div class='col-sm-8 ef_proweb_form_prompt'>"
+]]></Implementation>
+</Method>
+</Class>
+
+
+<Class name="EF.ui.components.frontend.prowebBase">
+<Super>EF.ui.components.base</Super>
+<TimeChanged>64183,41819.123112</TimeChanged>
+<TimeCreated>64183,41819.123112</TimeCreated>
+
+<Method name="renderRowOpening">
+<Implementation><![CDATA[	write "<div class='row draggableTR'>"
+]]></Implementation>
+</Method>
+
+<Method name="renderCellOpening">
+<Implementation><![CDATA[	write "<div class='col-sm-12'>"
+]]></Implementation>
+</Method>
+
+<Method name="renderCellClosing">
+<Implementation><![CDATA[	write "</div>"
+]]></Implementation>
+</Method>
+
+<Method name="renderRowClosing">
+<Implementation><![CDATA[		write "</div>"
+]]></Implementation>
+</Method>
+</Class>
+
+
+<Class name="EF.ui.components.frontend.textBlock">
+<Super>EF.ui.components.frontend.prowebBase</Super>
+<TimeChanged>64183,41875.095016</TimeChanged>
+<TimeCreated>64183,38661.128484</TimeCreated>
+
+<Property name="text">
+<Type>%String</Type>
+<Parameter name="MAXLEN" value="1000000"/>
+</Property>
+
+<Method name="render">
+<Implementation><![CDATA[
+	do ..renderRowOpening()
+		do ..renderCellOpening()
+			write ..rawHTML(..text)
+		do ..renderCellClosing()
+	do ..renderRowClosing()
+]]></Implementation>
+</Method>
+</Class>
+
+
+<Class name="EF.ui.components.frontend.textInput">
+<Super>EF.ui.components.frontend.inputElement,EF.ui.components.textInput</Super>
+<TimeChanged>64183,42728.466382</TimeChanged>
+<TimeCreated>63357,57620.613738</TimeCreated>
+
+<Parameter name="typeAttribute">
+<Default>text</Default>
+</Parameter>
+
+<Property name="hasMandatoryMarker">
+<Type>%Boolean</Type>
+</Property>
+
+<Property name="helpText">
+<Type>%String</Type>
+<Parameter name="MAXLEN" value="32000"/>
+</Property>
+
+<Method name="getDefaultClasses">
+<ClassMethod>1</ClassMethod>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[	Return ##super()_" form-control"
+]]></Implementation>
+</Method>
+
+<Method name="getDefaultContainerClasses">
+<ClassMethod>1</ClassMethod>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[	Return ##super()_" form-group"
+]]></Implementation>
+</Method>
+
+<Method name="render">
+<Implementation><![CDATA[
+	set disabledString=""
+	if ..isDisabled {
+		set disabledString="disabled=""disabled"""
+	}
+
+	do ..renderRowOpening()
+	if ..hasMandatoryMarker {
+		do ..renderLabelCellOpeningMandatory()
+	} else {
+		do ..renderLabelCellOpening()
+	}
+	do ..renderLabel()
+	do ..renderCellClosing()
+	do ..renderInputElementCellOpening()
+	&html<
+		    <input type="#(..encodeHTMLAttribute(..#typeAttribute))#" class="#(..encodeHTMLAttribute(..classes))#" #(..rawHTML(disabledString))# title="#(..encodeHTMLAttribute(..title))#" id="#(..encodeHTMLAttribute(..htmlID))#" name="#(..encodeHTMLAttribute(..htmlName))#" value="#(..encodeHTMLAttribute(..value))#" placeholder="#(..encodeHTMLAttribute(..placeHolder))#"  #(..rawHTML(..getExtraAttributes()))#>
+    >
+    Do ##class(sc.codItemMethods).outputHelpTextHTML(..helpText)
+	do ..renderCellClosing()
+	do ..renderRowClosing()
+	do ##super()
+]]></Implementation>
+</Method>
+
+<Method name="renderLabel">
+<Implementation><![CDATA[
+	if $length(..label) {
+		&html<<label class="control-label" for="#(..encodeForHTMLAttribute(..htmlID))#">#(..encodeForHTML(..label))#</label>>
+	}
+]]></Implementation>
+</Method>
+</Class>
+
+
+<CSP name="frontEnd/reg/t4Registration.csp" application="/freddev/" default="1"><![CDATA[
+<csp:class super="EF.pages.frontend.registrationProcess">
+<script language="cache" runat="server">
+	Do ##super()
+</script>
+
+
+<csp:section name="PageContent">
+	</h1><ef-pc-container type="panel-body">
+	   	<ef-pc-container type="row"> 
+	   		
+		   	
+				<ef-pc-element prowebcomponentname="Main List">
+			
+			
+		</ef-pc-container>
+	</ef-pc-container>			
+</csp:section>
+
+]]></CSP>
+
+
+<Class name="layout.cssDefaultMethods">
+<Description><![CDATA[
+<!-- ;vc;-
+;vc;    Object: layout.cssDefaultMethods.CLS/EV.78
+;vc; Component: CLS.layout.cssDefaultMethods
+;vc;  Location: SmallDev
+;vc; Date/Time: 02-Sep-16 14:26
+;vc;      User: JeremyW
+;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>layout.cssDefaultMethods.CLS/EV.78</td><td>CLS.layout.cssDefaultMethods</td><td>SmallDev</td><td style='white-space: nowrap;'>02-Sep-16 14:26</td><td>JeremyW</td></tr></table>
+]]></Description>
+<Abstract>1</Abstract>
+<ClassType/>
+<ProcedureBlock>1</ProcedureBlock>
+<TimeChanged>64183,51353.148476</TimeChanged>
+<TimeCreated>63046,56232.897117</TimeCreated>
+
+<Method name="outputDefaultCSS">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>xEventID,layoutTemplateID</FormalSpec>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	do ..outputComponentCSS()
+	w "<style>",!
+	
+	do ..outputFonts()
+	do ..outputGeneralCSS()
+	do ..outputGeneralProgressBarCSS()
+	do ..outputGeneralKendoCSS()
+	if '##class(layout.objTemplate).isTemplateGen3(layoutTemplateID)	{
+		do ..outputLegacyClasses()	
+	}
+	do ..outputSegmentedButtonCSS()
+	do ..outputAgendaGridListSwitchCSS()
+	do ..outputAgendaGeneralCSS()
+	do ..outputAgendaPopoverCSS()
+	
+	if ##class(layout.objTemplate).isTemplateGen3(layoutTemplateID)	{
+		do ..outputGen2and3Defaults()
+		do ..outputGen3Defaults()
+		do ##class(layout.cssOverrideMethods).outputDynamicCSS(xEventID)
+	}
+	w !,"</style>",!
+]]></Implementation>
+</Method>
+
+<Method name="outputLegacyClasses">
+<Description>
+yellow red grey etc. Used for ALL templates below gen3</Description>
+<ClassMethod>1</ClassMethod>
+<Implementation><![CDATA[
+	&html<
+		/* ======= outputLegacyClasses() ======= */
+		a {
+			color: #111111; 
+		}
+		a:hover { 
+			color: #666666;
+		}
+		.yellow {background-color: #F4F4F4;}
+		.grey {background-color: #e6e6e6;}
+		.red, .k-calendar td.ef-date-picker-event-day {
+			background-color : SILVER;
+		}
+		.k-calendar td.ef-date-picker-event-day {
+			border-radius: 0;
+		}
+		.ef-time-span {
+			white-space: nowrap;	
+		}
+		
+		div.ef-button-area .ef_frontend_button_proceed,div.ef-button-area .ef-logout-button {
+			float : right;
+			margin-right: 0px;
+			margin-left: 12px;
+		}
+		.k-picker-wrap .k-select {
+			padding-top: 1px;	
+		}
+		
+		input.efDatePicker, input.efTimePicker { 
+			/* input box */
+			margin: 0px;
+			border-width: 0px;
+
+			color: inherit;
+		}
+
+		.efDatePicker .k-picker-wrap, .efTimePicker .k-picker-wrap {
+			/* inner span */
+			padding: 0px;
+			margin: 0px;
+		}
+
+		.efDatePicker, .efTimePicker {
+			/* out span */
+			padding: 0px;
+			margin:0px;
+		}
+		
+			
+		
+	>
+]]></Implementation>
+</Method>
+
+<Method name="outputGen2and3Defaults">
+<ClassMethod>1</ClassMethod>
+<Implementation><![CDATA[
+	&html<
+		/* ======= outputGen2and3Defaults() ======= */
+		.ef-registration-section input[type=text],
+		.ef-registration-section input[type=password],
+		.ef-registration-section input[type=number],
+		.ef-registration-section input[type=url],
+		.ef-registration-section input[type=tel],
+		.ef-registration-section input[type=email],
+		.ef-registration-section textarea, 
+		.ef-registration-section select,
+		.EF_inputBox,ef-table-booking-footer,
+		.select2-dropdown {
+			font-family: Verdana, Arial, Helvetica, sans-serif; 
+			font-size: 14px; 
+			font-style: normal; 
+			line-height: normal; 
+			font-weight: normal; 
+			text-decoration: none;			
+		}
+		.select2-container .select2-selection--single .select2-selection__rendered {
+			padding-left: 5px;
+		}
+		.ef-registration-section input[type=text]:not(.efDatePicker):not(.efTimePicker) ,
+		.ef-registration-section input[type=password],
+		.ef-registration-section input[type=number],
+		.ef-registration-section input[type=url],
+		.ef-registration-section input[type=tel],
+		.ef-registration-section input[type=email],
+		.ef-registration-section textarea, 
+		.ef-registration-section select,
+		.EF_inputBox:not(.efDatePicker):not(.efTimePicker) {
+			padding: 5px;
+			margin-top: 2px;
+			margin-bottom: 2px;
+			border-width: 1px;
+			border-style: solid; 
+		}
+
+		.ef-registration-section .select2-container {
+			padding: 2px 0 2px 0;
+		}
+		.ef-registration-section .select2-container--default .select2-selection--single {
+			background: none;
+			border: none;
+		}
+		.ef-registration-section input[type=text],
+		.ef-registration-section input[type=password],
+		.ef-registration-section input[type=number],
+		.ef-registration-section input[type=url],
+		.ef-registration-section input[type=tel],
+		.ef-registration-section input[type=email],
+		.ef-registration-section textarea, 
+		.ef-registration-section select {
+			max-width: 481px;
+			width: 89%;
+		}
+	
+		
+		@font-face {
+		  font-family: 'Roboto Slab';
+		  font-style: normal;
+		  font-weight: 300;
+		  src: local('Roboto Slab Light'), local('RobotoSlab-Light'), url(https://themes.googleusercontent.com/static/fonts/robotoslab/v1/dazS1PrQQuCxC3iOAJFEJR_xHqYgAV9Bl_ZQbYUxnQU.woff) format('woff');
+		}
+		@font-face {
+		  font-family: 'Roboto Slab';
+		  font-style: normal;
+		  font-weight: 400;
+		  src: local('Roboto Slab Regular'), local('RobotoSlab-Regular'), url(https://themes.googleusercontent.com/static/fonts/robotoslab/v1/y7lebkjgREBJK96VQi37ZobN6UDyHWBl620a-IRfuBk.woff) format('woff');
+		}
+		@font-face {
+		  font-family: 'Roboto Slab';
+		  font-style: normal;
+		  font-weight: 700;
+		  src: local('Roboto Slab Bold'), local('RobotoSlab-Bold'), url(https://themes.googleusercontent.com/static/fonts/robotoslab/v1/dazS1PrQQuCxC3iOAJFEJTqR_3kx9_hJXbbyU8S6IN0.woff) format('woff');
+		}
+ 		
+		.k-datepicker, .k-timepicker {
+			border-radius: 0;
+		}
+		
+		.k-picker-wrap {
+			border-radius: 0;
+			border:none;
+		}
+		.k-picker-wrap .k-input {
+			border-radius: 0;
+		}
+		
+		.ef_frontend_button, .standardButton, .strongButton, .hyperlinkButton, .ef_frontend_file_uploader .k-upload-button {
+			margin-top:15px;
+			
+		}
+		
+		.ef-table .ef_frontend_button,
+		.ef-table .standardButton,
+		.ef-table .strongButton,
+		.ef-table .hyperlinkButton,
+		.ef-registration-section .ef_frontend_button,
+		.ef-registration-section .standardButton,
+		.ef-registration-section .strongButton,
+		.ef-registration-section .hyperlinkButton,
+		.ef-registration-section .ef_frontend_file_uploader .k-upload-button {
+			margin-top:0px;
+			
+		}
+		.ef_frontend_button, .ef_frontend_file_uploader .k-upload-button {
+			cursor: pointer;
+			font-family: Verdana, Arial, Helvetica, sans-serif;
+			font-weight: normal;
+			padding: 6px 15px;
+			cursor: pointer;
+			font-size: 12px;
+			width: auto;
+			-moz-border-radius: 5px;
+			border-radius: 5px;
+			line-height: 18px;
+		}
+		.ef_frontend_button:hover, .ef_frontend_file_uploader .k-upload-button {
+			text-decoration: none;
+			background-image:inherit;
+			background-position:inherit;
+			box-shadow: none;
+		}
+		.ef_frontend_button_proceed:hover {
+			text-decoration: none;
+		}
+		.ef_proweb_form_prompt {
+			text-align: right;
+		}
+		.ef-required-field::after {
+		    content: " *";
+		    color: red;			
+		}
+
+		.ef-registration-section td label {
+			display: inline-block;
+		    font-weight: normal;
+		    margin-bottom: 0;
+		    width: 100%;
+		}		
+
+		.ef-registration-section td.ef_proweb_form_prompt label {
+		    text-align: right;
+		}
+		.ef-registration-section label.ef-radio {
+			display: inline;
+		   
+		}
+		
+		
+		body, p, h2, h3, td, div, .black10px, .blackbold10px, .black12px, .blackbold12px, .red9px, .whitebold12px,
+		.ef_proweb_menu_ul, .ef_proweb_menu_ul a, .dropdown .btn, .EF_inputBox, .ef_frontend_button,
+		.ef_frontend_file_uploader .k-upload-button, .ef_frontend_button:hover, .ef_frontend_file_uploader .k-upload-button:hover,
+		.ef_frontend_button_proceed, .ef_frontend_button_proceed:hover, td.ef_proweb_form_prompt,
+		.whitebold10px, a.whitebold10px:hover, .yellow, td.yellow, .grey, td.grey,
+		.ef_progress_bar_text, .ef-table th,
+		.ef-registration-section input[type=text],
+		.ef-registration-section input[type=password],
+		.ef-registration-section input[type=number],
+		.ef-registration-section input[type=url],
+		.ef-registration-section input[type=tel],
+		.ef-registration-section textarea, 
+		.ef-registration-section select {
+			font-family: Verdana, Geneva, Kalimati, sans-serif;
+		}
+		body {
+			background-color: #96C3C8;
+		}
+		h1 {
+			color: #17b3c4;
+			font-family: 'Roboto Slab',Verdana,Arial,Helvetica,sans-serif	
+		}
+		.ef_proweb_menu_ul, .ef_proweb_menu_ul a, .dropdown .btn,
+		.select2-container--default .select2-results__option--highlighted[aria-selected]  {
+			background-color: #17b3c4;	
+			color: #FFFFFF;
+		}
+	>
+	w ".ef_proweb_menu_ul li:hover, .ef_proweb_menu_ul a:hover, .dropdown .btn:hover, .dropdown .btn:focus, .open>.dropdown-toggle.btn-primary"
+	w "	  {"
+	w "		background-color: #128996;"
+	w "		color: #FFFFFF;"
+	w "	}"
+	&html<
+		.EF_inputBox, 
+		.ef-registration-section input[type=text],
+		.ef-registration-section input[type=password],
+		.ef-registration-section input[type=number],
+		.ef-registration-section input[type=url],
+		.ef-registration-section input[type=tel],
+		.ef-registration-section textarea, 
+		.ef-registration-section select,
+		.select2-dropdown,
+		.select2-container--default .select2-selection--single .select2-selection__rendered {
+			background-color: #D8ECEE; 
+			color: #111111;
+			border-color: #AAAAAA;
+		}
+		.select2-container--default .select2-selection--single .select2-selection__placeholder {
+			color: inherit;
+		}
+		.ef-registration-section input[type=text]:disabled,
+		.ef-registration-section input[type=password]:disabled,
+		.ef-registration-section input[type=number]:disabled,
+		.ef-registration-section input[type=url]:disabled,
+		.ef-registration-section input[type=tel]:disabled,
+		.ef-registration-section textarea:disabled, 
+		.ef-registration-section select:disabled {
+			background-color: #EEEEEE; 
+		}
+		.ef_form_divider {
+			color: #17b3c4;
+			border-color:#17b3c4;
+			background-color: #17b3c4;
+		}
+		.ef_progress_bar_progress_div {	
+			background-color:#17b3c4;
+		}
+		.ef_progress_bar_border_div {	
+			border: 1px solid  #AAAAAA;
+		}
+		.ef_frontend_button, .ef_frontend_file_uploader .k-upload-button {
+			color: #111111;
+			background-color: #96C3C8;
+			border: 1px solid #AAAAAA;
+		}
+		.ef_frontend_button:hover, .ef_frontend_file_uploader .k-upload-button:hover {
+			color: #111111;
+			background-color: #D8ECEE;
+		}
+		.ef_frontend_button_proceed {
+			color: #FFFFFF;
+			background-color: #17b3c4;
+			border: 1px solid #FFFFFF;
+		}
+		
+		.ef_frontend_button_proceed:hover {
+			color: #FFFFFF;
+			background-color: #128996;
+		}
+		.ef_frontend_file_uploader .k-file-progress .k-progress {
+		    background-color:#17b3c4
+		}
+
+		.ef_frontend_help_text_icon {
+			background-color: #17b3c4;
+			color: #FFFFFF;
+			border-color: #128996;
+		}
+		.ef_frontend_help_text_popover {
+			background-color: #17b3c4;
+			border-color: #128996;
+		}
+		.ef_frontend_help_text_popover .ui-tooltip-tip, .ef_frontend_help_text_popover .qtip-tip {
+			border-color: #128996;
+			background-color: #17b3c4;
+		}
+		.ef-table-header td, 
+		.ef-table-header th,
+		.ef-table th {
+			background-color:  #128996;
+			color: #FFFFFF;
+		}
+		.ef-table-header a {
+			color: inherit;
+		}
+		.ef-info-table td:first-child {
+		    color: #888888;
+		}
+		.select2-container--default .select2-results__option[aria-selected=true] {
+		    background: none;
+		}
+		
+		.k-calendar td.ef-date-picker-event-day {
+			background-color: silver;
+			border-radius: 0;
+		}
+		input[type=checkbox].ef-multicheckbox  {
+			margin-left: 0px;
+			margin-right: 10px;	
+		}
+		.ef-multicheckbox-checkbox-label  {
+			margin-left: 0px;
+			margin-right: 10px;	
+		}		
+	>
+	w " .ef_frontend_help_text_content>pre { color: #FFFFFF}"
+]]></Implementation>
+</Method>
+
+<Method name="outputGen2Defaults">
+<ClassMethod>1</ClassMethod>
+<Implementation><![CDATA[
+	&html<
+		.ef-logo {padding-bottom:16px;}
+		.red, .k-calendar td.ef-date-picker-event-day {
+			background-color: #128996;
+		}
+		.whitebold10px, a.whitebold10px:hover {
+			color: #FFFFFF;
+		}
+		/* changed box-sizing for Gen2 to make the selects the same widths as the inputs */
+		.ef-registration-section select {
+			-ms-box-sizing:content-box;
+    		-moz-box-sizing:content-box;
+    		box-sizing:content-box;
+    		-webkit-box-sizing:content-box; 
+		}
+		.EF_inputBox.efDatePicker {
+			padding: 0px;
+		}
+		
+		.EF_inputBox.efTimePicker {
+			padding: 0px;	
+		}
+		input.k-input, .ef-registration-section input.k-input {
+			height: 28px;
+		}
+		.k-picker-wrap .k-select {
+			border-left: 0;
+		}
+		
+		.efDatePicker .k-picker-wrap,.efTimePicker .k-picker-wrap{
+			/* inner span */
+			padding-right: 26px;
+		}
+		.k-picker-wrap .k-select {
+			padding-top: 6px;	
+		}
+
+	>
+]]></Implementation>
+</Method>
+
+<Method name="outputGen3Defaults">
+<ClassMethod>1</ClassMethod>
+<Implementation><![CDATA[
+	&html<
+		/* ======= outputGen3Defaults() ======= */
+		.ef-custom-content-section img {
+		  display: block;
+		  max-width: 100%;
+		  height: auto;
+		}		
+		
+		a {
+			color: #111111; 
+			text-decoration:underline;
+		}
+		a:hover {
+			color: #666666;
+			text-decoration:underline;
+		}
+		/* THIS BIT IF FOR THE NEW TABLE CLASSESS */
+		.ef-table td {
+			color: BLACK;
+			border-collapse: collapse;	
+		}
+		.ef-table-header
+		 {
+			background-color: SILVER;	
+		}
+		.ef-table-header td, 
+		.ef-table-header th
+		 {
+			font-weight: bold;
+			font-size: 12px;
+			vertical-align: bottom;
+		}
+		.ef-instructionText {
+			color: BLACK !important;	/* '!important' to override element style in markup */
+			margin-left: 0px !important;	
+		}
+
+		.ef-table tr:nth-child(odd) {
+		    background-color: #e6e6e6;
+		}
+		.ef-table tr:nth-child(even) {
+		    background-color: #F4F4F4;
+		}
+		.ef-table tr.ef-row-odd, tr.ef-row-odd {
+			background-color: #E6E6E6; 
+		}
+		.ef-table tr.ef-row-even, tr.ef-row-even {
+			background-color: #F4F4F4; 
+		}
+		.ef-table table tr:nth-child(n) { /* used to stop the striping where each line is a table within a table */
+			background-color: inherit;
+			padding: 0px;
+		}
+		.ef-image-table	{
+			table-layout: fixed;	/* needed for responsive images*/ 
+		}
+		.ef-logo { 
+			padding-top:16px;
+		}
+		@media only screen and (min-width: 768px) {
+			div.ef-button-area .ef_frontend_button_proceed,div.ef-button-area .ef-logout-button {
+				float : right;
+				margin-right: 0px;
+				margin-left: 12px;
+			}
+		}
+		.ef-table-booking-footer {
+			margin-left: 20px;	
+		}
+		/* THIS BIT IS FOR OOVERRIDING BOOTSTRAP */
+		input[type=radio], input[type=checkbox] {
+		    margin: 3px 3px 3px 3px;
+		}
+
+		.ef-ie6 .container, .ef-ie7 .container, .ef-ie8 .container  {
+	            width: 970px; 
+	        }
+	        #timeoutbox {
+				font-size: 12px;
+				padding: 12px;
+				font-weight: normal;
+
+	        }	
+		.ef-table h4 {
+			font-size: 12px;
+			font-weight: bold;	
+		}
+		
+		[class*="col-"] .select2-container {
+		    width:89%!important;
+		    max-width: 481px;
+		}
+		
+
+	>
+	write ".dropdown .btn, .btn-primary:hover, .btn-primary:focus, .btn-primary:active, .btn-primary.active, .open > .dropdown-toggle.btn-primary {",!
+	write "	border-color: #FFFFFF;",!	
+	write "}",!
+]]></Implementation>
+</Method>
+
+<Method name="outputComponentCSS">
+<ClassMethod>1</ClassMethod>
+<Implementation><![CDATA[
+	set eventID=$G(%session.Data("eventsforce","frontend","xEventID"))
+	if eventID {
+		set layoutTemplateID=##class(layout.objTemplate).getLayoutForEvent(eventID)
+		if ##class(layout.objTemplate).isTemplateUsingBootstrap(layoutTemplateID) {
+			&html<
+				<!-- ======= outputComponentCSS() ======= -->
+				<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" type="text/css" />
+			>
+		}
+	}
+	&html<
+
+		<link type="text/css" href="#(##class(EF.htmlGenerator).rawHTML(##class(shared.pageMethodsFrontend).getKendoBaseURL()))#/styles/kendo.common.min.css" rel="Stylesheet" />
+		<link type="text/css" href="#(##class(EF.htmlGenerator).rawHTML(##class(shared.pageMethodsFrontend).getKendoBaseURL()))#/styles/kendo.silver.min.css" rel="Stylesheet" />
+
+		<link rel="stylesheet" type="text/css" media="screen" href="//cdn.jsdelivr.net/qtip2/2.2.1/jquery.qtip.min.css" />
+		
+		<link rel="stylesheet" type="text/css" media="screen" href="//cdnjs.cloudflare.com/ajax/libs/select2/4.0.0/css/select2.min.css" />
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">	
+	>
+]]></Implementation>
+</Method>
+
+<Method name="outputFonts">
+<ClassMethod>1</ClassMethod>
+<Implementation><![CDATA[
+	
+	&html<
+	/* ======= outputFonts() ======= */
+	@font-face { 
+		font-family: 'CasinoHandRegular';
+		src: url('../../media/components/frontend/fonts/Casino_Hand-webfont.eot');
+		src: url('../../media/components/frontend/fonts/Casino_Hand-webfont.eot?#iefix') format('embedded-opentype'),
+    	url('../../media/components/frontend/fonts/Casino_Hand-webfont.woff') format('woff'),
+    	url('../../media/components/frontend/fonts/Casino_Hand-webfont.ttf') format('truetype'),
+    	url('../../media/components/frontend/fonts/Casino_Hand-webfont.svg#CasinoHandRegular') format('svg');
+    	font-weight: normal;
+    	font-style: normal;
+	}
+	>
+	/* end @font-face declarations */
+]]></Implementation>
+</Method>
+
+<Method name="outputGeneralProgressBarCSS">
+<ClassMethod>1</ClassMethod>
+<Implementation><![CDATA[
+	&html<
+		/* ======= outputGeneralProgressBarCSS() ======= */
+		.ef_progress_bar_border_div {
+			width: 100%;
+			max-width: 300px;
+			border: 1px solid #AAAAAA;
+			height: 12px;
+			text-align: center;
+			box-sizing: content-box;
+			margin: 4px auto 4px auto;
+			display:block;
+		}
+		.ef_progress_bar_progress_div {
+			height: 100%;
+			border: none;
+			background-color: rgb(220, 220, 220);
+			text-align: left;
+			float: left;
+		}
+		.ef_progress_bar_text {
+			color: #666666;
+			font-size: 12px;
+			font-style: normal;
+			line-height: normal;
+			padding:4px;
+			text-align: center;
+			display:block;
+		}
+		#ef_progressbar {
+			margin-bottom: 12px;	
+		}	
+	>
+]]></Implementation>
+</Method>
+
+<Method name="outputGeneralKendoCSS">
+<ClassMethod>1</ClassMethod>
+<Implementation><![CDATA[
+	&html<
+		/* ======= outputGeneralKendoCSS() ======= */ 
+		
+		/* date picker tweaking */
+
+		
+
+		.efDatePicker .k-picker-wrap, .efTimePicker .k-picker-wrap {
+			border-width: 1px;
+			border-style: solid;
+			border-color: inherit;
+			color: inherit;
+		}
+		.efDatePicker, .efTimePicker {
+			border-width: 0px;
+		}
+		
+		.k-picker-wrap {
+			border-radius: 0;
+		}
+		.k-picker-wrap .k-input {
+			border-radius: 0;
+		}
+		
+		.ef_frontend_file_uploader .k-upload-status {
+			display: none;	
+		}
+		.ef-ie8 .ef_frontend_file_uploader .k-upload-status,
+		.ef-ie9 .ef_frontend_file_uploader .k-upload-status {
+			display: block;
+			position: inherit;
+			margin-top: 16px;
+			font-weight: normal;
+		}
+		.ef_frontend_file_uploader .k-upload {
+ 			position: inherit;
+ 			border-width:0px;
+ 			background: none;
+		}
+		.ef_frontend_file_uploader {
+			background-color: inherit;
+		}
+		.ef_frontend_file_uploader .k-upload-button {
+			margin-top:16px;
+ 			margin-bottom: 16px;
+			margin-left: 0px;
+			margin-right: 0px;
+			line-height: 12px;
+			float: left;
+			clear: left;
+		}
+		
+	    .ef_frontend_file_uploader .k-upload-files {
+	     	border: 0px;   
+	    }
+	    .ef_frontend_file_uploader .k-file {
+	     	border: 0px;
+	     	background-color: inherit;
+	    }
+	    .ef_file_wrapper {
+		    color: #000000;
+		    text-align: left;
+		    width: 100%
+	    }
+	    .ef_frontend_file_uploader .k-file-progress .k-progress {
+		    background-color: #777777;
+		}
+		.ef_frontend_file_upload_progress_container {
+			width:100%;
+			position: relative;
+			float: left;
+			clear: left;
+		}
+	    li.k-file div.ef_file_wrapper
+	    {
+	        position: relative;
+	    }
+	    .ef_file_wrapper {
+		 	margin-left:12px;
+		 	margin-right:12px;
+		 	margin-bottom:6px;  
+		 	margin-top:6px;
+	    }
+	    .ef_frontend_file_uploader.k-content {
+		    min-height: 84px;
+		    width: 100%;
+		    text-align: right;
+	    }
+	    
+	    .ef_frontend_file_uploader .k-upload-files {
+		 	line-height: 18px; 
+	    }
+	    
+	>
+]]></Implementation>
+</Method>
+
+<Method name="outputGeneralCSS">
+<Description>
+The basic frontend default stuff</Description>
+<ClassMethod>1</ClassMethod>
+<Implementation><![CDATA[
+	&html<
+		/* ======= outputGeneralCSS() ======= */ 
+		.ef-registration-section input[type=text],
+		.ef-registration-section input[type=password],
+		.ef-registration-section input[type=number],
+		.ef-registration-section input[type=url],
+		.ef-registration-section input[type=tel],
+		.ef-registration-section input[type=email],
+		.ef-registration-section textarea, 
+		.ef-registration-section select {
+			width: 360px;
+		}
+		.ef-table {
+		    width: 100%;
+	    	margin-top: 10px;
+	    	margin-bottom: 10px;
+		}
+		
+		.ef-table td {
+			padding-top: 7px;
+			padding-bottom: 7px;
+			padding-left: 8px;
+			padding-right: 8px;
+		}
+		
+		/* For embedded tables */
+		.ef-table table td {
+			padding-top: 0;
+			padding-bottom: 0;
+			padding-left: 0;
+			padding-right: 0;
+		}
+		
+		table.ef-registration-section {
+			border-collapse: collapse;
+			border-spacing: 0;
+			border:0;
+		}
+		table.ef-registration-section td {
+			padding-top: 4px;
+			padding-bottom: 4px;
+			padding-left: 4px;
+			padding-right: 4px;
+		}
+		
+		/* For embedded tables */
+		.ef-registration-section table td {
+			padding-top: 0;
+			padding-bottom: 0;
+			padding-left: 0;
+			padding-right: 0;
+		}
+
+		.ef-registration-section label.ef-radio {
+		    margin-right: 12px;
+		}
+		
+		.ef-table .ef-item-discount {
+			padding-left: 24px;	
+		}
+		.noPrint { 
+		
+		}
+		@media print {
+			.noPrint { 
+				display:none; 
+			}
+			 a[href]:after {
+   				 content: none !important;
+  			}
+  			a:link {
+	  			text-decoration: none;	
+  			}
+		}
+		.ef_form_divider {
+			height: 2px;
+			border: 0px;
+			border-top: 0px solid;
+			border-bottom: 0px solid;
+			margin-top: 12px;
+			margin-bottom: 12px;	
+		}
+		td.ef_proweb_form_prompt {
+			width:31%;
+		}
+		.ef-registration-section table td.ef_proweb_form_prompt_dependent {
+			padding-right: 6px;	
+		}
+		.ef-registration-section table td.ef_proweb_form_input_dependent {
+			padding-left: 3px;	
+		}
+		.ef_element {
+			margin-left: 0px;	
+		}
+		.ef_element_dependent_disabled_but_visible,
+		.select2-container.ef_element_dependent_disabled_but_visible {
+			background-color: #DDDDDD;
+		}
+			
+		/* mandatory prompt asterisk */
+		.mandatory {
+			color: red;	
+		}
+		
+		.ef_frontend_text_limit_exceeded {
+			color: red;		
+		}
+		
+		img.helpIcon {
+			vertical-align: middle;
+		}
+		
+		/* highlighted mandatory form fields */
+		.EF_inputBox.mandatoryIgnored,
+		.mandatoryIgnored,
+		.ef-registration-section .EF_inputBox.mandatoryIgnored,
+		.ef-registration-section .mandatoryIgnored,
+		.ef-registration-section .select2-container--default.mandatoryIgnored .select2-selection--single .select2-selection__rendered {
+			background-color: #fc9d9d;	
+		}
+		/* remove spacing on hidden dep prompts + text blocks */
+		.hiddenDep { display: none; } 
+		/* general instructions text style */
+		.ef_frontend_instructions_text {
+			font-family: CasinoHandRegular, Verdana, Arial, Helvetica, sans-serif;
+			font-size: 16px;
+		}
+		
+		.ef_frontend_overflow_ellipsis {
+			white-space: nowrap;
+	   		overflow: hidden;
+			text-overflow: ellipsis;
+			-o-text-overflow: ellipsis;
+			-ms-text-overflow: ellipsis;
+		}
+		
+		.ef_frontend_button, .ef_frontend_file_uploader .k-upload-button {
+			font-family: Verdana, Geneva, Arial, Helvetica, sans-serif;
+			font-weight: bold;
+			font-size: 9px;
+			text-decoration: none;
+			color: black;
+		}
+		.standardButton {
+		}
+		.strongButton {
+		}
+		.hyperlinkButton {
+		}
+		.ef_frontend_button_proceed {
+			min-width:85px;
+		}
+		.ef_frontend_button_back {
+			min-width:85px;
+		}
+		.ef_frontend_help_text_icon {
+			background-color: rgb(220,220,220);
+			color: rgb(0,0,0);
+			font: 12px Helvetica, Verdana, Arial, sans-serif;
+			font-weight: 800;
+			height: 16px;
+			width: 16px;
+			-moz-border-radius: 12px;
+			-webkit-border-radius: 12px;
+			border-radius: 12px;
+			cursor: default;
+			display: inline-block;
+			text-align: center;
+			margin-left: 12px;
+			border-width: 1px;
+			border-style: solid;
+			border-color: #AAAAAA;
+			line-height: 17px;
+			text-indent: 0;
+		}
+		.ef_frontend_help_text_popover {
+			background-color: rgb(220,220,220);
+			border-color: #AAAAAA;
+			-moz-border-radius: 6px;
+			-webkit-border-radius: 6px;
+			border-radius: 6px;
+			-webkit-box-shadow: 0px 0px 10px 0px rgb(100,100,100);
+			-moz-box-shadow: 0px 0px 10px 0px rgb(100,100,100);
+			box-shadow: 0px 0px 10px 0px rgb(100,100,100);
+		}
+		.ef_frontend_help_text_popover div {
+			margin: 0;
+		}
+		.ef_frontend_help_text_popover .ui-tooltip-tip, .ef_frontend_help_text_popover .qtip-tip {
+			border-color: #AAAAAA;
+			background-color: rgb(220,220,220);
+		}
+		
+		
+		.ef-awards-review hr {
+			margin-top: 24px;	
+			margin-bottom: 12px;	
+		}
+		.ef-awards-review h2 {
+			margin-bottom:20px;
+		}
+		.ef-awards-criteria-header {
+			padding-bottom:12px;	
+		}
+		
+		.ef-awards-review label {
+			font-weight: normal;
+		}
+		.ef-awards-review .ef-info-label {
+			font-weight: bold;
+		}
+		.ef-primary-field {
+			font-weight: bold;	
+		}
+		.ef-awards-review .reviewDivs {
+			padding-top:12px;	
+		}
+		div.ef-button-area {
+			margin-top: 6px;
+			margin-bottom: 6px;	
+		}
+		.ef-button-area .ef_frontend_button, .ef-button-area a {
+			margin-top: 6px;
+			margin-bottom: 6px;
+			margin-right:12px;
+		}
+		.ef-button-area a {
+			white-space:nowrap;		
+		}
+		
+		.ef-meeting-manager-contentbox {
+			margin: 12px 0px 12px 0px;
+			font-size: 10pt;
+			background-color: #F2F2F2;
+			border: 1px solid black;
+			padding-left: 4px;
+			padding-right: 4px;
+			padding-top: 4px;
+			padding-bottom: 4px;
+
+		}
+		
+	>
+	w " .ef_frontend_help_text_content>pre {",!
+	&html<
+			color: rgb(0,0,0);
+			background-color: transparent;
+			border: none;
+			padding: 0px;
+			font:  12px Helvetica, Verdana, Arial, sans-serif;
+			margin: 0px;
+			overflow: hidden;
+			white-space: pre-wrap;       /* css-3 */
+			white-space: -moz-pre-wrap;  /* Mozilla, since 1999 */
+			white-space: -pre-wrap;      /* Opera 4-6 */
+			white-space: -o-pre-wrap;    /* Opera 7 */
+			word-wrap: normal;
+			word-break: normal;
+		}
+
+		.ef_proweb_form_field_container textarea {
+		    resize: vertical;
+		}
+
+		#top {position: absolute; top: -8em; display: none} /*Opera*/
+		* html #top {display: block; position: absolute; top: -8em; left: 0; z-index: 0} /*Seen by IE*/
+		html:not([dummy]) #top {display: block; position: absolute; top: -8em; left: 0; z-index: 0} /*Seen by Moz and FF*/
+		/* class for reg prompt table rows while being dragged in edit mode */
+		.tDnD_whileDrag {
+			background-color:#F0F0F0;
+		}
+		/*  transparent BG for new templates which add a bg image/color to Moxie */
+		.transparentMoxieBG {
+			background: transparent none;
+		}
+		.ef_frontend_presenter_details_biography {
+			max-width: 600px;
+		}
+		.ef_frontend_presenter_details_picture img {
+			max-width: 200px;
+		}
+		.ef_frontend_presenter_details_title_and_name h1 {
+			margin-bottom: 8px;
+		}
+		.ef_frontend_presenter_details_job_title h4 {
+			font-weight: 700;
+			margin: 0;
+		}
+		.ef_frontend_presenter_details_company h4 {
+			font-weight: 400;
+			margin: 0 0 1rem 0;
+		}
+		.ef-menu-block {
+	    	margin-bottom: 20px;
+		}
+		.ef-menu-block .dropdown-menu {
+		    top: auto;
+		}
+
+		#timeoutbox {
+			position: absolute;
+			top: 40%;
+			left: 50%;
+			width:300px;
+			margin-left: -150px;
+			z-index: 9999;
+			background-color:#ffffff;
+			padding:5px;
+			border:1px;
+			solid #666;
+			text-align:center;
+			font-weight:bold;
+			visibility:hidden;
+			-moz-border-radius: 11px;
+			-webkit-border-radius: 11px;
+			border-radius: 11px;	
+		}
+		#socialMediaModule{
+			width:100%;
+			height:100%;
+			margin:10px 0px 20px 0px;
+			z-index:999;
+		}
+    	#smShareButtons{
+	    	height: 30px; }
+    	.addthis_toolbox {
+	    	height: 30px;
+	    }
+    	#smFollowButtons{
+	    	margin:20px 0px;
+	    }
+    	#smFollowButtons img{
+	    	vertical-align:bottom;
+	    	*vertical-align:middle;
+	    	border:0px;
+	    	margin:0px 5px;
+	    }
+    	#smShareButtons .a{
+	    	margin:2px 4px 0px;
+	    }
+    	#socialMediaModuleMenu{
+	    	width:100px;
+	    	height:40px;
+	    	display:block;
+	    }		    
+    	#smFollowButtonsMenu{
+	    	float:left;
+	    	padding:0px 20px;
+	    }
+    	#smFollowButtonsMenu img{
+	    	vertical-align:bottom;
+	    	margin:5px 10px;
+	    	border:0px;
+	    }
+		.ef-table-sub-heading {
+			background-color: #CCCCCC;
+			font-weight: bold;
+		}
+	
+		.ef_proweb_form_field_container_type_textarea .ef_frontend_help_text_icon {
+			vertical-align: top;
+		}
+		.ef-info-table td:first-child {
+		    text-align: right;
+		    padding-right: 5px;
+		    min-width: 120px;
+		}
+
+		.ef-session-time {
+			vertical-align: top;	
+			text-align: right;
+			width: 150px;
+		}
+		
+		.ef-date-time,
+		.ef-session-price,
+		.ef-no-wrap {
+			white-space: nowrap;
+		}
+		.ef-table .ef-author-name {
+			padding-top: 0px;
+		}
+		.ef-table .ef-abstract-description {
+			padding-bottom: 0px;
+		}
+		.ef-table .ef-abstract-time,
+		.ef-table .ef-abstract-description{
+			padding-top: 0px;
+		}
+		.ef-table .ef-abstract-time {
+			padding-bottom: 0px;
+			text-align: right;	
+		}
+		.ef_session_details_panel_session_property_description .ef-author-name {
+			margin-bottom:7px;	
+		}
+
+		.ef-author-affiliation {
+		    font-style: italic;
+		}
+		.ef-author-country {
+			font-style: italic;				
+		}
+
+		.ef-info-table td {
+		    vertical-align: top;
+		}
+
+		.ef-table .ef-table-sub-row td {
+		    padding-top: 0px;
+		    vertical-align: top;
+		}
+
+		.ef-table .ef-table-sub-header {
+		    font-weight:bold;
+		}
+
+		.ef-session-details-sub-row {
+		    margin-bottom: 4px;
+		}
+
+		.ef-primary-field {
+		    font-weight: bold;
+		}
+
+
+		.ef-info-table pre {
+			text-align: left;	
+		}
+		.ef-table .ef-session-name-with-abstracts,
+		.ef-table .ef-session-name-with-abstracts .ef-session-price label
+		 {
+			font-weight: bold;	
+			
+		}
+		.ef-table .ef-session-name-with-abstracts,
+		.ef-table .ef-session-name,
+		.ef-table .ef-session-location,
+		.ef-table .ef-session-book, 
+		.ef-table .ef-session-price,
+		.ef-table .ef-session-abstract-price,
+		.ef-table .ef-session-boookingLevel-capacity,
+		.ef-table .ef-session-abstract-boookingLevel-capacity,
+		.ef-table .ef-session-type {
+			vertical-align: top;
+		}
+		.ef-table .ef-session-boookingLevel-capacity,
+		.ef-table .ef-session-abstract-boookingLevel-capacity {
+			text-align: center;	
+		} 
+		
+		.ef-session-collision {
+			background-color: red;	
+		}
+		.ef-session-price label {
+			font-weight: normal;
+		}
+		.ef-session-booking-checkbox-disabled {
+			background-image: url(../../media/images/english/default/frontend/cross_trans.gif);
+			width: 13px;
+			height: 13px;	
+			border: 0px;
+			margin-top: 5px;
+			margin-bottom: 0px;
+		}
+		.ef-session-booking-checkbox-ticked {
+			background-image: url(../../media/images/english/default/frontend/tick.gif);
+			width: 13px;
+			height: 13px;	
+			border: 0px;
+			margin-top: 5px;
+			margin-bottom: 0px;
+		}		
+		.ef-session-list-abstract-row {
+			font-weight: normal;	
+		}
+		.ef-table .ef-presenter {
+			padding-top: 0px;	
+		}
+		.ef-inline-filter-row {
+			float: left;
+			margin-top: 12px;
+			margin-bottom: 12px;
+		}
+		.ef-inline-filter-dropdown {
+			float: left;
+		}
+		.ef-inline-filter-row .ef-inline-filter-dropdown:not(:first-child) {
+			margin-left: 16px;
+		}
+		.ef-inline-filter-dropdown select {
+			min-width: 150px;
+			max-width: 300px;
+		}
+		#ef-absReviewList-review-button-column {
+			width: 100px;
+		}
+		
+		.ef-registration-section .select2-container--default .select2-selection--single {
+			border-radius: 0;
+		}
+		.select2-container--default .select2-results__option--highlighted[aria-selected] {
+			color: inherit;
+		}
+		
+		.select2-container--default .select2-results__option.loading-results[aria-disabled="true"],
+		.select2-container--default .select2-results__options .option.load-more {
+			color: inherit;
+			opacity: 0.5;
+			font-style: italic;
+		}
+		.select2-container--default .select2-results__options .option.load-more {
+			padding: 6px;
+		}
+
+		/* bug workaround: https://github.com/select2/select2/issues/3306 */		
+		.select2-selection__clear {
+		    position: absolute !important;
+		    right: 20px !important;
+		}
+		
+		.select2-container--default .select2-selection--single .select2-selection__rendered .ef-select2-templated-selection {
+			overflow: hidden;
+			text-overflow: ellipsis;
+			padding-right: 16px;
+			line-height: inherit;
+		}
+		
+		.ef-highlight-warning {
+			color: #cc0000;
+			font-weight: bold;
+		}
+	>
+]]></Implementation>
+</Method>
+
+<Method name="outputAgendaPopoverCSS">
+<ClassMethod>1</ClassMethod>
+<Implementation><![CDATA[
+	&html<
+		/* ======= outputAgendaPopoverCSS() ======= */
+		/* sesstion details popover panel styles */
+		.ef_qtip_session_details_popover {
+			min-width: 350px;
+			background: none;
+			border: 0;
+		}
+		.ef_qtip_session_details_popover .ui-tooltip-content, .ef_qtip_session_details_popover .qtip-content {
+			padding: 0;
+			-moz-border-radius: 6px;
+			-webkit-border-radius: 6px;
+			border-radius: 6px;
+			border: 0;
+			-webkit-box-shadow: 0px 0px 10px 0px rgb(100,100,100);
+			-moz-box-shadow: 0px 0px 10px 0px rgb(100,100,100);
+			box-shadow: 0px 0px 10px 0px rgb(100,100,100);
+			-ms-filter: "progid:DXImageTransform.Microsoft.Shadow(Strength=4, Direction=135, Color='#646464')";
+			filter: progid:DXImageTransform.Microsoft.Shadow(Strength=4, Direction=135, Color='#646464');
+		}
+		.ef_qtip_session_details_popover .ui-tooltip-tip, .ef_qtip_session_details_popover .qtip-tip {
+			border: 1px solid rgb(100,100,100);
+			background: rgb(100,100,100);
+		}
+		/* this is the outermost container */
+		.ef_session_details_panel_container {
+			background: rgb(255,255,255);
+			width: 350px;
+			display: none;
+			z-index: 999999999;
+			overflow: hidden;
+			-moz-border-radius: 6px;
+			-webkit-border-radius: 6px;
+			border-radius: 6px;
+			margin: 0;
+		}
+		
+		/* main sub containers */
+		.ef_session_details_panel_session_properties_container {
+			padding: 10px 10px 10px 10px;
+			display: inline-block;
+			margin: 0;
+		}
+		.ef_session_details_panel_session_info_container {
+			padding: 12px 12px 12px 12px;
+			display: block;
+			margin: 0;
+		}
+	>
+	
+	w " .ef_session_details_panel_session_info {",!
+	w "		_height: expression( this.scrollHeight > 300 ? ""300px"" : ""auto"" );",!
+	w "		max-height: 300px;"
+	w "		_width: expression( this.scrollWidth > 350 ? ""350px"" : ""auto"" );"
+	w "		max-width: 350px;"
+	w "		overflow-y: auto;"
+	w "		display: block;"
+	w "		margin: 0;"
+	w "		background: #ffffff;"
+	w "	}",!
+	&html<
+		.ef_session_details_panel_session_info p {
+			color: rgb(160,160,160);
+		}
+		.ef_session_details_panel_action_button_container {
+			height: 42px;
+			width: 348px;
+			text-align: center;
+			display: inline-block;
+			margin: 0;
+		}
+		/* each row of ef_session_details_panel_session_properties_container */
+		.ef_session_details_panel_session_property_row {
+			overflow: hidden;
+			display: inline-block;
+			margin: 0;
+		}
+		.ef_session_details_panel_session_property_row_top_spacing {
+			margin-top: 10px;
+		}
+		/* general icon/description styling */
+		.ef_session_details_panel_session_property_icon {
+			height: 24px;
+			width: 24px;
+			float: left;
+			display: inline;
+			background-repeat: no-repeat;
+			background-position: left center;
+			display: inline-block;
+			margin: 0;
+			text-align: center;
+			vertical-align: middle;
+		}
+		.ef_session_details_panel_session_property_description {
+			float: left;
+			display: inline;
+			width: 298px;
+			padding: 2px 4px 2px 4px;
+			display: inline-block;
+			margin: 0;
+		}
+		.ef_session_details_panel_session_property_description p {
+			margin-top: 0;
+			margin-bottom: 0;
+		}
+		/* session title / description */
+		.ef_session_details_panel_title_icon {
+			background-image: url("../../media/images/english/default/frontend/popover_info.png");
+			display: inline-block;
+			margin: 0;
+		}
+		.ef_session_details_panel_title_description {
+			display: inline-block;
+			margin: 0;
+		}
+		/* time/location */
+		.ef_session_details_panel_time_location_icon {
+			background-image: url("../../media/images/english/default/frontend/popover_clock.png");
+			display: inline-block;
+			margin: 0;
+		}
+		.ef_session_details_panel_time_location_description {
+			display: inline-block;
+			margin: 0;
+		}
+		/* presenter */
+		.ef_session_details_panel_presenter_icon {
+			background-image: url("../../media/images/english/default/frontend/popover_person.png");
+			display: inline-block;
+			margin: 0;
+		}
+		/*abstract presentation*/
+		.ef_session_details_panel_abstract_icon {
+			background-image: url("../../media/images/english/default/frontend/presentation-icon-16x16.png");
+			display: inline-block;
+			margin: 0;
+		}
+		
+		
+		.ef_session_details_panel_presenter_description,
+		.ef_session_details_panel_presenter_description	 {
+			display: inline-block;
+			margin: 0;
+		}
+		.ef_session_details_panel_abstract_description {
+			font-size: 10.5px;
+		}
+		
+				
+		
+		/* the action button */
+		.ef_session_details_panel_action_button {
+			width: 326px;
+			margin-left: auto;
+			margin-right: auto;
+			height: 30px;
+			display: inline-block;
+			text-align: center;
+			font-size: 18px;
+			font-family: 'Verdana';
+			line-height: 30px;
+			-webkit-border-radius: 4px; 
+			-moz-border-radius: 4px;
+			border-radius: 4px; 
+			-moz-user-select: none;
+		  	-khtml-user-select: none;
+		  	-webkit-user-select: none;
+		  	user-select: none;
+		}
+		
+		.ef_session_details_panel_action_button_no_info_spacing {
+			margin-top: 12px;
+		}
+		
+	    .ef_frontend_ie7 .ef_qtip_session_details_popover .qtip-content,
+	    .ef_frontend_ie8 .ef_qtip_session_details_popover .qtip-content {
+			filter: none;
+	    }
+		
+	    .ef_frontend_ie9 .ef_session_details_panel_action_button_add,
+	    .ef_frontend_ie9 .ef_session_details_panel_action_button_remove {
+			filter: none;
+	    }
+	    
+		.ef_session_details_panel_action_button_add {
+			border: 1px solid rgb(115,229,255);
+			-webkit-border-radius: 4px; 
+			-moz-border-radius: 4px;
+			border-radius: 4px; 
+			-webkit-box-shadow: 0 -1px 1px 0 rgb(48,116,168);
+			-moz-box-shadow: 0 -1px 1px 0 rgb(48,116,168);
+			box-shadow: 0 -1px 1px 0 rgb(48,116,168);
+			color: #FFFFFF;
+		 	cursor: pointer;
+			background-color: rgb(73,193,242); /* Old browsers */
+			background-image: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/Pgo8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgdmlld0JveD0iMCAwIDEgMSIgcHJlc2VydmVBc3BlY3RSYXRpbz0ibm9uZSI+CiAgPGxpbmVhckdyYWRpZW50IGlkPSJncmFkLXVjZ2ctZ2VuZXJhdGVkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgeDE9IjAlIiB5MT0iMCUiIHgyPSIwJSIgeTI9IjEwMCUiPgogICAgPHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iIzQ5YzFmMiIgc3RvcC1vcGFjaXR5PSIxIi8+CiAgICA8c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IiMzMDc0YTgiIHN0b3Atb3BhY2l0eT0iMSIvPgogIDwvbGluZWFyR3JhZGllbnQ+CiAgPHJlY3QgeD0iMCIgeT0iMCIgd2lkdGg9IjEiIGhlaWdodD0iMSIgZmlsbD0idXJsKCNncmFkLXVjZ2ctZ2VuZXJhdGVkKSIgLz4KPC9zdmc+);
+			background-image: -moz-linear-gradient(top,  rgb(73,193,242) 0%, rgb(48,116,168) 100%); /* FF3.6+ */
+			background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0%,rgb(73,193,242)), color-stop(100%,rgb(48,116,168))); /* Chrome,Safari4+ */
+			background-image: -webkit-linear-gradient(top,  rgb(73,193,242) 0%,rgb(48,116,168) 100%); /* Chrome10+,Safari5.1+ */
+			background-image: -o-linear-gradient(top,  rgb(73,193,242) 0%,rgb(48,116,168) 100%); /* Opera 11.10+ */
+			background-image: -ms-linear-gradient(top,  rgb(73,193,242) 0%,rgb(48,116,168) 100%); /* IE10+ */
+			background-image: linear-gradient(to bottom,  rgb(73,193,242) 0%,rgb(48,116,168) 100%); /* W3C */
+			filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#49c1f2', endColorstr='#3074a8',GradientType=0 ); /* IE6-8 */
+		}
+		.ef_session_details_panel_action_button_remove {
+			border: 1px solid rgb(204,125,125); 
+			-webkit-border-radius: 4px; 
+			-moz-border-radius: 4px;
+			border-radius: 4px; 
+			-webkit-box-shadow: 0 -1px 0 0 rgb(179,49,36);
+			-moz-box-shadow: 0 -1px 0 0 rgb(179,49,36);
+			box-shadow: 0 -1px 0 0 rgb(179,49,36);
+			color: #FFFFFF;
+		 	cursor: pointer;
+			background-color: rgb(193,107,93); /* Old browsers */
+			background-image: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/Pgo8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgdmlld0JveD0iMCAwIDEgMSIgcHJlc2VydmVBc3BlY3RSYXRpbz0ibm9uZSI+CiAgPGxpbmVhckdyYWRpZW50IGlkPSJncmFkLXVjZ2ctZ2VuZXJhdGVkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgeDE9IjAlIiB5MT0iMCUiIHgyPSIwJSIgeTI9IjEwMCUiPgogICAgPHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iI2MxNmI1ZCIgc3RvcC1vcGFjaXR5PSIxIi8+CiAgICA8c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IiNiMzMxMjQiIHN0b3Atb3BhY2l0eT0iMSIvPgogIDwvbGluZWFyR3JhZGllbnQ+CiAgPHJlY3QgeD0iMCIgeT0iMCIgd2lkdGg9IjEiIGhlaWdodD0iMSIgZmlsbD0idXJsKCNncmFkLXVjZ2ctZ2VuZXJhdGVkKSIgLz4KPC9zdmc+);
+			background-image: -moz-linear-gradient(top,  rgb(193,107,93) 0%, rgb(179,49,36) 100%); /* FF3.6+ */
+			background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0%,rgb(193,107,93)), color-stop(100%,rgb(179,49,36))); /* Chrome,Safari4+ */
+			background-image: -webkit-linear-gradient(top,  rgb(193,107,93) 0%,rgb(179,49,36) 100%); /* Chrome10+,Safari5.1+ */
+			background-image: -o-linear-gradient(top,  rgb(193,107,93) 0%,rgb(179,49,36) 100%); /* Opera 11.10+ */
+			background-image: -ms-linear-gradient(top,  rgb(193,107,93) 0%,rgb(179,49,36) 100%); /* IE10+ */
+			background-image: linear-gradient(to bottom,  rgb(193,107,93) 0%,rgb(179,49,36) 100%); /* W3C */
+			filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#c16b5d', endColorstr='#b33124',GradientType=0 ); /* IE6-8 */
+		}
+		
+		.ef_session_details_panel_action_button_disabled {
+			background-image: none;
+			cursor: default;
+			background: rgb(245,245,245);
+			border: 1px solid rgb(220,220,220);
+			color: rgb(200,200,200);
+		}
+		
+		.ef_session_details_panel_action_button_conflict_code {
+			background-image: none;
+			cursor: default;
+			background: rgb(245,245,245);
+			border: 1px solid rgb(220,220,220);
+			color: rgb(200,200,200);
+		}
+		
+		.ef_session_details_panel_action_button_conflict_time {
+			background-image: none;
+			cursor: default;
+			background: rgb(245,245,245);
+			border: 1px solid rgb(220,220,220);
+			color: rgb(200,200,200);
+		}
+		.ef_session_details_panel_before_booking_button_icon {
+			background-image: url("../../media/images/english/default/frontend/popover_info.png");
+			display: inline-block;
+			margin: 0;
+			height: 24px;
+			width: 24px;
+			float: left;
+			display: inline;
+			background-repeat: no-repeat;
+			background-position: left center;
+			text-align: center;
+			vertical-align: top;
+			color: rgb(200,200,200);
+		}
+		
+		.ef_session_details_panel_before_booking_button_container {
+			padding: 12px;
+		}
+		
+		.ef_session_details_panel_before_booking_button_text {
+			padding: 2px 4px 2px 4px;
+			color: rgb(130,130,130);
+		}
+		
+		div.qtip-content { margin: 0; }
+	>
+]]></Implementation>
+</Method>
+
+<Method name="outputSegmentedButtonCSS">
+<ClassMethod>1</ClassMethod>
+<Implementation><![CDATA[
+	&html<
+		/* ======= outputSegmentedButtonCSS() ======= */
+		.ef_segmented_button_container {
+			border: 1px solid rgb(255,255,255);
+			display: inline-block; /* For modern browsers */
+			*display:inline; /* Hack for IE 7 and less */
+			 zoom:1; /* Hack for IE */
+			_height:1%; /* Hack for IE6 */
+			vertical-align:top; /* Just makes sure everything is at the top */
+			font-family: "Trebuchet MS", "Lucida Grande", "Lucida Sans Unicode", "Lucida Sans", Tahoma, sans-serif;
+			font-size: 14px;
+			height: 22px;
+			overflow: hidden;
+			
+			-moz-border-radius: 6px;
+			-webkit-border-radius: 6px;
+			border-radius: 6px;
+			
+			-webkit-box-shadow: 0px 1px 2px rgba(0,0,0,0.3);
+			-moz-box-shadow: 0px 1px 2px rgba(0,0,0,0.3);
+			box-shadow: 0px 1px 2px rgba(0,0,0,0.3);
+			
+			-moz-user-select: none;
+		  	-khtml-user-select: none;
+		  	-webkit-user-select: none;
+		  	user-select: none;
+		  	box-sizing: content-box;
+		}
+		.ef_segmented_button_container div {
+			float: left;
+		}
+		.ef_segmented_button {
+			cursor: pointer;
+			height: 22px;
+			line-height: 22px;
+		}
+		.ef_segmented_button_text {
+			padding: 0 16px;
+		}
+		.ef_segmented_button_previous {
+			background-image: url("../../media/images/english/default/frontend/left-arrow.png");
+		    background-repeat: no-repeat;
+		    height: 19px;
+		    margin: 2px 4px 1px 8px;
+		    width: 12px;
+		}
+		.ef_segmented_button_next {
+			background-image: url("../../media/images/english/default/frontend/right-arrow.png");
+		    background-repeat: no-repeat;
+		    height: 19px;
+		    margin: 2px 8px 1px 4px;
+		    width: 12px;
+		}
+		.ef_segmented_button_disabled_outer_off {
+			cursor: default;
+		}
+		.ef_segmented_button_disabled_off {
+			cursor: default;
+			background-image: none;
+		}
+		.ef_segmented_button_icon {
+			padding: 0 8px;
+		}
+		.ef_segmented_button_icon_inner {
+			vertical-align: middle;
+			background-position: center;
+			background-repeat: no-repeat;
+			border: 0;
+		}
+		.ef_segmented_button_off, .ef_segmented_button_main_buttons_container {
+			color: rgb(130,130,130);
+			text-shadow: 0 1px #FFFFFF;
+			background: #ffffff; /* Old browsers */
+			/* IE9 SVG, needs conditional override of 'filter' to 'none' */
+			background: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/Pgo8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgdmlld0JveD0iMCAwIDEgMSIgcHJlc2VydmVBc3BlY3RSYXRpbz0ibm9uZSI+CiAgPGxpbmVhckdyYWRpZW50IGlkPSJncmFkLXVjZ2ctZ2VuZXJhdGVkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgeDE9IjAlIiB5MT0iMCUiIHgyPSIwJSIgeTI9IjEwMCUiPgogICAgPHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iI2ZmZmZmZiIgc3RvcC1vcGFjaXR5PSIxIi8+CiAgICA8c3RvcCBvZmZzZXQ9IjcwJSIgc3RvcC1jb2xvcj0iI2UzZTNlNCIgc3RvcC1vcGFjaXR5PSIxIi8+CiAgICA8c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IiNlM2UzZTQiIHN0b3Atb3BhY2l0eT0iMSIvPgogIDwvbGluZWFyR3JhZGllbnQ+CiAgPHJlY3QgeD0iMCIgeT0iMCIgd2lkdGg9IjEiIGhlaWdodD0iMSIgZmlsbD0idXJsKCNncmFkLXVjZ2ctZ2VuZXJhdGVkKSIgLz4KPC9zdmc+);
+			background: -moz-linear-gradient(top,  #ffffff 0%, #e3e3e4 70%, #e3e3e4 100%); /* FF3.6+ */
+			background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#ffffff), color-stop(70%,#e3e3e4), color-stop(100%,#e3e3e4)); /* Chrome,Safari4+ */
+			background: -webkit-linear-gradient(top,  #ffffff 0%,#e3e3e4 70%,#e3e3e4 100%); /* Chrome10+,Safari5.1+ */
+			background: -o-linear-gradient(top,  #ffffff 0%,#e3e3e4 70%,#e3e3e4 100%); /* Opera 11.10+ */
+			background: -ms-linear-gradient(top,  #ffffff 0%,#e3e3e4 70%,#e3e3e4 100%); /* IE10+ */
+			background: linear-gradient(to bottom,  #ffffff 0%,#e3e3e4 70%,#e3e3e4 100%); /* W3C */
+			filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffffff', endColorstr='#e3e3e4',GradientType=0 ); /* IE6-8 */
+		}
+		.ef_segmented_button_on {
+			color: rgb(255,255,255);
+			background: #3074a8; /* Old browsers */
+			background: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/Pgo8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgdmlld0JveD0iMCAwIDEgMSIgcHJlc2VydmVBc3BlY3RSYXRpbz0ibm9uZSI+CiAgPGxpbmVhckdyYWRpZW50IGlkPSJncmFkLXVjZ2ctZ2VuZXJhdGVkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgeDE9IjAlIiB5MT0iMCUiIHgyPSIwJSIgeTI9IjEwMCUiPgogICAgPHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iIzMwNzRhOCIgc3RvcC1vcGFjaXR5PSIxIi8+CiAgICA8c3RvcCBvZmZzZXQ9IjMwJSIgc3RvcC1jb2xvcj0iIzI5ODlkOCIgc3RvcC1vcGFjaXR5PSIxIi8+CiAgICA8c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IiM0OWMxZjIiIHN0b3Atb3BhY2l0eT0iMSIvPgogIDwvbGluZWFyR3JhZGllbnQ+CiAgPHJlY3QgeD0iMCIgeT0iMCIgd2lkdGg9IjEiIGhlaWdodD0iMSIgZmlsbD0idXJsKCNncmFkLXVjZ2ctZ2VuZXJhdGVkKSIgLz4KPC9zdmc+);
+			background: -moz-linear-gradient(top,  #3074a8 0%, #2989d8 30%, #49c1f2 100%); /* FF3.6+ */
+			background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#3074a8), color-stop(30%,#2989d8), color-stop(100%,#49c1f2)); /* Chrome,Safari4+ */
+			background: -webkit-linear-gradient(top,  #3074a8 0%,#2989d8 30%,#49c1f2 100%); /* Chrome10+,Safari5.1+ */
+			background: -o-linear-gradient(top,  #3074a8 0%,#2989d8 30%,#49c1f2 100%); /* Opera 11.10+ */
+			background: -ms-linear-gradient(top,  #3074a8 0%,#2989d8 30%,#49c1f2 100%); /* IE10+ */
+			background: linear-gradient(to bottom,  #3074a8 0%,#2989d8 30%,#49c1f2 100%); /* W3C */
+			filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#3074a8', endColorstr='#49c1f2',GradientType=0 ); /* IE6-8 */
+		}
+		.ef_segmented_button_caption {
+			line-height: 22px;
+			padding: 0 4px 0 8px;
+			
+			color: rgb(130,130,130);
+			text-shadow: 0 1px #FFFFFF;
+			background: #ffffff; /* Old browsers */
+			/* IE9 SVG, needs conditional override of 'filter' to 'none' */
+			background: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/Pgo8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgdmlld0JveD0iMCAwIDEgMSIgcHJlc2VydmVBc3BlY3RSYXRpbz0ibm9uZSI+CiAgPGxpbmVhckdyYWRpZW50IGlkPSJncmFkLXVjZ2ctZ2VuZXJhdGVkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgeDE9IjAlIiB5MT0iMCUiIHgyPSIwJSIgeTI9IjEwMCUiPgogICAgPHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iI2ZmZmZmZiIgc3RvcC1vcGFjaXR5PSIxIi8+CiAgICA8c3RvcCBvZmZzZXQ9IjcwJSIgc3RvcC1jb2xvcj0iI2UzZTNlNCIgc3RvcC1vcGFjaXR5PSIxIi8+CiAgICA8c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IiNlM2UzZTQiIHN0b3Atb3BhY2l0eT0iMSIvPgogIDwvbGluZWFyR3JhZGllbnQ+CiAgPHJlY3QgeD0iMCIgeT0iMCIgd2lkdGg9IjEiIGhlaWdodD0iMSIgZmlsbD0idXJsKCNncmFkLXVjZ2ctZ2VuZXJhdGVkKSIgLz4KPC9zdmc+);
+			background: -moz-linear-gradient(top,  #ffffff 0%, #e3e3e4 70%, #e3e3e4 100%); /* FF3.6+ */
+			background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#ffffff), color-stop(70%,#e3e3e4), color-stop(100%,#e3e3e4)); /* Chrome,Safari4+ */
+			background: -webkit-linear-gradient(top,  #ffffff 0%,#e3e3e4 70%,#e3e3e4 100%); /* Chrome10+,Safari5.1+ */
+			background: -o-linear-gradient(top,  #ffffff 0%,#e3e3e4 70%,#e3e3e4 100%); /* Opera 11.10+ */
+			background: -ms-linear-gradient(top,  #ffffff 0%,#e3e3e4 70%,#e3e3e4 100%); /* IE10+ */
+			background: linear-gradient(to bottom,  #ffffff 0%,#e3e3e4 70%,#e3e3e4 100%); /* W3C */
+			filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffffff', endColorstr='#e3e3e4',GradientType=0 ); /* IE6-8 */
+		}
+		
+		.ef_segmented_button_main_buttons_container {
+			overflow: hidden;
+		}
+		
+		.ef-ie7 .ef_segmented_button_main_buttons_container {
+			position: relative;
+		}
+	>
+]]></Implementation>
+</Method>
+
+<Method name="outputAgendaGridListSwitchCSS">
+<ClassMethod>1</ClassMethod>
+<Implementation><![CDATA[
+	&html<
+		/* ======= outputAgendaGridListSwitchCSS() ======= */
+		.ef_agenda_view_switch_grid_icon_on {
+			background-image: url('../../media/images/english/default/frontend/viewswitch_grid_on_icon.png');
+			background-repeat: no-repeat;
+			width: 15px;
+			height: 15px;
+			margin: 4px 0 3px;
+		}
+		.ef_agenda_view_switch_grid_icon_off {
+			background-image: url('../../media/images/english/default/frontend/viewswitch_grid_off_icon.png');
+			background-repeat: no-repeat;
+			width: 15px;
+			height: 15px;
+			margin: 4px 0 3px;
+		}
+		.ef_agenda_view_switch_list_icon_on {
+			background-image: url('../../media/images/english/default/frontend/viewswitch_list_on_icon.png');
+			background-repeat: no-repeat;
+			width: 15px;
+			height: 15px;
+			margin: 4px 0 3px;
+		}
+		.ef_agenda_view_switch_list_icon_off {
+			background-image: url('../../media/images/english/default/frontend/viewswitch_list_off_icon.png');
+			background-repeat: no-repeat;
+			width: 15px;
+			height: 15px;
+			margin: 4px 0 3px;
+		}
+	>
+]]></Implementation>
+</Method>
+
+<Method name="outputAgendaGeneralCSS">
+<ClassMethod>1</ClassMethod>
+<Implementation><![CDATA[
+	&html<
+		/* ======= outputAgendaGeneralCSS() ======= */
+		/* agenda calendar main grid styles */
+		
+		.ef-reset-box-sizing, .ef-reset-box-sizing *, .ef-reset-box-sizing *:before, .ef-reset-box-sizing *:after {
+			-webkit-box-sizing: content-box;
+			-moz-box-sizing: content-box;
+			box-sizing: content-box;
+		}
+		
+		.ef_agenda_calendar_container {
+			table-layout: fixed;
+			/* position: relative; pjc - needed for css3pie */
+			border-collapse: separate;
+			border-spacing: 6px 7px;
+		}
+		
+		.ef_agenda_calendar_header {
+			background: rgb(100,100,100);
+			color: rgb(255,255,255);
+			font-size: 13px;
+			padding: 4px 8px 4px 8px;
+			height: 20px;
+		}
+		
+		.ef_agenda_calendar_header_time {
+			padding-left: 0;
+			width: 50px;
+			visibility: hidden;
+		}
+		
+		.ef_agenda_calendar_header_loc {
+			width: 130px;
+		}
+		
+		.ef_frontend_agenda_grid_time_container {
+			float: right;
+			padding: 0 2px 0 0;
+			margin: 0;
+		}
+		
+		.ef_gridline_horizontal_container {
+			position: relative;
+			vertical-align: top;
+			width: 4px;
+		}
+		
+		.ef_frontend_agenda_grid_gridline_horizontal {
+			position: relative;
+			z-index: 10;
+			display: inline-block;
+			height: 0px;
+			border-top: 1px solid rgb(220,220,220);
+		}
+		
+		.ef_frontend_agenda_grid_gridline_vertical {
+			position: absolute;
+			float: left;
+			z-index: 10;
+			display: inline-block;
+			width: 0px;
+			border-left: 1px solid rgb(220,220,220);
+		}
+		
+		.ef_agenda_calendar_item {
+			-moz-border-radius: 5px;
+			-webkit-border-radius: 5px;
+			border-radius: 5px;
+			width: 100%;
+			padding: 0;
+			overflow: hidden;
+			position: relative;
+			z-index: 30;
+			vertical-align: top;
+		}
+		
+		/* css attributes added to this will not take effect without change of relevant code */
+		.ef_agenda_calendar_item_conflict_time {
+			background: rgb(245,245,245);
+			border: 1px solid rgb(220,220,220);
+			color: rgb(200,200,200);
+			opacity: 0.2;
+		}
+		/* css attributes added to this will not take effect without change of relevant code */
+		.ef_agenda_calendar_item_conflict_code {
+			background: rgb(245,245,245);
+			border: 1px solid rgb(220,220,220);
+			color: rgb(200,200,200);
+			opacity: 0.2;
+		}
+		
+		.ef_agenda_calendar_item div {
+			vertical-align: top;
+		}
+		
+		.ef_agenda_calendar_item div {
+			margin: 0;
+		}
+		
+		.ef_agenda_calendar_item_title {
+			display: inline-block;
+			min-height: 23px;
+			padding: 0;
+			float: left;
+			width: 100%;
+		}
+		.ef_agenda_calendar_item_time_from {
+			display: inline-block;
+			float: left;
+			padding: 6px;
+			vertical-align: top;
+			font-size: 12px;
+			line-height: 12px;
+		}
+		.ef_agenda_calendar_item_time_from_single_row {
+			display: inline-block;
+			float: left;
+			padding: 4px 6px 4px 6px;
+			
+			vertical-align: top;
+			font-size: 12px;
+		}
+		
+		.ef_agenda_calendar_item_session_icon {
+			display: inline-block;
+			background-position: right top;
+			background-repeat: no-repeat;
+			width: 17px;
+			height: 17px;
+			float: right;
+		}
+		
+		div.ef_agenda_calendar_item_session_icon {
+			margin-top: 4px;
+			margin-right: 4px;
+		}
+		.ef_agenda_calendar_item_session_icon_faded {
+			-khtml-opacity:0.2; 
+			-moz-opacity:0.2; 
+			opacity:0.2; 
+		}
+		.ef_agenda_calendar_item_selected_icon {
+			display: inline-block;
+			background-image: url('../../media/images/english/default/frontend/icon_attending_tick.png');
+			background-repeat: no-repeat;		
+			background-position: right top;
+			width: 17px;
+			height: 17px;
+			float: right;
+		}
+		div.ef_agenda_calendar_item_selected_icon {
+			margin-top: 4px;
+			margin-right: 4px;
+		}
+		.ef_agenda_calendar_item_info {
+			display: inline-block;
+			float: left;
+			width: 100%;
+		}
+		.ef_agenda_calendar_item_info_inner {
+			display: inline-block;
+			float: left;
+			width: 100%;
+		}
+		div.ef_agenda_calendar_item_info_single_row {
+			float: left;
+			padding-top: 4px;
+			padding-bottom: 4px;
+		}
+		
+		div.ef_agenda_calendar_item_info_inner_single_row {
+			float: left;
+			width: 100%;
+			font-size: 12px;
+		}
+		
+		.ef_frontend_ie7 div.ef_agenda_calendar_item_info_inner_single_row {
+			padding-bottom: 4px;
+		}
+		
+		.ef_agenda_calendar_item_info_inner span {
+			display: block;
+			padding: 6px;
+		}
+		.ef_frontend_agenda_time_ampm {
+			font-size: smaller;	
+		}
+		/* agenda calendar filter styles */	
+		.ef_agenda_calendar_filters_container {
+			text-align: left;
+			padding: 0px 0px 0px 0px;
+			margin: 0;
+			background: #ffffff;
+		}
+		.ef_agenda_calendar_filters_container p {
+			margin-top: 0;
+			margin-bottom: 0;
+			color: #000000;
+		}
+		.ef_agenda_calendar_filters_session_types_container {
+			margin: 0;
+			padding-bottom: 12px;
+		}
+		
+		.ef_agenda_calendar_filters_instructions_text_session_type {
+			padding: 16px 10px 16px 10px;
+			margin: 0;
+		}
+		
+		.ef_agenda_calendar_filters_filter {
+			border: solid 1px rgb(200,200,200);
+			margin: 0px 4px 4px 4px;
+			cursor: pointer;
+			padding: 4px 4px 4px 4px;
+			text-align: center;
+			-moz-border-radius: 6px;
+		    -webkit-border-radius: 6px;
+		    -khtml-border-radius: 6px;
+		    border-radius: 6px;
+		    display: block;
+		    position: relative;
+		    -moz-user-select: none;
+		  	-khtml-user-select: none;
+		  	-webkit-user-select: none;
+		  	user-select: none;
+		}
+		
+		.ef_agenda_calendar_filters_filter a {
+			text-decoration: none;
+			display: block;
+		}
+		.ef_agenda_calendar_filters_my_agenda_container {
+			margin: 0;
+			padding-top: 16px;
+		}
+		.ef_agenda_calendar_filters_instructions_text_my_agenda {
+			padding: 0px 10px 4px 10px;
+			margin: 0;
+		}
+		
+		/* the colors will be overridden by session type color settings 
+		for session filters, but will apply for other filters */
+		.ef_agenda_calendar_filters_filter_on {
+			color: rgb(255,255,255);
+			border:1px solid rgb(44,151,204); 
+			background-color: rgb(69,176,229);
+		}
+		.ef_agenda_calendar_filters_filter_on p {
+			color: rgb(255,255,255);
+		}
+		.ef_agenda_calendar_filters_filter_off {
+			color: rgb(160,160,160);
+			background: rgb(255,255,255);
+		}
+		
+		.ef_agenda_calendar_filters_filter_off p {
+			color: rgb(160,160,160);
+			background: rgb(255,255,255);
+		}
+		
+		.ef_agenda_filter_my_itinerary {
+			background-image: url('../../media/images/english/default/frontend/icon_attending_tick.png');
+			background-repeat: no-repeat;		
+			background-position: 6px center;
+			text-align: left;
+			padding-left: 32px;
+		}
+		
+		.ef_agenda_filter_my_itinerary_on {
+			background-image: url('../../media/images/english/default/frontend/icon_attending_tick_white.png');
+		}
+		
+		#DayAndViewSelectorAndInstructionTextAndButtons #[w ">"]# #instructionText {
+			margin-top: 18px;
+			margin-bottom:12px;
+		}
+		
+		#daySwitcher {
+			height: 24px;
+			float: left;
+			text-align: left;
+		}
+		
+		#daySwitcher, #viewSwitcher, #buttonDiv {
+			margin-top: 8px;
+			margin-bottom: 8px;
+			display: block;
+			clear: left;
+		}
+		.ef_agenda_view_switch_container {
+			float:left;
+			margin-bottom: 12px;
+		}
+		.ef_agenda_day_selector_day {
+			position: relative;
+			float: left;
+		}
+		.ef_frontend_ie6 #DayAndViewSelectorAndInstructionTextAndButtons,
+		.ef_frontend_ie7 #DayAndViewSelectorAndInstructionTextAndButtons {
+			margin-top: 0;
+		}
+	>
+]]></Implementation>
+</Method>
+
+<Method name="outputLegacyDefaultCSS">
+<ClassMethod>1</ClassMethod>
+<Implementation><![CDATA[
+	&html<
+		/* ======= outputLegacyDefaultCSS() ======= */
+		h1 { font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 24px; font-weight: bold; color: #000000; 	}
+		h2 { font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 20px; font-weight: bold; color: #000000; 	}
+		h3 { font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 16px; font-weight: bold; color: #000000; 	}
+		h4 { font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 14px; font-weight: bold; color: #000000; 	}
+		h5 { font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 12px; font-weight: bold; color: #000000; 	}
+		h6 { font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 10px; font-weight: bold; color: #000000; 	}
+		body
+		{
+			font-size:12px;
+			font-family: Verdana, Geneva, Arial, Helvetica, sans-serif;
+		}
+		
+		.default_text { font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 12px; color: #000000; 	}
+		.alt_text_1 { font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 12px; font-weight: bold; color: #000000; 	}
+		.alt_text_2 { font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 12px; font-style: italic; color: #000000; 	}
+		.alt_text_3 { font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 12px; color: #000000; 	}
+		.alt_text_4 { font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 12px; color: #000000; 	}
+		.alt_text_5 { font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 12px; color: #000000; 	}
+		
+		td {font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 12px; color: #000000; 	}
+		p, li, div
+		{
+			margin:0in;
+			margin-bottom: 10pt;
+			font-size:12px;
+			font-family: Verdana, Geneva, Arial, Helvetica, sans-serif;
+		}
+		li.k-item {
+			margin-bottom: 0;
+		}
+		
+		a:link, a:visited, a:hover, a:active {
+		}
+		
+		ul.menuUL	{
+			margin:0;
+			margin-bottom: 0;
+			font-family: Verdana, Geneva, Arial, Helvetica, sans-serif;
+		}
+		li.menuLI	{
+			margin:0;
+			margin-bottom: 0;
+			font-family: Verdana, Geneva, Arial, Helvetica, sans-serif;
+			list-style : none;
+			xxborder-bottom: 1px solid red;
+		}
+		li.menuLI a	{
+			margin:0;
+			margin-bottom: 0;
+			font-family: Verdana, Geneva, Arial, Helvetica, sans-serif;
+			list-style : none;
+			xxborder-bottom: 1px solid red;
+		}
+		
+		.black8px {  font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 8px; font-style: normal; line-height: normal; font-weight: normal; color: #000000; text-decoration: none}
+		.black9px {  font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 9px; font-style: normal; line-height: normal; font-weight: normal; color: #000000; text-decoration: none}
+		.black10px {  font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 10px; font-style: normal; line-height: normal; font-weight: normal; color: #000000; text-decoration: none}
+		.EF_inputBox {  font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 10px; font-style: normal; line-height: normal; font-weight: normal; color: #000000; text-decoration: none}
+		.blackbold10px {  font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 10px; font-style: normal; line-height: normal; font-weight: bold; color: #000000}
+		.white9px { font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 9px; font-style: normal; line-height: normal; font-weight: normal; color: #ffffff}
+		.white10px { font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 10px; font-style: normal; line-height: normal; font-weight: normal; color: #ffffff}
+		.white12px { font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 12px; font-style: normal; line-height: normal; font-weight: normal; color: #ffffff; text-decoration: none}
+		.white14px { font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 14px; font-style: normal; line-height: normal; font-weight: normal; color: #ffffff; text-decoration: none}
+		.whitebold9px { font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 9px; font-style: normal; line-height: normal; font-weight: bold; color: #ffffff; text-decoration: none}
+		.whitebold10px { font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 10px; font-style: normal; line-height: normal; font-weight: bold; color: #ffffff; text-decoration: none}
+		.whitebold12px { font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 12px; font-style: normal; line-height: normal; font-weight: bold; color: #ffffff; text-decoration: none}
+		.whitebold14px { font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 14px; font-style: normal; line-height: normal; font-weight: bold; color: #ffffff; text-decoration: none}
+		.whiteOnGrey10px { margin: 0; padding: 0; vertical-align: middle; line-height: 18px; text-indent: 7px; font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 10px; font-weight: bold; font-style: normal; color: white; background: #959595; }
+		.black10pxUL { font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 10px; font-style: normal; line-height: normal; font-weight: normal; color: #000000; text-decoration: underline}
+		.blackbold10pxUL { font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 10px; font-style: normal; line-height: normal; font-weight: bold; color: #000000 ; text-decoration: underline}
+		.redbold12px { font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 12px; font-style: normal; line-height: normal; font-weight: bold; color: #cc0000; text-decoration: none }
+		.redbold10px { font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 10px; font-style: normal; line-height: normal; font-weight: bold; color: #cc0000; text-decoration: none }
+		.greybold10px { font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 10px; font-style: normal; line-height: normal; font-weight: bold; color: #666666}
+		.blackbold12px { font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 12px; font-style: normal; line-height: normal; font-weight: bold; color: #000000 }
+		.bluebold12px { font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 12px; font-style: normal; line-height: normal; font-weight: bold; color: #1F4757}
+		.black12px { font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 12px; font-style: normal; line-height: normal; font-weight: normal; color: #000000; text-decoration: none }
+		.blue12px { font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 12px; font-style: normal; line-height: normal; font-weight: normal; color: #6699CC }
+		.blue10px { font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 10px; font-style: normal; line-height: normal; font-weight: normal; color: #6699CC }
+		.blue9px { font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 9px; font-style: normal; line-height: normal; font-weight: normal; color: #6699CC }
+		.bluebold9px { font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 9px; font-style: normal; line-height: normal; font-weight: bold; color: #6699CC }
+		.yellowbold10px {
+			font-family: Verdana, Arial, Helvetica, sans-serif;
+			font-size: 10px;
+			font-style: normal;
+			line-height: normal;
+			font-weight: bold;
+			color: #FFFF80;
+			text-decoration: none;
+		}
+		.yellow {  background-color: #FFFFCC;}
+		.grey {  background-color: #e6e6e6}
+		.red, .k-calendar td.ef-date-picker-event-day { 	background-color : #CC0033;}
+		.k-calendar td.ef-date-picker-event-day .k-link {
+			color: #FFFFFF
+		}
+		.notSoRed { 	background-color : #FFD1A0;}
+		.bluebold10px { font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 10px; font-style: normal; line-height: normal; font-weight: bold; color: #1F4757 }
+		.bluebold14px { font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 14px; font-style: normal; line-height: normal; font-weight: bold; color: #1F4757 }
+		.activeButton {background-color: #FFDEAD}
+		.orangeSelect {
+			background-color: #FFDEAD;
+			cursor : hand;
+		}
+		.red9px { font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 9px; font-style: normal; line-height: normal; font-weight: normal; color: #cc0000; text-decoration: none }
+		.black9px_UL { font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 9px; font-style: normal; line-height: normal; font-weight: normal; color: #000000; text-decoration: none }
+		.grey2 { background-color: #CC0000}
+		.butBlueWhite8px {
+			font-family : Arial, Helvetica, Verdana;
+			font-size: 8pt;
+			color: White;
+			font-weight: normal;
+			background:#6699CC;
+			text-align : center;
+			font-weight: Bold;
+			text-decoration : none;
+			padding : 0px;
+			cursor:hand;
+		}
+		.butGreyBlue8px {
+			color: #185496;
+			background: #B3C4CE;
+			text-align : center;
+			text-decoration : none;
+			padding : 0px;
+			cursor:hand;
+			font : bold 8pt Arial, Helvetica, sans-serif;
+			width: 95px;
+			max-width: 95px;
+			height: 20px;
+			margin: 0px;
+		}
+		.hiddenDiv	{
+			position:absolute;
+			visibility:hidden;
+			background-color: #FFFFE1;
+			border: 1px double;
+			width:0px;
+			height:0px;
+			left:200px;
+		}
+		td.black10pxBorder {
+			border-style: solid none solid none;
+			border-width:1px;
+			border-color: #FFFFFF #FFFFFF #000000 #000000;
+			border-collapse: collapse;
+		}
+		.mainPageBorderTop	{
+			background-color: black;
+		}
+		.mainPageBorderLeft	{
+			background-color: black;
+		}
+		.mainPageBorderRight	{
+			background-color: black;
+		}
+		.mainPageBorderBottom	{
+			background-color: black;
+		}
+		.mainPageLine	{
+		/* need both color (for IE) and background-color (for Mozilla + Opera) */;
+			width: 100%;
+			color: black;
+			background-color: black;
+			height: 1px;
+		}
+	>
+]]></Implementation>
+</Method>
+</Class>
+
+
+<Project name="proweb 2" LastModified="2016-09-22 14:53:48.746441" Target="##class(EF.pageController.proweb.list).debugTarget()" TargetType="2">
+  <Items>
+    <ProjectItem name="EF.contextDataRegistrationMock" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.pageController.page" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.pages.frontend.base" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.ui.components.frontend.textInput" type="CLS"></ProjectItem>
+    <ProjectItem name="freddev/frontEnd/reg/t4Registration.csp" type="CSP"></ProjectItem>
+    <ProjectItem name="layout.cssDefaultMethods" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.ui.components.base" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.ui.components.frontend.textBlock" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.ui.components.frontend.inputElement" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.ui.components.frontend.prowebBase" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.pageController.proweb.listItems.inputElement" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.pageController.proweb.listItems.inputElementCOD" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.pageController.proweb.listItems.textBlock" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.pageController.proweb.list" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.pageController.proweb.listItem" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.pageController.proweb.listTestCase" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.pageController.proweb.listItems.divider" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.ui.components.frontend.divider" type="CLS"></ProjectItem>
+  </Items>
+  <BreakPoints>
+    <BreakPoint Routine="EF.pages.frontend.base.1.INT" Offset="130"></BreakPoint>
+  </BreakPoints>
+</Project>
+</Export>

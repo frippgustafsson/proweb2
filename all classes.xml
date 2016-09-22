@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.1.2 (Build 206U)" ts="2016-09-22 14:57:30">
+<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.1.2 (Build 206U)" ts="2016-09-22 17:24:00">
 <Class name="EF.contextDataRegistrationMock">
 <Description><![CDATA[
 <!-- ;vc;-
@@ -939,7 +939,7 @@ a list of proweb items</Description>
 
 <Class name="EF.pageController.proweb.listItem">
 <Super>%RegisteredObject,EF.htmlGenerator</Super>
-<TimeChanged>64183,49805.875937</TimeChanged>
+<TimeChanged>64183,55165.520408</TimeChanged>
 <TimeCreated>63992,65826.878579</TimeCreated>
 
 <Property name="htmlID">
@@ -968,16 +968,53 @@ a list of proweb items</Description>
 <FormalSpec>prowebItem:sc.objData</FormalSpec>
 <ReturnType>%String</ReturnType>
 <Implementation><![CDATA[
-	if prowebItem.dataType="objCODitem" {
-		if prowebItem.type = "text" {
-			return "textInput"
-		}
+	// ",text,textarea,radiobutton,checkbox,dropdown,password,multibox,date,dateRange,time,emailAddress,multiEmailAddress,phoneNumber,integer,floatingPointNumber,webAddress"
 	
+	if prowebItem.type = "text" {
+		return "textInput"
+	
+	} elseif prowebItem.type = "dropdown" {
+		return "dropdown"
+			
 	} else {
 		throw ##class(shared.exceptions.generalException).%New("Failed to resolve the UI component type")	
 	}
 ]]></Implementation>
 </Method>
+</Class>
+
+
+<Class name="EF.pageController.proweb.listItems.alternative">
+<Description>
+Hold the alternatives to dropdown, radios, multi check etc</Description>
+<Super>%RegisteredObject</Super>
+<TimeChanged>64183,61178.131402</TimeChanged>
+<TimeCreated>64183,56080.501584</TimeCreated>
+
+<Property name="label">
+<Type>%String</Type>
+<Parameter name="MAXLEN" value="32000"/>
+</Property>
+
+<Property name="code">
+<Type>%String</Type>
+<Parameter name="MAXLEN" value="32000"/>
+</Property>
+
+<Property name="isSelected">
+<Type>%Boolean</Type>
+<InitialExpression>0</InitialExpression>
+</Property>
+
+<Property name="isDisabled">
+<Type>%Boolean</Type>
+<InitialExpression>0</InitialExpression>
+</Property>
+
+<Property name="value">
+<Type>%String</Type>
+<Parameter name="MAXLEN" value="255"/>
+</Property>
 </Class>
 
 
@@ -997,15 +1034,20 @@ a list of proweb items</Description>
 
 <Class name="EF.pageController.proweb.listItems.inputElement">
 <Super>EF.pageController.proweb.listItem</Super>
-<TimeChanged>64183,50009.553451</TimeChanged>
+<TimeChanged>64183,58699.309914</TimeChanged>
 <TimeCreated>63992,62141.625478</TimeCreated>
+
+<Property name="alternatives">
+<Type>EF.pageController.proweb.listItems.alternative</Type>
+<Collection>list</Collection>
+</Property>
 
 <Property name="labelText">
 <Type>%String</Type>
 <Parameter name="MAXLEN" value="32000"/>
 </Property>
 
-<Property name="hasMandatoryMarker">
+<Property name="isMandatory">
 <Type>%Boolean</Type>
 </Property>
 
@@ -1024,9 +1066,10 @@ a list of proweb items</Description>
 	#dim uiComponent as EF.ui.components.base
 	set uiComponent = $CLASSMETHOD("EF.ui.components.frontend."_..uiComponentType,"%New",..htmlID)
 	set uiComponent.label = ..labelText
-	set uiComponent.hasMandatoryMarker = ..hasMandatoryMarker
+	set uiComponent.hasMandatoryMarker = ..isMandatory
 	set uiComponent.helpText = ..helpText
 	set uiComponent.value = ..value
+	set uiComponent.alternatives = ..alternatives
 	do uiComponent.render()
 ]]></Implementation>
 </Method>
@@ -1037,7 +1080,7 @@ a list of proweb items</Description>
 <Description>
 Used for all input field on a registration page that are regular database items, as opposed to table booking and ticketing questions.</Description>
 <Super>EF.pageController.proweb.listItems.inputElement</Super>
-<TimeChanged>64183,50022.065345</TimeChanged>
+<TimeChanged>64183,60946.452565</TimeChanged>
 <TimeCreated>64055,42548.552153</TimeCreated>
 
 <Method name="populateFromProwebItem">
@@ -1052,8 +1095,35 @@ Used for all input field on a registration page that are regular database items,
 	}
 	set ..labelText = ##class(sc.objData).getQuestionPrompt(prowebID, contextDataRegistration.languageID)
 	set ..helpText = prowebItem.helpText
-	set ..hasMandatoryMarker = prowebItem.mandatory
+	set ..isMandatory = prowebItem.mandatory
 	set ..value = ##class(eCom.tempCodData).get(tempPersonID, itemName)
+	
+	do ..addAlternativesFromProwebItem(prowebItem)
+]]></Implementation>
+</Method>
+
+<Method name="addAlternativesFromProwebItem">
+<FormalSpec>prowebItem:sc.objData,contextDataRegistration:EF.contextDataRegistration</FormalSpec>
+<Private>1</Private>
+<Implementation><![CDATA[
+	set rsAlternative = ##class(cod.objItemAlternatives).getAlternativesForCodItemAsResultSet(prowebItem.objItemName.%Id())
+	while rsAlternative.Next()	{
+		Set alternativeDescription = rsAlternative.Get("description")
+		set alternativeCode = rsAlternative.Get("code")
+		
+		do ..addAlternative(alternativeDescription,alternativeCode)
+	}
+]]></Implementation>
+</Method>
+
+<Method name="addAlternative">
+<FormalSpec>alternativeDescription:%String,alternativeCode:%String</FormalSpec>
+<Implementation><![CDATA[
+	set alternative = ##class(EF.pageController.proweb.listItems.alternative).%New()
+	set alternative.label = alternativeDescription
+	set alternative.code = alternativeCode
+	
+	do ..alternatives.Insert(alternative)
 ]]></Implementation>
 </Method>
 </Class>
@@ -1094,7 +1164,7 @@ Used for all input field on a registration page that are regular database items,
 
 <Class name="EF.pageController.proweb.listTestCase">
 <Super>EF.ISC.UnitTest.TestCase</Super>
-<TimeChanged>64183,52453.657733</TimeChanged>
+<TimeChanged>64183,59177.184045</TimeChanged>
 <TimeCreated>64183,49819.459938</TimeCreated>
 
 <Method name="TestBasicInputTextField">
@@ -1110,7 +1180,7 @@ Used for all input field on a registration page that are regular database items,
 	set listItem = ##class(EF.pageController.proweb.listItems.inputElementCOD).%New()
 	set listItem.labelText = "First input field"
 	set listItem.uiComponentType = "textInput"
-	set listItem.hasMandatoryMarker = 0
+	set listItem.isMandatory = 0
 	do list.addListItem(listItem)
 	
 	// test basic field
@@ -1121,7 +1191,7 @@ Used for all input field on a registration page that are regular database items,
 
 
 	// test mandatory field
-	set listItem.hasMandatoryMarker = 1
+	set listItem.isMandatory = 1
 	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(list,"render")
 	set returnedHTML = $ZStrip(returnedHTML,"*WC")
 	set expectedHTML = "<divclass='rowdraggableTR'><divclass='col-sm-4ef_proweb_form_promptef-required-field'><labelclass=""control-label""for=""|2401"">Firstinputfield</label></div><divclass='col-sm-8ef_proweb_form_prompt'><inputtype=""text""class=""form-control""title=""""id=""|2401""name=""""value=""""placeholder=""""></div></div>"
@@ -1131,7 +1201,7 @@ Used for all input field on a registration page that are regular database items,
 	set listItem2 = ##class(EF.pageController.proweb.listItems.inputElementCOD).%New()
 	set listItem2.labelText = "Second input field"
 	set listItem2.uiComponentType = "textInput"
-	set listItem2.hasMandatoryMarker = 0
+	set listItem2.isMandatory = 0
 	do list.addListItem(listItem2)
 
 	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(list,"render")
@@ -1178,7 +1248,7 @@ Common page that all frontend pages could/should inherit from.
 <Language>cache</Language>
 <ProcedureBlock>0</ProcedureBlock>
 <Super>shared.pCSPmanage</Super>
-<TimeChanged>64183,50178.064547</TimeChanged>
+<TimeChanged>64183,59758.563033</TimeChanged>
 <TimeCreated>63635,40114.778424</TimeCreated>
 
 <Parameter name="showRegistrationProgressBar">
@@ -1209,7 +1279,6 @@ Common page that all frontend pages could/should inherit from.
 <ClassMethod>1</ClassMethod>
 <ReturnType>%Boolean</ReturnType>
 <Implementation><![CDATA[
-	;Do ##class(shared.pageMethods).createBackendVariables()
 	do ..OnPagePageTop()
 	do ..initPageController()
 	do ..OnPagePageContent()
@@ -1345,8 +1414,9 @@ Common page that all frontend pages could/should inherit from.
 	
 	set contextDataRegistration.tempPersonID = $G(%session.Data("eventsforce","frontend","currentPersonID"))
 	set contextDataRegistration.prowebMode = $G(%session.Data("mode"))
+	set contextDataRegistration.componentName = componentName
 
-	set floatingMenuCounter = %session.Data("floatCount") // ### needs refactoring ###
+	set floatingMenuCounter = %session.Data("floatCount") // ######### needs refactoring ######
 	
 	set listID = ##class(sc.xModules.objList).getListIDFromPageIDAndComponentName(pageID,componentName)
 	set objList = ##class(sc.xModules.objList).%OpenId(listID)
@@ -1627,16 +1697,30 @@ Common page that all frontend pages could/should inherit from.
 </Class>
 
 
+<Class name="EF.ui.components.frontend.alternative">
+<Description>
+Hold the alternatives to dropdown, radios, multi check etc</Description>
+<Super>EF.ui.components.alternative</Super>
+<TimeChanged>64183,58926.068237</TimeChanged>
+<TimeCreated>64183,58572.359354</TimeCreated>
+
+<Property name="code">
+<Type>%String</Type>
+<Parameter name="MAXLEN" value="32000"/>
+</Property>
+</Class>
+
+
 <Class name="EF.ui.components.frontend.divider">
 <Super>EF.ui.components.frontend.prowebBase</Super>
-<TimeChanged>64183,53845.149762</TimeChanged>
+<TimeChanged>64183,54031.385852</TimeChanged>
 <TimeCreated>64183,53112.09307</TimeCreated>
 
 <Method name="render">
 <Implementation><![CDATA[
 	do ..renderRowOpening()
 		do ..renderCellOpening()
-			write "<hr class='ef_form_divider''> "
+			write "<hr class='ef_form_divider''>"
 		do ..renderCellClosing()
 	do ..renderRowClosing()
 ]]></Implementation>
@@ -1644,10 +1728,130 @@ Common page that all frontend pages could/should inherit from.
 </Class>
 
 
+<Class name="EF.ui.components.frontend.dropdown">
+<Super>EF.ui.components.frontend.inputElement,EF.ui.components.listInput</Super>
+<TimeChanged>64183,61432.960035</TimeChanged>
+<TimeCreated>63355,56609.363142</TimeCreated>
+
+<Method name="render">
+<Implementation><![CDATA[
+	do ..renderRowAndLabel()
+	set selectClass=""
+	&html<		
+		<select class="#(..encodeForHTMLAttribute(selectClass))#" name="#(..encodeHTMLAttribute(..htmlName))#" id="#(..encodeHTMLAttribute(..htmlID))#" title="#(..encodeHTMLAttribute(..title))#" #(..rawHTML(..getDisabledString()))# >
+    		#[do ..renderAlternatives()]#
+        </select>
+    >
+	do ..renderHelpAndRowClosing()
+]]></Implementation>
+</Method>
+
+<Method name="renderAlternatives">
+<Implementation><![CDATA[
+ 
+	set key=""
+	for  {
+		set alternative = ..alternatives.GetNext(.key)
+		if key="" quit
+		do ..renderAlternative(alternative)	
+	}
+]]></Implementation>
+</Method>
+
+<Method name="renderAlternative">
+<FormalSpec>alternative:EF.ui.components.alternative</FormalSpec>
+<Implementation><![CDATA[
+	set selectedString=""
+	if alternative.isSelected {
+		set selectedString="selected="""""	
+	}
+	
+	set disabledString=""
+	if alternative.isDisabled {
+		set disabledString="disabled"	
+	}
+	
+	// The html bit
+	&html<
+        <option #(..rawHTML(selectedString))# #(..rawHTML(disabledString))# value="#(..encodeHTMLAttribute(alternative.value))#" >#(..encodeHTMLContent(alternative.label))#</option>
+	>
+]]></Implementation>
+</Method>
+</Class>
+
+
 <Class name="EF.ui.components.frontend.inputElement">
-<Super>EF.ui.components.frontend.prowebBase</Super>
-<TimeChanged>64183,42770.441837</TimeChanged>
+<Super>EF.ui.components.frontend.prowebBase,EF.ui.components.inputBase</Super>
+<TimeChanged>64183,60284.465548</TimeChanged>
 <TimeCreated>64183,40678.260093</TimeCreated>
+
+<Property name="alternatives">
+<Type>EF.ui.components.frontend.alternative</Type>
+<Collection>list</Collection>
+</Property>
+
+<Property name="hasMandatoryMarker">
+<Type>%Boolean</Type>
+</Property>
+
+<Property name="helpText">
+<Type>%String</Type>
+<Parameter name="MAXLEN" value="32000"/>
+</Property>
+
+<Method name="renderRowAndLabel">
+<Implementation><![CDATA[
+	do ..renderRowOpening()
+	if ..hasMandatoryMarker {
+		do ..renderLabelCellOpeningMandatory()
+	} else {
+		do ..renderLabelCellOpening()
+	}
+	do ..renderLabel()
+	do ..renderCellClosing()
+	do ..renderInputElementCellOpening()
+]]></Implementation>
+</Method>
+
+<Method name="renderHelpAndRowClosing">
+<Implementation><![CDATA[
+    Do ##class(sc.codItemMethods).outputHelpTextHTML(..helpText)
+	do ..renderCellClosing()
+	do ..renderRowClosing()
+]]></Implementation>
+</Method>
+
+<Method name="renderLabel">
+<Implementation><![CDATA[
+	if $length(..label) {
+		&html<<label class="control-label" for="#(..encodeForHTMLAttribute(..htmlID))#">#(..encodeForHTML(..label))#</label>>
+	}
+]]></Implementation>
+</Method>
+
+<Method name="getDisabledString">
+<Implementation><![CDATA[
+	set disabledString=""
+	if ..isDisabled {
+		set disabledString="disabled=""disabled"""
+	}
+	return disabledString
+]]></Implementation>
+</Method>
+
+<Method name="getDefaultClasses">
+<ClassMethod>1</ClassMethod>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[	Return ##super()_" form-control"
+]]></Implementation>
+</Method>
+
+<Method name="getDefaultContainerClasses">
+<ClassMethod>1</ClassMethod>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[	Return ##super()_" form-group"
+]]></Implementation>
+</Method>
 
 <Method name="renderLabelCellOpeningMandatory">
 <Implementation><![CDATA[	write "<div class='col-sm-4 ef_proweb_form_prompt ef-required-field'>"
@@ -1717,67 +1921,20 @@ Common page that all frontend pages could/should inherit from.
 
 <Class name="EF.ui.components.frontend.textInput">
 <Super>EF.ui.components.frontend.inputElement,EF.ui.components.textInput</Super>
-<TimeChanged>64183,42728.466382</TimeChanged>
+<TimeChanged>64183,60710.183997</TimeChanged>
 <TimeCreated>63357,57620.613738</TimeCreated>
 
 <Parameter name="typeAttribute">
 <Default>text</Default>
 </Parameter>
 
-<Property name="hasMandatoryMarker">
-<Type>%Boolean</Type>
-</Property>
-
-<Property name="helpText">
-<Type>%String</Type>
-<Parameter name="MAXLEN" value="32000"/>
-</Property>
-
-<Method name="getDefaultClasses">
-<ClassMethod>1</ClassMethod>
-<ReturnType>%String</ReturnType>
-<Implementation><![CDATA[	Return ##super()_" form-control"
-]]></Implementation>
-</Method>
-
-<Method name="getDefaultContainerClasses">
-<ClassMethod>1</ClassMethod>
-<ReturnType>%String</ReturnType>
-<Implementation><![CDATA[	Return ##super()_" form-group"
-]]></Implementation>
-</Method>
-
 <Method name="render">
 <Implementation><![CDATA[
-	set disabledString=""
-	if ..isDisabled {
-		set disabledString="disabled=""disabled"""
-	}
-
-	do ..renderRowOpening()
-	if ..hasMandatoryMarker {
-		do ..renderLabelCellOpeningMandatory()
-	} else {
-		do ..renderLabelCellOpening()
-	}
-	do ..renderLabel()
-	do ..renderCellClosing()
-	do ..renderInputElementCellOpening()
+	do ..renderRowAndLabel()
 	&html<
-		    <input type="#(..encodeHTMLAttribute(..#typeAttribute))#" class="#(..encodeHTMLAttribute(..classes))#" #(..rawHTML(disabledString))# title="#(..encodeHTMLAttribute(..title))#" id="#(..encodeHTMLAttribute(..htmlID))#" name="#(..encodeHTMLAttribute(..htmlName))#" value="#(..encodeHTMLAttribute(..value))#" placeholder="#(..encodeHTMLAttribute(..placeHolder))#"  #(..rawHTML(..getExtraAttributes()))#>
+		    <input type="#(..encodeHTMLAttribute(..#typeAttribute))#" class="#(..encodeHTMLAttribute(..classes))#" #(..rawHTML(..getDisabledString()))# title="#(..encodeHTMLAttribute(..title))#" id="#(..encodeHTMLAttribute(..htmlID))#" name="#(..encodeHTMLAttribute(..htmlName))#" value="#(..encodeHTMLAttribute(..value))#" placeholder="#(..encodeHTMLAttribute(..placeHolder))#"  #(..rawHTML(..getExtraAttributes()))#>
     >
-    Do ##class(sc.codItemMethods).outputHelpTextHTML(..helpText)
-	do ..renderCellClosing()
-	do ..renderRowClosing()
-	do ##super()
-]]></Implementation>
-</Method>
-
-<Method name="renderLabel">
-<Implementation><![CDATA[
-	if $length(..label) {
-		&html<<label class="control-label" for="#(..encodeForHTMLAttribute(..htmlID))#">#(..encodeForHTML(..label))#</label>>
-	}
+    do ..renderHelpAndRowClosing()
 ]]></Implementation>
 </Method>
 </Class>
@@ -4006,7 +4163,7 @@ The basic frontend default stuff</Description>
 </Class>
 
 
-<Project name="proweb 2" LastModified="2016-09-22 14:53:48.746441" Target="##class(EF.pageController.proweb.list).debugTarget()" TargetType="2">
+<Project name="proweb 2" LastModified="2016-09-22 17:23:18.007173" Target="freddev/backend/home/login.csp" TargetType="3">
   <Items>
     <ProjectItem name="EF.contextDataRegistrationMock" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.page" type="CLS"></ProjectItem>
@@ -4026,9 +4183,18 @@ The basic frontend default stuff</Description>
     <ProjectItem name="EF.pageController.proweb.listTestCase" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.proweb.listItems.divider" type="CLS"></ProjectItem>
     <ProjectItem name="EF.ui.components.frontend.divider" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.ui.components.frontend.dropdown" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.pageController.proweb.listItems.alternative" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.ui.components.frontend.alternative" type="CLS"></ProjectItem>
   </Items>
   <BreakPoints>
     <BreakPoint Routine="EF.pages.frontend.base.1.INT" Offset="130"></BreakPoint>
   </BreakPoints>
+  <WatchVariables>
+    <WatchVariable Variable="alternativeDescription" Pane="1"></WatchVariable>
+    <WatchVariable Variable="prowebItem.%Id()" Pane="1"></WatchVariable>
+    <WatchVariable Variable="..alternatives.Size" Pane="1"></WatchVariable>
+    <WatchVariable Variable="..labelText" Pane="1"></WatchVariable>
+  </WatchVariables>
 </Project>
 </Export>

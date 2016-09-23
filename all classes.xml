@@ -1,5 +1,205 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.1.2 (Build 206U)" ts="2016-09-22 17:24:00">
+<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.1.2 (Build 206U)" ts="2016-09-23 11:04:57">
+<Class name="EF.contextDataRegistration">
+<Description><![CDATA[
+<!-- ;vc;-
+;vc;    Object: EF.contextDataRegistration.CLS/EV.4
+;vc; Component: CLS.EF.contextDataRegistration
+;vc;  Location: SmallDev
+;vc; Date/Time: 02-Sep-16 14:23
+;vc;      User: JeremyW
+;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>EF.contextDataRegistration.CLS/EV.4</td><td>CLS.EF.contextDataRegistration</td><td>SmallDev</td><td style='white-space: nowrap;'>02-Sep-16 14:23</td><td>JeremyW</td></tr></table>
+]]></Description>
+<Super>EF.contextData</Super>
+<TimeChanged>64184,38522.395033</TimeChanged>
+<TimeCreated>63755,56082.660879</TimeCreated>
+
+<Property name="tempPurchaseID">
+<Type>%Integer</Type>
+</Property>
+
+<Property name="isAmendment">
+<Type>%Boolean</Type>
+<InitialExpression>"0"</InitialExpression>
+</Property>
+
+<Property name="attendeeCategoryID">
+<Type>%Integer</Type>
+</Property>
+
+<Property name="currencyID">
+<Type>%Integer</Type>
+</Property>
+
+<Property name="tempPersonID">
+<Type>%Integer</Type>
+</Property>
+
+<Property name="loggedInPersonID">
+<Description>
+if website is private, this will be set to the cod.objPerson.ID of that logged in person</Description>
+<Type>%Integer</Type>
+</Property>
+
+<Property name="isBackendBooking">
+<Type>%Boolean</Type>
+<InitialExpression>"0"</InitialExpression>
+</Property>
+
+<Property name="pricingHorologUTC">
+<Type>%Integer</Type>
+</Property>
+
+<Property name="isTestMode">
+<Type>%Boolean</Type>
+<InitialExpression>0</InitialExpression>
+</Property>
+
+<Property name="prowebMode">
+<Type>%String</Type>
+<Cardinality>one</Cardinality>
+<Parameter name="VALUELIST" value=",&quot;edit&quot;,&quot;preview&quot;"/>
+</Property>
+
+<Property name="context">
+<Type>%String</Type>
+<InitialExpression>"registration"</InitialExpression>
+</Property>
+
+<Property name="backendPersonID">
+<Type>%Integer</Type>
+</Property>
+
+<Property name="pageID">
+<Type>%Integer</Type>
+</Property>
+
+<Property name="listID">
+<Type>%Integer</Type>
+</Property>
+
+<Property name="isBackendSuperUser">
+<Type>%Boolean</Type>
+<InitialExpression>0</InitialExpression>
+</Property>
+
+<Property name="componentName">
+<Type>%String</Type>
+<Parameter name="MAXLEN" value="255"/>
+</Property>
+
+<Method name="createFromFrontendCSPSession">
+<ClassMethod>1</ClassMethod>
+<ReturnType>EF.contextDataRegistration</ReturnType>
+<Implementation><![CDATA[
+	#dim sessionID as %String = %session.SessionId
+	
+	set contextData = ##super()
+	
+	set contextData.tempPersonID=$G(%session.Data("eventsforce","frontend","currentPersonID"))
+	set contextData.loggedInPersonID=$G(%session.Data("eventsforce","xtfrontend","MyAccount","personID"))
+	set contextData.backendPersonID=$G(%session.Data("eventsforce","backend","xPersonID"))
+	set contextData.attendeeCategoryID=##class(eCom.tempPurchase).getEventCategory(sessionID,contextData.tempPersonID)
+	if contextData.attendeeCategoryID="" {
+		if contextData.loggedInPersonID {
+			// this will be used to restrict the categories of sessions in the daily agenda before registration
+			set contextData.attendeeCategoryID=##class(links.lnkPersonEventCategory).getPreSelectedAttendeeCategoryID(contextData.eventID,contextData.loggedInPersonID)
+		} else {
+			set contextData.attendeeCategoryID = ##class(setup.lnkCategoryEvent).getDefault(contextData.eventID)	
+		}
+	}
+	set contextData.currencyID=+##class(eCom.tempPurchase).getCurrencyID(sessionID)
+	set contextData.isAmendment=+$G(%session.Data("eventsforce","frontend","amend"))
+	set contextData.tempPurchaseID=##class(eCom.tempPerson).getTempPurchaseID(contextData.tempPersonID)
+	set contextData.isBackendBooking=##class(eCom.tempPurchase).isBackendBooking(sessionID)
+	set contextData.pricingHorologUTC=##class(eCom.tempPurchase).getPriceHorologUTC(contextData.tempPurchaseID)	
+	set contextData.prowebMode=%session.Get("mode")
+	set contextData.pageID=%session.Get("pageID")
+	do contextData.setAuditPersonIDfromFrontend()
+	
+	set contextData.isBackendSuperUser=##class(eCom.tempPurchase).isBackendSuperUser(sessionID)
+	
+	return contextData
+]]></Implementation>
+</Method>
+
+<Method name="createFromTempPersonID">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>tempPersonID,langID,isAmendment:%Boolean</FormalSpec>
+<ReturnType>EF.contextDataRegistration</ReturnType>
+<Implementation><![CDATA[
+	
+	set contextData = ..%New()
+	set tempPerson=##class(eCom.tempPerson).%OpenId(tempPersonID)
+	do tempPerson.%Reload()
+	
+	set contextData.tempPurchaseID=tempPerson.tempPurchase.%Id()
+	
+	set controllerID=tempPerson.tempPurchase.objController.%Id()
+	set contextData.eventID=##class(eCom.objController).getEventID(controllerID)
+	set contextData.languageID=langID
+	set contextData.tempPersonID=tempPerson.%Id()
+	set contextData.sessionID=tempPerson.tempPurchase.sessionID
+	set contextData.loggedInPersonID=""
+	
+	set contextData.attendeeCategoryID=##class(eCom.tempPurchase).getEventCategory(contextData.sessionID,contextData.tempPersonID)
+	if contextData.attendeeCategoryID="" {
+		if contextData.loggedInPersonID {
+			// this will be used to restrict the categories of sessions in the daily agenda before registration
+			set contextData.attendeeCategoryID=##class(links.lnkPersonEventCategory).getPreSelectedAttendeeCategoryID(contextData.eventID,contextData.loggedInPersonID)
+		} else {
+			set contextData.attendeeCategoryID = ##class(setup.lnkCategoryEvent).getDefault(contextData.eventID)	
+		}
+	}
+	set contextData.currencyID=+##class(eCom.tempPurchase).getCurrencyID(contextData.sessionID)
+	set contextData.isAmendment=isAmendment
+	
+	set contextData.isBackendBooking=##class(eCom.tempPurchase).isBackendBooking(contextData.sessionID)
+	set contextData.pricingHorologUTC=##class(eCom.tempPurchase).getPriceHorologUTC(contextData.tempPurchaseID)	
+	set contextData.prowebMode=""
+	
+	do contextData.setAuditPersonIDfromFrontend()
+	if contextData.auditPersonID = "" {
+		do contextData.setAuditPersonIDfromBackend()	
+	}
+	kill tempPerson
+	return contextData
+]]></Implementation>
+</Method>
+
+<Method name="createMock">
+<ClassMethod>1</ClassMethod>
+<ReturnType>EF.contextDataRegistration</ReturnType>
+<Implementation><![CDATA[
+	#dim mockpersonID as %Integer = 1
+	
+	set contextData = ..%New()
+	
+	set contextData.eventID=1
+	set contextData.languageID=1
+	set contextData.tempPersonID=mockpersonID
+	set contextData.loggedInPersonID=mockpersonID
+	set contextData.attendeeCategoryID=1
+	set contextData.currencyID=1
+	set contextData.isAmendment=0
+	set contextData.tempPurchaseID=1
+	set contextData.isBackendBooking=0
+	set contextData.pricingHorologUTC=##class(shared.timeFunctions).getCurrentHorologUTC()
+	set contextData.prowebMode="preview"
+	set contextData.sessionID="mockSession"
+	
+	return contextData
+]]></Implementation>
+</Method>
+
+<Method name="isMockSession">
+<ReturnType>%Boolean</ReturnType>
+<Implementation><![CDATA[	return ..sessionID = "mockSession"
+]]></Implementation>
+</Method>
+</Class>
+
+
 <Class name="EF.contextDataRegistrationMock">
 <Description><![CDATA[
 <!-- ;vc;-
@@ -1248,7 +1448,7 @@ Common page that all frontend pages could/should inherit from.
 <Language>cache</Language>
 <ProcedureBlock>0</ProcedureBlock>
 <Super>shared.pCSPmanage</Super>
-<TimeChanged>64183,59758.563033</TimeChanged>
+<TimeChanged>64184,39687.043706</TimeChanged>
 <TimeCreated>63635,40114.778424</TimeCreated>
 
 <Parameter name="showRegistrationProgressBar">
@@ -1261,7 +1461,7 @@ Common page that all frontend pages could/should inherit from.
 
 <Parameter name="efUsePageController">
 <Type>%Boolean</Type>
-<Default>0</Default>
+<Default>1</Default>
 </Parameter>
 
 <Method name="OnPage">
@@ -1730,13 +1930,13 @@ Hold the alternatives to dropdown, radios, multi check etc</Description>
 
 <Class name="EF.ui.components.frontend.dropdown">
 <Super>EF.ui.components.frontend.inputElement,EF.ui.components.listInput</Super>
-<TimeChanged>64183,61432.960035</TimeChanged>
+<TimeChanged>64184,39791.660035</TimeChanged>
 <TimeCreated>63355,56609.363142</TimeCreated>
 
 <Method name="render">
 <Implementation><![CDATA[
 	do ..renderRowAndLabel()
-	set selectClass=""
+	set selectClass="form-control"
 	&html<		
 		<select class="#(..encodeForHTMLAttribute(selectClass))#" name="#(..encodeHTMLAttribute(..htmlName))#" id="#(..encodeHTMLAttribute(..htmlID))#" title="#(..encodeHTMLAttribute(..title))#" #(..rawHTML(..getDisabledString()))# >
     		#[do ..renderAlternatives()]#
@@ -4163,38 +4363,33 @@ The basic frontend default stuff</Description>
 </Class>
 
 
-<Project name="proweb 2" LastModified="2016-09-22 17:23:18.007173" Target="freddev/backend/home/login.csp" TargetType="3">
+<Project name="proweb 2" LastModified="2016-09-23 10:42:21.246582" Target="##class(EF.pageController.proweb.list).debugTarget()" TargetType="2">
   <Items>
     <ProjectItem name="EF.contextDataRegistrationMock" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.page" type="CLS"></ProjectItem>
-    <ProjectItem name="EF.pages.frontend.base" type="CLS"></ProjectItem>
-    <ProjectItem name="EF.ui.components.frontend.textInput" type="CLS"></ProjectItem>
-    <ProjectItem name="freddev/frontEnd/reg/t4Registration.csp" type="CSP"></ProjectItem>
-    <ProjectItem name="layout.cssDefaultMethods" type="CLS"></ProjectItem>
-    <ProjectItem name="EF.ui.components.base" type="CLS"></ProjectItem>
-    <ProjectItem name="EF.ui.components.frontend.textBlock" type="CLS"></ProjectItem>
-    <ProjectItem name="EF.ui.components.frontend.inputElement" type="CLS"></ProjectItem>
-    <ProjectItem name="EF.ui.components.frontend.prowebBase" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.pageController.proweb.list" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.pageController.proweb.listItem" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.pageController.proweb.listItems.alternative" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.pageController.proweb.listItems.divider" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.proweb.listItems.inputElement" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.proweb.listItems.inputElementCOD" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.proweb.listItems.textBlock" type="CLS"></ProjectItem>
-    <ProjectItem name="EF.pageController.proweb.list" type="CLS"></ProjectItem>
-    <ProjectItem name="EF.pageController.proweb.listItem" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.proweb.listTestCase" type="CLS"></ProjectItem>
-    <ProjectItem name="EF.pageController.proweb.listItems.divider" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.pages.frontend.base" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.ui.components.base" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.ui.components.frontend.alternative" type="CLS"></ProjectItem>
     <ProjectItem name="EF.ui.components.frontend.divider" type="CLS"></ProjectItem>
     <ProjectItem name="EF.ui.components.frontend.dropdown" type="CLS"></ProjectItem>
-    <ProjectItem name="EF.pageController.proweb.listItems.alternative" type="CLS"></ProjectItem>
-    <ProjectItem name="EF.ui.components.frontend.alternative" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.ui.components.frontend.inputElement" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.ui.components.frontend.prowebBase" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.ui.components.frontend.textBlock" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.ui.components.frontend.textInput" type="CLS"></ProjectItem>
+    <ProjectItem name="freddev/frontEnd/reg/t4Registration.csp" type="CSP"></ProjectItem>
+    <ProjectItem name="layout.cssDefaultMethods" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.contextDataRegistration" type="CLS"></ProjectItem>
   </Items>
   <BreakPoints>
     <BreakPoint Routine="EF.pages.frontend.base.1.INT" Offset="130"></BreakPoint>
   </BreakPoints>
-  <WatchVariables>
-    <WatchVariable Variable="alternativeDescription" Pane="1"></WatchVariable>
-    <WatchVariable Variable="prowebItem.%Id()" Pane="1"></WatchVariable>
-    <WatchVariable Variable="..alternatives.Size" Pane="1"></WatchVariable>
-    <WatchVariable Variable="..labelText" Pane="1"></WatchVariable>
-  </WatchVariables>
 </Project>
 </Export>

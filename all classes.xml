@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.1.2 (Build 206U)" ts="2016-09-23 11:04:57">
+<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.1.2 (Build 206U)" ts="2016-09-23 16:06:11">
 <Class name="EF.contextDataRegistration">
 <Description><![CDATA[
 <!-- ;vc;-
@@ -327,7 +327,7 @@ if website is private, this will be set to the cod.objPerson.ID of that logged i
 ;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>EF.pageController.page.CLS/EV.14</td><td>CLS.EF.pageController.page</td><td>SmallDev</td><td style='white-space: nowrap;'>02-Sep-16 14:23</td><td>JeremyW</td></tr></table>
 ]]></Description>
 <Super>EF.pageController.containerElement</Super>
-<TimeChanged>64177,28337.607697</TimeChanged>
+<TimeChanged>64184,53691.423295</TimeChanged>
 <TimeCreated>63350,62788.509584</TimeCreated>
 
 <Property name="sessionID">
@@ -668,12 +668,17 @@ Checks whether we are allowed to update this data set</Description>
 <Method name="renderHTMLControlFromTag">
 <FormalSpec><![CDATA[&attrs]]></FormalSpec>
 <Implementation><![CDATA[
+	
 	set identifier=$G(attrs("identifier"))
 	set element=..getElementByIdentifier(identifier)
 	if $IsObject(element) {
 		do element.render()
 	} elseif $Get(attrs("prowebcomponentname"))'="" {
-		do ##class(EF.pages.frontend.base).outputProwebListRowsExperimental(attrs("prowebcomponentname"), 122589) // #################
+		set pageID = $Get(attrs("pageid"))
+		if 'pageID {
+			throw ##class(shared.exceptions.generalException).%New("No pageID passed in")
+		}
+		do ##class(EF.pages.frontend.base).outputProwebListRowsExperimental(attrs("prowebcomponentname"), pageID) 
 	}
 	quit
 ]]></Implementation>
@@ -1234,7 +1239,7 @@ Hold the alternatives to dropdown, radios, multi check etc</Description>
 
 <Class name="EF.pageController.proweb.listItems.inputElement">
 <Super>EF.pageController.proweb.listItem</Super>
-<TimeChanged>64183,58699.309914</TimeChanged>
+<TimeChanged>64184,57523.551809</TimeChanged>
 <TimeCreated>63992,62141.625478</TimeCreated>
 
 <Property name="alternatives">
@@ -1266,7 +1271,7 @@ Hold the alternatives to dropdown, radios, multi check etc</Description>
 	#dim uiComponent as EF.ui.components.base
 	set uiComponent = $CLASSMETHOD("EF.ui.components.frontend."_..uiComponentType,"%New",..htmlID)
 	set uiComponent.label = ..labelText
-	set uiComponent.hasMandatoryMarker = ..isMandatory
+	set uiComponent.isMandatory = ..isMandatory
 	set uiComponent.helpText = ..helpText
 	set uiComponent.value = ..value
 	set uiComponent.alternatives = ..alternatives
@@ -1280,7 +1285,7 @@ Hold the alternatives to dropdown, radios, multi check etc</Description>
 <Description>
 Used for all input field on a registration page that are regular database items, as opposed to table booking and ticketing questions.</Description>
 <Super>EF.pageController.proweb.listItems.inputElement</Super>
-<TimeChanged>64183,60946.452565</TimeChanged>
+<TimeChanged>64184,57891.714083</TimeChanged>
 <TimeCreated>64055,42548.552153</TimeCreated>
 
 <Method name="populateFromProwebItem">
@@ -1322,6 +1327,9 @@ Used for all input field on a registration page that are regular database items,
 	set alternative = ##class(EF.pageController.proweb.listItems.alternative).%New()
 	set alternative.label = alternativeDescription
 	set alternative.code = alternativeCode
+	if alternativeDescription = ..value {
+		set alternative.isSelected = 1	
+	}
 	
 	do ..alternatives.Insert(alternative)
 ]]></Implementation>
@@ -1448,7 +1456,7 @@ Common page that all frontend pages could/should inherit from.
 <Language>cache</Language>
 <ProcedureBlock>0</ProcedureBlock>
 <Super>shared.pCSPmanage</Super>
-<TimeChanged>64184,39687.043706</TimeChanged>
+<TimeChanged>64184,53272.672314</TimeChanged>
 <TimeCreated>63635,40114.778424</TimeCreated>
 
 <Parameter name="showRegistrationProgressBar">
@@ -1617,7 +1625,7 @@ Common page that all frontend pages could/should inherit from.
 	set contextDataRegistration.componentName = componentName
 
 	set floatingMenuCounter = %session.Data("floatCount") // ######### needs refactoring ######
-	
+
 	set listID = ##class(sc.xModules.objList).getListIDFromPageIDAndComponentName(pageID,componentName)
 	set objList = ##class(sc.xModules.objList).%OpenId(listID)
 	if '$IsObject(objList) {
@@ -1930,12 +1938,12 @@ Hold the alternatives to dropdown, radios, multi check etc</Description>
 
 <Class name="EF.ui.components.frontend.dropdown">
 <Super>EF.ui.components.frontend.inputElement,EF.ui.components.listInput</Super>
-<TimeChanged>64184,39791.660035</TimeChanged>
+<TimeChanged>64184,57952.276581</TimeChanged>
 <TimeCreated>63355,56609.363142</TimeCreated>
 
 <Method name="render">
 <Implementation><![CDATA[
-	do ..renderRowAndLabel()
+	do ..renderRowOpeningAndLabel()
 	set selectClass="form-control"
 	&html<		
 		<select class="#(..encodeForHTMLAttribute(selectClass))#" name="#(..encodeHTMLAttribute(..htmlName))#" id="#(..encodeHTMLAttribute(..htmlID))#" title="#(..encodeHTMLAttribute(..title))#" #(..rawHTML(..getDisabledString()))# >
@@ -1948,7 +1956,7 @@ Hold the alternatives to dropdown, radios, multi check etc</Description>
 
 <Method name="renderAlternatives">
 <Implementation><![CDATA[
- 
+ 	do ..renderPlaceholder()
 	set key=""
 	for  {
 		set alternative = ..alternatives.GetNext(.key)
@@ -1977,12 +1985,22 @@ Hold the alternatives to dropdown, radios, multi check etc</Description>
 	>
 ]]></Implementation>
 </Method>
+
+<Method name="renderPlaceholder">
+<Implementation><![CDATA[
+	if ..isMandatory {
+		write !,"<option value='' selected disabled>",..encodeHTMLContent(##class(shared.pCSP).out("Choose one...")),"</option>",!	
+	} else {
+		write !,"<option value=''></option>",!
+	}
+]]></Implementation>
+</Method>
 </Class>
 
 
 <Class name="EF.ui.components.frontend.inputElement">
 <Super>EF.ui.components.frontend.prowebBase,EF.ui.components.inputBase</Super>
-<TimeChanged>64183,60284.465548</TimeChanged>
+<TimeChanged>64184,57613.603387</TimeChanged>
 <TimeCreated>64183,40678.260093</TimeCreated>
 
 <Property name="alternatives">
@@ -1990,7 +2008,7 @@ Hold the alternatives to dropdown, radios, multi check etc</Description>
 <Collection>list</Collection>
 </Property>
 
-<Property name="hasMandatoryMarker">
+<Property name="isMandatory">
 <Type>%Boolean</Type>
 </Property>
 
@@ -1999,10 +2017,10 @@ Hold the alternatives to dropdown, radios, multi check etc</Description>
 <Parameter name="MAXLEN" value="32000"/>
 </Property>
 
-<Method name="renderRowAndLabel">
+<Method name="renderRowOpeningAndLabel">
 <Implementation><![CDATA[
 	do ..renderRowOpening()
-	if ..hasMandatoryMarker {
+	if ..isMandatory {
 		do ..renderLabelCellOpeningMandatory()
 	} else {
 		do ..renderLabelCellOpening()
@@ -2121,7 +2139,7 @@ Hold the alternatives to dropdown, radios, multi check etc</Description>
 
 <Class name="EF.ui.components.frontend.textInput">
 <Super>EF.ui.components.frontend.inputElement,EF.ui.components.textInput</Super>
-<TimeChanged>64183,60710.183997</TimeChanged>
+<TimeChanged>64184,57908.395562</TimeChanged>
 <TimeCreated>63357,57620.613738</TimeCreated>
 
 <Parameter name="typeAttribute">
@@ -2130,7 +2148,7 @@ Hold the alternatives to dropdown, radios, multi check etc</Description>
 
 <Method name="render">
 <Implementation><![CDATA[
-	do ..renderRowAndLabel()
+	do ..renderRowOpeningAndLabel()
 	&html<
 		    <input type="#(..encodeHTMLAttribute(..#typeAttribute))#" class="#(..encodeHTMLAttribute(..classes))#" #(..rawHTML(..getDisabledString()))# title="#(..encodeHTMLAttribute(..title))#" id="#(..encodeHTMLAttribute(..htmlID))#" name="#(..encodeHTMLAttribute(..htmlName))#" value="#(..encodeHTMLAttribute(..value))#" placeholder="#(..encodeHTMLAttribute(..placeHolder))#"  #(..rawHTML(..getExtraAttributes()))#>
     >
@@ -2146,7 +2164,7 @@ Hold the alternatives to dropdown, radios, multi check etc</Description>
 	Do ##super()
 </script>
 
-
+  
 <csp:section name="PageContent">
 	</h1><ef-pc-container type="panel-body">
 	   	<ef-pc-container type="row"> 
@@ -2159,6 +2177,761 @@ Hold the alternatives to dropdown, radios, multi check etc</Description>
 	</ef-pc-container>			
 </csp:section>
 
+]]></CSP>
+
+
+<CSP name="system/eventsForceRules.csr" application="/freddev/" default="1"><![CDATA[
+	// please note that the NEW command dannot be used in rules! (nor the: <CSP:if>)
+
+
+// This little beuty replaces the given path in compile time with a call to an inherited page method in runtime!
+// It also translates the 'Alt' and the 'Title' attributes
+<csr:RULE name="PathExpander" match="IMG[SRC]" empty>
+<csr:ACTION>
+<script language="cache" runat="compiler">
+	set inPath=%this.GetAttribute("SRC")
+	if inPath'["StreamServer" { // leave streamed images
+		if inPath["#(" {
+			// do nothing if dynamic
+		} else {
+			set inPath="#(..resolvePath("""_inPath_"""))#" 
+			do %this.SetAttribute("SRC",inPath)
+		}
+	}
+		
+	set titleText=%this.GetAttribute("TITLE")
+	//if (titleText'="")&(titleText'["#(") set titleText="#(##class(shared.translation).translateSingle(%request.PageName,%session.Get(""xLanguage""),"""_titleText_"""))#" 
+	if (titleText'="")&(titleText'["#(") set titleText="#(..out("""_$TR(titleText,"""","'")_"""))#" 
+	do %this.SetAttribute("TITLE",titleText)
+
+	set altText=%this.GetAttribute("ALT")
+	//if (altText'="")&(altText'["#(") set altText="#(##class(shared.translation).translateSingle(%request.PageName,%session.Get(""xLanguage""),"""_altText_"""))#" 
+	if (altText'="")&(altText'["#(") set altText="#(..out("""_$TR(altText,"""","'")_"""))#" 
+	do %this.SetAttribute("ALT",altText)
+	
+</script>
+<csr:DEFAULT>
+</csr:ACTION>
+</csr:RULE>
+
+
+//Same as above but for input tags with images (submit button to you and me)
+<csr:RULE name="PathExpander2" match="INPUT[SRC]" empty>
+<csr:ACTION>
+<script language="cache" runat="compiler">
+	set inPath=%this.GetAttribute("SRC")
+	if inPath'["StreamServer" { // leave streamed images
+		if inPath["#(" {
+			// do nothing if dynamic
+		} else {
+			set inPath="#(..resolvePath("""_inPath_"""))#" 
+			do %this.SetAttribute("SRC",inPath)
+		}
+
+	}
+
+	set titleText=%this.GetAttribute("TITLE")
+	//if (titleText'="")&(titleText'["#(") set titleText="#(##class(shared.translation).translateSingle(%request.PageName,%session.Get(""xLanguage""),"""_titleText_"""))#" 
+	if (titleText'="")&(titleText'["#(") set titleText="#(..out("""_$TR(titleText,"""","'")_"""))#" 
+	do %this.SetAttribute("TITLE",titleText)
+	
+	set altText=%this.GetAttribute("ALT")
+	//if (altText'="")&(altText'["#(") set altText="#(##class(shared.translation).translateSingle(%request.PageName,%session.Get(""xLanguage""),"""_altText_"""))#" 
+	if (altText'="")&(altText'["#(") set altText="#(..out("""_$TR(altText,"""","'")_"""))#" 
+	do %this.SetAttribute("ALT",altText)
+</script>
+<csr:DEFAULT>
+</csr:ACTION>
+</csr:RULE>
+
+<csr:RULE name="efA" match="ef-a" myData>
+<csr:ACTION>
+<script language="cache" runat="compiler">
+	set %this.TagName="a"
+	do ##class(EF.ui.cspRuleMethods).linkStandatdURLAttributes(%this)
+	do ##class(EF.ui.cspRuleMethods).htmlEncodeAllAttributes(%this)
+</script>
+<csr:DEFAULT>
+</csr:ACTION>
+</csr:RULE>
+
+<csr:RULE name="efSelect" match="ef-select" myData>
+<csr:ACTION>
+<script language="cache" runat="compiler">
+	set %this.TagName="select"
+	do ##class(EF.ui.cspRuleMethods).linkStandatdURLAttributes(%this)
+	do ##class(EF.ui.cspRuleMethods).htmlEncodeAllAttributes(%this)
+</script>
+<csr:DEFAULT>
+</csr:ACTION>
+</csr:RULE>
+
+<csr:RULE name="efInput" match="ef-input" myData>
+<csr:ACTION>
+<script language="cache" runat="compiler">
+	set %this.TagName="input"
+	do ##class(EF.ui.cspRuleMethods).linkStandatdURLAttributes(%this)
+	do ##class(EF.ui.cspRuleMethods).htmlEncodeAllAttributes(%this)
+</script>
+<csr:DEFAULT>
+</csr:ACTION>
+</csr:RULE>
+
+// language thing for href tags with titles
+<csr:RULE name="titleAHREF" match="A[TITLE]" myData>
+<csr:ACTION>
+<script language="cache" runat="compiler">
+	set titleText=%this.GetAttribute("TITLE")
+	if (titleText'="")&(titleText'["#(") set titleText="#(..out("""_$TR(titleText,"""","'")_"""))#" 
+	do %this.SetAttribute("TITLE",titleText)
+</script>
+<csr:DEFAULT>
+</csr:ACTION>
+</csr:RULE>
+
+// language thing for span tags with titles
+<csr:RULE name="titleSPAN" match="SPAN[TITLE]" myData>
+<csr:ACTION>
+<script language="cache" runat="compiler">
+	set titleText=%this.GetAttribute("TITLE")
+	if (titleText'="")&(titleText'["#(") set titleText="#(..out("""_$TR(titleText,"""","'")_"""))#" 
+	do %this.SetAttribute("TITLE",titleText)
+</script>
+<csr:DEFAULT>
+</csr:ACTION>
+</csr:RULE>
+
+// Replace the path to the stylesheet
+// No longer needed, but you can't just delete a csp rule
+<csr:RULE name="StyleSheetFinder" match="LINK[HREF]" empty>
+<csr:ACTION>
+<csr:DEFAULT>
+</csr:ACTION>
+</csr:RULE>
+
+
+// Translate the breadtext
+<csr:RULE name="breadText" match="tx" myData>
+<csr:attribute name=cl description="The classname to use in the span" type="expression:STRING">
+<csr:attribute name=nospan description="If 1 then do not surround the text with a span" type="expression:STRING">
+<csr:ACTION>
+<script language="cache" runat="compiler">
+	// Replace the innertext with a call to ..out()
+	set txText=%this.InnerText()   // GET THE CONTENTS OF THE TX TAGS
+	set txText=$TR(txText,"""","'")
+	set (v1plus,v2plus,v3plus)=0
+	
+	// extract the variables
+	set var1=$P($p(txText,"#(",2),")#",1)
+	if var1?1"+".E set var1=$e(var1,2,99),v1plus=1
+	if var1'="" set txText=$p(txText,"#(",1)_"{{{VAR01}}}"_$p(txText,")#",2,99)
+
+	set var2=$P($p(txText,"#(",2),")#",1)
+	if var2?1"+".E set var2=$e(var2,2,99),v2plus=1
+	if var2'="" set txText=$p(txText,"#(",1)_"{{{VAR02}}}"_$p(txText,")#",2,99)
+
+	set var3=$P($p(txText,"#(",2),")#",1)
+	if var3?1"+".E set var3=$e(var3,2,99),v3plus=1
+	if var3'="" set txText=$p(txText,"#(",1)_"{{{VAR03}}}"_$p(txText,")#",2,99)
+	  
+	set routine=classname // classname is intersystems variable. it might change in the next version
+	
+	set string="..out("""_txText_""""
+	set string=string_","""_routine_""""
+	if var1'="" {
+		if var1="BR" {
+			set string=string_","_$S(v1plus:"+",1:"")_"<BR>"
+		} else {
+			set string=string_","_$S(v1plus:"+",1:"")_"$G("_var1_")"
+ 		}
+	}
+	if var2'="" set string=string_","_$S(v2plus:"+",1:"")_"$G("_var2_")"
+	if var3'="" set string=string_","_$S(v3plus:"+",1:"")_"$G("_var3_")"
+	set string=string_")"
+	
+	//set CSSclassname="ef_tx_normal" // fred june 2009 - removed becuase it is creating mixed font sizes when data is mixed with text
+	set CSSclassname=""
+	if $L(..GetAttribute("cl")) set CSSclassname=..GetAttribute("cl")
+	
+	// do not write out the span if we specifically say so or if backend page
+	set doSpan=1
+	if CSSclassname="" set doSpan=0
+	
+	if ..GetAttribute("nospan")=1 set doSpan=0
+	if $L($G(%pageName)),$ZCVT(%pageName,"L")["/backend/" set doSpan=0
+
+	if doSpan do ..WriteText("<span class="""_CSSclassname_""">")
+	Do ..WriteExpressionText(string) 
+	if doSpan do ..WriteText("</span>")
+
+	//Do ..WriteExpressionText("..out("_txText_")   // csp rule:breadText")     
+	//
+</script>
+</csr:ACTION>
+</csr:RULE>
+
+
+<!-- SYSTEMTYPE IF --------------------------------------------- -->
+// create if statements around a section of code based on the systemType (setup.objSystemType)
+<csr:rule name="systemTypeIF" match="SYSTEMTYPE:IF">
+<csr:attribute name=module required description="A run-time expression to be evaluated." type="expression:STRING">
+<csr:attribute name=autoelse description="should this write the standard page not allowed msg" type="expression:STRING">
+
+<csr:description>
+	The autoelse=1 causes an ELSE to be written automatically containing the "This is only available in the following editions..." message
+	If autoelse is used then you CANNOT use ELSE.
+	<EXAMPLE>
+		<systemType:if module="EMAIL" autoelse="1">
+			do email stuff
+		</systemType:if>
+	</EXAMPLE>
+</csr:description>
+
+<csr:class super=%CSP.RuleBlock>
+
+<csr:action>
+	<SCRIPT LANGUAGE=CACHE RUNAT=COMPILER>
+		Do ..NewBlock()
+		Set ..NextLabel=..GetNewLabel()
+		Do ..WriteServer(" If '(##class(setup.objSystemTypes).isModuleAllowed("""_..GetAttribute("MODULE")_""")) Goto "_..NextLabel_" ;{")
+	</SCRIPT>
+	<csr:children>
+	<SCRIPT LANGUAGE=CACHE RUNAT=COMPILER>
+		New ifblock
+		if ..GetAttribute("AUTOELSE")=1	{   // if this is used then cannot use an ELSE tag - otherwise it will not work.
+			Set ifblock=..GetCurrentBlock()
+			If ifblock.EndLabel="" Set ifblock.EndLabel=..GetNewLabel()
+			Do ..WriteServer(" Goto "_ifblock.EndLabel_" ;} END IF")
+			Do ..WriteServer(ifblock.NextLabel_" ;{ START ELSE")
+			// do the standard msg stuff
+			Set ifblock.NextLabel=""
+		}
+
+		New comment Set comment=" ;} END ELSE"
+		If ..EndLabel'="" Do ..WriteServer(..EndLabel_comment) Set comment=""
+		If ..NextLabel'="" Do ..WriteServer(..NextLabel_comment)
+		Do ..RemoveBlock()
+	</SCRIPT>
+</csr:action>
+
+</csr:rule>
+
+<!-- SYSTEMTYPE ELSE --------------------------------------------- -->
+<csr:rule name="systemTypeELSE" match="SYSTEMTYPE:IF/SYSTEMTYPE:ELSE" empty>
+
+<csr:description>
+	see description for systemTypeIF
+</csr:description>
+
+<csr:class super=%CSP.RuleBlock>
+
+<csr:action>
+	<SCRIPT LANGUAGE=CACHE RUNAT=COMPILER>
+		New ifblock
+		Set ifblock=..GetCurrentBlock()
+		If ifblock'="" {
+			If ifblock.EndLabel="" Set ifblock.EndLabel=..GetNewLabel()
+			Do ..WriteServer(" Goto "_ifblock.EndLabel_" ;} END IF")
+			Do ..WriteServer(ifblock.NextLabel_" ;{ START ELSE")
+			Set ifblock.NextLabel=""
+		}
+	</SCRIPT>
+</csr:action>
+</csr:rule>
+
+<csr:rule name="layoutSection0" match="LAYOUT:SECTION" empty>
+<csr:attribute name=from required description="the tag to start writing from" type="expression:STRING">
+<csr:attribute name=to required description="the tag to end at" type="expression:STRING">
+<csr:action>
+<script language="cache" runat="compiler">
+	//Do ..WriteExpressionText(string) 
+	//do ..WriteText("</span>")
+    Do ..WriteServer(" do ##class(layout.objTemplate).writeBit("""_..GetAttribute("FROM")_""","""_..GetAttribute("TO")_""")")
+</script>
+</csr:action>
+</csr:rule>
+
+// =============================================================================================================================
+<csp:comment><!-- PROWEB RULES--></csp:comment>
+	// please note that the NEW command cannot be used in rules! (nor the: <CSP:if>)
+// =============================================================================================================================
+
+
+
+<csr:rule name="TEMPLATESTART" match="SC:TEMPLATESTART" empty dwenabled>
+<csr:description>
+	The <B>CS:TEXT</B> tag is the proWeb's initialising a template page.
+</csr:description>
+<csr:action>
+<script language="cache" runat="server">
+	set app=##class(sc.objData).applicationPath()
+	do ##class(cspRealEV.system.proweb.templatestart).OnPageCSPROOT()
+	
+	// put the pageID int the session
+	// JAW - done in template start (security hole) if %request.Get("pageID")'="" set %session.Data("pageID")=%request.Get("pageID")
+</script>
+
+</csr:action>
+</csr:rule>
+
+// =============================================================================================================================
+<csr:rule name="TEMPLATESTOP" match="SC:TEMPLATESTOP" empty dwenabled>
+<csr:description>
+	The <B>CS:TEXT</B> tag is the proWeb's ending a template page.
+</csr:description>
+<csr:action>
+<script language="cache" runat="server">
+	set app=##class(sc.objData).applicationPath()
+	do ##class(cspRealEV.system.proweb.templatestop).OnPageCSPROOT()
+</script>
+<script language="javascript">
+// open popup window
+function proWebNewWin(mypage,myname,w,h,scroll){
+	leftPos = (screen.width) ? (screen.width-w)/2 : 0;
+	topPos = (screen.height) ? (screen.height-h)/2 : 0;
+	settings = 'height='+h+',width='+w+',top='+topPos+',left='+leftPos+',scrollbars=' + scroll + ',resizable=yes'
+	win = window.open(mypage,myname,settings)
+	win.focus();
+}
+</script>
+</csr:action>
+</csr:rule>
+
+// =============================================================================================================================
+<csr:rule name="TEXT" match="SC:TEXT" empty dwenabled>
+<csr:description>
+	The <B>CS:TEXT</B> tag is the proWeb's way of outputting a block of text. It will include an external page that only handles texts. Texts may include html formatting.
+</csr:description>
+<csr:attribute name="NAME" description="Specifies the component name of the template page" type="accessType:STRING">
+<csr:action>
+ <script language="CACHE" runat="SERVER">
+	new pageURL,app
+  
+	// retrieve the passed component name
+	set %session.Data("componentName")=##'%this.GetAttribute("NAME")'##
+
+	set app=##class(sc.objData).applicationPath()
+	set pageURL=app_"/system/proWeb/tagText.csp"
+	do ##class(cspRealEV.system.proweb.tagtext).OnPageCSPROOT()
+ </script>
+</csr:action>
+</csr:rule>
+
+
+// =============================================================================================================================
+<csr:rule name="FREE" match="SC:FREE" empty dwenabled>
+FRRE RULE
+<csr:description>
+	The <B>SC:FREE</B> tag is the proWeb's way of outputting a list of freely chosed items. It will include an external page that only handles lists.
+</csr:description>
+<csr:attribute name="NAME" description="Specifies the component name of the template page" type="accessType:STRING">
+<csr:action>
+<script language="CACHE" runat="SERVER">
+	do ##class(EF.pages.frontend.base).outputProwebListRows(##'%this.GetAttribute("NAME")'##, %session.Get("pageID"),1)
+	s a="test"
+</script>
+</csr:action>
+</csr:rule>
+
+// =============================================================================================================================
+<csr:rule name="IMAGE" match="SC:IMAGE" empty dwenabled>
+<csr:description>
+	The <B>CS:IMAGE</B> tag is the proWeb's way of outputting an image. It will include an external page that only handles images.
+</csr:description>
+<csr:attribute name="NAME" description="Specifies the component name of the template page" type="accessType:STRING">
+<csr:action>
+ <script language="CACHE" runat="SERVER">
+  new pageURL,app
+  
+  // retrieve the passed component name
+  set %session.Data("componentName")=##'%this.GetAttribute("NAME")'##
+  set app=##class(sc.objData).applicationPath()
+  set pageURL=app_"/system/proweb/tagImage.csp"
+	if +$system.Version.GetNumber()<5 {		
+	  	do DisplayPage^%customCSP(pageURL)
+	} else {
+		do ##class(cspRealEV.system.proweb.tagimage).OnPageCSPROOT()
+	}
+
+ </script>
+</csr:action>
+</csr:rule>
+
+
+
+<csr:RULE name="HTMLLANG" match="HTML" empty>
+<csr:ACTION>
+<script language="CACHE" runat="COMPILER">
+    // set the lang attribute for the HTML tag
+    Do ..SetAttribute("lang","en")
+</script>
+<csr:DEFAULT>
+</csr:ACTION>
+</csr:RULE>
+
+
+
+<csr:RULE name="efBackendToggle" match="EF:BACKEND:TOGGLE" empty>
+<csr:ACTION>
+<script language="CACHE" runat="COMPILER">
+   Do ..WriteServer(" kill efRulesVarBackendToggleAttr")
+   kill paramsordered
+   do ..GetAttributesOrdered(.paramsordered)
+   set index=""
+   for {
+		set index=$o(paramsordered(index))
+		if index="" quit
+		set attr=$ZCVT($LIST(paramsordered(index),1),"L")
+		set value=..QuoteAttribute(attr)
+		Do ..WriteServer(" set efRulesVarBackendToggleAttr"_"("""_attr_""")="_value)
+	}
+</script>
+<script language="CACHE" runat="SERVER">
+   Do ##class(pageClasses.backendComponentMethods).renderEfBackendToggle(.efRulesVarBackendToggleAttr)
+</script>
+</csr:ACTION>
+</csr:RULE>
+
+
+
+<csr:RULE name="efBackendTextField" match="EF:BACKEND:TEXTFIELD" empty>
+<csr:ACTION>
+<script language="CACHE" runat="COMPILER">
+   Do ..WriteServer(" kill efRulesVarBackendTextFieldAttr")
+   kill paramsordered
+   do ..GetAttributesOrdered(.paramsordered)
+   set index=""
+   for {
+		set index=$o(paramsordered(index))
+		if index="" quit
+		set attr=$ZCVT($LIST(paramsordered(index),1),"L")
+		set value=..QuoteAttribute(attr)
+		Do ..WriteServer(" set efRulesVarBackendTextFieldAttr"_"("""_attr_""")="_value)
+	}
+</script>
+<script language="CACHE" runat="SERVER">
+   Do ##class(pageClasses.backendComponentMethods).renderBackendTextField(.efRulesVarBackendTextFieldAttr)
+</script>
+</csr:ACTION>
+</csr:RULE>
+
+
+
+<csr:RULE name="efBackendTextArea" match="EF:BACKEND:TEXTAREA" empty>
+<csr:ACTION>
+<script language="CACHE" runat="COMPILER">
+   Do ..WriteServer(" kill efRulesVarBackendTextAreaAttr")
+   kill paramsordered
+   do ..GetAttributesOrdered(.paramsordered)
+   set index=""
+   for {
+		set index=$o(paramsordered(index))
+		if index="" quit
+		set attr=$ZCVT($LIST(paramsordered(index),1),"L")
+		set value=..QuoteAttribute(attr)
+		Do ..WriteServer(" set efRulesVarBackendTextAreaAttr"_"("""_attr_""")="_value)
+	}
+</script>
+<script language="CACHE" runat="SERVER">
+   Do ##class(pageClasses.backendComponentMethods).renderBackendTextArea(.efRulesVarBackendTextAreaAttr)
+</script>
+</csr:ACTION>
+</csr:RULE>
+
+
+
+<csr:RULE name="efBackendURLField" match="EF:BACKEND:URLFIELD" empty>
+<csr:ACTION>
+<script language="CACHE" runat="COMPILER">
+   Do ..WriteServer(" kill efRulesVarBackendURLFieldAttr")
+   kill paramsordered
+   do ..GetAttributesOrdered(.paramsordered)
+   set index=""
+   for {
+		set index=$o(paramsordered(index))
+		if index="" quit
+		set attr=$ZCVT($LIST(paramsordered(index),1),"L")
+		set value=..QuoteAttribute(attr)
+		Do ..WriteServer(" set efRulesVarBackendURLFieldAttr"_"("""_attr_""")="_value)
+	}
+</script>
+<script language="CACHE" runat="SERVER">
+   Do ##class(pageClasses.backendComponentMethods).renderBackendURLField(.efRulesVarBackendURLFieldAttr)
+</script>
+</csr:ACTION>
+</csr:RULE>
+
+
+<csr:RULE name="efBackendImageUploader" match="EF:BACKEND:IMAGEUPLOADER" empty>
+<csr:ACTION>
+<script language="CACHE" runat="COMPILER">
+   Do ..WriteServer(" kill efRulesVarImageUploaderAttr")
+   kill paramsordered
+   do ..GetAttributesOrdered(.paramsordered)
+   set index=""
+   for {
+		set index=$o(paramsordered(index))
+		if index="" quit
+		set attr=$ZCVT($LIST(paramsordered(index),1),"L")
+		set value=..QuoteAttribute(attr)
+		Do ..WriteServer(" set efRulesVarImageUploaderAttr"_"("""_attr_""")="_value)
+	}
+</script>
+
+<script language="CACHE" runat="SERVER">
+   Do ##class(pageClasses.backendComponentMethods).renderImageUploader(.efRulesVarImageUploaderAttr)
+</script>
+</csr:ACTION>
+</csr:RULE>
+
+
+<csr:RULE name="efBackendSaveButton" match="EF:BACKEND:SAVEBUTTON" empty>
+<csr:ACTION>
+<script language="CACHE" runat="COMPILER">
+   Do ..WriteServer(" kill efRulesVarBackendSaveButtonAttr")
+   kill paramsordered
+   do ..GetAttributesOrdered(.paramsordered)
+   set index=""
+   for {
+		set index=$o(paramsordered(index))
+		if index="" quit
+		set attr=$ZCVT($LIST(paramsordered(index),1),"L")
+		set value=..QuoteAttribute(attr)
+		Do ..WriteServer(" set efRulesVarBackendSaveButtonAttr"_"("""_attr_""")="_value)
+	}
+</script>
+
+<script language="CACHE" runat="SERVER">
+   Do ##class(pageClasses.backendComponentMethods).renderBackendSaveButton(.efRulesVarBackendSaveButtonAttr)
+</script>
+</csr:ACTION>
+</csr:RULE>
+
+<csr:RULE name="efBackendButton" match="EF:BACKEND:BUTTON" empty>
+<csr:ACTION>
+<script language="CACHE" runat="COMPILER">
+   Do ..WriteServer(" kill efRulesVarBackendButtonAttr")
+   kill paramsordered
+   do ..GetAttributesOrdered(.paramsordered)
+   set index=""
+   for {
+		set index=$o(paramsordered(index))
+		if index="" quit
+		set attr=$ZCVT($LIST(paramsordered(index),1),"L")
+		set value=..QuoteAttribute(attr)
+		Do ..WriteServer(" set efRulesVarBackendButtonAttr"_"("""_attr_""")="_value)
+	}
+</script>
+
+<script language="CACHE" runat="SERVER">
+   Do ##class(pageClasses.backendComponentMethods).renderBackendButton(.efRulesVarBackendButtonAttr)
+</script>
+</csr:ACTION>
+</csr:RULE>
+
+<csr:RULE name="efBackendColorPicker" match="EF:BACKEND:COLORPICKER" empty>
+<csr:ACTION>
+<script language="CACHE" runat="COMPILER">
+   Do ..WriteServer(" kill efRulesVarBackendColorPickerAttr")
+   kill paramsordered
+   do ..GetAttributesOrdered(.paramsordered)
+   set index=""
+   for {
+		set index=$o(paramsordered(index))
+		if index="" quit
+		set attr=$ZCVT($LIST(paramsordered(index),1),"L")
+		set value=..QuoteAttribute(attr)
+		Do ..WriteServer(" set efRulesVarBackendColorPickerAttr"_"("""_attr_""")="_value)
+	}
+</script>
+
+<script language="CACHE" runat="SERVER">
+   Do ##class(pageClasses.backendComponentMethods).renderBackendColorPicker(.efRulesVarBackendColorPickerAttr)
+</script>
+</csr:ACTION>
+</csr:RULE>
+
+<csr:RULE name="efBackendInlineColorPicker" match="EF:BACKEND:INLINECOLORPICKER" empty>
+<csr:ACTION>
+<script language="CACHE" runat="COMPILER">
+   Do ..WriteServer(" kill efRulesVarBackendInlineColorPickerAttr")
+   kill paramsordered
+   do ..GetAttributesOrdered(.paramsordered)
+   set index=""
+   for {
+		set index=$o(paramsordered(index))
+		if index="" quit
+		set attr=$ZCVT($LIST(paramsordered(index),1),"L")
+		set value=..QuoteAttribute(attr)
+		Do ..WriteServer(" set efRulesVarBackendInlineColorPickerAttr"_"("""_attr_""")="_value)
+	}
+</script>
+
+<script language="CACHE" runat="SERVER">
+   Do ##class(pageClasses.backendComponentMethods).renderBackendInlineColorPicker(.efRulesVarBackendInlineColorPickerAttr)
+</script>
+</csr:ACTION>
+</csr:RULE>
+
+<csr:RULE name="efBackendErrorMessage" match="EF:BACKEND:ERRORMESSAGE:START" empty>
+<csr:ACTION>
+<script language="CACHE" runat="COMPILER">
+   Do ..WriteServer(" kill efRulesVarBackendErrorMessage")
+   kill paramsordered
+   do ..GetAttributesOrdered(.paramsordered)
+   set index=""
+   for {
+		set index=$o(paramsordered(index))
+		if index="" quit
+		set attr=$ZCVT($LIST(paramsordered(index),1),"L")
+		set value=..QuoteAttribute(attr)
+		Do ..WriteServer(" set efRulesVarBackendErrorMessage"_"("""_attr_""")="_value)
+	}
+</script>
+
+<script language="CACHE" runat="SERVER">
+   Do ##class(pageClasses.backendComponentMethods).renderBackendErrorMessageStart(.efRulesVarBackendErrorMessage)
+</script>
+</csr:ACTION>
+</csr:RULE>
+
+<csr:RULE name="efBackendErrorMessageEnd" match="EF:BACKEND:ERRORMESSAGE:STOP" empty>
+<csr:ACTION>
+<script language="CACHE" runat="SERVER">
+   Do ##class(pageClasses.backendComponentMethods).renderBackendErrorMessageEnd(.efRulesVarBackendErrorMessage)
+</script>
+</csr:ACTION>
+</csr:RULE>
+
+<csr:RULE name="efPageControllerElement" match="ef-pc-element" empty>
+<csr:ACTION>
+<script language="CACHE" runat="COMPILER">
+   Do ..WriteServer(" kill efRulesTempParams")
+   kill paramsordered
+   
+   do ..GetAttributesOrdered(.paramsordered)
+   set index=""
+   for {
+		set index=$o(paramsordered(index))
+		if index="" quit
+		set attr=$ZCVT($LIST(paramsordered(index),1),"L")
+		set value=..QuoteAttribute(attr)
+		Do ..WriteServer(" set efRulesTempParams"_"("""_attr_""")="_value)
+	}
+	
+</script>
+
+<script language="CACHE" runat="SERVER">
+
+    set pageID = ##class(shared.pageMethods).getPageID()
+    if pageID {
+		set efRulesTempParams("pageid")=pageID
+    }
+
+   Do pageController.renderHTMLControlFromTag(.efRulesTempParams)
+   kill efRulesTempParams
+</script>
+</csr:ACTION>
+</csr:RULE>
+
+
+<csr:rule name="efPageControllerContainer" match="ef-pc-container">
+
+<csr:class super=%CSP.RuleBlock>
+
+<csr:action>
+	<SCRIPT LANGUAGE=CACHE RUNAT=COMPILER>
+		Do ..NewBlock()
+		Set ..NextLabel=..GetNewLabel()
+		Do ..WriteServer(" kill efRulesTempParams")
+		kill paramsordered
+		do ..GetAttributesOrdered(.paramsordered)
+		set index=""
+		for {
+			set index=$o(paramsordered(index))
+			if index="" quit
+			set attr=$ZCVT($LIST(paramsordered(index),1),"L")
+			set value=..QuoteAttribute(attr)
+			Do ..WriteServer(" set efRulesTempParams"_"("""_attr_""")="_value)
+		}
+		Do ..WriteServer(" if 'pageController.showElementFromTag(.efRulesTempParams) Goto "_..NextLabel_" ;{")
+	</SCRIPT>
+	<script language="CACHE" runat="SERVER">
+	   Do pageController.renderContainerStartFromTag(.efRulesTempParams)
+	   kill efRulesTempParams
+	</script>
+	<csr:children>
+	<SCRIPT LANGUAGE=CACHE RUNAT=COMPILER>
+		Do ..WriteServer(" kill efRulesTempParams")
+		kill paramsordered
+		do ..GetAttributesOrdered(.paramsordered)
+		set index=""
+		for {
+			set index=$o(paramsordered(index))
+			if index="" quit
+			set attr=$ZCVT($LIST(paramsordered(index),1),"L")
+			set value=..QuoteAttribute(attr)
+			Do ..WriteServer(" set efRulesTempParams"_"("""_attr_""")="_value)
+		}
+		Do ..WriteServer(" if 'pageController.showElementFromTag(.efRulesTempParams) Goto "_..NextLabel_" ;{")
+	</SCRIPT>
+	<script language="CACHE" runat="SERVER">
+	   Do pageController.renderContainerEndFromTag(.efRulesTempParams)
+	</script>
+	<SCRIPT LANGUAGE=CACHE RUNAT=COMPILER>
+
+		New comment Set comment=" ;} END Container"
+		If ..NextLabel'="" Do ..WriteServer(..NextLabel_comment)
+		Do ..RemoveBlock()
+	</SCRIPT>
+</csr:action>
+</csr:rule>
+
+<csr:RULE name="efFrontendlabel" match="ef-label" empty>
+<csr:ACTION>
+<script language="CACHE" runat="COMPILER">
+   Do ..WriteServer(" kill efRulesTempParams")
+   kill paramsordered
+   do ..GetAttributesOrdered(.paramsordered)
+   set index=""
+   for {
+		set index=$o(paramsordered(index))
+		if index="" quit
+		set attr=$ZCVT($LIST(paramsordered(index),1),"L")
+		set value=..QuoteAttribute(attr)
+		Do ..WriteServer(" set efRulesTempParams"_"("""_attr_""")="_value)
+	}
+</script>
+
+<script language="CACHE" runat="SERVER">
+   do ##class(EF.ui.components.frontend.label).renderFromEfLabelRule(.efRulesTempParams)
+   kill efRulesTempParams
+</script>
+</csr:ACTION>
+</csr:RULE>
+
+<csr:RULE name="efAwardsCategoryDropdown" match="ef-awards-category-dropdown" empty>
+<csr:ACTION>
+<script language="CACHE" runat="COMPILER">
+   Do ..WriteServer(" kill efRulesTempParams")
+   kill paramsordered
+   do ..GetAttributesOrdered(.paramsordered)
+   set index=""
+   for {
+		set index=$o(paramsordered(index))
+		if index="" quit
+		set attr=$ZCVT($LIST(paramsordered(index),1),"L")
+		set value=..QuoteAttribute(attr)
+		Do ..WriteServer(" set efRulesTempParams"_"("""_attr_""")="_value)
+	}
+</script>
+
+<script language="CACHE" runat="SERVER">
+   do ##class(EF.ui.backend.controls.awardsCategoryDropdown).renderFromEfLabelRule(.efRulesTempParams)
+   kill efRulesTempParams
+</script>
+</csr:ACTION>
+</csr:RULE>
 ]]></CSP>
 
 
@@ -4363,8 +5136,9 @@ The basic frontend default stuff</Description>
 </Class>
 
 
-<Project name="proweb 2" LastModified="2016-09-23 10:42:21.246582" Target="##class(EF.pageController.proweb.list).debugTarget()" TargetType="2">
+<Project name="proweb 2" LastModified="2016-09-23 15:29:48.620528" Target="freddev/backend/home/login.csp" TargetType="3">
   <Items>
+    <ProjectItem name="EF.contextDataRegistration" type="CLS"></ProjectItem>
     <ProjectItem name="EF.contextDataRegistrationMock" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.page" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.proweb.list" type="CLS"></ProjectItem>
@@ -4385,11 +5159,1715 @@ The basic frontend default stuff</Description>
     <ProjectItem name="EF.ui.components.frontend.textBlock" type="CLS"></ProjectItem>
     <ProjectItem name="EF.ui.components.frontend.textInput" type="CLS"></ProjectItem>
     <ProjectItem name="freddev/frontEnd/reg/t4Registration.csp" type="CSP"></ProjectItem>
+    <ProjectItem name="freddev/system/eventsForceRules.csr" type="CSP"></ProjectItem>
     <ProjectItem name="layout.cssDefaultMethods" type="CLS"></ProjectItem>
-    <ProjectItem name="EF.contextDataRegistration" type="CLS"></ProjectItem>
+    <ProjectItem name="shared.pageMethods" type="CLS"></ProjectItem>
   </Items>
   <BreakPoints>
     <BreakPoint Routine="EF.pages.frontend.base.1.INT" Offset="130"></BreakPoint>
+    <BreakPoint Routine="cspRealEV.frontend.reg.t4registration.1.INT" Offset="14"></BreakPoint>
   </BreakPoints>
 </Project>
+
+
+<Class name="shared.pageMethods">
+<Description><![CDATA[
+<!-- ;vc;-
+;vc;    Object: shared.pageMethods.CLS/EV.174
+;vc; Component: CLS.shared.pageMethods
+;vc;  Location: SmallDev
+;vc; Date/Time: 02-Sep-16 14:28
+;vc;      User: JeremyW
+;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>shared.pageMethods.CLS/EV.174</td><td>CLS.shared.pageMethods</td><td>SmallDev</td><td style='white-space: nowrap;'>02-Sep-16 14:28</td><td>JeremyW</td></tr></table>
+]]></Description>
+<Abstract>1</Abstract>
+<ClassType/>
+<ProcedureBlock>1</ProcedureBlock>
+<TimeChanged>64184,55931.245514</TimeChanged>
+<TimeCreated>60747,44410.590792</TimeCreated>
+
+<Method name="prePartOne">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>frontback:%String</FormalSpec>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	set ip=%request.GetCgiEnv("REMOTE_ADDR","no ip")
+	set URL=$ZCVT(%request.URL,"L")				// this is the url and path: /evdev/frontend/reg/homepage.csp
+	set pagename=$ZCVT(%request.PageName,"L")	// this is just the url: homepage.csp
+	set cspAppName=##class(EF.config.clientData).getCSPAppForCurrentNameSpace()
+	set appFromURL=$p(URL,"/",2)
+	set pageID=%request.Get("pageID")
+
+	if ..isApplicationStopped() {
+		set %response.ServerSideRedirect=##class(shared.pageMethods).getURLforMaintenancePage(cspAppName)
+		quit "0|0"
+	}
+	
+	if ..isIncludePage() quit 1
+	
+	do ..updateLoadMonitor()
+	
+	do ..manageSEOrequest()
+	
+	do ..injectP3Ppolicy()
+	
+	do ..sanitiseRequestData()
+	
+	if ..isCrossSiteScripting() {
+		set %response.Redirect=..getRedirectURLforXSS(cspAppName)
+		quit "0|0"
+	}
+
+	do ..updatePageHistory()
+
+	if pagename="errorpage.csp" quit "0|1"  // will force quit 1 from preHTTP
+	
+	if ##class(EF.config.clientData).isAppRedirected(appFromURL) {
+		set %response.Redirect=..getURLForRedirectedApp(URL)
+		quit "0|0"
+	}
+
+	if ..isNewFrontendSession(frontback,URL,pagename) {
+		set %response.Redirect=..getRedirectURLforNewSession(pagename) // need to get new session set up if we do not have it and redirect to homepage.csp (for example if you go straight to dailyAgenda.csp)
+		quit "0|0"
+	}
+
+	if ..hasSwitchedLanguage(frontback,URL,pagename) {
+		set %response.Redirect=..getRedirectURLforNewLanguage(pagename)
+		quit "0|0"
+	}				
+	
+	if ..isBackendPageAuthorised(frontback,pagename)=0 {
+		set %response.Redirect=..getRedirectURLforUnauthorisedBackendPage(pagename)
+		quit "0|0"
+	}
+	if ##class(cod.methods).getCurrentBackendUser() {
+		if pageID {
+			if '(..isPageIDAllowedForBackendSession(pageID,pagename)) {
+				set %response.Redirect=..getRedirectURLforUnauthorisedProwebPage(pagename,pageID) 
+				quit "0|0"
+			}
+		}
+	}
+	do ..updateDebugInfo(URL,pagename)
+	
+	quit 1  // continue processing
+]]></Implementation>
+</Method>
+
+<Method name="prePartThree">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>frontback:%String,bypassLicenseCheck:%Boolean=0</FormalSpec>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	if ..isIncludePage() quit 1
+	set ip=%request.GetCgiEnv("REMOTE_ADDR","no ip")
+	set URL=$ZCVT(%request.URL,"L")				// this is the url and path: /evdev/frontend/reg/homepage.csp
+	set pagename=$ZCVT(%request.PageName,"L")	// this is just the url: homepage.csp
+	set userID=$G(%session.Data("eventsforce","backend","xPersonID"),"")
+	
+	// log page hit
+	do ##class(admin.objLog).logNonProwebPage(userID,URL,"eventsForce")
+	
+	// am I in an include page?
+	set includePage=0
+	if $L(%request.Get("CSPInclude")) set includePage=1
+
+	// set menu item selected if it's just been clicked
+	if %request.Get("ef_sel_menu"),'includePage set %session.Data("eventsforce","frontend","menu","selected")=%request.Get("ef_sel_menu")
+	
+	// log backend hits
+	if userID,%request.Get("storeBack"),'includePage	{
+		set category=%request.Get("category")
+		set subcategory=%request.Get("subcategory")
+		set subsubcategory=%request.Get("subsubcategory")
+		set subsubsubcategory=%request.Get("subsubsubcategory")
+		// userID == personID
+		do ##class(admin.objLogBackend).logPage(userID,%session.SessionId,category,subcategory,subsubcategory,subsubsubcategory)
+	}
+	
+	// above does not work when gateway holds the app name - replaced with below
+	set sharedPath="/"_$ZCVT(^%ZCSPAPPS($ZNSPACE),"L")
+	set loginPage=sharedPath_"/backend/home/login.csp"
+	set accessDenied=sharedPath_"/frontend/static/accessDenied.htm"
+	set invalidURLPage=sharedPath_"/frontend/static/invalidURL.htm"
+
+	set %session.Data("eventsforce",frontback,"requestPage")=URL
+
+	// redirect to login if not logged in
+	if frontback="backend"	{
+		
+		// check user has not logged in on one namespace and changed the URL to get into another clients area...
+		if $G(%session.Data("eventsforce","backend","NAMESPACE"))'=$ZNSPACE,(URL'["login")&(URL'["tc.csp") set userID=""
+
+		if userID=""&(URL'["login")&(URL'["tc.csp")&(URL'["initialisenamespace.csp")&(URL'["passwordreset") {
+		set %session.Data("eventsforce",frontback,"beforeLogin")=URL
+			set %response.Redirect=loginPage
+			quit "0|0"
+		}
+		// Update the selectedMenuAccessID from the request variable to allow for multiple windows, tabs, etc..
+		if (URL'["login")&(URL'["tc.csp")&(URL'["tc2.csp")&(URL'["logout.csp") {
+			if $l(%request.Get("selectedMenuAccessID")) {
+				// selectedMenuAccessID is set when clicking on a menu item
+				set %session.Data("eventsforce","backend","xSelectedMenuAccessID")=%request.Get("selectedMenuAccessID")
+			} elseif $l(%request.Get("xSelectedMenuAccessID")) {
+				// Otherwise use xSelectedMenuAccessID
+				set %session.Data("eventsforce","backend","xSelectedMenuAccessID")=%request.Get("xSelectedMenuAccessID")
+			
+			}
+			if $L($G(%session.Data("eventsforce","backend","xSelectedMenuAccessID"))) set %response.Context("xSelectedMenuAccessID")=$G(%session.Data("eventsforce","backend","xSelectedMenuAccessID"))
+		}
+
+		// Update the event ID from the menu, if we do not have one goto the eventAdminList
+		if ..doesBackendPageRequireEventID(pagename) {
+			set xEventID=..requestGetEventID() 
+			// We shouldn't select an event for dynamic
+			if xEventID'="NEW",'##class(access.objFunction).hasFunction(userID,"Dynamic Reports Only") {
+				if 'xEventID set xEventID=..getBackendEventIDFromSession()
+				if 'xEventID set xEventID=##class(cod.objItemData).get(userID,"last event selected")
+				
+				// make sure they have access to their previous selected event - you never know...
+				if '##class(links.lnkAccessPersonEvent).hasEvent(userID,xEventID) {
+					set xEventID=""
+					do ##class(cod.objItemData).set(userID,"last event selected","")
+				}
+				
+				// Set the working language if we have just changed event
+				if ##class(setup.objSystemTypes).isModuleAllowed("Multi Lingual Frontend") {
+					if xEventID'=..getBackendEventIDFromSession() {
+						set %session.Data("eventsforce","backend","xWorkLangID")=##class(setup.objEventSetting).getParameter("backend","default creation language",xEventID)
+					}
+				}
+				if '$G(%session.Data("eventsforce","backend","xWorkLangID")) set %session.Data("eventsforce","backend","xWorkLangID")=1
+				
+				set %session.Data("eventsforce","backend","xEventID")=xEventID
+				// redirect to the event selection unless they are support
+				if ('xEventID)&&('##class(admin.objUser).isEFuser(userID)) { 
+					set %response.Redirect=sharedPath_"/backend/home/eventSelection.csp"
+					quit "0|0"
+				}
+			}
+			
+		}
+		if ##class(setup.objSetting).getParameter("system","backend menu security") {
+			// If pagename is a menu item check that they have access to it
+			set ok=0
+			// Special cases for pages that can be called from elsewhere
+			if pagename="gotoonlinereports.csp" {
+				if ##class(access.objRole).hasRole(userID,"Single Report") set ok=1
+				if ##class(access.objFunction).hasFunctionByAccessID(userID,"ADVSEARCH") set ok=1
+			} elseif pagename="delegatesearchsimple.csp" {
+				set ok=1
+				if ##class(access.objFunction).hasFunction(userID,"Dynamic Reports Only") set ok=0
+				// Just about anyone can get to this page
+			} elseif pagename="dynarepstart.csp" {
+				if (##class(access.objRole).hasRole(userID,"Reports Only")) set ok=1
+				if ##class(access.objFunction).hasFunctionByAccessID(userID,"REPS") set ok=1
+				if ##class(access.objFunction).hasFunction(userID,"Dynamic Reports Only") set ok=1
+			} elseif pagename="eventemails2.csp" {
+				for accessID="EMAIL","MAILCAMP" {
+					if ##class(access.objFunction).hasFunctionByAccessID(userID,accessID) set ok=1
+				}
+			} else {
+				set ok=1
+			}
+			if 'ok {
+				set %response.Redirect=##class(access.backendPageNav).whichHomepage(userID)
+				quit "0|0"
+			}
+		}
+	}
+
+	// make sure frontend people cannot get to any page if event not live
+	if $G(%session.Data("eventsforce","frontend","xEventID"))	{
+		if $G(^xDEBUG) set ^xDEBUGPAGES($I(^xDEBUGPAGES),$ZTS,"here 8")=%session.Data("eventsforce","frontend","xEventID")
+		// if userID is not numeric then we are not someone with a backend session open = general public
+		// allow calls from Protx and Worldpay otherwise we cannot give a response for non-live events
+		if 'userID&('##class(shared.pageMethodsFrontend).isPageAnAllowedEntryPage(URL)) {
+			set objEvent=##class(setup.objEvent).%OpenId(%session.Data("eventsforce","frontend","xEventID"))
+			if objEvent.status'="live"	{
+				if $G(^xDEBUG) set ^xDEBUGPAGES($I(^xDEBUGPAGES),$ZTS,"here 8.1")=""
+				set %response.Redirect=accessDenied
+				kill objEvent
+				quit "0|0"
+			}
+			kill objEvent
+		}
+	}
+	
+	quit 1  // continue processing
+]]></Implementation>
+</Method>
+
+<Method name="resolvePath2">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>inPath</FormalSpec>
+<Implementation><![CDATA[
+	// split the path up in two pieces no matter the case with our changing the case
+	set loPath=$ZCVT(inPath,"L")
+	
+	//  allow images that don't use the standard images
+	if loPath'["/default/" quit inPath
+	
+	set part1Len=$L($P(loPath,"/default/",1))
+	
+	// get rid of the "default"
+	set part1=$E(inPath,1,part1Len)
+	set part1=$p(part1,"/",1,$L(part1,"/")-1)
+	
+	// get the filename
+	set part2Start=part1Len+10
+	set part2=$E(inPath,part2Start,999)
+	
+	// are we in the frontend or the backend?
+	set frontback=##class(shared.pCSP).frontBack()
+	
+	// do we have a client specific subdirectory for images?
+	set subDir=$G(%session.Data("eventsforce",frontback,"xClientDir"))
+	if subDir="" set subDir="default"
+
+	// find our preferred language
+	if frontback="frontend",$G(%session.Data("eventsforce",frontback,"xPrefLangID")) {
+		set language=##class(shared.objLanguage).getLanguageDesc(%session.Data("eventsforce",frontback,"xPrefLangID"))
+	} else {
+		set language=$G(%session.Data("eventsforce",frontback,"xLanguage"))
+	}
+	
+	// fall back to english if no language found (XT page etc)
+	if language="" set language="English"
+
+	// merge it all to a path	
+	set outPath=part1_"/"_language_"/"_subDir_"/"_part2
+	
+	quit outPath
+]]></Implementation>
+</Method>
+
+<Method name="resolveStyle2">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>inPath</FormalSpec>
+<Implementation><![CDATA[
+	if $ZCVT(inPath,"L")'["default" quit inPath // spare proweb from path resolving
+
+	// try to split the path up in two pieces no matter the case with our changing the case
+	set loPath=$ZCVT(inPath,"L")
+	set part1Len=$L($P(loPath,"/default/",1))
+	set part1=$E(inPath,1,part1Len)
+	set part2Start=part1Len+10
+	set part2=$E(inPath,part2Start,999)
+	
+	set frontback=##class(shared.pCSP).frontBack()
+	set subDir=$G(%session.Data("eventsforce",frontback,"xClientStyleDir"))
+	if $L(subDir)>1 {
+		set outPath=part1_"/"_$G(%session.Data("eventsforce",frontback,"xClientStyleDir"))_"/"_part2
+	} else {
+		set outPath=inPath	
+	}
+	
+	quit outPath
+]]></Implementation>
+</Method>
+
+<Method name="frontBack2">
+<ClassMethod>1</ClassMethod>
+<Implementation><![CDATA[
+	set frontback=""
+	// try this current page's URL
+	if $ZCVT(%request.URL,"L")["/frontend/" set frontback="frontend"
+	if $ZCVT(%request.URL,"L")["/backend/" set frontback="backend"
+	// now try the previous page's URL (although this can be blocked by lots of firewall s/w)
+	if frontback="",$ZCVT($G(%request.CgiEnvs("HTTP_REFERER")),"L")["/frontend/" set frontback="frontend"
+	if frontback="",$ZCVT($G(%request.CgiEnvs("HTTP_REFERER")),"L")["/backend/" set frontback="backend"
+	// if in template page (dir=/templates/dd)
+	if frontback="",$L(%request.Get("frontback")) set frontback=%request.Get("frontback")
+	if frontback="" set frontback="frontend"   // last resort, assume frontend to stop any dodgy access going on
+	quit frontback
+]]></Implementation>
+</Method>
+
+<Method name="outputFrontendHeader">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>IECompatMode=0</FormalSpec>
+<Implementation><![CDATA[
+	// used to create the http header and can depend on eventID (as some templates may require this)
+	set header=""
+	set xEventID=$G(%session.Data("eventsforce","frontend","xEventID"))
+	if xEventID="" set xEventID=..getBackendEventIDFromSession()
+
+	set layoutTemplateID="",useHTML5=""
+	if $G(xEventID) {
+		set layoutTemplateID=##class(layout.objTemplate).getLayoutForEvent(xEventID)
+		set useHTML5=##class(layout.objTemplate).isTemplateHTML5Compatible(layoutTemplateID)
+	}
+	
+	set xLangID=$G(%session.Data("eventsforce","frontend","xPrefLangID"))
+	if xLangID {
+		set ISOlang=##class(shared.objLanguage).getISOCode(xLangID)
+	} else {
+		set ISOlang="en"	
+	}
+	
+	set IEEdgeStr = "<meta http-equiv=""X-UA-Compatible"" content=""IE=edge"">"
+	if (IECompatMode){
+		set IEEdgeStr = ""
+	}
+	if xEventID,##class(setup.objEventSetting).getParameter("website","useHTTPheaderHTML4",xEventID)	{
+		set header=header_"<!DOCTYPE HTML PUBLIC ""-//W3C//DTD HTML 4.01 Transitional//EN"" ""http://www.w3.org/TR/html4/loose.dtd"">"_IEEdgeStr_$C(13,10)
+		set header=header_"<!--[if IE 7 ]>    <html class=""ef_frontend_ie7 ef-ie7"" lang="""_ISOlang_"""> <![endif]-->"_$C(13,10)
+		set header=header_"<!--[if IE 8 ]>    <html class=""ef_frontend_ie8 ef-ie8"" lang="""_ISOlang_"""> <![endif]-->"_$C(13,10)
+		set header=header_"<!--[if IE 9 ]>    <html class=""ef_frontend_ie9 ef-ie9"" lang="""_ISOlang_"""> <![endif]-->"_$C(13,10)
+		set header=header_"<!--[if (gt IE 9)|!(IE)]><!--> <html lang="""_ISOlang_"""> <!--<![endif]-->"_$C(13,10)
+		
+	} elseif useHTML5 {  // need the html5 doctype for bootstrap responsive designs and also to make moxie tinymce 4.1.5 appear correctly
+		set header=header_"<!DOCTYPE html>"_IEEdgeStr_$C(13,10)
+		set header=header_"<!--[if IE 7 ]>    <html class=""ef_frontend_ie7 ef-ie7"" xmlns=""http://www.w3.org/1999/xhtml"" lang="""_ISOlang_""" xml:lang="""_ISOlang_"""> <![endif]-->"_$C(13,10)
+		set header=header_"<!--[if IE 8 ]>    <html class=""ef_frontend_ie8 ef-ie8"" xmlns=""http://www.w3.org/1999/xhtml"" lang="""_ISOlang_""" xml:lang="""_ISOlang_"""> <![endif]-->"_$C(13,10)
+		set header=header_"<!--[if IE 9 ]>    <html class=""ef_frontend_ie9 ef-ie9"" xmlns=""http://www.w3.org/1999/xhtml"" lang="""_ISOlang_""" xml:lang="""_ISOlang_"""> <![endif]-->"_$C(13,10)
+		set header=header_"<!--[if (gt IE 9)|!(IE)]><!--> <html xmlns=""http://www.w3.org/1999/xhtml"" lang="""_ISOlang_""" xml:lang="""_ISOlang_"""> <!--<![endif]-->"_$C(13,10)
+
+	} else {
+		set header=header_"<!DOCTYPE html PUBLIC ""-//W3C//DTD XHTML 1.0 Transitional//EN"" ""http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"">"_IEEdgeStr_$C(13,10)
+		set header=header_"<!--[if IE 7 ]>    <html class=""ef_frontend_ie7 ef-ie7"" xmlns=""http://www.w3.org/1999/xhtml"" lang="""_ISOlang_""" xml:lang="""_ISOlang_"""> <![endif]-->"_$C(13,10)
+		set header=header_"<!--[if IE 8 ]>    <html class=""ef_frontend_ie8 ef-ie8"" xmlns=""http://www.w3.org/1999/xhtml"" lang="""_ISOlang_""" xml:lang="""_ISOlang_"""> <![endif]-->"_$C(13,10)
+		set header=header_"<!--[if IE 9 ]>    <html class=""ef_frontend_ie9 ef-ie9"" xmlns=""http://www.w3.org/1999/xhtml"" lang="""_ISOlang_""" xml:lang="""_ISOlang_"""> <![endif]-->"_$C(13,10)
+		set header=header_"<!--[if (gt IE 9)|!(IE)]><!--> <html xmlns=""http://www.w3.org/1999/xhtml"" lang="""_ISOlang_""" xml:lang="""_ISOlang_"""> <!--<![endif]-->"_$C(13,10)
+	}
+	quit header
+]]></Implementation>
+</Method>
+
+<Method name="getDownloadExpiry">
+<ClassMethod>1</ClassMethod>
+<Implementation><![CDATA[	quit 5
+]]></Implementation>
+</Method>
+
+<Method name="getFullPathVCard">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>eventID</FormalSpec>
+<Implementation><![CDATA[
+	set overridingSSLmode="" // we might want to change parameterthis in the future if IE decides to give us grief with session cookie again
+	quit ..getFullPath(eventID,overridingSSLmode)
+]]></Implementation>
+</Method>
+
+<Method name="getFullPath">
+<Description>
+use this method to get the domain and cspapp name along with http or https
+returns something like this: https://www.eventsforce.net/support2</Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec>eventID="",overridingSSLmode=""</FormalSpec>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+ 
+	set browserDomain=""
+	if $D(%request) set browserDomain=$ZCVT(%request.GetCgiEnv("SERVER_NAME"),"L") // use this to determine which backend domain to use/return
+	// if calling from a non-web page then should be event related and pick up the event setting
+
+	set useSSL=##class(setup.objSetting).getParameter("system","requires SSL")
+	if overridingSSLmode'="" set useSSL=overridingSSLmode
+	set fullURL=""
+
+	// only use the event settings if we have specifically set the system setting (to make sure all values are set up correctly at event level)
+	if eventID	{
+		set fullURL=##class(setup.objEventSetting).getParameter("system","domain",eventID)
+	}
+
+	// get backend URLS
+	if fullURL="" {
+		set dom=##class(setup.objSetting).getParameter("system","domain 1")
+		if $L(dom) set domains(dom)=""
+		set dom=##class(setup.objSetting).getParameter("system","domain 2")
+		if $L(dom) set domains(dom)=""
+		set dom=##class(setup.objSetting).getParameter("system","domain 3")
+		if $L(dom) set domains(dom)=""
+		set dom=##class(setup.objSetting).getParameter("system","domain 4")
+		if $L(dom) set domains(dom)=""
+		set dom=##class(setup.objSetting).getParameter("system","domain 5")
+		if $L(dom) set domains(dom)=""
+		
+		// check against current
+		if $L(browserDomain) {
+			set fullURL=browserDomain
+			if '$D(domains(browserDomain)) set fullURL=##class(setup.objSetting).getParameter("system","domain 1")
+		} else {
+			// if not running from browser
+			set fullURL=##class(setup.objSetting).getParameter("system","domain 1")
+		}
+	}
+	if fullURL="" set fullURL="www.eventsforce.net"
+
+	// add on the csp app name
+	set fullURL=fullURL_"/"_##class(EF.config.clientData).getCSPAppForCurrentNameSpace()
+
+	// make sure always lower case so when cookie path is used, it picks up correct cookie
+	set fullURL=$ZCVT(fullURL,"L")
+	
+	// SSL or not?
+	if useSSL	{
+		set fullURL="https://"_fullURL
+	} else {
+		set fullURL="http://"_fullURL
+	}
+	
+	quit fullURL
+]]></Implementation>
+</Method>
+
+<Method name="removeOpenedImage">
+<Description>
+removes the image that updates eventsforce to tell us that the email has been opened.
+we are doing this because this is not the real mail openeing, it is just a preview or a mainatence thing
+pass in mailDate in $H format</Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec>xEventID,tempStream:%Library.Stream,mailDate=""</FormalSpec>
+<ReturnType>%Library.Stream</ReturnType>
+<Implementation><![CDATA[
+	set domain=$P(##class(shared.pageMethods).getFullPath(xEventID),"/",3)
+	if mailDate="" set mailDate=+$H	
+	
+	if mailDate<62498 { // 11-Feb-2012
+		// email sent before March 2012 did not have the 'ef_xtmo' class on the opening image so we have to remove all images from the preview - Fred Feb 2012
+		set orgString="<img src='http"
+		set newString="<img alt='http"
+		do tempStream.CopyFrom(##class(shared.streamFunctions).replaceString(tempStream,orgString,newString))																			
+	}
+	
+	// made the opened mail image more specific so that only the mail opened link gets replaced not other images on the page
+	set orgString2="<img class=""ef_xtmo"" src='http"   
+	set newString2="<img class=""ef_xtmo"" alt='http"   // don't load the image or we will loose the session
+	do tempStream.CopyFrom(##class(shared.streamFunctions).replaceString(tempStream,orgString2,newString2))																			
+	
+	// also remove <HTML> and <BODY> tags from the email stream while we are at it
+	for tag="<!DOCTYPE html>","<HTML>","</HTML>","<BODY>","</BODY>" {
+		do tempStream.CopyFrom(##class(shared.streamFunctions).replaceString(tempStream,tag,""))																			
+	}
+	
+	
+	do tempStream.Rewind()
+	quit tempStream
+]]></Implementation>
+</Method>
+
+<Method name="cleanIntRedirect">
+<Description>
+clean the passed in URL to make sure only allow an internal redirection</Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec>url</FormalSpec>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	if '##class(setup.objSetting).getParameter("system","clean internal redirects") quit url
+
+	set invalidURL=0
+	
+	set url=$TR(url,"\","/")
+	
+	// get rid of the http bit at the front
+	set lowerURL=$ZCVT(url,"L")
+	if $E(lowerURL,1,7)="http://"	{
+		set url=$E(url,8,$L(url))
+		set invalidURL=1
+	} elseif $E(lowerURL,1,8)="https://"	{
+		set url=$E(url,9,$L(url))
+		set invalidURL=1
+	} elseif $E(lowerURL,1,5)="data:"	{
+		set url=$E(url,6,$L(url))
+		set invalidURL=1
+	} else {
+		// nothing
+	}
+	
+	// if url has a domain name at the front, reject it
+	if url["/" {
+		set firstBit=$P(url,"/",1)
+	} else {
+		set firstBit=url
+	}
+	
+	set allowedExtensions("CSP")=1
+	set allowedExtensions("HTM")=1
+	set allowedExtensions("HTML")=1
+	set allowedExtensions("PDF")=1
+	set domA=$P(firstBit,".",1),domB=$ZCVT($P(firstBit,".",2),"U")
+	if $L(domA),$L(domB) set invalidURL=1
+	if $L(domA),$L(domB),$G(allowedExtensions(domB)) set invalidURL=0  // allow CSP pages and other types in redirects...
+	
+	set sharedPath="/"_$ZCVT(^%ZCSPAPPS($ZNSPACE),"L")
+	set invalidURLPage=sharedPath_"/frontend/static/invalidURL.htm?sr=224"
+	if invalidURL set url=invalidURLPage
+
+	quit url
+]]></Implementation>
+</Method>
+
+<Method name="getPageID">
+<Description>
+ method to be used to get pageID to make sure it's "clean"</Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec>fromRequest=1,setIntoSession=1</FormalSpec>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	set pageID=""
+	if ..doesPageHaveAProwebPageID(%request.PageName) {
+		if fromRequest set pageID=+%request.Get("pageID")
+		if 'pageID set pageID=%session.Get("pageID") 
+	}
+	if 'pageID {
+		set pageID = %request.Get("pageID")
+	}
+	quit pageID
+]]></Implementation>
+</Method>
+
+<Method name="isPageIDValidForEvent">
+<ClassMethod>1</ClassMethod>
+<FormalSpec><![CDATA[eventID,pageID,&redirectURL]]></FormalSpec>
+<Implementation><![CDATA[
+	set out=1,redirectURL=""
+	set pageEventID=##class(sc.methods).getEventIDfromPageID(pageID)
+	if pageEventID {
+		if eventID'=pageEventID {
+			set out=0
+			set redirectURL=..getFullPath(eventID)_"/frontend/reg/homepage.csp?traceRedir=5&eventID="_pageEventID_"&pageID="_pageID
+		}
+	}
+	quit out
+]]></Implementation>
+</Method>
+
+<UDLText name="T">
+<Content><![CDATA[
+// retrieve parameters without caring about upper/lower case
+
+]]></Content>
+</UDLText>
+
+<Method name="getParamCaseInsensitive">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>parameter</FormalSpec>
+<Implementation><![CDATA[
+	set out=""
+	set m=""
+	for  {
+		set m=$O(%request.Data(m))
+		if m="" quit
+		set array($ZCVT(m,"L"))=%request.Get(m)	
+	}
+	set out=$G(array($ZCVT(parameter,"L")))
+	
+	if (parameter="pageID")!(parameter="eventID") set out=+out  // have to make sure this is numeric otherwise vulnerable to cross site scripting attacks by changing the value in URL
+	quit out
+]]></Implementation>
+</Method>
+
+<Method name="recoverEventID">
+<ClassMethod>1</ClassMethod>
+<Implementation><![CDATA[
+	set eventID=""
+
+	// try for duplicate, case insensitive parameters
+ 	set m="",hit=0
+ 	for  {
+ 		set m=$O(%request.Data(m))
+ 		if m="" quit
+ 		for index=1:1:3 {
+ 			if $ZCVT(m,"U")="EVENTID" {
+	 			set hit=hit+1
+	 			set tmp=$G(%request.Data(m,index))
+	 			if tmp {
+		 			set eventID=tmp
+	 			}
+ 			}
+ 		}
+ 	}
+ 	if hit>1 merge ^%xNoEv(1,$p($ZTS,",",2),$ZNSPACE,%request.GetCgiEnv("REMOTE_ADDR","no ip")," 00","recover eventID from duplicate param array")=%request.Data
+
+	set eventID=+eventID   // have to make sure this is numeric otherwise vulnerable to cross site scripting attacks by changing the value in URL
+	if 'eventID set eventID=""   // seems there are loads of places checking eventID=""
+	quit eventID
+]]></Implementation>
+</Method>
+
+<Method name="requestGetEventID">
+<Description>
+this method replaces intersystems %request.Get-method because that one doesn't handle duplicate parameters</Description>
+<ClassMethod>1</ClassMethod>
+<Implementation><![CDATA[
+	set eventID=""
+	
+	//try regular method first
+	set eventID=+%request.Get("eventID")  //  have to make sure this is numeric (so plussed it) otherwise vulnerable to cross site scripting attacks by changing the value in URL
+	if eventID quit eventID 
+	
+	// try recover it if it was passed infrom fHome.csp
+	set eventID=$G(%session.Data("eventsforce","frontend","fHome passed in xEventID"))
+	if eventID {
+		set ^%xNoEv(1,$p($ZTS,",",2),$ZNSPACE,%request.GetCgiEnv("REMOTE_ADDR","no ip")," 00","recovered eventID from fHome via session")=eventID 
+		quit eventID
+	}
+	
+	// not try case insenstive serach including duplicated params
+	set eventID=..recoverEventID()
+
+	if 'eventID set eventID=""   // seems there are loads of places checking eventID=""
+	quit eventID
+]]></Implementation>
+</Method>
+
+<Method name="getSurveyID">
+<Description>
+Is the page we're in a survey page</Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec>pageID=""</FormalSpec>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	set surveyID=""
+	if 'pageID {
+		set pageID=..getPageID()
+	}
+	
+	if pageID {
+		set parent="",grandParent=""
+		&SQL(SELECT parent,parent->parent INTO :parent,:grandParent FROM sc.objData WHERE ID = :pageID)
+		if +SQLCODE=0 {
+			&SQL(SELECT description INTO :tmp FROM sc_xModules.objGroup WHERE ID = :grandParent)
+			if +SQLCODE=0,$ZCVT(tmp,"U")="SURVEYS" {
+				set surveyID=parent
+			}
+			
+		}
+	}
+	quit surveyID
+]]></Implementation>
+</Method>
+
+<Method name="switchEvent">
+<Description>
+newEventID can be blank </Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec>xPersonID,newEventID</FormalSpec>
+<ProcedureBlock>1</ProcedureBlock>
+<Implementation><![CDATA[
+	do ..clearDownBackendVariables()
+	do ..setupBackendEventVariables(newEventID)
+	if newEventID do ..addToLastEventSelected(xPersonID,newEventID)
+	if newEventID do ..addToMRU(xPersonID,newEventID)
+	do ..clearBackendMenuCache()
+	quit
+]]></Implementation>
+</Method>
+
+<Method name="addToLastEventSelected">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>xPersonID,xEventID</FormalSpec>
+<ProcedureBlock>1</ProcedureBlock>
+<Implementation><![CDATA[
+	if ##class(setup.objEvent).%ExistsId(xEventID) {
+		do ##class(cod.objItemData).set(xPersonID,"last event selected",xEventID)
+	}
+]]></Implementation>
+</Method>
+
+<Method name="addToMRU">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>xPersonID,xEventID</FormalSpec>
+<ProcedureBlock>1</ProcedureBlock>
+<Implementation><![CDATA[
+	if ##class(setup.objEvent).%ExistsId(xEventID) {
+		set maxLinks=##class(setup.objSetting).getParameter("homepage","Number of items on Most Recently Used Event list")
+		set delim=","
+		set MRUlist=##class(cod.objItemData).get(xPersonID,"Most Recently Used Events")
+		set addEventToList=1
+		for i=1:1:$L(MRUlist,delim) {
+			set tmpEventID=$P(MRUlist,delim,i)
+			set mru(i)=tmpEventID
+			if xEventID=tmpEventID set addEventToList=0
+		}
+		if addEventToList set mru(i+1)=xEventID
+
+		// new rebuild the string 
+		set newMRUlist="",i=""
+		for j=1:1:maxLinks {
+			set i=$O(mru(i),-1) 
+			if i="" quit
+			set newMRUlist=mru(i)_$S($L(newMRUlist):delim,1:"")_newMRUlist
+		}
+
+		if newMRUlist'=MRUlist { 
+			do ##class(cod.objItemData).set(xPersonID,"Most Recently Used Events",newMRUlist)
+		}
+	}
+]]></Implementation>
+</Method>
+
+<Method name="clearDownBackendSession">
+<Description>
+clears the backend session from all session variables when logging out</Description>
+<ClassMethod>1</ClassMethod>
+<Implementation><![CDATA[
+	kill %session.Data("eventsforce","backend")
+	kill %session.Data("eventsforce","frontend")
+	kill %session.Data("password validated")
+	do ##class(shared.pageMethods).clearBackendMenuCache()
+]]></Implementation>
+</Method>
+
+<UDLText name="T">
+<Content><![CDATA[
+// this can be called while still being logged in to the backend.
+
+]]></Content>
+</UDLText>
+
+<Method name="clearDownBackendVariables">
+<Description>
+this is clearing all "backend" except the items listed here</Description>
+<ClassMethod>1</ClassMethod>
+<ProcedureBlock>1</ProcedureBlock>
+<Implementation><![CDATA[
+	set keep("NAMESPACE")=1
+	set keep("xClientDir")=1
+	set keep("xClientStyleDir")=1
+	set keep("xPersonID")=1
+	set keep("xUserID")=1
+
+	set keep("xLangID")=1
+	set keep("xLanguage")=1
+	set keep("xWorkLangID")=1  // need this for page switching to remember current language
+
+	set keep("xDateFormat")=1
+	set keep("xTimeFormat")=1
+	
+	set keep("xEventID")=1
+	
+	set keep("orgunit event caching")=1
+	
+	
+	// Settings that only affect your current session
+	set keep("proweb emergency repair mode")=1
+	set keep("override test colours")=1
+	set keep("showLegacyMode")=1
+	
+	set keep("GlobalSystemSettings")=1
+	
+	set var=""
+	for  {
+		set var=$O(%session.Data("eventsforce","backend",var))
+		if var="" quit
+		
+		if '$D(keep(var)) kill %session.Data("eventsforce","backend",var)
+	}
+]]></Implementation>
+</Method>
+
+<Method name="setupBackendEventVariables">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>xEventID</FormalSpec>
+<ProcedureBlock>1</ProcedureBlock>
+<Implementation><![CDATA[
+	set %session.Data("eventsforce","backend","xEventID")=xEventID
+	set %session.Data("eventsforce","backend","xWorkLangID")=##class(setup.objEventSetting).getParameter("backend","default creation language",xEventID)
+	if '$G(%session.Data("eventsforce","backend","xWorkLangID")) set %session.Data("eventsforce","backend","xWorkLangID")=1
+]]></Implementation>
+</Method>
+
+<Method name="createBackendVariables">
+<ClassMethod>1</ClassMethod>
+<ProcedureBlock>0</ProcedureBlock>
+<Implementation><![CDATA[
+	if '$GET(xCreatedBackendVariables) {
+		set xCreatedBackendVariables = 1
+
+		set sessionID=%session.SessionId
+
+		set xLangID=$G(%session.Data("eventsforce","backend","xLangID"))
+		set xLanguage=$G(%session.Data("eventsforce","backend","xLanguage"))
+		set xEventID=..getBackendEventIDFromSession()
+		set xPersonID=$G(%session.Data("eventsforce","backend","xPersonID"))
+		set xUserID=xPersonID
+		set xEventDescription=$G(%session.Data("eventsforce","backend","xEventDescription"))
+
+		set xControllerID=""
+		if xEventID	{
+			set xControllerID=##class(setup.objEvent).getControllerID(xEventID)
+		}
+
+		set xDateFormat=##class(setup.objSetting).getParameter("system","defaultDateFormat")
+		set xDateFormat=##class(shared.dateFunctions).getBackendOutputDateFormat()
+		if xDateFormat="" set xDateFormat=5 // dd/mmm/yyyy
+		set xUserInputDateFormat=##class(shared.dateFunctions).getBackendInputDateFormat()
+		set xFrontendInputDateFormat=""
+		if xEventID {
+			set xFrontendInputDateFormat=##class(setup.objEvent).getDateFormat(xEventID)
+		}
+		set %session.Data("eventsforce","backend","xDateFormat")=xDateFormat
+		// using a new var for standard reports - this will get overridden by backendTopExcel so that CSV dates outputted are in an excel friendly form (format 25)  xDateReportFormat
+		set xDateFormatForReports=xDateFormat
+
+		set xTimeFormat=##class(shared.timeFunctions).getBackendOutputTimeFormat()
+		if xEventID {
+			set xFrontendTimeFormat=##class(setup.objEventSetting).getParameter("system","time format",xEventID)
+		}
+		set %session.Data("eventsforce","backend","xTimeFormat")=xTimeFormat
+		
+	}
+]]></Implementation>
+</Method>
+
+<Method name="getWorkLangID">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>eventID</FormalSpec>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	if $D(%request) set xWorkLangID=%request.Get("xWorkLangID")
+	if xWorkLangID="",$D(%session) set xWorkLangID=$G(%session.Data("eventsforce","backend","xWorkLangID"))
+	if xWorkLangID="" set xWorkLangID=##class(setup.objEventSetting).getParameter("backend","default creation language",eventID)
+	if xWorkLangID="",$D(%session) set xWorkLangID=$G(%session.Data("eventsforce","backend","xWorkLangID"))
+	if xWorkLangID="" set xWorkLangID=1
+
+	if $D(%session) set %session.Data("eventsforce","backend","xWorkLangID")=xWorkLangID
+	return xWorkLangID
+]]></Implementation>
+</Method>
+
+<Method name="getBackendEventIDFromSession">
+<ClassMethod>1</ClassMethod>
+<Implementation><![CDATA[	return $G(%session.Data("eventsforce","backend","xEventID"))
+]]></Implementation>
+</Method>
+
+<Method name="clearBackendMenuCache">
+<ClassMethod>1</ClassMethod>
+<Implementation><![CDATA[	kill ^CacheTempUserMenu(%session.SessionId)
+]]></Implementation>
+</Method>
+
+<Method name="tempPurchaseHasValidBooker">
+<Description>
+This method checks if the Booker's Identification property is set correctly. This method will be used to nullify booking if the event is using 'email' or 'username' as the identification 
+and somehow those values disappear from the current session just before the booking is saved in the database.</Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec>eventID:%String,sessionID:%String</FormalSpec>
+<Implementation><![CDATA[
+	set ok=1
+	set tempBookerID=##class(eCom.tempPerson).getBookerID(sessionID)
+	if 'tempBookerID set ok=0
+	
+	// check if the booker's email address is populated correctly otherwise, report error.
+	if ((ok) && ('##class(setup.objEventSetting).getParameter("system","do not use email",eventID))) {
+	    set identifyBy = $S(##class(setup.objEventSetting).getParameter("system","identifying field",eventID)="username":"username",1:"email")
+	    if '$L(##class(eCom.tempCodData).get(tempBookerID,identifyBy)) {
+		    set ok=0
+	    }
+	}
+	quit ok
+]]></Implementation>
+</Method>
+
+<Method name="isEditMode">
+<Description>
+This method checks if the 'Edit' or 'Preview' flags are set for a proweb page. If so, it returns 1.
+Browser dependent %request and %session objects are used here. So, it cannot be used anywhere other than CSP pages.</Description>
+<ClassMethod>1</ClassMethod>
+<Implementation><![CDATA[
+	set editMode = 0
+	if %request.Get("hideButtons") set editMode=1
+	if %session.Get("mode")="edit",'$G(%session.Data("inSitePageEditing")) set editMode=1
+	quit editMode
+]]></Implementation>
+</Method>
+
+<Method name="getEditMode">
+<Description>
+This returns the mode of the page E.g. Edit, Preview
+Checks the request and the session so that it can be used in the page before the mode is set in the session
+Browser dependent %request and %session objects are used here. So, it cannot be used anywhere other than CSP pages.</Description>
+<ClassMethod>1</ClassMethod>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	
+	set mode=%request.Get("mode")
+	if '$l(mode) {
+		set mode=%session.Get("mode")
+	}
+	
+	quit mode
+]]></Implementation>
+</Method>
+
+<Method name="addRequestDataForCurrentPageToURL">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>inURL:%String</FormalSpec>
+<Implementation><![CDATA[
+	#dim returnURL As %String = inURL
+	
+	// Stop new gateway param:
+	//   The CSPRQN parameter is the CSP Gateway Request ID, which is sent to Caché with each HTTP request. 
+	//   Where available, the request ID is always recorded in the Gateway Event Log header records as a hexadecimal number (e.g. Request-ID: 3a).
+	set exclude("CSPRQN")=""
+	
+	// should probably create a list of allowed parameters at some point
+	set paramName=""
+	for  {
+		set paramName=$o(%request.Data(paramName))
+		if paramName="" quit
+		
+ 		set addParam=1
+ 		if returnURL[(paramName_"=") set addParam=0  // stop duplicates
+ 		if $D(exclude(paramName)) set addParam=0
+
+		if addParam {
+	 		set value=%request.Get(paramName)
+	 		set returnURL=##class(EF.htmlGenerator).addParameterToURL(returnURL,paramName,value)
+		}
+	}
+	
+	return returnURL
+]]></Implementation>
+</Method>
+
+<Method name="requestDataToParams">
+<Description>
+go through %request.Data and create a string to add to URLs
+Deprecated as does not encode parameters - use addRequestDataForCurrentPageToURL instead</Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec>exclusionList=""</FormalSpec>
+<Implementation><![CDATA[
+	if '$D(%request) quit ""
+	
+	// convert exclusion list into array
+	for i=1:1:$L(exclusionList,",") {
+		set tmpM=$P(exclusionList,",",i)
+		if $L(tmpM) set exclude(tmpM)=""
+	}
+
+	// should probably create a list of allowed parameters at some point
+	set params="",m=""
+	for  {
+		set m=$o(%request.Data(m))
+		if m="" quit
+		
+ 		set addparam=1
+ 		if params[m_"=" set addparam=0  // stop duplicates
+ 		if $D(exclude(m)) set addparam=0
+ 		// Stop new gateway param:
+ 		//   The CSPRQN parameter is the CSP Gateway Request ID, which is sent to Caché with each HTTP request. 
+ 		//   Where available, the request ID is always recorded in the Gateway Event Log header records as a hexadecimal number (e.g. Request-ID: 3a).
+ 		if m="CSPRQN" set addparam=0  
+
+		if addparam {
+	 		//implement later: set tmpData=##class(%CSP.Page).EscapeURL(%request.Get(m))
+	 		set tmpData=%request.Get(m)
+			set params=params_$S($L(params):"&",1:"")_m_"="_tmpData
+		}
+	}
+	
+	// returns string without leading & or ? - calling program to add as appropriate
+	quit params
+]]></Implementation>
+</Method>
+
+<Method name="isRequestSecure">
+<Description>
+method for determining if the incoming request is secure or not </Description>
+<ClassMethod>1</ClassMethod>
+<ReturnType>%Boolean</ReturnType>
+<Implementation><![CDATA[
+	set out=0
+	
+	// in cases where the certificate is terminated on the actual web server
+	if %request.Secure=1 set out=1				
+
+	// in cases where the certificate is terminated on the load balancer
+	if %request.GetCgiEnv("SERVER_PORT")=8443 set out=1
+	
+	quit out
+]]></Implementation>
+</Method>
+
+<Method name="addParamsToURL">
+<Description>
+Pass in a valid inURL and it will append a parameter string to it
+*** Deprecated as it does not encode the parameter, should instead use ##class(EF.htmlGenerator).addParameterToURL(inURL, name, value) ***</Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec>inURL,params</FormalSpec>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	// Remove leading  ? or &
+	if ($e(params,1)="?")!($e(params,1)="&") {
+		set params=$e(params,2,$l(params))
+	}
+	if $l(params) {
+		if inURL["?" {
+			set outURL=inURL_"&"_params
+		} else {
+			set outURL=inURL_"?"_params
+		}
+	} else {
+		set outURL=inURL
+	}
+	quit outURL
+]]></Implementation>
+</Method>
+
+<Method name="buildFrontendSessionVariablesFromEventID">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>xEventID</FormalSpec>
+<Implementation><![CDATA[
+	set %session.Data("eventsforce","frontend","xEventID")=xEventID
+	set %session.Data("eventsforce","frontend","xClientDir")=##class(setup.objSetting).getParameter("paths","clientDirectory")
+	set language=##class(setup.objEventSetting).getParameter("system","language",xEventID)   // v1.1.5
+	set %session.Data("eventsforce","frontend","xLanguage")=language
+	set %session.Data("eventsforce","frontend","xLangID")=##class(shared.objLanguage).getLanguageID(language)
+	set xLangID=%session.Data("eventsforce","frontend","xLangID")
+	set %session.Data("eventsforce","frontend","xDateFormat")=##class(setup.objEvent).getDateFormat(xEventID)
+]]></Implementation>
+</Method>
+
+<Method name="getDisplayDescription">
+<Description>
+get displayable descriptions for certain words</Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec>inStr:%String</FormalSpec>
+<Implementation><![CDATA[
+	Set ret=inStr
+	
+	If (inStr="bookers") {
+		Set ret=##class(shared.pCSP).out("Registration contacts")
+	} elseif (inStr="delegates") {
+		Set ret=##class(shared.pCSP).out("Attendees")
+	} elseif (inStr="cancelled delegates") {
+		Set ret=##class(shared.pCSP).out("Cancelled attendees")
+	} elseif (inStr="BookingRef") {
+		Set ret=##class(shared.pCSP).out("Registration ref")
+	} elseif (inStr="BookerName") {
+		Set ret=##class(shared.pCSP).out("Registration contact's name")
+	} elseif (inStr="BookingType") {
+		Set ret=##class(shared.pCSP).out("Registration type")
+	} elseif (inStr="AdditionalBookingStatus") {
+		Set ret=##class(shared.pCSP).out("Additional registration status")
+	}
+	
+	Quit ret
+]]></Implementation>
+</Method>
+
+<Method name="doesBackendPageRequireEventID">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>pagename</FormalSpec>
+<ReturnType>%Boolean</ReturnType>
+<Implementation><![CDATA[
+	if (pagename["login") return 0
+	if (pagename["tc.csp") return 0
+	if (pagename["tc2.csp") return 0
+	if (pagename["eventselection") return 0
+	if (pagename["pagecontrollergrid") return 0
+	if (pagename["eventcalendarmonthly.csp") return 0
+	if (pagename["eventproperties") return 0
+	if (pagename["eventcopy") return 0
+	if (pagename["logout.csp") return 0
+	if (pagename["mydetails.csp") return 0
+	if (pagename["changepassword.csp") return 0
+	if (pagename["changepasswordmodal.csp") return 0
+	if (pagename["pagecontrollerstandardsave.csp") return 0
+	if (pagename["pagecontrollerajaxsave.csp") return 0
+	if (pagename["addusermetrics.csp") return 0
+	if (pagename["passwordreset") return 0
+	if (pagename["backendmenuredirect.csp") return 0
+	if (pagename["serverstoragesetjson.csp") return 0
+	
+	return 1
+]]></Implementation>
+</Method>
+
+<Method name="isPageEventRelated">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>pagename</FormalSpec>
+<ReturnType>%Boolean</ReturnType>
+<Implementation><![CDATA[
+	set pagename=$ZCVT(pagename,"L")
+	if pagename="sessiondump.csp" return 0
+	if pagename="sysgettotallogins.csp" return 0
+	if pagename="homepage.csp" return 0
+	if pagename="initsession.csp" return 0
+	if pagename="fhome.csp"	return 0
+	return 1
+]]></Implementation>
+</Method>
+
+<Method name="endSession">
+<Description><![CDATA[
+Ends current session and clears down cookies
+<br/>Should still have %session available in page
+<br/>Must be called from preHTTP]]></Description>
+<ClassMethod>1</ClassMethod>
+<Implementation><![CDATA[
+	Set %session.EndSession=1
+ 	Set Expires=+$H-1
+ 	Set Expires=$ZD(Expires,11) _ ", " _ $ZD(Expires,2) _ " 00:00:00 GMT"
+ 	do %response.SetCookie("CSPSESSIONID-SP-8443-UP-","",Expires,"/",,1,1)
+]]></Implementation>
+</Method>
+
+<Method name="isApplicationStopped">
+<ClassMethod>1</ClassMethod>
+<ReturnType>%Boolean</ReturnType>
+<Implementation><![CDATA[
+	// stop application access while upgrading - will unfortunately output the ugly http header underneath the message.
+	if $G(^%ZStopApplication($ZNSPACE)) {
+		write "<b>Site unavailable, please come back later</b><br><br><br><br>Check in ^%ZStopApplication<br><br>"
+		return 1
+	}
+	return 0
+]]></Implementation>
+</Method>
+
+<Method name="isIncludePage">
+<ClassMethod>1</ClassMethod>
+<ReturnType>%Boolean</ReturnType>
+<Implementation><![CDATA[
+	// quit the whole method if were are a measly include page of little importance
+	if $L(%request.Get("CSPInclude")) {
+		set pages="frontendHTTPheader.csp,frontendStyles.csp,frontendJS.csp,colourScheme.csp,progress.csp,frontEndButton.csp,commonHTTPheader.csp,socialMediaButtons.csp,frontendBottom.csp,"
+		if $ZCVT(pages,"U")[$ZCVT($P(%request.Get("CSPInclude"),"/",$L(%request.Get("CSPInclude"))),"U") return 1
+	}	
+	return 0
+]]></Implementation>
+</Method>
+
+<Method name="updateLoadMonitor">
+<ClassMethod>1</ClassMethod>
+<Implementation><![CDATA[
+	// update the current load monitor
+	set currentMinute=($P($ZT($P($H,",",2),2),":",2)+1) // 10:23 -> 24 and 13:00 -> 1
+	kill ^["EVCOMMON"]qLoadMonitor($S(currentMinute=60:1,1:currentMinute+1)) // kill the next minute
+ 	if $ZCVT("start.csp","U")'[$ZCVT(%request.PageName,"U") {
+		set ^["EVCOMMON"]qLoadMonitor(currentMinute)=$G(^["EVCOMMON"]qLoadMonitor(currentMinute))+1
+	}
+]]></Implementation>
+</Method>
+
+<Method name="manageSEOrequest">
+<ClassMethod>1</ClassMethod>
+<Implementation><![CDATA[
+	set fromSEO=0
+	if ##class(setup.seoFiles).isSEOrequest()	{
+		set fromSEO=1  // has this request originated from the mini virtual website (SEO mode)?
+		do ##class(setup.seoFiles).addSEOcodePre()
+	}
+	if 'fromSEO do %response.SetHeader("X-Robots-Tag","noindex")   // to stop Google from showing the page link even if it finds it as a link from another site
+]]></Implementation>
+</Method>
+
+<Method name="injectP3Ppolicy">
+<ClassMethod>1</ClassMethod>
+<Implementation><![CDATA[
+	// fix the problem with IE and privacy when in IFRAMES/FRAMESETS - but needs to be done on all resources that are setting cookies (css/js etc.) so done in IIS instead.
+	if ##class(setup.objSetting).getParameter("system","Inject P3P policy") {
+		do %response.SetHeader("P3P","CP=""Internet Explorer requires this in order to set session cookies""")
+	}
+]]></Implementation>
+</Method>
+
+<Method name="sanitiseRequestData">
+<ClassMethod>1</ClassMethod>
+<Implementation><![CDATA[
+	set name=""
+	for  {
+ 		set name=$O(%request.Data(name))
+ 		if name="" quit
+ 		if $E(name,1,6)="Error:" continue  // errors contain control chars...
+ 		set value=%request.Get(name)
+ 		if '$IsObject(value) {
+			set %request.Data(name,1) = ##class(EF.sanitiser).sanitise(value)
+ 		}
+	}
+]]></Implementation>
+</Method>
+
+<Method name="isCrossSiteScripting">
+<ClassMethod>1</ClassMethod>
+<ReturnType>%Boolean</ReturnType>
+<Implementation><![CDATA[
+	// check for cross scripting
+ 	set sharedPageM="",crossScriptingAttack=0
+ 	set sharedPageAllowedVars("CSPToken")=""
+ 	set sharedPageAllowedVars("CSPPAGE")=""
+ 	set sharedPageAllowedVars("Error:ErrorCode")=""
+	// backend
+ 	set sharedPageAllowedVars("editBox")=""
+ 	set sharedPageAllowedVars("rawText")=""
+ 	set sharedPageAllowedVars("txtPrompt")=""
+ 	set sharedPageAllowedVars("textHTML")=""
+ 	set sharedPageAllowedVars("requiredAnswer")="" // contains pattern matches that are sensitive
+ 	set sharedPageAllowedVars("txtEmailDetailsPageRawSubject")="" 
+
+	// exclude the style edit boxes and URL field for the menu blocks (proweb\menudetails.csp)
+ 	set sharedPageAllowedVars("txtULStyle")=""
+  	set sharedPageAllowedVars("txtLIStyle")=""
+ 	set sharedPageAllowedVars("txtLISelectedStyle")=""
+ 	set sharedPageAllowedVars("txtAStyle")=""
+ 	set sharedPageAllowedVars("txtAHoverStyle")=""
+ 	set sharedPageAllowedVars("txtASelectedStyle")=""
+ 	set sharedPageAllowedVars("txtMILIStyle")=""
+ 	set sharedPageAllowedVars("txtMILISelectedStyle")=""
+ 	set sharedPageAllowedVars("txtMIAStyle")=""
+ 	set sharedPageAllowedVars("txtMIAHoverStyle")=""
+ 	set sharedPageAllowedVars("txtMIASelectedStyle")=""
+ 	set sharedPageAllowedVars("txtMILinkURL")=""
+	set sharedPageAllowedVars("txtUserMessageBodyBE")=""
+ 	set sharedPageAllowedVars("moxieElement*")=""
+ 	set sharedPageAllowedVars("hiddenmoxieElement*")=""
+ 	
+ 	set allowedHTMLTagsVar("abstractTitle")=""
+ 	set allowedHTMLTagsVar("txtMailFrom")=""
+ 	
+ 	set stopExtraScripting=1
+ 	
+ 	set pagesAllowedToSubmitHTML("pagecontrollerstandardsave.csp")=""
+ 	set pagesAllowedToSubmitHTML("pagecontrollerajaxsave.csp")=""
+ 	set pagesAllowedToSubmitHTML("serverstoragesetjson.csp")=""
+
+ 	set currentPageName=$ZCVT(%request.PageName,"L")
+	set pageName=""
+	for	 {
+		set pageName=$O(pagesAllowedToSubmitHTML(pageName))
+		if pageName="" quit
+		
+		if $ZCVT(pageName,"U")=$ZCVT(currentPageName,"U") {
+	 		set stopExtraScripting=0	
+		}
+ 	}
+ 	
+ 	
+ 	for  {
+ 		set sharedPageM=$O(%request.Data(sharedPageM))
+ 		if sharedPageM="" quit
+ 		
+ 		set isExcluded=0
+ 		if $D(sharedPageAllowedVars(sharedPageM)) set isExcluded=1
+ 		if $D(sharedPageAllowedVars($P(sharedPageM,"_",1)_"*")) set isExcluded=1 // note that the field name must contain underscore for wildcards to work
+
+ 		if isExcluded=0 {
+	 		// it seems that %3c gets converted to < when stored in %request but I'll leave the one above in case
+	 		if $ZCVT(%request.Get(sharedPageM),"L")["%3cscript" set crossScriptingAttack=1
+	 		if $ZCVT(%request.Get(sharedPageM),"L")["<script" set crossScriptingAttack=1
+	 		if $ZCVT(%request.Get(sharedPageM),"L")["javascript:",%request.Get(sharedPageM)'="badgePrint()" set crossScriptingAttack=1
+
+			if stopExtraScripting {
+				// more restrictions
+		 		if $ZCVT(%request.Get(sharedPageM),"L")["%3cimg" set crossScriptingAttack=1
+		 		if $ZCVT(%request.Get(sharedPageM),"L")["<img" set crossScriptingAttack=1
+		 		if $ZCVT(%request.Get(sharedPageM),"L")["onerror" set crossScriptingAttack=1
+				// remove CRLF from var names (can't do the values as we may get posting of text areas with CRLFs
+				if sharedPageM[$C(13) set crossScriptingAttack=1
+				if sharedPageM[$C(10) set crossScriptingAttack=1
+		
+				// do a catch all for HTML code submitted in any var
+				// don't stop it, just change it so that the value stored is not a real HTML character but should be displayed OK as a lt sign
+				// allow the email from fields in preregister.csp as now can add names too: "Jeremy Ward" <jeremy@eventsforce.com>
+				if (('$D(allowedHTMLTagsVar(sharedPageM)))
+					&& (%request.Get(sharedPageM)["<")
+					&& (sharedPageM'["txtEmailFrom")
+					&& (sharedPageM'["txtFromAddress")
+					) {
+					set tmpVar=%request.Get(sharedPageM)
+					set tmpVar=##class(shared.stringFunctions).hyperTranslate(tmpVar,"<","&lt;")
+					set %request.Data(sharedPageM,1)=tmpVar
+				}
+				if (('$D(allowedHTMLTagsVar(sharedPageM)))
+					&& (%request.Get(sharedPageM)[">")
+					&& (sharedPageM'["txtEmailFrom")
+					&& (sharedPageM'["txtFromAddress")
+					) {
+					set tmpVar=%request.Get(sharedPageM)
+					set tmpVar=##class(shared.stringFunctions).hyperTranslate(tmpVar,">","&gt;")
+					set %request.Data(sharedPageM,1)=tmpVar
+				}
+				if (('$D(allowedHTMLTagsVar(sharedPageM)))
+					&& (%request.Get(sharedPageM)[$C(34))
+					&& (sharedPageM'["txtEmailFrom")
+					&& (sharedPageM'["txtFromAddress")
+					) {
+					set tmpVar=%request.Get(sharedPageM)
+					set tmpVar=##class(shared.stringFunctions).hyperTranslate(tmpVar,$C(34),"&quot;")
+					set %request.Data(sharedPageM,1)=tmpVar
+				}
+			}
+			
+			if %request.Method="GET" {		
+				if %request.Get(sharedPageM)[$C(13) set crossScriptingAttack=1
+				if %request.Get(sharedPageM)[$C(10) set crossScriptingAttack=1
+			}
+ 		}
+ 		
+		// exit now if cross scripting found, then store the sharedPageM var found for future reference
+ 		if crossScriptingAttack quit
+ 	}
+	if crossScriptingAttack	{
+		// Store this for now - in case we have issues with some fields not covered by above. 
+		// Longer term we should remove this to avoid storage issues if massive requests by a hacker.
+		set tmpKey=$I(^%ZCrossScripting($ZNSPACE,+$ZTS))
+		set ^%ZCrossScripting($ZNSPACE,+$ZTS,tmpKey,"name")=sharedPageM
+		if $L(sharedPageM) set ^%ZCrossScripting($ZNSPACE,+$ZTS,tmpKey,"value")=%request.Get(sharedPageM)
+		set cspAppName=$ZCVT(^%ZCSPAPPS($ZNSPACE),"L")
+		return 1
+	} else {
+		return 0	
+	}
+]]></Implementation>
+</Method>
+
+<Method name="hasStringBeenSanitisedForCrossSiteScripting">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>inString</FormalSpec>
+<ReturnType>%Boolean</ReturnType>
+<Implementation><![CDATA[
+	set out=0
+	if inString["&lt;" set out=1
+	if inString["&gt;" set out=1
+	if inString["&quot;" set out=1
+
+	quit out
+]]></Implementation>
+</Method>
+
+<Method name="getURLforMaintenancePage">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>cspAppName</FormalSpec>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[	return "/"_cspAppName_"/system/maintenancePage.htm"
+]]></Implementation>
+</Method>
+
+<Method name="getRedirectURLforXSS">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>cspAppName</FormalSpec>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[	return "/"_cspAppName_"/frontend/static/invalidURL.htm?reason=csa"
+]]></Implementation>
+</Method>
+
+<Method name="updatePageHistory">
+<ClassMethod>1</ClassMethod>
+<Implementation><![CDATA[
+	//  store page history
+	set hdate=+$ZTS,htime=$P($ZTS,",",2)  
+	set ^xPage(hdate,%session.SessionId,htime,$I(^xPage(hdate,%session.SessionId,htime)))=%session.AppTimeout_"|"_%request.URL_"|"_%request.PageName_"|"_%request.Get("CSPInclude")_"|SSL:"_..isRequestSecure()
+]]></Implementation>
+</Method>
+
+<Method name="isNewFrontendSession">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>frontback,URL,pagename</FormalSpec>
+<ReturnType>%Boolean</ReturnType>
+<Implementation><![CDATA[
+	set allowREDIRmethod=1
+	if $G(^%xPAGESTOPREDIRMETHOD)=1 set allowREDIRmethod=0
+	
+	// need to get new session set up if we do not have it and redirect to homepage.csp (for example if you go straight to dailyAgenda.csp)
+	if frontback="frontend" {
+		if allowREDIRmethod {
+			if (URL'["/xt/") {
+				if $G(%session.Data("eventsforce","frontend","xEventID"))="" {
+					if ..requestGetEventID() {
+						if '$G(%session.Data("proweb","isSurvey")) { // need to ignore if survey page, since survey pages are not tied to events
+							if ..isPageEventRelated(pagename) {
+								return 1	 
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	return 0
+]]></Implementation>
+</Method>
+
+<Method name="getRedirectURLforNewSession">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>pagename</FormalSpec>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	set pagename=$ZCVT(pagename,"L")
+	set tmpEID=..requestGetEventID()
+	set redirpage=..getFullPath(tmpEID)_"/frontend/reg/homepage.csp?traceRedir=2&eventID="_tmpEID
+	
+	// special treatment for these pages so that when in SEO mode, clicking on a link to them will redirect via homepage (as there will be no session set up initially)
+	// don't want to do for all pages to avoid people bookmarking pages within the registration process etc.
+	if (pagename="registernew.csp")!(pagename="registeramend.csp")!(pagename="dailyagenda.csp")!(pagename="dailyagendaalt.csp")	{
+		set redirpage=redirpage_"&page="_pagename
+	} elseif (pagename="tregisteremailnew.csp") {
+		set redirpage=redirpage_"&page=registerNew.csp"
+	} elseif (pagename="tregisteremailamend.csp") {
+		set redirpage=redirpage_"&page=registerAmend.csp"
+	} elseif (pagename="tdailyagenda.csp") {
+		set redirpage=redirpage_"&page=dailyAgenda.csp"
+	} elseif (pagename="tdailyagendaalt.csp") {
+		set redirpage=redirpage_"&page=dailyAgendaalt.csp"
+	} elseif (pagename="home")!(pagename="thome.csp")!(pagename="homepage.csp") {
+		// use default redirpage
+	} elseif %request.Get("pageID") {
+		set redirpage=redirpage_"&pageID="_%request.Get("pageID")
+	}
+	if %request.Get("language") set redirpage=redirpage_"&language="_%request.Get("language")
+
+	// log this
+	set hdate=+$ZTS,htime=$P($ZTS,",",2) 
+	set ^xPage(hdate,%session.SessionId,htime,$I(^xPage(hdate,%session.SessionId,htime)),"redirmethod")=redirpage
+
+	return redirpage
+]]></Implementation>
+</Method>
+
+<Method name="hasSwitchedLanguage">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>frontback,URL,pagename</FormalSpec>
+<ReturnType>%Boolean</ReturnType>
+<Implementation><![CDATA[
+	set allowLANGmethod=1
+	if $G(^%xPAGESTOPLANGMETHOD)=1 set allowLANGmethod=0
+
+	// check the language - if a different language is passed as parameter then redirect to homepage
+	if frontback="frontend" {
+		if allowLANGmethod {
+			if (URL'["/xt/"),%request.Get("language"),pagename'="homepage.csp",pagename'="fhome.csp"	{
+				// if current lang is not what is on URL, redirect to home to switch it
+				if %request.Get("language")'=$G(%session.Data("eventsforce","frontend","xPrefLangID"))	{
+					return 1
+				}
+			}
+		}
+	}
+	return 0
+]]></Implementation>
+</Method>
+
+<Method name="getRedirectURLforNewLanguage">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>pagename</FormalSpec>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	set ip=%request.GetCgiEnv("REMOTE_ADDR","no ip")
+	set tmpEventID=..requestGetEventID() 
+	if 'tmpEventID set tmpEventID=$G(%session.Data("eventsforce","frontend","xEventID"))
+	if 'tmpEventID,%request.Get("pageID") {
+		set tmpEventID=##class(sc.methods).getEventIDfromPageID(%request.Get("pageID")) 
+		set ^%xNoEv(1,$p($ZTS,",",2),$ZNSPACE,ip,-16,"recover eventID from pageID")=tmpEventID
+	}
+
+	set redirpage=..getFullPath(tmpEventID)_"/frontend/reg/homepage.csp?traceRedir=3&eventID="_tmpEventID
+
+	// special treatment for these pages so that when in SEO mode, clicking on a link to them will redirect via homepage (as there will be no session set up initially)
+	// don't want to do for all pages to avoid people bookmarking pages within the registration process etc.
+	if (pagename="registernew.csp")!(pagename="registeramend.csp")!(pagename="dailyagenda.csp")!(pagename="dailyagendaalt.csp")	{
+		set redirpage=redirpage_"&page="_pagename
+	}
+
+	// log this
+	set hdate=+$ZTS,htime=$P($ZTS,",",2) 
+	set ^xPage(hdate,%session.SessionId,htime,$I(^xPage(hdate,%session.SessionId,htime)),"langmethod")=redirpage
+	
+	return redirpage
+]]></Implementation>
+</Method>
+
+<Method name="isBackendPageAuthorised">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>frontback,pagename</FormalSpec>
+<ReturnType>%Boolean</ReturnType>
+<Implementation><![CDATA[
+	// check if authorised to view the page (backend stuff)
+	set allowAUTHmethod=1
+	if $G(^%xPAGESTOPAUTHMETHOD)=1 set allowAUTHmethod=0
+	
+	set xPersonID=$G(%session.Data("eventsforce","backend","xPersonID"))
+	set auth=1
+	if frontback="backend" {
+		if allowAUTHmethod {
+			if pagename="userlist.csp",'##class(access.objFunction).hasFunctionByAccessID(xPersonID,"SYSUSER") set auth=0
+			if pagename="userdetails.csp",'##class(access.objFunction).hasFunctionByAccessID(xPersonID,"SYSUSER") set auth=0
+			if pagename="userdetails2.csp",'##class(access.objFunction).hasFunctionByAccessID(xPersonID,"SYSUSER") set auth=0
+			if pagename="userrolelist.csp",'##class(access.objFunction).hasFunctionByAccessID(xPersonID,"SYSROLE") set auth=0
+			if pagename="userroledetails.csp",'##class(access.objFunction).hasFunctionByAccessID(xPersonID,"SYSROLE") set auth=0
+			if pagename="userroledetails2.csp",'##class(access.objFunction).hasFunctionByAccessID(xPersonID,"SYSROLE") set auth=0
+		}	
+	}
+	return auth
+]]></Implementation>
+</Method>
+
+<Method name="isPageIDAllowedForBackendSession">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>pageID,pageName</FormalSpec>
+<Implementation><![CDATA[
+	set pageName=$ZCVT(pageName,"L")
+	if (..frontBack2()'="frontend")&&(pageName'="codquestiondetails.csp")&&(pageName'="codquestiondetails2.csp") {
+		return 1	
+	}
+	if '##class(cod.methods).getCurrentBackendUser() {
+		throw ##class(shared.exceptions.generalException).%New("No backend person ID for isPageIDAllowedForBackendSession")
+	}
+	if ##class(sc.pageMethods).isPageInFrontendRuntimeMode() {
+		return 1	
+	}
+	if ##class(sc.xModules.objPage).%ExistsId(pageID) {
+		set eventIDForPage=##class(sc.methods).getEventIDfromPageID(pageID)
+		if 'eventIDForPage {
+			return 1	
+		}
+		if eventIDForPage=..getBackendEventIDFromSession() {
+			return 1
+		}
+	}
+	return 0
+]]></Implementation>
+</Method>
+
+<Method name="getRedirectURLforUnauthorisedBackendPage">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>pagename</FormalSpec>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	set xPersonID=$G(%session.Data("eventsforce","backend","xPersonID"))
+	// redirect to simple unauthorised page if not allowed
+	// log this
+	set hdate=+$ZTS,htime=$P($ZTS,",",2)
+	set ^xPage(hdate,%session.SessionId,htime,$I(^xPage(hdate,%session.SessionId,htime)),"authmethod")=xPersonID_"|"_pagename
+	
+	return "../../backend/home/unauth.csp"
+]]></Implementation>
+</Method>
+
+<Method name="getRedirectURLforUnauthorisedProwebPage">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>pagename,pageID</FormalSpec>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	set xPersonID=$G(%session.Data("eventsforce","backend","xPersonID"))
+
+	// redirect to simple unauthorised page if not allowed
+	// log this
+	set hdate=+$ZTS,htime=$P($ZTS,",",2)
+	set ^xPage(hdate,%session.SessionId,htime,$I(^xPage(hdate,%session.SessionId,htime)),"authmethodpageid")=xPersonID_"|"_pagename_"|"_pageID
+	
+	return "../../frontend/static/invalidURL.htm"
+]]></Implementation>
+</Method>
+
+<Method name="updateDebugInfo">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>URL,pagename</FormalSpec>
+<Implementation><![CDATA[
+	// store a page history to aid debugging
+	if $G(^xDEBUG) set ^xDEBUGPAGES($I(^xDEBUGPAGES),$ZTS,URL)=$G(%session.Data("eventsforce","frontend","xEventID"))
+	if $G(^xDEBUG) set ^xDEBUGPAGES($I(^xDEBUGPAGES),$ZTS,"pagename")=pagename
+]]></Implementation>
+</Method>
+
+<Method name="setHTTPHeaderForJSON">
+<ClassMethod>1</ClassMethod>
+<Implementation><![CDATA[
+	Set %response.ContentType="application/json"
+	Set %response.CharSet="utf-8" //Required by cache, even though to the json standard specifies that CharSet should not be output in the header.
+]]></Implementation>
+</Method>
+
+<Method name="getBackendWorkLangID">
+<Description>
+sets up the session variables based on the xWorkLangID. If that is not found, we fall back to xLangID which is the passed in default language. </Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec>xLangID</FormalSpec>
+<Implementation><![CDATA[
+	set xWorkLangID=%request.Get("xWorkLangID")
+	if xWorkLangID="" set xWorkLangID=$G(%session.Data("eventsforce","backend","xWorkLangID"))
+	if xWorkLangID="" set xWorkLangID=xLangID
+	set %session.Data("eventsforce","backend","xWorkLangID")=xWorkLangID	
+	quit xWorkLangID
+]]></Implementation>
+</Method>
+
+<Method name="getPageLanguageID">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>pageID</FormalSpec>
+<Implementation><![CDATA[
+	set languageID=1
+	&SQL(select description INTO :pageDescription FROM sc_xmodules.objpage WHERE id=:pageID)
+	if +SQLCODE=0 {
+		set languageName=$P(pageDescription," - ",2) // remove the language name	
+		if $L(languageName) set languageID=##class(shared.objLanguage).getLanguageID(languageName)
+	} else {
+		throw ##class(shared.exceptions.generalSQLException).CreateFromSQLCODE(SQLCODE,$GET(%msg))	
+	}
+	quit languageID
+]]></Implementation>
+</Method>
+
+<Method name="getURLForRedirectedApp">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>url</FormalSpec>
+<ReturnType>%Library.String</ReturnType>
+<Implementation><![CDATA[
+	set eventID=..requestGetEventID()
+	set path=$P(url,"/",3,$l(url,"/"))
+	set extraParams=##class(shared.pageMethods).requestDataToParams("CSPToken,CSPCHD")
+	set url=..getFullPath(eventID)_"/"_path
+	if $l(extraParams) {
+		set url=url_"?"_extraParams
+	}
+	return url
+]]></Implementation>
+</Method>
+
+<Method name="setPageIDIntoSession">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>pageID</FormalSpec>
+<Implementation><![CDATA[	set %session.Data("pageID")=pageID
+]]></Implementation>
+</Method>
+
+<Method name="doesPageHaveAProwebPageID">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>pageName</FormalSpec>
+<Implementation><![CDATA[
+	set pageName=$ZCVT(pageName,"L")
+	if pageName="start.csp" {
+		return 1
+	} elseif ##class(sc.objTemplate).isPageNameProwebTemplate(pageName) {
+		return 1
+	}
+	return 0
+]]></Implementation>
+</Method>
+
+<Method name="getFrontendLanguageID">
+<ClassMethod>1</ClassMethod>
+<Implementation><![CDATA[	return $G(%session.Data("eventsforce","frontend","xPrefLangID"))
+]]></Implementation>
+</Method>
+
+<Method name="getPathWithoutApplicationFromURL">
+<Description>
+E.g https://dev.efsys.net/largedevsrc/backend/dashboard/dashboard.csp returns backend/dashboard/dashboard.csp</Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec>url</FormalSpec>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[	return $p(url,"/",3,99)
+]]></Implementation>
+</Method>
+
+<Method name="getBackendKendoBaseURL">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>pageGeneration</FormalSpec>
+<Implementation><![CDATA[
+	if pageGeneration<4 {
+		return "https://da7xgjtj801h2.cloudfront.net/2013.2.716/"
+		
+	} else {
+		return "https://da7xgjtj801h2.cloudfront.net/2015.2.624/"	
+	}
+]]></Implementation>
+</Method>
+</Class>
 </Export>

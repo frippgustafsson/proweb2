@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.1.2 (Build 206U)" ts="2016-09-26 13:06:55">
+<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.1.2 (Build 206U)" ts="2016-09-26 14:58:45">
 <Class name="EF.contextDataRegistration">
 <Description><![CDATA[
 <!-- ;vc;-
@@ -1019,7 +1019,7 @@ This can be used to return data from a modal when saved via ajax.</Description>
 <Description>
 a list of proweb items</Description>
 <Super>%RegisteredObject</Super>
-<TimeChanged>64187,43822.245074</TimeChanged>
+<TimeChanged>64187,53232.774449</TimeChanged>
 <TimeCreated>63992,66338.902496</TimeCreated>
 
 <Property name="listItems">
@@ -1076,6 +1076,8 @@ a list of proweb items</Description>
 
 		set listItem = ..createControllerForProwebItem(prowebItem)
 		set listItem.prowebItem = prowebItem
+		set listItem.htmlID =  ..getHtmlID( dataID)
+		set listItem.prowebListID = ..prowebListID
 		
 		if listItem.isOkToAddToList() {
 			do ..addListItem(listItem)
@@ -1110,10 +1112,7 @@ a list of proweb items</Description>
 
 <Method name="addListItem">
 <FormalSpec>listItem:EF.pageController.proweb.listItem</FormalSpec>
-<Implementation><![CDATA[
-	
-	do ..listItems.Insert(listItem)
-	set listItem.htmlID = ..generateHtmlID(..listItems.Count())
+<Implementation><![CDATA[	do ..listItems.Insert(listItem)
 ]]></Implementation>
 </Method>
 
@@ -1142,13 +1141,13 @@ a list of proweb items</Description>
 ]]></Implementation>
 </Method>
 
-<Method name="generateHtmlID">
-<FormalSpec>displayOrder:%Integer</FormalSpec>
+<Method name="getHtmlID">
+<Description>
+note that 'prowebListID' refers to the ID used in the CSP page for identifying the list. It is NOT the ID of sc.objList</Description>
+<FormalSpec>prowebID:%Integer</FormalSpec>
 <Private>1</Private>
 <ReturnType>%String</ReturnType>
-<Implementation><![CDATA[
-	set baseName = $Replace(..contextDataRegistration.componentName," ","")
-	return ##class(shared.stringFunctions).encryptURLsafe(baseName_"|"_displayOrder) // ## may need enhancing ##
+<Implementation><![CDATA[	return ..prowebListID_"-"_prowebID // ## may need enhancing ##
 ]]></Implementation>
 </Method>
 
@@ -1172,7 +1171,7 @@ a list of proweb items</Description>
 
 <Class name="EF.pageController.proweb.listItem">
 <Super>%RegisteredObject,EF.htmlGenerator</Super>
-<TimeChanged>64187,41317.981026</TimeChanged>
+<TimeChanged>64187,51880.954208</TimeChanged>
 <TimeCreated>63992,65826.878579</TimeCreated>
 
 <Property name="htmlID">
@@ -1194,6 +1193,13 @@ a list of proweb items</Description>
 
 <Property name="prowebItem">
 <Type>sc.objData</Type>
+</Property>
+
+<Property name="prowebListID">
+<Type>%Integer</Type>
+<Required>1</Required>
+<Parameter name="MAXVAL" value="999"/>
+<Parameter name="MINVAL" value="100"/>
 </Property>
 
 <Method name="isOkToAddToList">
@@ -2253,7 +2259,7 @@ Hold the alternatives to dropdown, radios, multi check etc</Description>
 
 <Class name="EF.ui.components.frontend.prowebBase">
 <Super>EF.ui.components.base</Super>
-<TimeChanged>64187,47118.118109</TimeChanged>
+<TimeChanged>64187,53338.235379</TimeChanged>
 <TimeCreated>64183,41819.123112</TimeCreated>
 
 <Property name="isProwebEditMode">
@@ -2266,21 +2272,23 @@ Hold the alternatives to dropdown, radios, multi check etc</Description>
 <Type>sc.objData</Type>
 </Property>
 
+<Property name="prowebListID">
+<Description>
+note that 'prowebListID' refers to the ID used in the CSP page for identifying the list. It is NOT the ID of sc.objList</Description>
+<Type>%Integer</Type>
+</Property>
+
 <Method name="renderRowOpening">
 <Implementation><![CDATA[
-	#dim floatingEditMenuID as %Integer
-	
-	write "<div class='row draggableTR "
+	#dim floatingEditMenuID as %Integer = ..getNewFloatingEditMenuID()
+		
 	if ..isProwebEditMode {
-		set %session.Data("floatCount") = %session.Get("floatCount")+1 
-		set floatingEditMenuID = %session.Data("floatCount")
-	
-		write " ef-proweb-form-row-editable'"
-		write " onMouseOver=""HM_f_PopUp('HM_Menu"_floatingEditMenuID_"',event);"" onMouseOut=""HM_f_PopDown('HM_Menu"_floatingEditMenuID_"')"""
-	}
-	write ">"
-	if ..isProwebEditMode {
+		write !,"<div class='row draggableTR ef-proweb-form-row-editable' onMouseOver=""HM_f_PopUp('HM_Menu"_floatingEditMenuID_"',event);"" onMouseOut=""HM_f_PopDown('HM_Menu"_floatingEditMenuID_"');"">"
 		do ..renderFloatingEditMenu(floatingEditMenuID)	
+		
+	} else {
+		do ..outDependencyJS()
+		write !,"<div class='row draggableTR'>"	
 	}
 ]]></Implementation>
 </Method>
@@ -2297,6 +2305,18 @@ Hold the alternatives to dropdown, radios, multi check etc</Description>
 
 <Method name="renderRowClosing">
 <Implementation><![CDATA[		write "</div>"
+]]></Implementation>
+</Method>
+
+<Method name="outDependencyJS">
+<Private>1</Private>
+<Implementation><![CDATA[
+	if ..prowebItem.getDependsOnItemName() '= "" {
+		;set parentItemName = ..prowebItem.getDependsOnItemName()
+		;set parentAlternativeName = ..prowebItem.getDependsOnAlternativeName()
+
+		
+	}
 ]]></Implementation>
 </Method>
 
@@ -2345,6 +2365,16 @@ Hold the alternatives to dropdown, radios, multi check etc</Description>
 		
 		write !,editMenuStr(key)	
 	}
+]]></Implementation>
+</Method>
+
+<Method name="getNewFloatingEditMenuID">
+<Private>1</Private>
+<ReturnType>%Integer</ReturnType>
+<Implementation><![CDATA[
+	set %session.Data("floatCount") = %session.Get("floatCount")+1 
+	set floatingEditMenuID = %session.Data("floatCount")
+	return floatingEditMenuID
 ]]></Implementation>
 </Method>
 </Class>
@@ -2413,6 +2443,573 @@ Hold the alternatives to dropdown, radios, multi check etc</Description>
 	
 </csp:section>
 
+]]></CSP>
+
+
+<CSP name="frontEnd/reg/tRegistration.csp" application="/freddev/" default="1"><![CDATA[
+<script language="cache" runat="server">w ##class(shared.pageMethods).outputFrontendHeader()</script>
+<head>
+<layout:section from="" to="{{ef_header}}">
+<csp:include page="frontendHTTPheader.csp">
+<csp:include page="colourScheme.csp">
+</head>
+<body class="bodyBackground">
+<script language="CACHE" method="OnPreHTTPafter" arguments="" returntype="%Boolean">
+	set %response.Redirect="t4Registration.csp?pageID="_$G(%session.Data("pageID")) quit 0
+	set sessionID=%session.SessionId
+	set mode=%request.Get("mode")
+	if mode="" set mode=%session.Get("mode")
+
+	quit 1
+</script>
+<script language="cache" runat="server">
+	// flag for making proweb display COD related things
+	set isCOD=1
+</script>
+
+<sc:templatestart>
+
+<script language="cache" runat="server">
+	// v2.7 - need these as we lookup the page description now from the link table
+	if '$G(xEventID) set xEventID=$G(%session.Data("eventsforce","backend","xEventID"))
+	if '$G(xLangID) set xLangID=$G(%session.Data("eventsforce","backend","xLangID"))
+	if '$G(pageID) set pageID=$G(%session.Data("pageID"))
+	
+	// are we in an accessible layout?
+	set isAccessible=##class(layout.methods).isAccessible(xEventID)
+
+	// tell the codQuestionDetails page to go back here after edit/add
+	set gotoPage="../../frontend/reg/"_%request.PageName_"?pageID="_pageID
+	if %request.Get("hideButtons") set gotoPage=gotoPage_"&hideButtons=1"
+	set %session.Data("eventsforce","backend","cod question gotoPage")=gotoPage
+ 
+
+	if (%session.Get("mode")="preview")!($G(%session.Data("inSitePageEditing")))	{
+		set tempPersonID=%request.Get("tempPersonID")
+		if $L(tempPersonID)=0 set tempPersonID=$G(%session.Data("eventsforce","frontend","currentPersonID"))
+		// find out where to go
+		if $L(tempPersonID),'%request.Get("hideButtons"){
+			set backforward=##class(setup.objPageNav).goWhere(pageID,,tempPersonID)
+			set backpage=$P(backforward,"|",1)  // go back
+			set forwardpage=$P(backforward,"|",2)  // go forward
+			// get the category (gets it from person or purchase or creates or returns blank if we will show the page to ask for it)
+			set eventCategoryID=##class(eCom.tempPurchase).getEventCategory(sessionID,tempPersonID)
+		} else { // allow for preview in the backend
+			set backforward=""
+			set backpage=""
+			set forwardpage=""
+			set eventCategoryID=%request.Get("eventCategoryID")
+		}
+	} else {  // edit mode backend
+		set backforward=""
+		set backpage=""
+		set forwardpage=""
+		set eventCategoryID=%request.Get("eventCategoryID")
+	}
+	
+	if 'eventCategoryID	{
+		set eventCategoryID=%session.Get("eventCategoryID")
+	}
+	
+	if $L(%request.Get("eventCategoryID"))	set %session.Data("eventCategoryID")=%request.Get("eventCategoryID")
+	
+	// determine whether this is a meeting manager event, this will be used by tagfree
+	set isMeetMan=0
+	if ##class(setup.objEventSetting).getParameter("event setup","allow meeting manager",xEventID) {
+		set isMeetMan=(##class(meetMan.objDiary).getProfilePageID(eventCategoryID,xEventID,xLangID)=pageID)
+	}
+
+	/// Are we in a meeting manager page? - initialise this variable here in global scope, do the actual check in a later if block
+	set meetManFileUpload=0
+
+	set checkMerge=$G(%session.Data("eventsforce","frontend","checkMerge"))
+	if ($E(forwardpage)="?"){ 
+		//forward page such as ?tempPersonID=xxx, ie, no page name.
+		set forwardpage="../../frontend/reg/codFormSave.csp?pageID="_pageID_"&tempPersonID="_tempPersonID
+	}
+	
+	// don't do JS validation if accessible layout.
+	set onsub="this.butProceed.disabled=true;"  
+	if 'isAccessible set onsub=onsub_" return validateMandatory();"
+</script>
+
+<form name="prowebCODForm" method="post" action="#(forwardpage)#" onsubmit="#(onsub)#" AUTOCOMPLETE="off">
+<layout:section from="{{ef_header}}" to="{{ef_banner}}">
+<layout:section from="{{ef_banner}}" to="{{ef_main_progress}}">
+	<csp:if condition=(($G(%session.Data("mode"))="preview")!($G(%session.Data("inSitePageEditing"))))>
+		<csp:if condition=('%request.Get("hideButtons"))>
+			<csp:include page="progress.csp">
+		</csp:if>
+	</csp:if>
+<layout:section from="{{ef_main_progress}}" to="{{ef_main_header}}">
+<script language="cache" runat="server">
+	set pageHeading=..out("Attendee Details")
+	if ##class(cod.objTicket).isTicketingPersonMode(xEventID)	{
+		set pageHeading=..out("Attendee Details")   // make generic if we're adding people using ticketing as we may show more than one attendee category on this page
+	} else {
+		set pageHeading=##class(setup.lnkCategoryEvent).getPageDescription(xEventID,eventCategoryID,pageID)
+	}
+</script>
+#(pageHeading)#
+<layout:section from="{{ef_main_header}}" to="{{ef_main_content}}">
+<script language="cache" runat="server">
+	if isAccessible	{
+		if $G(%session.Data("eventsforce","frontend","errString"))'="" {
+			write !,"<h2 class=""errormessage"">",..out("Error saving data:"),"</h2>"
+			set errString=%session.Data("eventsforce","frontend","errString")
+			write !,"<ul class=""errormessage"">"
+			for i=1:1:$L(errString,"|") w "<li class=""redbold10px errormessage"">"_$p(errString,"|",i)_"</li>"
+			write !,"</ul>"
+			kill %session.Data("eventsforce","frontend","errString")
+		}
+	
+		// do we have any warnings to show
+		if $G(%session.Data("eventsforce","frontend","warning string"))'="" {
+			write !,"<h2 class=""warningmessage"">",..out("Warning:"),"</h2>"
+			write !,"<ul class=""warningmessage"">"
+			write "<li class=""redbold10px warningmessage"">"_%session.Data("eventsforce","frontend","warning string")_"</li>"
+			write !,"</ul>"
+			kill %session.Data("eventsforce","frontend","warning string")
+		}
+	}	
+</script>
+		<table width="100%" border="0" cellspacing="3" cellpadding="0" class="black12px ef-registration-section" id="mainTable">
+			<tr>
+				<td colspan="2"><sc:text name="header"></td>
+			</tr>
+				<script language="cache" runat="server">
+					if ##class(setup.objEventSetting).getParameter("registration pages","supress hardcoded email field for new and copied events - May 2016",xEventID) {
+						set showEmail=0
+					} else {
+						set showEmail=1	
+					}
+				</script>
+				<csp:if condition="showEmail">
+					<script language="cache" runat="server">
+						set doNotShowEmail=##class(setup.objEventSetting).getParameter("bookings","do not show delegateUID page",xEventID)
+						if ##class(setup.objEventSetting).getParameter("system","do not use email",xEventID) set doNotShowEmail=1
+						
+						if ##class(cod.objTicket).isTicketingPersonMode(xEventID) set doNotShowEmail=1
+						set emailOrUsername=##class(setup.objEventSetting).getParameter("system","identifying field",xEventID)
+						
+						// Fred Sep 2010 - add an override to hide the email field if required
+						if ##class(setup.objEventSetting).getParameter("system","hide email field in tRegistration",xEventID) set doNotShowEmail=1
+					</script>
+					<csp:if condition=(doNotShowEmail)>
+					<csp:else>
+						<tr>
+							<td class="black12px ef_proweb_form_prompt"><tx>Email</tx></td>
+							<td class="black12px ef_proweb_form_field_container ef_proweb_form_field_container_type_text">
+								<csp:if condition=(emailOrUsername="username")>
+									<script language="cache" runat="server">
+										set codID=##class(cod.objItemName).getIDFromDescriptionNoEvent("EMAIL2")
+										set tempPersonID=$G(tempPersonID)
+									</script>
+									<input type="text" name="txtQuestion_#(codID)#__0__#(tempPersonID)#" id="txtQuestion_#(codID)#__0__#(tempPersonID)#" size=50 class="EF_inputBox" value="#(##class(eCom.tempCodData).get(tempPersonID,"email2"))#">
+								<csp:else>
+									#(##class(eCom.tempCodData).get(%request.Get("tempPersonID"),"email"))#
+								</csp:if>
+								
+							</td>
+						</tr>
+					</csp:if>
+				</csp:if>
+			
+				<script language="cache" runat="server">
+					set ticketingPersonMode=0
+					if (%session.Get("mode")="preview")&(##class(cod.objTicket).isTicketingPersonMode(xEventID)),'%request.Get("hideButtons") set ticketingPersonMode=1
+				</script>
+				<csp:if condition=(ticketingPersonMode)>
+						<script language="cache" runat="server">
+						// store current pageid before we insert another one
+						set curPageID=%request.Get("pageID")
+						if curPageID="" set curPageID=$G(%session.Data("pageID"))
+						
+						// get all the pages for each category
+						kill allRegPages,allRegPageIDs
+						set ok=##class(setup.lnkCategoryEvent).getAllRegPages(xEventID,xLangID,backendBooking,.allRegPages,.allRegPageIDs)
+					</script>
+					<script name="rs77" language="SQL" P1="#(sessionID)#">
+						SELECT ID
+						FROM eCom.tempPerson 
+						WHERE (tempPurchase->sessionID = ?) AND (isDelegate=1) AND (active=1) 
+						ORDER BY ID
+					</script>
+					<csp:while condition="rs77.Next()">
+						<script language="cache" runat="server">
+							set tmpTempPersonID=rs77.Data("ID")
+							set tmpEventCategoryID=##class(eCom.tempPurchase).getEventCategory(sessionID,tmpTempPersonID)
+							set tmpDesc=" ",tmpDisplayOrder=""
+							if tmpEventCategoryID	{
+								set tmpDesc=$E(##class(setup.objEventCategory).getDescription(tmpEventCategoryID),1,150)_tmpEventCategoryID
+								// go to the first (and only category) reg page
+								set tmpDisplayOrder=$O(allRegPages(tmpEventCategoryID,""))
+								set tmpPageID=allRegPages(tmpEventCategoryID,tmpDisplayOrder)
+								set tmpDisplayOrder=##class(setup.lnkAttendeeCategoryDetailsEvent).getDisplayOrder(xEventID,tmpEventCategoryID)
+							}
+							set personList(+tmpDisplayOrder,+tmpEventCategoryID)=tmpPageID
+							set personList(+tmpDisplayOrder,+tmpEventCategoryID,tmpTempPersonID)=""
+						</script>
+					</csp:while>
+					<script language="cache" runat="server">
+						//Save the current tempPersonID from session.
+						set oldTempPersonID = $G(%session.Data("eventsforce","frontend","currentPersonID"))
+						// repeat the tagfree for each attendee
+						set (tmpDisplayOrder,tmpEventCategoryID)=""
+						for  {
+							set tmpDisplayOrder=$O(personList(tmpDisplayOrder))
+							if tmpDisplayOrder="" quit
+							for  {
+								set tmpEventCategoryID=$O(personList(tmpDisplayOrder,tmpEventCategoryID))
+								if tmpEventCategoryID="" quit
+								set pageID=personList(tmpDisplayOrder,tmpEventCategoryID)													
+								set %session.Data("pageID")=pageID
+
+								// get the page description
+								set pageHeading=##class(setup.lnkCategoryEvent).getPageDescription(xEventID,tmpEventCategoryID,pageID)
+								do ..OnPageHeadingSection()
+								set tempPersonOverride=""
+								for  {
+									set tempPersonOverride=$O(personList(tmpDisplayOrder,tmpEventCategoryID,tempPersonOverride))
+									if tempPersonOverride="" quit
+									s tempPersonCountByCat(tmpEventCategoryID) = $G(tempPersonCountByCat(tmpEventCategoryID)) + 1
+						
+									//save the current personID before going to tagfree.
+									s %session.Data("eventsforce","frontend","currentPersonID") =  tempPersonOverride //so that the system can pick up this person's attendee category in tagfree.csp.
+									do ..OnPageProwebSection()
+								}
+							}
+						}
+
+						//set the current person to the original personID here. SHAHADAT 18-02-10
+						set %session.Data("eventsforce","frontend","currentPersonID") = oldTempPersonID
+						// reset the pageID
+						if curPageID {
+							set pageID=curPageID
+							set %session.Data("pageID")=pageID
+						}
+					</script>
+				<csp:else>
+					<script language="cache" runat="server">
+						// if in edit mode just show one persons fields
+						do ..OnPageProwebSection()
+					</script>
+				</csp:if>
+				<script language="cache" runat="server">
+					/// Are we in a meeting manager page?
+					if isMeetMan {
+						if ##class(setup.objEventSetting).getParameter("meetMan","file Upload",xEventID) {
+							set meetManFileUpload=1
+							do ..OnPageMeetFileSection()
+						}
+					}
+				</script>
+				<csp:section name="HeadingSection">
+					<tr><td colspan="2" height="10"><hr></td></tr>
+					<tr><td colspan="2" height="20">#(pageHeading)#</td></tr>
+					<tr><td colspan="2" height="10">&nbsp;</td></tr>
+				</csp:section>
+				<csp:section name="ProwebSection">
+					<script language="cache" runat="server">
+						if ($G(isCOD)=1) {
+							set beforeItem=##class(sc.xModules.objPage).getBeforeItem(pageID,,1)
+						} else {
+							set beforeItem=##class(sc.xModules.objPage).getBeforeItem(pageID)
+						}
+					</script>
+					<SC:FREE NAME="Main List" BEFOREROW="" AFTERROW="" BEFOREITEM="#(beforeItem)#" AFTERITEM="</td></tr>">
+					<tr><td colspan="2" height="30"></td></tr>
+				</csp:section>
+				
+				<csp:section name="MeetFileSection">
+					<tr>
+						<td></td>
+						<td class="blackbold10px">
+							<table border=0 cellpadding=0 cellspacing=0 width=100%>
+								<tr>
+									<td class="blackbold10px">
+										<tx>Uploaded Files</tx>
+									</td>
+									<td width=70>
+										<csp:if condition=(%session.Get("mode")="preview")>
+											<csp:if condition=('%request.Get("hideButtons"))>
+												<input class="standardButton" type="button"  value="#(..out("Upload"))#" name="butUpload" onClick="SaveAndUploadProfile('#($G(tempPersonID))#');"  title="Upload a file from your computer">
+											</csp:if>
+										</csp:if>
+									</td>
+								</tr>
+							</table>
+						</td>
+					</tr>
+					<script name="rsMeetMan" language="SQL" P1="#($G(tempPersonID))#">
+						SELECT * FROM  meetMan.tempFile
+						WHERE tempDiary->tempPerson = ?
+						ORDER BY xCRstamp
+					</script>
+					<tr>
+						<td class="black10px" colspan=2>
+							<table border=0 cellpadding=2 >
+								<script language="cache" runat="server">
+									set fileCount=0
+									set webPath=##class(meetMan.objFile).getWebPath(xEventID)
+									set FTPpath=##class(meetMan.objFile).getFTPpath(xEventID)
+								</script>
+								<csp:while condition="rsMeetMan.Next()">
+									<script language="cache" runat="server">
+										set tempEntryFileID=rsMeetMan.Get("ID")
+										set filename=rsMeetMan.Get("fileName")
+										set hasUploaded=1
+										set fileCount=fileCount+1
+										
+										set date=##class(shared.dateFunctions).multiDate(rs.Get("xCRstamp"),xDateFormat)
+										set time=$p($p(rsMeetMan.Get("xCRstamp")," ",2),":",1,2)
+										set show=1
+										if filename="" set show=0
+										
+										// if new entry, suppress the ones that was defaulted but we have clicked Remove on
+										if $D(%session.Data("eventsforce","frontend","meetMan files to suppress",tempEntryFileID)) set show=0
+									</script>		
+									<csp:if condition=(show)>
+										<tr>
+											<td width=100></td>
+											<td class="black10px" >
+												<script language="cache" runat="server">
+													set size=##class(shared.ftpMethods).getFileSize(FTPpath,filename)
+												</script>
+												<a target="_blank" href="#(webPath_..EscapeURL(filename))#">#($P(filename,"_",3,99))#</a>
+												#(size\1024)#&nbsp;Kb															
+											</td>
+											<td width=40></td>
+											<td class="black9px">
+												#(date)#&nbsp;&nbsp;#(time)#
+											</td>
+											<td width=15></td>
+											<td class="black9px">
+												<a href="javascript: removeProfileFile(#(tempEntryFileID)#);"><tx>remove</tx></a>
+											</td>
+										</tr>
+									</csp:if>
+								</csp:while>
+							</table>
+						</td>
+					</tr>
+				</csp:section>							
+		</table>
+
+<layout:section from="{{ef_main_content}}" to="{{ef_main_buttons}}">
+<script language="cache" runat="server">
+	set show=1
+	if %request.Get("hideButtons") set show=0
+	if %session.Get("mode")="edit",'$G(%session.Data("inSitePageEditing")) set show=0
+</script>
+
+<csp:if condition=(show)>
+	<input type="hidden" name="tempPersonID" value="#(%request.Get("tempPersonID"))#">
+	<table width="100%" border="0" cellspacing="0" cellpadding="5">
+		<tr>
+			<csp:comment><!-- NOTE. The submit button will be placed here in runtime as a proweb item --></csp:comment>
+			<td width="33%" align="left">
+				<csp:include page="frontEndButton.csp?buttonText=Back&URL=#(..EscapeURL(backpage))#&hoverText=Go Back">
+			</td>
+			<td width="33%" align="center" style="vertical-align: bottom;">
+				<script language="cache" runat="server">
+					set show=##class(setup.objEventSetting).getParameter("bookings","Temp Save Max Hours",xEventID)
+					if ##class(eCom.tempPurchase).isBackendBooking(sessionID) set show=0
+				</script>
+				<csp:if condition=(show)>
+					<csp:include page="frontEndButton.csp?buttonText=#(..EscapeURL("Save & Return"))#&hoverText=Save your registration for later completion&isSubmit=0&isJS=1&URL=#(..EscapeURL("tempSaveFunc()"))#">
+				&nbsp;&nbsp;&nbsp;
+				</csp:if>
+				<script language="cache" runat="server">
+					set ticketingPersonMode=0
+					if (%session.Get("mode")="preview")&(##class(cod.objTicket).isTicketingPersonMode(xEventID)),'%request.Get("hideButtons") set ticketingPersonMode=1
+					
+					set show=1
+					
+					//only show "add another delegate" option if they've come from the Add Another Attendee link on the basket page, in which case seenBasket will be set
+					&SQL(SELECT seenBasket INTO :tmp FROM eCom.tempPurchase WHERE sessionID = :sessionID)
+					if ((+SQLCODE=0) && (tmp'=1)){
+						set show=0
+					}
+					
+					if ('ticketingPersonMode) { set show=0 }
+				</script>
+				<csp:if condition=(show)>
+					<script language="cache" runat="server">
+						//add option to add new delegate 
+						set rs=##class(%ResultSet).%New("%Library.DynamicQuery:SQL")
+						set qry="SELECT ID,categoryToCreate FROM cod.objTicket WHERE (eventID=?) AND (noMoreBookings=0) AND (scCodItemID->active=1)"
+						if ('(##class(eCom.tempPurchase).isBackendBooking(sessionID))) {
+							set qry=qry_" AND (scCodItemID->backendOnly=0)"
+						}
+						do rs.Prepare(qry)
+						do rs.Execute(xEventID)
+					</script>
+					<csp:while condition="rs.Next()">
+						<script language="cache" runat="server">
+							set tmpEventCategoryID=rs.Get("categoryToCreate")
+							set show='##class(cod.objTicket).isItemFullAttendees(rs.Get("ID"),sessionID,1) // don't show option to add tix if capacity has been reached
+							if '$L(rs.Get("categoryToCreate")) {
+								set show=0
+							}
+							
+							if (show) {
+								if $D(tempPersonCountByCat(tmpEventCategoryID)) {
+									set totalBooked = tempPersonCountByCat(tmpEventCategoryID)
+										set maximum=$P(##class(cod.objTicket).getMinMax(rs.Get("ID")),"|",2)
+										if maximum,totalBooked>=maximum set show=0										
+								}
+							}
+							if (show){
+								set tmpDisplayOrder=+##class(setup.lnkAttendeeCategoryDetailsEvent).getDisplayOrder(tmpEventCategoryID,xEventID)
+								set ticketArray(tmpDisplayOrder,tmpEventCategoryID)=rs.Get("ID")
+							}
+						</script>
+					</csp:while>
+					<script language="cache" runat="server">
+						set tmpDisplayOrder=""
+					</script>
+					<csp:if condition=($l($o(ticketArray(tmpDisplayOrder))))>
+						Add another <select name="selAddTicketCategory" class="ef_element ef_element_dropdown EF_inputBox">
+						<option value=""></option>
+							<csp:while condition=($l($o(ticketArray(tmpDisplayOrder))))>
+							<script language="cache" runat="server">
+									set tmpDisplayOrder=$O(ticketArray(tmpDisplayOrder))
+									set tmpEventCategoryID=""
+							</script>
+								<csp:while condition=($l($o(ticketArray(tmpDisplayOrder,tmpEventCategoryID))))>
+									<script language="cache" runat="server">
+										set tmpEventCategoryID=$O(ticketArray(tmpDisplayOrder,tmpEventCategoryID))
+										set tmpTicketID=ticketArray(tmpDisplayOrder,tmpEventCategoryID)
+									</script>
+									<option value="#(tmpTicketID)#">#(##class(setup.objEventCategory).getDescription(tmpEventCategoryID))#</option>
+								</csp:while>
+						</csp:while>
+						</select>	
+					</csp:if>
+				</csp:if>									
+			<a href="t4Registration.csp?pageID=#(pageID)#">Goto Experimental CMS version</a>
+			</td>
+			<td width="34%" align="right">
+				
+				<csp:if condition=((%session.Get("mode")="preview")!($G(%session.Data("inSitePageEditing"))))>
+					<input type="hidden" name="tempSave" value=0>
+					<input type="hidden" name="pageID" value="#($G(pageID))#">
+					<input type="hidden" name="uploadMeetManFile" value=0>
+					<input type="hidden" name="mergeWithBooker" value=0>
+					<input type="hidden" name="tempFileID" value=0>
+					<input type="hidden" name="deleteMeetManFile" value=''>
+					<csp:include page="frontEndButton.csp?isSubmit=1&name=butProceed&buttonText=Proceed&hoverText=Submit and proceed">
+					<input type="hidden" name="uploadFile" value=''>
+					<input type="hidden" name="deleteFile" value=''>
+					<input type="hidden" name="uploadItemNameID" value=''>
+					<input type="hidden" name="uploadTempPersonID" value=''>
+					<input type="hidden" name="uploadGuestNumber" value=''>
+					<input type="hidden" name="uploadDataID" value=''>
+				<csp:else>
+					<img src="../../media/images/english/default/frontend/proceed.gif" alt="Proceed" border="0">
+				</csp:if>
+				
+			</td>
+		</tr>
+	</table>
+</csp:if>
+<layout:section from="{{ef_main_buttons}}" to="{{ef_footer}}">
+
+<script language="javascript">
+function tempSaveFunc() {
+	document.forms[0].tempSave.value=#(pageID)#;
+	document.forms[0].submit();
+}
+</script>
+
+<csp:if condition=(checkMerge)>
+	<script language="javascript">
+		$(function() {
+			if (confirm(#(..QuoteJS(..out("This attendee has the same first and last name as the registration contact, would you like to merge the details?")))#) == true) {
+				document.forms[0].mergeWithBooker.value = 1;
+				document.forms[0].submit();
+			} else {
+				document.forms[0].submit();
+			}
+		})
+	</script>
+</csp:if>
+
+<csp:if condition=(meetManFileUpload)>
+	<script language="javascript">
+		function SaveAndUploadProfile(tempPersonID) {
+			document.forms[0].uploadMeetManFile.value = 1;
+		
+			document.prowebCODForm.submit();
+		}
+		function removeProfileFile(tempFileID) {
+			document.forms[0].deleteMeetManFile.value = tempFileID;
+			document.prowebCODForm.submit();
+		}
+	</script>
+</csp:if>
+
+<script language="javascript">
+	function SaveAndUpload(tempPersonID,dataID,guestNumber) {
+		document.forms[0].uploadFile.value = 1;
+		document.forms[0].uploadTempPersonID.value=tempPersonID;
+		document.forms[0].uploadGuestNumber.value=guestNumber;
+		document.forms[0].uploadDataID.value=dataID;
+	
+		document.prowebCODForm.submit();
+	}
+	function removeFile(tempPersonID,codItemNameID) {
+		document.forms[0].deleteFile.value = codItemNameID;
+		document.forms[0].uploadTempPersonID.value=tempPersonID;
+		document.forms[0].uploadItemNameID.value=codItemNameID;
+		
+		document.prowebCODForm.submit();
+	}
+</script>
+	
+<layout:section from="{{ef_footer}}" to="">
+#[ do ##class(sc.methods).outputFormCompleteMarker() ]#
+</form>  
+
+<csp:include page="editingFooter.csp"> 
+
+<sc:templatestop>
+
+<script language="cache" runat="server">
+	set amendMode=+$G(%session.Data("eventsforce","frontend","amend"))
+
+	// Do we have any error message from a previous save to show
+	if 'isAccessible	{
+		if $G(%session.Data("eventsforce","frontend","errString"))'="" {
+			write !,"<sc"_"ript language='javas"_"cript'>"
+			set errString=%session.Data("eventsforce","frontend","errString")
+			set temp=""
+			for i=1:1:$L(errString,"|") set temp=temp_$p(errString,"|",i)_$c(10)
+			write !,"alert("_..QuoteJS(temp)_");"
+			write !,"</sc"_"ript>"
+			// allow for messages to non-javascript browsers
+			write !,"<nosc"_"ript>"
+			write !,##class(shared.stringFunctions).hyperTranslate(temp,$C(10),"<br>")
+			write !,"</nosc"_"ript>"
+			kill %session.Data("eventsforce","frontend","errString")
+		}
+	
+		// do we have any warnings to show
+		if $G(%session.Data("eventsforce","frontend","warning string"))'="" {
+			write !,"<sc"_"ript language='javas"_"cript'>"
+			write !,"alert("_..QuoteJS(%session.Data("eventsforce","frontend","warning string"))_");"
+			write !,"</sc"_"ript>"
+			// allow for messages to non-javascript browsers
+			write !,"<nosc"_"ript>"
+			write !,##class(shared.stringFunctions).hyperTranslate(%session.Data("eventsforce","frontend","warning string"),$C(10),"<br>")
+			write !,"</nosc"_"ript>"
+			kill %session.Data("eventsforce","frontend","warning string")
+		}
+	}	
+</script>
+</body>
+</html>
 ]]></CSP>
 
 
@@ -5372,7 +5969,7 @@ The basic frontend default stuff</Description>
 </Class>
 
 
-<Project name="proweb 2" LastModified="2016-09-23 15:29:48.620127" Target="freddev/backend/home/login.csp" TargetType="3">
+<Project name="proweb 2" LastModified="2016-09-26 14:21:59.735664" Target="freddev/backend/home/login.csp" TargetType="3">
   <Items>
     <ProjectItem name="EF.contextDataRegistration" type="CLS"></ProjectItem>
     <ProjectItem name="EF.contextDataRegistrationMock" type="CLS"></ProjectItem>
@@ -5398,6 +5995,7 @@ The basic frontend default stuff</Description>
     <ProjectItem name="freddev/system/eventsForceRules.csr" type="CSP"></ProjectItem>
     <ProjectItem name="layout.cssDefaultMethods" type="CLS"></ProjectItem>
     <ProjectItem name="shared.pageMethods" type="CLS"></ProjectItem>
+    <ProjectItem name="freddev/frontEnd/reg/tRegistration.csp" type="CSP"></ProjectItem>
   </Items>
   <BreakPoints>
     <BreakPoint Routine="EF.pages.frontend.base.1.INT" Offset="130"></BreakPoint>

@@ -1,5 +1,125 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.1.2 (Build 206U)" ts="2016-09-26 14:58:45">
+<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.1.2 (Build 206U)" ts="2016-09-27 12:51:41">
+<Class name="EF.contextData">
+<Description><![CDATA[
+<!-- ;vc;-
+;vc;    Object: EF.contextData.CLS/EV.3
+;vc; Component: CLS.EF.contextData
+;vc;  Location: SmallDev
+;vc; Date/Time: 20-Apr-16 11:19
+;vc;      User: FredG
+;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>EF.contextData.CLS/EV.3</td><td>CLS.EF.contextData</td><td>SmallDev</td><td style='white-space: nowrap;'>20-Apr-16 11:19</td><td>FredG</td></tr></table>
+]]></Description>
+<Super>%RegisteredObject</Super>
+<TimeChanged>64188,39755.780049</TimeChanged>
+<TimeCreated>63755,56076.63566</TimeCreated>
+
+<Property name="eventID">
+<Type>%Integer</Type>
+</Property>
+
+<Property name="languageID">
+<Type>%Integer</Type>
+</Property>
+
+<Property name="context">
+<Type>%String</Type>
+<InitialExpression>"none"</InitialExpression>
+<Parameter name="VALUELIST" value=",registration,agenda,none"/>
+</Property>
+
+<Property name="auditPersonID">
+<Type>%String</Type>
+</Property>
+
+<Property name="sessionID">
+<Type>%String</Type>
+</Property>
+
+<Property name="IPaddress">
+<Type>%String</Type>
+<InitialExpression>..getIPaddress()</InitialExpression>
+</Property>
+
+<Property name="controllerID">
+<Type>%Integer</Type>
+</Property>
+
+<Method name="createFromFrontendCSPSession">
+<ClassMethod>1</ClassMethod>
+<ReturnType>EF.contextData</ReturnType>
+<Implementation><![CDATA[
+	set contextData = ..%New()	
+	set contextData.eventID=$G(%session.Data("eventsforce","frontend","xEventID"))
+	
+	Do contextData.setControllerID()
+	
+	set contextData.languageID=$G(%session.Data("eventsforce","frontend","xPrefLangID"))
+	if contextData.languageID="" {
+		 set contextData.languageID=$G(%session.Data("eventsforce","frontend","xLangID"))
+	}
+	do contextData.setAuditPersonIDfromFrontend()
+	
+	set contextData.sessionID=%session.SessionId
+	return contextData
+]]></Implementation>
+</Method>
+
+<Method name="setControllerID">
+<Implementation><![CDATA[
+	if (..eventID) {
+		Set ..controllerID=##class(setup.objEvent).getControllerID(..eventID)
+	}
+]]></Implementation>
+</Method>
+
+<Method name="createFromBackendCSPSession">
+<ClassMethod>1</ClassMethod>
+<ReturnType>EF.contextData</ReturnType>
+<Implementation><![CDATA[
+	set contextData = ..%New()	
+	set contextData.eventID=$G(%session.Data("eventsforce","backend","xEventID"))
+	
+	Do contextData.setControllerID()
+
+	set contextData.languageID=$G(%session.Data("eventsforce","backend","xLangID"))
+
+	do contextData.setAuditPersonIDfromBackend()
+	
+	set contextData.sessionID=%session.SessionId
+	return contextData
+]]></Implementation>
+</Method>
+
+<Method name="getIPaddress">
+<ClassMethod>1</ClassMethod>
+<Implementation><![CDATA[
+	if $data(%request) {
+		return %request.GetCgiEnv("REMOTE_ADDR","no ip")
+	} else {
+		return ""
+	}
+]]></Implementation>
+</Method>
+
+<Method name="setAuditPersonIDfromFrontend">
+<Implementation><![CDATA[
+	if $data(%session) {
+		set ..auditPersonID = $G(%session.Data("eventsforce","frontend","submitterPersonID"))
+	}
+]]></Implementation>
+</Method>
+
+<Method name="setAuditPersonIDfromBackend">
+<Implementation><![CDATA[
+	if $data(%session) {
+		set ..auditPersonID = $G(%session.Data("eventsforce","backend","xPersonID")	)
+	}
+]]></Implementation>
+</Method>
+</Class>
+
+
 <Class name="EF.contextDataRegistration">
 <Description><![CDATA[
 <!-- ;vc;-
@@ -11,7 +131,7 @@
 ;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>EF.contextDataRegistration.CLS/EV.4</td><td>CLS.EF.contextDataRegistration</td><td>SmallDev</td><td style='white-space: nowrap;'>02-Sep-16 14:23</td><td>JeremyW</td></tr></table>
 ]]></Description>
 <Super>EF.contextData</Super>
-<TimeChanged>64184,38522.395033</TimeChanged>
+<TimeChanged>64188,39760.55394</TimeChanged>
 <TimeCreated>63755,56082.660879</TimeCreated>
 
 <Property name="tempPurchaseID">
@@ -55,12 +175,6 @@ if website is private, this will be set to the cod.objPerson.ID of that logged i
 <InitialExpression>0</InitialExpression>
 </Property>
 
-<Property name="prowebMode">
-<Type>%String</Type>
-<Cardinality>one</Cardinality>
-<Parameter name="VALUELIST" value=",&quot;edit&quot;,&quot;preview&quot;"/>
-</Property>
-
 <Property name="context">
 <Type>%String</Type>
 <InitialExpression>"registration"</InitialExpression>
@@ -74,18 +188,26 @@ if website is private, this will be set to the cod.objPerson.ID of that logged i
 <Type>%Integer</Type>
 </Property>
 
+<Property name="prowebComponentName">
+<Type>%String</Type>
+<Parameter name="MAXLEN" value="255"/>
+</Property>
+
+<Property name="prowebMode">
+<Type>%String</Type>
+<Cardinality>one</Cardinality>
+<Parameter name="VALUELIST" value=",&quot;edit&quot;,&quot;preview&quot;"/>
+</Property>
+
 <Property name="listID">
+<Description>
+is it needed anymore?? ###########</Description>
 <Type>%Integer</Type>
 </Property>
 
 <Property name="isBackendSuperUser">
 <Type>%Boolean</Type>
 <InitialExpression>0</InitialExpression>
-</Property>
-
-<Property name="componentName">
-<Type>%String</Type>
-<Parameter name="MAXLEN" value="255"/>
 </Property>
 
 <Method name="createFromFrontendCSPSession">
@@ -115,6 +237,7 @@ if website is private, this will be set to the cod.objPerson.ID of that logged i
 	set contextData.pricingHorologUTC=##class(eCom.tempPurchase).getPriceHorologUTC(contextData.tempPurchaseID)	
 	set contextData.prowebMode=%session.Get("mode")
 	set contextData.pageID=%session.Get("pageID")
+	set contextData.prowebComponentName = "Main List"
 	do contextData.setAuditPersonIDfromFrontend()
 	
 	set contextData.isBackendSuperUser=##class(eCom.tempPurchase).isBackendSuperUser(sessionID)
@@ -316,6 +439,985 @@ if website is private, this will be set to the cod.objPerson.ID of that logged i
 </Class>
 
 
+<Class name="EF.pageController.containerElement">
+<Description><![CDATA[
+<!-- ;vc;-
+;vc;    Object: EF.pageController.containerElement.CLS/EV.17
+;vc; Component: CLS.EF.pageController.containerElement
+;vc;  Location: SmallDev
+;vc; Date/Time: 02-Sep-16 14:23
+;vc;      User: JeremyW
+;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>EF.pageController.containerElement.CLS/EV.17</td><td>CLS.EF.pageController.containerElement</td><td>SmallDev</td><td style='white-space: nowrap;'>02-Sep-16 14:23</td><td>JeremyW</td></tr></table>
+]]></Description>
+<Super>EF.pageController.element</Super>
+<TimeChanged>64188,46279.055122</TimeChanged>
+<TimeCreated>63372,47273.826383</TimeCreated>
+
+<Property name="getContentsMethod">
+<Type>%String</Type>
+<Transient>1</Transient>
+</Property>
+
+<Method name="setAJAXMethod">
+<FormalSpec>method</FormalSpec>
+<Implementation><![CDATA[
+	set ..getContentsMethod=method
+	do ..page.allAJAXPageElements.SetAt($this,$this.identifier)
+]]></Implementation>
+</Method>
+
+<Method name="processGetElement">
+<Implementation><![CDATA[	do $method($this.page,..getContentsMethod)
+]]></Implementation>
+</Method>
+
+<Method name="updateErrorMessage">
+<FormalSpec>errorMessage</FormalSpec>
+</Method>
+
+<Method name="geGetProcessedElements">
+<Description>
+This is a list of all the elements that are updated by the processGetContents method </Description>
+<ReturnType>%ListOfObjects</ReturnType>
+<Implementation><![CDATA[
+	set processedElements=##class(%ListOfObjects).%New()
+	do processedElements.Insert($this)
+	quit processedElements
+]]></Implementation>
+</Method>
+
+<Method name="addCheckbox">
+<FormalSpec>identifier:%String,description:%String,value:%String,isReadOnly=0</FormalSpec>
+<ReturnType>EF.pageController.inputElements.checkbox</ReturnType>
+<Implementation><![CDATA[
+	set element=##class(EF.pageController.inputElements.checkbox).addElementToParent($this,identifier,description,value,isReadOnly)
+
+	quit element
+]]></Implementation>
+</Method>
+
+<Method name="addRadioButtons">
+<FormalSpec>identifier:%String,description:%String,value:%String,isReadOnly=0</FormalSpec>
+<ReturnType>EF.pageController.inputElements.radioButtons</ReturnType>
+<Implementation><![CDATA[
+	set element=##class(EF.pageController.inputElements.radioButtons).addElementToParent($this,identifier,description,value,isReadOnly)
+	
+	quit element
+]]></Implementation>
+</Method>
+
+<Method name="addRadioGroup">
+<FormalSpec>identifier:%String,description:%String,value:%String,isReadOnly=0</FormalSpec>
+<ReturnType>EF.pageController.containerElements.radioGroup</ReturnType>
+<Implementation><![CDATA[
+	set element=##class(EF.pageController.containerElements.radioGroup).addElementToParent($this,identifier,description)
+	quit element
+]]></Implementation>
+</Method>
+
+<Method name="addRadio">
+<FormalSpec>identifier:%String,description:%String,value:%String,isReadOnly=0,htmlName="",isSelected=0</FormalSpec>
+<ReturnType>EF.pageController.inputElements.radio</ReturnType>
+<Implementation><![CDATA[
+	set element=##class(EF.pageController.inputElements.radio).addElementToParent($this,identifier,description,value,isReadOnly)
+	if $L(htmlName) set element.uiComponent.htmlName=htmlName
+	set element.uiComponent.isSelected=+value
+	quit element
+]]></Implementation>
+</Method>
+
+<Method name="addNumericInput">
+<FormalSpec>identifier:%String,description:%String,value:%String,isReadOnly=0</FormalSpec>
+<ReturnType>EF.pageController.inputElements.integerInput</ReturnType>
+<Implementation><![CDATA[
+	set element=##class(EF.pageController.inputElements.numericInput).addElementToParent($this,identifier,description,value,isReadOnly)
+	
+	quit element
+]]></Implementation>
+</Method>
+
+<Method name="addIntegerInput">
+<FormalSpec>identifier:%String,description:%String,value:%String,isReadOnly=0</FormalSpec>
+<ReturnType>EF.pageController.inputElements.integerInput</ReturnType>
+<Implementation><![CDATA[
+	set element=##class(EF.pageController.inputElements.integerInput).addElementToParent($this,identifier,description,value,isReadOnly)
+	
+	quit element
+]]></Implementation>
+</Method>
+
+<Method name="addTextInput">
+<FormalSpec>identifier:%String,description:%String,value:%String,isReadOnly=0</FormalSpec>
+<ReturnType>EF.pageController.inputElements.textInput</ReturnType>
+<Implementation><![CDATA[
+	set element=##class(EF.pageController.inputElements.textInput).addElementToParent($this,identifier,description,value,isReadOnly)
+	
+	quit element
+]]></Implementation>
+</Method>
+
+<Method name="addEmailInput">
+<FormalSpec>identifier:%String,description:%String,value:%String,isReadOnly=0</FormalSpec>
+<ReturnType>EF.pageController.inputElements.textInput</ReturnType>
+<Implementation><![CDATA[
+	set element=##class(EF.pageController.inputElements.email).addElementToParent($this,identifier,description,value,isReadOnly)
+	
+	quit element
+]]></Implementation>
+</Method>
+
+<Method name="addPasswordInput">
+<FormalSpec>identifier:%String,description:%String,value:%String,isReadOnly=0</FormalSpec>
+<ReturnType>EF.pageController.inputElements.textInput</ReturnType>
+<Implementation><![CDATA[
+	set element=##class(EF.pageController.inputElements.password).addElementToParent($this,identifier,description,value,isReadOnly)
+	
+	quit element
+]]></Implementation>
+</Method>
+
+<Method name="addTextArea">
+<FormalSpec>identifier:%String,description:%String,value:%String,isReadOnly=0</FormalSpec>
+<ReturnType>EF.pageController.inputElements.textInput</ReturnType>
+<Implementation><![CDATA[
+	set element=##class(EF.pageController.inputElements.textArea).addElementToParent($this,identifier,description,value,isReadOnly)
+	
+	quit element
+]]></Implementation>
+</Method>
+
+<Method name="addTextInputWithDisabler">
+<FormalSpec>identifier:%String,description:%String,value:%String,isReadOnly=0</FormalSpec>
+<ReturnType>EF.pageController.inputElements.textInputWithDisabler</ReturnType>
+<Implementation><![CDATA[
+	set element=##class(EF.pageController.inputElements.textInputWithDisabler).addElementToParent($this,identifier,description,value,isReadOnly)
+	
+	quit element
+]]></Implementation>
+</Method>
+
+<Method name="addHiddenInput">
+<FormalSpec>identifier:%String,description:%String,value:%String,isReadOnly=0</FormalSpec>
+<ReturnType>EF.pageController.inputElements.textInput</ReturnType>
+<Implementation><![CDATA[
+	set element=##class(EF.pageController.inputElement).addElementToParent($this,identifier,description,value,isReadOnly)
+	set element.uiComponent=##class(EF.ui.components.hiddenInput).%New(identifier)	
+	return element
+]]></Implementation>
+</Method>
+
+<Method name="addDropdown">
+<FormalSpec>identifier:%String,description:%String,value:%String,isReadOnly=0</FormalSpec>
+<ReturnType>EF.pageController.inputElements.dropdown</ReturnType>
+<Implementation><![CDATA[
+	set element=##class(EF.pageController.inputElements.dropdown).addElementToParent($this,identifier,description,value,isReadOnly)
+	
+	quit element
+]]></Implementation>
+</Method>
+
+<Method name="addSearchableDropdown">
+<FormalSpec>identifier:%String,description:%String,value:%String,isReadOnly=0</FormalSpec>
+<ReturnType>EF.pageController.inputElement</ReturnType>
+<Implementation><![CDATA[
+	set element=##class(EF.pageController.inputElements.searchableDropdown).addElementToParent($this,identifier,description,value,isReadOnly)
+	set element.uiComponent=##class(EF.ui.components.backend.searchableDropdown).%New(identifier)
+	
+	return element
+]]></Implementation>
+</Method>
+
+<Method name="addToggle">
+<FormalSpec>identifier:%String,description:%String,value:%String,isReadOnly=0</FormalSpec>
+<ReturnType>EF.pageController.inputElements.radioButtons</ReturnType>
+<Implementation><![CDATA[
+	set element=##class(EF.pageController.inputElements.radioButtons).addElementToParent($this,identifier,description,value,isReadOnly)
+	do element.addAlternative(0,"Off")
+	do element.addAlternative(1,"On")
+	quit element
+]]></Implementation>
+</Method>
+
+<Method name="addDatePicker">
+<FormalSpec>identifier:%String,description:%String,value:%String,isReadOnly=0</FormalSpec>
+<ReturnType>EF.pageController.inputElements.textInput</ReturnType>
+<Implementation><![CDATA[
+	set element=##class(EF.pageController.inputElements.datePicker).addElementToParent($this,identifier,description,value,isReadOnly)
+
+	quit element
+]]></Implementation>
+</Method>
+
+<Method name="addDateTimePicker">
+<FormalSpec>identifier:%String,description:%String,value:%String,isReadOnly=0</FormalSpec>
+<ReturnType>EF.pageController.inputElements.textInput</ReturnType>
+<Implementation><![CDATA[
+	set element=##class(EF.pageController.inputElements.dateTimePicker).addElementToParent($this,identifier,description,value,isReadOnly)
+
+	quit element
+]]></Implementation>
+</Method>
+
+<Method name="addTimePicker">
+<FormalSpec>identifier:%String,description:%String,value:%String,isReadOnly=0</FormalSpec>
+<ReturnType>EF.pageController.inputElements.textInput</ReturnType>
+<Implementation><![CDATA[
+	set element=##class(EF.pageController.inputElements.timePicker).addElementToParent($this,identifier,description,value,isReadOnly)
+
+	quit element
+]]></Implementation>
+</Method>
+
+<Method name="addCheckboxGroup">
+<FormalSpec>identifier:%String,description:%String</FormalSpec>
+<ReturnType>EF.pageController.containerElements.checkboxGroup</ReturnType>
+<Implementation><![CDATA[
+	set element=##class(EF.pageController.containerElements.checkboxGroup).addElementToParent($this,identifier,description)
+	
+	quit element
+]]></Implementation>
+</Method>
+
+<Method name="addResponsiveTable">
+<FormalSpec>identifier:%String,description:%String=""</FormalSpec>
+<ReturnType>EF.pageController.containerElements.panel</ReturnType>
+<Implementation><![CDATA[
+	set element=##class(EF.pageController.containerElements.responsiveTable).addElementToParent($this,identifier,description)
+
+	quit element
+]]></Implementation>
+</Method>
+
+<Method name="addPanel">
+<FormalSpec>identifier:%String,description:%String</FormalSpec>
+<ReturnType>EF.pageController.containerElements.panel</ReturnType>
+<Implementation><![CDATA[
+	set element=##class(EF.pageController.containerElements.panel).addElementToParent($this,identifier,description)
+
+	quit element
+]]></Implementation>
+</Method>
+
+<Method name="addPanelChart">
+<FormalSpec>identifier:%String</FormalSpec>
+<ReturnType>EF.pageController.containerElements.panelChart</ReturnType>
+<Implementation><![CDATA[
+	set element=##class(EF.pageController.containerElements.panelChart).addElementToParent($this,identifier,"")
+	set element.uiComponent=##class(EF.ui.components.backend.chart.panelChart).%New(identifier)
+				
+
+	quit element
+]]></Implementation>
+</Method>
+
+<Method name="addList">
+<FormalSpec>identifier:%String,description:%String</FormalSpec>
+<ReturnType>EF.pageController.containerElements.list</ReturnType>
+<Implementation><![CDATA[
+	set element=##class(EF.pageController.containerElements.list).addElementToParent($this,identifier,description)
+
+	quit element
+]]></Implementation>
+</Method>
+
+<Method name="addOpenModalAjaxButton">
+<FormalSpec>identifier:%String,description:%String,targetURL:%String</FormalSpec>
+<ReturnType>EF.pageController.buttons.button</ReturnType>
+<Implementation><![CDATA[
+	set element=##class(EF.pageController.buttons.button).addElementToParent($this,identifier,description)
+	set element.uiComponent=##class(EF.ui.components.backend.buttonOpenModalAjax).%New(identifier)
+	set element.uiComponent.targetURL=targetURL
+	set element.uiComponent.label=description
+	
+	return element
+]]></Implementation>
+</Method>
+
+<Method name="addModal">
+<FormalSpec>identifier:%String,description:%String</FormalSpec>
+<ReturnType>EF.pageController.containerElements.modal</ReturnType>
+<Implementation><![CDATA[
+	set element=##class(EF.pageController.containerElements.modal).addElementToParent($this,identifier,description)
+	
+	quit element
+]]></Implementation>
+</Method>
+
+<Method name="addOpenModalButton">
+<FormalSpec>identifier:%String,description:%String</FormalSpec>
+<ReturnType>EF.pageController.buttons.openModal</ReturnType>
+<Implementation><![CDATA[
+	set element=##class(EF.pageController.buttons.openModal).addElementToParent($this,identifier,description)
+
+	quit element
+]]></Implementation>
+</Method>
+
+<Method name="addCloseModalButton">
+<FormalSpec>identifier:%String,description:%String</FormalSpec>
+<ReturnType>EF.pageController.buttons.closeModal</ReturnType>
+<Implementation><![CDATA[
+	set element=##class(EF.pageController.buttons.closeModal).addElementToParent($this,identifier,description)
+
+	quit element
+]]></Implementation>
+</Method>
+
+<Method name="addOpenInFormModalButton">
+<Description>
+Creates a button that opens a modal defined by baseUrl and contentClass.
+When submitted, the page controller will be validated and updated, but it will not run the save method.</Description>
+<FormalSpec><![CDATA[identifier:%String,description:%String,baseUrl:%String,contentClass,&modalRequestData]]></FormalSpec>
+<ReturnType>EF.pageController.buttons.openInFormModal</ReturnType>
+<Implementation><![CDATA[
+	set element=##class(EF.pageController.buttons.openInFormModal).addElementToParent($this,identifier,description)
+	do element.setModalContentDefinition(contentClass,baseUrl,.modalRequestData)
+
+	return element
+]]></Implementation>
+</Method>
+
+<Method name="addTranslateButton">
+<Description>
+Adds a translation button with warning icon which opens an in-form modal</Description>
+<FormalSpec><![CDATA[identifier:%String,description:%String,baseUrl:%String,contentClass:%String,showWarning:%Boolean,title:%String,&modalRequestData]]></FormalSpec>
+<ReturnType>EF.pageController.buttons.openInFormModal</ReturnType>
+<Implementation><![CDATA[
+	set element=..addOpenInFormModalButton(identifier,description,baseUrl,contentClass,.modalRequestData)
+	set element.uiComponent.title=title
+	do element.uiComponent.addClass("ef-translate-button")
+	set warningIcon=##class(EF.ui.components.backend.warningIcon).%New(identifier_"-warning-icon")
+	do element.uiComponent.addChild(warningIcon)
+	if showWarning {
+		do element.uiComponent.addClass("ef-translate-button-show-warning")
+	}
+	return element
+]]></Implementation>
+</Method>
+
+<Method name="addModalHeader">
+<FormalSpec>identifier:%String,description:%String</FormalSpec>
+<ReturnType>EF.pageController.text</ReturnType>
+<Implementation><![CDATA[
+	set element=##class(EF.pageController.textElements.modalHeader).addElementToParent($this,identifier,description)
+
+	quit element
+]]></Implementation>
+</Method>
+
+<Method name="addButton">
+<FormalSpec>identifier:%String,description:%String,contentType:%String="text",buttonType:%String="secondary"</FormalSpec>
+<ReturnType>EF.pageController.buttons.button</ReturnType>
+<Implementation><![CDATA[
+	set element=##class(EF.pageController.buttons.button).addElementToParent($this,identifier,description)
+	set element.uiComponent.contentType=contentType
+	set element.uiComponent.buttonType=buttonType
+
+	quit element
+]]></Implementation>
+</Method>
+
+<Method name="addSubmitButton">
+<FormalSpec>identifier:%String,description:%String</FormalSpec>
+<ReturnType>EF.pageController.buttons.submit</ReturnType>
+<Implementation><![CDATA[
+	set element=##class(EF.pageController.buttons.submit).addElementToParent($this,identifier,description)
+
+	quit element
+]]></Implementation>
+</Method>
+
+<Method name="addSubmitModalButton">
+<FormalSpec>identifier:%String,description:%String</FormalSpec>
+<ReturnType>EF.pageController.buttons.submit</ReturnType>
+<Implementation><![CDATA[
+	set element=##class(EF.pageController.buttons.submit).addElementToParent($this,identifier,description)
+	set element.uiComponent=##class(EF.ui.components.backend.buttonSubmitModal).%New(identifier)
+	set element.uiComponent.label=description
+
+	quit element
+]]></Implementation>
+</Method>
+
+<Method name="addDeleteButton">
+<FormalSpec>identifier:%String,description:%String,deleteMethod,objectID,confirmationMessage</FormalSpec>
+<ReturnType>EF.pageController.buttons.submit</ReturnType>
+<Implementation><![CDATA[
+	set element=##class(EF.pageController.buttons.delete).addElementToParent($this,identifier,description)
+	set element.deleteMethod=deleteMethod
+	set element.objectId=objectID
+	set element.uiComponent.confirmationMessage=confirmationMessage
+
+	quit element
+]]></Implementation>
+</Method>
+
+<Method name="addLinkButton">
+<FormalSpec>identifier:%String,description:%String,href:%String</FormalSpec>
+<ReturnType>EF.pageController.buttons.button</ReturnType>
+<Implementation><![CDATA[
+	set element=##class(EF.pageController.buttons.link).addElementToParent($this,identifier,description)
+	set element.uiComponent.href=href
+
+	quit element
+]]></Implementation>
+</Method>
+
+<Method name="addText">
+<FormalSpec>identifier:%String,description:%String</FormalSpec>
+<ReturnType>EF.pageController.text</ReturnType>
+<Implementation><![CDATA[
+	set element=##class(EF.pageController.text).addElementToParent($this,identifier,description)
+
+	quit element
+]]></Implementation>
+</Method>
+
+<Method name="addTextAlertInfo">
+<FormalSpec>identifier:%String,description:%String</FormalSpec>
+<ReturnType>EF.pageController.text</ReturnType>
+<Implementation><![CDATA[
+	set element=##class(EF.pageController.textElements.textAlertInfo).addElementToParent($this,identifier,description)
+
+	quit element
+]]></Implementation>
+</Method>
+
+<Method name="addInputGroup">
+<FormalSpec>identifier:%String,description:%String</FormalSpec>
+<ReturnType>EF.pageController.containerElements.inputGroup</ReturnType>
+<Implementation><![CDATA[
+	set element=##class(EF.pageController.containerElements.inputGroup).addElementToParent($this,identifier,description)
+	
+	quit element
+]]></Implementation>
+</Method>
+
+<Method name="addInputGroupNumber">
+<FormalSpec>identifier:%String,description:%String</FormalSpec>
+<ReturnType>EF.pageController.containerElements.inputGroupNumber</ReturnType>
+<Implementation><![CDATA[
+	set element=##class(EF.pageController.containerElements.inputGroupNumber).addElementToParent($this,identifier,description)
+	
+	quit element
+]]></Implementation>
+</Method>
+
+<Method name="addGridRemote">
+<FormalSpec>identifier:%String,description=""</FormalSpec>
+<ReturnType>EF.pageController.containerElements.gridRemote</ReturnType>
+<Implementation><![CDATA[	return ##class(EF.pageController.containerElements.gridRemote).addElementToParent($this,identifier,description)
+]]></Implementation>
+</Method>
+
+<Method name="addDiv">
+<FormalSpec>identifier:%String,description=""</FormalSpec>
+<ReturnType>EF.pageController.containerElements.div</ReturnType>
+<Implementation><![CDATA[	return ##class(EF.pageController.containerElements.div).addElementToParent($this,identifier,description)
+]]></Implementation>
+</Method>
+
+<Method name="addSpan">
+<FormalSpec>identifier:%String,description=""</FormalSpec>
+<ReturnType>EF.pageController.containerElements.span</ReturnType>
+<Implementation><![CDATA[	return ##class(EF.pageController.containerElements.span).addElementToParent($this,identifier,description)
+]]></Implementation>
+</Method>
+
+<Method name="addTranslatableTextInput">
+<FormalSpec><![CDATA[identifier:%String,label:%String,translatablePhrase:translations.translatablePhrase,translationPageName,translationPageClass,&translationPageRequestData]]></FormalSpec>
+<Implementation><![CDATA[
+	#dim translation As translations.translation
+	if translatablePhrase.hasTranslation() {
+		set inputGroup=..addInputGroup(identifier_"-group",label)
+		set translations=translatablePhrase.getTranslationsOrderedByLanguageName()
+		set title=""
+		set key=""
+		set hasMissingTranslation=0
+		for {
+			set translation=translations.GetNext(.key)
+			if key="" quit
+			if title'="" {
+				set title=title_$$$CRLF
+			}
+			set title=title_translation.languageName_": "_translation.translation
+			if '$l(translation.translation) set hasMissingTranslation=1
+		}
+		set eventNameButton=inputGroup.addTextInput(identifier,"",translatablePhrase.getPhrase())
+		set span=inputGroup.addSpan(identifier_"-translate-span")
+		do span.uiComponent.addClass("input-group-btn")
+		set translateButton=span.addTranslateButton(identifier_"-translate-button","Translate...",translationPageName,translationPageClass,hasMissingTranslation,title,.translationPageRequestData)	
+		
+	} else {
+		set eventNameButton=..addTextInput(identifier,label,translatablePhrase.getPhrase())
+	}
+	return eventNameButton
+]]></Implementation>
+</Method>
+
+<Method name="updateUIComponent">
+<Implementation><![CDATA[
+	
+	set key=""
+	for {
+		set child=..elementChildren.GetNext(.key)
+		if key="" quit
+		do ..uiComponent.addChild(child.uiComponent)
+		
+ 	}
+ 	do ##super()
+]]></Implementation>
+</Method>
+
+<Storage name="Default">
+<Type>%Library.CacheStorage</Type>
+<DefaultData>containerElementDefaultData</DefaultData>
+<Data name="containerElementDefaultData">
+<Subscript>"containerElement"</Subscript>
+<Value name="1">
+<Value>dynamicGetContentMethod</Value>
+</Value>
+</Data>
+</Storage>
+</Class>
+
+
+<Class name="EF.pageController.element">
+<Description><![CDATA[
+<!-- ;vc;-
+;vc;    Object: EF.pageController.element.CLS/EV.8
+;vc; Component: CLS.EF.pageController.element
+;vc;  Location: SmallDev
+;vc; Date/Time: 02-Sep-16 14:23
+;vc;      User: JeremyW
+;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>EF.pageController.element.CLS/EV.8</td><td>CLS.EF.pageController.element</td><td>SmallDev</td><td style='white-space: nowrap;'>02-Sep-16 14:23</td><td>JeremyW</td></tr></table>
+]]></Description>
+<IncludeCode>EF.common.macros</IncludeCode>
+<Super>%Library.Persistent,shared.timeStamp</Super>
+<TimeChanged>64188,45160.121101</TimeChanged>
+<TimeCreated>63350,63749.535929</TimeCreated>
+
+<Property name="elementParent">
+<Type>EF.pageController.element</Type>
+</Property>
+
+<Property name="elementChildren">
+<Type>EF.pageController.element</Type>
+<Collection>list</Collection>
+</Property>
+
+<Property name="page">
+<Type>EF.pageController.page</Type>
+</Property>
+
+<Property name="identifier">
+<Description>
+The description of the property. Should be unique for each pageInstance</Description>
+<Type>%String</Type>
+<Required>1</Required>
+<Parameter name="MAXLEN" value="250"/>
+<Parameter name="TRUNCATE" value="1"/>
+</Property>
+
+<Property name="description">
+<Type>%String</Type>
+<Parameter name="MAXLEN" value="32767"/>
+<Parameter name="TRUNCATE" value="1"/>
+</Property>
+
+<Property name="isReadOnly">
+<Type>%Boolean</Type>
+<InitialExpression>1</InitialExpression>
+</Property>
+
+<Property name="uiComponent">
+<Type>EF.ui.components.base</Type>
+<Transient>1</Transient>
+</Property>
+
+<Property name="errorMessages">
+<Type>%Library.String</Type>
+<Collection>list</Collection>
+<Parameter name="MAXLEN" value="32767"/>
+</Property>
+
+<Property name="objectId">
+<Type>%String</Type>
+</Property>
+
+<Property name="enableDisableDependencyList">
+<Type>EF.ui.components.dependencyList</Type>
+<Transient>1</Transient>
+</Property>
+
+<Property name="showHideDependencyList">
+<Type>EF.ui.components.dependencyList</Type>
+<Transient>1</Transient>
+</Property>
+
+<Property name="displayOrder">
+<Description>
+needed to be able to output proweb items in the correct order until we change the 'allPageElements' proper in EF.pageController.page to be a list</Description>
+<Type>%Integer</Type>
+</Property>
+
+<Property name="isModalTempData">
+<Description>
+Anything marked with isModalTempData set will be cleared down when a modal is re-opened</Description>
+<Type>%Boolean</Type>
+<InitialExpression>0</InitialExpression>
+</Property>
+
+<Index name="identifierIndex">
+<Properties>identifier</Properties>
+</Index>
+
+<Method name="%OnNew">
+<FormalSpec>identifier:%String,description:%String</FormalSpec>
+<Private>1</Private>
+<ReturnType>%Status</ReturnType>
+<ServerOnly>1</ServerOnly>
+<Implementation><![CDATA[
+	If ($DATA(identifier)) {
+		Set ..identifier=identifier
+	}
+	if $DATA(description) {
+		set ..description=description
+	}
+
+	do ..createUIComponent()
+	do ..initialiseUIComponent(..getDefaultUIComponent())
+	
+    Quit $$$OK
+]]></Implementation>
+</Method>
+
+<Method name="delete">
+<FormalSpec>removeFromParent=1</FormalSpec>
+<Implementation><![CDATA[
+	
+	set key=""
+	do {
+    	set childElement=..elementChildren.GetNext(.key)
+    	if ($IsObject(childElement)) {
+        	do childElement.delete(0)
+    	}
+ 	} While (key '= "")
+ 	set elementID=..%Id()
+ 	if (removeFromParent)&&($IsObject(..elementParent)) {
+	 	do ..elementParent.%Reload()
+		set childKey=..elementParent.elementChildren.FindObjectId(elementID,"")
+		if childKey {
+			do ..elementParent.elementChildren.RemoveAt(childKey)
+			do ..elementParent.%Save()
+		}	
+ 	}
+    do ..%DeleteId(elementID)
+    
+ 	quit
+]]></Implementation>
+</Method>
+
+<Method name="addChild">
+<FormalSpec>element:EF.pageController.element</FormalSpec>
+<Implementation><![CDATA[
+	if ..page.getElementByIdentifier(element.identifier) {
+		throw ##class(shared.exceptions.generalException).%New("Element identifier must be unique for page")
+	}
+	set element.page=..page
+	if ..page.isPageReadOnly {
+		set element.isReadOnly=1	
+	}
+	do ..elementChildren.Insert(element)
+	set element.elementParent=$this
+	do ..page.allPageElements.SetAt(element,element.identifier)
+]]></Implementation>
+</Method>
+
+<Method name="updateAllPageElements">
+<Implementation><![CDATA[
+	do ..page.allPageElements.SetAt($this,..identifier)
+	set key=""
+	for {
+		set child=..elementChildren.GetNext(.key)
+		if key="" quit
+		do child.updateAllPageElements()	
+	}
+]]></Implementation>
+</Method>
+
+<Method name="reloadUIComponent">
+<Implementation><![CDATA[	do ..initialiseUIComponent(..getDefaultUIComponent())
+]]></Implementation>
+</Method>
+
+<Method name="render">
+<Implementation><![CDATA[	do ..uiComponent.render()
+]]></Implementation>
+</Method>
+
+<Method name="renderStart">
+<Implementation><![CDATA[	do ..uiComponent.renderStart()
+]]></Implementation>
+</Method>
+
+<Method name="renderEnd">
+<Implementation><![CDATA[	do ..uiComponent.renderEnd()
+]]></Implementation>
+</Method>
+
+<Method name="initialiseUIComponent">
+<FormalSpec>uiComponent:EF.ui.components.base</FormalSpec>
+<Implementation><![CDATA[	set ..uiComponent=uiComponent
+]]></Implementation>
+</Method>
+
+<Method name="getDefaultUIComponent">
+<ReturnType>EF.ui.components.base</ReturnType>
+<Implementation><![CDATA[
+	set htmlIdentifier="ef_control_"_..identifier
+	quit ##class(EF.ui.components.base).%New(htmlIdentifier)
+]]></Implementation>
+</Method>
+
+<Method name="addElementToParent">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>parent:EF.pageController.element,identifier:%String,description:%String</FormalSpec>
+<ReturnType>EF.pageController.element</ReturnType>
+<Implementation><![CDATA[
+	if parent.page.isReload {
+		set element=parent.page.getElementByIdentifier(identifier)
+	} else {
+		set element=..%New(identifier,description)
+		do parent.addChild(element)
+	}
+	
+	if $IsObject(parent.enableDisableDependencyList) {
+		set element.enableDisableDependencyList=parent.enableDisableDependencyList	
+	}	
+	
+	quit element
+]]></Implementation>
+</Method>
+
+<Method name="getAuditDescription">
+<Implementation><![CDATA[
+	set auditDescription=..description
+	if $IsObject(..elementParent) {
+		set parentDescription=..elementParent.getAuditDescription()
+		if $l(parentDescription) set auditDescription=parentDescription_" - "_auditDescription
+	}
+	quit auditDescription
+]]></Implementation>
+</Method>
+
+<Method name="createUIComponent">
+</Method>
+
+<Method name="updateUIComponent">
+<Implementation><![CDATA[
+	if $IsObject(..enableDisableDependencyList) {
+		set ..uiComponent.enableDisableDependencyList=..enableDisableDependencyList	
+	}
+	if $IsObject(..showHideDependencyList) {
+		set ..uiComponent.showHideDependencyList=..showHideDependencyList	
+	}
+	if ..errorMessages.Count() {
+		set ..uiComponent.hasError=1
+	}
+]]></Implementation>
+</Method>
+
+<Method name="validateElement">
+<Implementation><![CDATA[
+	do ..errorMessages.Clear()
+	set key=""
+	for {
+		set elementChild=..elementChildren.GetNext(.key)
+		if key="" quit
+		do elementChild.validateElement()
+ 	}
+ 	if ..isUpdated() {
+	 	do ..validateValue()
+ 	}
+]]></Implementation>
+</Method>
+
+<Method name="updateErrorMessages">
+<Implementation><![CDATA[
+	set key=""
+	for {
+		set elementChild=..elementChildren.GetNext(.key)
+		if key="" quit
+		do elementChild.updateErrorMessages()
+ 	}
+ 	if $IsObject(..elementParent) {
+	 	if ..errorMessages.Count() {
+		 	set key=""
+		 	for {
+			 	set errorMessage=..errorMessages.GetNext(.key)
+			 	if key="" quit
+			 	do ..elementParent.errorMessages.Insert(errorMessage)
+		 	}
+		}
+ 	}
+]]></Implementation>
+</Method>
+
+<Method name="validateValue">
+<Implementation><![CDATA[	quit
+]]></Implementation>
+</Method>
+
+<Method name="isUpdated">
+<Implementation><![CDATA[	quit 0
+]]></Implementation>
+</Method>
+
+<Method name="updateValueFromRequest">
+</Method>
+
+<Method name="getEventID">
+<Implementation><![CDATA[	quit ..page.objEvent.%Id()
+]]></Implementation>
+</Method>
+
+<Method name="setErrorMessage">
+<FormalSpec>errorMessage:%String</FormalSpec>
+<Implementation><![CDATA[
+	
+	do ..errorMessages.Insert(..getDescriptionForError(errorMessage))
+	set ..page.hasError=1
+]]></Implementation>
+</Method>
+
+<Method name="getDescriptionForError">
+<FormalSpec>errorMessage:%String</FormalSpec>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[	return ..getBaseErrorMessage()_errorMessage_"."
+]]></Implementation>
+</Method>
+
+<Method name="createContextData">
+<ReturnType>EF.contextData</ReturnType>
+<Implementation><![CDATA[
+	set contextData = ##class(EF.contextData).%New()	
+	set contextData.eventID=..getEventID()
+	
+	Do contextData.setControllerID()
+	
+	set contextData.languageID=$$$efEnglishLangID
+	set contextData.auditPersonID=..xCRuserID
+	
+	set contextData.sessionID=..page.sessionID
+	return contextData
+]]></Implementation>
+</Method>
+
+<Method name="getRequestData">
+<FormalSpec>name:%String</FormalSpec>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[	return ..page.requestData.GetAt(name)
+]]></Implementation>
+</Method>
+
+<Method name="clearAllPageControllerData">
+<Description>
+Should be run if any of the sub-classes are deleted</Description>
+<ClassMethod>1</ClassMethod>
+<Implementation><![CDATA[	kill ^EF.pageController.elementD,^EF.pageController.elementI
+]]></Implementation>
+</Method>
+
+<Method name="getBaseErrorMessage">
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[	return "The changes can't be saved because "
+]]></Implementation>
+</Method>
+
+<Storage name="Default">
+<Type>%Library.CacheStorage</Type>
+<DataLocation>^EF.pageController.elementD</DataLocation>
+<DefaultData>elementDefaultData</DefaultData>
+<IdLocation>^EF.pageController.elementD</IdLocation>
+<IndexLocation>^EF.pageController.elementI</IndexLocation>
+<StreamLocation>^EF.pageController.elementS</StreamLocation>
+<ExtentSize>100000</ExtentSize>
+<Data name="elementDefaultData">
+<Value name="1">
+<Value>%%CLASSNAME</Value>
+</Value>
+<Value name="2">
+<Value>elementParent</Value>
+</Value>
+<Value name="3">
+<Value>elementChildren</Value>
+</Value>
+<Value name="4">
+<Value>page</Value>
+</Value>
+<Value name="5">
+<Value>identifier</Value>
+</Value>
+<Value name="6">
+<Value>value</Value>
+</Value>
+<Value name="7">
+<Value>description</Value>
+</Value>
+<Value name="8">
+<Value>isReadOnly</Value>
+</Value>
+<Value name="9">
+<Value>errorMessage</Value>
+</Value>
+<Value name="10">
+<Value>errorDisplayElement</Value>
+</Value>
+<Value name="11">
+<Value>xCRstamp</Value>
+</Value>
+<Value name="12">
+<Value>xCRuserID</Value>
+</Value>
+<Value name="13">
+<Value>xMOstamp</Value>
+</Value>
+<Value name="14">
+<Value>xMOuserID</Value>
+</Value>
+<Value name="15">
+<Value>objectID</Value>
+</Value>
+<Value name="16">
+<Value>objectId</Value>
+</Value>
+<Value name="17">
+<Value>dependsOnElement</Value>
+</Value>
+<Value name="18">
+<Value>dependsOnValue</Value>
+</Value>
+<Value name="19">
+<Value>showDependsOnElement</Value>
+</Value>
+<Value name="20">
+<Value>showDependsOnValue</Value>
+</Value>
+<Value name="21">
+<Value>errorMessages</Value>
+</Value>
+<Value name="22">
+<Value>isModalTempData</Value>
+</Value>
+<Value name="23">
+<Value>displayOrder</Value>
+</Value>
+</Data>
+</Storage>
+</Class>
+
+
 <Class name="EF.pageController.page">
 <Description><![CDATA[
 <!-- ;vc;-
@@ -327,7 +1429,7 @@ if website is private, this will be set to the cod.objPerson.ID of that logged i
 ;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>EF.pageController.page.CLS/EV.14</td><td>CLS.EF.pageController.page</td><td>SmallDev</td><td style='white-space: nowrap;'>02-Sep-16 14:23</td><td>JeremyW</td></tr></table>
 ]]></Description>
 <Super>EF.pageController.containerElement</Super>
-<TimeChanged>64187,37872.868743</TimeChanged>
+<TimeChanged>64188,46287.583087</TimeChanged>
 <TimeCreated>63350,62788.509584</TimeCreated>
 
 <Property name="sessionID">
@@ -502,6 +1604,11 @@ if website is private, this will be set to the cod.objPerson.ID of that logged i
 <Method name="load">
 <Implementation><![CDATA[
 	do ..loadData()
+	try {
+		do ..insertAllProwebItems(..contextData.pageID) 
+	} catch {
+		// for backend pages	
+	}
 	do ..updateUIComponents()
 ]]></Implementation>
 </Method>
@@ -668,23 +1775,126 @@ Checks whether we are allowed to update this data set</Description>
 <Method name="renderHTMLControlFromTag">
 <FormalSpec><![CDATA[&attrs]]></FormalSpec>
 <Implementation><![CDATA[
-	
 	set identifier=$G(attrs("identifier"))
 	set element=..getElementByIdentifier(identifier)
 	if $IsObject(element) {
 		do element.render()
+		
 	} elseif $Get(attrs("prowebcomponentname"))'="" {
-		set pageID = $Get(attrs("pageid"))
-		if 'pageID {
-			throw ##class(shared.exceptions.generalException).%New("No pageID passed in")
-		}
-		set prowebListID = $Get(attrs("proweblistid"))
-		if 'prowebListID {
-			throw ##class(shared.exceptions.generalException).%New("No proweb list ID passed in")
-		}
-		do ##class(EF.pages.frontend.base).outputProwebListRowsExperimental(attrs("prowebcomponentname"), pageID, prowebListID) 
+		do ..renderAllProwebItems()
 	}
 	quit
+]]></Implementation>
+</Method>
+
+<Method name="insertAllProwebItems">
+<FormalSpec>pageID:%Integer</FormalSpec>
+<Private>1</Private>
+<Implementation><![CDATA[
+	set rsLists = ##class(%ResultSet).%New("sc.objData:qGetChildren")
+	do rsLists.Execute(pageID)
+	
+	while rsLists.Next() {
+		set listID = rsLists.Get("ID")
+		
+		set rsProwebItems = ##class(%ResultSet).%New("sc.xModules.objList:qGetChildren")
+		do rsProwebItems.Execute(listID)
+		while rsProwebItems.Next() {	
+			set dataID = rsProwebItems.Get("ID")
+			set prowebItem = ##class(sc.objData).%OpenId(dataID)
+			do ..addControllerForProwebItem(prowebItem)
+		}
+	}
+]]></Implementation>
+</Method>
+
+<Method name="addControllerForProwebItem">
+<FormalSpec>prowebItem:sc.objData</FormalSpec>
+<Private>1</Private>
+<Implementation><![CDATA[
+	#dim prowebID as %Integer = prowebItem.%Id()
+	#dim itemName as %String = ##class(sc.xModules.objCODitem).getCODItemName(prowebID)
+	#dim value as %String  = ##class(eCom.tempCodData).get(..contextData.tempPersonID, itemName)
+	#dim elementIdentifier as %String = ..getElementIdentifierForProwebItems(prowebItem)
+		
+	if prowebItem.dataType = "objCODitem" { 
+		set labelText = ##class(sc.objData).getQuestionPrompt(prowebID, ..contextData.languageID)
+		if prowebItem.type = "text" {
+			set textInput = ..addTextInput(elementIdentifier, labelText, value)
+			set textInput.displayOrder = prowebItem.displayOrder
+			
+		} elseif prowebItem.type = "dropdown" {
+			do ..addProwebDropdown(prowebItem)
+		}
+	
+	} elseif prowebItem.dataType = "objText" {
+		set text = ..addText(elementIdentifier,prowebItem.description)
+		set text.displayOrder = prowebItem.displayOrder
+	
+	} elseif prowebItem.dataType = "objFormDivider" {
+		set listItem = ##class(EF.pageController.proweb.listItems.divider).%New()
+
+	} else {
+		throw ##class(shared.exceptions.generalException).%New("proweb item type not implemented yet")	
+	}
+]]></Implementation>
+</Method>
+
+<Method name="addProwebDropdown">
+<FormalSpec>prowebItem:sc.objData</FormalSpec>
+<Private>1</Private>
+<Implementation><![CDATA[
+	#dim prowebID as %Integer = prowebItem.%Id()
+	#dim itemName as %String = ##class(sc.xModules.objCODitem).getCODItemName(prowebID)
+	#dim value as %String  = ##class(eCom.tempCodData).get(..contextData.tempPersonID, itemName)
+	#dim elementIdentifier as %String = ..getElementIdentifierForProwebItems(prowebItem)
+	#dim labelText as %String = ##class(sc.objData).getQuestionPrompt(prowebID, ..contextData.languageID)
+	
+	set dropdown = ..addDropdown(elementIdentifier, labelText, value)
+	set dropdown.displayOrder = prowebItem.displayOrder	
+	set rsAlternative = ##class(cod.objItemAlternatives).getAlternativesForCodItemAsResultSet( prowebItem.objItemName.%Id() )
+	while rsAlternative.Next()	{
+		Set alternativeDescription = rsAlternative.Get("description")
+		set alternativeCode = rsAlternative.Get("code")
+		do dropdown.addAlternative(alternativeCode,alternativeDescription)
+	}
+]]></Implementation>
+</Method>
+
+<Method name="getElementIdentifierForProwebItems">
+<FormalSpec>prowebItem:sc.objData</FormalSpec>
+<Private>1</Private>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	#dim prowebID as %Integer = prowebItem.%Id()
+	return "proweb-"_prowebID
+]]></Implementation>
+</Method>
+
+<Method name="renderAllProwebItems">
+<Description>
+this method needs rewriting when the arrayOfElements become a list instead of an array</Description>
+<Private>1</Private>
+<Implementation><![CDATA[
+	#dim element as EF.pageController.element
+	#dim arrayOfElements as EF.pageController.element
+	
+	set key=""
+	for {
+		set element=..allPageElements.GetNext(.key)
+		if key="" quit
+		
+		if element.displayOrder {
+			set arrayOfElements(element.displayOrder) = element	
+		}
+	}
+	
+	for  {
+		set key = $order(arrayOfElements(key))
+		if key = "" quit	
+		
+		do arrayOfElements(key).uiComponent.render()
+	}
 ]]></Implementation>
 </Method>
 
@@ -1015,11 +2225,35 @@ This can be used to return data from a modal when saved via ajax.</Description>
 </Class>
 
 
+<Class name="EF.pageController.pagesFrontend.t4Registration">
+<Super>EF.pageController.page</Super>
+<TimeChanged>64188,37026.453532</TimeChanged>
+<TimeCreated>64176,58073.730326</TimeCreated>
+
+<Method name="loadData">
+<Implementation><![CDATA[
+	;&SQL(SELECT ID INTO :tempPersonID FROM eCom.tempPerson ORDER BY ID DESC) // #######
+	;do ..addTextInput("first-name","First name:",##class(eCom.tempCodData).get(tempPersonID,"firstname"))
+]]></Implementation>
+</Method>
+
+<Method name="validate">
+</Method>
+
+<Method name="saveData">
+</Method>
+
+<Storage name="Default">
+<Type>%Library.CacheStorage</Type>
+</Storage>
+</Class>
+
+
 <Class name="EF.pageController.proweb.list">
 <Description>
 a list of proweb items</Description>
 <Super>%RegisteredObject</Super>
-<TimeChanged>64187,53232.774449</TimeChanged>
+<TimeChanged>64188,34486.355433</TimeChanged>
 <TimeCreated>63992,66338.902496</TimeCreated>
 
 <Property name="listItems">
@@ -1062,6 +2296,7 @@ a list of proweb items</Description>
 <Method name="populateFromProwebListObject">
 <FormalSpec>objList:sc.xModules.objList</FormalSpec>
 <Implementation><![CDATA[
+	/*
 	#dim listItem as EF.pageController.proweb.listItem
 	#dim previousGuestItem as EF.pageController.proweb.listItem
 	#dim inputElement as EF.pageController.proweb.listItems.inputElementCOD
@@ -1083,30 +2318,7 @@ a list of proweb items</Description>
 			do ..addListItem(listItem)
 		}
 	}
-]]></Implementation>
-</Method>
-
-<Method name="createControllerForProwebItem">
-<FormalSpec>prowebItem</FormalSpec>
-<Private>1</Private>
-<Implementation><![CDATA[
-	if prowebItem.dataType = "objCODitem" { 
-		set listItem = ##class(EF.pageController.proweb.listItems.inputElementCOD).%New()
-		do listItem.populateFromProwebItem(prowebItem, ..contextDataRegistration)
-		set listItem.uiComponentType = listItem.getUiComponentTypeFromProwebItem(prowebItem)
-		
-	} elseif prowebItem.dataType = "objText" {
-		set listItem = ##class(EF.pageController.proweb.listItems.textBlock).%New()
-		do listItem.populateFromProwebObject(prowebItem)
-	
-	} elseif prowebItem.dataType = "objFormDivider" {
-		set listItem = ##class(EF.pageController.proweb.listItems.divider).%New()
-
-	} else {
-		throw ##class(shared.exceptions.generalException).%New("proweb item type not implemented yet")	
-	}
-	set listItem.isProwebEditMode = ..isProwebEditMode 
-	return listItem
+	*/
 ]]></Implementation>
 </Method>
 
@@ -1605,7 +2817,7 @@ Common page that all frontend pages could/should inherit from.
 <Language>cache</Language>
 <ProcedureBlock>0</ProcedureBlock>
 <Super>shared.pCSPmanage</Super>
-<TimeChanged>64187,43809.533061</TimeChanged>
+<TimeChanged>64188,40101.701836</TimeChanged>
 <TimeCreated>63635,40114.778424</TimeCreated>
 
 <Parameter name="showRegistrationProgressBar">
@@ -1619,6 +2831,10 @@ Common page that all frontend pages could/should inherit from.
 <Parameter name="efUsePageController">
 <Type>%Boolean</Type>
 <Default>1</Default>
+</Parameter>
+
+<Parameter name="prowebComponentName1">
+<Type>%String</Type>
 </Parameter>
 
 <Method name="OnPage">
@@ -1648,7 +2864,6 @@ Common page that all frontend pages could/should inherit from.
 <Implementation><![CDATA[
 	set contextData = ##class(EF.contextDataRegistration).createFromFrontendCSPSession()
 	if ..usePageController() {
-		set contextData = ##class(EF.contextData).createFromBackendCSPSession()
 		set pageControllerID=%request.Get("pageControllerID")
 		merge requestData=%request.Data
 		
@@ -1730,62 +2945,29 @@ Common page that all frontend pages could/should inherit from.
 <ClassMethod>1</ClassMethod>
 <FormalSpec>componentName,pageID,isHTMLTable:%Boolean,paramIsRepeatedList:%Boolean=0</FormalSpec>
 <Implementation><![CDATA[
-	if +%session.Get("useExperimentalCMS")=0 {
-		set beforeItem=##class(sc.xModules.objPage).getBeforeItem(pageID)
-		new pageURL,app
-		// Clear previously set component 
-		KILL %session.Data("beforeRow")
-		KILL %session.Data("afterRow")
-		KILL %session.Data("beforeItem")
-		KILL %session.Data("afterItem")
-		KILL %session.Data("componentName")
-		// retrieve the passed component name
-		set %session.Data("beforeRow")=""
-		set %session.Data("afterRow")=""
-		if isHTMLTable {
-			set %session.Data("beforeItem")=(beforeItem)
-			set %session.Data("afterItem")="</TD></TR>"
-		} else {
-			set %session.Data("beforeItem")=""
-			set %session.Data("afterItem")="" 	
-		}
-		set %session.Data("componentName")=componentName
-		set isRepeatedList=paramIsRepeatedList
-		set app=##class(sc.objData).applicationPath()
-		set pageURL=app_"/system/proweb/tagFree.csp"
-		do ##class(cspRealEV.system.proweb.tagfree).OnPageCSPROOT()
-		
-	} elseif +%session.Get("useExperimentalCMS")=1 {
-		do ..outputProwebListRowsExperimental(componentName, pageID, paramIsRepeatedList)
+	set beforeItem=##class(sc.xModules.objPage).getBeforeItem(pageID)
+	new pageURL,app
+	// Clear previously set component 
+	KILL %session.Data("beforeRow")
+	KILL %session.Data("afterRow")
+	KILL %session.Data("beforeItem")
+	KILL %session.Data("afterItem")
+	KILL %session.Data("componentName")
+	// retrieve the passed component name
+	set %session.Data("beforeRow")=""
+	set %session.Data("afterRow")=""
+	if isHTMLTable {
+		set %session.Data("beforeItem")=(beforeItem)
+		set %session.Data("afterItem")="</TD></TR>"
+	} else {
+		set %session.Data("beforeItem")=""
+		set %session.Data("afterItem")="" 	
 	}
-]]></Implementation>
-</Method>
-
-<Method name="outputProwebListRowsExperimental">
-<ClassMethod>1</ClassMethod>
-<FormalSpec>componentName:%String,pageID:%Integer,prowebListID:%Integer</FormalSpec>
-<ProcedureBlock>1</ProcedureBlock>
-<Implementation><![CDATA[
-	#dim list as sc.CMS.list
-	#dim contextDataRegistration as EF.contextDataRegistration = ##class(EF.contextDataRegistration).createFromFrontendCSPSession()
-	
-	set contextDataRegistration.tempPersonID = $G(%session.Data("eventsforce","frontend","currentPersonID"))
-	set contextDataRegistration.prowebMode = $G(%session.Data("mode"))
-	set contextDataRegistration.componentName = componentName
-
-	set listID = ##class(sc.xModules.objList).getListIDFromPageIDAndComponentName(pageID,componentName)
-	set objList = ##class(sc.xModules.objList).%OpenId(listID)
-	if '$IsObject(objList) {
-		throw ##class(shared.exceptions.generalException).%New("No objList")	
-	}
-	
-	set list = ##class(EF.pageController.proweb.list).createNew(contextDataRegistration)	
-	if '$IsObject(list) {
-		throw ##class(shared.exceptions.generalException).%New("No list created")
-	}	
-	set list.prowebListID = prowebListID
-	do list.populateFromProwebListObject(objList)
-	do list.render()
+	set %session.Data("componentName")=componentName
+	set isRepeatedList=paramIsRepeatedList
+	set app=##class(sc.objData).applicationPath()
+	set pageURL=app_"/system/proweb/tagFree.csp"
+	do ##class(cspRealEV.system.proweb.tagfree).OnPageCSPROOT()
 ]]></Implementation>
 </Method>
 
@@ -2425,17 +3607,18 @@ note that 'prowebListID' refers to the ID used in the CSP page for identifying t
 
 <CSP name="frontEnd/reg/t4Registration.csp" application="/freddev/" default="1"><![CDATA[
 <csp:class super="EF.pages.frontend.registrationProcess">
+<csp:parameter name="prowebComponentName1" value="Main List">
 <script language="cache" runat="server">
-	Do ##super()
+	Do ##super() 
 </script>
 
   
 <csp:section name="PageContent">
 	</h1><ef-pc-container type="panel-body">
 	   	<ef-pc-container type="row"> 
-	   		
+
 		   	
-				<ef-pc-element prowebcomponentname="Main List" proweblistid="101">
+				<ef-pc-element prowebcomponentname="Main List">
 			
 			
 		</ef-pc-container>
@@ -2455,7 +3638,7 @@ note that 'prowebListID' refers to the ID used in the CSP page for identifying t
 </head>
 <body class="bodyBackground">
 <script language="CACHE" method="OnPreHTTPafter" arguments="" returntype="%Boolean">
-	set %response.Redirect="t4Registration.csp?pageID="_$G(%session.Data("pageID")) quit 0
+	;set %response.Redirect="t4Registration.csp?pageID="_$G(%session.Data("pageID")) quit 0
 	set sessionID=%session.SessionId
 	set mode=%request.Get("mode")
 	if mode="" set mode=%session.Get("mode")
@@ -5969,11 +7152,12 @@ The basic frontend default stuff</Description>
 </Class>
 
 
-<Project name="proweb 2" LastModified="2016-09-26 14:21:59.735664" Target="freddev/backend/home/login.csp" TargetType="3">
+<Project name="proweb 2" LastModified="2016-09-27 12:45:55.725333" Target="freddev/backend/home/login.csp" TargetType="3">
   <Items>
     <ProjectItem name="EF.contextDataRegistration" type="CLS"></ProjectItem>
     <ProjectItem name="EF.contextDataRegistrationMock" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.page" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.pageController.pagesFrontend.t4Registration" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.proweb.list" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.proweb.listItem" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.proweb.listItems.alternative" type="CLS"></ProjectItem>
@@ -5992,16 +7176,1008 @@ The basic frontend default stuff</Description>
     <ProjectItem name="EF.ui.components.frontend.textBlock" type="CLS"></ProjectItem>
     <ProjectItem name="EF.ui.components.frontend.textInput" type="CLS"></ProjectItem>
     <ProjectItem name="freddev/frontEnd/reg/t4Registration.csp" type="CSP"></ProjectItem>
+    <ProjectItem name="freddev/frontEnd/reg/tRegistration.csp" type="CSP"></ProjectItem>
     <ProjectItem name="freddev/system/eventsForceRules.csr" type="CSP"></ProjectItem>
     <ProjectItem name="layout.cssDefaultMethods" type="CLS"></ProjectItem>
     <ProjectItem name="shared.pageMethods" type="CLS"></ProjectItem>
-    <ProjectItem name="freddev/frontEnd/reg/tRegistration.csp" type="CSP"></ProjectItem>
+    <ProjectItem name="EF.contextData" type="CLS"></ProjectItem>
+    <ProjectItem name="sc.xModules.objPage" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.pageController.element" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.pageController.frontendElements.text" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.pageController.containerElement" type="CLS"></ProjectItem>
   </Items>
-  <BreakPoints>
-    <BreakPoint Routine="EF.pages.frontend.base.1.INT" Offset="130"></BreakPoint>
-    <BreakPoint Routine="cspRealEV.frontend.reg.t4registration.1.INT" Offset="14"></BreakPoint>
-  </BreakPoints>
 </Project>
+
+
+<Class name="sc.xModules.objPage">
+<Description><![CDATA[
+The data type that represents a a page level in the hierachy. 
+<!-- ;vc;
+;vc;    Object: sc.xModules.objPage.CLS/EV.33
+;vc; Component: CLS.sc.xModules.objPage
+;vc;  Location: SmallDev
+;vc; Date/Time: 02-Sep-16 14:27
+;vc;      User: JeremyW
+;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>sc.xModules.objPage.CLS/EV.33</td><td>CLS.sc.xModules.objPage</td><td>SmallDev</td><td style='white-space: nowrap;'>02-Sep-16 14:27</td><td>JeremyW</td></tr></table>
+]]></Description>
+<ClassType>persistent</ClassType>
+<ProcedureBlock>1</ProcedureBlock>
+<Super>sc.objData</Super>
+<TimeChanged>64188,42163.060749</TimeChanged>
+<TimeCreated>58926,57261</TimeCreated>
+
+<Parameter name="EXTENTSIZE">
+<Default>6869</Default>
+</Parameter>
+
+<Property name="accessLevel">
+<Type>%Library.String</Type>
+<Parameter name="TRUNCATE" value="1"/>
+</Property>
+
+<Property name="dataType">
+<Description>
+Used for identifying the class of the object without having to call
+cache mysterious APIs.</Description>
+<Type>%Library.String</Type>
+<InitialExpression>"objPage"</InitialExpression>
+<Parameter name="TRUNCATE" value="1"/>
+</Property>
+
+<Property name="description">
+<Description>
+Only used in the backend when navigation thru the tree.</Description>
+<Type>%Library.String</Type>
+<Parameter name="MAXLEN" value="250"/>
+<Parameter name="TRUNCATE" value="1"/>
+</Property>
+
+<Property name="staticPage">
+<Description>
+The filename for the static version (if applicable) of this page</Description>
+<Type>%Library.String</Type>
+<Parameter name="MAXLEN" value="500"/>
+<Parameter name="TRUNCATE" value="1"/>
+</Property>
+
+<Property name="staticURL">
+<Description>
+The URL for the static version (if applicable) of this page</Description>
+<Type>%Library.String</Type>
+<Parameter name="MAXLEN" value="500"/>
+<Parameter name="TRUNCATE" value="1"/>
+</Property>
+
+<Property name="objTemplate">
+<Type>sc.objTemplate</Type>
+<Cardinality>one</Cardinality>
+<Inverse>objPages</Inverse>
+<Relationship>1</Relationship>
+</Property>
+
+<Property name="showInMenu">
+<Description>
+This prop will be used to build up a tree structure for a dynamic
+menu system which might be in javascript or in HTML.</Description>
+<Type>%Library.Boolean</Type>
+<InitialExpression>0</InitialExpression>
+</Property>
+
+<Property name="redirect">
+<Description>
+holds trhe redirect name for direct access. Generates a static file which redirect to this page</Description>
+<Type>%String</Type>
+<Parameter name="TRUNCATE" value="1"/>
+</Property>
+
+<Property name="allowRemoteUpdating">
+<Description>
+is the page available for auto update (what's new pages)</Description>
+<Type>%Boolean</Type>
+</Property>
+
+<Property name="seoPageName">
+<Description>
+the seo friendly page name (shown in browser address bar)  JAW APR2010</Description>
+<Type>%String</Type>
+<Parameter name="MAXLEN" value="50"/>
+</Property>
+
+<Property name="titleBarText">
+<Description>
+the browser title bar text for this page (html TITLE) JAW APR2010</Description>
+<Type>%String</Type>
+<Parameter name="MAXLEN" value="100"/>
+</Property>
+
+<Property name="seoKeywords">
+<Description>
+SEO keywords output to the page (used by very few crawlers)  JAW APR2010</Description>
+<Type>%String</Type>
+<Parameter name="MAXLEN" value="200"/>
+</Property>
+
+<Property name="seoDescription">
+<Description>
+SEO description output to the page (used by some crawlers in different ways)  JAW APR2010</Description>
+<Type>%String</Type>
+<Parameter name="MAXLEN" value="400"/>
+</Property>
+
+<Property name="showInXmlSiteMap">
+<Description>
+should this page appear in the SEO site map?  JAW APR2010 (although not going to be used for now maybe never)</Description>
+<Type>%Boolean</Type>
+</Property>
+
+<Property name="promptAlign">
+<Description>
+pjc 2010-04-21
+customisable reg page form parameters
+alignment of the form prompt TD</Description>
+<Type>%String</Type>
+<Parameter name="VALUELIST" value=",left,right,center,justify"/>
+</Property>
+
+<Property name="inputAlign">
+<Description>
+alignment of the form input TD </Description>
+<Type>%String</Type>
+<Parameter name="VALUELIST" value=",left,right,center,justify"/>
+</Property>
+
+<Property name="promptWidth">
+<Description>
+width of the form prompt TD</Description>
+<Type>%Integer</Type>
+</Property>
+
+<Property name="inputWidth">
+<Description>
+width of the form input TD</Description>
+<Type>%Integer</Type>
+</Property>
+
+<Property name="promptHeight">
+<Description>
+height of the form prompt TD</Description>
+<Type>%Integer</Type>
+</Property>
+
+<Property name="inputHeight">
+<Description>
+height of the form input TD</Description>
+<Type>%Integer</Type>
+</Property>
+
+<Property name="units">
+<Description>
+unit of measurement for the numeric values</Description>
+<Type>%String</Type>
+<Parameter name="VALUELIST" value=",pixels,percentage"/>
+</Property>
+
+<Property name="objLanguage">
+<Type>shared.objLanguage</Type>
+</Property>
+
+<Method name="getStaticURL">
+<Description>
+return the static URL for this page if it has been compiled and it is a static page template</Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec>pageID</FormalSpec>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	set out=0
+	
+	if ##class(sc.objData).inStatic(pageID) {
+		&SQL(SELECT staticURL INTO :tmp FROM sc_xModules.objPage WHERE ID = :pageID)
+		if +SQLCODE=0 set out=tmp
+	}
+	
+	quit out
+]]></Implementation>
+</Method>
+
+<Method name="getTemplateFile">
+<Description>
+returns the template filename</Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec>pageID:%String=""</FormalSpec>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+ set out=""
+ &SQL(SELECT objTemplate->filename INTO :tmp FROM sc_xModules.objPage WHERE ID = :pageID)
+ if +SQLCODE=0 set out=tmp
+ quit out
+]]></Implementation>
+</Method>
+
+<Method name="add">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>templateDescription:%Library.String="",pageDescription:%Library.String="",parent:%Library.String="",eventID="",langID=""</FormalSpec>
+<ReturnType>%Library.String</ReturnType>
+<Implementation><![CDATA[
+	// create new proweb page and return the pageID
+	if $L(pageDescription)=0 quit "0|no description"
+	
+	//get the templateID 
+	set tmp="",templateID=""
+	&SQL(SELECT ID INTO :tmp FROM sc.objTemplate WHERE description = :templateDescription)
+	if +SQLCODE=0 set templateID=tmp
+	if 'templateID quit "0|no templateID"
+	
+	// create new
+	set objData=##class(sc.xModules.objPage).%New()
+	
+	// parent
+	set parent=$G(parent)
+	if parent="" quit "0|no parent"
+	do objData.parentSetObjectId(parent)
+	
+	if langID do objData.objLanguageSetObjectId(langID)
+	
+	// set creator
+	set objData.active=1
+	set objData.creator="system"
+	
+	// set the displayOrder to last
+	set displayOrder=""
+	&SQL(SELECT displayOrder INTO :displayOrder FROM sc.objData WHERE parent=:parent ORDER BY displayOrder DESC)
+	set objData.displayOrder=(displayOrder+1)
+	
+	// set the step
+	set finalStep=##class(sc.objStep).getFinalLevel()
+	set finalStepID=##class(sc.objStep).getFinalLevelID()
+	do objData.objStepSetObjectId(finalStepID)
+	
+	// set the template
+	do objData.objTemplateSetObjectId(templateID)
+	
+	set objData.description=pageDescription
+	if eventID do objData.objEventSetObjectId(eventID)
+	
+	set ok=objData.%Save()
+	if 'ok set ^xERROR($ZTS,"addPage method","objData.%Save()"_pageDescription)=ok
+	set pageID=objData.%Id()
+	do objData.%Close()
+	quit pageID
+]]></Implementation>
+</Method>
+
+<Method name="getBeforeItem">
+<Description>
+pjc 2010-06-01 configurable width + alignment for TDs
+Method to return the before item string to use as a parameter to the SC:FREE tag
+Includes any alignment, width etc parameters
+Includes the default CSS class for TDs
+Accepts three optional parameters - width, colspan, styleClass, noTR (no table row)
+Note that this only applies to the prompt TDs
+Input TDs are written out in coditem.csp</Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec>pageID:%Integer,notUsed1,notUsed2,notUsed3,notUsed4,notUsed5</FormalSpec>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	// pjc 2011-12-14 drag and drop on all pages
+	set beforeItem="<tr class=""draggableTR""><td"
+	
+	&SQL(SELECT promptAlign, promptHeight, promptWidth, units INTO :promptAlign, :promptHeight, :promptWidth, :units FROM sc_xModules.objPage WHERE ID = :pageID)
+	if +SQLCODE=0 {
+		
+		// CSS
+		set CSSClass=##class(setup.objSetting).getParameter("frontend","td css class") // never set anywhere as of 2010-04-28 but could well be useful in future
+		if (CSSClass=""){
+			set CSSClass="black12px ef_proweb_form_prompt"
+		}
+		
+		set beforeItem=beforeItem_" class="""_CSSClass_""""
+		
+		// HTML attributes
+		if (promptAlign '= "") {
+			set beforeItem=beforeItem_" align="""_promptAlign_""""
+		}
+		
+		if (units="percentage"){
+			set units="%"
+		}else{
+			set units="px"	
+		}
+		
+		if (promptHeight) {
+			set beforeItem=beforeItem_" height="""_promptHeight_"px""" // % makes no sense for height measurements
+		}	
+		
+		if (promptWidth) {
+			set beforeItem=beforeItem_" width="""_promptWidth_units_""""
+		}
+	}
+	
+	set beforeItem=beforeItem_">" // close the TD
+	
+	quit beforeItem
+]]></Implementation>
+</Method>
+
+<Method name="getExtraBit">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>pageID</FormalSpec>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	set langID=##class(sc.methods).getLangFromPageID(pageID)
+	set extraBit=""
+	if langID'=1 set extraBit=" - "_##class(shared.objLanguage).getLanguageDesc(langID)
+	return extraBit
+]]></Implementation>
+</Method>
+
+<Method name="getBookerPageID">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>eventID,langID</FormalSpec>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	set extraBit=##class(sc.pageMethods).getDescriptionModifier(langID)
+	
+	if ##class(setup.objEventSetting).getParameter("system","isAwardsEvent",eventID) {
+		set bookerPageID=..getAwardSubmitterPageID(eventID,langID)
+	} else {
+		set bookerPageID=##class(setup.objEventSetting).getParameter("bookings","bookerRegPageID"_extraBit,eventID)
+	}
+	return bookerPageID
+]]></Implementation>
+</Method>
+
+<Method name="getAwardSubmitterPageID">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>eventID,langID</FormalSpec>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	set pageID=##class(setup.objEventSetting).getParameter("awards","awardClientPageID",eventID)
+	return pageID
+]]></Implementation>
+</Method>
+
+<Method name="isBookerPage">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>pageID</FormalSpec>
+<ReturnType>%Boolean</ReturnType>
+<Implementation><![CDATA[
+	set out=0
+	set eventID=##class(sc.methods).getEventIDfromPageID(pageID)
+	if pageID=##class(setup.objEventSetting).getParameter("bookings","bookerRegPageID"_..getExtraBit(pageID),eventID) {
+		set out=1
+	}	
+	quit out
+]]></Implementation>
+</Method>
+
+<Method name="isAwardsEntryPage">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>pageID</FormalSpec>
+<ReturnType>%Boolean</ReturnType>
+<Implementation><![CDATA[
+	set isAwardsEntryPage=0
+	&SQL(SELECT ID INTO :tmp FROM awards.objCategory WHERE pageID=:pageID)
+	if +SQLCODE=0 {
+		set isAwardsEntryPage=1
+	}
+	return isAwardsEntryPage
+]]></Implementation>
+</Method>
+
+<Method name="isAbstractDocumentPage">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>pageID</FormalSpec>
+<ReturnType>%Boolean</ReturnType>
+<Implementation><![CDATA[
+ 	Set inAbsDocPage=0
+ 	set eventID=##class(sc.methods).getEventIDfromPageID(pageID)
+ 	if ##class(setup.objEventSetting).getParameter("event setup","has abstracts",eventID) {
+		set documentPageID=##class(setup.objEventSetting).getParameter("abstract management pages","documentPageID"_..getExtraBit(pageID),eventID)
+		if (pageID=documentPageID) {
+			Set inAbsDocPage=1
+		}
+ 	}
+ 	return inAbsDocPage
+]]></Implementation>
+</Method>
+
+<Method name="isAbstractSignUpPage">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>pageID</FormalSpec>
+<ReturnType>%Boolean</ReturnType>
+<Implementation><![CDATA[
+	
+	set eventID=##class(sc.methods).getEventIDfromPageID(pageID)
+	set signUpPageID=##class(setup.objEventSetting).getParameter("abstract management pages","signUpPageID"_..getExtraBit(pageID),eventID)
+	if pageID=signUpPageID {
+		set result=1
+	} else {
+		set result=0	
+	}
+	return result
+]]></Implementation>
+</Method>
+
+<Method name="isRegistrationPage">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>pageID</FormalSpec>
+<ReturnType>%Boolean</ReturnType>
+<Implementation><![CDATA[
+	set parentID=##class(sc.objData).getParentID(pageID)
+	set groupName=##class(sc.xModules.objGroup).getDescription(parentID)
+	set result=0
+	if $ZCVT(groupName,"L")="registration pages" set result=1
+	return result
+]]></Implementation>
+</Method>
+
+<Method name="isPaymentMethodPage">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>pageID</FormalSpec>
+<ReturnType>%Boolean</ReturnType>
+<Implementation><![CDATA[
+	set parentID=##class(sc.objData).getParentID(pageID)
+	set groupName=##class(sc.xModules.objGroup).getDescription(parentID)
+	set result=0
+	if $ZCVT(groupName,"L")="payment method instructions" set result=1
+	return result
+]]></Implementation>
+</Method>
+
+<Method name="isPageForBooker">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>pageID</FormalSpec>
+<ReturnType>%Boolean</ReturnType>
+<Implementation><![CDATA[
+	set result=0
+	if ..isBookerPage(pageID) set result=1
+	if ..isPaymentMethodPage(pageID) set result=1
+	return result
+]]></Implementation>
+</Method>
+
+<Method name="checkDependenciesRecursively">
+<Description>
+check through lists on a page to check for any parents of dependent prompts
+if these have active, non-cancelled data, return true
+check needed to prevent deletion of pages containing such items
+start with a passed-in pageID</Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec>dataID:%Integer=0,eventCategoryID:%Integer,eventID:%Integer=0</FormalSpec>
+<ReturnType>%Boolean</ReturnType>
+<Implementation><![CDATA[
+	
+	if (dataID=0!eventID=0!eventCategoryID=0) {
+		quit 0
+	}
+	
+	set ok=1
+	
+	// is dataID a page dependent on a prompt which has active data saved
+	&SQL(SELECT ID FROM sc.objData WHERE ID=:dataID AND dataType='objPage')
+	if (+SQLCODE=0){
+	 	&SQL(SELECT dependsOnObjItemName->description INTO :tmp FROM setup.lnkCategoryEvent WHERE (objEventCategory=:eventCategoryID) AND (objEvent=:eventID) AND (dependsOnPromptPageID IS NOT NULL) AND ((pageID=:dataID) OR (sameAs->pageID=:dataID)))
+	 	if (+SQLCODE=0) {
+			set promptName=tmp
+	 		set hasActiveData=##class(cod.objItemData).findActiveData(promptName,eventID)
+	 		if (hasActiveData=1) {
+				set ok=0	
+	 		}
+	 	}
+	}
+	if ok=0 quit ok
+	
+	set rs=##class(%ResultSet).%New("%Library.DynamicQuery:SQL")
+ 	do rs.Prepare("SELECT ID, dataType FROM sc.objData WHERE parent=?")
+ 	do rs.Execute(dataID)
+ 	while rs.Next() {
+ 		if (rs.Get("dataType")="objList"){
+	 		// call self to check through lists on page
+ 			set ok=##class(sc.xModules.objPage).checkDependenciesRecursively(rs.Get("ID"),eventCategoryID,eventID)		
+ 		} elseif (rs.Get("dataType")="objCODitem"){
+	 		// do we have children?
+	 		set myID = rs.Get("ID")
+	 		set hasChildren=0
+	 		&SQL(SELECT TOP 1 ID FROM sc_xModules.objCODitem WHERE dependsOnPrompt = :myID)
+	 		if (+SQLCODE = 0) { // yes we do
+	 			set hasChildren=1
+	 		}
+	 		if (hasChildren=0) { // do we have dependent text blocks
+	 			&SQL(SELECT TOP 1 ID FROM sc_xModules.objText WHERE dependsOnPrompt = :myID)
+	 			if (+SQLCODE = 0) { // yes we do
+	 				set hasChildren=1
+	 			}	
+	 		}
+	 		if (hasChildren) {
+		 		&SQL(SELECT description INTO :tmp FROM sc_xModules.objCODitem WHERE ID = :myID)
+		 		if (+SQLCODE=0) {
+			 		set promptName=tmp
+	 				set hasActiveData=##class(cod.objItemData).findActiveData(promptName,eventID)
+	 				if (hasActiveData=1) {
+		 				set ok=0	
+	 				}
+		 		}
+	 		}
+ 		}
+ 		if ok=0 quit
+ 	}
+	quit ok
+]]></Implementation>
+</Method>
+
+<Method name="getTemplateName">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>pageID</FormalSpec>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	set out=""
+	&SQL(SELECT objTemplate->description INTO :tmp
+		FROM sc_xModules.objPage
+		WHERE ID = :pageID
+	)
+	if +SQLCODE=0 {
+		set out=tmp
+	}
+	quit out
+]]></Implementation>
+</Method>
+
+<Method name="updateObjLanguage">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>dataID,langID</FormalSpec>
+<Implementation><![CDATA[
+	&SQL(UPDATE sc_xModules.objPage SET objlanguage = :langID WHERE ID = :dataID)
+	if +SQLCODE'=0 throw ##class(shared.exceptions.generalException).%New("updating sc.ObjData with objLanguage failed")
+]]></Implementation>
+</Method>
+
+<Method name="getDescription">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>dataID</FormalSpec>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	&SQL(SELECT description INTO :tmp  FROM sc_xModules.objPage WHERE id = :dataID)
+	if +SQLCODE=0 {
+		return tmp
+	} else {
+		return ""
+	}
+]]></Implementation>
+</Method>
+
+<Method name="updateDescription">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>pageID,description</FormalSpec>
+<Implementation><![CDATA[
+	&SQL(UPDATE sc_xModules.objPage SET description = :description WHERE ID = :pageID)
+	if +SQLCODE'=0 {
+		throw ##class(shared.exceptions.generalSQLException).CreateFromSQLCODE(SQLCODE,$g(%msg))
+	}
+]]></Implementation>
+</Method>
+
+<Method name="hasAnyQuestionThatAffectsPricing">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>paymentPageID</FormalSpec>
+<ReturnType>%Boolean</ReturnType>
+<Implementation><![CDATA[
+	do ..getArrayOfQuestionsThatAffectsPricing(paymentPageID,.questions)
+	return $Data(questions)>0
+]]></Implementation>
+</Method>
+
+<Method name="getArrayOfQuestionsThatAffectsPricing">
+<ClassMethod>1</ClassMethod>
+<FormalSpec><![CDATA[pageID,&array]]></FormalSpec>
+<Implementation><![CDATA[
+	kill array
+	set rsQuestions=##class(%ResultSet).%New("sc.xModules.objPage:qQuestionsByPageID")
+	do rsQuestions.Execute(pageID)
+	while rsQuestions.Next() {
+		set questionID=rsQuestions.Get("ID")
+		if (##class(sc.xModules.objCODitem).isQuestionRelatedToAnyPrice(questionID)) ! (##class(sc.xModules.objCODitem).isRelatedToAnyDiscounts(questionID)) {
+			set count=$I(array)
+			set array(count,"codID")=questionID	
+			set array(count,"questionName")=rsQuestions.Get("description")	
+		}
+	}
+]]></Implementation>
+</Method>
+
+<Method name="hasAnyQuestionThatAffectsPaymentMethods">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>paymentPageID</FormalSpec>
+<ReturnType>%Boolean</ReturnType>
+<Implementation><![CDATA[
+	do ..getArrayOfQuestionsThatAffectsPaymentMethods(paymentPageID,.questions)
+	return $Data(questions)>0
+]]></Implementation>
+</Method>
+
+<Method name="getArrayOfQuestionsThatAffectsPaymentMethods">
+<ClassMethod>1</ClassMethod>
+<FormalSpec><![CDATA[pageID,&array]]></FormalSpec>
+<Implementation><![CDATA[
+	kill array
+	set rsQuestions=##class(%ResultSet).%New("sc.xModules.objPage:qQuestionsByPageID")
+	do rsQuestions.Execute(pageID)
+	while rsQuestions.Next() {
+		set questionID=rsQuestions.Get("ID")
+		if ##class(sc.xModules.objCODitem).isRelatedToAnyPaymentMethods(questionID) {
+			set count=$I(array)
+			set array(count,"codID")=questionID	
+			set array(count,"questionName")=rsQuestions.Get("description")	
+		}
+	}
+]]></Implementation>
+</Method>
+
+<Method name="findChildPageID">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>groupID,pageName</FormalSpec>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	set result=""
+	do ##class(sc.objData).findChildrenPages(groupID,.pages)
+	set pageID=""
+	for  {
+		set pageID=$O(pages(pageID))
+		if pageID="" quit
+		
+		if $ZCVT(##class(sc.xModules.objPage).getDescription(pageID),"L")=$ZCVT(pageName,"L") {
+			set result=pageID
+			quit
+		}	
+	}
+	return result
+]]></Implementation>
+</Method>
+
+<Method name="getParentGroupName">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>pageID</FormalSpec>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	#dim parentID as %Integer
+	#dim parentName as %String
+	set parentID=##class(sc.objData).getParentID(pageID)
+	set parentName=##class(sc.xModules.objGroup).getDescription(parentID)		
+	return parentName
+]]></Implementation>
+</Method>
+
+<Method name="getEquivalentPageIDForLanguageID">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>inPageID,langID</FormalSpec>
+<Implementation><![CDATA[
+	set objPage=..%OpenId(inPageID)
+	if '$IsObject(objPage) {
+		return 0	
+	}
+	set groupID=objPage.parent.%Id()
+	set genericDescription=objPage.getGenericDescription()
+	set descriptionForLanguage=genericDescription_##class(sc.pageMethods).getDescriptionModifier(langID)
+	set pageID=..findChildPageID(groupID,descriptionForLanguage)
+	if 'pageID {
+		set pageID=..findChildPageID(groupID,genericDescription)
+	}
+	return pageID
+]]></Implementation>
+</Method>
+
+<Method name="getComponentByDesciption">
+<FormalSpec>componentName</FormalSpec>
+<ReturnType>sc.objComponent</ReturnType>
+<Implementation><![CDATA[
+	set objComponent=""
+	set pageID=..%Id()
+	set templateID=..objTemplate.%Id()
+	&SQL(SELECT ID INTO :componentID FROM sc.objComponent 
+		WHERE (%UPPER(description) = %UPPER(:componentName))
+		AND (objTemplate = :templateID) AND (objData->parent = :pageID) AND (objData->active=1)
+	) 
+	if +SQLCODE=0 {
+		set objComponent=##class(sc.objComponent).%OpenId(componentID)
+	}
+	return objComponent
+]]></Implementation>
+</Method>
+
+<Method name="getGenericDescription">
+<Description>
+Gets the description without the language modifier</Description>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	set description=..description
+	if $IsObject(..objLanguage) {
+		if ..objLanguage.%Id()'=$$$efEnglishLangID {
+			set description=$P(..description," - ",1,$l(..description," - ")-1)
+		}
+	}
+	return description
+]]></Implementation>
+</Method>
+
+<Method name="isSearchAsYouTypeAllowed">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>pageID</FormalSpec>
+<ReturnType>%Boolean</ReturnType>
+<Implementation><![CDATA[
+	#dim result as %Boolean = 0
+	#dim eventID as %Integer
+	#dim templateID as %Integer
+	#dim intDesc as %String
+	
+	set page=##class(sc.xModules.objPage).%OpenId(pageID)
+	if $IsObject(page) {
+		if $IsObject(page.objEvent) {
+			set eventID = page.objEvent.%Id()
+			if eventID {
+				set result=1
+			}
+		}
+	}
+
+	return result
+]]></Implementation>
+</Method>
+
+<Method name="getFileNameWithoutPathLowerCase">
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[	return $Piece( $ZCVT(..objTemplate.filename,"L") ,"/",*)
+]]></Implementation>
+</Method>
+
+<Method name="allowRegistrationQuestions">
+<FormalSpec>componentName:%String</FormalSpec>
+<ReturnType>%Boolean</ReturnType>
+<Implementation><![CDATA[
+	set pageName = ..getFileNameWithoutPathLowerCase()
+	
+	set result = $Case(pageName, 
+				"tabssignup.csp":1,
+				"taccomguest.csp":1,
+				"tawardsclient.csp":1,
+				"tbooker.csp":1,
+				"tcancellation.csp":1,
+				"tpaymentmethod.csp":1,
+				"tregistration.csp":1,
+	 		:0)
+	 
+	 if pageName="tawardsentry.csp" {
+		 if componentName="Main List" {
+			 set result = 1
+		 } else {
+			 set result = 0
+		 }
+	 }
+	 if pageName="ttableguests.csp" {
+		 if componentName="Main List" {
+			 set result = 1
+		 } else {
+			 set result = 0
+		 }
+	 }
+	 if pageName="tabsdocument.csp" {
+		 if "Document List|Main Author List|Co Author List" [ componentName {
+			 set result = 1
+		 } else {
+			 set result = 0
+		 }
+	 }
+	 return result
+]]></Implementation>
+</Method>
+
+<Method name="alllowPromptCollections">
+<ReturnType>%Boolean</ReturnType>
+<Implementation><![CDATA[
+	return $Case(..getFileNameWithoutPathLowerCase(), 
+				"tawardsclient.csp":1,
+				"tbooker.csp":1,
+				"tregistration.csp":1,
+	 		:0)
+]]></Implementation>
+</Method>
+
+<Method name="allowABIs">
+<ReturnType>%Boolean</ReturnType>
+<Implementation><![CDATA[
+	return $Case(..getFileNameWithoutPathLowerCase(),  
+				"tawardsclient.csp":1,
+				"tbooker.csp":1,
+				"tpaymentmethod.csp":1,
+				"tregistration.csp":1,
+	 		:0)
+]]></Implementation>
+</Method>
+
+<Method name="isSurvey">
+<ReturnType>%Boolean</ReturnType>
+<Implementation><![CDATA[	return $Case(..getFileNameWithoutPathLowerCase(), "xttsurveypage.csp":1, :0)
+]]></Implementation>
+</Method>
+
+<Method name="isHotel">
+<ReturnType>%Boolean</ReturnType>
+<Implementation><![CDATA[	return $Case(..getFileNameWithoutPathLowerCase(), "tHotelBooking.csp":1, :0)
+]]></Implementation>
+</Method>
+
+<Method name="allowDivider">
+<FormalSpec>componentName:%String</FormalSpec>
+<ReturnType>%Boolean</ReturnType>
+<Implementation><![CDATA[	return ..allowRegistrationQuestions(componentName)
+]]></Implementation>
+</Method>
+
+<Method name="allowMiscMedia">
+<ReturnType>%Boolean</ReturnType>
+<Implementation><![CDATA[	return '..isSurvey()
+]]></Implementation>
+</Method>
+
+<Method name="allowFrontendUpload">
+<ReturnType>%Boolean</ReturnType>
+<Implementation><![CDATA[
+	return $Case(..getFileNameWithoutPathLowerCase(), 
+				"tbooker.csp":1,
+				"tregistration.csp":1,
+	 		:0)
+]]></Implementation>
+</Method>
+
+<Query name="qQuestionsByPageID">
+<Type>%SQLQuery</Type>
+<FormalSpec>pageID</FormalSpec>
+<SqlQuery><![CDATA[	SELECT * FROM sc_xModules.objCODitem 
+	WHERE (active=1) AND (parent->parent = :pageID) 
+	ORDER BY displayorder]]></SqlQuery>
+</Query>
+
+<Storage name="Default">
+<Type>%Library.CacheStorage</Type>
+<DefaultData>objPageDefaultData</DefaultData>
+<Data name="objPageDefaultData">
+<Subscript>"objPage"</Subscript>
+<Value name="1">
+<Value>accessLevel</Value>
+</Value>
+<Value name="2">
+<Value>description</Value>
+</Value>
+<Value name="3">
+<Value>showInMenu</Value>
+</Value>
+<Value name="4">
+<Value>staticPage</Value>
+</Value>
+<Value name="5">
+<Value>staticURL</Value>
+</Value>
+<Value name="6">
+<Value>objMenuItem</Value>
+</Value>
+<Value name="7">
+<Value>redirect</Value>
+</Value>
+<Value name="8">
+<Value>allowRemoteUpdating</Value>
+</Value>
+<Value name="9">
+<Value>seoPageName</Value>
+</Value>
+<Value name="10">
+<Value>titleBarText</Value>
+</Value>
+<Value name="11">
+<Value>seoKeywords</Value>
+</Value>
+<Value name="12">
+<Value>showInXmlSiteMap</Value>
+</Value>
+<Value name="13">
+<Value>seoDescription</Value>
+</Value>
+<Value name="14">
+<Value>promptAlign</Value>
+</Value>
+<Value name="15">
+<Value>inputAlign</Value>
+</Value>
+<Value name="16">
+<Value>promptWidth</Value>
+</Value>
+<Value name="17">
+<Value>inputWidth</Value>
+</Value>
+<Value name="18">
+<Value>promptHeight</Value>
+</Value>
+<Value name="19">
+<Value>units</Value>
+</Value>
+<Value name="20">
+<Value>inputHeight</Value>
+</Value>
+<Value name="21">
+<Value>objLanguage</Value>
+</Value>
+<Value name="22">
+<Value>objEvent</Value>
+</Value>
+</Data>
+<Property name="accessLevel">
+<Selectivity>99.9993%</Selectivity>
+</Property>
+<Property name="active">
+<Selectivity>49.9998%</Selectivity>
+</Property>
+<Property name="allowRemoteUpdating">
+<Selectivity>99.9993%</Selectivity>
+</Property>
+<Property name="creator">
+<Selectivity>49.9998%</Selectivity>
+</Property>
+<Property name="dataType">
+<Selectivity>99.9993%</Selectivity>
+</Property>
+<Property name="description">
+<Selectivity>1.7313%</Selectivity>
+</Property>
+<Property name="displayOrder">
+<Selectivity>2.9394%</Selectivity>
+</Property>
+<Property name="nextVersion">
+<Selectivity>99.9993%</Selectivity>
+</Property>
+<Property name="objMenuItem">
+<Selectivity>99.9993%</Selectivity>
+</Property>
+<Property name="objStep">
+<Selectivity>99.9993%</Selectivity>
+</Property>
+<Property name="objTemplate">
+<Selectivity>4.1666%</Selectivity>
+</Property>
+<Property name="parent">
+<Selectivity>0.1427%</Selectivity>
+</Property>
+<Property name="previousVersion">
+<Selectivity>99.9993%</Selectivity>
+</Property>
+<Property name="publishAt">
+<Selectivity>99.9993%</Selectivity>
+</Property>
+<Property name="redirect">
+<Selectivity>99.9993%</Selectivity>
+</Property>
+<Property name="showInMenu">
+<Selectivity>99.9993%</Selectivity>
+</Property>
+<Property name="sourceID">
+<Selectivity>99.9993%</Selectivity>
+</Property>
+<Property name="staticPage">
+<Selectivity>99.9993%</Selectivity>
+</Property>
+<Property name="staticURL">
+<Selectivity>99.9993%</Selectivity>
+</Property>
+<Property name="xCRstamp">
+<Selectivity>1.3399%</Selectivity>
+</Property>
+<Property name="xCRuserID">
+<Selectivity>8.3333%</Selectivity>
+</Property>
+<Property name="xMOstamp">
+<Selectivity>0.1940%</Selectivity>
+</Property>
+<Property name="xMOuserID">
+<Selectivity>5.5556%</Selectivity>
+</Property>
+</Storage>
+</Class>
 
 
 <Class name="shared.pageMethods">

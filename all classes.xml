@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.1.2 (Build 206U)" ts="2016-09-27 15:53:01">
+<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.1.2 (Build 206U)" ts="2016-09-27 16:59:54">
 <Class name="EF.contextData">
 <Description><![CDATA[
 <!-- ;vc;-
@@ -450,7 +450,7 @@ if website is private, this will be set to the cod.objPerson.ID of that logged i
 ;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>EF.pageController.containerElement.CLS/EV.17</td><td>CLS.EF.pageController.containerElement</td><td>SmallDev</td><td style='white-space: nowrap;'>02-Sep-16 14:23</td><td>JeremyW</td></tr></table>
 ]]></Description>
 <Super>EF.pageController.element</Super>
-<TimeChanged>64188,56626.30154</TimeChanged>
+<TimeChanged>64188,60898.673204</TimeChanged>
 <TimeCreated>63372,47273.826383</TimeCreated>
 
 <Property name="getContentsMethod">
@@ -903,6 +903,15 @@ Adds a translation button with warning icon which opens an in-form modal</Descri
 ]]></Implementation>
 </Method>
 
+<Method name="addProwebDivider">
+<FormalSpec>identifier:%String,description:%String</FormalSpec>
+<ReturnType>EF.pageController.text</ReturnType>
+<Implementation><![CDATA[
+	set element=##class(EF.pageController.proweb.divider).addElementToParent($this,identifier,description)
+	quit element
+]]></Implementation>
+</Method>
+
 <Method name="addTextAlertInfo">
 <FormalSpec>identifier:%String,description:%String</FormalSpec>
 <ReturnType>EF.pageController.text</ReturnType>
@@ -1024,7 +1033,7 @@ Adds a translation button with warning icon which opens an in-form modal</Descri
 ]]></Description>
 <IncludeCode>EF.common.macros</IncludeCode>
 <Super>%Library.Persistent,shared.timeStamp</Super>
-<TimeChanged>64188,45160.121101</TimeChanged>
+<TimeChanged>64188,60873.932415</TimeChanged>
 <TimeCreated>63350,63749.535929</TimeCreated>
 
 <Property name="elementParent">
@@ -1459,7 +1468,7 @@ Should be run if any of the sub-classes are deleted</Description>
 ;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>EF.pageController.page.CLS/EV.14</td><td>CLS.EF.pageController.page</td><td>SmallDev</td><td style='white-space: nowrap;'>02-Sep-16 14:23</td><td>JeremyW</td></tr></table>
 ]]></Description>
 <Super>EF.pageController.containerElement</Super>
-<TimeChanged>64188,56781.586169</TimeChanged>
+<TimeChanged>64188,60962.479005</TimeChanged>
 <TimeCreated>63350,62788.509584</TimeCreated>
 
 <Property name="sessionID">
@@ -1634,10 +1643,8 @@ Should be run if any of the sub-classes are deleted</Description>
 <Method name="load">
 <Implementation><![CDATA[
 	do ..loadData()
-	try {
+	if ..contextData.%IsA("EF.contextDataRegistration") {
 		do ..insertAllProwebItems(..contextData.pageID) 
-	} catch {
-		// for backend pages	
 	}
 	do ..updateUIComponents()
 ]]></Implementation>
@@ -1859,11 +1866,12 @@ Checks whether we are allowed to update this data set</Description>
 		}
 	
 	} elseif prowebItem.dataType = "objText" {
-		set text = ..addProwebTextBlock(elementIdentifier,prowebItem.description)
+		set text = ..addProwebTextBlock(elementIdentifier, prowebItem.description)
 		set text.displayOrder = prowebItem.displayOrder
 	
 	} elseif prowebItem.dataType = "objFormDivider" {
-		set listItem = ##class(EF.pageController.proweb.listItems.divider).%New()
+		set divider = ..addProwebDivider(elementIdentifier,"")
+		set divider.displayOrder =prowebItem.displayOrder
 
 	} else {
 		throw ##class(shared.exceptions.generalException).%New("proweb item type not implemented yet")	
@@ -2280,6 +2288,29 @@ This can be used to return data from a modal when saved via ajax.</Description>
 </Class>
 
 
+<Class name="EF.pageController.proweb.divider">
+<Super>EF.pageController.element</Super>
+<TimeChanged>64188,59730.972752</TimeChanged>
+<TimeCreated>64183,49747.663252</TimeCreated>
+
+<Method name="getDefaultUIComponent">
+<ReturnType>EF.ui.components.base</ReturnType>
+<Implementation><![CDATA[	quit ##class(EF.ui.components.frontend.divider).%New(..identifier)
+]]></Implementation>
+</Method>
+
+<Method name="initialiseUIComponent">
+<FormalSpec>uiComponent:EF.ui.components.base</FormalSpec>
+<Implementation><![CDATA[	do ##super(uiComponent)
+]]></Implementation>
+</Method>
+
+<Storage name="Default">
+<Type>%Library.CacheStorage</Type>
+</Storage>
+</Class>
+
+
 <Class name="EF.pageController.proweb.dropdown">
 <Description><![CDATA[
 <!-- ;vc;-
@@ -2504,22 +2535,6 @@ note that 'prowebListID' refers to the ID used in the CSP page for identifying t
 	} else {
 		throw ##class(shared.exceptions.generalException).%New("Failed to resolve the UI component type")	
 	}
-]]></Implementation>
-</Method>
-</Class>
-
-
-<Class name="EF.pageController.proweb.listItems.divider">
-<Super>EF.pageController.proweb.listItem</Super>
-<TimeChanged>64187,43973.163053</TimeChanged>
-<TimeCreated>64183,52893.320101</TimeCreated>
-
-<Method name="render">
-<Implementation><![CDATA[
-	set uiComponent = ##class(EF.ui.components.frontend.divider).%New(..htmlID)
-	set uiComponent.isProwebEditMode = ..isProwebEditMode
-	set uiComponent.prowebItem = ..prowebItem
-	do uiComponent.render()
 ]]></Implementation>
 </Method>
 </Class>
@@ -3305,14 +3320,14 @@ Hold the alternatives to dropdown, radios, multi check etc</Description>
 
 <Class name="EF.ui.components.frontend.divider">
 <Super>EF.ui.components.frontend.prowebBase</Super>
-<TimeChanged>64183,54031.385852</TimeChanged>
-<TimeCreated>64183,53112.09307</TimeCreated>
+<TimeChanged>64188,60850.760112</TimeChanged>
+<TimeCreated>64188,59498.911424</TimeCreated>
 
 <Method name="render">
 <Implementation><![CDATA[
 	do ..renderRowOpening()
 		do ..renderCellOpening()
-			write "<hr class='ef_form_divider''>"
+			write "<hr class='ef_form_divider'>"
 		do ..renderCellClosing()
 	do ..renderRowClosing()
 ]]></Implementation>
@@ -3546,7 +3561,7 @@ Method isAnyAlternativeSelected() As %Boolean [ Private ]
 
 <Class name="EF.ui.components.frontend.prowebBase">
 <Super>EF.ui.components.base</Super>
-<TimeChanged>64188,53819.796589</TimeChanged>
+<TimeChanged>64188,60004.549427</TimeChanged>
 <TimeCreated>64183,41819.123112</TimeCreated>
 
 <Property name="isProwebEditMode">
@@ -3567,15 +3582,15 @@ note that 'prowebListID' refers to the ID used in the CSP page for identifying t
 
 <Method name="renderRowOpening">
 <Implementation><![CDATA[
-	#dim floatingEditMenuID as %Integer = ..getNewFloatingEditMenuID()
+	;#dim floatingEditMenuID as %Integer = ..getNewFloatingEditMenuID()
 		
-	if ..isProwebEditMode {
-		write !,"<div class='row draggableTR ef-proweb-form-row-editable' onMouseOver=""HM_f_PopUp('HM_Menu"_floatingEditMenuID_"',event);"" onMouseOut=""HM_f_PopDown('HM_Menu"_floatingEditMenuID_"');"">"
-		do ..renderFloatingEditMenu(floatingEditMenuID)	
-		
-	} else {
+	;if ..isProwebEditMode {
+	;	write !,"<div class='row draggableTR ef-proweb-form-row-editable' onMouseOver=""HM_f_PopUp('HM_Menu"_floatingEditMenuID_"',event);"" onMouseOut=""HM_f_PopDown('HM_Menu"_floatingEditMenuID_"');"">"
+	;	do ..renderFloatingEditMenu(floatingEditMenuID)	
+	;	
+	;} else {
 		write !,"<div class='row draggableTR'>"	
-	}
+	;}
 ]]></Implementation>
 </Method>
 
@@ -7286,7 +7301,7 @@ The basic frontend default stuff</Description>
 </Class>
 
 
-<Project name="proweb 2" LastModified="2016-09-27 15:53:01.309746" Target="freddev/backend/home/login.csp" TargetType="3">
+<Project name="proweb 2" LastModified="2016-09-27 16:59:54.58315" Target="freddev/backend/home/login.csp" TargetType="3">
   <Items>
     <ProjectItem name="EF.contextDataRegistration" type="CLS"></ProjectItem>
     <ProjectItem name="EF.contextDataRegistrationMock" type="CLS"></ProjectItem>
@@ -7323,8 +7338,11 @@ The basic frontend default stuff</Description>
     <ProjectItem name="EF.pageController.proweb.textBlock" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.proweb.textInput" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.proweb.dropdown" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.pageController.proweb.divider" type="CLS"></ProjectItem>
   </Items>
   <WatchVariables>
+    <WatchVariable Variable="prowebItem" Pane="1"></WatchVariable>
+    <WatchVariable Variable="prowebItem.dataType" Pane="1"></WatchVariable>
     <WatchVariable Variable="value" Pane="1"></WatchVariable>
     <WatchVariable Variable="labelText" Pane="1"></WatchVariable>
     <WatchVariable Variable="elementIdentifier" Pane="1"></WatchVariable>

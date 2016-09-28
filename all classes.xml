@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.1.2 (Build 206U)" ts="2016-09-28 13:02:41">
+<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.1.2 (Build 206U)" ts="2016-09-28 15:13:18">
 <Class name="EF.contextData">
 <Description><![CDATA[
 <!-- ;vc;-
@@ -1468,7 +1468,7 @@ Should be run if any of the sub-classes are deleted</Description>
 ;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>EF.pageController.page.CLS/EV.14</td><td>CLS.EF.pageController.page</td><td>SmallDev</td><td style='white-space: nowrap;'>02-Sep-16 14:23</td><td>JeremyW</td></tr></table>
 ]]></Description>
 <Super>EF.pageController.containerElement</Super>
-<TimeChanged>64189,45194.131859</TimeChanged>
+<TimeChanged>64189,51844.262001</TimeChanged>
 <TimeCreated>63350,62788.509584</TimeCreated>
 
 <Property name="sessionID">
@@ -1643,9 +1643,6 @@ Should be run if any of the sub-classes are deleted</Description>
 <Method name="load">
 <Implementation><![CDATA[
 	do ..loadData()
-	if ..contextData.%IsA("EF.contextDataRegistration") {
-		do ..insertAllProwebItems(..contextData.pageID) 
-	}
 	do ..updateUIComponents()
 ]]></Implementation>
 </Method>
@@ -1816,136 +1813,8 @@ Checks whether we are allowed to update this data set</Description>
 	set element=..getElementByIdentifier(identifier)
 	if $IsObject(element) {
 		do element.render()
-		
-	} elseif $Get(attrs("prowebcomponentname"))'="" {
-		do ..renderAllProwebItems()
 	}
 	quit
-]]></Implementation>
-</Method>
-
-<Method name="insertAllProwebItems">
-<FormalSpec>pageID:%Integer</FormalSpec>
-<Private>1</Private>
-<Implementation><![CDATA[
-	set rsLists = ##class(%ResultSet).%New("sc.objData:qGetChildren")
-	do rsLists.Execute(pageID)
-	
-	while rsLists.Next() {
-		set listID = rsLists.Get("ID")
-		
-		set rsProwebItems = ##class(%ResultSet).%New("sc.xModules.objList:qGetChildren")
-		do rsProwebItems.Execute(listID)
-		while rsProwebItems.Next() {	
-			set dataID = rsProwebItems.Get("ID")
-			set prowebItem = ##class(sc.objData).%OpenId(dataID)
-			do ..addControllerForProwebItem(prowebItem)
-		}
-	}
-]]></Implementation>
-</Method>
-
-<Method name="addControllerForProwebItem">
-<FormalSpec>prowebItem:sc.objData</FormalSpec>
-<Private>1</Private>
-<Implementation><![CDATA[
-	#dim prowebID as %Integer = prowebItem.%Id()
-	#dim itemName as %String = ##class(sc.xModules.objCODitem).getCODItemName(prowebID)
-	#dim value as %String  = ##class(eCom.tempCodData).get(..contextData.tempPersonID, itemName)
-	#dim elementIdentifier as %String = ..getElementIdentifierForProwebItems(prowebItem)
-	#dim element as EF.pageController.element
-		
-	if prowebItem.dataType = "objCODitem" { 
-		set labelText = ##class(sc.objData).getQuestionPrompt(prowebID, ..contextData.languageID)
-		
-		if prowebItem.type = "text" {
-			set element = ..addProwebTextInput(elementIdentifier, labelText, value)
-			set element.displayOrder = prowebItem.displayOrder
-			
-		} elseif prowebItem.type = "dropdown" {
-			set element = ..addProwebDropdownElement(prowebItem)
-		
-		} else {
-			throw ##class(shared.exceptions.generalException).%New("proweb question type is not implement yet")	
-		}
-		set element.isMandatory = prowebItem.mandatory
-		set element.uiComponent.isMandatory = prowebItem.mandatory
-		set element.uiComponent.helpText = prowebItem.helpText
-	
-	} elseif prowebItem.dataType = "objText" {
-		set text = ..addProwebTextBlock(elementIdentifier, prowebItem.description)
-		set text.displayOrder = prowebItem.displayOrder
-	
-	} elseif prowebItem.dataType = "objFormDivider" {
-		set divider = ..addProwebDivider(elementIdentifier,"")
-		set divider.displayOrder =prowebItem.displayOrder
-
-	} else {
-		throw ##class(shared.exceptions.generalException).%New("proweb item type not implemented yet")	
-	}
-]]></Implementation>
-</Method>
-
-<Method name="addProwebDropdownElement">
-<FormalSpec>prowebItem:sc.objData</FormalSpec>
-<Private>1</Private>
-<ReturnType>EF.pageController.element</ReturnType>
-<Implementation><![CDATA[
-	#dim prowebID as %Integer = prowebItem.%Id()
-	#dim itemName as %String = ##class(sc.xModules.objCODitem).getCODItemName(prowebID)
-	#dim value as %String  = ##class(eCom.tempCodData).get(..contextData.tempPersonID, itemName)
-	#dim elementIdentifier as %String = ..getElementIdentifierForProwebItems(prowebItem)
-	#dim labelText as %String = ##class(sc.objData).getQuestionPrompt(prowebID, ..contextData.languageID)
-	
-	set dropdown = ..addProwebDropdown(elementIdentifier, labelText, value)
-	set dropdown.displayOrder = prowebItem.displayOrder	
-
-	set rsAlternative = ##class(cod.objItemAlternatives).getAlternativesForCodItemAsResultSet( prowebItem.objItemName.%Id() )
-	while rsAlternative.Next()	{
-		Set alternativeDescription = rsAlternative.Get("description")
-		set alternativeValue = alternativeDescription // ###### needs to be changed for multilingual alternatives ########
-		set alternative = dropdown.addAlternative(alternativeValue,alternativeDescription)
-		if alternativeDescription = value {
-			set alternative.isSelected = 1
-		}
-	}
-	return dropdown
-]]></Implementation>
-</Method>
-
-<Method name="getElementIdentifierForProwebItems">
-<FormalSpec>prowebItem:sc.objData</FormalSpec>
-<Private>1</Private>
-<ReturnType>%String</ReturnType>
-<Implementation><![CDATA[
-	#dim prowebID as %Integer = prowebItem.%Id()
-	return "proweb-"_prowebID
-]]></Implementation>
-</Method>
-
-<Method name="renderAllProwebItems">
-<Description>
-this method needs rewriting when the arrayOfElements become a list instead of an array</Description>
-<Implementation><![CDATA[
-	#dim element as EF.pageController.element
-	#dim arrayOfElements as EF.pageController.element
-	
-	set key=""
-	for {
-		set element=..allPageElements.GetNext(.key)
-		if key="" quit
-		
-		if element.displayOrder {
-			set arrayOfElements(element.displayOrder) = element	
-		}
-	}
-	
-	for  {
-		set key = $order(arrayOfElements(key))
-		if key = "" quit	
-		
-		do arrayOfElements(key).uiComponent.render()
-	}
 ]]></Implementation>
 </Method>
 
@@ -2248,18 +2117,6 @@ This can be used to return data from a modal when saved via ajax.</Description>
 ]]></Implementation>
 </Method>
 
-<Method name="debugTarget">
-<ClassMethod>1</ClassMethod>
-<Implementation><![CDATA[
-	set contextData = ##class(EF.contextDataRegistrationMock).createMock()
-	set page=##class(EF.pageController.page).createNew(contextData)
-	set elementIdentifier = "proweb-1"
-	set element = page.addProwebTextInput(elementIdentifier, "First Name", "Elvis")
-	set element.displayOrder = 1
-	d page.renderAllProwebItems()
-]]></Implementation>
-</Method>
-
 <Storage name="Default">
 <Type>%Library.CacheStorage</Type>
 <DefaultData>pageDefaultData</DefaultData>
@@ -2289,8 +2146,8 @@ This can be used to return data from a modal when saved via ajax.</Description>
 
 
 <Class name="EF.pageController.pagesFrontend.t4Registration">
-<Super>EF.pageController.page</Super>
-<TimeChanged>64188,37026.453532</TimeChanged>
+<Super>EF.pageController.proweb.page</Super>
+<TimeChanged>64189,52288.398858</TimeChanged>
 <TimeCreated>64176,58073.730326</TimeCreated>
 
 <Method name="loadData">
@@ -2336,18 +2193,9 @@ This can be used to return data from a modal when saved via ajax.</Description>
 
 
 <Class name="EF.pageController.proweb.dropdown">
-<Description><![CDATA[
-<!-- ;vc;-
-;vc;    Object: EF.pageController.inputElements.dropdown.CLS/EV.1
-;vc; Component: CLS.EF.pageController.inputElements.dropdown
-;vc;  Location: SmallDev
-;vc; Date/Time: 18-Nov-15 15:15
-;vc;      User: AdrianM2
-;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>EF.pageController.inputElements.dropdown.CLS/EV.1</td><td>CLS.EF.pageController.inputElements.dropdown</td><td>SmallDev</td><td style='white-space: nowrap;'>18-Nov-15 15:15</td><td>AdrianM2</td></tr></table>
-]]></Description>
 <Super>EF.pageController.proweb.inputElement</Super>
-<TimeChanged>64188,64000.894575</TimeChanged>
-<TimeCreated>63372,45515.842308</TimeCreated>
+<TimeChanged>64189,54711.498322</TimeChanged>
+<TimeCreated>64189,53206.554402</TimeCreated>
 
 <Method name="getDefaultUIComponent">
 <ReturnType>EF.ui.components.backend.checkbox</ReturnType>
@@ -2370,8 +2218,8 @@ This can be used to return data from a modal when saved via ajax.</Description>
 
 <Class name="EF.pageController.proweb.inputElement">
 <Super>EF.pageController.inputElement</Super>
-<TimeChanged>64189,43181.738037</TimeChanged>
-<TimeCreated>64188,61819.594029</TimeCreated>
+<TimeChanged>64189,54058.972348</TimeChanged>
+<TimeCreated>64189,53012.909524</TimeCreated>
 
 <Property name="isMandatory">
 <Type>%Boolean</Type>
@@ -2385,23 +2233,193 @@ This can be used to return data from a modal when saved via ajax.</Description>
 <Value name="1">
 <Value>isMandatory</Value>
 </Value>
-<Value name="2">
-<Value>helpText</Value>
-</Value>
 </Data>
+</Storage>
+</Class>
+
+
+<Class name="EF.pageController.proweb.page">
+<Super>EF.pageController.page</Super>
+<TimeChanged>64189,53970.431534</TimeChanged>
+<TimeCreated>64189,51696.559047</TimeCreated>
+
+<Method name="load">
+<Implementation><![CDATA[
+	do ..loadData()
+	if ..contextData.%IsA("EF.contextDataRegistration") {
+		do ..insertAllProwebItems(..contextData.pageID) 
+	}
+	do ..updateUIComponents()
+]]></Implementation>
+</Method>
+
+<Method name="renderHTMLControlFromTag">
+<FormalSpec><![CDATA[&attrs]]></FormalSpec>
+<Implementation><![CDATA[
+	set identifier=$G(attrs("identifier"))
+	set element=..getElementByIdentifier(identifier)
+	if $IsObject(element) {
+		do element.render()
+		
+	} elseif $Get(attrs("prowebcomponentname"))'="" {
+		do ..renderAllProwebItems()
+	}
+	quit
+]]></Implementation>
+</Method>
+
+<Method name="insertAllProwebItems">
+<FormalSpec>pageID:%Integer</FormalSpec>
+<Private>1</Private>
+<Implementation><![CDATA[
+	set rsLists = ##class(%ResultSet).%New("sc.objData:qGetChildren")
+	do rsLists.Execute(pageID)
+	
+	while rsLists.Next() {
+		set listID = rsLists.Get("ID")
+		
+		set rsProwebItems = ##class(%ResultSet).%New("sc.xModules.objList:qGetChildren")
+		do rsProwebItems.Execute(listID)
+		while rsProwebItems.Next() {	
+			set dataID = rsProwebItems.Get("ID")
+			set prowebItem = ##class(sc.objData).%OpenId(dataID)
+			do ..addControllerForProwebItem(prowebItem)
+		}
+	}
+]]></Implementation>
+</Method>
+
+<Method name="addControllerForProwebItem">
+<FormalSpec>prowebItem:sc.objData</FormalSpec>
+<Private>1</Private>
+<Implementation><![CDATA[
+	#dim prowebID as %Integer = prowebItem.%Id()
+	#dim itemName as %String = ##class(sc.xModules.objCODitem).getCODItemName(prowebID)
+	#dim value as %String  = ##class(eCom.tempCodData).get(..contextData.tempPersonID, itemName)
+	#dim elementIdentifier as %String = ..getElementIdentifierForProwebItems(prowebItem)
+	#dim element as EF.pageController.element
+		
+	if prowebItem.dataType = "objCODitem" { 
+		set labelText = ##class(sc.objData).getQuestionPrompt(prowebID, ..contextData.languageID)
+		
+		if prowebItem.type = "text" {
+			set element = ..addProwebTextInput(elementIdentifier, labelText, value)
+			set element.displayOrder = prowebItem.displayOrder
+			
+		} elseif prowebItem.type = "dropdown" {
+			set element = ..addProwebDropdownElement(prowebItem)
+		
+		} else {
+			throw ##class(shared.exceptions.generalException).%New("proweb question type is not implement yet")	
+		}
+		set element.isMandatory = prowebItem.mandatory
+		set element.uiComponent.isMandatory = prowebItem.mandatory
+		set element.uiComponent.helpText = prowebItem.helpText
+	
+	} elseif prowebItem.dataType = "objText" {
+		set text = ..addProwebTextBlock(elementIdentifier, prowebItem.description)
+		set text.displayOrder = prowebItem.displayOrder
+	
+	} elseif prowebItem.dataType = "objFormDivider" {
+		set divider = ..addProwebDivider(elementIdentifier,"")
+		set divider.displayOrder =prowebItem.displayOrder
+
+	} else {
+		throw ##class(shared.exceptions.generalException).%New("proweb item type not implemented yet")	
+	}
+]]></Implementation>
+</Method>
+
+<Method name="addProwebDropdownElement">
+<FormalSpec>prowebItem:sc.objData</FormalSpec>
+<Private>1</Private>
+<ReturnType>EF.pageController.element</ReturnType>
+<Implementation><![CDATA[
+	#dim prowebID as %Integer = prowebItem.%Id()
+	#dim itemName as %String = ##class(sc.xModules.objCODitem).getCODItemName(prowebID)
+	#dim value as %String  = ##class(eCom.tempCodData).get(..contextData.tempPersonID, itemName)
+	#dim elementIdentifier as %String = ..getElementIdentifierForProwebItems(prowebItem)
+	#dim labelText as %String = ##class(sc.objData).getQuestionPrompt(prowebID, ..contextData.languageID)
+	
+	set dropdown = ..addProwebDropdown(elementIdentifier, labelText, value)
+	set dropdown.displayOrder = prowebItem.displayOrder	
+
+	set rsAlternative = ##class(cod.objItemAlternatives).getAlternativesForCodItemAsResultSet( prowebItem.objItemName.%Id() )
+	while rsAlternative.Next()	{
+		Set alternativeDescription = rsAlternative.Get("description")
+		set alternativeValue = alternativeDescription // ###### needs to be changed for multilingual alternatives ########
+		set alternative = dropdown.addAlternative(alternativeValue,alternativeDescription)
+		if alternativeDescription = value {
+			set alternative.isSelected = 1
+		}
+	}
+	return dropdown
+]]></Implementation>
+</Method>
+
+<Method name="getElementIdentifierForProwebItems">
+<FormalSpec>prowebItem:sc.objData</FormalSpec>
+<Private>1</Private>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	#dim prowebID as %Integer = prowebItem.%Id()
+	return "proweb-"_prowebID
+]]></Implementation>
+</Method>
+
+<Method name="renderAllProwebItems">
+<Description>
+this method needs rewriting when the arrayOfElements become a list instead of an array</Description>
+<Implementation><![CDATA[
+	#dim element as EF.pageController.element
+	#dim arrayOfElements as EF.pageController.element
+	
+	set key=""
+	for {
+		set element=..allPageElements.GetNext(.key)
+		if key="" quit
+		
+		if element.displayOrder {
+			set arrayOfElements(element.displayOrder) = element	
+		}
+	}
+	
+	for  {
+		set key = $order(arrayOfElements(key))
+		if key = "" quit	
+		
+		do arrayOfElements(key).uiComponent.render()
+	}
+]]></Implementation>
+</Method>
+
+<Method name="debugTarget">
+<ClassMethod>1</ClassMethod>
+<Implementation><![CDATA[
+	set contextData = ##class(EF.contextDataRegistrationMock).createMock()
+	set page=##class(EF.pageController.page).createNew(contextData)
+	set elementIdentifier = "proweb-1"
+	set element = page.addProwebTextInput(elementIdentifier, "First Name", "Elvis")
+	set element.displayOrder = 1
+	d page.renderAllProwebItems()
+]]></Implementation>
+</Method>
+
+<Storage name="Default">
+<Type>%Library.CacheStorage</Type>
 </Storage>
 </Class>
 
 
 <Class name="EF.pageController.proweb.pageTestCase">
 <Super>EF.ISC.UnitTest.TestCase</Super>
-<TimeChanged>64189,46925.22655</TimeChanged>
+<TimeChanged>64189,52328.119218</TimeChanged>
 <TimeCreated>64189,44993.632692</TimeCreated>
 
 <Method name="TestVeryBasicPage">
 <Implementation><![CDATA[
 	set contextData = ##class(EF.contextDataRegistrationMock).createMock()
-	set page=##class(EF.pageController.page).createNew(contextData)
+	set page=##class(EF.pageController.proweb.page).createNew(contextData)
 	set elementIdentifier = "proweb-1"
 	set element = page.addProwebTextInput(elementIdentifier, "First Name", "Elvis")
 	set element.displayOrder = 1
@@ -2416,7 +2434,7 @@ This can be used to return data from a modal when saved via ajax.</Description>
 <Method name="TestBasicPageWithMandatoryTextField">
 <Implementation><![CDATA[
 	set contextData = ##class(EF.contextDataRegistrationMock).createMock()
-	set page=##class(EF.pageController.page).createNew(contextData)
+	set page=##class(EF.pageController.proweb.page).createNew(contextData)
 	set elementIdentifier = "proweb-1"
 	set element = page.addProwebTextInput(elementIdentifier, "First Name", "Elvis")
 	set element.displayOrder = 1
@@ -2432,7 +2450,7 @@ This can be used to return data from a modal when saved via ajax.</Description>
 <Method name="TestBasicPageWithTextBlock">
 <Implementation><![CDATA[
 	set contextData = ##class(EF.contextDataRegistrationMock).createMock()
-	set page=##class(EF.pageController.page).createNew(contextData)
+	set page=##class(EF.pageController.proweb.page).createNew(contextData)
 	set elementIdentifier = "proweb-1"
 	set element = page.addProwebTextBlock(elementIdentifier, "lorem ipsum")
 	set element.displayOrder = 1
@@ -2447,7 +2465,7 @@ This can be used to return data from a modal when saved via ajax.</Description>
 <Method name="TestBasicPageWithDivider">
 <Implementation><![CDATA[
 	set contextData = ##class(EF.contextDataRegistrationMock).createMock()
-	set page=##class(EF.pageController.page).createNew(contextData)
+	set page=##class(EF.pageController.proweb.page).createNew(contextData)
 	
 	set elementIdentifier = "proweb-1"
 	set element = page.addProwebDivider(elementIdentifier,"")
@@ -2463,7 +2481,7 @@ This can be used to return data from a modal when saved via ajax.</Description>
 <Method name="TestPageWithDropdown">
 <Implementation><![CDATA[
 	set contextData = ##class(EF.contextDataRegistrationMock).createMock()
-	set page=##class(EF.pageController.page).createNew(contextData)
+	set page=##class(EF.pageController.proweb.page).createNew(contextData)
 	set elementIdentifier = "proweb-1"
 	set element = page.addProwebDropdown(elementIdentifier, "diet", "")
 	set alternative = element.addAlternative("meat","meat")
@@ -2481,7 +2499,7 @@ This can be used to return data from a modal when saved via ajax.</Description>
 <Method name="TestPageWithDropdownPreSelected">
 <Implementation><![CDATA[
 	set contextData = ##class(EF.contextDataRegistrationMock).createMock()
-	set page=##class(EF.pageController.page).createNew(contextData)
+	set page=##class(EF.pageController.proweb.page).createNew(contextData)
 	set elementIdentifier = "proweb-1"
 	set element = page.addProwebDropdown(elementIdentifier, "diet", "vegan")
 	set alternative = element.addAlternative("meat","meat")
@@ -2501,7 +2519,7 @@ This can be used to return data from a modal when saved via ajax.</Description>
 <Method name="TestPageWithDropdownMandatory">
 <Implementation><![CDATA[
 	set contextData = ##class(EF.contextDataRegistrationMock).createMock()
-	set page=##class(EF.pageController.page).createNew(contextData)
+	set page=##class(EF.pageController.proweb.page).createNew(contextData)
 	set elementIdentifier = "proweb-1"
 	set element = page.addProwebDropdown(elementIdentifier, "diet", "vegan")
 	set alternative = element.addAlternative("meat","meat")
@@ -2545,18 +2563,9 @@ This can be used to return data from a modal when saved via ajax.</Description>
 
 
 <Class name="EF.pageController.proweb.textInput">
-<Description><![CDATA[
-<!-- ;vc;
-;vc;    Object: EF.pageController.inputElements.textInput.CLS/EV.1
-;vc; Component: CLS.EF.pageController.inputElements.textInput
-;vc;  Location: SmallDev
-;vc; Date/Time: 31-Aug-14 08:38
-;vc;      User: FredG
-;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>EF.pageController.inputElements.textInput.CLS/EV.1</td><td>CLS.EF.pageController.inputElements.textInput</td><td>SmallDev</td><td style='white-space: nowrap;'>31-Aug-14 08:38</td><td>FredG</td></tr></table>
-]]></Description>
 <Super>EF.pageController.proweb.inputElement</Super>
-<TimeChanged>64189,43029.282367</TimeChanged>
-<TimeCreated>63372,45621.828558</TimeCreated>
+<TimeChanged>64189,54700.789213</TimeChanged>
+<TimeCreated>64189,53629.035726</TimeCreated>
 
 <Method name="getDefaultUIComponent">
 <ReturnType>EF.ui.components.inputBase</ReturnType>
@@ -6982,21 +6991,17 @@ The basic frontend default stuff</Description>
 </Class>
 
 
-<Project name="proweb 2" LastModified="2016-09-28 13:02:36.220916" Target="freddev/backend/home/login.csp" TargetType="3">
+<Project name="proweb 2" LastModified="2016-09-28 15:13:12.502221" Target="freddev/backend/home/login.csp" TargetType="3">
   <Items>
     <ProjectItem name="EF.contextData" type="CLS"></ProjectItem>
     <ProjectItem name="EF.contextDataRegistration" type="CLS"></ProjectItem>
     <ProjectItem name="EF.contextDataRegistrationMock" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.containerElement" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.element" type="CLS"></ProjectItem>
-    <ProjectItem name="EF.pageController.frontendElements.text" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.page" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.pagesFrontend.t4Registration" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.proweb.divider" type="CLS"></ProjectItem>
-    <ProjectItem name="EF.pageController.proweb.dropdown" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.proweb.textBlock" type="CLS"></ProjectItem>
-    <ProjectItem name="EF.pageController.proweb.textInput" type="CLS"></ProjectItem>
-    <ProjectItem name="EF.pageController.textProweb" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pages.frontend.base" type="CLS"></ProjectItem>
     <ProjectItem name="EF.ui.components.base" type="CLS"></ProjectItem>
     <ProjectItem name="EF.ui.components.frontend.divider" type="CLS"></ProjectItem>
@@ -7011,13 +7016,19 @@ The basic frontend default stuff</Description>
     <ProjectItem name="layout.cssDefaultMethods" type="CLS"></ProjectItem>
     <ProjectItem name="sc.xModules.objPage" type="CLS"></ProjectItem>
     <ProjectItem name="shared.pageMethods" type="CLS"></ProjectItem>
-    <ProjectItem name="EF.pageController.proweb.inputElement" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.proweb.pageTestCase" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.pageController.proweb.page" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.pageController.proweb.dropdown" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.pageController.proweb.textInput" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.pageController.proweb.inputElement" type="CLS"></ProjectItem>
   </Items>
   <BreakPoints>
     <BreakPoint Routine="EF.ui.components.listInput.CLS" Offset="renderAlternatives+1"></BreakPoint>
+    <BreakPoint Routine="EF.pageController.element.CLS" Offset="%OnNew+9"></BreakPoint>
   </BreakPoints>
   <WatchVariables>
+    <WatchVariable Variable="set element.uiComponent" Pane="1"></WatchVariable>
+    <WatchVariable Variable="element" Pane="1"></WatchVariable>
     <WatchVariable Variable="value" Pane="1"></WatchVariable>
     <WatchVariable Variable="description" Pane="1"></WatchVariable>
     <WatchVariable Variable="$this" Pane="1"></WatchVariable>

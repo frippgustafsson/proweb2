@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.1.2 (Build 206U)" ts="2016-09-27 16:59:54">
+<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.1.2 (Build 206U)" ts="2016-09-28 11:52:38">
 <Class name="EF.contextData">
 <Description><![CDATA[
 <!-- ;vc;-
@@ -1468,7 +1468,7 @@ Should be run if any of the sub-classes are deleted</Description>
 ;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>EF.pageController.page.CLS/EV.14</td><td>CLS.EF.pageController.page</td><td>SmallDev</td><td style='white-space: nowrap;'>02-Sep-16 14:23</td><td>JeremyW</td></tr></table>
 ]]></Description>
 <Super>EF.pageController.containerElement</Super>
-<TimeChanged>64188,60962.479005</TimeChanged>
+<TimeChanged>64189,42399.577253</TimeChanged>
 <TimeCreated>63350,62788.509584</TimeCreated>
 
 <Property name="sessionID">
@@ -1853,17 +1853,23 @@ Checks whether we are allowed to update this data set</Description>
 	#dim itemName as %String = ##class(sc.xModules.objCODitem).getCODItemName(prowebID)
 	#dim value as %String  = ##class(eCom.tempCodData).get(..contextData.tempPersonID, itemName)
 	#dim elementIdentifier as %String = ..getElementIdentifierForProwebItems(prowebItem)
+	#dim element as EF.pageController.element
 		
 	if prowebItem.dataType = "objCODitem" { 
 		set labelText = ##class(sc.objData).getQuestionPrompt(prowebID, ..contextData.languageID)
 		
 		if prowebItem.type = "text" {
-			set textInput = ..addProwebTextInput(elementIdentifier, labelText, value)
-			set textInput.displayOrder = prowebItem.displayOrder
+			set element = ..addProwebTextInput(elementIdentifier, labelText, value)
+			set element.displayOrder = prowebItem.displayOrder
 			
 		} elseif prowebItem.type = "dropdown" {
-			do ..addProwebDropdownElement(prowebItem)
+			set element = ..addProwebDropdownElement(prowebItem)
+		
+		} else {
+			throw ##class(shared.exceptions.generalException).%New("proweb question type is not implement yet")	
 		}
+		set element.isMandatory = prowebItem.mandatory
+		set element.uiComponent.isMandatory = prowebItem.mandatory
 	
 	} elseif prowebItem.dataType = "objText" {
 		set text = ..addProwebTextBlock(elementIdentifier, prowebItem.description)
@@ -1882,6 +1888,7 @@ Checks whether we are allowed to update this data set</Description>
 <Method name="addProwebDropdownElement">
 <FormalSpec>prowebItem:sc.objData</FormalSpec>
 <Private>1</Private>
+<ReturnType>EF.pageController.element</ReturnType>
 <Implementation><![CDATA[
 	#dim prowebID as %Integer = prowebItem.%Id()
 	#dim itemName as %String = ##class(sc.xModules.objCODitem).getCODItemName(prowebID)
@@ -1891,12 +1898,17 @@ Checks whether we are allowed to update this data set</Description>
 	
 	set dropdown = ..addProwebDropdown(elementIdentifier, labelText, value)
 	set dropdown.displayOrder = prowebItem.displayOrder	
+
 	set rsAlternative = ##class(cod.objItemAlternatives).getAlternativesForCodItemAsResultSet( prowebItem.objItemName.%Id() )
 	while rsAlternative.Next()	{
 		Set alternativeDescription = rsAlternative.Get("description")
-		set alternativeCode = rsAlternative.Get("code")
-		do dropdown.addAlternative(alternativeCode,alternativeDescription)
+		set alternativeValue = alternativeDescription // ###### needs to be changed for multilingual alternatives ########
+		set alternative = dropdown.addAlternative(alternativeValue,alternativeDescription)
+		if alternativeDescription = value {
+			set alternative.isSelected = 1
+		}
 	}
+	return dropdown
 ]]></Implementation>
 </Method>
 
@@ -2236,6 +2248,14 @@ This can be used to return data from a modal when saved via ajax.</Description>
 ]]></Implementation>
 </Method>
 
+<Method name="debugTarget">
+<ClassMethod>1</ClassMethod>
+<Implementation><![CDATA[
+	set contextData = ##class(EF.contextDataRegistrationMock).createMock()
+	set page=##class(EF.pageController.page).createNew(contextData)
+]]></Implementation>
+</Method>
+
 <Storage name="Default">
 <Type>%Library.CacheStorage</Type>
 <DefaultData>pageDefaultData</DefaultData>
@@ -2321,8 +2341,8 @@ This can be used to return data from a modal when saved via ajax.</Description>
 ;vc;      User: AdrianM2
 ;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>EF.pageController.inputElements.dropdown.CLS/EV.1</td><td>CLS.EF.pageController.inputElements.dropdown</td><td>SmallDev</td><td style='white-space: nowrap;'>18-Nov-15 15:15</td><td>AdrianM2</td></tr></table>
 ]]></Description>
-<Super>EF.pageController.inputElement</Super>
-<TimeChanged>64188,56809.712283</TimeChanged>
+<Super>EF.pageController.proweb.inputElement</Super>
+<TimeChanged>64188,64000.894575</TimeChanged>
 <TimeCreated>63372,45515.842308</TimeCreated>
 
 <Method name="getDefaultUIComponent">
@@ -2540,122 +2560,6 @@ note that 'prowebListID' refers to the ID used in the CSP page for identifying t
 </Class>
 
 
-<Class name="EF.pageController.proweb.listItems.inputElement">
-<Super>EF.pageController.proweb.listItem</Super>
-<TimeChanged>64187,44042.397543</TimeChanged>
-<TimeCreated>63992,62141.625478</TimeCreated>
-
-<Property name="alternatives">
-<Type>EF.pageController.proweb.listItems.alternative</Type>
-<Collection>list</Collection>
-</Property>
-
-<Property name="labelText">
-<Type>%String</Type>
-<Parameter name="MAXLEN" value="32000"/>
-</Property>
-
-<Property name="isMandatory">
-<Type>%Boolean</Type>
-</Property>
-
-<Property name="helpText">
-<Type>%String</Type>
-<Parameter name="MAXLEN" value="32000"/>
-</Property>
-
-<Property name="value">
-<Type>%String</Type>
-<Parameter name="MAXLEN" value="32000"/>
-</Property>
-
-<Method name="render">
-<Implementation><![CDATA[
-	#dim uiComponent as EF.ui.components.base
-	set uiComponent = $CLASSMETHOD("EF.ui.components.frontend."_..uiComponentType,"%New",..htmlID)
-	set uiComponent.isProwebEditMode = ..isProwebEditMode
-	set uiComponent.prowebItem = ..prowebItem
-	set uiComponent.label = ..labelText
-	set uiComponent.isMandatory = ..isMandatory
-	set uiComponent.helpText = ..helpText
-	set uiComponent.value = ..value
-	do ..markAlternativesAsSelected()
-	set uiComponent.alternatives = ..alternatives
-	do uiComponent.render()
-]]></Implementation>
-</Method>
-
-<Method name="addAlternative">
-<FormalSpec>alternativeDescription:%String,alternativeCode:%String=""</FormalSpec>
-<Implementation><![CDATA[
-	set alternative = ##class(EF.pageController.proweb.listItems.alternative).%New()
-	set alternative.label = alternativeDescription
-	set alternative.code = alternativeCode
-	
-	if alternativeCode '= "" {
-		set alternative.value = alternativeCode
-	} else {
-		set alternative.value = alternativeDescription
-	}
-	do ..alternatives.Insert(alternative)
-]]></Implementation>
-</Method>
-
-<Method name="markAlternativesAsSelected">
-<Implementation><![CDATA[
-	for i=1:1:..alternatives.Count() {
-		set alternative = ..alternatives.GetAt(i)
-		if alternative.value = ..value {
-			set alternative.isSelected = 1	
-		}	
-	}
-]]></Implementation>
-</Method>
-</Class>
-
-
-<Class name="EF.pageController.proweb.listItems.inputElementCOD">
-<Description>
-Used for all input field on a registration page that are regular database items, as opposed to table booking and ticketing questions.</Description>
-<Super>EF.pageController.proweb.listItems.inputElement</Super>
-<TimeChanged>64187,31528.727298</TimeChanged>
-<TimeCreated>64055,42548.552153</TimeCreated>
-
-<Method name="populateFromProwebItem">
-<FormalSpec>prowebItem:sc.objData,contextDataRegistration:EF.contextDataRegistration</FormalSpec>
-<Implementation><![CDATA[
-	#dim prowebID as %integer = prowebItem.%Id()
-	#dim itemName as %String = ##class(sc.xModules.objCODitem).getCODItemName(prowebID)
-	#dim tempPersonID as %String = contextDataRegistration.tempPersonID  
-	
-	if '$IsObject(prowebItem) {
-		throw ##class(shared.exceptions.generalException).%New("No proweb item passed in")
-	}
-	set ..labelText = ##class(sc.objData).getQuestionPrompt(prowebID, contextDataRegistration.languageID)
-	set ..helpText = prowebItem.helpText
-	set ..isMandatory = prowebItem.mandatory
-	
-	do ..addAlternativesFromProwebItem(prowebItem)
-	set ..value = ##class(eCom.tempCodData).get(tempPersonID, itemName)
-]]></Implementation>
-</Method>
-
-<Method name="addAlternativesFromProwebItem">
-<FormalSpec>prowebItem:sc.objData,contextDataRegistration:EF.contextDataRegistration</FormalSpec>
-<Private>1</Private>
-<Implementation><![CDATA[
-	set rsAlternative = ##class(cod.objItemAlternatives).getAlternativesForCodItemAsResultSet(prowebItem.objItemName.%Id())
-	while rsAlternative.Next()	{
-		Set alternativeDescription = rsAlternative.Get("description")
-		set alternativeCode = rsAlternative.Get("code")
-		
-		do ..addAlternative(alternativeDescription,alternativeCode)
-	}
-]]></Implementation>
-</Method>
-</Class>
-
-
 <Class name="EF.pageController.proweb.listTestCase">
 <Super>EF.ISC.UnitTest.TestCase</Super>
 <TimeChanged>64187,34656.256451</TimeChanged>
@@ -2848,8 +2752,8 @@ Used for all input field on a registration page that are regular database items,
 ;vc;      User: FredG
 ;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>EF.pageController.inputElements.textInput.CLS/EV.1</td><td>CLS.EF.pageController.inputElements.textInput</td><td>SmallDev</td><td style='white-space: nowrap;'>31-Aug-14 08:38</td><td>FredG</td></tr></table>
 ]]></Description>
-<Super>EF.pageController.inputElement</Super>
-<TimeChanged>64188,56020.987486</TimeChanged>
+<Super>EF.pageController.proweb.inputElement</Super>
+<TimeChanged>64188,61902.637999</TimeChanged>
 <TimeCreated>63372,45621.828558</TimeCreated>
 
 <Method name="getDefaultUIComponent">
@@ -3304,20 +3208,6 @@ Common page that all frontend pages could/should inherit from.
 </Class>
 
 
-<Class name="EF.ui.components.frontend.alternative">
-<Description>
-Hold the alternatives to dropdown, radios, multi check etc</Description>
-<Super>EF.ui.components.alternative</Super>
-<TimeChanged>64183,58926.068237</TimeChanged>
-<TimeCreated>64183,58572.359354</TimeCreated>
-
-<Property name="code">
-<Type>%String</Type>
-<Parameter name="MAXLEN" value="32000"/>
-</Property>
-</Class>
-
-
 <Class name="EF.ui.components.frontend.divider">
 <Super>EF.ui.components.frontend.prowebBase</Super>
 <TimeChanged>64188,60850.760112</TimeChanged>
@@ -3337,7 +3227,7 @@ Hold the alternatives to dropdown, radios, multi check etc</Description>
 
 <Class name="EF.ui.components.frontend.dropdown">
 <Super>EF.ui.components.listInput,EF.ui.components.frontend.inputElement</Super>
-<TimeChanged>64188,57176.271408</TimeChanged>
+<TimeChanged>64188,64414.917571</TimeChanged>
 <TimeCreated>63355,56609.363142</TimeCreated>
 
 <Property name="isPersistent">
@@ -3366,6 +3256,7 @@ Hold the alternatives to dropdown, radios, multi check etc</Description>
 	do ..renderRowOpeningAndLabel()
 	&html<		
 		<select class="#(..encodeForHTMLAttribute(selectClass))#" name="#(..encodeHTMLAttribute(..htmlName))#" id="#(..encodeHTMLAttribute(..htmlID))#" title="#(..encodeHTMLAttribute(..title))#" #(..rawHTML(disabledString))# #(..rawHTML(..getExtraAttributes()))#>
+    		#[do ..renderPlaceholder()]#
     		#[do ..renderAlternatives()]#
         </select>
     >
@@ -3389,36 +3280,48 @@ Hold the alternatives to dropdown, radios, multi check etc</Description>
 	
 	// The html bit
 	&html<
-        <option #(..rawHTML(selectedString))# #(..rawHTML(disabledString))# value="#(..encodeHTMLAttribute(alternative.value))#" #(..rawHTML(alternative.getExtraAttributes()))#>#(..encodeHTMLContent(alternative.label))#</option>
+        <option #(..rawHTML(selectedString))# #(..rawHTML(disabledString))# value="#(..encodeHTMLAttribute(alternative.value))#" #(..rawHTML(alternative.getExtraAttributes()))#>
+        	#(..encodeHTMLContent(alternative.label))#
+        </option>
 	>
+]]></Implementation>
+</Method>
+
+<Method name="renderPlaceholder">
+<Private>1</Private>
+<Implementation><![CDATA[
+	if ..isMandatory  {
+		if ..isAnyAlternativeSelected() {
+			set selectString = ""
+		} else {
+			set selectString = "selected"	
+		}
+		write !,"<option value='' ",selectString," disabled>",..encodeHTMLContent(##class(shared.pCSP).out("Choose one...")),"</option>",!	
+		
+	} else {
+		write !,"<option value=''></option>",!
+	}
+]]></Implementation>
+</Method>
+
+<Method name="isAnyAlternativeSelected">
+<Private>1</Private>
+<ReturnType>%Boolean</ReturnType>
+<Implementation><![CDATA[
+	for position = 1:1:..alternatives.Count() {
+		if ..alternatives.GetAt(position).isSelected {
+			return 1
+			
+		}	
+	}	
+	return 0
 ]]></Implementation>
 </Method>
 
 <UDLText name="T">
 <Content><![CDATA[
 /* DELETE THIS ONCE WE HAVE MANDATORY, PRESELECTION, HELP, FLOATERS WORKING
-Method OLDrender()
-{
-	do ..renderRowOpeningAndLabel()
-	set selectClass="form-control"
-	&html<		
-		<select class="#(..encodeForHTMLAttribute(selectClass))#" name="#(..encodeHTMLAttribute(..htmlName))#" id="#(..encodeHTMLAttribute(..htmlID))#" title="#(..encodeHTMLAttribute(..title))#" #(..rawHTML(..getDisabledString()))# >
-    		#[do ..renderAlternatives()]#
-        </select>
-    >
-	do ..renderHelpAndRowClosing()
-}
 
-Method renderAlternatives()
-{
- 	do ..renderPlaceholder()
-	set key=""
-	for  {
-		set alternative = ..alternatives.GetNext(.key)
-		if key="" quit
-		do ..renderAlternative(alternative)	
-	}
-}
 
 Method renderAlternative(alternative As EF.ui.components.alternative)
 {
@@ -3438,31 +3341,9 @@ Method renderAlternative(alternative As EF.ui.components.alternative)
 	>
 }
 
-Method renderPlaceholder() [ Private ]
-{
-	if ..isMandatory  {
-		if ..isAnyAlternativeSelected() {
-			set selectString = ""
-		} else {
-			set selectString = "selected"	
-		}
-		write !,"<option value='' ",selectString," disabled>",..encodeHTMLContent(##class(shared.pCSP).out("Choose one...")),"</option>",!	
-		
-	} else {
-		write !,"<option value=''></option>",!
-	}
-}
 
-Method isAnyAlternativeSelected() As %Boolean [ Private ]
-{
-	for position = 1:1:..alternatives.Count() {
-		if ..alternatives.GetAt(position).isSelected {
-			return 1
-			
-		}	
-	}	
-	return 0
-}
+
+
 */
 ]]></Content>
 </UDLText>
@@ -3471,11 +3352,11 @@ Method isAnyAlternativeSelected() As %Boolean [ Private ]
 
 <Class name="EF.ui.components.frontend.inputElement">
 <Super>EF.ui.components.frontend.prowebBase,EF.ui.components.inputBase</Super>
-<TimeChanged>64184,57613.603387</TimeChanged>
+<TimeChanged>64188,64209.4657</TimeChanged>
 <TimeCreated>64183,40678.260093</TimeCreated>
 
 <Property name="alternatives">
-<Type>EF.ui.components.frontend.alternative</Type>
+<Type>EF.ui.components.alternative</Type>
 <Collection>list</Collection>
 </Property>
 
@@ -7301,12 +7182,18 @@ The basic frontend default stuff</Description>
 </Class>
 
 
-<Project name="proweb 2" LastModified="2016-09-27 16:59:54.58315" Target="freddev/backend/home/login.csp" TargetType="3">
+<Project name="proweb 2" LastModified="2016-09-28 11:52:32.097487" Target="freddev/backend/home/login.csp" TargetType="3">
   <Items>
+    <ProjectItem name="EF.contextData" type="CLS"></ProjectItem>
     <ProjectItem name="EF.contextDataRegistration" type="CLS"></ProjectItem>
     <ProjectItem name="EF.contextDataRegistrationMock" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.pageController.containerElement" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.pageController.element" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.pageController.frontendElements.text" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.page" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.pagesFrontend.t4Registration" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.pageController.proweb.divider" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.pageController.proweb.dropdown" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.proweb.list" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.proweb.listItem" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.proweb.listItems.alternative" type="CLS"></ProjectItem>
@@ -7315,9 +7202,11 @@ The basic frontend default stuff</Description>
     <ProjectItem name="EF.pageController.proweb.listItems.inputElementCOD" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.proweb.listItems.textBlock" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.proweb.listTestCase" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.pageController.proweb.textBlock" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.pageController.proweb.textInput" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.pageController.textProweb" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pages.frontend.base" type="CLS"></ProjectItem>
     <ProjectItem name="EF.ui.components.base" type="CLS"></ProjectItem>
-    <ProjectItem name="EF.ui.components.frontend.alternative" type="CLS"></ProjectItem>
     <ProjectItem name="EF.ui.components.frontend.divider" type="CLS"></ProjectItem>
     <ProjectItem name="EF.ui.components.frontend.dropdown" type="CLS"></ProjectItem>
     <ProjectItem name="EF.ui.components.frontend.inputElement" type="CLS"></ProjectItem>
@@ -7328,26 +7217,18 @@ The basic frontend default stuff</Description>
     <ProjectItem name="freddev/frontEnd/reg/tRegistration.csp" type="CSP"></ProjectItem>
     <ProjectItem name="freddev/system/eventsForceRules.csr" type="CSP"></ProjectItem>
     <ProjectItem name="layout.cssDefaultMethods" type="CLS"></ProjectItem>
-    <ProjectItem name="shared.pageMethods" type="CLS"></ProjectItem>
-    <ProjectItem name="EF.contextData" type="CLS"></ProjectItem>
     <ProjectItem name="sc.xModules.objPage" type="CLS"></ProjectItem>
-    <ProjectItem name="EF.pageController.element" type="CLS"></ProjectItem>
-    <ProjectItem name="EF.pageController.frontendElements.text" type="CLS"></ProjectItem>
-    <ProjectItem name="EF.pageController.containerElement" type="CLS"></ProjectItem>
-    <ProjectItem name="EF.pageController.textProweb" type="CLS"></ProjectItem>
-    <ProjectItem name="EF.pageController.proweb.textBlock" type="CLS"></ProjectItem>
-    <ProjectItem name="EF.pageController.proweb.textInput" type="CLS"></ProjectItem>
-    <ProjectItem name="EF.pageController.proweb.dropdown" type="CLS"></ProjectItem>
-    <ProjectItem name="EF.pageController.proweb.divider" type="CLS"></ProjectItem>
+    <ProjectItem name="shared.pageMethods" type="CLS"></ProjectItem>
   </Items>
+  <BreakPoints>
+    <BreakPoint Routine="EF.ui.components.listInput.CLS" Offset="renderAlternatives+1"></BreakPoint>
+  </BreakPoints>
   <WatchVariables>
-    <WatchVariable Variable="prowebItem" Pane="1"></WatchVariable>
-    <WatchVariable Variable="prowebItem.dataType" Pane="1"></WatchVariable>
     <WatchVariable Variable="value" Pane="1"></WatchVariable>
-    <WatchVariable Variable="labelText" Pane="1"></WatchVariable>
-    <WatchVariable Variable="elementIdentifier" Pane="1"></WatchVariable>
-    <WatchVariable Variable="parent" Pane="1"></WatchVariable>
-    <WatchVariable Variable="parent.page" Pane="1"></WatchVariable>
+    <WatchVariable Variable="description" Pane="1"></WatchVariable>
+    <WatchVariable Variable="$this" Pane="1"></WatchVariable>
+    <WatchVariable Variable="..alternatives.Count()" Pane="1"></WatchVariable>
+    <WatchVariable Variable="..value" Pane="1"></WatchVariable>
   </WatchVariables>
 </Project>
 

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.1.2 (Build 206U)" ts="2016-09-28 11:52:38">
+<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.1.2 (Build 206U)" ts="2016-09-28 13:02:41">
 <Class name="EF.contextData">
 <Description><![CDATA[
 <!-- ;vc;-
@@ -1468,7 +1468,7 @@ Should be run if any of the sub-classes are deleted</Description>
 ;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>EF.pageController.page.CLS/EV.14</td><td>CLS.EF.pageController.page</td><td>SmallDev</td><td style='white-space: nowrap;'>02-Sep-16 14:23</td><td>JeremyW</td></tr></table>
 ]]></Description>
 <Super>EF.pageController.containerElement</Super>
-<TimeChanged>64189,42399.577253</TimeChanged>
+<TimeChanged>64189,45194.131859</TimeChanged>
 <TimeCreated>63350,62788.509584</TimeCreated>
 
 <Property name="sessionID">
@@ -1870,6 +1870,7 @@ Checks whether we are allowed to update this data set</Description>
 		}
 		set element.isMandatory = prowebItem.mandatory
 		set element.uiComponent.isMandatory = prowebItem.mandatory
+		set element.uiComponent.helpText = prowebItem.helpText
 	
 	} elseif prowebItem.dataType = "objText" {
 		set text = ..addProwebTextBlock(elementIdentifier, prowebItem.description)
@@ -1925,7 +1926,6 @@ Checks whether we are allowed to update this data set</Description>
 <Method name="renderAllProwebItems">
 <Description>
 this method needs rewriting when the arrayOfElements become a list instead of an array</Description>
-<Private>1</Private>
 <Implementation><![CDATA[
 	#dim element as EF.pageController.element
 	#dim arrayOfElements as EF.pageController.element
@@ -2253,6 +2253,10 @@ This can be used to return data from a modal when saved via ajax.</Description>
 <Implementation><![CDATA[
 	set contextData = ##class(EF.contextDataRegistrationMock).createMock()
 	set page=##class(EF.pageController.page).createNew(contextData)
+	set elementIdentifier = "proweb-1"
+	set element = page.addProwebTextInput(elementIdentifier, "First Name", "Elvis")
+	set element.displayOrder = 1
+	d page.renderAllProwebItems()
 ]]></Implementation>
 </Method>
 
@@ -2364,353 +2368,151 @@ This can be used to return data from a modal when saved via ajax.</Description>
 </Class>
 
 
-<Class name="EF.pageController.proweb.list">
-<Description>
-a list of proweb items</Description>
-<Super>%RegisteredObject</Super>
-<TimeChanged>64188,34486.355433</TimeChanged>
-<TimeCreated>63992,66338.902496</TimeCreated>
+<Class name="EF.pageController.proweb.inputElement">
+<Super>EF.pageController.inputElement</Super>
+<TimeChanged>64189,43181.738037</TimeChanged>
+<TimeCreated>64188,61819.594029</TimeCreated>
 
-<Property name="listItems">
-<Type>EF.pageController.proweb.listItem</Type>
-<Collection>list</Collection>
-</Property>
-
-<Property name="contextDataRegistration">
-<Type>EF.contextDataRegistration</Type>
-<Required>1</Required>
-</Property>
-
-<Property name="isProwebEditMode">
+<Property name="isMandatory">
 <Type>%Boolean</Type>
-<InitialExpression>0</InitialExpression>
-<Required>1</Required>
 </Property>
 
-<Property name="prowebListID">
-<Type>%Integer</Type>
-<Required>1</Required>
-<Parameter name="MAXVAL" value="999"/>
-<Parameter name="MINVAL" value="100"/>
-</Property>
-
-<Method name="createNew">
-<ClassMethod>1</ClassMethod>
-<FormalSpec>contextDataRegistration:EF.contextDataRegistration</FormalSpec>
-<ReturnType>EF.pageController.proweb.list</ReturnType>
-<Implementation><![CDATA[
-	set list = ..%New()
-	set list.contextDataRegistration = contextDataRegistration
-	if contextDataRegistration.prowebMode = "edit" {
-		set list.isProwebEditMode = 1		
-	}
-	return list
-]]></Implementation>
-</Method>
-
-<Method name="populateFromProwebListObject">
-<FormalSpec>objList:sc.xModules.objList</FormalSpec>
-<Implementation><![CDATA[
-	/*
-	#dim listItem as EF.pageController.proweb.listItem
-	#dim previousGuestItem as EF.pageController.proweb.listItem
-	#dim inputElement as EF.pageController.proweb.listItems.inputElementCOD
-	
-	if '$IsObject(objList) throw ##class(shared.exceptions.generalException).%New("No list object passed in to populate EF.pageController.proweb.list")
-	
-	set rsListItems=##class(%ResultSet).%New("sc.xModules.objList:qGetChildren")
-	do rsListItems.Execute(objList.%Id())
-	while rsListItems.Next() {	
-		set dataID = rsListItems.Get("ID")
-		set prowebItem = ##class(sc.objData).%OpenId(dataID)
-
-		set listItem = ..createControllerForProwebItem(prowebItem)
-		set listItem.prowebItem = prowebItem
-		set listItem.htmlID =  ..getHtmlID( dataID)
-		set listItem.prowebListID = ..prowebListID
-		
-		if listItem.isOkToAddToList() {
-			do ..addListItem(listItem)
-		}
-	}
-	*/
-]]></Implementation>
-</Method>
-
-<Method name="addListItem">
-<FormalSpec>listItem:EF.pageController.proweb.listItem</FormalSpec>
-<Implementation><![CDATA[	do ..listItems.Insert(listItem)
-]]></Implementation>
-</Method>
-
-<Method name="render">
-<Implementation><![CDATA[
-	#dim listItem As EF.pageController.proweb.listItem
-	#dim displayOrder as %Integer = 0
-	#dim menuID as %Integer = ..prowebListID
-	
-	if ..isProwebEditMode {
-		do ##class(sc.methods).outputFloatingMenu(..contextDataRegistration.pageID, ..contextDataRegistration.componentName, menuID, "top")
-		&html< 
-			<div class="row">
-				<div class="col-sm-12">
-					<img style="position: relative; z-index: 10000000;" src="../../media/images/english/default/backend/add_itemTop.gif" border=0 alt="Add Item" onMouseOver="HM_f_PopUp('HM_Menu#(menuID)#',event);" onMouseOut="HM_f_PopDown('HM_Menu#(menuID)#')"> 
-				</div>
-			</div>
-		>
-	}
-	for  {
-		set listItem = ..listItems.GetNext(.displayOrder)
-		if displayOrder="" quit
-		
-		do listItem.render() 
-	}
-]]></Implementation>
-</Method>
-
-<Method name="getHtmlID">
-<Description>
-note that 'prowebListID' refers to the ID used in the CSP page for identifying the list. It is NOT the ID of sc.objList</Description>
-<FormalSpec>prowebID:%Integer</FormalSpec>
-<Private>1</Private>
-<ReturnType>%String</ReturnType>
-<Implementation><![CDATA[	return ..prowebListID_"-"_prowebID // ## may need enhancing ##
-]]></Implementation>
-</Method>
-
-<Method name="debugTarget">
-<ClassMethod>1</ClassMethod>
-<Implementation><![CDATA[
-	#dim contextData as EF.contextDataRegistrationMock
-	set contextData = ##class(EF.contextDataRegistrationMock).createNew()
-
-	set list = ##class(EF.pageController.proweb.list).createNew(contextData)
-	set listID = ##class(sc.xModules.objList).getListIDFromPageIDAndComponentName(contextData.pageID, contextData.componentName)
-	
-	set listObject=##class(sc.xModules.objList).%OpenId(listID)
-	do list.populateFromProwebListObject(listObject)
-
-	do list.render()
-]]></Implementation>
-</Method>
+<Storage name="Default">
+<Type>%Library.CacheStorage</Type>
+<DefaultData>inputElementDefaultData1</DefaultData>
+<Data name="inputElementDefaultData1">
+<Subscript>"inputElement1"</Subscript>
+<Value name="1">
+<Value>isMandatory</Value>
+</Value>
+<Value name="2">
+<Value>helpText</Value>
+</Value>
+</Data>
+</Storage>
 </Class>
 
 
-<Class name="EF.pageController.proweb.listItem">
-<Super>%RegisteredObject,EF.htmlGenerator</Super>
-<TimeChanged>64187,51880.954208</TimeChanged>
-<TimeCreated>63992,65826.878579</TimeCreated>
-
-<Property name="htmlID">
-<Type>%String</Type>
-<Parameter name="MAXLEN" value="255"/>
-</Property>
-
-<Property name="uiComponentType">
-<Type>%String</Type>
-<Required>1</Required>
-<Parameter name="VALUELIST" value=",textInput,dropdown"/>
-</Property>
-
-<Property name="isProwebEditMode">
-<Type>%Boolean</Type>
-<InitialExpression>0</InitialExpression>
-<Required>1</Required>
-</Property>
-
-<Property name="prowebItem">
-<Type>sc.objData</Type>
-</Property>
-
-<Property name="prowebListID">
-<Type>%Integer</Type>
-<Required>1</Required>
-<Parameter name="MAXVAL" value="999"/>
-<Parameter name="MINVAL" value="100"/>
-</Property>
-
-<Method name="isOkToAddToList">
-<ReturnType>%Boolean</ReturnType>
-<Implementation><![CDATA[	return 1
-]]></Implementation>
-</Method>
-
-<Method name="render">
-<Implementation><![CDATA[	// not implemented
-]]></Implementation>
-</Method>
-
-<Method name="getUiComponentTypeFromProwebItem">
-<FormalSpec>prowebItem:sc.objData</FormalSpec>
-<ReturnType>%String</ReturnType>
-<Implementation><![CDATA[
-	// ",text,textarea,radiobutton,checkbox,dropdown,password,multibox,date,dateRange,time,emailAddress,multiEmailAddress,phoneNumber,integer,floatingPointNumber,webAddress"
-	
-	if prowebItem.type = "text" {
-		return "textInput"
-	
-	} elseif prowebItem.type = "dropdown" {
-		return "dropdown"
-			
-	} else {
-		throw ##class(shared.exceptions.generalException).%New("Failed to resolve the UI component type")	
-	}
-]]></Implementation>
-</Method>
-</Class>
-
-
-<Class name="EF.pageController.proweb.listTestCase">
+<Class name="EF.pageController.proweb.pageTestCase">
 <Super>EF.ISC.UnitTest.TestCase</Super>
-<TimeChanged>64187,34656.256451</TimeChanged>
-<TimeCreated>64183,49819.459938</TimeCreated>
+<TimeChanged>64189,46925.22655</TimeChanged>
+<TimeCreated>64189,44993.632692</TimeCreated>
 
-<Method name="TestBasicInputTextField">
+<Method name="TestVeryBasicPage">
 <Implementation><![CDATA[
-	#dim contextData as EF.contextDataRegistrationMock
-	#dim inputElement as EF.pageController.proweb.listItems.inputElementCOD
-	#dim listItem as EF.pageController.proweb.listItems.inputElementCOD
-	
-	set contextData = ##class(EF.contextDataRegistrationMock).createNew()
-
-	set list = ##class(EF.pageController.proweb.list).%New()
-	
-	set listItem = ##class(EF.pageController.proweb.listItems.inputElementCOD).%New()
-	set listItem.labelText = "First input field"
-	set listItem.uiComponentType = "textInput"
-	set listItem.isMandatory = 0
-	do list.addListItem(listItem)
-	
-	// test basic field
-	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(list,"render")
+	set contextData = ##class(EF.contextDataRegistrationMock).createMock()
+	set page=##class(EF.pageController.page).createNew(contextData)
+	set elementIdentifier = "proweb-1"
+	set element = page.addProwebTextInput(elementIdentifier, "First Name", "Elvis")
+	set element.displayOrder = 1
+	do page.updateUIComponents()
+	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(page,"renderAllProwebItems")
 	set returnedHTML = $ZStrip(returnedHTML,"*WC")
-	set expectedHTML = "<divclass='rowdraggableTR'><divclass='col-sm-4ef_proweb_form_prompt'><labelclass=""control-label""for=""|2401"">Firstinputfield</label></div><divclass='col-sm-8ef_proweb_form_prompt'><inputtype=""text""class=""form-control""title=""""id=""|2401""name=""""value=""""placeholder=""""></div></div>"
-	do $$$AssertEquals(returnedHTML,expectedHTML)
-
-
-	// test mandatory field
-	set listItem.isMandatory = 1
-	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(list,"render")
-	set returnedHTML = $ZStrip(returnedHTML,"*WC")
-	set expectedHTML = "<divclass='rowdraggableTR'><divclass='col-sm-4ef_proweb_form_promptef-required-field'><labelclass=""control-label""for=""|2401"">Firstinputfield</label></div><divclass='col-sm-8ef_proweb_form_prompt'><inputtype=""text""class=""form-control""title=""""id=""|2401""name=""""value=""""placeholder=""""></div></div>"
-	do $$$AssertEquals(returnedHTML,expectedHTML)
-
-	// test with a second field
-	set listItem2 = ##class(EF.pageController.proweb.listItems.inputElementCOD).%New()
-	set listItem2.labelText = "Second input field"
-	set listItem2.uiComponentType = "textInput"
-	set listItem2.isMandatory = 0
-	do list.addListItem(listItem2)
-
-	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(list,"render")
-	set returnedHTML = $ZStrip(returnedHTML,"*WC")
-	set expectedHTML = "<divclass='rowdraggableTR'><divclass='col-sm-4ef_proweb_form_promptef-required-field'><labelclass=""control-label""for=""|2401"">Firstinputfield</label></div><divclass='col-sm-8ef_proweb_form_prompt'><inputtype=""text""class=""form-control""title=""""id=""|2401""name=""""value=""""placeholder=""""></div></div><divclass='rowdraggableTR'><divclass='col-sm-4ef_proweb_form_prompt'><labelclass=""control-label""for=""|2500"">Secondinputfield</label></div><divclass='col-sm-8ef_proweb_form_prompt'><inputtype=""text""class=""form-control""title=""""id=""|2500""name=""""value=""""placeholder=""""></div></div>"
+	set expectedHTML = "<divclass='rowdraggableTR'><divclass='col-sm-4ef_proweb_form_prompt'><labelclass=""control-label""for=""proweb-1"">FirstName</label></div><divclass='col-sm-8ef_proweb_form_prompt'><inputtype=""text""class=""form-control""title=""""id=""proweb-1""name=""proweb-1""value=""Elvis""placeholder=""""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;FirstName\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""></div></div>"
 	do $$$AssertEquals(returnedHTML,expectedHTML)
 ]]></Implementation>
 </Method>
 
-<Method name="TestTextBlock">
+<Method name="TestBasicPageWithMandatoryTextField">
 <Implementation><![CDATA[
-	#dim contextData as EF.contextDataRegistrationMock
-	#dim listItem as EF.pageController.proweb.listItems.textBlock
-	
-	set contextData = ##class(EF.contextDataRegistrationMock).createNew()
-
-	set list = ##class(EF.pageController.proweb.list).%New()
-	
-	set listItem = ##class(EF.pageController.proweb.listItems.textBlock).%New()
-	set listItem.text = "Lorem ipsum dolor sit amet, faucibus sagittis dui commodo integer. Vitae fringilla amet, wisi amet suspendisse ut vitae per vitae, pellentesque mi dis nisl tellus donec tempor, laoreet viverra, pellentesque ultricies conubia justo lorem. Torquent nibh risus aliquam fusce lacus in, non mus. Integer velit, volutpat a vel, tincidunt justo mattis, commodo lacus volutpat luctus felis. Sit adipiscing aliquet aenean fringilla nullam ac, velit dui, cum felis a nullam dapibus, condimentum pulvinar quis posuere integer justo."
-	set listItem.uiComponentType = "textBlock"
-	do list.addListItem(listItem)
-	
-	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(list,"render")
+	set contextData = ##class(EF.contextDataRegistrationMock).createMock()
+	set page=##class(EF.pageController.page).createNew(contextData)
+	set elementIdentifier = "proweb-1"
+	set element = page.addProwebTextInput(elementIdentifier, "First Name", "Elvis")
+	set element.displayOrder = 1
+	set element.uiComponent.isMandatory = 1
+	do page.updateUIComponents()
+	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(page,"renderAllProwebItems")
 	set returnedHTML = $ZStrip(returnedHTML,"*WC")
-	set expectedHTML = "<divclass='rowdraggableTR'><divclass='col-sm-12'>Loremipsumdolorsitamet,faucibussagittisduicommodointeger.Vitaefringillaamet,wisiametsuspendisseutvitaepervitae,pellentesquemidisnisltellusdonectempor,laoreetviverra,pellentesqueultriciesconubiajustolorem.Torquentnibhrisusaliquamfuscelacusin,nonmus.Integervelit,volutpatavel,tinciduntjustomattis,commodolacusvolutpatluctusfelis.Sitadipiscingaliquetaeneanfringillanullamac,velitdui,cumfelisanullamdapibus,condimentumpulvinarquisposuereintegerjusto.</div></div>"
+	set expectedHTML = "<divclass='rowdraggableTR'><divclass='col-sm-4ef_proweb_form_promptef-required-field'><labelclass=""control-label""for=""proweb-1"">FirstName</label></div><divclass='col-sm-8ef_proweb_form_prompt'><inputtype=""text""class=""form-control""title=""""id=""proweb-1""name=""proweb-1""value=""Elvis""placeholder=""""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;FirstName\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""></div></div>"
 	do $$$AssertEquals(returnedHTML,expectedHTML)
 ]]></Implementation>
 </Method>
 
-<Method name="TestFormDivider">
+<Method name="TestBasicPageWithTextBlock">
 <Implementation><![CDATA[
-	#dim contextData as EF.contextDataRegistrationMock
-	#dim listItem as EF.pageController.proweb.listItems.divider
-	
-	set contextData = ##class(EF.contextDataRegistrationMock).createNew()
-
-	set list = ##class(EF.pageController.proweb.list).%New()
-	
-	set listItem = ##class(EF.pageController.proweb.listItems.divider).%New()
-	do list.addListItem(listItem)
-	
-	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(list,"render")
+	set contextData = ##class(EF.contextDataRegistrationMock).createMock()
+	set page=##class(EF.pageController.page).createNew(contextData)
+	set elementIdentifier = "proweb-1"
+	set element = page.addProwebTextBlock(elementIdentifier, "lorem ipsum")
+	set element.displayOrder = 1
+	do page.updateUIComponents()
+	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(page,"renderAllProwebItems")
 	set returnedHTML = $ZStrip(returnedHTML,"*WC")
-	set expectedHTML = "<divclass='rowdraggableTR'><divclass='col-sm-12'><hrclass='ef_form_divider''></div></div>"
+	set expectedHTML = "<divclass='rowdraggableTR'><divclass='col-sm-12'>loremipsum</div></div>"
 	do $$$AssertEquals(returnedHTML,expectedHTML)
 ]]></Implementation>
 </Method>
 
-<Method name="TestBasicDropdown">
+<Method name="TestBasicPageWithDivider">
 <Implementation><![CDATA[
-	#dim contextData as EF.contextDataRegistrationMock
-	#dim listItem as EF.pageController.proweb.listItems.inputElement
+	set contextData = ##class(EF.contextDataRegistrationMock).createMock()
+	set page=##class(EF.pageController.page).createNew(contextData)
 	
-	set contextData = ##class(EF.contextDataRegistrationMock).createNew()
-
-	set list = ##class(EF.pageController.proweb.list).%New()
-	
-	set listItem = ##class(EF.pageController.proweb.listItems.inputElement).%New()
-	set listItem.uiComponentType = "dropdown"
-	set listItem.labelText = "Type of food"
-	do listItem.addAlternative("Vegan")
-	do listItem.addAlternative("Meat")
-	do listItem.addAlternative("Fish")
-	do list.addListItem(listItem)
-	
-	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(list,"render")
+	set elementIdentifier = "proweb-1"
+	set element = page.addProwebDivider(elementIdentifier,"")
+	set element.displayOrder = 1
+	do page.updateUIComponents()
+	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(page,"renderAllProwebItems")
 	set returnedHTML = $ZStrip(returnedHTML,"*WC")
-	set expectedHTML = "<divclass='rowdraggableTR'><divclass='col-sm-4ef_proweb_form_prompt'><labelclass=""control-label""for=""|2401"">Typeoffood</label></div><divclass='col-sm-8ef_proweb_form_prompt'><selectclass=""form-control""name=""""id=""|2401""title=""""><optionvalue=''></option><optionvalue=""Vegan"">Vegan</option><optionvalue=""Meat"">Meat</option><optionvalue=""Fish"">Fish</option></select></div></div>"
-	do $$$AssertEquals(returnedHTML,expectedHTML)
-	
-	set listItem.isMandatory = 1
-	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(list,"render")
-	set returnedHTML = $ZStrip(returnedHTML,"*WC")
-	set expectedHTML = "<divclass='rowdraggableTR'><divclass='col-sm-4ef_proweb_form_promptef-required-field'><labelclass=""control-label""for=""|2401"">Typeoffood</label></div><divclass='col-sm-8ef_proweb_form_prompt'><selectclass=""form-control""name=""""id=""|2401""title=""""><optionvalue=''selecteddisabled>Chooseone...</option><optionvalue=""Vegan"">Vegan</option><optionvalue=""Meat"">Meat</option><optionvalue=""Fish"">Fish</option></select></div></div>"
-	do $$$AssertEquals(returnedHTML,expectedHTML)
-	
-	set alternative = listItem.alternatives.GetAt(1)
-	set alternative.isSelected = 1
-	set listItem.isMandatory = 0
-	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(list,"render")
-	set returnedHTML = $ZStrip(returnedHTML,"*WC")
-	set expectedHTML = "<divclass='rowdraggableTR'><divclass='col-sm-4ef_proweb_form_prompt'><labelclass=""control-label""for=""|2401"">Typeoffood</label></div><divclass='col-sm-8ef_proweb_form_prompt'><selectclass=""form-control""name=""""id=""|2401""title=""""><optionvalue=''></option><optionselected=""""value=""Vegan"">Vegan</option><optionvalue=""Meat"">Meat</option><optionvalue=""Fish"">Fish</option></select></div></div>"
+	set expectedHTML = "<divclass='rowdraggableTR'><divclass='col-sm-12'><hrclass='ef_form_divider'></div></div>"
 	do $$$AssertEquals(returnedHTML,expectedHTML)
 ]]></Implementation>
 </Method>
 
-<Method name="TestMandatorySelectedDropdown">
+<Method name="TestPageWithDropdown">
 <Implementation><![CDATA[
-	#dim contextData as EF.contextDataRegistrationMock
-	#dim listItem as EF.pageController.proweb.listItems.inputElement
-	
-	set contextData = ##class(EF.contextDataRegistrationMock).createNew()
-
-	set list = ##class(EF.pageController.proweb.list).%New()
-	
-	set listItem = ##class(EF.pageController.proweb.listItems.inputElement).%New()
-	set listItem.uiComponentType = "dropdown"
-	set listItem.labelText = "Type of food"
-	do listItem.addAlternative("Vegan")
-	do listItem.addAlternative("Meat")
-	do listItem.addAlternative("Fish")
-
-	set alternative = listItem.alternatives.GetAt(2)
-	set alternative.isSelected = 1
-	set listItem.isMandatory = 1
-	
-	do list.addListItem(listItem)
-	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(list,"render")
+	set contextData = ##class(EF.contextDataRegistrationMock).createMock()
+	set page=##class(EF.pageController.page).createNew(contextData)
+	set elementIdentifier = "proweb-1"
+	set element = page.addProwebDropdown(elementIdentifier, "diet", "")
+	set alternative = element.addAlternative("meat","meat")
+	set alternative = element.addAlternative("vegetarian","vegetarian")
+	set alternative = element.addAlternative("vegan","vegan")
+	set element.displayOrder = 1
+	do page.updateUIComponents()
+	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(page,"renderAllProwebItems")
 	set returnedHTML = $ZStrip(returnedHTML,"*WC")
-	set expectedHTML = "<divclass='rowdraggableTR'><divclass='col-sm-4ef_proweb_form_promptef-required-field'><labelclass=""control-label""for=""|2401"">Typeoffood</label></div><divclass='col-sm-8ef_proweb_form_prompt'><selectclass=""form-control""name=""""id=""|2401""title=""""><optionvalue=''disabled>Chooseone...</option><optionvalue=""Vegan"">Vegan</option><optionselected=""""value=""Meat"">Meat</option><optionvalue=""Fish"">Fish</option></select></div></div>"
+	set expectedHTML = "<divclass='rowdraggableTR'><divclass='col-sm-4ef_proweb_form_prompt'><labelclass=""control-label""for=""proweb-1"">diet</label></div><divclass='col-sm-8ef_proweb_form_prompt'><selectclass=""form-control""name=""proweb-1""id=""proweb-1""title=""""><optionvalue=''></option><optionvalue=""meat"">meat</option><optionvalue=""vegetarian"">vegetarian</option><optionvalue=""vegan"">vegan</option></select></div></div>"
+	do $$$AssertEquals(returnedHTML,expectedHTML)
+]]></Implementation>
+</Method>
+
+<Method name="TestPageWithDropdownPreSelected">
+<Implementation><![CDATA[
+	set contextData = ##class(EF.contextDataRegistrationMock).createMock()
+	set page=##class(EF.pageController.page).createNew(contextData)
+	set elementIdentifier = "proweb-1"
+	set element = page.addProwebDropdown(elementIdentifier, "diet", "vegan")
+	set alternative = element.addAlternative("meat","meat")
+	set alternative = element.addAlternative("vegetarian","vegetarian")
+	set alternative = element.addAlternative("vegan","vegan")
+	set element.displayOrder = 1
+	
+	do page.updateUIComponents()
+	
+	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(page,"renderAllProwebItems")
+	set returnedHTML = $ZStrip(returnedHTML,"*WC")
+	set expectedHTML = "<divclass='rowdraggableTR'><divclass='col-sm-4ef_proweb_form_prompt'><labelclass=""control-label""for=""proweb-1"">diet</label></div><divclass='col-sm-8ef_proweb_form_prompt'><selectclass=""form-control""name=""proweb-1""id=""proweb-1""title=""""><optionvalue=''></option><optionvalue=""meat"">meat</option><optionvalue=""vegetarian"">vegetarian</option><optionselected=""""value=""vegan"">vegan</option></select></div></div>"
+	do $$$AssertEquals(returnedHTML,expectedHTML)
+]]></Implementation>
+</Method>
+
+<Method name="TestPageWithDropdownMandatory">
+<Implementation><![CDATA[
+	set contextData = ##class(EF.contextDataRegistrationMock).createMock()
+	set page=##class(EF.pageController.page).createNew(contextData)
+	set elementIdentifier = "proweb-1"
+	set element = page.addProwebDropdown(elementIdentifier, "diet", "vegan")
+	set alternative = element.addAlternative("meat","meat")
+	set alternative = element.addAlternative("vegetarian","vegetarian")
+	set alternative = element.addAlternative("vegan","vegan")
+	set element.displayOrder = 1
+	set element.uiComponent.isMandatory = 1
+	do page.updateUIComponents()
+	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(page,"renderAllProwebItems")
+	set returnedHTML = $ZStrip(returnedHTML,"*WC")
+	set expectedHTML = "<divclass='rowdraggableTR'><divclass='col-sm-4ef_proweb_form_promptef-required-field'><labelclass=""control-label""for=""proweb-1"">diet</label></div><divclass='col-sm-8ef_proweb_form_prompt'><selectclass=""form-control""name=""proweb-1""id=""proweb-1""title=""""><optionvalue=''selecteddisabled>Chooseone...</option><optionvalue=""meat"">meat</option><optionvalue=""vegetarian"">vegetarian</option><optionselected=""""value=""vegan"">vegan</option></select></div></div>"
 	do $$$AssertEquals(returnedHTML,expectedHTML)
 ]]></Implementation>
 </Method>
@@ -2753,14 +2555,12 @@ note that 'prowebListID' refers to the ID used in the CSP page for identifying t
 ;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>EF.pageController.inputElements.textInput.CLS/EV.1</td><td>CLS.EF.pageController.inputElements.textInput</td><td>SmallDev</td><td style='white-space: nowrap;'>31-Aug-14 08:38</td><td>FredG</td></tr></table>
 ]]></Description>
 <Super>EF.pageController.proweb.inputElement</Super>
-<TimeChanged>64188,61902.637999</TimeChanged>
+<TimeChanged>64189,43029.282367</TimeChanged>
 <TimeCreated>63372,45621.828558</TimeCreated>
 
 <Method name="getDefaultUIComponent">
 <ReturnType>EF.ui.components.inputBase</ReturnType>
-<Implementation><![CDATA[
-	;quit ##class(EF.ui.components.backend.textInput).%New(..identifier)
-	quit ##class(EF.ui.components.frontend.textInput).%New(..identifier)
+<Implementation><![CDATA[	quit ##class(EF.ui.components.frontend.textInput).%New(..identifier)
 ]]></Implementation>
 </Method>
 
@@ -3352,7 +3152,7 @@ Method renderAlternative(alternative As EF.ui.components.alternative)
 
 <Class name="EF.ui.components.frontend.inputElement">
 <Super>EF.ui.components.frontend.prowebBase,EF.ui.components.inputBase</Super>
-<TimeChanged>64188,64209.4657</TimeChanged>
+<TimeChanged>64189,42880.752501</TimeChanged>
 <TimeCreated>64183,40678.260093</TimeCreated>
 
 <Property name="alternatives">
@@ -7182,7 +6982,7 @@ The basic frontend default stuff</Description>
 </Class>
 
 
-<Project name="proweb 2" LastModified="2016-09-28 11:52:32.097487" Target="freddev/backend/home/login.csp" TargetType="3">
+<Project name="proweb 2" LastModified="2016-09-28 13:02:36.220916" Target="freddev/backend/home/login.csp" TargetType="3">
   <Items>
     <ProjectItem name="EF.contextData" type="CLS"></ProjectItem>
     <ProjectItem name="EF.contextDataRegistration" type="CLS"></ProjectItem>
@@ -7194,14 +6994,6 @@ The basic frontend default stuff</Description>
     <ProjectItem name="EF.pageController.pagesFrontend.t4Registration" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.proweb.divider" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.proweb.dropdown" type="CLS"></ProjectItem>
-    <ProjectItem name="EF.pageController.proweb.list" type="CLS"></ProjectItem>
-    <ProjectItem name="EF.pageController.proweb.listItem" type="CLS"></ProjectItem>
-    <ProjectItem name="EF.pageController.proweb.listItems.alternative" type="CLS"></ProjectItem>
-    <ProjectItem name="EF.pageController.proweb.listItems.divider" type="CLS"></ProjectItem>
-    <ProjectItem name="EF.pageController.proweb.listItems.inputElement" type="CLS"></ProjectItem>
-    <ProjectItem name="EF.pageController.proweb.listItems.inputElementCOD" type="CLS"></ProjectItem>
-    <ProjectItem name="EF.pageController.proweb.listItems.textBlock" type="CLS"></ProjectItem>
-    <ProjectItem name="EF.pageController.proweb.listTestCase" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.proweb.textBlock" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.proweb.textInput" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.textProweb" type="CLS"></ProjectItem>
@@ -7219,6 +7011,8 @@ The basic frontend default stuff</Description>
     <ProjectItem name="layout.cssDefaultMethods" type="CLS"></ProjectItem>
     <ProjectItem name="sc.xModules.objPage" type="CLS"></ProjectItem>
     <ProjectItem name="shared.pageMethods" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.pageController.proweb.inputElement" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.pageController.proweb.pageTestCase" type="CLS"></ProjectItem>
   </Items>
   <BreakPoints>
     <BreakPoint Routine="EF.ui.components.listInput.CLS" Offset="renderAlternatives+1"></BreakPoint>

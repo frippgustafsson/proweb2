@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.1.2 (Build 206U)" ts="2016-09-29 08:26:19">
+<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.1.2 (Build 206U)" ts="2016-09-29 13:28:55">
 <Class name="EF.contextData">
 <Description><![CDATA[
 <!-- ;vc;-
@@ -131,7 +131,7 @@
 ;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>EF.contextDataRegistration.CLS/EV.4</td><td>CLS.EF.contextDataRegistration</td><td>SmallDev</td><td style='white-space: nowrap;'>02-Sep-16 14:23</td><td>JeremyW</td></tr></table>
 ]]></Description>
 <Super>EF.contextData</Super>
-<TimeChanged>64188,39760.55394</TimeChanged>
+<TimeChanged>64190,32571.217437</TimeChanged>
 <TimeCreated>63755,56082.660879</TimeCreated>
 
 <Property name="tempPurchaseID">
@@ -199,9 +199,7 @@ if website is private, this will be set to the cod.objPerson.ID of that logged i
 <Parameter name="VALUELIST" value=",&quot;edit&quot;,&quot;preview&quot;"/>
 </Property>
 
-<Property name="listID">
-<Description>
-is it needed anymore?? ###########</Description>
+<Property name="prowebFloatingMenuCounter">
 <Type>%Integer</Type>
 </Property>
 
@@ -318,6 +316,14 @@ is it needed anymore?? ###########</Description>
 <Method name="isMockSession">
 <ReturnType>%Boolean</ReturnType>
 <Implementation><![CDATA[	return ..sessionID = "mockSession"
+]]></Implementation>
+</Method>
+
+<Method name="getNewFloatingMenuCounter">
+<ReturnType>%Integer</ReturnType>
+<Implementation><![CDATA[
+	set ..prowebFloatingMenuCounter = ..prowebFloatingMenuCounter+1
+	return ..prowebFloatingMenuCounter
 ]]></Implementation>
 </Method>
 </Class>
@@ -1033,7 +1039,7 @@ Adds a translation button with warning icon which opens an in-form modal</Descri
 ]]></Description>
 <IncludeCode>EF.common.macros</IncludeCode>
 <Super>%Library.Persistent,shared.timeStamp</Super>
-<TimeChanged>64188,60873.932415</TimeChanged>
+<TimeChanged>64190,44877.002698</TimeChanged>
 <TimeCreated>63350,63749.535929</TimeCreated>
 
 <Property name="elementParent">
@@ -1105,6 +1111,10 @@ needed to be able to output proweb items in the correct order until we change th
 Anything marked with isModalTempData set will be cleared down when a modal is re-opened</Description>
 <Type>%Boolean</Type>
 <InitialExpression>0</InitialExpression>
+</Property>
+
+<Property name="prowebListID">
+<Type>%Integer</Type>
 </Property>
 
 <Index name="identifierIndex">
@@ -1451,6 +1461,12 @@ Should be run if any of the sub-classes are deleted</Description>
 </Value>
 <Value name="23">
 <Value>displayOrder</Value>
+</Value>
+<Value name="24">
+<Value>prowebComponentName</Value>
+</Value>
+<Value name="25">
+<Value>prowebListID</Value>
 </Value>
 </Data>
 </Storage>
@@ -2236,14 +2252,19 @@ This can be used to return data from a modal when saved via ajax.</Description>
 
 <Class name="EF.pageController.proweb.page">
 <Super>EF.pageController.page</Super>
-<TimeChanged>64190,30153.904179</TimeChanged>
+<TimeChanged>64190,45261.189229</TimeChanged>
 <TimeCreated>64189,51696.559047</TimeCreated>
+
+<Property name="contextData">
+<Type>EF.contextDataRegistration</Type>
+</Property>
 
 <Method name="load">
 <Implementation><![CDATA[
+	set ..contextData.prowebFloatingMenuCounter = 100 // offset to keep them separate from the include pages' counters
 	do ..loadData()
 	if ..contextData.%IsA("EF.contextDataRegistration") {
-		do ..insertAllProwebItems(..contextData.pageID) 
+		do ..insertAllProwebItems() 
 	}
 	do ..updateUIComponents()
 ]]></Implementation>
@@ -2258,22 +2279,38 @@ This can be used to return data from a modal when saved via ajax.</Description>
 		do element.render()
 		
 	} elseif $Get(attrs("prowebcomponentname"))'="" {
+		set ..contextData.prowebComponentName = attrs("prowebcomponentname")
+		do ..initialiseComponent()
 		if ..contextData.prowebMode = "edit" {
 			do ..outputFloatingMenuForAddToTop()	
 		}
-		do ..renderAllProwebItems()
+		do ..renderProwebItemsForComponent()
 	}
 	quit
 ]]></Implementation>
 </Method>
 
+<Method name="initialiseComponent">
+<Implementation><![CDATA[
+	if '##class(sc.xModules.objList).getListIDFromPageIDAndComponentName(..contextData.pageID,..contextData.prowebComponentName) {
+		set listID = ##class(sc.xModules.objList).add(..contextData.pageID)
+		if 'listID {
+			throw ##class(shared.exceptions.generalException).%New("Failed to cerate new objList")	
+		}
+		set templateID = ##class(sc.pageMethods).getTemplateIDfromPageID(..contextData.pageID)
+		set componentID = ##class(sc.objComponent).add(..contextData.prowebComponentName, templateID, listID)
+		if 'componentID {
+			throw ##class(shared.exceptions.generalException).%New("Failed to cerate new objComponent")
+		}
+	}
+]]></Implementation>
+</Method>
+
 <Method name="outputFloatingMenuForAddToTop">
 <Implementation><![CDATA[
-	#dim displayOrder as %Integer = 0
-	#dim menuID as %Integer = 101 ; // #################
-	#dim componentName as %String = "Main List" // ##########
-	
-	do ##class(sc.methods).outputFloatingMenu(..contextData.pageID, componentName, menuID, "top")
+	set floatingMenuAdd = ##class(EF.ui.components.frontend.floatingMenuAdd).createNew(..contextData)
+	do floatingMenuAdd.outputJS()
+	set menuID = floatingMenuAdd.menuID
 	&html< 
 		<div class="row">
 			<div class="col-sm-12">
@@ -2285,11 +2322,10 @@ This can be used to return data from a modal when saved via ajax.</Description>
 </Method>
 
 <Method name="insertAllProwebItems">
-<FormalSpec>pageID:%Integer</FormalSpec>
 <Private>1</Private>
 <Implementation><![CDATA[
 	set rsLists = ##class(%ResultSet).%New("sc.objData:qGetChildren")
-	do rsLists.Execute(pageID)
+	do rsLists.Execute(..contextData.pageID)
 	
 	while rsLists.Next() {
 		set listID = rsLists.Get("ID")
@@ -2325,9 +2361,12 @@ This can be used to return data from a modal when saved via ajax.</Description>
 		throw ##class(shared.exceptions.generalException).%New("proweb item type not implemented yet")	
 	}
 
+	// ###### this section should be separated out ###
 	set element.displayOrder = prowebItem.displayOrder
 	set element.uiComponent.isProwebEditMode = (..contextData.prowebMode = "edit")
 	set element.uiComponent.prowebItem = prowebItem
+	set element.uiComponent.contextData = ..contextData
+	set element.prowebListID = prowebItem.getParentID(prowebItem.%Id())
 ]]></Implementation>
 </Method>
 
@@ -2395,7 +2434,7 @@ This can be used to return data from a modal when saved via ajax.</Description>
 ]]></Implementation>
 </Method>
 
-<Method name="renderAllProwebItems">
+<Method name="renderProwebItemsForComponent">
 <Description>
 this method needs rewriting when the arrayOfElements become a list instead of an array</Description>
 <Implementation><![CDATA[
@@ -2407,7 +2446,10 @@ this method needs rewriting when the arrayOfElements become a list instead of an
 		set element=..allPageElements.GetNext(.key)
 		if key="" quit
 		
-		if element.displayOrder {
+		set elementListID = element.prowebListID
+		set componentListID = ##class(sc.xModules.objList).getListIDFromPageIDAndComponentName(..contextData.pageID, ..contextData.prowebComponentName)
+				
+		if (element.displayOrder) && (elementListID = componentListID ) {
 			set arrayOfElements(element.displayOrder) = element	
 		}
 	}
@@ -2435,6 +2477,19 @@ this method needs rewriting when the arrayOfElements become a list instead of an
 
 <Storage name="Default">
 <Type>%Library.CacheStorage</Type>
+<DefaultData>pageDefaultData1</DefaultData>
+<Data name="pageDefaultData1">
+<Subscript>"page1"</Subscript>
+<Value name="1">
+<Value>floatingMenuCounter</Value>
+</Value>
+<Value name="2">
+<Value>prowebComponentName</Value>
+</Value>
+<Value name="3">
+<Value>contextData</Value>
+</Value>
+</Data>
 </Storage>
 </Class>
 
@@ -3159,6 +3214,226 @@ this is for version 1 of proweb</Description>
 </Class>
 
 
+<Class name="EF.ui.components.frontend.floatingMenuAdd">
+<Super>%RegisteredObject</Super>
+<TimeChanged>64190,44832.769173</TimeChanged>
+<TimeCreated>64190,37989.914109</TimeCreated>
+
+<Property name="contextData">
+<Type>EF.contextDataRegistration</Type>
+</Property>
+
+<Property name="templateFilename">
+<Type>%String</Type>
+<Required>1</Required>
+</Property>
+
+<Property name="templateID">
+<Type>%Integer</Type>
+<Required>1</Required>
+</Property>
+
+<Property name="pageID">
+<Type>%String</Type>
+<Required>1</Required>
+</Property>
+
+<Property name="menuID">
+<Type>%String</Type>
+<Required>1</Required>
+</Property>
+
+<Property name="parentID">
+<Type>%String</Type>
+<Required>1</Required>
+</Property>
+
+<Property name="eventHotelID">
+<Type>%String</Type>
+<Required>1</Required>
+</Property>
+
+<Method name="createNew">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>contextData:EF.contextDataRegistration</FormalSpec>
+<ReturnType>sc.floatingMenu</ReturnType>
+<Implementation><![CDATA[
+	#dim pageID as %Integer = contextData.pageID
+	#dim componentName as %String = contextData.prowebComponentName
+	
+	set menu = ..%New()
+	set menu.contextData = contextData
+	set menu.eventHotelID = ##class(accom.objEventHotel).getIDFromPageID(pageID)
+	set menu.templateID =  ##class(sc.pageMethods).getTemplateIDfromPageID(pageID)
+	set menu.templateFilename = ##class(sc.objTemplate).getFileName(menu.templateID)
+	set menu.parentID = ##class(sc.xModules.objList).getListIDFromPageIDAndComponentName(pageID,componentName)
+
+	return menu
+]]></Implementation>
+</Method>
+
+<Method name="outputJS">
+<Implementation><![CDATA[
+	#dim pageID as %Integer = ..contextData.pageID
+	#dim componentName as %String = ..contextData.prowebComponentName
+	set ..menuID = ..contextData.getNewFloatingMenuCounter()
+	
+	set page = ##class(sc.xModules.objPage).%OpenId(pageID)
+	set pageFileName = page.getFileNameWithoutPathLowerCase()
+	
+	if $Data(%session) {
+		set %session.Data("eventsforce","backend","email or web page")="web page"
+	}
+	if $IsObject(page.objEvent) {
+		set eventConfiguration=##class(setup.eventConfiguration).createForEventID(page.objEvent.%Id())
+	}
+	
+	write !,"<sc"_"ript language='javasc"_"ript'>"
+	write !,"HM_Array"_..menuID_" = [[150,,,,,,,,,,,,,,,,,,,,1],"
+	
+	if page.allowRegistrationQuestions(componentName){
+		write !,..getMenuItemJS("Registration Question")
+	
+	}
+	if page.allowABIs() {
+		write !,..getMenuItemJS("Bookable Item")
+		if eventConfiguration.areQBIsAllowed() {
+			write !,..getMenuItemJS("Quantity Bookable Item")
+		}
+	}
+	if page.alllowPromptCollections() {
+		write !,..getMenuItemJS("Reg Prompt Collections")	
+	}
+	if page.isSurvey() {
+		set surveyGroupID = ##class(sc.objData).getParentID(pageID)
+		&SQL(SELECT TOP 1 ID INTO :lastPageID FROM sc_xModules.objPage WHERE parent = :surveyGroupID ORDER BY displayOrder DESC)
+		if lastPageID '= pageID {
+			write !,..getMenuItemJS("Question")
+		}
+	}
+	if page.isHotel() {
+		write !,..getMenuItemJS("Question With Price")
+		write !,..getMenuItemJS("Question With No Price")
+	}
+	
+	write !,..getMenuItemJS("Text Block")
+	
+	if page.allowDivider(componentName) {
+		write !,..getMenuItemJS("Divider")	
+	}
+	if page.allowMiscMedia() {
+		write !,..getMenuItemJS("Menu Block")
+		write !,..getMenuItemJS("Button")
+		write !,..getMenuItemJS("Scrolling Image")
+		write !,..getMenuItemJS("Flash")
+		write !,..getMenuItemJS("YouTube Video")
+	}
+	if page.allowFrontendUpload() {
+		write !,..getMenuItemJS("File Upload")
+	}
+	write !,"]</sc"_"ript>"
+]]></Implementation>
+</Method>
+
+<Method name="getMenuItemJS">
+<FormalSpec>menuItemText:%String</FormalSpec>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	#dim targetPage as %String
+	#dim URL as %String
+	#define codQuestionDetailsPage "codQuestionDetails.csp"
+	
+	
+	if menuItemText = "Registration Question" {
+		set URL = ..getInitalURL($$$codQuestionDetailsPage)
+	
+	} elseif menuItemText = "Question" {		//surveys
+		set URL = ..getInitalURL($$$codQuestionDetailsPage)
+
+	} elseif menuItemText = "Bookable Item" {
+		set URL = ..getInitalURL($$$codQuestionDetailsPage)
+		set URL = ##class(EF.htmlGenerator).addParameterToURL(URL,"additional",1)
+
+	} elseif menuItemText = "Quantity Bookable Item" {
+		set URL = ..getInitalURL($$$codQuestionDetailsPage)
+		set URL = ##class(EF.htmlGenerator).addParameterToURL(URL,"quantityItem",1)
+	
+	} elseif menuItemText = "Reg Prompt Collections" {
+		set URL = ..getInitalURL("regPromptCollectionDetails.csp")
+	
+	} elseif menuItemText = "Question With Price" { //accommodation
+		set URL = ..getInitalURL($$$codQuestionDetailsPage)
+		set URL = ##class(EF.htmlGenerator).addParameterToURL(URL,"additional",1)
+		set URL = ##class(EF.htmlGenerator).addParameterToURL(URL,"codGroup","Hotel")
+		set URL = ##class(EF.htmlGenerator).addParameterToURL(URL,"eventHotelID",..eventHotelID)
+	
+	} elseif menuItemText = "Question With No Price" { //accommodation
+		set URL = ..getInitalURL($$$codQuestionDetailsPage)
+		set URL = ##class(EF.htmlGenerator).addParameterToURL(URL,"codGroup","Hotel")
+		set URL = ##class(EF.htmlGenerator).addParameterToURL(URL,"eventHotelID",..eventHotelID)
+
+	} elseif menuItemText = "Text Block" {
+		set URL = ..getInitalURL("textDetailsMoxie.csp")
+
+	} elseif menuItemText = "Divider" {
+		set URL = ..getInitalURL("formDivider.csp")
+		set URL = ##class(EF.htmlGenerator).addParameterToURL(URL,"position","top")
+
+	} elseif menuItemText = "Menu Block" {
+		set URL = ..getInitalURL("menuDetails.csp")
+
+	} elseif menuItemText = "Button" {
+		set URL = ..getInitalURL("createImageDetails.csp")
+
+	} elseif menuItemText = "Scrolling Image" {
+		set URL = ..getInitalURL("scrollingImageDetails.csp")
+
+	} elseif menuItemText = "Flash" {
+		set URL = ..getInitalURL("flashDetails.csp")
+
+	} elseif menuItemText = "YouTube Video" {
+		set URL = ..getInitalURL("flashDetails.csp")
+		set URL = ##class(EF.htmlGenerator).addParameterToURL(URL,"isVideo",1)
+
+	} elseif menuItemText = "File Upload" {
+		set URL = ..getInitalURL("fileUploadDetails.csp")
+		
+	} else {
+		throw ##class(shared.exceptions.generalException).%New("Invalid menuItemText: "_menuItemText)
+	}
+	
+	return "['"_menuItemText_"','"_##class(EF.htmlGenerator).linkURL(URL)_"',1,0,0],"
+]]></Implementation>
+</Method>
+
+<Method name="getInitalURL">
+<FormalSpec>targetPage:%String</FormalSpec>
+<Private>1</Private>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	#dim URL as %String
+	
+	set URL = "../../backend/proweb/"_targetPage
+
+	set URL = ##class(EF.htmlGenerator).addParameterToURL(URL,"dataID","NEW")
+	set URL = ##class(EF.htmlGenerator).addParameterToURL(URL,"templateURL",..templateFilename)
+	set URL = ##class(EF.htmlGenerator).addParameterToURL(URL,"componentName",..contextData.prowebComponentName)
+	set URL = ##class(EF.htmlGenerator).addParameterToURL(URL,"templateID",..templateID)
+	set URL = ##class(EF.htmlGenerator).addParameterToURL(URL,"orgDataID","ADD")
+	set URL = ##class(EF.htmlGenerator).addParameterToURL(URL,"parent",..parentID)
+	set URL = ##class(EF.htmlGenerator).addParameterToURL(URL,"displayOrder",0)
+	set URL = ##class(EF.htmlGenerator).addParameterToURL(URL,"classNo",1)
+	set URL = ##class(EF.htmlGenerator).addParameterToURL(URL,"addToTop","true")
+	set URL = ##class(EF.htmlGenerator).addParameterToURL(URL,"isCOD",1)
+	set URL = ##class(EF.htmlGenerator).addParameterToURL(URL,"pageID",..contextData.pageID)
+	set URL = ##class(EF.htmlGenerator).addParameterToURL(URL,"itemNameID","NEW")
+	
+	return URL
+]]></Implementation>
+</Method>
+</Class>
+
+
 <Class name="EF.ui.components.frontend.inputElement">
 <Super>EF.ui.components.frontend.prowebBase,EF.ui.components.inputBase</Super>
 <TimeChanged>64189,57494.066822</TimeChanged>
@@ -3251,7 +3526,7 @@ this is for version 1 of proweb</Description>
 
 <Class name="EF.ui.components.frontend.prowebBase">
 <Super>EF.ui.components.base</Super>
-<TimeChanged>64190,30199.700652</TimeChanged>
+<TimeChanged>64190,32214.137826</TimeChanged>
 <TimeCreated>64183,41819.123112</TimeCreated>
 
 <Property name="isProwebEditMode">
@@ -3264,15 +3539,13 @@ this is for version 1 of proweb</Description>
 <Type>sc.objData</Type>
 </Property>
 
-<Property name="prowebListID">
-<Description>
-note that 'prowebListID' refers to the ID used in the CSP page for identifying the list. It is NOT the ID of sc.objList</Description>
-<Type>%Integer</Type>
+<Property name="contextData">
+<Type>EF.contextData</Type>
 </Property>
 
 <Method name="renderRowOpening">
 <Implementation><![CDATA[
-	#dim floatingEditMenuID as %Integer = ..getNewFloatingEditMenuID()
+	#dim floatingEditMenuID as %Integer = ..contextData.getNewFloatingMenuCounter()
 	
 	if ..isProwebEditMode {
 		write !,"<div class='row draggableTR ef-proweb-form-row-editable' onMouseOver=""HM_f_PopUp('HM_Menu"_floatingEditMenuID_"',event);"" onMouseOut=""HM_f_PopDown('HM_Menu"_floatingEditMenuID_"');"">"
@@ -3343,19 +3616,6 @@ note that 'prowebListID' refers to the ID used in the CSP page for identifying t
 		if key = "" quit
 		
 		write !,editMenuStr(key)	
-	}
-]]></Implementation>
-</Method>
-
-<Method name="getNewFloatingEditMenuID">
-<Private>1</Private>
-<ReturnType>%Integer</ReturnType>
-<Implementation><![CDATA[
-	if $Data(%session) {
-		set %session.Data("floatCount") = %session.Get("floatCount")+1 
-		return %session.Data("floatCount")
-	} else {
-		return ""
 	}
 ]]></Implementation>
 </Method>
@@ -3459,11 +3719,15 @@ note that 'prowebListID' refers to the ID used in the CSP page for identifying t
 	</h1><ef-pc-container type="panel-body">
 	   	<ef-pc-container type="row"> 
 
-		   	
+		   		<h2>section "Main List"</h2>
 				<ef-pc-element prowebcomponentname="Main List">
-			
-			
+				<br>
+				<br>
+				<h2>section "Second List"</h2>
+				<ef-pc-element prowebcomponentname="Second List">
+				<h2>end</h2>
 		</ef-pc-container>
+			
 	</ef-pc-container>			
 	
 </csp:section>
@@ -3480,7 +3744,7 @@ note that 'prowebListID' refers to the ID used in the CSP page for identifying t
 </head>
 <body class="bodyBackground">
 <script language="CACHE" method="OnPreHTTPafter" arguments="" returntype="%Boolean">
-	set %response.Redirect="t4Registration.csp?pageID="_$G(%session.Data("pageID")) quit 0
+	;set %response.Redirect="t4Registration.csp?pageID="_$G(%session.Data("pageID")) quit 0
 	set sessionID=%session.SessionId
 	set mode=%request.Get("mode")
 	if mode="" set mode=%session.Get("mode")
@@ -6994,7 +7258,7 @@ The basic frontend default stuff</Description>
 </Class>
 
 
-<Project name="proweb 2" LastModified="2016-09-29 08:23:07.227289" Target="freddev/backend/home/login.csp" TargetType="3">
+<Project name="proweb 2" LastModified="2016-09-29 13:28:55.359228" Target="freddev/backend/home/login.csp" TargetType="3">
   <Items>
     <ProjectItem name="EF.contextData" type="CLS"></ProjectItem>
     <ProjectItem name="EF.contextDataRegistration" type="CLS"></ProjectItem>
@@ -7024,6 +7288,10 @@ The basic frontend default stuff</Description>
     <ProjectItem name="EF.pageController.proweb.dropdown" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.proweb.textInput" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.proweb.inputElement" type="CLS"></ProjectItem>
+    <ProjectItem name="sc.xModules.objList" type="CLS"></ProjectItem>
+    <ProjectItem name="sc.floatingMenu" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.ui.components.proweb.floatingMenuAdd" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.ui.components.frontend.floatingMenuAdd" type="CLS"></ProjectItem>
   </Items>
   <BreakPoints>
     <BreakPoint Routine="EF.ui.components.listInput.CLS" Offset="renderAlternatives+1"></BreakPoint>
@@ -7038,6 +7306,328 @@ The basic frontend default stuff</Description>
     <WatchVariable Variable="..value" Pane="1"></WatchVariable>
   </WatchVariables>
 </Project>
+
+
+<Class name="sc.floatingMenu">
+<Description><![CDATA[
+<!-- ;vc;-
+;vc;    Object: sc.floatingMenu.CLS/EV.1
+;vc; Component: CLS.sc.floatingMenu
+;vc;  Location: SmallDev
+;vc; Date/Time: 02-Sep-16 14:27
+;vc;      User: JeremyW
+;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>sc.floatingMenu.CLS/EV.1</td><td>CLS.sc.floatingMenu</td><td>SmallDev</td><td style='white-space: nowrap;'>02-Sep-16 14:27</td><td>JeremyW</td></tr></table>
+]]></Description>
+<Super>%RegisteredObject</Super>
+<TimeChanged>64184,59267.916293</TimeChanged>
+<TimeCreated>63790,43042.482247</TimeCreated>
+
+<Property name="position">
+<Type>%String</Type>
+<Required>1</Required>
+</Property>
+
+<Property name="pageID">
+<Type>%Integer</Type>
+<Required>1</Required>
+</Property>
+
+<Property name="componentName">
+<Type>%String</Type>
+<Required>1</Required>
+</Property>
+
+<Property name="isCOD">
+<Type>%Boolean</Type>
+<Required>1</Required>
+</Property>
+
+<Property name="eventHotelID">
+<Type>%Integer</Type>
+</Property>
+
+<Property name="templateID">
+<Type>%Integer</Type>
+<Required>1</Required>
+</Property>
+
+<Property name="templateFilename">
+<Type>%String</Type>
+<Required>1</Required>
+</Property>
+
+<Property name="parentID">
+<Type>%Integer</Type>
+<Required>1</Required>
+</Property>
+
+<Property name="CSPappName">
+<Type>%String</Type>
+<Required>1</Required>
+</Property>
+
+<Method name="createNew">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>pageID,componentName:%String,position,isCOD=""</FormalSpec>
+<ReturnType>sc.floatingMenu</ReturnType>
+<Implementation><![CDATA[
+	set menu = ..%New()
+	set menu.pageID = pageID
+	set menu.position = position
+	set menu.componentName = componentName
+	set menu.eventHotelID = ##class(accom.objEventHotel).getIDFromPageID(menu.pageID)
+	set menu.isCOD = isCOD
+	set menu.templateID =  ##class(sc.pageMethods).getTemplateIDfromPageID(menu.pageID)
+	set menu.templateFilename = ##class(sc.objTemplate).getFileName(menu.templateID)
+	set menu.parentID = ##class(sc.xModules.objList).getListIDFromPageIDAndComponentName(menu.pageID,menu.componentName)
+	set menu.CSPappName = ##class(sc.objData).applicationPath()
+	
+	return menu
+]]></Implementation>
+</Method>
+
+<Method name="getMenuItemJS">
+<FormalSpec>menuItemText:%String</FormalSpec>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	#dim targetPage as %String
+	#dim URL as %String
+	#define codQuestionDetailsPage "codQuestionDetails.csp"
+	
+	
+	if menuItemText = "Registration Question" {
+		set URL = ..getInitalURL($$$codQuestionDetailsPage)
+	
+	} elseif menuItemText = "Question" {		//surveys
+		set URL = ..getInitalURL($$$codQuestionDetailsPage)
+
+	} elseif menuItemText = "Bookable Item" {
+		set URL = ..getInitalURL($$$codQuestionDetailsPage)
+		set URL = ##class(EF.htmlGenerator).addParameterToURL(URL,"additional",1)
+
+	} elseif menuItemText = "Quantity Bookable Item" {
+		set URL = ..getInitalURL($$$codQuestionDetailsPage)
+		set URL = ##class(EF.htmlGenerator).addParameterToURL(URL,"quantityItem",1)
+	
+	} elseif menuItemText = "Reg Prompt Collections" {
+		set URL = ..getInitalURL("regPromptCollectionDetails.csp")
+	
+	} elseif menuItemText = "Question With Price" { //accommodation
+		set URL = ..getInitalURL($$$codQuestionDetailsPage)
+		set URL = ##class(EF.htmlGenerator).addParameterToURL(URL,"additional",1)
+		set URL = ##class(EF.htmlGenerator).addParameterToURL(URL,"codGroup","Hotel")
+		set URL = ##class(EF.htmlGenerator).addParameterToURL(URL,"eventHotelID",..eventHotelID)
+	
+	} elseif menuItemText = "Question With No Price" { //accommodation
+		set URL = ..getInitalURL($$$codQuestionDetailsPage)
+		set URL = ##class(EF.htmlGenerator).addParameterToURL(URL,"codGroup","Hotel")
+		set URL = ##class(EF.htmlGenerator).addParameterToURL(URL,"eventHotelID",..eventHotelID)
+
+	} elseif menuItemText = "Text Block" {
+		set URL = ..getInitalURL("textDetailsMoxie.csp")
+
+	} elseif menuItemText = "Divider" {
+		set URL = ..getInitalURL("formDivider.csp")
+		set URL = ##class(EF.htmlGenerator).addParameterToURL(URL,"position",..position)
+
+	} elseif menuItemText = "Menu Block" {
+		set URL = ..getInitalURL("menuDetails.csp")
+
+	} elseif menuItemText = "Button" {
+		set URL = ..getInitalURL("createImageDetails.csp")
+
+	} elseif menuItemText = "Scrolling Image" {
+		set URL = ..getInitalURL("scrollingImageDetails.csp")
+
+	} elseif menuItemText = "Flash" {
+		set URL = ..getInitalURL("flashDetails.csp")
+
+	} elseif menuItemText = "YouTube Video" {
+		set URL = ..getInitalURL("flashDetails.csp")
+		set URL = ##class(EF.htmlGenerator).addParameterToURL(URL,"isVideo",1)
+
+	} elseif menuItemText = "File Upload" {
+		set URL = ..getInitalURL("fileUploadDetails.csp")
+		
+	} else {
+		throw ##class(shared.exceptions.generalException).%New("Invalid menuItemText: "_menuItemText)
+	}
+	
+	return "['"_menuItemText_"','"_##class(EF.htmlGenerator).linkURL(URL)_"',1,0,0],"
+]]></Implementation>
+</Method>
+
+<Method name="getInitalURL">
+<FormalSpec>targetPage:%String</FormalSpec>
+<Private>1</Private>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	#dim URL as %String
+	
+	set URL = ..CSPappName_"/backend/proweb/"_targetPage
+
+	set URL = ##class(EF.htmlGenerator).addParameterToURL(URL,"dataID","NEW")
+	set URL = ##class(EF.htmlGenerator).addParameterToURL(URL,"templateURL",..templateFilename)
+	set URL = ##class(EF.htmlGenerator).addParameterToURL(URL,"componentName",..componentName)
+	set URL = ##class(EF.htmlGenerator).addParameterToURL(URL,"templateID",..templateID)
+	set URL = ##class(EF.htmlGenerator).addParameterToURL(URL,"orgDataID","ADD")
+	set URL = ##class(EF.htmlGenerator).addParameterToURL(URL,"parent",..parentID)
+	set URL = ##class(EF.htmlGenerator).addParameterToURL(URL,"displayOrder",0)
+	set URL = ##class(EF.htmlGenerator).addParameterToURL(URL,"classNo",1)
+	set URL = ##class(EF.htmlGenerator).addParameterToURL(URL,"addToTop",$Select(..position="top":"true",1:"false"))
+	set URL = ##class(EF.htmlGenerator).addParameterToURL(URL,"isCOD",..isCOD)
+	set URL = ##class(EF.htmlGenerator).addParameterToURL(URL,"pageID",..pageID)
+	set URL = ##class(EF.htmlGenerator).addParameterToURL(URL,"itemNameID","NEW")
+	
+	return URL
+]]></Implementation>
+</Method>
+</Class>
+
+
+<Class name="sc.xModules.objList">
+<Description><![CDATA[
+Holds a list of other objects as children.
+<!-- ;vc;
+;vc;    Object: sc.xModules.objList.CLS/EV.3
+;vc; Component: CLS.sc.xModules.objList
+;vc;  Location: SmallDev
+;vc; Date/Time: 25-Apr-16 14:50
+;vc;      User: JeremyW
+;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>sc.xModules.objList.CLS/EV.3</td><td>CLS.sc.xModules.objList</td><td>SmallDev</td><td style='white-space: nowrap;'>25-Apr-16 14:50</td><td>JeremyW</td></tr></table>
+]]></Description>
+<ClassType>persistent</ClassType>
+<ProcedureBlock>1</ProcedureBlock>
+<Super>sc.objData</Super>
+<TimeChanged>64190,37117.017265</TimeChanged>
+<TimeCreated>58926,57261</TimeCreated>
+
+<Parameter name="EXTENTSIZE">
+<Default>3492</Default>
+</Parameter>
+
+<Property name="dataType">
+<Description>
+Used for identifying the class of the object withour having to call
+cache mysterious APIs.</Description>
+<Type>%Library.String</Type>
+<InitialExpression>"objList"</InitialExpression>
+<Parameter name="TRUNCATE" value="1"/>
+</Property>
+
+<Property name="subClass">
+<Type>%Library.String</Type>
+<Parameter name="TRUNCATE" value="1"/>
+</Property>
+
+<Method name="add">
+<Description>
+Creates new list object. Should be done the first time the page is loaded</Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec>pageID:%String=""</FormalSpec>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	set pageID=+pageID
+	if pageID=0 quit "0|no page ID passed in to add.objList"
+	set stepID=##class(sc.objStep).getFinalLevelID()
+	&SQL(INSERT INTO sc_xModules.objList (parent,creator,active,objStep) VALUES (:pageID,'system',1,:stepID))
+	
+	quit %ROWID
+]]></Implementation>
+</Method>
+
+<Method name="getListIDFromPageIDAndComponentName">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>pageID,componentName</FormalSpec>
+<ReturnType>%Integer</ReturnType>
+<Implementation><![CDATA[
+	set rsLists = ##class(%ResultSet).%New("sc.objData:qGetChildren")
+	do rsLists.Execute(pageID)
+	while rsLists.Next() {
+		set listID = rsLists.Get("ID")		
+		if $ZCVT(##class(sc.objComponent).getComponentName(listID),"L") = $ZCVT(componentName,"L") {
+			return listID
+		}
+	}
+	return ""
+]]></Implementation>
+</Method>
+
+<Query name="qGetQuestions">
+<Type>%SQLQuery</Type>
+<FormalSpec>listID:%String=""</FormalSpec>
+<SqlQuery>SELECT ID FROM sc_xModules.objCODitem
+ WHERE (parent = :listID) 
+ AND (active = 1)
+ ORDER BY displayOrder</SqlQuery>
+<Parameter name="CONTAINID" value="1"/>
+</Query>
+
+<Query name="qGetChildren">
+<Type>%SQLQuery</Type>
+<FormalSpec>listID:%String=""</FormalSpec>
+<SqlQuery>SELECT * FROM sc.objData
+ WHERE (parent = :listID) AND (active = 1)
+ ORDER BY displayOrder</SqlQuery>
+<Parameter name="CONTAINID" value="1"/>
+</Query>
+
+<Storage name="Default">
+<Type>%Library.CacheStorage</Type>
+<DefaultData>objListDefaultData</DefaultData>
+<Data name="objListDefaultData">
+<Subscript>"objList"</Subscript>
+<Value name="1">
+<Value>subClass</Value>
+</Value>
+</Data>
+<Property name="active">
+<Selectivity>49.9999%</Selectivity>
+</Property>
+<Property name="creator">
+<Selectivity>49.9999%</Selectivity>
+</Property>
+<Property name="dataType">
+<Selectivity>99.9995%</Selectivity>
+</Property>
+<Property name="displayOrder">
+<Selectivity>99.9995%</Selectivity>
+</Property>
+<Property name="nextVersion">
+<Selectivity>99.9995%</Selectivity>
+</Property>
+<Property name="objStep">
+<Selectivity>99.9995%</Selectivity>
+</Property>
+<Property name="parent">
+<Selectivity>0.0320%</Selectivity>
+</Property>
+<Property name="previousVersion">
+<Selectivity>99.9995%</Selectivity>
+</Property>
+<Property name="publishAt">
+<Selectivity>99.9995%</Selectivity>
+</Property>
+<Property name="sourceID">
+<Selectivity>99.9995%</Selectivity>
+</Property>
+<Property name="subClass">
+<Selectivity>99.9995%</Selectivity>
+</Property>
+<Property name="xCRstamp">
+<Selectivity>0.6952%</Selectivity>
+</Property>
+<Property name="xCRuserID">
+<Selectivity>9.0909%</Selectivity>
+</Property>
+<Property name="xMOstamp">
+<Selectivity>0.1257%</Selectivity>
+</Property>
+<Property name="xMOuserID">
+<Selectivity>6.2499%</Selectivity>
+</Property>
+</Storage>
+</Class>
 
 
 <Class name="sc.xModules.objPage">

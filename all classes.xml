@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.1.2 (Build 206U)" ts="2016-09-30 08:11:20">
+<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.1.2 (Build 206U)" ts="2016-09-30 09:44:51">
 <Class name="EF.contextData">
 <Description><![CDATA[
 <!-- ;vc;-
@@ -2252,7 +2252,7 @@ This can be used to return data from a modal when saved via ajax.</Description>
 
 <Class name="EF.pageController.proweb.page">
 <Super>EF.pageController.page</Super>
-<TimeChanged>64190,58333.140931</TimeChanged>
+<TimeChanged>64191,30009.626432</TimeChanged>
 <TimeCreated>64189,51696.559047</TimeCreated>
 
 <Property name="contextData">
@@ -2479,6 +2479,14 @@ this method needs rewriting when the arrayOfElements become a list instead of an
 ]]></Implementation>
 </Method>
 
+<Method name="save">
+<Implementation><![CDATA[
+	if '(..isPageReadOnly) {
+		do ..saveData()
+	}
+]]></Implementation>
+</Method>
+
 <Method name="debugTarget">
 <ClassMethod>1</ClassMethod>
 <Implementation><![CDATA[
@@ -2698,7 +2706,7 @@ Common page that all frontend pages could/should inherit from.
 <Language>cache</Language>
 <ProcedureBlock>0</ProcedureBlock>
 <Super>shared.pCSPmanage</Super>
-<TimeChanged>64189,57422.575763</TimeChanged>
+<TimeChanged>64191,33821.299966</TimeChanged>
 <TimeCreated>63635,40114.778424</TimeCreated>
 
 <Parameter name="showRegistrationProgressBar">
@@ -2734,36 +2742,8 @@ Common page that all frontend pages could/should inherit from.
 <ReturnType>%Boolean</ReturnType>
 <Implementation><![CDATA[
 	do ..OnPagePageTop()
-	do ..initPageController()
 	do ..OnPagePageContent()
 	do ..OnPagePageBottom()
-]]></Implementation>
-</Method>
-
-<Method name="initPageController">
-<ClassMethod>1</ClassMethod>
-<Implementation><![CDATA[
-	set contextData = ##class(EF.contextDataRegistration).createFromFrontendCSPSession()
-	if ..usePageController() {
-		set pageControllerID=%request.Get("pageControllerID")
-		merge requestData=%request.Data
-		
-		if pageControllerID {
-			try {
-				do ..beforePageControllerReload(pageControllerID)
-				set pageController=##class(EF.pageController.page).open(pageControllerID,contextData)
-			} catch {
-				// force a reload if there is a problem opening the page
-				set pageControllerID=""
-			}
-		}
-		if 'pageControllerID {
-			set pageController=$CLASSMETHOD(..getPageDataClassName(),"createNew",contextData,.requestData)
-			do pageController.%Save()
-		}
-		
-		set pageControllerID=pageController.%Id()
-	}
 ]]></Implementation>
 </Method>
 
@@ -2891,6 +2871,140 @@ this is for version 1 of proweb</Description>
 <Private>1</Private>
 <ReturnType>%String</ReturnType>
 <Implementation><![CDATA[	Quit "EF.pageController.pagesFrontend."_$PIECE($PIECE(..#CSPFILE,"\",$LENGTH(..#CSPFILE,"\")),".",1)
+]]></Implementation>
+</Method>
+</Class>
+
+
+<Class name="EF.pages.frontend.baseProweb">
+<Super>EF.pages.frontend.base</Super>
+<TimeChanged>64191,34943.924347</TimeChanged>
+<TimeCreated>64191,31442.531402</TimeCreated>
+
+<Parameter name="ENCODED">
+<Default>1</Default>
+</Parameter>
+
+<Parameter name="PRIVATE">
+<Default>0</Default>
+</Parameter>
+
+<Parameter name="efPageGenerationNumber">
+<Type>%Integer</Type>
+<Default>4</Default>
+</Parameter>
+
+<Parameter name="efUsePageController">
+<Type>%Boolean</Type>
+<Default>1</Default>
+</Parameter>
+
+<Parameter name="efFormName">
+<Type>%String</Type>
+<Default>myForm</Default>
+</Parameter>
+
+<Parameter name="efFormID">
+<Type>%String</Type>
+<Default>EFBackendForm</Default>
+</Parameter>
+
+<Parameter name="efServerStorageSaveLevel">
+<Type>%String</Type>
+<Default>event</Default>
+</Parameter>
+
+<Parameter name="efRenderMainModal">
+<Type>%Boolean</Type>
+<Default>1</Default>
+</Parameter>
+
+<Parameter name="efFormAction">
+<Type>%String</Type>
+<Default>pageControllerStandardSave.csp</Default>
+</Parameter>
+
+<Property name="pageControllerID">
+<Type>%String</Type>
+</Property>
+
+<Method name="OnPageCSPROOT">
+<ClassMethod>1</ClassMethod>
+<ReturnType>%Boolean</ReturnType>
+<Implementation><![CDATA[
+	do ..OnPagePageTop()
+	do ..initPageController()
+	;do ..outputFormBeginning()
+	do ..OnPagePageContent()
+	do ..OnPagePageBottom()
+]]></Implementation>
+</Method>
+
+<Method name="initPageController">
+<ClassMethod>1</ClassMethod>
+<Implementation><![CDATA[
+	set contextData = ##class(EF.contextDataRegistration).createFromFrontendCSPSession()
+	set pageControllerID = %request.Get("pageControllerID")
+	merge requestData = %request.Data
+	
+	if pageControllerID {
+		try {
+			do ..beforePageControllerReload(pageControllerID)
+			set pageController=##class(EF.pageController.page).open(pageControllerID,contextData)
+		} catch {
+			// force a reload if there is a problem opening the page
+			set pageControllerID=""
+		}
+	}
+	if 'pageControllerID {
+		set pageController=$CLASSMETHOD(..getPageDataClassName(),"createNew",contextData,.requestData)
+		do pageController.%Save()
+	}
+	
+	set pageControllerID = pageController.%Id()
+]]></Implementation>
+</Method>
+
+<Method name="outputFormBeginning">
+<ClassMethod>1</ClassMethod>
+<Implementation><![CDATA[
+	&html<
+		<form onSubmit="formSubmitting=true;" id="#(..#efFormID)#" name="#(..getFormName())#" method="post" action="#(..Link(..getFormAction()))#">
+			<input type="hidden" name="pageControllerID" value="#(pageControllerID)#">
+			<input type="hidden" name="efFromPage" value="#(%request.PageName)#">
+			<input type="hidden" id="efSubmitButtonIdentifier" name="efSubmitButtonIdentifier" value="">
+			<input type="hidden" id="efDeleteButtonIdentifier" name="efDeleteButtonIdentifier" value="">
+			<input type="hidden" id="efSaveAndReloadFormOnly" name="efSaveAndReloadFormOnly" value="">
+	>
+]]></Implementation>
+</Method>
+
+<Method name="verifyValidPage">
+<ClassMethod>1</ClassMethod>
+<ReturnType>%Library.Boolean</ReturnType>
+<Implementation><![CDATA[	return ##class(EF.pages.frontend.registrationProcess).verifyValidPage()
+]]></Implementation>
+</Method>
+
+<Method name="getFormName">
+<ClassMethod>1</ClassMethod>
+<Private>1</Private>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[	return ..#efFormName
+]]></Implementation>
+</Method>
+
+<Method name="getFormID">
+<ClassMethod>1</ClassMethod>
+<Implementation><![CDATA[	return ..#efFormID
+]]></Implementation>
+</Method>
+
+<Method name="getFormAction">
+<ClassMethod>1</ClassMethod>
+<Private>1</Private>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[	return ..#efFormAction
 ]]></Implementation>
 </Method>
 </Class>
@@ -3748,7 +3862,7 @@ this is for version 1 of proweb</Description>
 
 
 <CSP name="frontEnd/reg/t4Registration.csp" application="/freddev/" default="1"><![CDATA[
-<csp:class super="EF.pages.frontend.registrationProcess">
+<csp:class super="EF.pages.frontend.baseProweb">
 <csp:parameter name="prowebComponentName1" value="Main List">
 <script language="cache" runat="server">
 	Do ##super() 
@@ -7302,7 +7416,7 @@ The basic frontend default stuff</Description>
 </Class>
 
 
-<Project name="proweb 2" LastModified="2016-09-29 15:36:33.04666" Target="freddev/backend/home/login.csp" TargetType="3">
+<Project name="proweb 2" LastModified="2016-09-30 09:44:51.739042" Target="freddev/backend/home/login.csp" TargetType="3">
   <Items>
     <ProjectItem name="EF.contextData" type="CLS"></ProjectItem>
     <ProjectItem name="EF.contextDataRegistration" type="CLS"></ProjectItem>
@@ -7335,7 +7449,11 @@ The basic frontend default stuff</Description>
     <ProjectItem name="sc.xModules.objList" type="CLS"></ProjectItem>
     <ProjectItem name="sc.xModules.objPage" type="CLS"></ProjectItem>
     <ProjectItem name="shared.pageMethods" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.pages.frontend.baseProweb" type="CLS"></ProjectItem>
   </Items>
+  <BreakPoints>
+    <BreakPoint Routine="EF.pageController.proweb.page.CLS" Offset="save+2"></BreakPoint>
+  </BreakPoints>
 </Project>
 
 

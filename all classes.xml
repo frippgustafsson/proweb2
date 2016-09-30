@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.1.2 (Build 206U)" ts="2016-09-29 13:28:55">
+<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.1.2 (Build 206U)" ts="2016-09-30 08:11:20">
 <Class name="EF.contextData">
 <Description><![CDATA[
 <!-- ;vc;-
@@ -2252,7 +2252,7 @@ This can be used to return data from a modal when saved via ajax.</Description>
 
 <Class name="EF.pageController.proweb.page">
 <Super>EF.pageController.page</Super>
-<TimeChanged>64190,45261.189229</TimeChanged>
+<TimeChanged>64190,58333.140931</TimeChanged>
 <TimeCreated>64189,51696.559047</TimeCreated>
 
 <Property name="contextData">
@@ -2367,6 +2367,19 @@ This can be used to return data from a modal when saved via ajax.</Description>
 	set element.uiComponent.prowebItem = prowebItem
 	set element.uiComponent.contextData = ..contextData
 	set element.prowebListID = prowebItem.getParentID(prowebItem.%Id())
+	
+	try {
+		set dependsOnAlternativeDescription = ##class(sc.dependencyMethods).getDependsOnAlternativeDescription(prowebItem.%Id())
+		if dependsOnAlternativeDescription '="" {
+			set parentProwebID = ##class(sc.dependencyMethods).getDependsOnPrompt(prowebItem.%Id())
+			set parentProwebItem = ##class(sc.objData).%OpenId(parentProwebID)
+			set parentElementIdentifier = ..getElementIdentifierForProwebItems(parentProwebItem)
+			set dependencyList = ##class(EF.ui.components.dependencyList).createNew(parentElementIdentifier, dependsOnAlternativeDescription)	
+			set element.showHideDependencyList = dependencyList
+		}
+	} catch {
+		// will fail for items that can't have dependency i.e. divider	
+	}
 ]]></Implementation>
 </Method>
 
@@ -2395,7 +2408,8 @@ This can be used to return data from a modal when saved via ajax.</Description>
 	set element.isMandatory = prowebItem.mandatory
 	set element.uiComponent.isMandatory = prowebItem.mandatory
 	set element.uiComponent.helpText = prowebItem.helpText	
-	
+
+
 	return element
 ]]></Implementation>
 </Method>
@@ -2420,6 +2434,8 @@ This can be used to return data from a modal when saved via ajax.</Description>
 		set alternativeValue = alternativeDescription // ###### needs to be changed for multilingual alternatives ########
 		set alternative = dropdown.addAlternative(alternativeValue,alternativeDescription)
 	}
+	
+	
 	return dropdown
 ]]></Implementation>
 </Method>
@@ -3436,7 +3452,7 @@ this is for version 1 of proweb</Description>
 
 <Class name="EF.ui.components.frontend.inputElement">
 <Super>EF.ui.components.frontend.prowebBase,EF.ui.components.inputBase</Super>
-<TimeChanged>64189,57494.066822</TimeChanged>
+<TimeChanged>64190,58744.398296</TimeChanged>
 <TimeCreated>64183,40678.260093</TimeCreated>
 
 <Property name="alternatives">
@@ -3478,7 +3494,7 @@ this is for version 1 of proweb</Description>
 <Method name="renderLabel">
 <Implementation><![CDATA[
 	if $length(..label) {
-		&html<<label class="control-label" for="#(..encodeForHTMLAttribute(..htmlID))#">#(..encodeForHTML(..label))#</label>>
+		&html<<label class="control-label" for="#(..encodeForHTMLAttribute(..htmlID))#" #(..rawHTML(..getProwebExtraAttributes()))#>#(..encodeForHTML(..label))#</label>>
 	}
 ]]></Implementation>
 </Method>
@@ -3513,7 +3529,7 @@ this is for version 1 of proweb</Description>
 </Method>
 
 <Method name="renderLabelCellOpening">
-<Implementation><![CDATA[	write "<div class='col-sm-4 ef_proweb_form_prompt'>"
+<Implementation><![CDATA[	write "<div class='col-sm-4 ef_proweb_form_prompt ",..encodeForHTMLAttribute(..getDependentClass()),"'>"
 ]]></Implementation>
 </Method>
 
@@ -3526,7 +3542,7 @@ this is for version 1 of proweb</Description>
 
 <Class name="EF.ui.components.frontend.prowebBase">
 <Super>EF.ui.components.base</Super>
-<TimeChanged>64190,32214.137826</TimeChanged>
+<TimeChanged>64190,59218.057621</TimeChanged>
 <TimeCreated>64183,41819.123112</TimeCreated>
 
 <Property name="isProwebEditMode">
@@ -3558,7 +3574,7 @@ this is for version 1 of proweb</Description>
 </Method>
 
 <Method name="renderCellOpening">
-<Implementation><![CDATA[	write "<div class='col-sm-12'>"
+<Implementation><![CDATA[	write "<div class='col-sm-12 ",..encodeForHTMLAttribute(..getDependentClass()),"'>"
 ]]></Implementation>
 </Method>
 
@@ -3569,6 +3585,28 @@ this is for version 1 of proweb</Description>
 
 <Method name="renderRowClosing">
 <Implementation><![CDATA[		write "</div>"
+]]></Implementation>
+</Method>
+
+<Method name="getDependentClass">
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	if (..showHideDependencyList '= "") && (..contextData.prowebMode = "edit") {	
+		return "ef-dependent-field"
+	} else {
+		return ""
+	}
+]]></Implementation>
+</Method>
+
+<Method name="getProwebExtraAttributes">
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	if ..contextData.prowebMode = "edit" {
+		return ""
+	} else {
+		return ..getExtraAttributes()	
+	}
 ]]></Implementation>
 </Method>
 
@@ -3624,7 +3662,7 @@ this is for version 1 of proweb</Description>
 
 <Class name="EF.ui.components.frontend.textBlock">
 <Super>EF.ui.components.frontend.prowebBase</Super>
-<TimeChanged>64183,41875.095016</TimeChanged>
+<TimeChanged>64190,59092.755529</TimeChanged>
 <TimeCreated>64183,38661.128484</TimeCreated>
 
 <Property name="text">
@@ -3636,7 +3674,9 @@ this is for version 1 of proweb</Description>
 <Implementation><![CDATA[
 	do ..renderRowOpening()
 		do ..renderCellOpening()
+			w "<div ",..rawHTML(..getProwebExtraAttributes()),">"
 			write ..rawHTML(..text)
+			w "</div>"
 		do ..renderCellClosing()
 	do ..renderRowClosing()
 ]]></Implementation>
@@ -3646,7 +3686,7 @@ this is for version 1 of proweb</Description>
 
 <Class name="EF.ui.components.frontend.textInput">
 <Super>EF.ui.components.textInput,EF.ui.components.frontend.inputElement</Super>
-<TimeChanged>64188,56451.830249</TimeChanged>
+<TimeChanged>64190,58650.669582</TimeChanged>
 <TimeCreated>63357,57620.613738</TimeCreated>
 
 <Property name="labelSpanPrefixClass">
@@ -3696,7 +3736,7 @@ this is for version 1 of proweb</Description>
 
 	do ..renderRowOpeningAndLabel()
 	&html<
-    	    <input type="#(..encodeHTMLAttribute(..#typeAttribute))#" class="#(..encodeHTMLAttribute(..classes))#" #(..rawHTML(disabledString))# title="#(..encodeHTMLAttribute(..title))#" id="#(..encodeHTMLAttribute(..htmlID))#" name="#(..encodeHTMLAttribute(..htmlName))#" value="#(..encodeHTMLAttribute(..value))#" placeholder="#(..encodeHTMLAttribute(..placeHolder))#"  #(..rawHTML(..getExtraAttributes()))#>
+    	    <input type="#(..encodeHTMLAttribute(..#typeAttribute))#" class="#(..encodeHTMLAttribute(..classes))#" #(..rawHTML(disabledString))# title="#(..encodeHTMLAttribute(..title))#" id="#(..encodeHTMLAttribute(..htmlID))#" name="#(..encodeHTMLAttribute(..htmlName))#" value="#(..encodeHTMLAttribute(..value))#" placeholder="#(..encodeHTMLAttribute(..placeHolder))#"  #(..rawHTML(..getProwebExtraAttributes()))#>
     	
 	>
 
@@ -3713,6 +3753,7 @@ this is for version 1 of proweb</Description>
 <script language="cache" runat="server">
 	Do ##super() 
 </script>
+<script type="text/javascript" src="../../media/javascript/distribution/ef-admin-portal.min.js?v=53"></script>
 
   
 <csp:section name="PageContent">
@@ -5070,7 +5111,7 @@ FRRE RULE
 <Abstract>1</Abstract>
 <ClassType/>
 <ProcedureBlock>1</ProcedureBlock>
-<TimeChanged>64183,51353.148476</TimeChanged>
+<TimeChanged>64190,59858.898187</TimeChanged>
 <TimeCreated>63046,56232.897117</TimeCreated>
 
 <Method name="outputDefaultCSS">
@@ -5298,6 +5339,9 @@ yellow red grey etc. Used for ALL templates below gen3</Description>
 		.ef-required-field::after {
 		    content: " *";
 		    color: red;			
+		}
+		.ef-dependent-field::after {
+		    content: "🔗";
 		}
 
 		.ef-registration-section td label {
@@ -7258,7 +7302,7 @@ The basic frontend default stuff</Description>
 </Class>
 
 
-<Project name="proweb 2" LastModified="2016-09-29 13:28:55.359228" Target="freddev/backend/home/login.csp" TargetType="3">
+<Project name="proweb 2" LastModified="2016-09-29 15:36:33.04666" Target="freddev/backend/home/login.csp" TargetType="3">
   <Items>
     <ProjectItem name="EF.contextData" type="CLS"></ProjectItem>
     <ProjectItem name="EF.contextDataRegistration" type="CLS"></ProjectItem>
@@ -7268,11 +7312,17 @@ The basic frontend default stuff</Description>
     <ProjectItem name="EF.pageController.page" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.pagesFrontend.t4Registration" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.proweb.divider" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.pageController.proweb.dropdown" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.pageController.proweb.inputElement" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.pageController.proweb.page" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.pageController.proweb.pageTestCase" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.proweb.textBlock" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.pageController.proweb.textInput" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pages.frontend.base" type="CLS"></ProjectItem>
     <ProjectItem name="EF.ui.components.base" type="CLS"></ProjectItem>
     <ProjectItem name="EF.ui.components.frontend.divider" type="CLS"></ProjectItem>
     <ProjectItem name="EF.ui.components.frontend.dropdown" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.ui.components.frontend.floatingMenuAdd" type="CLS"></ProjectItem>
     <ProjectItem name="EF.ui.components.frontend.inputElement" type="CLS"></ProjectItem>
     <ProjectItem name="EF.ui.components.frontend.prowebBase" type="CLS"></ProjectItem>
     <ProjectItem name="EF.ui.components.frontend.textBlock" type="CLS"></ProjectItem>
@@ -7281,30 +7331,11 @@ The basic frontend default stuff</Description>
     <ProjectItem name="freddev/frontEnd/reg/tRegistration.csp" type="CSP"></ProjectItem>
     <ProjectItem name="freddev/system/eventsForceRules.csr" type="CSP"></ProjectItem>
     <ProjectItem name="layout.cssDefaultMethods" type="CLS"></ProjectItem>
+    <ProjectItem name="sc.floatingMenu" type="CLS"></ProjectItem>
+    <ProjectItem name="sc.xModules.objList" type="CLS"></ProjectItem>
     <ProjectItem name="sc.xModules.objPage" type="CLS"></ProjectItem>
     <ProjectItem name="shared.pageMethods" type="CLS"></ProjectItem>
-    <ProjectItem name="EF.pageController.proweb.pageTestCase" type="CLS"></ProjectItem>
-    <ProjectItem name="EF.pageController.proweb.page" type="CLS"></ProjectItem>
-    <ProjectItem name="EF.pageController.proweb.dropdown" type="CLS"></ProjectItem>
-    <ProjectItem name="EF.pageController.proweb.textInput" type="CLS"></ProjectItem>
-    <ProjectItem name="EF.pageController.proweb.inputElement" type="CLS"></ProjectItem>
-    <ProjectItem name="sc.xModules.objList" type="CLS"></ProjectItem>
-    <ProjectItem name="sc.floatingMenu" type="CLS"></ProjectItem>
-    <ProjectItem name="EF.ui.components.proweb.floatingMenuAdd" type="CLS"></ProjectItem>
-    <ProjectItem name="EF.ui.components.frontend.floatingMenuAdd" type="CLS"></ProjectItem>
   </Items>
-  <BreakPoints>
-    <BreakPoint Routine="EF.ui.components.listInput.CLS" Offset="renderAlternatives+1"></BreakPoint>
-  </BreakPoints>
-  <WatchVariables>
-    <WatchVariable Variable="set element.uiComponent" Pane="1"></WatchVariable>
-    <WatchVariable Variable="element" Pane="1"></WatchVariable>
-    <WatchVariable Variable="value" Pane="1"></WatchVariable>
-    <WatchVariable Variable="description" Pane="1"></WatchVariable>
-    <WatchVariable Variable="$this" Pane="1"></WatchVariable>
-    <WatchVariable Variable="..alternatives.Count()" Pane="1"></WatchVariable>
-    <WatchVariable Variable="..value" Pane="1"></WatchVariable>
-  </WatchVariables>
 </Project>
 
 

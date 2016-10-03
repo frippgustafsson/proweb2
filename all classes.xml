@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.1.2 (Build 206U)" ts="2016-09-30 13:39:59">
+<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.1.2 (Build 206U)" ts="2016-10-03 10:07:44">
 <Class name="EF.contextData">
 <Description><![CDATA[
 <!-- ;vc;-
@@ -2230,11 +2230,15 @@ This can be used to return data from a modal when saved via ajax.</Description>
 
 <Class name="EF.pageController.proweb.inputElement">
 <Super>EF.pageController.inputElement</Super>
-<TimeChanged>64189,54058.972348</TimeChanged>
+<TimeChanged>64191,54317.224813</TimeChanged>
 <TimeCreated>64189,53012.909524</TimeCreated>
 
 <Property name="isMandatory">
 <Type>%Boolean</Type>
+</Property>
+
+<Property name="prowebID">
+<Type>%Integer</Type>
 </Property>
 
 <Storage name="Default">
@@ -2245,6 +2249,9 @@ This can be used to return data from a modal when saved via ajax.</Description>
 <Value name="1">
 <Value>isMandatory</Value>
 </Value>
+<Value name="2">
+<Value>prowebID</Value>
+</Value>
 </Data>
 </Storage>
 </Class>
@@ -2252,7 +2259,7 @@ This can be used to return data from a modal when saved via ajax.</Description>
 
 <Class name="EF.pageController.proweb.page">
 <Super>EF.pageController.page</Super>
-<TimeChanged>64190,58333.140931</TimeChanged>
+<TimeChanged>64191,54594.480979</TimeChanged>
 <TimeCreated>64189,51696.559047</TimeCreated>
 
 <Property name="contextData">
@@ -2368,6 +2375,7 @@ This can be used to return data from a modal when saved via ajax.</Description>
 	set element.uiComponent.contextData = ..contextData
 	set element.prowebListID = prowebItem.getParentID(prowebItem.%Id())
 	
+	
 	try {
 		set dependsOnAlternativeDescription = ##class(sc.dependencyMethods).getDependsOnAlternativeDescription(prowebItem.%Id())
 		if dependsOnAlternativeDescription '="" {
@@ -2408,7 +2416,7 @@ This can be used to return data from a modal when saved via ajax.</Description>
 	set element.isMandatory = prowebItem.mandatory
 	set element.uiComponent.isMandatory = prowebItem.mandatory
 	set element.uiComponent.helpText = prowebItem.helpText	
-
+	set element.prowebID = prowebItem.%Id()
 
 	return element
 ]]></Implementation>
@@ -2488,6 +2496,26 @@ this method needs rewriting when the arrayOfElements become a list instead of an
 	set element = page.addProwebTextInput(elementIdentifier, "First Name", "Elvis")
 	set element.displayOrder = 1
 	d page.renderAllProwebItems()
+]]></Implementation>
+</Method>
+
+<Method name="copyAllDataToEComTemp">
+<Implementation><![CDATA[
+	#dim key as %String = ""
+	#dim element as EF.pageController.element
+	#dim prowebItemID as %Integer
+	#dim prowbItemName as %String
+	
+	for {
+		set element=..allPageElements.GetNext(.key)
+		if key="" quit
+		
+		if element.%IsA("EF.pageController.proweb.inputElement") {
+			set prowebItemID = element.prowebID
+			set prowbItemName = ##class(sc.xModules.objCODitem).getCODItemName(prowebItemID)
+			do ##class(eCom.tempCodData).set(..contextData.tempPersonID, prowbItemName, element.value)	
+		}
+	}
 ]]></Implementation>
 </Method>
 
@@ -3205,7 +3233,7 @@ this is for version 1 of proweb</Description>
 
 <Class name="EF.ui.components.frontend.floatingMenuAdd">
 <Super>%RegisteredObject</Super>
-<TimeChanged>64190,44832.769173</TimeChanged>
+<TimeChanged>64194,34855.16246</TimeChanged>
 <TimeCreated>64190,37989.914109</TimeCreated>
 
 <Property name="contextData">
@@ -3290,6 +3318,7 @@ this is for version 1 of proweb</Description>
 			write !,..getMenuItemJS("Quantity Bookable Item")
 		}
 	}
+	
 	if page.alllowPromptCollections() {
 		write !,..getMenuItemJS("Reg Prompt Collections")	
 	}
@@ -3312,9 +3341,7 @@ this is for version 1 of proweb</Description>
 	}
 	if page.allowMiscMedia() {
 		write !,..getMenuItemJS("Menu Block")
-		write !,..getMenuItemJS("Button")
 		write !,..getMenuItemJS("Scrolling Image")
-		write !,..getMenuItemJS("Flash")
 		write !,..getMenuItemJS("YouTube Video")
 	}
 	if page.allowFrontendUpload() {
@@ -3515,7 +3542,7 @@ this is for version 1 of proweb</Description>
 
 <Class name="EF.ui.components.frontend.prowebBase">
 <Super>EF.ui.components.base</Super>
-<TimeChanged>64190,59218.057621</TimeChanged>
+<TimeChanged>64194,34415.514643</TimeChanged>
 <TimeCreated>64183,41819.123112</TimeCreated>
 
 <Property name="isProwebEditMode">
@@ -3537,7 +3564,7 @@ this is for version 1 of proweb</Description>
 	#dim floatingEditMenuID as %Integer = ..contextData.getNewFloatingMenuCounter()
 	
 	if ..isProwebEditMode {
-		write !,"<div class='row draggableTR ef-proweb-form-row-editable' onMouseOver=""HM_f_PopUp('HM_Menu"_floatingEditMenuID_"',event);"" onMouseOut=""HM_f_PopDown('HM_Menu"_floatingEditMenuID_"');"">"
+		write !,"<div class='row draggableDIV ef-proweb-form-row-editable' onContextMenu=""HM_f_PopUp('HM_Menu"_floatingEditMenuID_"',event); return false;"" onMouseOut=""HM_f_PopDown('HM_Menu"_floatingEditMenuID_"');"">"
 		do ..renderFloatingEditMenu(floatingEditMenuID)	
 		
 	} else {
@@ -3726,39 +3753,31 @@ this is for version 1 of proweb</Description>
 <script language="cache" method="OnPreHTTPafter" arguments="" returntype="%Library.Boolean"> 
 	/// saves the submitted data from the request into the temp structure
 	/// this page can be called by all pages using the pageClass structure for temp storage, no configuration required
-	w 1/0 ; here
-	do ##class(shared.pageMethods).createBackendVariables()
-	set contextData = ##class(EF.contextData).createFromBackendCSPSession()
+	set contextData = ##class(EF.contextDataRegistration).createFromFrontendCSPSession()
 	set pageControllerID=%request.Get("pageControllerID")
 	
 	set ok=1
 	try {
 		set pageController=##class(EF.pageController.page).open(pageControllerID,contextData)
 	} catch {
-		set ok=0
+		w 1/0 set ok=0
 	}
-	if 'ok {	
-		set %response.Redirect=%request.Get("efFromPage")
-		quit 0
-	}
+	// ### re-instate the return to previous page if we couldn't open the pagecontroller. not sure why. ####
 	
-	/// Default the response to the calling page
-	set redirectURL=##class(shared.pageMethods).addParamsToURL(pageController.#returnPage,"pageControllerID="_pageControllerID)
-	
-	
+	set backforward=##class(setup.objPageNav).goWhere("codFormSave.csp", , contextData.tempPersonID, %request.Get("pageID"))
+	set redirectURL = $Piece(backforward,"|",2)
 	set %response.Redirect=redirectURL
+	;quit 0
 	
 	set pageController.submitButtonClickedIdentifier=%request.Get("efSubmitButtonIdentifier")
 	
 	if %request.Get("efSaveAndReloadFormOnly") {
-		// copy submitted fields into the temp structure
+		// copy submitted fields into the pageController
 		do pageController.updateFromRequest()
 		do pageController.%Save()
-	} elseif $L(%request.Get("efDeleteButtonIdentifier")) {
-		do pageController.processDelete(%request.Get("efDeleteButtonIdentifier"))
-		set %response.Redirect=pageController.getSuccessURL()
+
 	} else {
-		// copy submitted fields into the temp structure
+		// copy submitted fields into the pageController
 		do pageController.updateFromRequest()
 		
 		// validate all data
@@ -3770,8 +3789,7 @@ this is for version 1 of proweb</Description>
 			Try {
 				// the save has the validation and THROWS exceptions if any validations fail
 				do pageController.save()
-				// If successfully saved we should not include pageDataPageDetailsID as this should refresh the page
-				set %response.Redirect=pageController.getSuccessURL()
+
 			} Catch exObj {
 				set ok=0
 				If exObj.%IsA("shared.exceptions.generalException") {
@@ -3789,14 +3807,17 @@ this is for version 1 of proweb</Description>
 		
 		do pageController.%Save()
 	}
+	do pageController.copyAllDataToEComTemp()
 	quit 0
 </script>
+#(backforward)#
 ]]></CSP>
 
 
 <CSP name="frontEnd/reg/t4Registration.csp" application="/freddev/" default="1"><![CDATA[
 <csp:class super="EF.pages.frontend.baseProweb">
 <csp:parameter name="prowebComponentName1" value="Main List">
+<csp:parameter name="efPageName" value="tregistration.csp">
 <script language="cache" runat="server">
 	Do ##super() 
 </script>
@@ -3826,7 +3847,7 @@ this is for version 1 of proweb</Description>
 </head>
 <body class="bodyBackground">
 <script language="CACHE" method="OnPreHTTPafter" arguments="" returntype="%Boolean">
-	set %response.Redirect="t4Registration.csp?pageID="_$G(%session.Data("pageID")) quit 0
+	;set %response.ServerSideRedirect="t4Registration.csp?pageID="_$G(%session.Data("pageID")) quit 0
 	set sessionID=%session.SessionId
 	set mode=%request.Get("mode")
 	if mode="" set mode=%session.Get("mode")
@@ -5136,6 +5157,1103 @@ FRRE RULE
 </script>
 </csr:ACTION>
 </csr:RULE>
+]]></CSP>
+
+
+<CSP name="system/proweb/templateStop.csp" application="/freddev/" default="1"><![CDATA[
+<!-- The floating menu loader --> 
+<script language="cache" runat="server">
+	new app
+	set app=##class(sc.objData).applicationPath()
+	// clear the flag that's used when selected re-use item. So wthat we don't get the icon in any subsequent page
+	kill %session.Data("selectItem")
+
+	set hideDependent=##class(setup.objEventSetting).getParameter("reg pages","hide dependent questions",xEventID)
+	if $G(isForm) {
+		&SQL(SELECT parent INTO :tmp FROM sc.objData WHERE ID = :pageID)
+		if +SQLCODE=0 {
+			&SQL(SELECT hideDependentPrompts INTO :tmp2 FROM sc_xModules.objForm WHERE ID = :tmp)
+			if +SQLCODE=0 {
+				if tmp2 {
+					set hideDependent="hide"
+				} else {
+					set hideDependent="grey"
+				}
+			}
+		}
+	}
+	if hideDependent="" set hideDependent="grey"
+</script>
+<csp:if condition=(%session.Get("mode")="edit")>	
+	<script language="cache" runat="server">
+	// jump to the last used item
+	set anchorID=%session.Get("dataID")
+	kill %session.Data("dataID")
+	if (anchorID'="") {
+		write !,"<scr"_"ipt language='javasc"_"ript'>"
+		write !,"location.hash='#anchor_"_anchorID_"';"
+		write !,"</scr"_"ipt>"
+	}
+  	//initial warning for users entering reg prompt drag & drop mode for the first time
+  	set userID=%session.Data("eventsforce","backend","xPersonID")
+  	   		
+  	set hasSeenDnDWarning=0
+  	if (##class(cod.objItemData).get(userID,"hasSeenDnDWarning")=1) {
+		set hasSeenDnDWarning=1		
+  	} else {
+		do ##class(sc.xModules.objCODitem).add(ok,"hasSeenDnDWarning",0,userID,"system",0,"","text",0,"",0,0,0,0,0,1,0,"")
+		
+	  	// update the data for this user
+	  	do ##class(cod.objItemData).set(userID,"hasSeenDnDWarning",1)
+  	 }
+	</script>
+	<!-- Output the javascript functions-->
+	 <script type="text/javascript">
+ 	window.onload=function () {
+	 	// if we've just come from editing in moxie we need to refresh all images
+	 	// they may have been resized in that editing session but the browser will most likely cache the version viewed in this page just a moment ago
+	 	// do this by adding a random string to the image src
+	 	var myImageElems = document.getElementsByTagName('img');
+	 	var max = myImageElems.length;
+	 	var now = new Date();
+	 	for (var i=0;i<max;i++) {
+		 	var myImg=myImageElems[i];
+		 	if  (myImg.src.indexOf('uploaded')>-1){
+		 		if (myImg.src.indexOf('?')>-1){
+			 		myImg.src = myImg.src + '&' + now.getTime();	
+		 		}else{
+			 		myImg.src = myImg.src + '?' + now.getTime();	
+		 		}
+	 		}
+	 	}
+	 	
+	 	if ('#(hasSeenDnDWarning)#' == '0'){
+	 		alert ("#(..translateAdmin("Please be aware that registration prompts are now positioned by dragging them with the mouse. Release the mouse button when the prompt is in the desired position."))#");	
+	 	}
+ 	}
+ </script>
+	<script language="javascript">
+	
+	function confirmDelete(dataID) {
+		if (confirm("Are you sure that you want to delete this item?\nPlease note that this action is not possible to undo\nand that all previous versions will also be deleted.") == true) {
+			document.location = '#(..Link(app_"/backend/proweb/deleteListItem.csp?zz=1"))#&dataID=' + dataID;
+		}
+	}
+	
+	function moveItem(dataID,direction) {
+		document.location = "#(..Link(app_"/backend/proweb/moveListItem.csp?zz=1"))#" + "&move=" + direction + "&dataID=" + dataID
+	}
+	
+	function moveItemToPosition(dataID) {
+		var answer= prompt('How many steps do you want to move this item? \n(use negative number for upwards and positive for downwards)','+5')
+		if (answer !='') {
+			var direction = 'position' + '|' + answer;
+			document.location = "#(..Link(app_"/backend/proweb/moveListItem.csp?zz=1"))#" + "&move=" + direction + "&dataID=" + dataID
+		}
+	}
+	
+	function publish(dataID) {
+		if (confirm("Are you absoulutely sure that you want to approve this item?") == true) {
+			document.location= "#(..Link(app_"/backend/proweb/publish.csp?zz=1"))#&dataID=" + dataID + "&templateURL=#(templateFilename)#" ;
+		}
+	}
+	
+	// The floating menu loader 
+	
+	   HM_DOM = (document.getElementById) ? true : false;
+	   HM_NS4 = (document.layers) ? true : false;
+	    HM_IE = (document.all) ? true : false;
+	   HM_IE4 = HM_IE && !HM_DOM;
+	   HM_Mac = (navigator.appVersion.indexOf("Mac") != -1);
+	  HM_IE4M = HM_IE4 && HM_Mac;
+	
+	 HM_Opera = (navigator.userAgent.indexOf("Opera")!=-1);
+	 HM_Konqueror = (navigator.userAgent.indexOf("Konqueror")!=-1);
+	
+	HM_IsMenu = !HM_Opera && !HM_IE4M && (HM_DOM || HM_NS4 || HM_IE4 || HM_Konqueror);
+	
+	HM_BrowserString = HM_NS4 ? "NS4" : HM_DOM ? "DOM" : "IE4";
+	
+	if(window.event + "" == "undefined") event = null;
+	function HM_f_PopUp(){return false};
+	function HM_f_PopDown(){return false};
+	popUp = HM_f_PopUp;
+	popDown = HM_f_PopDown;
+	
+	
+	//HM_GL_MenuWidth          = 1000;
+	HM_GL_FontFamily         = "Arial,sans-serif";
+	HM_GL_FontSize           = 12;
+	HM_GL_FontBold           = false;
+	HM_GL_FontItalic         = false;
+	HM_GL_FontColor          = "black";
+	HM_GL_FontColorOver      = "white";
+	HM_GL_BGColor            = "#eeeeee";
+	HM_GL_BGColorOver        = "#FFA933";
+	//HM_GL_ItemPadding        = 3;
+	
+	HM_GL_BorderWidth        = 1;
+	HM_GL_BorderColor        = "#bbbbbb";
+	HM_GL_BorderStyle        = "solid";
+	HM_GL_SeparatorSize      = 2;
+	HM_GL_SeparatorColor     = "#bbbbbb";
+	//HM_GL_ImageSrc = "HM_More_black_right.gif";
+	//HM_GL_ImageSrcLeft = "HM_More_black_left.gif";
+	///HM_GL_ImageSrcOver = "HM_More_white_right.gif";
+	//HM_GL_ImageSrcLeftOver = "HM_More_white_left.gif";
+	
+	//HM_GL_ImageSize          = 5;
+	//HM_GL_ImageHorizSpace    = 5;
+	//HM_GL_ImageVertSpace     = 5;
+	
+	HM_GL_KeepHilite         = false;
+	HM_GL_ClickStart         = false;
+	HM_GL_ClickKill          = 0;
+	HM_GL_ChildOverlap       = 10;
+	HM_GL_ChildOffset        = 0;
+	HM_GL_ChildPerCentOver   = null;
+	HM_GL_TopSecondsVisible  = .3;
+	HM_GL_ChildSecondsVisible = .2;
+	HM_GL_StatusDisplayBuild = 0;
+	HM_GL_StatusDisplayLink  = 1;
+	HM_GL_UponDisplay        = null;
+	HM_GL_UponHide           = null;
+	
+	HM_GL_RightToLeft      = false;
+	HM_GL_CreateTopOnly      = HM_NS4 ? true : false;
+	HM_GL_ShowLinkCursor     = true;
+	
+	HM_GL_ScrollEnabled = false;
+	//HM_GL_ScrollBarHeight = 14;
+	//HM_GL_ScrollBarColor = "lightgrey";
+	//HM_GL_ScrollImgSrcTop = "HM_More_black_top.gif";
+	//HM_GL_ScrollImgSrcBot = "HM_More_black_bot.gif";
+	//HM_GL_ScrollImgWidth = 9;
+	//HM_GL_ScrollImgHeight = 5;
+	//HM_GL_ScrollBothBars = true;
+	
+	function HM_f_CenterMenu(topmenuid) {
+	    var MinimumPixelLeft = 0;
+	    var TheMenu = HM_DOM ? document.getElementById(topmenuid) : window[topmenuid];
+	    var TheMenuWidth = HM_DOM ? parseInt(TheMenu.style.width) : HM_IE4 ? TheMenu.style.pixelWidth : TheMenu.clip.width;
+	
+	    var TheWindowWidth = HM_IE ? (HM_DOM ? HM_Canvas.clientWidth : document.body.clientWidth) : window.innerWidth;
+	
+	    return Math.max(parseInt((TheWindowWidth-TheMenuWidth) / 2),MinimumPixelLeft);
+	}
+	if(HM_IsMenu) {
+	    document.write("<SCR" + "IPT LANGUAGE='JavaScript1.2' SRC='#(app)#/system/proweb/HM_Script"+ HM_BrowserString +".js' TYPE='text/javascript' ><\/SCR" + "IPT>");
+	}
+	
+	function  validateAndSubmit() {
+			document.prowebSurveyForm.submit();
+	}
+</script>
+  <csp:if condition=($G(isCOD)!($G(isAward))!($G(isHotel))!($G(isForm)))>
+  		<script language='javascript'> 
+  			//warn against using the same prompt twice on the page
+			var itemCount = document.prowebCODForm.length;
+			var qf=0;
+			for (i =0; i<itemCount;i++) {
+				var itemName1=document.prowebCODForm.elements[i].name;
+					
+				if (itemName1 != '')	{  // JAW 28NOV2006 new calendar has some generated selects that use ID not name so name is blank
+					for (j =0; j<itemCount;j++) {
+						var itemName2=document.prowebCODForm.elements[j].name;
+						if ((itemName1 == itemName2) && (i != j) && (document.prowebCODForm.elements[i].value == document.prowebCODForm.elements[j].value)) {
+							if (itemName1 != 'tempPersonID') {
+								var itemAlt=document.prowebCODForm.elements[j].alt;
+								alert('#(..translateAdmin("You have used the same database item twice, please note that this may cause the page to work incorrectly"))#: ' + itemAlt )
+								i=itemCount;
+								j=itemCount;
+							}
+						}
+					}
+				}
+			}
+			
+			function updateChildrenDropdowns(objectName,value) {
+				// dummy function to avoid JS errors in Edit mode
+				return false;
+			}
+			
+			function updateChildrenCheckboxes(objectName,value,checked) {
+				// dummy function to avoid JS errors in Edit mode
+				return false;
+			}
+  	   </script>
+  </csp:if>
+</csp:if>
+<script language="cache" runat="server">
+	// reload the page when contents has been auto-added
+	if $G(%xPageModifiedAndNeedsReload)=1 {
+		write !,"<script language='javascript'>location.reload(true);</scr"_"ipt>"
+	}
+
+	// in-site editing - output the form validation when editing in-site mode
+	set show=0
+	if $G(%session.Data("inSitePageEditing")) set show=1
+	if %session.Get("mode")="preview" set show=1
+</script>
+<csp:if condition="show">
+	<csp:if condition=($G(isCOD)!($G(isAward))!($G(isHotel))!($G(isForm))!($G(isMeetingInfoPage))!($G(isAbstract)))>
+		<script language='javascript'> 
+			function  validateAndSubmit() {
+				if (validateMandatory() == true) {
+					document.prowebCODForm.submit();
+				} 
+			}
+		
+			// check mandatory questions & checkboxes - v 2.6
+			// *new* *improved* validateMandatory - now does max length of text fields client-side!!!!!
+			function validateMandatory() { // also does radiobuttons
+					
+				var probs =0;
+				// loop through fields looking for onkeyup & onblur events (== max length checking functions)
+				// onblur events also include sentence casing & title casing, but these are idempotent so no problem to call these repeatedly
+				// execute them and check global variable set within those functions for results
+				
+				// WILL NOT WORK ON SAFARI
+				// see http://blog.swivel.com/code/2009/09/faking-keyboard-events-in-safari-a-work-in-progress.html for details
+				
+				
+		
+				var elems=document.prowebCODForm.elements;
+				for (i=0;i<elems.length;i++){
+					if(typeof elems[i].onkeyup === 'function'){
+						// trigger the key up event - bound to char count function
+						// cannot get return value from a triggered event handler
+						// hence check global JS var which is updated from the ev handler function
+						
+						// IE
+						if(elems[i].fireEvent){
+							var newEvt = document.createEventObject()
+							elems[i].fireEvent('onkeyup',newEvt);
+						}
+							
+						// Gecko based browsers
+						if(document.createEvent){
+							var evt = document.createEvent("KeyboardEvent");
+							if (typeof(evt.initKeyboardEvent) != 'undefined') { // Chrome
+  								evt.initKeyboardEvent ('keyup', false, true, null, false, false, false, false, 0, 0) 
+							} else { // all other Gecko
+  								evt.initKeyEvent ('keyup', false, true, null, false, false, false, false, 0, 0) 
+							}
+
+							if(elems[i].dispatchEvent){
+								elems[i].dispatchEvent(evt);
+							}
+						} 
+					}
+
+					if(typeof elems[i].onblur === 'function'){
+						// trigger the blur event - bound to word count function
+						// cannot get return value from a triggered event handler
+						// hence check global JS var which is updated from the ev handler function
+							
+						elems[i].focus();
+						
+						// IE
+						if(elems[i].fireEvent){
+							elems[i].fireEvent('onblur');
+						}
+							
+						// Gecko based browsers
+						if(document.createEvent){
+							var evt = document.createEvent("HTMLEvents");
+							if (evt.initEvent) {
+  								evt.initEvent( 'onblur', false, true );
+							} 
+
+							if(elems[i].dispatchEvent){
+								elems[i].dispatchEvent(evt);
+							}
+						} 
+					}
+				}
+				
+				var checkitems=mandatories.split('|');
+				var guestNo2 = '';
+				var element = '';
+				var tmp3 = '';
+				var tmp4 = '';
+				var guestNo = '';
+				var guestOrDelegate='';
+				var lastInvalid = '';
+				var alertData=#(..QuoteJS(..out("The following fields are mandatory:")))#;  // used to store ALL the prompts that require input and list in ONE alert box rather than having to click OK 20 times
+				var itemCount = checkitems.length-1;
+				var isMulti = false;
+				for (var i=0 ; i < itemCount ; i++ ) {
+					tmp=checkitems[i].split('->');
+					element=tmp[0];
+					if (element.substring(0,3) == 'mul'){
+						isMulti = true;
+					} else {
+						isMulti = false;
+					}
+					tmp4 = element.split('_');
+					guestOrDelegate = tmp4[2];
+					guestNo = tmp4[3];
+					if (typeof guestNo == 'undefined') {
+						guestNo='01';
+					} else {
+						guestNo = guestNo.substr(0,2);
+					}
+					descr=tmp[1];
+					var ok = true;
+					var fieldType= 'other';
+					var exe ="if (document.prowebCODForm." + element + ".type == 'checkbox') fieldType = 'checkbox'; ";
+					if (isMulti) {
+						exe = null;
+						fieldType = 'checkbox';
+						continue; // pjc 2011-12-06 removing client-side validation of multiple checkboxes till post-4.5 release - need to check for min & max choices, not just if any are checked
+					}
+					eval(exe);
+					if (fieldType == 'checkbox') {
+						// pjc 2011-05-17 DEVPJCUI052011 add client-side validation of multiple checkboxes
+						if (isMulti) {
+							var prefix = element;
+							var eleCount = document.prowebCODForm.elements.length;
+							var multiChecked = false;
+							for (var ii = 0; ii < eleCount; ii++) {
+								if (document.prowebCODForm.elements[ii].name.indexOf(prefix) != -1){
+									if (document.prowebCODForm.elements[ii].checked == true) {
+										multiChecked = true;
+										break;
+									}
+								}	
+							}
+							if (multiChecked == false){
+								ok = false;
+							}
+							var exe = null;
+						} else { // normal checkboxes
+							var exe = "if (document.prowebCODForm." + element + ".checked == false)  {	ok = false; }";
+						}
+					} else if (element.substring(0,10) == 'fileUpload') {
+							var exe = "if (document.prowebCODForm." + element + ".value != 'uploaded')  {	ok = false; }";
+					} else { 
+						if (element.substring(0,3) == 'rad') {
+							var exe = "var tmp=0; var radioCount = document.prowebCODForm." + element + ".length; if (typeof radioCount == 'undefined' ) {	if (document.prowebCODForm." + element + ".checked == true) {	tmp = 1; } } else { for (ii =0; ii<radioCount;ii++) { if (document.prowebCODForm." + element + "[ii].checked == true) { tmp = 1; } }	} if (tmp==0) ok = false;";
+						} else {
+							var exe = "if (document.prowebCODForm." + element + ".value == '')  {	ok = false; }";
+						}
+					}
+					eval(exe);
+					
+					// supress disabled fields
+					if (supressDisabled(element) == true) ok= true;
+					if ($("#" + element).hasClass("ef-ignore-mandatory")) {
+						ok = true;
+					}
+					
+					if ((ok ==false) && ( guestOrDelegate != 'guest')) {
+						// delegates validation
+						probs = 1;
+						alertData=alertData + "\n" + descr
+						lastInvalid = element;
+					
+					} else {					
+						// suppress warning if none of the guest fields are populated
+						// e.g. txtQuestion_3_guest_0201 but the first group lacks the last numbers (guestNo concatinated with displayOrder)
+						if (ok == false) {
+							// sole mandatory guest prompt fails allOthersEmpty check so add guestCount variable
+							var guestCount = 0;
+							var allOthersEmpty = true;	
+							for (var i2=0 ; i2 < itemCount ; i2++ ) {
+								tmp2=checkitems[i2].split('->');
+								element2=tmp2[0];
+																			
+								if ((element2 != element)&&(element.substring(0,3) != 'rad')&&(element2.substring(0,3) != 'rad')&&(!(isMulti))) {
+									
+									tmp3 = element2.split('_');
+									
+									if (tmp3[2] == 'guest') {
+										guestNo2 = tmp3[3];
+										
+										if (typeof guestNo2 == 'undefined') {
+											guestNo2 = '01';	
+										} else {
+											
+											guestNo2 = guestNo2.substr(0,2);
+										}
+										if (guestNo2 == guestNo) {
+											guestCount++;
+											exe = "if (document.prowebCODForm." + element2 + ".value != '')  {	allOthersEmpty = false; 	}";
+											eval(exe);
+											
+										}	
+									}
+								} 		
+							}
+							//PBUG00004555 : SHAHADAT: We had to change this following condition back to how it was before v37 as otherwise, the old style guest funciton does not work.
+							//Please note  Peter altered this bit of code before on my request to address the problem in parature ticket 4268.
+							if ( allOthersEmpty == false || guestCount == 0) {
+								alertData=alertData + "\n" + descr + " (guest field)";
+								 lastInvalid= element;
+								probs = 1;	
+							} else {
+								
+							}
+						}
+					}	
+					// add CSS class to elements if it makes sense to do so
+					var myElem = document["prowebCODForm"].elements[element];
+					if (myElem) {
+						if (!(ok)) {
+							if ((myElem.type != "radio") && (myElem.type != "checkbox")) {
+								addClass(myElem, "mandatoryIgnored");
+								tdElem=$(myElem).closest(".ef_proweb_form_field_container");
+								if (tdElem.hasClass("ef_proweb_form_field_container_type_dropdown")) {
+									tdElem.find(".select2-container").addClass("mandatoryIgnored");
+								} else if (tdElem.hasClass("ef_proweb_form_field_container_type_dateRange")) {
+									tdElem.find(".EF_inputBox").addClass("mandatoryIgnored");
+								}
+							}
+						} else {
+							removeClass(myElem,"mandatoryIgnored");
+							tdElem=$(myElem).closest(".ef_proweb_form_field_container");
+							if (tdElem.hasClass("ef_proweb_form_field_container_type_dropdown")) {
+								tdElem.find(".select2-container").removeClass("mandatoryIgnored");
+							} else if (tdElem.hasClass("ef_proweb_form_field_container_type_dateRange")) {
+								tdElem.find(".EF_inputBox").removeClass("mandatoryIgnored");
+							}
+						}
+					}
+				} // end loop
+				
+				// make sure the two password fields match. Fred v 2.5
+				if (passwordFields != '') {
+					tmp = passwordFields.split("|");
+					var pswField1 = tmp[0];
+					var pswField2 = tmp[1];
+					if ((pswField1 !='') && (pswField2 !='')) {
+						exe = "var psw1 = document.prowebCODForm." + pswField1 + ".value";	
+						eval(exe);
+						exe = "var psw2 = document.prowebCODForm." + pswField2 + ".value";	
+						eval(exe);
+						
+						if (psw1 != psw2) {
+							probs = 1 ;
+							lastInvalid = pswField1;
+							alertData  =  '#(..out("Re-typed password does not match the first password"))#';
+						}
+					}
+				}
+				
+
+				if (probs == 0) {
+					return true;
+				} else {
+					alert(alertData);
+					if (lastInvalid.substring(0,3) != 'rad') {
+						exe = "document.prowebCODForm." + lastInvalid + ".focus();"
+					}
+					if (element.substring(0,3) == 'mul'){
+						exe = null;
+					}
+					eval(exe);
+					if ((document.prowebCODForm)&&(document.prowebCODForm.butProceed)) {
+						document.prowebCODForm.butProceed.disabled = false;
+					}
+					return false;
+				}
+			}
+			function updatePostCodeMandatoryFromCountry(countryElem,postCodeElem,postCodeMandatoryMarkerElem) {
+				if ($('option:selected', countryElem).data("efCanIgnorePostCodeMandatory")) {
+					disableMandatory(postCodeElem,postCodeMandatoryMarkerElem);
+				} else {
+					enableMandatory(postCodeElem,postCodeMandatoryMarkerElem);
+				}	
+			}
+			
+			function enableMandatory(inputElem,mandatoryMarkerElem) {
+				$(inputElem).removeClass("ef-ignore-mandatory");
+				$(mandatoryMarkerElem).show();
+			}
+			
+			function disableMandatory(inputElem,mandatoryMarkerElem) {
+				$(inputElem).addClass("ef-ignore-mandatory");
+				$(mandatoryMarkerElem).hide();
+			}
+		</script>
+		
+		<script language="javascript">
+			// output the function for disabling COD questions if dependent
+			function toggleObjectDisable(objectName,value) {
+				var tmp = objectName.split("Question");
+				
+				if ((tmp[0] == 'rad') ) {
+					if (value == true) {
+						$("input[name='"+objectName+"']").attr('disabled',true);
+					} else {
+						$("input[name='"+objectName+"']").attr('disabled',false);
+					}
+				} else if ((tmp[0] == 'mul') ) {
+					var allEle=document.prowebCODForm.elements;
+					for ( var i = 0;i < allEle.length; i++ ) {
+						if (allEle[i].name.indexOf(objectName) == 0 ) {
+							if (value == true) {
+								allEle[i].disabled = true;
+							} else {
+								allEle[i].disabled = false;
+							}
+						} 
+					}
+				} else if (objectName.substring(0,10) == 'fileUpload'){
+					if (value == true) {
+						var str = "document.prowebCODForm." + objectName + ".disabled = true;"
+						eval(str);
+					} else {
+						var str = "document.prowebCODForm." + objectName + ".disabled = false;"
+						eval(str);
+					}
+				} else if (objectName.substring(0,4) == 'div_') {
+					/* pjc 2009-11-03 dependencies added for text blocks */
+					if (value == true) {
+						// pjc 2010-05-04 only change colour if event is set to grey out dependent prompts - improve compatibility with events with customised CSS
+						if ('#(hideDependent)#'=='grey') {
+							var str = "if (document.getElementById('"+objectName+"')) { document.getElementById('"+objectName+"').style.backgroundColor = '#DDDDDD'; }"
+							eval(str);
+						}
+					} else {
+						// pjc 2010-05-04 only change colour if event is set to grey out dependent prompts - improve compatibility with events with customised CSS
+						if ('#(hideDependent)#'=='grey') {
+							// pjc 2010-01-19 bg-color used to be set to white; changed to transparent for compatibility with templates with non-white backgrounds
+							var str = "if (document.getElementById('"+objectName+"')) { document.getElementById('"+objectName+"').style.backgroundColor = 'transparent'; }"
+							eval(str);
+						}
+					}
+					
+					// hide the fields using style.display='none'
+					if (objectName.substring(0,4) != 'div_') { // not a dependent text block
+						objectName = 'div_' + objectName;
+					}
+					if (document.getElementById(objectName) != null) {
+						if (value == true) {
+							getStyleById(objectName).display='none';
+						} else {
+							// change display='block' to display=''
+							// this accomodates dependent reg prompts placed on the same line - these are in a TR with the display attribute set at that level
+							// TR with display='block' renders incorrectly in Chrome + FF
+							getStyleById(objectName).display='';
+						}
+						/* remove spacing on hidden dep prompts + text blocks by specifying display: none on parent TR */
+						var found = false;
+						var pElem = document.getElementById(objectName);
+						while ((!found) && (typeof pElem == "object")) {
+							try {
+								pElem = pElem.parentNode;
+								if (pElem.nodeName.toLowerCase()=="tr") {
+									found = true;
+									if (value == true) {
+										if (!(hasClass(pElem,"hiddenDep"))) {
+											addClass (pElem,"hiddenDep");
+										}
+									} else {
+										if (hasClass(pElem,"hiddenDep")) {
+											removeClass (pElem,"hiddenDep");
+										}
+									}
+								}										
+							} catch (ex) {
+								// found = true; // not actually found but avoid infinite loop in case of error
+							}
+						}
+					}
+					
+					return; // finished with dependent text blocks
+				} else {
+					if (value == true) {
+						// only change colour if event is set to grey out dependent prompts - improve compatibility with events with customised CSS
+						if ('#(hideDependent)#'=='grey') {
+							var str = "document.prowebCODForm." + objectName + ".style.backgroundColor = '#DDDDDD';"
+							eval(str);
+							$('#'+objectName).addClass('ef_element_dependent_disabled_but_visible');
+						}
+						if ($('#'+objectName).hasClass('k-input')) {
+							if ($('#'+objectName).hasClass('efTimePicker')) {
+								$('#'+objectName).data('kendoTimePicker').enable(false);
+							}
+							if ($('#'+objectName).hasClass('efDatePicker')) {
+								$('#'+objectName).data('kendoDatePicker').enable(false);
+							}
+						}
+						var str = "document.prowebCODForm." + objectName + ".disabled = true;"
+						eval(str);
+						
+					} else {
+						if ($('#'+objectName).hasClass('k-input')) {
+							if ($('#'+objectName).hasClass('efTimePicker')) {
+								$('#'+objectName).data('kendoTimePicker').enable(true);
+							}
+							if ($('#'+objectName).hasClass('efDatePicker')) {
+								$('#'+objectName).data('kendoDatePicker').enable(true);
+							}
+						}
+						var str = "document.prowebCODForm." + objectName + ".disabled = false;"
+						eval(str);
+						
+						// only change colour if event is set to grey out dependent prompts - improve compatibility with events with customised CSS
+						if ('#(hideDependent)#'=='grey') {
+							// bg-color used to be set to white; changed to transparent for compatibility with templates with non-white backgrounds
+							var str = "document.prowebCODForm." + objectName + ".style.backgroundColor = 'transparent';"
+							eval(str);
+							$('#'+objectName).removeClass('ef_element_dependent_disabled_but_visible');
+						}
+					}
+				}
+				var origObjectName=objectName;
+				// hide the fields using style.display='none'
+				if ('#(hideDependent)#' == 'hide') {
+					if (objectName.substring(0,4) != 'div_') { // not a dependent text block
+						objectName = 'div_' + objectName;
+					}
+					if (document.getElementById(objectName) != null) {
+						if (value == true) {
+							getStyleById(objectName).display='none';
+						} else {
+							// change display='block' to display=''
+							// this accomodates dependent reg prompts placed on the same line - these are in a TR with the display attribute set at that level
+							// TR with display='block' renders incorrectly in Chrome + FF
+							getStyleById(objectName).display='';
+						}
+						/* remove spacing on hidden dep prompts + text blocks by specifying display: none on parent TR */
+						var found = false;
+						var pElem = document.getElementById(objectName);
+						while ((!found) && (typeof pElem == "object")) {
+							try {
+								pElem = pElem.parentNode;
+								if (pElem.nodeName.toLowerCase()=="tr") {
+									found = true;
+									if (!(hasClass(pElem,'ef_proweb_form_multiple_prompts_container'))){
+										// restructured prompts on same line so don't hide the TR if > 1 child div
+										if (value == true) {
+											if (!(hasClass(pElem,"hiddenDep"))) {
+												addClass (pElem,"hiddenDep");
+											}
+										} else {
+											if (hasClass(pElem,"hiddenDep")) {
+												removeClass (pElem,"hiddenDep");
+											}
+										}
+									}
+								}										
+							} catch (ex) {
+								found = true; // not actually found but avoid infinite loop in case of error
+							}
+						}
+					}
+					
+				}
+				if ($('#'+origObjectName).hasClass('ef_element_dropdown_searchable')) {
+					ef.frontend.create_searchable_dropdown('#'+origObjectName);
+				}
+				
+			}
+		</script>
+		<script language="cache" runat="server">
+			set show=0
+			if ((hideDependent="grey")!($G(%session.Data("inSitePageEditing")))) {
+				set show=1
+			}		
+		</script>
+		<csp:if condition=(show)>
+			<script language="javascript">
+
+				function supressDisabled(element) {
+					var exe = '';
+					var ok2 = '';
+					if (element.substring(0,3) == 'rad') {
+						var exe = "if (document.prowebCODForm." + element + "[0].disabled == true)  {	ok2 = true; }";
+					} else {
+						var exe = "if (document.prowebCODForm." + element + ".disabled == true)  {	ok2 = true; }";
+					} 
+					eval(exe);
+					return ok2
+					
+				}
+			</script>
+		<csp:else>
+			<script language="javascript">
+				function supressDisabled(element) {
+					var ok2 = '';
+					if (document.getElementById('div_' + element) != null) { 
+						if ( getStyleById('div_' + element).display == 'none') { ok2 = true} ;
+					}
+					return ok2;
+
+				}
+			</script>
+		</csp:if>
+		<script language='javascript'>
+		function getStyleById(id) {
+			// strip out the sub number in case wh dependent child is a multi checkbox series, they only have only div tag, not many
+			return document.getElementById(id).style;
+		}
+		
+		// function for disabling when clicking on  COD questions dependency
+		function updateChildrenCheckboxes(objectName,value,checked) {
+			var valuePairs=depends.split('|');
+			var tmp=objectName.split("_");
+			var surveyQuestionID = tmp[1];
+			var parentElement = '';
+			var child = '';
+			var parentAltNo = '';
+			var tmp2 = '';
+			var antiValue = ''  // disable is true when value is false
+			for (var i=0 ; i<valuePairs.length ; i++ ) {
+				tmp=valuePairs[i];
+				tmp2=tmp.split('->');
+				
+				childElement=tmp2[0];
+				parentElement=tmp2[1];
+				parentAltID=tmp2[2];			
+				
+				if ((parentElement == objectName) && (parentAltID ==value )) {
+					antiValue = true;
+					if (checked == true) {antiValue = false};
+					toggleObjectDisable(childElement,antiValue);
+				}
+			}
+		}	
+		
+		function updateChildrenRecursive(objName, bln){
+			// need to check for any children of children (and etc) who also need to be disabled or enabled
+			var valuePairs=depends.split('|');
+			outerloop:
+			for (var i=0 ; i<valuePairs.length ; i++ ) {
+				if (valuePairs[i].length) {
+					tmpArray=valuePairs[i].split('->');
+				
+					childElement=tmpArray[0];
+					parentElement=tmpArray[1];
+					val=tmpArray[2];
+					if (parentElement == objName) {
+						if (bln) { // disabling, no need to check val
+						
+							toggleObjectDisable(childElement, true);
+							// break outerloop;
+							updateChildrenRecursive(childElement, true);
+						} else {
+							// find value if radio
+							if (parentElement.substring(0,3) == "rad") {
+								questionValue = '';
+								//PBUG3587: SHAHADAT : 28/06/2011 : Check if the item was passed as a hidden value (for readonly stuff).
+								var str='';
+								str = 'questionValue = document.prowebCODForm.' + parentElement + '.value;'
+								eval(str);
+								str = 'if ((questionValue=="")||(typeof questionValue=="undefined")) { for (ij = 0; ij<document.prowebCODForm.' + parentElement +'.length; ij++) { if (document.prowebCODForm.' + parentElement + '[ij].checked == true) { questionValue = document.prowebCODForm.' + parentElement + '[ij].value}}}'	
+							} else {
+								var str = 'questionValue = document.prowebCODForm.' + parentElement + '.value;'
+							}
+							eval(str);
+							if (questionValue == val ) {
+								toggleObjectDisable(childElement,false); //open child question
+								// break outerloop;
+								updateChildrenRecursive(childElement,false);
+							} 
+						}
+					}
+				}
+			}
+		}
+		
+		function updateChildrenDropdowns(objectName,value) { // also does radiobuttons
+			var valuePairs=depends.split('|');
+			var tmp=objectName.split("_");
+			var surveyQuestionID = tmp[1];
+			var parentElement = '';
+			var child = '';
+			var parentAltNo = '';
+			var tmp2 = '';
+			for (var i=0 ; i<valuePairs.length ; i++ ) {
+				tmp=valuePairs[i];
+				tmp2=tmp.split('->');
+				
+				childElement=tmp2[0];
+				parentElement=tmp2[1];
+				parentAltID=tmp2[2];			
+				if ((parentElement == objectName) || (objectName == 'all'))  {
+						
+					if (parentAltID == value) {
+						toggleObjectDisable(childElement,false); //open child question
+						updateChildrenRecursive(childElement, false); //and children of children (and their children...)
+					} else {
+						toggleObjectDisable(childElement,true); //disable child question
+						updateChildrenRecursive(childElement, true); //and children of children (and their children...)
+					}
+				}
+			}
+		}
+		
+		// update all dependencies on inital page load
+		var valuePairs=depends.split('|');
+		var parentElement = '';
+		var child = '';
+		var parentAltNo = '';
+		var tmp2 = '';
+		for (var i=0 ; i<valuePairs.length ; i++ ) {
+			tmp=valuePairs[i];
+			tmp2=tmp.split('->');
+			childElement=tmp2[0];
+			parentElement=tmp2[1];
+			parentAltID=tmp2[2];			
+			if (typeof parentElement != 'undefined' ) {	
+				var myTempElement = document.getElementsByName(parentElement);
+				if ($(myTempElement).length) { 
+					// find value if radio. 
+					if (parentElement.substring(0,3) == "rad") {
+						value = '';
+						var str='';
+						str = 'value = document.prowebCODForm.' + parentElement + '.value;'
+						eval(str);
+						str = 'if ((value=="")||(typeof value=="undefined")) { for (ij = 0; ij<document.prowebCODForm.' + parentElement +'.length; ij++) { if (document.prowebCODForm.' + parentElement + '[ij].checked == true) { value = document.prowebCODForm.' + parentElement + '[ij].value}}}'	
+					} else {
+						var str = 'value = document.prowebCODForm.' + parentElement + '.value;'
+					}
+					eval(str);
+					if (parentAltID ==value ) {
+						toggleObjectDisable(childElement,false); //open child question
+					} else {
+						toggleObjectDisable(childElement,true); //disable child question
+					}
+				}
+			} 
+		}
+			
+		</SCRIPT> 		
+	</csp:if>
+	<script language="cache" runat="server">
+		w !,"<scri"_"pt type=""text/java"_"script"">",!
+		// pjc 2011-02-02 add JS alert to all reg pages if user navigates away from EF without submitting form
+		new page, pages
+		set needsWarning = 0
+		if ($G(isCOD)!($G(isAward))!($G(isHotel))!($G(isForm))){
+			set needsWarning = 1	
+		}
+		if (needsWarning = 0) {
+			// array of pages that require a warning when navigating away
+			set page=$ZCONVERT(%request.PageName,"L")
+			set pages = $LISTBUILD("tChoosedays.csp", "tChooseItems.csp", "tVenueSummary.csp", "tHotelBooking.csp", "tBasket.csp", "tAccomGuest.csp", "tHotelList.csp", "taccomChooseDates.csp", "tpaymentMethod.csp", "tAwardsClient.csp", "tChooseSection.csp", "tAwardsEntry.csp", "tAwardsOverview.csp", "tAwardsSummary.csp", "tAwardsCategoryInterest.csp", "tAwardsCategories.csp", "tTableGuest.csp", "tAbsDocument.csp", "tAbsDocumentPreview.csp", "tAbsDocumentText.csp", "fileUpload.csp", "fileUploadFE.csp", "fileUploadAwards.csp")	
+			for i=1:1:$ListLength(pages) {
+				if ($ZCONVERT($List(pages, i),"L") = page) {
+					set needsWarning = 1
+					quit
+				}
+			}
+		}
+		if (%request.Get("mode")="edit"){
+			// in edit mode so null the warning
+			set needsWarning = 0
+		}
+		
+		if ($G(%session.Data("inSitePageEditing"))){
+			// in-site editing, so null the warning
+			set needsWarning = 0
+		}
+		
+		if (needsWarning = 1) {
+			w "var warnOnExit=true;",!
+			w "var warningMessage='"_..encodeJS(..out("Please confirm that you wish to leave this page and abandon any entered data"))_"';",!
+			w "var formContentsDirty=false;",!
+			// have we previously saved data from this registration session, other than what is entered on the register new page?
+			set hasSavedData=0
+			if ($G(tempPersonID) '= ""){	
+				SET (codEmailID,codPwdID)=0
+				&SQL(SELECT TOP 1 ID INTO :codEmailID FROM cod.objItemName WHERE LOWER(description) = LOWER('email'))
+				&SQL(SELECT TOP 1 ID INTO :codPwdID FROM cod.objItemName WHERE LOWER(description) = LOWER('password'))
+				&SQL(SELECT * FROM eCom.tempCodData WHERE tempPerson=:tempPersonID AND (objItemName != :codEmailID AND objItemName != :codPwdID))
+				if (+SQLCODE=0){
+					set hasSavedData=1
+				}
+			}
+			w "var hasSavedData="_hasSavedData_";",!
+		}
+		w "</scr"_"ipt>",!
+	</script>
+		<script language='javascript'>
+		function addEventStr( obj, type, fn ) {
+			// version of the above adapted to be able to pass around previous event handlers
+			// moilla sees these as strings, eg, the value of the onclick attribute
+			// IE sees these as anonymous functions
+
+  			if (typeof obj.attachEvent !== "undefined") { // IE
+	  			var rndNo = Math.floor(Math.random()*11111);
+    			obj['e'+type+rndNo] = function () { nullExitWarning(); if (typeof fn == "function") { fn(); } else { eval (fn); } };
+    			obj[type+rndNo] = function(){obj['e'+type+rndNo]( window.event ); };
+    			obj.attachEvent( 'on'+type, obj[type+rndNo] );
+  			} else { // Mozilla
+    			if (typeof obj.addEventListener === "function") obj.addEventListener( type, function () { nullExitWarning();  eval(fn); }, false );
+  			}
+		}
+		
+		function triggerExitAlert (evt) {
+			if (typeof warnOnExit == "undefined" || warnOnExit !== true) { // should we be doing anything, ie, is an exit warning applicable?
+				return;	
+			}
+			tmpWarningMessage = warningMessage;
+			if (typeof formContentsDirty != "undefined" && formContentsDirty == false) { // exit warning applicable but have the form contents changed, check global var
+				if (typeof hasSavedData != "undefined" && hasSavedData == false) { // form contents not changed, but has data been entered on other pages, check global var
+					return;	
+				} else if (typeof hasSavedData != "undefined" && hasSavedData == true) { // form contents not changed, but data has been entered on other pages so tailor warning message
+					tmpWarningMessage="Please confirm that you wish to leave this page and abandon any previously entered data"; 
+				}
+			}
+			warnOnExit = true; // reset global variable for next click in case they hit cancel
+			evt = evt || window.event;
+			evt.returnValue = tmpWarningMessage;
+			return tmpWarningMessage;
+		}
+		
+		function addOnClickEvts () {
+			// pjc 2011-02-02 add onclick event to back/proceed buttons to toggle global variable
+			// prevent spurious warnings about data loss when submitting the form
+			// buttons can be links or inputs - use combination of tag name + class to target the elements
+			// return true;
+			var myElems = new Array();
+			myElems.push (new Array('a','hyperlinkButton'));
+			myElems.push (new Array('a','noWarn'));
+			myElems.push (new Array('input','standardButton'));
+			myElems.push (new Array('input','noWarn'));
+			for(var i=0;i<myElems.length;i++) {
+				elems = myGetElementsByClassName(myElems[i][1], null, myElems[i][0]);
+
+				for (var x in elems) {
+					// is this a back link? do nothing if so
+					var elemText = '';
+					if (elems[x].firstChild) { // is a link with a text node (firstChild)
+						elemText = elems[x].firstChild.data;
+					}
+					if (typeof elems[x].getAttribute !== "undefined" && elems[x].getAttribute("value")) { // is a button with a value attribute
+						elemText = elems[x].getAttribute("value");
+					}
+					if (elemText) {
+						elemText = elemText.toLowerCase();	
+					}
+					if (elemText && elemText == "back") { // it's a back link
+						continue;	
+					}
+					var oldFunc = null;
+					if (typeof elems[x].getAttribute !== "undefined" && elems[x].getAttribute("onclick")) {
+						oldFunc = elems[x].getAttribute("onclick");
+					} else if (typeof elems[x].getAttribute !== "undefined" && elems[x].getAttribute("onClick")) {
+						oldFunc = elems[x].getAttribute("onClick");
+					}
+					if (typeof elems[x].setAttribute !== "undefined") {
+						elems[x].setAttribute("onclick",'');
+						elems[x].setAttribute("onClick",'');
+					}
+					addEventStr (elems[x], 'click', oldFunc );
+				}
+			}
+		}
+		
+		function addOnSubmitEvts () {
+			// pjc 2011-04-19 prevent the warning firing on form submission
+			var frmLength = document.forms.length;
+			for(var i =0; i < frmLength; i++) {
+				if (document.forms[i].attachEvent ) { // IE
+	  				document.forms[i].attachEvent ('onsubmit', function () { nullExitWarning(); } );
+	  			} else { // Mozilla
+    				document.forms[i].addEventListener( 'submit', function () { nullExitWarning(); }, false );
+  				}
+			}
+		}
+		
+		function addOnChangeEvts () {
+			// pjc 2011-05-07 toggle a global variable when form contents are changed
+			var frmLength = document.forms.length;
+			for(var i =0; i < frmLength; i++) {
+				var elemLength = document.forms[i].elements.length;
+				for(var x = 0; x < elemLength; x++) {
+					if (document.forms[i].elements[x].attachEvent) { // IE
+	  					document.forms[i].elements[x].attachEvent ('onchange', function () { formContentsDirty = true; } );
+	  				} else { // Mozilla
+    					document.forms[i].elements[x].addEventListener('change', function () { formContentsDirty = true; }, false );
+  					}
+				}
+			}
+		}
+		
+		function nullExitWarning () {
+			var oldWarnOnExit = false;
+			if (typeof warnOnExit != "undefined") {
+				//status of flag before nulling it - not necessarily defined
+				oldWarnOnExit = warnOnExit;
+			}
+			warnOnExit = false;
+			if (oldWarnOnExit) { // reset it if applicable
+				var t = window.setTimeout("warnOnExit = true",1000);
+			}
+		}
+		
+		var addEvts = true;
+		// @TODO do not rely on userAgent strings for browser identification
+		var uaStr = navigator.userAgent;
+		if (uaStr.indexOf('Safari') != -1) { // safari has a system confirm dialog if data has been entered
+			if (uaStr.indexOf('Chrome') == -1) { // Chrome user agent string includes "Safari"
+				addEvts = false;
+			}
+		}
+		if (addEvts){
+			addEvent (window, 'beforeunload', triggerExitAlert);
+			addEvent (window, 'load', addOnClickEvts);
+			addEvent (window, 'load', addOnSubmitEvts);
+			addEvent (window, 'load', addOnChangeEvts);
+		}
+	</script>
+</csp:if>
+
+
+<csp:if condition=($G(isCOD)!($G(isAward))!($G(isHotel))!($G(isForm)))>
+<script language='javascript'>
+	function openHelpText(dataID) {
+		window.open('#(..Link("../../frontend/reg/tPromptHelpText.csp?x=1"))#&dataID=' + dataID,'promptHelp','location=no,screenX=200, screenY=100,top=200,left=400, directories=no,status=no, menubar=no,scrollbars=yes, resizable=yes,hotkeys=no,toolbar=no,width=300,height=200')
+	}
+</script>
+</csp:if>
+<csp:if condition="$G(templateStartAttCatDropdown)">
+	<script language='javascript'>
+		function updateAttendeeCategoryPreview(selcat) {
+			document.location='#(..Link(%request.PageName_"?mode=preview&hideButtons=1"))#&eventCategoryID=' + selcat;
+		}
+	</script>
+</csp:if>
+<script type="text/javascript">
+	function highlightNonCODFields () {
+		// function to add the error css class to mandatory non-COD items (which are dealt with in validateMandatory)
+		if (typeof errFields != "string"){ // errFields is a tilde-separated string set server-side
+			return;
+		}
+		arrErrFields = errFields.split('~');
+		var maxErrFields = arrErrFields.length;
+		for (var i=0, maxErrFields = arrErrFields.length;i<maxErrFields;i++) { // loop through all blank mandatory fields
+			if (!(arrErrFields[i].length)) continue;
+			for (var maxForms = document.forms.length, ii = 0;ii<maxForms;ii++) { // loop through all forms
+				for (var maxElems = document.forms[ii].elements.length, iii = 0;iii<maxElems;iii++) { // loop through all form elements
+					var myElem = document.forms[ii].elements[iii];
+					if (myElem.name == arrErrFields[i]) {
+						if ((myElem.type != "radio") && (myElem.type != "checkbox")) {
+							addClass(myElem,"mandatoryIgnored");
+						}
+					}
+				}
+			}
+		}
+	}
+	addEvent (window, 'load', highlightNonCODFields);
+</script>
+<script language="cache" runat="server">
+	// any mandatory non-COD items flagged server-side that we need to highlight?
+	if ($G(%session.Data("eventsforce","frontend","errFields"))'=""){
+		write !,"<sc"_"ript language='javas"_"cript'>"
+		set errString=%session.Data("eventsforce","frontend","errFields")
+		write !,"errFields="_..QuoteJS(errString)_";"
+		write !,"</sc"_"ript>"
+		kill %session.Data("eventsforce","frontend","errFields")
+	}
+</script>
 ]]></CSP>
 
 
@@ -7343,7 +8461,7 @@ The basic frontend default stuff</Description>
 </Class>
 
 
-<Project name="proweb 2" LastModified="2016-09-30 10:40:59.65664" Target="freddev/backend/home/login.csp" TargetType="3">
+<Project name="proweb 2" LastModified="2016-10-03 09:07:56.721049" Target="freddev/backend/home/login.csp" TargetType="3">
   <Items>
     <ProjectItem name="EF.contextData" type="CLS"></ProjectItem>
     <ProjectItem name="EF.contextDataRegistration" type="CLS"></ProjectItem>
@@ -7377,6 +8495,8 @@ The basic frontend default stuff</Description>
     <ProjectItem name="sc.xModules.objPage" type="CLS"></ProjectItem>
     <ProjectItem name="shared.pageMethods" type="CLS"></ProjectItem>
     <ProjectItem name="freddev/frontEnd/reg/pageControllerStandardSave.csp" type="CSP"></ProjectItem>
+    <ProjectItem name="freddev/system/proweb/templateStop.csp" type="CSP"></ProjectItem>
+    <ProjectItem name="sc.objData" type="CLS"></ProjectItem>
   </Items>
 </Project>
 
@@ -7555,6 +8675,1335 @@ The basic frontend default stuff</Description>
 	return URL
 ]]></Implementation>
 </Method>
+</Class>
+
+
+<Class name="sc.objData">
+<Description><![CDATA[
+Please note that this class will be the super class of all underlying data items.
+<!-- ;vc;
+;vc;    Object: sc.objData.CLS/EV.35
+;vc; Component: CLS.sc.objData
+;vc;  Location: SmallDev
+;vc; Date/Time: 02-Sep-16 14:27
+;vc;      User: JeremyW
+;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>sc.objData.CLS/EV.35</td><td>CLS.sc.objData</td><td>SmallDev</td><td style='white-space: nowrap;'>02-Sep-16 14:27</td><td>JeremyW</td></tr></table>
+]]></Description>
+<ClassType>persistent</ClassType>
+<IncludeCode>EF.common.macros</IncludeCode>
+<ProcedureBlock>1</ProcedureBlock>
+<Super>%Library.Persistent,shared.timeStamp</Super>
+<TimeChanged>64194,35606.2085</TimeChanged>
+<TimeCreated>59148,67793</TimeCreated>
+<Inheritance>right</Inheritance>
+
+<Property name="objAuditTrails">
+<Type>sc.objAuditTrail</Type>
+<Cardinality>many</Cardinality>
+<Inverse>objData</Inverse>
+<Relationship>1</Relationship>
+</Property>
+
+<Parameter name="EXTENTSIZE">
+<Description>
+for cutin and padsting in the navigation tree</Description>
+<Default>5000</Default>
+</Parameter>
+
+<Property name="active">
+<Type>%Library.Boolean</Type>
+<InitialExpression>1</InitialExpression>
+</Property>
+
+<Property name="creator">
+<Description>
+Who created this version of the data item.</Description>
+<Type>%Library.String</Type>
+<Parameter name="MAXLEN" value="200"/>
+<Parameter name="TRUNCATE" value="1"/>
+</Property>
+
+<Property name="dataType">
+<Description>
+Used for identifying the class of the object withour having to call
+cache mysterious APIs.</Description>
+<Type>%Library.String</Type>
+<Parameter name="TRUNCATE" value="1"/>
+</Property>
+
+<Property name="displayOrder">
+<Description>
+A display order number has to be set at creation time. It can then be
+swapped for the displayorder number of adjacent data item.
+This controls the order which the data is displayed in the backend data tree.</Description>
+<Type>%Library.Integer</Type>
+</Property>
+
+<Property name="nextVersion">
+<Description>
+Pointer to the next version of this data item. Not mandatory.</Description>
+<Type>sc.objData</Type>
+</Property>
+
+<Property name="objComponents">
+<Type>sc.objComponent</Type>
+<Cardinality>many</Cardinality>
+<Inverse>objData</Inverse>
+<Relationship>1</Relationship>
+</Property>
+
+<Property name="objStep">
+<Type>sc.objStep</Type>
+<Cardinality>one</Cardinality>
+<Inverse>objDatas</Inverse>
+<Relationship>1</Relationship>
+</Property>
+
+<Property name="parent">
+<Description>
+Points to the parent of this data item. This makes up the hiarachy.
+It has to be read by a recursive method to build up the tree structure.</Description>
+<Type>sc.objData</Type>
+</Property>
+
+<Property name="previousVersion">
+<Description>
+Poiter to the previous version of this data item.
+Note that this can be chain of many versions linked together.</Description>
+<Type>sc.objData</Type>
+</Property>
+
+<Property name="publishAt">
+<Description>
+If the object is to be published at a future point of time, use this prop.</Description>
+<Type>%Library.TimeStamp</Type>
+</Property>
+
+<Property name="sourceID">
+<Description>
+if the object is a re-use of another object, indicate the ID of the orginal object here</Description>
+<Type>sc.objData</Type>
+</Property>
+
+<Property name="beforeItem">
+<Description>
+to override the template value - blank = nothing</Description>
+<Type>%Library.String</Type>
+<Parameter name="MAXLEN" value="100"/>
+<Parameter name="TRUNCATE" value="1"/>
+</Property>
+
+<Property name="afterItem">
+<Description>
+to override the template value - blank = nothing</Description>
+<Type>%Library.String</Type>
+<Parameter name="MAXLEN" value="100"/>
+<Parameter name="TRUNCATE" value="1"/>
+</Property>
+
+<Property name="beforeRow">
+<Description>
+not used at present</Description>
+<Type>%Library.String</Type>
+<Parameter name="MAXLEN" value="100"/>
+<Parameter name="TRUNCATE" value="1"/>
+</Property>
+
+<Property name="afterRow">
+<Description>
+not used at present</Description>
+<Type>%Library.String</Type>
+<Parameter name="MAXLEN" value="100"/>
+<Parameter name="TRUNCATE" value="1"/>
+</Property>
+
+<Property name="objEvent">
+<Type>setup.objEvent</Type>
+<SqlComputeCode>set {objEvent} = ..getEventID({parent})</SqlComputeCode>
+<SqlComputed>1</SqlComputed>
+<SqlComputeOnChange>parent</SqlComputeOnChange>
+</Property>
+
+<Index name="objEventIndex">
+<Properties>objEvent</Properties>
+</Index>
+
+<Index name="sourceIDIndex">
+<Properties>sourceID</Properties>
+</Index>
+
+<Index name="dataTypeIndex">
+<Description>
+Index for property dataType</Description>
+<Properties>dataType</Properties>
+</Index>
+
+<Index name="displayOrderIndex">
+<Description>
+Index for property displayOrder</Description>
+<Properties>displayOrder</Properties>
+</Index>
+
+<Index name="nextVersionIndex">
+<Description>
+Index for property nextVersion</Description>
+<Properties>nextVersion</Properties>
+</Index>
+
+<Index name="parentIndex">
+<Description>
+Index for property parent</Description>
+<Properties>parent</Properties>
+</Index>
+
+<Index name="previousVersionIndex">
+<Description>
+Index for property previousVersion</Description>
+<Properties>previousVersion</Properties>
+</Index>
+
+<Index name="publishAtIndex">
+<Description>
+Index for property publishAt</Description>
+<Properties>publishAt</Properties>
+</Index>
+
+<Method name="getEventID">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>dataID</FormalSpec>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	set eventID=""
+	&SQL(SELECT objEvent,parent->objEvent,parent->parent->objEvent INTO :thisEvent,:parentEvent,:grandParentEvent FROM sc.objData WHERE ID = :dataID)
+	if +SQLCODE=0 {
+		set eventID=$Select(thisEvent:thisEvent,parentEvent:parentEvent,grandParentEvent:grandParentEvent,1:"")	
+	}
+	return eventID
+]]></Implementation>
+</Method>
+
+<Method name="getDataType">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>dataID:%String=""</FormalSpec>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+ set ok=""
+ 
+ &SQL(SELECT dataType INTO :tmp FROM sc.objData WHERE ID = :dataID)
+ if +SQLCODE=0 set ok=tmp
+ 
+ quit ok
+]]></Implementation>
+</Method>
+
+<Method name="findLastVersion">
+<Description>
+pass in a objectID of any age and this will return the ID of the latest version, future or current</Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec>dataID:%String="",version:%String=""</FormalSpec>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	set lastStep=##class(sc.objStep).getFinalLevel()
+	set out="",parent="",myDisplayOrder="",dataType=""
+	for  {
+		&SQL(SELECT nextVersion,objStep->stepOrder INTO :tmp1,:tmp2 FROM sc.objData WHERE ID = :dataID)
+		if +SQLCODE=0 {
+			set nextVersion=tmp1,stepOrder=tmp2
+		} else {
+			quit
+		}
+		
+		// quit if there isn't a future version
+		if nextVersion="" quit
+		
+		if (version="current") {
+			// quit if the next item is unpublished (this is the last published one)
+			set nextStepOrder=""
+			&SQL(SELECT objStep->stepOrder INTO :tmp1 FROM sc.objData WHERE ID = :nextVersion)	
+			if +SQLCODE=0 set nextStepOrder=tmp1
+			if nextStepOrder'=lastStep quit
+		}
+		
+		// jump to next one in chain
+		set dataID=nextVersion		
+	}
+	
+	quit dataID
+]]></Implementation>
+</Method>
+
+<Method name="applicationPath">
+<Description>
+Returns the part of the URL which is the CSP application path</Description>
+<ClassMethod>1</ClassMethod>
+<ReturnType>%Library.String</ReturnType>
+<Implementation><![CDATA[
+ // this method is called by all the tags. It's put here because this page compiles before the tag pages.
+ if $Data(%request) {
+ 	return $piece(%request.URL,"/",1,$G(^pathDepth,2))
+ } else {
+	return "dummyCSPAppPath"
+ }
+]]></Implementation>
+</Method>
+
+<Method name="deleteRecursively">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>dataID:%Library.String="",reallyDelete=0</FormalSpec>
+<ReturnType>%Library.String</ReturnType>
+<Implementation><![CDATA[
+ set ok=""
+ //  find all its children
+ set rs=##class(%ResultSet).%New("%Library.DynamicQuery:SQL")
+ do rs.Prepare("SELECT ID FROM sc.objData WHERE parent=?")
+ do rs.Execute(dataID)
+ while rs.Next() {
+ 	// exterminate the entire family, top down
+ 	set ok=##class(sc.objData).deleteRecursively(rs.Get("ID"),reallyDelete)		
+ }
+ if reallyDelete {
+	set ok=..%DeleteId(dataID)
+ } else {
+	 set objData=##class(sc.objData).%OpenId(dataID)
+ 	set objData.active=0
+ 	set ok=objData.%Save()
+ 	kill objData
+ }
+ 
+ quit ok
+]]></Implementation>
+</Method>
+
+<Method name="updateObjEventRecursively">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>dataID,eventID</FormalSpec>
+<Implementation><![CDATA[
+	 do ..updateObjEvent(dataID,eventID)
+	 set rs=##class(%ResultSet).%New("%Library.DynamicQuery:SQL")
+	 do rs.Prepare("SELECT ID FROM sc.objData WHERE parent=?")
+	 do rs.Execute(dataID)
+	 while rs.Next() {
+	 	do ..updateObjEventRecursively(rs.Get("ID"),eventID)		
+	 }
+]]></Implementation>
+</Method>
+
+<Method name="updateObjEvent">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>dataID,eventID</FormalSpec>
+<Implementation><![CDATA[
+	&SQL(UPDATE sc.objData SET objEvent = :eventID WHERE ID = :dataID)
+	if +SQLCODE'=0 throw ##class(shared.exceptions.generalException).%New("updating sc.ObjData with objEvent failed")
+]]></Implementation>
+</Method>
+
+<Method name="updateParent">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>dataID,parentID</FormalSpec>
+<Implementation><![CDATA[
+	&SQL(UPDATE sc.objData SET parent = :parentID WHERE ID = :dataID)
+	if +SQLCODE'=0 throw ##class(shared.exceptions.generalSQLException).CreateFromSQLCODE(SQLCODE,$G(%msg))
+]]></Implementation>
+</Method>
+
+<Method name="copyRecursively">
+<Description>
+this will copy a tree of data items. parentID initially send in as NULL as it is only used internally
+do NOT pass in a parentID, it's only for internal use!</Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec>dataID:%Library.String="",parentID:%Library.String="",newEventID="",userID=""</FormalSpec>
+<ReturnType>%Library.String</ReturnType>
+<Implementation><![CDATA[
+	set ok=""
+	// get the type of object	
+	set objData=##class(sc.objData).%OpenId(dataID)
+	set objDataNew=objData.%ConstructClone(0)
+	// if we have a parentID then it is a new parent otherwise it's the top level data item so same parent
+	if parentID do objDataNew.parentSetObjectId(parentID)
+	do objDataNew.nextVersionSetObjectId("")
+	do objDataNew.previousVersionSetObjectId("")
+	do objDataNew.sourceIDSetObjectId("")
+	if newEventID {
+		if (objData.dataType="objGroup") ! (objData.dataType="objPage") {
+			do objDataNew.objEventSetObjectId(newEventID)
+		}
+	}
+	set objDataNew.creator="autocopy"
+	// if this is the top level starting group or page then increment the displayorder
+	if 'parentID,(objData.dataType="objGroup")!(objData.dataType="objPage") {
+		set tmpParentID=objDataNew.parent.%Id()
+		// set the displayOrder to last
+		set displayOrder=""
+		&SQL(SELECT displayOrder INTO :displayOrder FROM sc.objData WHERE (parent=:tmpParentID) ORDER BY displayOrder DESC)
+		set objDataNew.displayOrder=(displayOrder+1)
+	}
+	set ok=objDataNew.%Save()
+	
+	if 'ok quit ok
+	set dataNewID=objDataNew.%Id()
+	
+	// store old and new dataID's - needed in eventCopy.csp to re-link location and item pages after copy
+	if $d(%session) {
+		set ^xCOPYAUDIT(%session.SessionId,dataID)=dataNewID
+	} elseif $G(userID) {
+		set ^xCOPYAUDIT(userID,dataID)=dataNewID
+	} else {
+		set ^xCOPYAUDIT("unknown",dataID)=dataNewID
+	}
+	// the objects with relationships would've also been cloned so that new components are auto created
+	// but have to remove some of the objects pointing to me that were auto created
+	&SQL(DELETE FROM sc.objAuditTrail WHERE objData = :dataNewID)
+	kill objDataNew
+	kill objData
+	
+	//  find all its children
+	set rs=##class(%ResultSet).%New("%Library.DynamicQuery:SQL")
+	do rs.Prepare("SELECT ID FROM sc.objData WHERE (parent=?) AND (active=1)")
+	do rs.Execute(dataID)
+	while rs.Next() {
+		// copy the entire family
+		// first check to see if this is the most recent version as we only want to copy
+		// the latest one not all the old ones
+		set latestVersionID=##class(sc.objData).findLastVersion(rs.Data("ID"),"current")
+		if latestVersionID=rs.Data("ID") set ok=##class(sc.objData).copyRecursively(rs.Data("ID"),dataNewID,newEventID)
+	}
+	
+	quit dataNewID
+]]></Implementation>
+</Method>
+
+<Method name="getDependsOnPrompt">
+<Description>
+Implemented in some of the sub classes. </Description>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[	return ""
+]]></Implementation>
+</Method>
+
+<Method name="findChildren">
+<ClassMethod>1</ClassMethod>
+<FormalSpec><![CDATA[dataID:%Library.String="",&array:%Library.String=""]]></FormalSpec>
+<Implementation><![CDATA[
+ set ok=""
+ //  find all its children
+ set rs=##class(%ResultSet).%New("%Library.DynamicQuery:SQL")
+ do rs.Prepare("SELECT ID FROM sc.objData WHERE (parent=?) AND (active=1)")
+ do rs.Execute(dataID)
+ while rs.Next() {
+ 	set array(rs.Get("ID"))=""
+ 	do ..findChildren(rs.Get("ID"),.array)		
+ }
+]]></Implementation>
+</Method>
+
+<Method name="findChildrenPages">
+<ClassMethod>1</ClassMethod>
+<FormalSpec><![CDATA[dataID:%Library.String="",&array:%Library.String=""]]></FormalSpec>
+<Implementation><![CDATA[
+ set ok=""
+ //  find all its children
+ set rs=##class(%ResultSet).%New("%Library.DynamicQuery:SQL")
+ do rs.Prepare("SELECT ID,dataType FROM sc.objData WHERE (parent=?) AND (active=1)")
+ do rs.Execute(dataID)
+ while rs.Next() {
+ 	if (rs.Get("dataType")="objGroup")!(rs.Get("dataType")="objPage") {
+ 		if rs.Get("dataType")="objPage" set array(rs.Get("ID"))=rs.Get("dataType")
+ 			do ##class(sc.objData).findChildrenPages(rs.Get("ID"),.array)		
+ 	}
+ }
+]]></Implementation>
+</Method>
+
+<Method name="getPageID">
+<Description>
+Returns the ID of the page where the passed in data object resides.</Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec>dataID:%Library.String=""</FormalSpec>
+<ReturnType>%Library.String</ReturnType>
+<Implementation><![CDATA[
+ set pageID=""
+ set parentID="",tmpID=dataID
+ 
+ for  {
+ 	set dataType=""
+ 	// get my class
+ 	&SQL(SELECT dataType INTO :tmp FROM sc.objData WHERE ID = :tmpID)
+ 	if +SQLCODE=0 set dataType=tmp
+ 	
+ 	set pageID=tmpID 
+ 	if (dataType="objPage")!(dataType="objSurveyPage") quit
+ 	// get my parent for next loop
+ 	&SQL(SELECT parent INTO :tmpID FROM sc.objData WHERE ID = :tmpID) 
+ 	if +SQLCODE'=0 quit
+ 	
+ }
+ 
+ quit pageID
+]]></Implementation>
+</Method>
+
+<Method name="getPath">
+<Description>
+returns a string of the texctual path to the item passed in</Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec>dataID:%Library.String="",hideLast:%Library.Boolean=""</FormalSpec>
+<ReturnType>%Library.String</ReturnType>
+<Implementation><![CDATA[
+ set (out,last)=""
+ if '##class(sc.objData).%ExistsId(dataID) quit ""
+ // get the last name
+ if 'hideLast {
+ 	set objData=..%OpenId(dataID)
+ 	if (objData.dataType="objImage") {
+	 	set last=objData.fileName
+	 } elseif objData.dataType="objList" {
+	 	set last=""
+	 } else {
+	 	set last=objData.description
+	 }
+	 do objData.%Close()
+ }
+ // find the tree in from the bottom up
+ while dataID'="" {
+ 	&SQL(SELECT parent INTO :dataID FROM sc.objData WHERE ID = :dataID)
+ 	if ..%ExistsId(dataID) {
+ 		set objData=..%OpenId(dataID)
+ 		if objData.dataType="objImage" {
+ 			set out=out_"/"_objData.fileName
+ 		} elseif objData.dataType="objList" {
+ 			//
+ 		} else {
+ 			set out=out_"/"_objData.description
+ 		}
+	
+		 do objData.%Close()
+ 	} else {
+	 	set dataID=""	
+ 	}
+ }
+ // and now reverse the string
+ set tmp=""
+ for i=$l(out,"/"):-1:1 {
+ 	set tmp=tmp_"/"_$p(out,"/",i)
+ }
+ set out=tmp_last
+ quit out
+]]></Implementation>
+</Method>
+
+<Method name="getPathInTree">
+<Description>
+Same as get path but specialised for the tree redrawing
+retusn the items like description1|ID1~description2|id2~...</Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec>dataID:%Library.String="",hideLast:%Library.Boolean=""</FormalSpec>
+<ReturnType>%Library.String</ReturnType>
+<Implementation><![CDATA[
+ set (out,last)=""
+ if '##class(sc.objData).%ExistsId(dataID) quit ""
+ // get the last name
+ if 'hideLast {
+ set objData=..%OpenId(dataID)
+ if objData.dataType="objImage" {
+	 set last=objData.fileName
+ } elseif objData.dataType="objList" {
+	 set last=""
+ } else {
+	 set last=objData.description
+ }
+	 do objData.%Close()
+ }
+ // find the tree in from the bottom up
+ while dataID'="" {
+ 	&SQL(SELECT parent INTO :dataID FROM sc.objData WHERE ID = :dataID)
+ 	if ..%ExistsId(dataID) {
+ 		set objData=..%OpenId(dataID)
+ 			if objData.dataType="objImage" {
+ 				set out=out_"/"_objData.fileName
+ 			} elseif objData.dataType="objList" {
+ 				//
+ 			} else {
+ 				set out=out_"~"_objData.description_"|"_dataID
+ 		}
+ 		do objData.%Close()
+	 }
+ }
+ // and now reverse the string
+ set tmp=""
+ for i=$l(out,"~"):-1:1 {
+ 	set tmp=tmp_"~"_$p(out,"~",i)
+ }
+ set out=tmp_last
+ // remove the first delimiter
+ set out=$E(out,2,9999)
+ quit out
+]]></Implementation>
+</Method>
+
+<Method name="inMail">
+<Description>
+Returns true if the passed in object is used in a template that has the "isMail" flag set.</Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec>dataID:%Library.String=""</FormalSpec>
+<ReturnType>%Library.Boolean</ReturnType>
+<Implementation><![CDATA[
+ set pageID="",isMail="NOT FOUND"
+ // first, check if the passed in item is a page
+ if ##class(sc.objData).%ExistsId(dataID) {
+	 set objData=##class(sc.objData).%OpenId(dataID)
+	 if objData.%ClassName(0)["objPage" set pageID=dataID
+	 do objData.%Close()
+ } 	
+ if pageID="" {
+	 // walk up the tree and look for my parent page
+	 while (pageID="")&(dataID'="") {
+		 set tmp=""
+		 &SQL(SELECT parent INTO :tmp FROM sc.objData WHERE ID = :dataID)
+		 if SQLCODE=0 {
+			 set dataID=tmp
+			 if ##class(sc.objData).%ExistsId(dataID) {
+				 set objData=##class(sc.objData).%OpenId(dataID)
+				 if objData.%ClassName(0)["objPage" set pageID=dataID
+				 do objData.%Close()
+			 }
+		 } else {
+			 set dataID=""
+		 }
+	 }
+ }
+ // ok, we found the parent page, is it using a mail template or not
+ if pageID'="" {
+	 set tmp=""
+	 &SQL(SELECT objTemplate->isMail INTO :tmp FROM sc_xModules.objPage WHERE ID = :pageID)
+	 if SQLCODE=0 set isMail=+tmp
+ }
+ quit isMail
+]]></Implementation>
+</Method>
+
+<Method name="inStatic">
+<Description>
+Returns true if the passed in object is used in a template that has the "isStatic" (for static html pages) flag set.</Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec>dataID:%Library.String=""</FormalSpec>
+<ReturnType>%Library.Boolean</ReturnType>
+<Implementation><![CDATA[
+ set pageID="",isStatic="NOT FOUND"
+ // first, check if the passed in item is a page
+ if ##class(sc.objData).%ExistsId(dataID) {
+	 set objData=##class(sc.objData).%OpenId(dataID)
+	 if objData.%ClassName(0)["objPage" set pageID=dataID
+	 do objData.%Close()
+ } 	
+ if pageID="" {
+	 // walk up the tree and look for my parent page
+	 while (pageID="")&(dataID'="") {
+		 set tmp=""
+		 &SQL(SELECT parent INTO :tmp FROM sc.objData WHERE ID = :dataID)
+		 if SQLCODE=0 {
+			 set dataID=tmp
+			 if ##class(sc.objData).%ExistsId(dataID) {
+				 set objData=##class(sc.objData).%OpenId(dataID)
+				 if objData.%ClassName(0)["objPage" set pageID=dataID
+				 do objData.%Close()
+			 }
+		 } else {
+			 set dataID=""
+		 }
+	 }
+ }
+ // ok, we found the parent page, is it using a static template or not
+ if pageID'="" {
+	 set tmp=""
+	 &SQL(SELECT objTemplate->isStatic INTO :tmp FROM sc_xModules.objPage WHERE ID = :pageID)
+	 if SQLCODE=0 set isStatic=+tmp
+ }
+ quit isStatic
+]]></Implementation>
+</Method>
+
+<Method name="moveChain">
+<Description>
+Moves an object upwards or downwards in the displayOrder. Pass in "up" or "down".
+This is the same as the normal move but this version takes all the items that share a displayorder and swaps them 
+with all the adjacent items. This is to make sure that all previous and future version have the same 
+displayOrder.</Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec>ID:%Library.String="",dir:%Library.String=""</FormalSpec>
+<ReturnType>%Library.String</ReturnType>
+<Implementation><![CDATA[
+ Set adjacent=""
+ // tests
+ If '..%ExistsId(ID) Quit 0
+ set dir=$ZCVT(dir,"L")
+ if "up,down,top,bottom"'[dir quit 0
+ if dir="" quit 0
+ // Who is my parent
+ Set dataID=""
+ &SQL(SELECT parent INTO :parentID FROM sc.objData WHERE ID = :ID)
+ // First, what's my own display order?
+ &SQL(SELECT displayOrder INTO :myPos FROM sc.objData WHERE ID = :ID)
+ 
+ // handle tops and bottoms first 
+ if "top,bottom"[dir {
+ 	// find all object before (or after) me
+ 	set rs=##class(%ResultSet).%New("%Library.DynamicQuery:SQL")
+ 	if (dir="top") {
+	 	set query="SELECT ID,displayOrder FROM sc.objData WHERE (parent=?) AND (displayOrder < ?) "
+ 	} else {
+	 	set query="SELECT ID,displayOrder FROM sc.objData WHERE (parent=?) AND (displayOrder > ?) "
+ 	}
+ 	do rs.Prepare(query)
+ 	do rs.Execute(parentID,myPos)
+ 	while rs.Next() {
+ 		// increment (or decrement) them
+
+ 		set myID=rs.Get("ID")
+ 		set tmpDisplayOrder=rs.Get("displayOrder")
+ 		if dir="top" set tmpDisplayOrder=tmpDisplayOrder+1
+ 		if dir="bottom" set tmpDisplayOrder=tmpDisplayOrder-1 		
+ 		&SQL(UPDATE sc.objData SET displayOrder=:tmpDisplayOrder WHERE ID = :myID)
+ 		if SQLCODE'=0 w 1/0 // could not move item
+ 	}
+ 	// and now move myself 
+ 	set tmpDisplayOrder=""
+ 	if dir="top" set tmpDisplayOrder=1
+ 	if dir="bottom" {
+ 		&SQL(SELECT TOP 1 displayOrder INTO :tmpDisplayOrder FROM sc.objData WHERE  (parent = :parentID ) ORDER BY displayOrder DESC)
+ 		set tmpDisplayOrder=tmpDisplayOrder+1
+ 	}
+ 	&SQL(UPDATE sc.objData SET displayOrder=:tmpDisplayOrder WHERE ID = :ID)
+ 	quit 1
+ }
+ // Find previous displayOrder if we moving up
+ If dir="up" {
+ 	&SQL(	SELECT displayOrder INTO :adjacent 
+ 	FROM sc.objData
+ 	WHERE 	(displayOrder < :myPos) AND
+ 	(parent = :parentID) AND (active=1)
+ 	ORDER BY displayOrder DESC)
+ }
+ // find next displayOrder if we are moving down
+ If dir="down" {
+ 	&SQL(	SELECT displayOrder INTO :adjacent 
+ 	FROM sc.objData
+ 	WHERE 	(displayOrder > :myPos) AND
+ 	(parent = :parentID) AND (active=1)
+ 	ORDER BY displayOrder)
+ }
+ If adjacent'="" {
+ 	// Swap the displayOrder betwixt the two lines of objects
+ 	// first the adjacent ones and then my own blood line
+ 	for type="adjacent","myPos" {
+ 		set rs=##class(%ResultSet).%New("%Library.DynamicQuery:SQL")
+ 		set query="SELECT ID,parent FROM sc.objData WHERE (parent=?) AND (displayOrder=?)"
+ 		do rs.Prepare(query)
+ 		do rs.Execute(parentID,@type)
+ 		while rs.Next() { // put all ID into two arrays
+ 			if type="adjacent" set adjacent(rs.Get("ID"))=""
+ 			if type="myPos" set myPos(rs.Get("ID"))=""
+ 		}
+ 	do rs.%Close()
+ }
+ set m=""
+ for  {
+ 	set m=$O(adjacent(m))	
+ 	if m="" quit
+
+ 	&SQL(UPDATE sc.objData SET displayOrder=:myPos WHERE ID = :m)
+ }
+ set m=""
+ for  {
+ 	set m=$O(myPos(m))	
+ 	if m="" quit
+
+ 	&SQL(UPDATE sc.objData SET displayOrder=:adjacent WHERE ID = :m)
+ }
+ Quit 1
+ } else {
+ 	quit 0
+ }
+]]></Implementation>
+</Method>
+
+<Method name="approve">
+<Description>
+Use this to approve an object.</Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec>dataID:%Library.String="",targetLevel:%Integer=""</FormalSpec>
+<ReturnType>%Library.Boolean</ReturnType>
+<Implementation><![CDATA[
+ set ok=1
+ set finalLevel=##class(sc.objStep).getFinalLevel()
+ 
+ // make the component point to me if I'm a final level (published)
+ if targetLevel=finalLevel {
+ 	// find the previous version ID
+ 	set previousID=""
+ 	&SQL(SELECT previousVersion INTO :previousID FROM sc.objData WHERE ID = :dataID)
+ 	if +SQLCODE=0 { // opposite of cache status, 0=ok
+ 		// Find all components that point to the current version object and make it point to this version object
+ 		&SQL(UPDATE sc.objComponent SET objData = :dataID WHERE objData = :previousID)
+ 	}
+ }
+ set stepID=""
+ &SQL(SELECT ID INTO :stepID FROM sc.objStep WHERE stepOrder = :targetLevel )
+ if +SQLCODE=0 { 
+ 	set objData=##class(sc.objData).%OpenId(dataID)
+ 	do objData.objStepSetObjectId(stepID)
+ 	do objData.%Save()
+ 	do objData.%Close()
+ }
+ // compile page into static HTML if applicable
+ if targetLevel=finalLevel {
+	 if ##class(setup.objSetting).getParameter("system","static html")=1 {
+	 	set pageID=##class(sc.xModules.objPage).getPageID(dataID)
+		set app=##class(sc.objData).applicationPath()
+	 }
+ }	
+ // audit trail
+ set levelDesc=""
+ &SQL(SELECT description INTO :tmp FROM sc.objStep WHERE stepOrder = :targetLevel)
+ if +SQLCODE=0 set levelDesc=tmp
+ 
+ set comments="approved to level: "_targetLevel_" - "_levelDesc
+ if targetLevel=finalLevel set comments=comments_" (published to live)"
+ &SQL(INSERT INTO sc.objAuditTrail (description,objData,objUser) VALUES (:comments,:dataID,:userID))
+ 
+ // make sure we remove any auto publishing flag or it will looop - May2006
+ &SQL(SELECT publishAt INTO :tmp FROM sc.objData WHERE ID = :dataID) 
+ if +SQLCODE=0,tmp'="" {
+	&SQL(UPDATE sc.objData SET publishAt = NULL WHERE ID = :dataID)	 
+ } 
+  
+ quit ok
+]]></Implementation>
+</Method>
+
+<Method name="sendApprovalEmail">
+<Description>
+Send notification emails to the corresponding email addresses associated with the current approval level</Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec>dataID:%String="",targetLevel:%String=""</FormalSpec>
+<Implementation><![CDATA[	// disused
+]]></Implementation>
+</Method>
+
+<Method name="deleteItem">
+<Description>
+Method for deleting an item in a list</Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec>dataID:%String=""</FormalSpec>
+<Implementation><![CDATA[
+	set ok = ""
+	if (dataID '="") {
+		set previousVersion=""
+		set codItemName=""
+		&SQL(SELECT objItemName->description INTO :tmp FROM sc_xModules.objCODitem WHERE ID = :dataID)
+		if +SQLCODE=0 { 
+			set codItemName=tmp
+			//clean up category dependent pricing if exist.
+			set rs=##class(%ResultSet).%New("%Library.DynamicQuery:SQL")
+			do rs.Prepare("SELECT ID FROM cod.objAlternativeExtras WHERE codItemID=?")
+			do rs.Execute(dataID)
+			while rs.Next() {
+				set alternativeExtrasID = rs.Get("ID")
+				//delete all items in links.lnkCategoryItemBasketItem.CLS reated to the found alternative extras.
+				&SQL(DELETE FROM links.lnkCategoryItemBasketItem WHERE objAlternativeExtras=:alternativeExtrasID)
+				&SQL(UPDATE cod.objAlternativeExtras SET priceByAttendeeCategory=0 WHERE ID=:alternativeExtrasID)
+			}
+			
+			set pageID=##class(sc.objData).getPageID(dataID)
+			&SQL(UPDATE sc_xModules.objCODitem SET dependsOnAlternative='', dependsOnPrompt='' WHERE (dependsOnPrompt = :dataID)) //Clear all the dependency on this item. SHAHADAT 23rd Sep 2008
+			&SQL(UPDATE sc_xModules.objText SET dependsOnAlternative='', dependsOnPrompt='' WHERE (dependsOnPrompt = :dataID)) //Clear all the text block dependencies on this item. pjc 10 November 2009
+			&SQL(UPDATE setup.lnkCategoryEvent
+				SET dependsOnAlternative = NULL ,dependsOnPrompt = NULL ,dependsOnPromptPageID = NULL, dependsOnObjItemName = NULL
+				WHERE dependsOnPromptPageID = :pageID AND %SQLUPPER(dependsOnPrompt) = %SQLUPPER(:codItemName)
+			)
+		}
+
+		set ok=1
+		// loop on all version of this item
+		while dataID'="" {
+			set previousVersion=""
+			&SQL(SELECT previousVersion INTO :previousVersion FROM sc.objData WHERE ID = :dataID)
+			if +SQLCODE=0 {
+
+				// Fred July 2004 - deactivate rather than delete stuff.
+				&SQL(UPDATE sc.objData SET active = 0 WHERE ID = :dataID)
+				
+				if dataID'=previousVersion set dataID=previousVersion		
+			}
+		}
+	}
+	quit ok
+]]></Implementation>
+</Method>
+
+<Method name="reuseLogic">
+<Description>
+this method replaces and consolidates the onPreHttp scripts on textDetails.csp, imageDetails.csp and fileDetails.csp</Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec>dataType:%String</FormalSpec>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	set dataID=%request.Get("dataID")
+	set orgDataID=%request.Get("orgDataID")
+	if dataID="NEW" set dataID=orgDataID
+	
+	// is this object linked to another?
+	set sourceID=""
+	&SQL(SELECT sourceID INTO :tmp FROM sc.objData WHERE ID = :dataID)
+	if +SQLCODE=0 set sourceID=tmp
+	// find the latest version
+	set latestSourceID=##class(sc.objData).findLastVersion(sourceID,"future")
+	
+	
+	// unlink an item
+	if %request.Get("unlink")="true" {
+		set sourceID=""
+		
+		// open new item	
+		set tmpID=$S(dataID:dataID,orgDataID:orgDataID,1:"")
+		set objData=##class(sc.objData).%OpenId(tmpID)
+		do objData.sourceIDSetObjectId("")
+		
+		// open old item
+		set orgObj=##class(sc.objData).%OpenId(latestSourceID)
+				
+		// find latest data and copy it to new item
+		if dataType="objText" {
+			set objData.description=orgObj.description
+			set objData.rawText=orgObj.rawText
+		
+		} elseif dataType="objImage" {
+			
+			set objData.fileName=orgObj.fileName
+			set objData.mouseOverFileName=orgObj.mouseOverFileName
+			do objData.fileStream.CopyFrom(orgObj.fileStream)
+			do objData.mouseOverFileStream.CopyFrom(orgObj.mouseOverFileStream)
+			set objData.altText=orgObj.altText
+			set objData.titleText=orgObj.titleText
+			set objData.border=orgObj.border
+			set objData.width=orgObj.width
+			set objData.height=orgObj.height
+			set objData.popupWidth=orgObj.popupWidth
+			set objData.popupHeight=orgObj.popupHeight
+			set objData.popupScrollbars=orgObj.popupScrollbars
+			set objData.URL=orgObj.URL
+			set objData.target=orgObj.target
+		
+		}
+		kill orgObj	
+		do objData.%Save()
+		kill objData
+	}
+	// are any other objects linked to this?
+	if (dataID="")!(dataID="NEW") if orgDataID'="" set dataID=orgDataID
+	set objectIsReused=0
+	&SQL(SELECT ID INTO :tmp FROM sc.objData WHERE (sourceID = :dataID)  AND (active=1))
+	if +SQLCODE=0 set objectIsReused=1
+	set %session.Data("objectIsReused")=objectIsReused
+	// show warning if we are redirecting to a original object
+	if ((sourceID)!(objectIsReused))&(%request.Get("skipWarning")'=1) {
+		set %session.Data("returnPage")=%request.PageName
+		set %response.ServerSideRedirect="reUseWarning.csp"
+		quit 0
+	} else {
+	
+		quit 1
+	}
+]]></Implementation>
+</Method>
+
+<Method name="getParentID">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>dataID:%String</FormalSpec>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	set out=""
+	&SQL(SELECT parent INTO :tmp FROM sc.objData WHERE ID = :dataID)	
+	if +SQLCODE=0 set out=tmp
+	quit out
+]]></Implementation>
+</Method>
+
+<Method name="hasChildren">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>dataID:%String</FormalSpec>
+<ReturnType>%Boolean</ReturnType>
+<Implementation><![CDATA[
+	set out=0
+	&SQL(SELECT ID INTO :tmp FROM sc.objData WHERE (active=1 AND parent = :dataID))
+	if +SQLCODE=0 set out=1
+	
+	quit out
+]]></Implementation>
+</Method>
+
+<Method name="getDisplayOrder">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>dataID</FormalSpec>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	set data=""
+	&SQL(SELECT displayOrder INTO :tmp FROM sc.objData	WHERE (active=1 AND ID = :dataID))
+	if +SQLCODE=0 set data=tmp
+	quit data
+]]></Implementation>
+</Method>
+
+<Method name="getQuestionPrompt">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>dataID,languageID</FormalSpec>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	if ##class(sc.objData).getDataType(dataID)="objFileUpload" {
+		set questionPrompt=##class(sc.xModules.objFileUpload).getQuestionPrompt(dataID)
+	
+	} elseif ##class(sc.objData).getDataType(dataID)="objCODitem" {
+		set questionPrompt=##class(sc.xModules.objCODitem).getQuestPrompt(dataID,languageID)
+	
+	} else {
+		throw ##class(shared.exceptions.generalException).%New("Data item has no question prompt")	
+	}
+	return questionPrompt
+]]></Implementation>
+</Method>
+
+<Method name="getEditorPageNameForDataType">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>dataType:%String</FormalSpec>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	return $Case(dataType,
+					"objText":"textDetailsMoxie.csp",
+					"objImage":"imageDetails.csp",
+					"objSurveyQuestion":"disused",
+					"objCODitem":"codQuestionDetails.csp",
+					"objMenuBlock":"menuDetails.csp",
+					"objScrollingImage":"scrollingImageDetails.csp",
+					"objFlash":"flashDetails.csp",
+					"objFileUpload":"fileUploadDetails.csp",
+					:"")
+]]></Implementation>
+</Method>
+
+<Method name="getEditMenuArray">
+<FormalSpec><![CDATA[context:%ZEN.proxyObject,&editMenuStr]]></FormalSpec>
+<Implementation><![CDATA[
+	#dim className as %String = ..getDataType(..%Id())
+	#dim dataID as %Integer = ..%Id()
+	#dim pageID as %Integer = context.pageID
+	#dim xEventID as %Integer = ..objEventGetObjectId()
+	#dim idx as %Integer = $Order(editMenuStr(""),-1)+1
+	
+	set editPage = ..getEditorPageNameForDataType(className)
+	
+	// Set up the URLs
+	set editURL=##class(shared.pCSP).Link(context.app_"/backend/proweb/"_editPage_"?dataID="_##class(EF.htmlGenerator).encodeForURL(context.editID)_"&templateURL="_##class(EF.htmlGenerator).encodeForURL(context.templateFilename)_"&componentName="_##class(EF.htmlGenerator).encodeForURL(context.componentName)_"&templateID="_##class(EF.htmlGenerator).encodeForURL(context.templateID)_"&warning="_##class(EF.htmlGenerator).encodeForURL(context.warning)_"&orgDataID="_##class(EF.htmlGenerator).encodeForURL(context.orgDataID)_"&parent="_##class(EF.htmlGenerator).encodeForURL(context.listID)_"&classNo=1&displayOrder="_##class(EF.htmlGenerator).encodeForURL(context.displayOrder)_"&isCOD="_##class(EF.htmlGenerator).encodeForURL(context.isCOD)_"&pageID="_##class(EF.htmlGenerator).encodeForURL(context.pageID))
+	set delURL="javasc"_"ript: confirmDelete("_context.deleteID_");"
+
+	// output javascript for the edit version of the floater
+	set editMenuStr($I(idx)) = "<sc"_"ript language='javasc"_"ript'>"
+	set editMenuStr($I(idx)) = "HM_Array"_context.menuID_" = [[150,,,,,,,,,,,,,,,,,,,,1],"
+
+	// make a title bar in the floater
+	set titleText=$S(className="objFormDivider":"Form Divider",className="objScrollingImage":"Scolling Image",className="objText":"Text",className="objImage":"Image",1:className)
+	set title="----- "_titleText_" ------"
+	if className="objCODitem" {
+		set obj=##class(sc.objData).%OpenId(context.viewID)
+		// display coditemname rather than desc because html formatted desc upsets JS 
+		set title="----- "_$S(obj.isGuest:"GUEST_",1:"")_##class(shared.pCSP).EscapeHTML(obj.objItemName.description)_" -----"
+		kill obj
+	}
+
+	if className="objFileUpload" {
+		set obj=##class(sc.objData).%OpenId(context.viewID)
+		// display coditemname rather than desc because html formatted desc upsets JS // Fred v 1.1.5
+		set title="----"_##class(shared.pCSP).EscapeHTML($ZCVT(obj.objItemName.description,"U"))_"---"
+		kill obj
+	}
+
+	set editMenuStr($I(idx)) = "['"_title_"','',0,0,0],"
+	
+	if className'="objFormDivider" {
+		if (context.isCOD)!(context.isDOC)!(context.isForm) {
+			set editMenuStr($I(idx))= "['Edit','"_editURL_"',1,0,0],"
+		} else {
+			set editMenuStr($I(idx)) = "['Edit&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;("_dataID_")','"_editURL_"',1,0,0],"
+		}
+	}
+	
+	// Do not allow them to delete questions that have dependent children
+	set rsChildPrompts=##class(%ResultSet).%New("%Library.DynamicQuery:SQL")
+	set query="SELECT ID,parent->parent As pageID FROM sc_xModules.objCODitem WHERE (dependsOnPrompt = ?) AND (active=1) AND (parent->parent->active = 1)"
+	do rsChildPrompts.Prepare(query)
+	do rsChildPrompts.Execute(dataID)
+	while rsChildPrompts.Next() {
+		set tmpPageID=rsChildPrompts.Get("pageID")
+		if (tmpPageID=context.pageID)!(##class(setup.lnkCategoryEvent).isPageActive(xEventID,tmpPageID,context.langID)) {
+			set delURL="javasc"_"ript: alert("""_##class(shared.pCSP).translateAdmin("Can not be deleted because it has dependent questions")_""");"
+		}
+	}
+	
+	// Do not allow them to delete questions that have dependent children
+	set rsChildText=##class(%ResultSet).%New("%Library.DynamicQuery:SQL")
+	set query="SELECT ID,parent->parent As pageID FROM sc_xModules.objText WHERE (dependsOnPrompt = ?) AND (active=1) AND (parent->parent->active = 1)"
+	do rsChildText.Prepare(query)
+	do rsChildText.Execute(dataID)
+	while rsChildText.Next() {
+		set tmpPageID=rsChildText.Get("pageID")
+		if (tmpPageID=context.pageID)!(##class(setup.lnkCategoryEvent).isPageActive(dataID,tmpPageID,context.langID)) {
+			set delURL="javasc"_"ript: alert("""_##class(shared.pCSP).translateAdmin("Can not be deleted because it has dependent text blocks")_""");"
+		}
+	}
+	
+	if className="objCODitem" {
+		&SQL(SELECT objItemName->description INTO :tmp FROM sc_xModules.objCODitem WHERE (ID = :dataID) AND (active=1))
+		if +SQLCODE=0 {
+			&SQL(SELECT ID FROM setup.lnkCategoryEvent 
+				WHERE (dependsOnPromptPageID = :pageID) AND (%SQLUPPER(dependsOnObjItemName->description) = %SQLUPPER(:tmp)) AND (active=1)
+				AND objEventCategory IN (
+					SELECT objEventCategory
+					FROM setup.lnkAttendeeCategoryDetailsEvent 
+					WHERE (objEvent=:xEventID)
+				)
+			)
+			if +SQLCODE=0 set delURL="javasc"_"ript: alert("""_##class(shared.pCSP).translateAdmin("Can not be deleted because it has a dependent page")_""");"
+		}
+	}
+
+	// do not allow them to delete firstname and lastname on tablebooking or abstract signup page
+	if className="objCODitem" {
+		if ($ZCVT(context.pageName,"L")="ttableguests.csp") ! ($ZCVT(context.pageName,"L")="tabssignup.csp") {
+			set obj=##class(sc.objData).%OpenId(context.viewID)
+			if ($ZCVT(obj.objItemName.description,"U")="FIRSTNAME")!($ZCVT(obj.objItemName.description,"U")="LASTNAME") set context.suppressDelete=1
+			kill obj
+		}
+	}
+
+	if 'context.suppressDelete {
+		set editMenuStr($I(idx)) = "['Delete','"_delURL_"',1,0,0],"
+	}
+
+	set up="up",down="down"
+	set top="top",bottom="bottom"
+	;set editMenuStr($I(idx)) = "['Move Up',""javasc"_"ript: moveItem("_dataID_",'"_up_"');"",1,0,0],['Move Down',""javasc"_"ript: moveItem("_dataID_",'"_down_"');"",1,0,0]"
+	set editMenuStr($I(idx)) = "['Add item here',""javasc"_"ript: HM_f_PopUp('HM_Menu101',event);"",1,0,0]"
+	;set editMenuStr($I(idx)) = ",['Move to Top',""javasc"_"ript: moveItem("_dataID_",'"_top_"');"",1,0,0],['Move to Bottom',""javasc"_"ript: moveItem("_dataID_",'"_bottom_"');"",1,0,0],['Move to Position',""javasc"_"ript: moveItemToPosition("_dataID_");"",1,0,0]"
+	set editMenuStr($I(idx)) = "];</sc"_"ript>"
+]]></Implementation>
+</Method>
+
+<Method name="getDependsOnAlternativeID">
+<Description>
+note that this must be a classmethod or you will a compile error as the property only exists on some of the child classes</Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec>listItem:sc.objData</FormalSpec>
+<ReturnType>%Integer</ReturnType>
+<Implementation><![CDATA[
+	try {
+		return listItem.dependsOnAlternative
+	} catch { // this will happen for images, dividers etc.
+		return ""	
+	}
+]]></Implementation>
+</Method>
+
+<Method name="getDependsOnQuestionID">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>listItem:sc.objData</FormalSpec>
+<ReturnType>%Integer</ReturnType>
+<Implementation><![CDATA[
+	try {
+		return listItem.dependsOnPrompt
+	} catch { // this will happen for images, dividers etc.
+		return ""	
+	}
+]]></Implementation>
+</Method>
+
+<Method name="getDependsOnItemName">
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	set dependsOnAltID = ..getDependsOnAlternativeID($this)
+	if dependsOnAltID {
+		set alternative = ##class(cod.objItemAlternatives).%OpenId(dependsOnAltID)
+		if $IsObject(alternative) {
+			return alternative.objItemName.description
+		}
+	}
+	return ""
+]]></Implementation>
+</Method>
+
+<Method name="getDependsOnAlternativeName">
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	set dependsOnAltID = ..getDependsOnAlternativeID($this)
+	if dependsOnAltID {
+		set alternative = ##class(cod.objItemAlternatives).%OpenId(dependsOnAltID)
+		if $IsObject(alternative) {
+			return alternative.description
+		}
+	}
+	return ""
+]]></Implementation>
+</Method>
+
+<Method name="getDependencyHoverText">
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	#dim dependsOnPromptDesc as %String  = ..getDependsOnItemName()
+	#dim dependsOnAlternativeDesc as %String = ..getDependsOnAlternativeName()
+	#dim hoverText as %String = ""
+	
+	if $Length(dependsOnPromptDesc) {
+		set hoverText = " title='Display when: "_dependsOnPromptDesc_" = "_dependsOnAlternativeDesc
+		
+		set dependsOnPageID = ..getPageID(..getDependsOnQuestionID($this))
+		set myPageID = ..getPageID(..%Id())
+		
+		if myPageID '= dependsOnPageID {
+			set hoverText = hoverText_" (on page &quot;"_##class(sc.xModules.objPage).getDescription(dependsOnPageID)_"&quot;)"	
+		}
+		set hoverText = hoverText_"'"
+	}	
+	return hoverText
+]]></Implementation>
+</Method>
+
+<Query name="qGetChildren">
+<Type>%SQLQuery</Type>
+<FormalSpec>parentID:%String=""</FormalSpec>
+<SqlQuery>SELECT ID FROM objData
+ WHERE (parent = :parentID AND active = 1)
+ ORDER BY ID</SqlQuery>
+<Parameter name="CONTAINID" value="1"/>
+</Query>
+
+<Storage name="Default">
+<Type>%Library.CacheStorage</Type>
+<DataLocation>^sc.objDataD</DataLocation>
+<DefaultData>objDataDefaultData</DefaultData>
+<IdLocation>^sc.objDataD</IdLocation>
+<IndexLocation>^sc.objDataI</IndexLocation>
+<StreamLocation>^sc.objDataS</StreamLocation>
+<ExtentSize>5000</ExtentSize>
+<Data name="objDataClassName">
+<Attribute>%%CLASSNAME</Attribute>
+<Structure>node</Structure>
+<Subscript>0</Subscript>
+</Data>
+<Data name="objDataDefaultData">
+<Value name="1">
+<Value>xCRstamp</Value>
+</Value>
+<Value name="2">
+<Value>xMOstamp</Value>
+</Value>
+<Value name="3">
+<Value>creator</Value>
+</Value>
+<Value name="4">
+<Value>displayOrder</Value>
+</Value>
+<Value name="5">
+<Value>nextVersion</Value>
+</Value>
+<Value name="6">
+<Value>parent</Value>
+</Value>
+<Value name="7">
+<Value>previousVersion</Value>
+</Value>
+<Value name="8">
+<Value>objTemplate</Value>
+</Value>
+<Value name="9">
+<Value>objStep</Value>
+</Value>
+<Value name="10">
+<Value>dataType</Value>
+</Value>
+<Value name="11">
+<Value>active</Value>
+</Value>
+<Value name="12">
+<Value>publishAt</Value>
+</Value>
+<Value name="13">
+<Value>sourceID</Value>
+</Value>
+<Value name="14">
+<Value>xCRuserID</Value>
+</Value>
+<Value name="15">
+<Value>xMOuserID</Value>
+</Value>
+<Value name="16">
+<Value>afterItem</Value>
+</Value>
+<Value name="17">
+<Value>afterRow</Value>
+</Value>
+<Value name="18">
+<Value>beforeItem</Value>
+</Value>
+<Value name="19">
+<Value>beforeRow</Value>
+</Value>
+<Value name="20">
+<Value>deleteMe</Value>
+</Value>
+<Value name="21">
+<Value>objEvent</Value>
+</Value>
+</Data>
+<Property name="active">
+<Selectivity>100.0000%</Selectivity>
+</Property>
+<Property name="creator">
+<Selectivity>16.6667%</Selectivity>
+</Property>
+<Property name="dataType">
+<Selectivity>14.2857%</Selectivity>
+</Property>
+<Property name="displayOrder">
+<Selectivity>7.6923%</Selectivity>
+</Property>
+<Property name="nextVersion">
+<Selectivity>2.4390%</Selectivity>
+</Property>
+<Property name="objStep">
+<Selectivity>50.0000%</Selectivity>
+</Property>
+<Property name="parent">
+<Selectivity>0.01%</Selectivity>
+</Property>
+<Property name="previousVersion">
+<Selectivity>2.5000%</Selectivity>
+</Property>
+<Property name="publishAt">
+<Selectivity>33.3333%</Selectivity>
+</Property>
+<Property name="sourceID">
+<Selectivity>24.9999%</Selectivity>
+</Property>
+<Property name="xCRstamp">
+<Selectivity>0.3831%</Selectivity>
+</Property>
+<Property name="xCRuserID">
+<Selectivity>6.2500%</Selectivity>
+</Property>
+<Property name="xMOstamp">
+<Selectivity>0.5076%</Selectivity>
+</Property>
+<Property name="xMOuserID">
+<Selectivity>4.7619%</Selectivity>
+</Property>
+</Storage>
 </Class>
 
 

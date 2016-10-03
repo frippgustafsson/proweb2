@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.1.2 (Build 206U)" ts="2016-10-03 10:07:44">
+<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.1.2 (Build 206U)" ts="2016-10-03 12:35:43">
 <Class name="EF.contextData">
 <Description><![CDATA[
 <!-- ;vc;-
@@ -456,7 +456,7 @@ if website is private, this will be set to the cod.objPerson.ID of that logged i
 ;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>EF.pageController.containerElement.CLS/EV.17</td><td>CLS.EF.pageController.containerElement</td><td>SmallDev</td><td style='white-space: nowrap;'>02-Sep-16 14:23</td><td>JeremyW</td></tr></table>
 ]]></Description>
 <Super>EF.pageController.element</Super>
-<TimeChanged>64188,60898.673204</TimeChanged>
+<TimeChanged>64194,37966.615229</TimeChanged>
 <TimeCreated>63372,47273.826383</TimeCreated>
 
 <Property name="getContentsMethod">
@@ -637,6 +637,16 @@ This is a list of all the elements that are updated by the processGetContents me
 <ReturnType>EF.pageController.inputElements.dropdown</ReturnType>
 <Implementation><![CDATA[
 	set element=##class(EF.pageController.proweb.dropdown).addElementToParent($this,identifier,description,value,isReadOnly)
+	
+	quit element
+]]></Implementation>
+</Method>
+
+<Method name="addProwebRadioButtons">
+<FormalSpec>identifier:%String,description:%String,value:%String,isReadOnly=0</FormalSpec>
+<ReturnType>EF.pageController.inputElements.dropdown</ReturnType>
+<Implementation><![CDATA[
+	set element=##class(EF.pageController.proweb.radioButtons).addElementToParent($this,identifier,description,value,isReadOnly)
 	
 	quit element
 ]]></Implementation>
@@ -2259,7 +2269,7 @@ This can be used to return data from a modal when saved via ajax.</Description>
 
 <Class name="EF.pageController.proweb.page">
 <Super>EF.pageController.page</Super>
-<TimeChanged>64191,54594.480979</TimeChanged>
+<TimeChanged>64194,44139.282534</TimeChanged>
 <TimeCreated>64189,51696.559047</TimeCreated>
 
 <Property name="contextData">
@@ -2407,8 +2417,11 @@ This can be used to return data from a modal when saved via ajax.</Description>
 		set element = ..addProwebTextInput(elementIdentifier, labelText, value)
 		
 	} elseif prowebItem.type = "dropdown" {
-		set element = ..addProwebDropdownElement(prowebItem)
+		set element = ..addProwebSelectionElement(prowebItem)
 	
+	} elseif prowebItem.type = "radiobutton" {
+		set element = ..addProwebSelectionElement(prowebItem)
+		
 	} else {
 		throw ##class(shared.exceptions.generalException).%New("proweb question type is not implement yet")	
 	}
@@ -2422,8 +2435,8 @@ This can be used to return data from a modal when saved via ajax.</Description>
 ]]></Implementation>
 </Method>
 
-<Method name="addProwebDropdownElement">
-<FormalSpec>prowebItem:sc.objData</FormalSpec>
+<Method name="addProwebSelectionElement">
+<FormalSpec>prowebItem:sc.objData,elementType:%String</FormalSpec>
 <Private>1</Private>
 <ReturnType>EF.pageController.element</ReturnType>
 <Implementation><![CDATA[
@@ -2433,18 +2446,20 @@ This can be used to return data from a modal when saved via ajax.</Description>
 	#dim elementIdentifier as %String = ..getElementIdentifierForProwebItems(prowebItem)
 	#dim labelText as %String = ##class(sc.objData).getQuestionPrompt(prowebID, ..contextData.languageID)
 	
-	set dropdown = ..addProwebDropdown(elementIdentifier, labelText, value)
-	set dropdown.displayOrder = prowebItem.displayOrder	
+	if prowebItem.type="dropdown" {
+		set element = ..addProwebDropdown(elementIdentifier, labelText, value)
+	} elseif prowebItem.type="radiobutton" {
+		set element = ..addProwebRadioButtons(elementIdentifier, labelText, value)
+	}
+	set element.displayOrder = prowebItem.displayOrder	
 
 	set rsAlternative = ##class(cod.objItemAlternatives).getAlternativesForCodItemAsResultSet( prowebItem.objItemName.%Id() )
 	while rsAlternative.Next()	{
 		Set alternativeDescription = rsAlternative.Get("description")
 		set alternativeValue = alternativeDescription // ###### needs to be changed for multilingual alternatives ########
-		set alternative = dropdown.addAlternative(alternativeValue,alternativeDescription)
+		set alternative = element.addAlternative(alternativeValue,alternativeDescription)
 	}
-	
-	
-	return dropdown
+	return element
 ]]></Implementation>
 </Method>
 
@@ -2661,6 +2676,30 @@ this method needs rewriting when the arrayOfElements become a list instead of an
 	do $$$AssertEquals(returnedHTML,expectedHTML)
 ]]></Implementation>
 </Method>
+</Class>
+
+
+<Class name="EF.pageController.proweb.radioButtons">
+<Super>EF.pageController.proweb.inputElement</Super>
+<TimeChanged>64194,39069.789892</TimeChanged>
+<TimeCreated>64189,53206.554402</TimeCreated>
+
+<Method name="getDefaultUIComponent">
+<ReturnType>EF.ui.components.backend.checkbox</ReturnType>
+<Implementation><![CDATA[	quit ##class(EF.ui.components.frontend.radioButtons).%New(..identifier)
+]]></Implementation>
+</Method>
+
+<Method name="addAlternative">
+<FormalSpec>value,description,isDefault=0</FormalSpec>
+<ReturnType>EF.ui.components.alternative</ReturnType>
+<Implementation><![CDATA[	return ..uiComponent.addAlternative(value,description,isDefault)
+]]></Implementation>
+</Method>
+
+<Storage name="Default">
+<Type>%Library.CacheStorage</Type>
+</Storage>
 </Class>
 
 
@@ -3138,7 +3177,7 @@ this is for version 1 of proweb</Description>
 
 <Class name="EF.ui.components.frontend.dropdown">
 <Super>EF.ui.components.listInput,EF.ui.components.frontend.inputElement</Super>
-<TimeChanged>64189,57470.233316</TimeChanged>
+<TimeChanged>64194,43219.104852</TimeChanged>
 <TimeCreated>63355,56609.363142</TimeCreated>
 
 <Property name="isPersistent">
@@ -3146,17 +3185,10 @@ this is for version 1 of proweb</Description>
 <InitialExpression>0</InitialExpression>
 </Property>
 
-<Method name="getDefaultClasses">
-<ClassMethod>1</ClassMethod>
-<ReturnType>%String</ReturnType>
-<Implementation><![CDATA[	Return ##super()_" form-group"
-]]></Implementation>
-</Method>
-
 <Method name="render">
 <Implementation><![CDATA[
 	if ..hasError do ..addClass("has-error")
-	set selectClass="form-control"
+	set selectClass="form-control ef-proweb-input-element"
 	if ..isPersistent {
 		set selectClass=selectClass_" ef-persistent-value"	
 	}
@@ -3452,7 +3484,7 @@ this is for version 1 of proweb</Description>
 
 <Class name="EF.ui.components.frontend.inputElement">
 <Super>EF.ui.components.frontend.prowebBase,EF.ui.components.inputBase</Super>
-<TimeChanged>64190,58744.398296</TimeChanged>
+<TimeChanged>64194,43103.245139</TimeChanged>
 <TimeCreated>64183,40678.260093</TimeCreated>
 
 <Property name="alternatives">
@@ -3542,7 +3574,7 @@ this is for version 1 of proweb</Description>
 
 <Class name="EF.ui.components.frontend.prowebBase">
 <Super>EF.ui.components.base</Super>
-<TimeChanged>64194,34415.514643</TimeChanged>
+<TimeChanged>64194,39464.422761</TimeChanged>
 <TimeCreated>64183,41819.123112</TimeCreated>
 
 <Property name="isProwebEditMode">
@@ -3564,7 +3596,7 @@ this is for version 1 of proweb</Description>
 	#dim floatingEditMenuID as %Integer = ..contextData.getNewFloatingMenuCounter()
 	
 	if ..isProwebEditMode {
-		write !,"<div class='row draggableDIV ef-proweb-form-row-editable' onContextMenu=""HM_f_PopUp('HM_Menu"_floatingEditMenuID_"',event); return false;"" onMouseOut=""HM_f_PopDown('HM_Menu"_floatingEditMenuID_"');"">"
+		write !,"<div class='row draggableDIV ef-proweb-form-row-editable' onContextMenu=""HM_f_PopUp('HM_Menu"_floatingEditMenuID_"',event); return true;"" onMouseOut=""HM_f_PopDown('HM_Menu"_floatingEditMenuID_"');"">"
 		do ..renderFloatingEditMenu(floatingEditMenuID)	
 		
 	} else {
@@ -3660,6 +3692,76 @@ this is for version 1 of proweb</Description>
 </Class>
 
 
+<Class name="EF.ui.components.frontend.radioButtons">
+<Super>EF.ui.components.listInput,EF.ui.components.frontend.inputElement</Super>
+<TimeChanged>64194,44158.903127</TimeChanged>
+<TimeCreated>63356,39686.205586</TimeCreated>
+
+<Method name="getDefaultClasses">
+<ClassMethod>1</ClassMethod>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[	Return ##super()_" btn-group "
+]]></Implementation>
+</Method>
+
+<Method name="render">
+<Implementation><![CDATA[
+	do ..renderRowOpeningAndLabel()
+	&html<
+            <div class="#(..encodeHTMLAttribute(..classes))#" id="#(..encodeHTMLAttribute(..htmlID))#" data-toggle="buttons" title="#(..encodeHTMLAttribute(..title))#" #(..rawHTML(..getExtraAttributes()))#>
+	    		#[do ..renderAlternatives()]#
+	        </div>
+	        
+	>
+	do ..renderHelpAndRowClosing()
+]]></Implementation>
+</Method>
+
+<Method name="renderInputElementCellOpening">
+<Implementation><![CDATA[	write "<div class=' col-sm-8 ef_proweb_form_prompt ef-proweb-radio-group'>"
+]]></Implementation>
+</Method>
+
+<Method name="renderCellOpening">
+<Implementation><![CDATA[	write "<div class='col-sm-12  ",..encodeForHTMLAttribute(..getDependentClass())," ef-proweb-radio-button'>"
+]]></Implementation>
+</Method>
+
+<Method name="renderAlternative">
+<FormalSpec>alternative:EF.ui.components.alternative</FormalSpec>
+<Implementation><![CDATA[
+	if $IsObject(..enableDisableDependencyList) {
+		set alternative.enableDisableDependencyList=..enableDisableDependencyList	
+	}
+	do ..renderCellOpening()
+	do alternative.addClass("ef-proweb-radio-button")
+	do alternative.render()
+	do ..renderCellClosing()
+]]></Implementation>
+</Method>
+
+<Method name="addAlternative">
+<FormalSpec>value,label,isDefault=0</FormalSpec>
+<ReturnType>EF.ui.components.alternative</ReturnType>
+<Implementation><![CDATA[
+	set htmlID=..htmlID_"_"_(..alternatives.Count()+1)
+	
+	set radio=##class(EF.ui.components.radio).%New(htmlID)
+	set radio.label=label
+	set radio.value=value
+	set radio.isDefault=isDefault
+	set radio.htmlName=..htmlName
+	do radio.addClass("btn")
+	do radio.addClass("ef-btn-default")
+	do ..alternatives.Insert(radio)
+	// Also add to the validator
+	do ..validator.addAllowedValue(value)
+	return radio
+]]></Implementation>
+</Method>
+</Class>
+
+
 <Class name="EF.ui.components.frontend.textBlock">
 <Super>EF.ui.components.frontend.prowebBase</Super>
 <TimeChanged>64190,59092.755529</TimeChanged>
@@ -3686,7 +3788,7 @@ this is for version 1 of proweb</Description>
 
 <Class name="EF.ui.components.frontend.textInput">
 <Super>EF.ui.components.textInput,EF.ui.components.frontend.inputElement</Super>
-<TimeChanged>64190,58650.669582</TimeChanged>
+<TimeChanged>64194,43079.595913</TimeChanged>
 <TimeCreated>63357,57620.613738</TimeCreated>
 
 <Property name="labelSpanPrefixClass">
@@ -3704,7 +3806,7 @@ this is for version 1 of proweb</Description>
 <Method name="getDefaultClasses">
 <ClassMethod>1</ClassMethod>
 <ReturnType>%String</ReturnType>
-<Implementation><![CDATA[	Return ##super()_" form-control"
+<Implementation><![CDATA[	Return ##super()_" form-control ef-proweb-input-element"
 ]]></Implementation>
 </Method>
 
@@ -6270,7 +6372,7 @@ FRRE RULE
 <Abstract>1</Abstract>
 <ClassType/>
 <ProcedureBlock>1</ProcedureBlock>
-<TimeChanged>64190,59858.898187</TimeChanged>
+<TimeChanged>64194,45332.940042</TimeChanged>
 <TimeCreated>63046,56232.897117</TimeCreated>
 
 <Method name="outputDefaultCSS">
@@ -6502,7 +6604,24 @@ yellow red grey etc. Used for ALL templates below gen3</Description>
 		.ef-dependent-field::after {
 		    content: "🔗";
 		}
-
+		.ef-proweb-form-row-editable {
+			padding-top: 4px;
+			padding-bottom:4px;	
+		}
+		.ef-proweb-radio-group {
+			text-align: left;
+			padding-bottom: 0px;
+			padding-top: 0px;	
+		}
+		.ef-proweb-radio-button {
+			padding-left: 0px;	
+			padding-top: 0px;
+			padding-bottom: 0px;
+		}
+		.ef-proweb-input-element {
+			width: 90%;
+			float: left;	
+		}
 		.ef-registration-section td label {
 			display: inline-block;
 		    font-weight: normal;
@@ -6617,6 +6736,7 @@ yellow red grey etc. Used for ALL templates below gen3</Description>
 			background-color: #17b3c4;
 			color: #FFFFFF;
 			border-color: #128996;
+			float: left;
 		}
 		.ef_frontend_help_text_popover {
 			background-color: #17b3c4;
@@ -8461,7 +8581,7 @@ The basic frontend default stuff</Description>
 </Class>
 
 
-<Project name="proweb 2" LastModified="2016-10-03 09:07:56.721049" Target="freddev/backend/home/login.csp" TargetType="3">
+<Project name="proweb 2" LastModified="2016-10-03 12:04:03.509515" Target="freddev/backend/home/login.csp" TargetType="3">
   <Items>
     <ProjectItem name="EF.contextData" type="CLS"></ProjectItem>
     <ProjectItem name="EF.contextDataRegistration" type="CLS"></ProjectItem>
@@ -8497,6 +8617,8 @@ The basic frontend default stuff</Description>
     <ProjectItem name="freddev/frontEnd/reg/pageControllerStandardSave.csp" type="CSP"></ProjectItem>
     <ProjectItem name="freddev/system/proweb/templateStop.csp" type="CSP"></ProjectItem>
     <ProjectItem name="sc.objData" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.pageController.proweb.radioButtons" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.ui.components.frontend.radioButtons" type="CLS"></ProjectItem>
   </Items>
 </Project>
 

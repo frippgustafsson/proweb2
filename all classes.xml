@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.1.2 (Build 206U)" ts="2016-10-04 10:03:33">
+<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.1.2 (Build 206U)" ts="2016-10-04 13:15:18">
 <Class name="EF.contextData">
 <Description><![CDATA[
 <!-- ;vc;-
@@ -456,7 +456,7 @@ if website is private, this will be set to the cod.objPerson.ID of that logged i
 ;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>EF.pageController.containerElement.CLS/EV.17</td><td>CLS.EF.pageController.containerElement</td><td>SmallDev</td><td style='white-space: nowrap;'>02-Sep-16 14:23</td><td>JeremyW</td></tr></table>
 ]]></Description>
 <Super>EF.pageController.element</Super>
-<TimeChanged>64195,27681.828972</TimeChanged>
+<TimeChanged>64195,42605.723028</TimeChanged>
 <TimeCreated>63372,47273.826383</TimeCreated>
 
 <Property name="getContentsMethod">
@@ -493,16 +493,6 @@ This is a list of all the elements that are updated by the processGetContents me
 </Method>
 
 <Method name="addCheckbox">
-<FormalSpec>identifier:%String,description:%String,value:%String,isReadOnly=0</FormalSpec>
-<ReturnType>EF.pageController.inputElements.checkbox</ReturnType>
-<Implementation><![CDATA[
-	set element=##class(EF.pageController.inputElements.checkbox).addElementToParent($this,identifier,description,value,isReadOnly)
-
-	quit element
-]]></Implementation>
-</Method>
-
-<Method name="xxxaddProwebCheckbox">
 <FormalSpec>identifier:%String,description:%String,value:%String,isReadOnly=0</FormalSpec>
 <ReturnType>EF.pageController.inputElements.checkbox</ReturnType>
 <Implementation><![CDATA[
@@ -2397,7 +2387,7 @@ This can be used to return data from a modal when saved via ajax.</Description>
 
 <Class name="EF.pageController.proweb.page">
 <Super>EF.pageController.page</Super>
-<TimeChanged>64195,36131.303816</TimeChanged>
+<TimeChanged>64195,45051.87243</TimeChanged>
 <TimeCreated>64189,51696.559047</TimeCreated>
 
 <Property name="contextData">
@@ -2514,7 +2504,7 @@ This can be used to return data from a modal when saved via ajax.</Description>
 	set element.prowebListID = prowebItem.getParentID(prowebItem.%Id())
 	
 	
-	try {
+	try { // #### refaqtor to something nicer ####
 		set dependsOnAlternativeDescription = ##class(sc.dependencyMethods).getDependsOnAlternativeDescription(prowebItem.%Id())
 		if dependsOnAlternativeDescription '="" {
 			set parentProwebID = ##class(sc.dependencyMethods).getDependsOnPrompt(prowebItem.%Id())
@@ -2651,18 +2641,6 @@ this method needs rewriting when the arrayOfElements become a list instead of an
 ]]></Implementation>
 </Method>
 
-<Method name="debugTarget">
-<ClassMethod>1</ClassMethod>
-<Implementation><![CDATA[
-	set contextData = ##class(EF.contextDataRegistrationMock).createMock()
-	set page=##class(EF.pageController.page).createNew(contextData)
-	set elementIdentifier = "proweb-1"
-	set element = page.addProwebTextInput(elementIdentifier, "First Name", "Elvis")
-	set element.displayOrder = 1
-	d page.renderAllProwebItems()
-]]></Implementation>
-</Method>
-
 <Method name="copyAllDataToEComTemp">
 <Implementation><![CDATA[
 	#dim key as %String = ""
@@ -2680,6 +2658,25 @@ this method needs rewriting when the arrayOfElements become a list instead of an
 			do ##class(eCom.tempCodData).set(..contextData.tempPersonID, prowbItemName, element.value)	
 		}
 	}
+]]></Implementation>
+</Method>
+
+<Method name="debugTarget">
+<ClassMethod>1</ClassMethod>
+<Implementation><![CDATA[
+	#dim elementIdentifier as %String = "proweb-1"
+	#dim labelText as %String = "First Name"
+	#dim value as %String = "Elvis"
+	#dim element as EF.pageController.element
+	#dim page as EF.pageController.proweb.page
+	
+	set contextData = ##class(EF.contextDataRegistrationMock).createMock()
+	
+	set page=..createNew(contextData)
+	set element = page.addProwebTextInput(elementIdentifier, labelText, value)
+	do page.uiComponent.childComponents.SetAt(element.uiComponent,1)
+	set element.uiComponent.contextData = contextData
+	do page.render()
 ]]></Implementation>
 </Method>
 
@@ -2704,20 +2701,27 @@ this method needs rewriting when the arrayOfElements become a list instead of an
 
 <Class name="EF.pageController.proweb.pageTestCase">
 <Super>EF.ISC.UnitTest.TestCase</Super>
-<TimeChanged>64189,52328.119218</TimeChanged>
+<TimeChanged>64195,47706.674173</TimeChanged>
 <TimeCreated>64189,44993.632692</TimeCreated>
 
 <Method name="TestVeryBasicPage">
 <Implementation><![CDATA[
+	#dim elementIdentifier as %String = "proweb-1"
+	#dim labelText as %String = "First Name"
+	#dim value as %String = "Elvis"
+	#dim element as EF.pageController.element
+	#dim page as EF.pageController.proweb.page
+	
 	set contextData = ##class(EF.contextDataRegistrationMock).createMock()
-	set page=##class(EF.pageController.proweb.page).createNew(contextData)
-	set elementIdentifier = "proweb-1"
-	set element = page.addProwebTextInput(elementIdentifier, "First Name", "Elvis")
-	set element.displayOrder = 1
-	do page.updateUIComponents()
-	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(page,"renderAllProwebItems")
+	
+	set page= ##class(EF.pageController.proweb.page).createNew(contextData)
+	set element = page.addProwebTextInput(elementIdentifier, labelText, value)
+	do page.uiComponent.childComponents.SetAt(element.uiComponent,1)
+	set element.uiComponent.contextData = contextData
+	
+	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(page,"render")
 	set returnedHTML = $ZStrip(returnedHTML,"*WC")
-	set expectedHTML = "<divclass='rowdraggableTR'><divclass='col-sm-4ef_proweb_form_prompt'><labelclass=""control-label""for=""proweb-1"">FirstName</label></div><divclass='col-sm-8ef_proweb_form_prompt'><inputtype=""text""class=""form-control""title=""""id=""proweb-1""name=""proweb-1""value=""Elvis""placeholder=""""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;FirstName\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""></div></div>"
+	set expectedHTML = "<divclass='rowdraggableTR'><divclass='col-sm-4ef_proweb_form_prompt'><labelclass=""control-label""for=""proweb-1""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;FirstName\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);"">FirstName</label></div><divclass='col-sm-8ef_proweb_form_prompt'><inputtype=""text""class=""form-controlef-proweb-input-element""title=""""id=""proweb-1""name=""proweb-1""value=""""placeholder=""""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;FirstName\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""></div></div>"
 	do $$$AssertEquals(returnedHTML,expectedHTML)
 ]]></Implementation>
 </Method>
@@ -2729,11 +2733,13 @@ this method needs rewriting when the arrayOfElements become a list instead of an
 	set elementIdentifier = "proweb-1"
 	set element = page.addProwebTextInput(elementIdentifier, "First Name", "Elvis")
 	set element.displayOrder = 1
+	do page.uiComponent.childComponents.SetAt(element.uiComponent,1)
+	set element.uiComponent.contextData = contextData
 	set element.uiComponent.isMandatory = 1
-	do page.updateUIComponents()
-	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(page,"renderAllProwebItems")
+	
+	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(page,"render")
 	set returnedHTML = $ZStrip(returnedHTML,"*WC")
-	set expectedHTML = "<divclass='rowdraggableTR'><divclass='col-sm-4ef_proweb_form_promptef-required-field'><labelclass=""control-label""for=""proweb-1"">FirstName</label></div><divclass='col-sm-8ef_proweb_form_prompt'><inputtype=""text""class=""form-control""title=""""id=""proweb-1""name=""proweb-1""value=""Elvis""placeholder=""""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;FirstName\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""></div></div>"
+	set expectedHTML = "<divclass='rowdraggableTR'><divclass='col-sm-4ef_proweb_form_promptef-required-field'><labelclass=""control-label""for=""proweb-1""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;FirstName\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);"">FirstName</label></div><divclass='col-sm-8ef_proweb_form_prompt'><inputtype=""text""class=""form-controlef-proweb-input-element""title=""""id=""proweb-1""name=""proweb-1""value=""""placeholder=""""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;FirstName\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""></div></div>"
 	do $$$AssertEquals(returnedHTML,expectedHTML)
 ]]></Implementation>
 </Method>
@@ -2744,11 +2750,12 @@ this method needs rewriting when the arrayOfElements become a list instead of an
 	set page=##class(EF.pageController.proweb.page).createNew(contextData)
 	set elementIdentifier = "proweb-1"
 	set element = page.addProwebTextBlock(elementIdentifier, "lorem ipsum")
-	set element.displayOrder = 1
-	do page.updateUIComponents()
-	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(page,"renderAllProwebItems")
+	do page.uiComponent.childComponents.SetAt(element.uiComponent,1)
+	set element.uiComponent.contextData = contextData
+	
+	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(page,"render")
 	set returnedHTML = $ZStrip(returnedHTML,"*WC")
-	set expectedHTML = "<divclass='rowdraggableTR'><divclass='col-sm-12'>loremipsum</div></div>"
+	set expectedHTML = "<divclass='rowdraggableTR'><divclass='col-sm-12'><div>loremipsum</div></div></div>"
 	do $$$AssertEquals(returnedHTML,expectedHTML)
 ]]></Implementation>
 </Method>
@@ -2760,9 +2767,9 @@ this method needs rewriting when the arrayOfElements become a list instead of an
 	
 	set elementIdentifier = "proweb-1"
 	set element = page.addProwebDivider(elementIdentifier,"")
-	set element.displayOrder = 1
-	do page.updateUIComponents()
-	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(page,"renderAllProwebItems")
+	do page.uiComponent.childComponents.SetAt(element.uiComponent,1)
+	set element.uiComponent.contextData = contextData
+	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(page,"render")
 	set returnedHTML = $ZStrip(returnedHTML,"*WC")
 	set expectedHTML = "<divclass='rowdraggableTR'><divclass='col-sm-12'><hrclass='ef_form_divider'></div></div>"
 	do $$$AssertEquals(returnedHTML,expectedHTML)
@@ -2778,17 +2785,19 @@ this method needs rewriting when the arrayOfElements become a list instead of an
 	set alternative = element.addAlternative("meat","meat")
 	set alternative = element.addAlternative("vegetarian","vegetarian")
 	set alternative = element.addAlternative("vegan","vegan")
-	set element.displayOrder = 1
-	do page.updateUIComponents()
-	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(page,"renderAllProwebItems")
+	do page.uiComponent.childComponents.SetAt(element.uiComponent,1)
+	set element.uiComponent.contextData = contextData
+	
+	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(page,"render")
 	set returnedHTML = $ZStrip(returnedHTML,"*WC")
-	set expectedHTML = "<divclass='rowdraggableTR'><divclass='col-sm-4ef_proweb_form_prompt'><labelclass=""control-label""for=""proweb-1"">diet</label></div><divclass='col-sm-8ef_proweb_form_prompt'><selectclass=""form-control""name=""proweb-1""id=""proweb-1""title=""""><optionvalue=''></option><optionvalue=""meat"">meat</option><optionvalue=""vegetarian"">vegetarian</option><optionvalue=""vegan"">vegan</option></select></div></div>"
+	set expectedHTML = "<divclass='rowdraggableTR'><divclass='col-sm-4ef_proweb_form_prompt'><labelclass=""control-label""for=""proweb-1"">diet</label></div><divclass='col-sm-8ef_proweb_form_prompt'><selectclass=""form-controlef-proweb-input-element""name=""proweb-1""id=""proweb-1""title=""""><optionvalue=''></option><optionvalue=""meat"">meat</option><optionvalue=""vegetarian"">vegetarian</option><optionvalue=""vegan"">vegan</option></select></div></div>"
 	do $$$AssertEquals(returnedHTML,expectedHTML)
 ]]></Implementation>
 </Method>
 
 <Method name="TestPageWithDropdownPreSelected">
 <Implementation><![CDATA[
+	#dim element as EF.pageController.element
 	set contextData = ##class(EF.contextDataRegistrationMock).createMock()
 	set page=##class(EF.pageController.proweb.page).createNew(contextData)
 	set elementIdentifier = "proweb-1"
@@ -2796,13 +2805,14 @@ this method needs rewriting when the arrayOfElements become a list instead of an
 	set alternative = element.addAlternative("meat","meat")
 	set alternative = element.addAlternative("vegetarian","vegetarian")
 	set alternative = element.addAlternative("vegan","vegan")
-	set element.displayOrder = 1
 	
-	do page.updateUIComponents()
+	do page.uiComponent.childComponents.SetAt(element.uiComponent,1)
+	set element.uiComponent.contextData = contextData
+	do element.updateUIComponent()
 	
-	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(page,"renderAllProwebItems")
+	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(page,"render")
 	set returnedHTML = $ZStrip(returnedHTML,"*WC")
-	set expectedHTML = "<divclass='rowdraggableTR'><divclass='col-sm-4ef_proweb_form_prompt'><labelclass=""control-label""for=""proweb-1"">diet</label></div><divclass='col-sm-8ef_proweb_form_prompt'><selectclass=""form-control""name=""proweb-1""id=""proweb-1""title=""""><optionvalue=''></option><optionvalue=""meat"">meat</option><optionvalue=""vegetarian"">vegetarian</option><optionselected=""""value=""vegan"">vegan</option></select></div></div>"
+	set expectedHTML = "<divclass='rowdraggableTR'><divclass='col-sm-4ef_proweb_form_prompt'><labelclass=""control-label""for=""proweb-1"">diet</label></div><divclass='col-sm-8ef_proweb_form_prompt'><selectclass=""form-controlef-proweb-input-element""name=""proweb-1""id=""proweb-1""title=""""><optionvalue=''></option><optionvalue=""meat"">meat</option><optionvalue=""vegetarian"">vegetarian</option><optionselected=""""value=""vegan"">vegan</option></select></div></div>"
 	do $$$AssertEquals(returnedHTML,expectedHTML)
 ]]></Implementation>
 </Method>
@@ -2816,12 +2826,62 @@ this method needs rewriting when the arrayOfElements become a list instead of an
 	set alternative = element.addAlternative("meat","meat")
 	set alternative = element.addAlternative("vegetarian","vegetarian")
 	set alternative = element.addAlternative("vegan","vegan")
-	set element.displayOrder = 1
+	do page.uiComponent.childComponents.SetAt(element.uiComponent,1)
+	set element.uiComponent.contextData = contextData
 	set element.uiComponent.isMandatory = 1
-	do page.updateUIComponents()
-	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(page,"renderAllProwebItems")
+	do element.updateUIComponent()
+	
+	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(page,"render")
 	set returnedHTML = $ZStrip(returnedHTML,"*WC")
-	set expectedHTML = "<divclass='rowdraggableTR'><divclass='col-sm-4ef_proweb_form_promptef-required-field'><labelclass=""control-label""for=""proweb-1"">diet</label></div><divclass='col-sm-8ef_proweb_form_prompt'><selectclass=""form-control""name=""proweb-1""id=""proweb-1""title=""""><optionvalue=''selecteddisabled>Chooseone...</option><optionvalue=""meat"">meat</option><optionvalue=""vegetarian"">vegetarian</option><optionselected=""""value=""vegan"">vegan</option></select></div></div>"
+	set expectedHTML = "<divclass='rowdraggableTR'><divclass='col-sm-4ef_proweb_form_promptef-required-field'><labelclass=""control-label""for=""proweb-1"">diet</label></div><divclass='col-sm-8ef_proweb_form_prompt'><selectclass=""form-controlef-proweb-input-element""name=""proweb-1""id=""proweb-1""title=""""><optionvalue=''selecteddisabled>Chooseone...</option><optionvalue=""meat"">meat</option><optionvalue=""vegetarian"">vegetarian</option><optionselected=""""value=""vegan"">vegan</option></select></div></div>"
+	do $$$AssertEquals(returnedHTML,expectedHTML)
+]]></Implementation>
+</Method>
+
+<Method name="TestWithRadioButtons">
+<Implementation><![CDATA[
+	#dim element as EF.pageController.element
+	
+	set contextData = ##class(EF.contextDataRegistrationMock).createMock()
+	set page=##class(EF.pageController.proweb.page).createNew(contextData)
+	set elementIdentifier = "proweb-1"
+	set element = page.addProwebRadioButtons(elementIdentifier, "diet", "vegan")
+	set alternative = element.addAlternative("meat","meat")
+	set alternative = element.addAlternative("vegetarian","vegetarian")
+	set alternative = element.addAlternative("vegan","vegan")
+	
+	do page.uiComponent.childComponents.SetAt(element.uiComponent,1)
+	set element.uiComponent.contextData = contextData
+	do element.updateUIComponent()
+	
+	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(page,"render")
+	set returnedHTML = $ZStrip(returnedHTML,"*WC")
+	set expectedHTML = "<divclass='rowdraggableTR'><divclass='col-sm-4ef_proweb_form_prompt'><labelclass=""control-label""for=""proweb-1"">diet</label></div><divclass='col-sm-8ef_proweb_form_promptef-proweb-radio-group'><divclass=""btn-group""id=""proweb-1""data-toggle=""buttons""title=""""><divclass='col-sm-12ef-proweb-radio-button'><labelclass=""btnef-btn-defaultef-proweb-radio-button""id=""proweb-1_1-label""><inputtype=""radio""value=""meat""name=""proweb-1""id=""proweb-1_1"">&nbsp;meat</label></div><divclass='col-sm-12ef-proweb-radio-button'><labelclass=""btnef-btn-defaultef-proweb-radio-button""id=""proweb-1_2-label""><inputtype=""radio""value=""vegetarian""name=""proweb-1""id=""proweb-1_2"">&nbsp;vegetarian</label></div><divclass='col-sm-12ef-proweb-radio-button'><labelclass=""btnef-btn-defaultef-proweb-radio-buttonactive""id=""proweb-1_3-label""><inputtype=""radio""checkedvalue=""vegan""name=""proweb-1""id=""proweb-1_3"">&nbsp;vegan</label></div></div></div></div>"
+	do $$$AssertEquals(returnedHTML,expectedHTML)
+]]></Implementation>
+</Method>
+
+<Method name="TestWithMulticheckboxNoneSelected">
+<Implementation><![CDATA[
+	#dim element as EF.pageController.element
+	
+	set contextData = ##class(EF.contextDataRegistrationMock).createMock()
+	set page=##class(EF.pageController.proweb.page).createNew(contextData)
+	set elementIdentifier = "proweb-1"
+	set element = page.addProwebCheckboxGroup(elementIdentifier, "diet", "")
+
+	set childController = element.addProwebCheckbox(element, elementIdentifier_"-"_1, "meat", 0)
+	set childController = element.addProwebCheckbox(element, elementIdentifier_"-"_2, "vegetarian", 0)
+	set childController = element.addProwebCheckbox(element, elementIdentifier_"-"_3, "vegan", 0)
+	set childController = element.addProwebCheckbox(element, elementIdentifier_"-"_4, "fish", 0)
+	
+	do page.uiComponent.childComponents.SetAt(element.uiComponent,1)
+	set element.uiComponent.contextData = contextData
+	do element.updateUIComponent()
+	
+	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(page,"render")
+	set returnedHTML = $ZStrip(returnedHTML,"*WC")
+	set expectedHTML = "<divclass='rowdraggableTR'><divclass='col-sm-4ef_proweb_form_prompt'><labelclass=""control-label""for=""proweb-1"">diet</label></div><divclass='col-sm-8ef_proweb_form_prompt'><divclass=""form-group""><divclass=""inputs-listef-proweb-input-elementef-proweb-checkboxGroup""><label><inputtype=""checkbox""value=""1""id=""proweb-1-1""class=""""name=""proweb-1-1""title="""">meat</label><br/><label><inputtype=""checkbox""value=""1""id=""proweb-1-2""class=""""name=""proweb-1-2""title="""">vegetarian</label><br/><label><inputtype=""checkbox""value=""1""id=""proweb-1-3""class=""""name=""proweb-1-3""title="""">vegan</label><br/><label><inputtype=""checkbox""value=""1""id=""proweb-1-4""class=""""name=""proweb-1-4""title="""">fish</label><br/></div></div></div></div>"
 	do $$$AssertEquals(returnedHTML,expectedHTML)
 ]]></Implementation>
 </Method>
@@ -8844,7 +8904,7 @@ The basic frontend default stuff</Description>
 </Class>
 
 
-<Project name="proweb 2" LastModified="2016-10-04 10:03:33.77126" Target="freddev/backend/home/login.csp" TargetType="3">
+<Project name="proweb 2" LastModified="2016-10-04 13:15:18.389586" Target="##class(EF.pageController.proweb.page).debugTarget()" TargetType="2">
   <Items>
     <ProjectItem name="EF.contextData" type="CLS"></ProjectItem>
     <ProjectItem name="EF.contextDataRegistration" type="CLS"></ProjectItem>
@@ -8887,10 +8947,18 @@ The basic frontend default stuff</Description>
     <ProjectItem name="EF.ui.components.frontend.checkboxGroup" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.proweb.checkbox" type="CLS"></ProjectItem>
   </Items>
-  <BreakPoints>
-    <BreakPoint Routine="cspRealEV.frontend.reg.pagecontrollerstandardsave.CLS" Offset="OnPreHTTPafter+4"></BreakPoint>
-  </BreakPoints>
   <WatchVariables>
+    <WatchVariable Variable="page..elementChildren.Count()" Pane="1"></WatchVariable>
+    <WatchVariable Variable="page.allPageElements.Count()" Pane="1"></WatchVariable>
+    <WatchVariable Variable="..elementChildren.Count()" Pane="1"></WatchVariable>
+    <WatchVariable Variable="..page.allPageElements.Count()" Pane="1"></WatchVariable>
+    <WatchVariable Variable="..childComponents.Count()" Pane="1"></WatchVariable>
+    <WatchVariable Variable="..allPageElements.Count()" Pane="1"></WatchVariable>
+    <WatchVariable Variable="..uiComponent.label" Pane="1"></WatchVariable>
+    <WatchVariable Variable="..uiComponents.Count()" Pane="1"></WatchVariable>
+    <WatchVariable Variable="key" Pane="1"></WatchVariable>
+    <WatchVariable Variable="element.description" Pane="1"></WatchVariable>
+    <WatchVariable Variable="page.elementChildren.Count()" Pane="1"></WatchVariable>
     <WatchVariable Variable="..getDefaultUIComponent()" Pane="1"></WatchVariable>
     <WatchVariable Variable="element" Pane="1"></WatchVariable>
     <WatchVariable Variable="$this" Pane="1"></WatchVariable>

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.1.2 (Build 206U)" ts="2016-10-03 12:35:43">
+<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.1.2 (Build 206U)" ts="2016-10-04 10:03:33">
 <Class name="EF.contextData">
 <Description><![CDATA[
 <!-- ;vc;-
@@ -456,7 +456,7 @@ if website is private, this will be set to the cod.objPerson.ID of that logged i
 ;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>EF.pageController.containerElement.CLS/EV.17</td><td>CLS.EF.pageController.containerElement</td><td>SmallDev</td><td style='white-space: nowrap;'>02-Sep-16 14:23</td><td>JeremyW</td></tr></table>
 ]]></Description>
 <Super>EF.pageController.element</Super>
-<TimeChanged>64194,37966.615229</TimeChanged>
+<TimeChanged>64195,27681.828972</TimeChanged>
 <TimeCreated>63372,47273.826383</TimeCreated>
 
 <Property name="getContentsMethod">
@@ -493,6 +493,16 @@ This is a list of all the elements that are updated by the processGetContents me
 </Method>
 
 <Method name="addCheckbox">
+<FormalSpec>identifier:%String,description:%String,value:%String,isReadOnly=0</FormalSpec>
+<ReturnType>EF.pageController.inputElements.checkbox</ReturnType>
+<Implementation><![CDATA[
+	set element=##class(EF.pageController.inputElements.checkbox).addElementToParent($this,identifier,description,value,isReadOnly)
+
+	quit element
+]]></Implementation>
+</Method>
+
+<Method name="xxxaddProwebCheckbox">
 <FormalSpec>identifier:%String,description:%String,value:%String,isReadOnly=0</FormalSpec>
 <ReturnType>EF.pageController.inputElements.checkbox</ReturnType>
 <Implementation><![CDATA[
@@ -709,6 +719,16 @@ This is a list of all the elements that are updated by the processGetContents me
 <ReturnType>EF.pageController.containerElements.checkboxGroup</ReturnType>
 <Implementation><![CDATA[
 	set element=##class(EF.pageController.containerElements.checkboxGroup).addElementToParent($this,identifier,description)
+	
+	quit element
+]]></Implementation>
+</Method>
+
+<Method name="addProwebCheckboxGroup">
+<FormalSpec>identifier:%String,description:%String,value:%String</FormalSpec>
+<ReturnType>EF.pageController.proweb.checkboxGroup</ReturnType>
+<Implementation><![CDATA[
+	set element=##class(EF.pageController.proweb.checkboxGroup).addElementToParent($this,identifier,description, value)
 	
 	quit element
 ]]></Implementation>
@@ -2191,6 +2211,114 @@ This can be used to return data from a modal when saved via ajax.</Description>
 </Class>
 
 
+<Class name="EF.pageController.proweb.checkbox">
+<Super>EF.pageController.proweb.inputElement</Super>
+<TimeChanged>64194,61822.238449</TimeChanged>
+<TimeCreated>63372,44893.197087</TimeCreated>
+
+<Method name="getDefaultUIComponent">
+<ReturnType>EF.ui.components.backend.checkbox</ReturnType>
+<Implementation><![CDATA[	quit ##class(EF.ui.components.frontend.checkbox).%New(..identifier)
+]]></Implementation>
+</Method>
+
+<Method name="addDependentList">
+<FormalSpec>identifier:%String</FormalSpec>
+<ReturnType>EF.pageController.containerElements.list</ReturnType>
+<Implementation><![CDATA[
+	set element=##class(EF.pageController.containerElements.list).addElementToParent($this,identifier,"")
+	set element.enableDisableDependencyList=##class(EF.ui.components.dependencyList).createNew(..identifier,1)
+	quit element
+]]></Implementation>
+</Method>
+
+<Storage name="Default">
+<Type>%Library.CacheStorage</Type>
+</Storage>
+</Class>
+
+
+<Class name="EF.pageController.proweb.checkboxGroup">
+<Super>EF.pageController.proweb.inputElement</Super>
+<TimeChanged>64195,36077.451398</TimeChanged>
+<TimeCreated>64189,53206.554402</TimeCreated>
+
+<Method name="getDefaultUIComponent">
+<ReturnType>EF.ui.components.backend.checkbox</ReturnType>
+<Implementation><![CDATA[	quit ##class(EF.ui.components.frontend.checkboxGroup).%New(..identifier)
+]]></Implementation>
+</Method>
+
+<Method name="addAlternative">
+<FormalSpec>value,description,isDefault=0</FormalSpec>
+<ReturnType>EF.ui.components.alternative</ReturnType>
+<Implementation><![CDATA[	return ..uiComponent.addAlternative(value,description,isDefault)
+]]></Implementation>
+</Method>
+
+<Method name="isAlternativeInValueString">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>alternative:%String,valueString:%String</FormalSpec>
+<ReturnType>%Boolean</ReturnType>
+<Implementation><![CDATA[
+	for i=1:1:$Length(valueString,"|") {
+		if $ZCVT($ZSTRIP($Piece(valueString,"|",i),"<>W"),"U") = $ZCVT($ZSTRIP(alternative,"<>W"),"U") {
+			return 1	
+		}	
+	}
+	return 0
+]]></Implementation>
+</Method>
+
+<Method name="addProwebCheckbox">
+<FormalSpec>parent:EF.pageController.proweb.checkboxGroup,identifier:%String,description:%String,value:%String,isReadOnly=0</FormalSpec>
+<ReturnType>EF.pageController.inputElements.checkbox</ReturnType>
+<Implementation><![CDATA[
+	set element=##class(EF.pageController.proweb.checkbox).addElementToParent(parent, identifier,description,value,isReadOnly)
+
+	quit element
+]]></Implementation>
+</Method>
+
+<Method name="getValueFromRequest">
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	#dim child as EF.pageController.proweb.checkbox
+	#dim valueString as %String = ""
+	
+	for index = 1:1:..elementChildren.Count() {
+		set child = ..elementChildren.GetAt(index)
+		if %request.Get(child.identifier) = 1 {
+			set tmpArray(index) = child.description
+		}
+	}
+	set codItemName = ##class(sc.xModules.objCODitem).getCODItemName(..prowebID)
+	set eventID = ##class(sc.objData).getEventID(..prowebID)
+	set valueString = ##class(cod.methods).formatMultiCheckBox(eventID, codItemName, .tmpArray)
+	return valueString
+]]></Implementation>
+</Method>
+
+<Method name="validateValue">
+<Implementation><![CDATA[
+	set isValid=1 ;..uiComponent.validator.isInputValid(..value) ##############	
+	
+	if 'isValid {
+		do ..setErrorMessage(..uiComponent.validator.getErrorMessage())
+	}
+]]></Implementation>
+</Method>
+
+<Method name="setNameForValidationError">
+<FormalSpec>name</FormalSpec>
+</Method>
+
+<Storage name="Default">
+<Type>%Library.CacheStorage</Type>
+</Storage>
+</Class>
+
+
 <Class name="EF.pageController.proweb.divider">
 <Super>EF.pageController.element</Super>
 <TimeChanged>64188,59730.972752</TimeChanged>
@@ -2269,7 +2397,7 @@ This can be used to return data from a modal when saved via ajax.</Description>
 
 <Class name="EF.pageController.proweb.page">
 <Super>EF.pageController.page</Super>
-<TimeChanged>64194,44139.282534</TimeChanged>
+<TimeChanged>64195,36131.303816</TimeChanged>
 <TimeCreated>64189,51696.559047</TimeCreated>
 
 <Property name="contextData">
@@ -2416,18 +2544,17 @@ This can be used to return data from a modal when saved via ajax.</Description>
 	if prowebItem.type = "text" {
 		set element = ..addProwebTextInput(elementIdentifier, labelText, value)
 		
-	} elseif prowebItem.type = "dropdown" {
+	} elseif (prowebItem.type = "dropdown") ! (prowebItem.type = "radiobutton") ! (prowebItem.type = "multibox") {
 		set element = ..addProwebSelectionElement(prowebItem)
-	
-	} elseif prowebItem.type = "radiobutton" {
-		set element = ..addProwebSelectionElement(prowebItem)
-		
+				
 	} else {
 		throw ##class(shared.exceptions.generalException).%New("proweb question type is not implement yet")	
 	}
 	
-	set element.isMandatory = prowebItem.mandatory
-	set element.uiComponent.isMandatory = prowebItem.mandatory
+	if 'element.%IsA("EF.pageController.proweb.checkboxGroup") {
+		set element.isMandatory = prowebItem.mandatory
+		set element.uiComponent.isMandatory = prowebItem.mandatory
+	}
 	set element.uiComponent.helpText = prowebItem.helpText	
 	set element.prowebID = prowebItem.%Id()
 
@@ -2436,29 +2563,51 @@ This can be used to return data from a modal when saved via ajax.</Description>
 </Method>
 
 <Method name="addProwebSelectionElement">
-<FormalSpec>prowebItem:sc.objData,elementType:%String</FormalSpec>
+<FormalSpec>prowebItem:sc.objData</FormalSpec>
 <Private>1</Private>
 <ReturnType>EF.pageController.element</ReturnType>
 <Implementation><![CDATA[
 	#dim prowebID as %Integer = prowebItem.%Id()
 	#dim itemName as %String = ##class(sc.xModules.objCODitem).getCODItemName(prowebID)
-	#dim value as %String  = ##class(eCom.tempCodData).get(..contextData.tempPersonID, itemName)
+	#dim value as %String 
 	#dim elementIdentifier as %String = ..getElementIdentifierForProwebItems(prowebItem)
 	#dim labelText as %String = ##class(sc.objData).getQuestionPrompt(prowebID, ..contextData.languageID)
+	#dim counter as %Integer = 0
+	#dim getRawData as %Boolean = 1
 	
-	if prowebItem.type="dropdown" {
+	if prowebItem.type = "dropdown" {
+		set value = ##class(eCom.tempCodData).get(..contextData.tempPersonID, itemName)
 		set element = ..addProwebDropdown(elementIdentifier, labelText, value)
-	} elseif prowebItem.type="radiobutton" {
+		
+	} elseif prowebItem.type = "radiobutton" {
+		set value = ##class(eCom.tempCodData).get(..contextData.tempPersonID, itemName)
 		set element = ..addProwebRadioButtons(elementIdentifier, labelText, value)
+		
+	} elseif prowebItem.type = "multibox" {
+		set value = ##class(eCom.tempCodData).get(..contextData.tempPersonID, itemName,"",getRawData)
+		set element = ..addProwebCheckboxGroup(elementIdentifier, labelText, value)
+		set element.uiComponent.columns=1
+		
+			
+	} else {
+		throw ##class(shared.exceptions.generalException).%New("Proweb selection type not implemented")
 	}
 	set element.displayOrder = prowebItem.displayOrder	
-
+	
 	set rsAlternative = ##class(cod.objItemAlternatives).getAlternativesForCodItemAsResultSet( prowebItem.objItemName.%Id() )
 	while rsAlternative.Next()	{
 		Set alternativeDescription = rsAlternative.Get("description")
 		set alternativeValue = alternativeDescription // ###### needs to be changed for multilingual alternatives ########
-		set alternative = element.addAlternative(alternativeValue,alternativeDescription)
-	}
+		if prowebItem.type = "multibox" {
+			set counter = counter+1
+			set isChecked = ##class(EF.pageController.proweb.checkboxGroup).isAlternativeInValueString(alternativeDescription, value)
+			set childController = element.addProwebCheckbox(element, elementIdentifier_"-"_counter, alternativeDescription, isChecked)
+
+		} else {
+			set alternative = element.addAlternative(alternativeValue,alternativeDescription)
+		}
+    }
+	
 	return element
 ]]></Implementation>
 </Method>
@@ -3153,6 +3302,119 @@ this is for version 1 of proweb</Description>
 		set attributes=attributes_"data-toggle-class-dependency-class-name="""_..encodeForHTMLAttribute(..toggleClassDependencyClassName)_""" "
 	}
 	return attributes_##class(EF.ui.components.attribute).getAttributesAsHTML(..extraAttributes)
+]]></Implementation>
+</Method>
+</Class>
+
+
+<Class name="EF.ui.components.frontend.checkbox">
+<Super>EF.ui.components.checkbox,EF.ui.components.frontend.inputElement</Super>
+<TimeChanged>64194,60882.313555</TimeChanged>
+<TimeCreated>63355,62572.097775</TimeCreated>
+
+<Method name="render">
+<Implementation><![CDATA[
+	// The html bit
+	if $length(..label) {
+		&html<
+	        <label>
+		        #[do ..renderCheckbox()]#
+		        #(..encodeHTMLContent(..label))#
+		    </label>
+		    <br/>
+		>
+	} else {
+		do ..renderCheckbox()	
+	}
+	do ##super()
+]]></Implementation>
+</Method>
+
+<Method name="addOnDisableAction">
+<FormalSpec>action</FormalSpec>
+<Implementation><![CDATA[	do ..addAttribute("data-on-disable-action",action)
+]]></Implementation>
+</Method>
+
+<Method name="renderCheckbox">
+<Implementation><![CDATA[
+	set disabledString=""
+	if ..isDisabled {
+		set disabledString="disabled=""disabled"""
+	}
+	set isCheckedString=""
+	if ..value {
+		set isCheckedString="checked"
+	}
+	&html<
+		<input type="checkbox" value="1" id="#(..encodeHTMLAttribute(..htmlID))#" class="#(..encodeForHTMLAttribute(..classes))#" name="#(..encodeHTMLAttribute(..htmlName))#" title="#(..encodeHTMLAttribute(..title))#" #(..rawHTML(isCheckedString))# #(..rawHTML(disabledString))# #(..rawHTML(..getExtraAttributes()))#>
+	>
+]]></Implementation>
+</Method>
+</Class>
+
+
+<Class name="EF.ui.components.frontend.checkboxGroup">
+<Super>EF.ui.components.checkboxGroup,EF.ui.components.frontend.inputElement</Super>
+<TimeChanged>64195,32113.886974</TimeChanged>
+<TimeCreated>63356,56848.077942</TimeCreated>
+
+<Method name="render">
+<Implementation><![CDATA[
+	do ..renderRowOpeningAndLabel()
+	&html<
+		
+		<div class="form-group">
+        	#[do ..renderCheckboxes()]#
+        </div>
+    >
+    do ..renderHelpAndRowClosing()
+]]></Implementation>
+</Method>
+
+<Method name="renderCheckboxes">
+<Implementation><![CDATA[
+	set ind=""
+	for column=1:1:..columns {
+		do ..renderColumnStart()
+		for row=1:1:..childComponents.Count() {
+			set checkbox=..childComponents.GetAt($I(ind))
+			if $IsObject(checkbox) {
+				do ..renderCheckbox(checkbox)
+			}
+		}
+		do ..renderColumnEnd()	
+	}
+]]></Implementation>
+</Method>
+
+<Method name="renderColumnStart">
+<Implementation><![CDATA[
+	if ..columns=1 {
+		&html<<div class="inputs-list ef-proweb-input-element ef-proweb-checkboxGroup">>
+	} elseif ..columns=2 {
+		&html<<div class="inputs-list ef-proweb-input-element ef-proweb-checkboxGroup col-sm-6">>
+	} else {
+		throw ##class(shared.exceptions.generalException).%New("Checkbox group not implemented for "_..columns_" columns")	
+	}
+]]></Implementation>
+</Method>
+
+<Method name="renderColumnEnd">
+<Implementation><![CDATA[	&html<</div>>
+]]></Implementation>
+</Method>
+
+<Method name="renderCheckbox">
+<FormalSpec>checkbox:EF.ui.components.frontend.checkbox</FormalSpec>
+<Implementation><![CDATA[
+	
+	// The html bit
+	&html<
+		
+			#[do checkbox.render()]#
+		
+	>
 ]]></Implementation>
 </Method>
 </Class>
@@ -3862,15 +4124,13 @@ this is for version 1 of proweb</Description>
 	try {
 		set pageController=##class(EF.pageController.page).open(pageControllerID,contextData)
 	} catch {
-		w 1/0 set ok=0
+		w 1/0 set ok=0 // ###########
 	}
-	// ### re-instate the return to previous page if we couldn't open the pagecontroller. not sure why. ####
 	
 	set backforward=##class(setup.objPageNav).goWhere("codFormSave.csp", , contextData.tempPersonID, %request.Get("pageID"))
 	set redirectURL = $Piece(backforward,"|",2)
 	set %response.Redirect=redirectURL
-	;quit 0
-	
+
 	set pageController.submitButtonClickedIdentifier=%request.Get("efSubmitButtonIdentifier")
 	
 	if %request.Get("efSaveAndReloadFormOnly") {
@@ -6372,7 +6632,7 @@ FRRE RULE
 <Abstract>1</Abstract>
 <ClassType/>
 <ProcedureBlock>1</ProcedureBlock>
-<TimeChanged>64194,45332.940042</TimeChanged>
+<TimeChanged>64195,32079.482612</TimeChanged>
 <TimeCreated>63046,56232.897117</TimeCreated>
 
 <Method name="outputDefaultCSS">
@@ -6621,6 +6881,9 @@ yellow red grey etc. Used for ALL templates below gen3</Description>
 		.ef-proweb-input-element {
 			width: 90%;
 			float: left;	
+		}
+		.ef-proweb-checkboxGroup {
+			text-align: left;	
 		}
 		.ef-registration-section td label {
 			display: inline-block;
@@ -8581,7 +8844,7 @@ The basic frontend default stuff</Description>
 </Class>
 
 
-<Project name="proweb 2" LastModified="2016-10-03 12:04:03.509515" Target="freddev/backend/home/login.csp" TargetType="3">
+<Project name="proweb 2" LastModified="2016-10-04 10:03:33.77126" Target="freddev/backend/home/login.csp" TargetType="3">
   <Items>
     <ProjectItem name="EF.contextData" type="CLS"></ProjectItem>
     <ProjectItem name="EF.contextDataRegistration" type="CLS"></ProjectItem>
@@ -8619,7 +8882,19 @@ The basic frontend default stuff</Description>
     <ProjectItem name="sc.objData" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.proweb.radioButtons" type="CLS"></ProjectItem>
     <ProjectItem name="EF.ui.components.frontend.radioButtons" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.pageController.proweb.checkboxGroup" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.ui.components.frontend.checkbox" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.ui.components.frontend.checkboxGroup" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.pageController.proweb.checkbox" type="CLS"></ProjectItem>
   </Items>
+  <BreakPoints>
+    <BreakPoint Routine="cspRealEV.frontend.reg.pagecontrollerstandardsave.CLS" Offset="OnPreHTTPafter+4"></BreakPoint>
+  </BreakPoints>
+  <WatchVariables>
+    <WatchVariable Variable="..getDefaultUIComponent()" Pane="1"></WatchVariable>
+    <WatchVariable Variable="element" Pane="1"></WatchVariable>
+    <WatchVariable Variable="$this" Pane="1"></WatchVariable>
+  </WatchVariables>
 </Project>
 
 

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.1.2 (Build 206U)" ts="2016-10-04 13:15:18">
+<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.1.2 (Build 206U)" ts="2016-10-05 15:02:08">
 <Class name="EF.contextData">
 <Description><![CDATA[
 <!-- ;vc;-
@@ -2387,7 +2387,7 @@ This can be used to return data from a modal when saved via ajax.</Description>
 
 <Class name="EF.pageController.proweb.page">
 <Super>EF.pageController.page</Super>
-<TimeChanged>64195,45051.87243</TimeChanged>
+<TimeChanged>64196,53423.822431</TimeChanged>
 <TimeCreated>64189,51696.559047</TimeCreated>
 
 <Property name="contextData">
@@ -2416,7 +2416,7 @@ This can be used to return data from a modal when saved via ajax.</Description>
 	} elseif $Get(attrs("prowebcomponentname"))'="" {
 		set ..contextData.prowebComponentName = attrs("prowebcomponentname")
 		do ..initialiseComponent()
-		if ..contextData.prowebMode = "edit" {
+		if (..contextData.prowebMode = "edit") && (..allPageElements.Count() = 1 ) {
 			do ..outputFloatingMenuForAddToTop()	
 		}
 		do ..renderProwebItemsForComponent()
@@ -2586,8 +2586,10 @@ This can be used to return data from a modal when saved via ajax.</Description>
 	
 	set rsAlternative = ##class(cod.objItemAlternatives).getAlternativesForCodItemAsResultSet( prowebItem.objItemName.%Id() )
 	while rsAlternative.Next()	{
-		Set alternativeDescription = rsAlternative.Get("description")
-		set alternativeValue = alternativeDescription // ###### needs to be changed for multilingual alternatives ########
+		set alternativeValue = rsAlternative.Get("description") 
+		set alternativeDescription = ##class(cod.objItemAlternativeDetails).getDescription(rsAlternative.Get("ID"), ..contextData.languageID)
+		set alternativeDescription = ##class(EF.htmlGenerator).unescapeXSSFix(alternativeDescription)
+		
 		if prowebItem.type = "multibox" {
 			set counter = counter+1
 			set isChecked = ##class(EF.pageController.proweb.checkboxGroup).isAlternativeInValueString(alternativeDescription, value)
@@ -3587,7 +3589,7 @@ this is for version 1 of proweb</Description>
 
 <Class name="EF.ui.components.frontend.floatingMenuAdd">
 <Super>%RegisteredObject</Super>
-<TimeChanged>64194,34855.16246</TimeChanged>
+<TimeChanged>64196,52998.169116</TimeChanged>
 <TimeCreated>64190,37989.914109</TimeCreated>
 
 <Property name="contextData">
@@ -3674,7 +3676,7 @@ this is for version 1 of proweb</Description>
 	}
 	
 	if page.alllowPromptCollections() {
-		write !,..getMenuItemJS("Reg Prompt Collections")	
+		//write !,..getMenuItemJS("Reg Prompt Collections")	
 	}
 	if page.isSurvey() {
 		set surveyGroupID = ##class(sc.objData).getParentID(pageID)
@@ -3699,7 +3701,7 @@ this is for version 1 of proweb</Description>
 		write !,..getMenuItemJS("YouTube Video")
 	}
 	if page.allowFrontendUpload() {
-		write !,..getMenuItemJS("File Upload")
+		//write !,..getMenuItemJS("File Upload")
 	}
 	write !,"]</sc"_"ript>"
 ]]></Implementation>
@@ -3896,7 +3898,7 @@ this is for version 1 of proweb</Description>
 
 <Class name="EF.ui.components.frontend.prowebBase">
 <Super>EF.ui.components.base</Super>
-<TimeChanged>64194,39464.422761</TimeChanged>
+<TimeChanged>64196,32840.924881</TimeChanged>
 <TimeCreated>64183,41819.123112</TimeCreated>
 
 <Property name="isProwebEditMode">
@@ -3918,7 +3920,7 @@ this is for version 1 of proweb</Description>
 	#dim floatingEditMenuID as %Integer = ..contextData.getNewFloatingMenuCounter()
 	
 	if ..isProwebEditMode {
-		write !,"<div class='row draggableDIV ef-proweb-form-row-editable' onContextMenu=""HM_f_PopUp('HM_Menu"_floatingEditMenuID_"',event); return true;"" onMouseOut=""HM_f_PopDown('HM_Menu"_floatingEditMenuID_"');"">"
+		write !,"<div class='row draggableDIV ef-proweb-form-row-editable' onContextMenu=""HM_f_PopUp('HM_Menu"_floatingEditMenuID_"',event); return false;"" onMouseOut=""HM_f_PopDown('HM_Menu"_floatingEditMenuID_"');"">"
 		do ..renderFloatingEditMenu(floatingEditMenuID)	
 		
 	} else {
@@ -4269,7 +4271,7 @@ this is for version 1 of proweb</Description>
 </head>
 <body class="bodyBackground">
 <script language="CACHE" method="OnPreHTTPafter" arguments="" returntype="%Boolean">
-	;set %response.ServerSideRedirect="t4Registration.csp?pageID="_$G(%session.Data("pageID")) quit 0
+	set %response.ServerSideRedirect="t4Registration.csp?pageID="_$G(%session.Data("pageID")) quit 0
 	set sessionID=%session.SessionId
 	set mode=%request.Get("mode")
 	if mode="" set mode=%session.Get("mode")
@@ -5657,26 +5659,8 @@ FRRE RULE
 	<script language="javascript">
 	
 	function confirmDelete(dataID) {
-		if (confirm("Are you sure that you want to delete this item?\nPlease note that this action is not possible to undo\nand that all previous versions will also be deleted.") == true) {
+		if (confirm("Are you sure that you want to delete this item?\nPlease note that this action is not possible to undo.") == true) {
 			document.location = '#(..Link(app_"/backend/proweb/deleteListItem.csp?zz=1"))#&dataID=' + dataID;
-		}
-	}
-	
-	function moveItem(dataID,direction) {
-		document.location = "#(..Link(app_"/backend/proweb/moveListItem.csp?zz=1"))#" + "&move=" + direction + "&dataID=" + dataID
-	}
-	
-	function moveItemToPosition(dataID) {
-		var answer= prompt('How many steps do you want to move this item? \n(use negative number for upwards and positive for downwards)','+5')
-		if (answer !='') {
-			var direction = 'position' + '|' + answer;
-			document.location = "#(..Link(app_"/backend/proweb/moveListItem.csp?zz=1"))#" + "&move=" + direction + "&dataID=" + dataID
-		}
-	}
-	
-	function publish(dataID) {
-		if (confirm("Are you absoulutely sure that you want to approve this item?") == true) {
-			document.location= "#(..Link(app_"/backend/proweb/publish.csp?zz=1"))#&dataID=" + dataID + "&templateURL=#(templateFilename)#" ;
 		}
 	}
 	
@@ -5705,20 +5689,20 @@ FRRE RULE
 	
 	//HM_GL_MenuWidth          = 1000;
 	HM_GL_FontFamily         = "Arial,sans-serif";
-	HM_GL_FontSize           = 12;
+	HM_GL_FontSize           = 10;
 	HM_GL_FontBold           = false;
 	HM_GL_FontItalic         = false;
-	HM_GL_FontColor          = "black";
+	HM_GL_FontColor          = "#DCDCDC";
 	HM_GL_FontColorOver      = "white";
-	HM_GL_BGColor            = "#eeeeee";
+	HM_GL_BGColor            = "#787878";
 	HM_GL_BGColorOver        = "#FFA933";
 	//HM_GL_ItemPadding        = 3;
 	
 	HM_GL_BorderWidth        = 1;
-	HM_GL_BorderColor        = "#bbbbbb";
+	HM_GL_BorderColor        = "#787878";
 	HM_GL_BorderStyle        = "solid";
 	HM_GL_SeparatorSize      = 2;
-	HM_GL_SeparatorColor     = "#bbbbbb";
+	HM_GL_SeparatorColor     = "#787878";
 	//HM_GL_ImageSrc = "HM_More_black_right.gif";
 	//HM_GL_ImageSrcLeft = "HM_More_black_left.gif";
 	///HM_GL_ImageSrcOver = "HM_More_white_right.gif";
@@ -8913,55 +8897,55 @@ The basic frontend default stuff</Description>
     <ProjectItem name="EF.pageController.element" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.page" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.pagesFrontend.t4Registration" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.pageController.proweb.checkbox" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.pageController.proweb.checkboxGroup" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.proweb.divider" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.proweb.dropdown" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.proweb.inputElement" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.proweb.page" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.proweb.pageTestCase" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.pageController.proweb.radioButtons" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.proweb.textBlock" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.proweb.textInput" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pages.frontend.base" type="CLS"></ProjectItem>
     <ProjectItem name="EF.ui.components.base" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.ui.components.frontend.checkbox" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.ui.components.frontend.checkboxGroup" type="CLS"></ProjectItem>
     <ProjectItem name="EF.ui.components.frontend.divider" type="CLS"></ProjectItem>
     <ProjectItem name="EF.ui.components.frontend.dropdown" type="CLS"></ProjectItem>
     <ProjectItem name="EF.ui.components.frontend.floatingMenuAdd" type="CLS"></ProjectItem>
     <ProjectItem name="EF.ui.components.frontend.inputElement" type="CLS"></ProjectItem>
     <ProjectItem name="EF.ui.components.frontend.prowebBase" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.ui.components.frontend.radioButtons" type="CLS"></ProjectItem>
     <ProjectItem name="EF.ui.components.frontend.textBlock" type="CLS"></ProjectItem>
     <ProjectItem name="EF.ui.components.frontend.textInput" type="CLS"></ProjectItem>
+    <ProjectItem name="freddev/frontEnd/reg/pageControllerStandardSave.csp" type="CSP"></ProjectItem>
     <ProjectItem name="freddev/frontEnd/reg/t4Registration.csp" type="CSP"></ProjectItem>
     <ProjectItem name="freddev/frontEnd/reg/tRegistration.csp" type="CSP"></ProjectItem>
     <ProjectItem name="freddev/system/eventsForceRules.csr" type="CSP"></ProjectItem>
+    <ProjectItem name="freddev/system/proweb/templateStop.csp" type="CSP"></ProjectItem>
     <ProjectItem name="layout.cssDefaultMethods" type="CLS"></ProjectItem>
     <ProjectItem name="sc.floatingMenu" type="CLS"></ProjectItem>
+    <ProjectItem name="sc.objData" type="CLS"></ProjectItem>
     <ProjectItem name="sc.xModules.objList" type="CLS"></ProjectItem>
     <ProjectItem name="sc.xModules.objPage" type="CLS"></ProjectItem>
     <ProjectItem name="shared.pageMethods" type="CLS"></ProjectItem>
-    <ProjectItem name="freddev/frontEnd/reg/pageControllerStandardSave.csp" type="CSP"></ProjectItem>
-    <ProjectItem name="freddev/system/proweb/templateStop.csp" type="CSP"></ProjectItem>
-    <ProjectItem name="sc.objData" type="CLS"></ProjectItem>
-    <ProjectItem name="EF.pageController.proweb.radioButtons" type="CLS"></ProjectItem>
-    <ProjectItem name="EF.ui.components.frontend.radioButtons" type="CLS"></ProjectItem>
-    <ProjectItem name="EF.pageController.proweb.checkboxGroup" type="CLS"></ProjectItem>
-    <ProjectItem name="EF.ui.components.frontend.checkbox" type="CLS"></ProjectItem>
-    <ProjectItem name="EF.ui.components.frontend.checkboxGroup" type="CLS"></ProjectItem>
-    <ProjectItem name="EF.pageController.proweb.checkbox" type="CLS"></ProjectItem>
   </Items>
   <WatchVariables>
-    <WatchVariable Variable="page..elementChildren.Count()" Pane="1"></WatchVariable>
-    <WatchVariable Variable="page.allPageElements.Count()" Pane="1"></WatchVariable>
-    <WatchVariable Variable="..elementChildren.Count()" Pane="1"></WatchVariable>
-    <WatchVariable Variable="..page.allPageElements.Count()" Pane="1"></WatchVariable>
-    <WatchVariable Variable="..childComponents.Count()" Pane="1"></WatchVariable>
+    <WatchVariable Variable="$this" Pane="1"></WatchVariable>
     <WatchVariable Variable="..allPageElements.Count()" Pane="1"></WatchVariable>
+    <WatchVariable Variable="..childComponents.Count()" Pane="1"></WatchVariable>
+    <WatchVariable Variable="..elementChildren.Count()" Pane="1"></WatchVariable>
+    <WatchVariable Variable="..getDefaultUIComponent()" Pane="1"></WatchVariable>
+    <WatchVariable Variable="..page.allPageElements.Count()" Pane="1"></WatchVariable>
     <WatchVariable Variable="..uiComponent.label" Pane="1"></WatchVariable>
     <WatchVariable Variable="..uiComponents.Count()" Pane="1"></WatchVariable>
-    <WatchVariable Variable="key" Pane="1"></WatchVariable>
-    <WatchVariable Variable="element.description" Pane="1"></WatchVariable>
-    <WatchVariable Variable="page.elementChildren.Count()" Pane="1"></WatchVariable>
-    <WatchVariable Variable="..getDefaultUIComponent()" Pane="1"></WatchVariable>
     <WatchVariable Variable="element" Pane="1"></WatchVariable>
-    <WatchVariable Variable="$this" Pane="1"></WatchVariable>
+    <WatchVariable Variable="element.description" Pane="1"></WatchVariable>
+    <WatchVariable Variable="key" Pane="1"></WatchVariable>
+    <WatchVariable Variable="page..elementChildren.Count()" Pane="1"></WatchVariable>
+    <WatchVariable Variable="page.allPageElements.Count()" Pane="1"></WatchVariable>
+    <WatchVariable Variable="page.elementChildren.Count()" Pane="1"></WatchVariable>
   </WatchVariables>
 </Project>
 
@@ -9158,7 +9142,7 @@ Please note that this class will be the super class of all underlying data items
 <IncludeCode>EF.common.macros</IncludeCode>
 <ProcedureBlock>1</ProcedureBlock>
 <Super>%Library.Persistent,shared.timeStamp</Super>
-<TimeChanged>64194,35606.2085</TimeChanged>
+<TimeChanged>64196,52551.005653</TimeChanged>
 <TimeCreated>59148,67793</TimeCreated>
 <Inheritance>right</Inheritance>
 
@@ -10179,7 +10163,7 @@ this method replaces and consolidates the onPreHttp scripts on textDetails.csp, 
 	if className="objCODitem" {
 		set obj=##class(sc.objData).%OpenId(context.viewID)
 		// display coditemname rather than desc because html formatted desc upsets JS 
-		set title="----- "_$S(obj.isGuest:"GUEST_",1:"")_##class(shared.pCSP).EscapeHTML(obj.objItemName.description)_" -----"
+		set title="----- "_$S(obj.isGuest:"GUEST_",1:"")_##class(shared.pCSP).EscapeHTML(obj.objItemName.description)
 		kill obj
 	}
 
@@ -10255,7 +10239,8 @@ this method replaces and consolidates the onPreHttp scripts on textDetails.csp, 
 	set up="up",down="down"
 	set top="top",bottom="bottom"
 	;set editMenuStr($I(idx)) = "['Move Up',""javasc"_"ript: moveItem("_dataID_",'"_up_"');"",1,0,0],['Move Down',""javasc"_"ript: moveItem("_dataID_",'"_down_"');"",1,0,0]"
-	set editMenuStr($I(idx)) = "['Add item here',""javasc"_"ript: HM_f_PopUp('HM_Menu101',event);"",1,0,0]"
+	set editMenuStr($I(idx)) = "['Insert new item above',""javasc"_"ript: HM_f_PopUp('HM_Menu101',event);"",1,0,0]"
+	set editMenuStr($I(idx)) = ",['Insert new item below',""javasc"_"ript: HM_f_PopUp('HM_Menu101',event);"",1,0,0]"
 	;set editMenuStr($I(idx)) = ",['Move to Top',""javasc"_"ript: moveItem("_dataID_",'"_top_"');"",1,0,0],['Move to Bottom',""javasc"_"ript: moveItem("_dataID_",'"_bottom_"');"",1,0,0],['Move to Position',""javasc"_"ript: moveItemToPosition("_dataID_");"",1,0,0]"
 	set editMenuStr($I(idx)) = "];</sc"_"ript>"
 ]]></Implementation>

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2015.2 (Build 664_3_16032U)" ts="2016-10-06 14:42:54">
+<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2015.2 (Build 664_3_16032U)" ts="2016-10-06 17:55:26">
 <Class name="EF.contextDataRegistration">
 <Description><![CDATA[
 <!-- ;vc;-
@@ -335,7 +335,7 @@ if website is private, this will be set to the cod.objPerson.ID of that logged i
 ;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>EF.pageController.containerElement.CLS/EV.17</td><td>CLS.EF.pageController.containerElement</td><td>SmallDev</td><td style='white-space: nowrap;'>02-Sep-16 14:23</td><td>JeremyW</td></tr></table>
 ]]></Description>
 <Super>EF.pageController.element</Super>
-<TimeChanged>64197,51646.404339</TimeChanged>
+<TimeChanged>64197,64052.57974</TimeChanged>
 <TimeCreated>63372,47273.826383</TimeCreated>
 
 <Property name="getContentsMethod">
@@ -441,26 +441,6 @@ This is a list of all the elements that are updated by the processGetContents me
 ]]></Implementation>
 </Method>
 
-<Method name="addProwebTextInput">
-<FormalSpec>identifier:%String,description:%String,value:%String,isReadOnly=0</FormalSpec>
-<ReturnType>EF.pageController.inputElements.textInput</ReturnType>
-<Implementation><![CDATA[
-	set element=##class(EF.pageController.proweb.textInput).addElementToParent($this,identifier,description,value,isReadOnly)
-	
-	quit element
-]]></Implementation>
-</Method>
-
-<Method name="addProwebPhoneNumber">
-<FormalSpec>identifier:%String,description:%String,value:%String,isReadOnly=0</FormalSpec>
-<ReturnType>EF.pageController.inputElements.textInput</ReturnType>
-<Implementation><![CDATA[
-	set element=##class(EF.pageController.proweb.phoneNumber).addElementToParent($this,identifier,description,value,isReadOnly)
-	
-	quit element
-]]></Implementation>
-</Method>
-
 <Method name="addEmailInput">
 <FormalSpec>identifier:%String,description:%String,value:%String,isReadOnly=0</FormalSpec>
 <ReturnType>EF.pageController.inputElements.textInput</ReturnType>
@@ -516,26 +496,6 @@ This is a list of all the elements that are updated by the processGetContents me
 <ReturnType>EF.pageController.inputElements.dropdown</ReturnType>
 <Implementation><![CDATA[
 	set element=##class(EF.pageController.inputElements.dropdown).addElementToParent($this,identifier,description,value,isReadOnly)
-	
-	quit element
-]]></Implementation>
-</Method>
-
-<Method name="addProwebDropdown">
-<FormalSpec>identifier:%String,description:%String,value:%String,isReadOnly=0</FormalSpec>
-<ReturnType>EF.pageController.inputElements.dropdown</ReturnType>
-<Implementation><![CDATA[
-	set element=##class(EF.pageController.proweb.dropdown).addElementToParent($this,identifier,description,value,isReadOnly)
-	
-	quit element
-]]></Implementation>
-</Method>
-
-<Method name="addProwebRadioButtons">
-<FormalSpec>identifier:%String,description:%String,value:%String,isReadOnly=0</FormalSpec>
-<ReturnType>EF.pageController.inputElements.dropdown</ReturnType>
-<Implementation><![CDATA[
-	set element=##class(EF.pageController.proweb.radioButtons).addElementToParent($this,identifier,description,value,isReadOnly)
 	
 	quit element
 ]]></Implementation>
@@ -598,16 +558,6 @@ This is a list of all the elements that are updated by the processGetContents me
 <ReturnType>EF.pageController.containerElements.checkboxGroup</ReturnType>
 <Implementation><![CDATA[
 	set element=##class(EF.pageController.containerElements.checkboxGroup).addElementToParent($this,identifier,description)
-	
-	quit element
-]]></Implementation>
-</Method>
-
-<Method name="addProwebCheckboxGroup">
-<FormalSpec>identifier:%String,description:%String,value:%String</FormalSpec>
-<ReturnType>EF.pageController.proweb.checkboxGroup</ReturnType>
-<Implementation><![CDATA[
-	set element=##class(EF.pageController.proweb.checkboxGroup).addElementToParent($this,identifier,description, value)
 	
 	quit element
 ]]></Implementation>
@@ -804,25 +754,6 @@ Adds a translation button with warning icon which opens an in-form modal</Descri
 <Implementation><![CDATA[
 	set element=##class(EF.pageController.text).addElementToParent($this,identifier,description)
 
-	quit element
-]]></Implementation>
-</Method>
-
-<Method name="addProwebTextBlock">
-<FormalSpec>identifier:%String,description:%String</FormalSpec>
-<ReturnType>EF.pageController.text</ReturnType>
-<Implementation><![CDATA[
-	set element=##class(EF.pageController.proweb.textBlock).addElementToParent($this,identifier,description)
-
-	quit element
-]]></Implementation>
-</Method>
-
-<Method name="addProwebDivider">
-<FormalSpec>identifier:%String,description:%String</FormalSpec>
-<ReturnType>EF.pageController.text</ReturnType>
-<Implementation><![CDATA[
-	set element=##class(EF.pageController.proweb.divider).addElementToParent($this,identifier,description)
 	quit element
 ]]></Implementation>
 </Method>
@@ -1431,7 +1362,7 @@ Should be run if any of the sub-classes are deleted</Description>
 
 <Class name="EF.pageController.proweb.checkboxGroup">
 <Super>EF.pageController.proweb.inputElement</Super>
-<TimeChanged>64195,36077.451398</TimeChanged>
+<TimeChanged>64197,55588.485528</TimeChanged>
 <TimeCreated>64189,53206.554402</TimeCreated>
 
 <Method name="getDefaultUIComponent">
@@ -1485,7 +1416,13 @@ Should be run if any of the sub-classes are deleted</Description>
 	}
 	set codItemName = ##class(sc.xModules.objCODitem).getCODItemName(..prowebID)
 	set eventID = ##class(sc.objData).getEventID(..prowebID)
-	set valueString = ##class(cod.methods).formatMultiCheckBox(eventID, codItemName, .tmpArray)
+	
+	if ##class(sc.xModules.objCODitem).getType(..prowebID) = "multibox" {
+		set valueString = ##class(cod.methods).formatMultiCheckBox(eventID, codItemName, .tmpArray)
+		
+	} elseif ##class(sc.xModules.objCODitem).getType(..prowebID) = "checkbox" {
+		set valueString = "true"	
+	}
 	return valueString
 ]]></Implementation>
 </Method>
@@ -1511,8 +1448,8 @@ Should be run if any of the sub-classes are deleted</Description>
 
 
 <Class name="EF.pageController.proweb.divider">
-<Super>EF.pageController.element</Super>
-<TimeChanged>64188,59730.972752</TimeChanged>
+<Super>EF.pageController.proweb.prowebBase</Super>
+<TimeChanged>64197,56440.726899</TimeChanged>
 <TimeCreated>64183,49747.663252</TimeCreated>
 
 <Method name="getDefaultUIComponent">
@@ -1558,16 +1495,12 @@ Should be run if any of the sub-classes are deleted</Description>
 
 
 <Class name="EF.pageController.proweb.inputElement">
-<Super>EF.pageController.inputElement</Super>
-<TimeChanged>64191,54317.224813</TimeChanged>
+<Super>EF.pageController.inputElement,EF.pageController.proweb.prowebBase</Super>
+<TimeChanged>64197,58675.669215</TimeChanged>
 <TimeCreated>64189,53012.909524</TimeCreated>
 
 <Property name="isMandatory">
 <Type>%Boolean</Type>
-</Property>
-
-<Property name="prowebID">
-<Type>%Integer</Type>
 </Property>
 
 <Storage name="Default">
@@ -1588,7 +1521,7 @@ Should be run if any of the sub-classes are deleted</Description>
 
 <Class name="EF.pageController.proweb.page">
 <Super>EF.pageController.page</Super>
-<TimeChanged>64197,52689.136007</TimeChanged>
+<TimeChanged>64197,64123.95266</TimeChanged>
 <TimeCreated>64189,51696.559047</TimeCreated>
 
 <Property name="contextData">
@@ -1689,10 +1622,10 @@ Should be run if any of the sub-classes are deleted</Description>
 		set element = ..getElementForQuestion(prowebItem)
 	
 	} elseif prowebItem.dataType = "objText" {
-		set element = ..addProwebTextBlock(elementIdentifier, prowebItem.description)
+		set element=##class(EF.pageController.proweb.textBlock).addElementToParent($this, elementIdentifier, prowebItem.description)
 	
 	} elseif prowebItem.dataType = "objFormDivider" {
-		set element = ..addProwebDivider(elementIdentifier,"")
+		set element=##class(EF.pageController.proweb.divider).addElementToParent($this, elementIdentifier, "")
 
 	} else {
 		throw ##class(shared.exceptions.generalException).%New("proweb item type not implemented yet")	
@@ -1704,6 +1637,7 @@ Should be run if any of the sub-classes are deleted</Description>
 	set element.uiComponent.prowebItem = prowebItem
 	set element.uiComponent.contextData = ..contextData
 	set element.prowebListID = prowebItem.getParentID(prowebItem.%Id())
+	set element.prowebID = prowebItem.%Id()
 	
 	
 	try { // #### refaqtor to something nicer ####
@@ -1726,6 +1660,7 @@ Should be run if any of the sub-classes are deleted</Description>
 <Private>1</Private>
 <ReturnType>EF.pageController.proweb.inputElement</ReturnType>
 <Implementation><![CDATA[
+	#dim isReadOnly as %Boolean = 0
 	#dim prowebID as %Integer = prowebItem.%Id()
 	#dim itemName as %String = ##class(sc.xModules.objCODitem).getCODItemName(prowebID)
 	#dim value as %String  = ##class(eCom.tempCodData).get(..contextData.tempPersonID, itemName)
@@ -1734,17 +1669,21 @@ Should be run if any of the sub-classes are deleted</Description>
 	set labelText = ##class(sc.objData).getQuestionPrompt(prowebID, ..contextData.languageID)
 	
 	if prowebItem.type = "text" {
-		set element = ..addProwebTextInput(elementIdentifier, labelText, value)
+		set element = ##class(EF.pageController.proweb.textInput).addElementToParent($this, elementIdentifier, labelText, value, isReadOnly)
 		
 	} elseif (prowebItem.type = "dropdown") ! (prowebItem.type = "radiobutton") ! (prowebItem.type = "multibox") {
 		set element = ..addProwebSelectionElement(prowebItem)
 				
 	} elseif prowebItem.type = "phoneNumber" {
-		set element = ..addProwebPhoneNumber(elementIdentifier, labelText, value)
-			
+		set element = ##class(EF.pageController.proweb.phoneNumber).addElementToParent($this, elementIdentifier, labelText, value, isReadOnly)
+
+	} elseif prowebItem.type = "integer" {
+		set element = ##class(EF.pageController.proweb.wholeNumber).addElementToParent($this, elementIdentifier, labelText, value, isReadOnly)
+					
 	} elseif prowebItem.type = "checkbox" {
 		set isChecked = $Select(value="true":1, 1:0)
-		set element = ..addProwebCheckboxGroup(elementIdentifier, "", value)
+		set element=##class(EF.pageController.proweb.checkboxGroup).addElementToParent($this, elementIdentifier, "", value)
+		
 		set childController = element.addProwebCheckbox(element, elementIdentifier_"-"_1, labelText, isChecked)
 
 			
@@ -1768,6 +1707,7 @@ Should be run if any of the sub-classes are deleted</Description>
 <Private>1</Private>
 <ReturnType>EF.pageController.element</ReturnType>
 <Implementation><![CDATA[
+	#dim isReadOnly as %Boolean = 0
 	#dim prowebID as %Integer = prowebItem.%Id()
 	#dim itemName as %String = ##class(sc.xModules.objCODitem).getCODItemName(prowebID)
 	#dim value as %String 
@@ -1778,15 +1718,15 @@ Should be run if any of the sub-classes are deleted</Description>
 	
 	if prowebItem.type = "dropdown" {
 		set value = ##class(eCom.tempCodData).get(..contextData.tempPersonID, itemName)
-		set element = ..addProwebDropdown(elementIdentifier, labelText, value)
+		set element=##class(EF.pageController.proweb.dropdown).addElementToParent($this, elementIdentifier, labelText, value, isReadOnly)
 		
 	} elseif prowebItem.type = "radiobutton" {
 		set value = ##class(eCom.tempCodData).get(..contextData.tempPersonID, itemName)
-		set element = ..addProwebRadioButtons(elementIdentifier, labelText, value)
+		set element=##class(EF.pageController.proweb.radioButtons).addElementToParent($this, elementIdentifier, labelText,value,isReadOnly)
 		
 	} elseif prowebItem.type = "multibox" {
 		set value = ##class(eCom.tempCodData).get(..contextData.tempPersonID, itemName,"",getRawData)
-		set element = ..addProwebCheckboxGroup(elementIdentifier, labelText, value)
+		set element=##class(EF.pageController.proweb.checkboxGroup).addElementToParent($this, elementIdentifier, labelText, value)
 		set element.uiComponent.columns=1
 		
 			
@@ -1854,6 +1794,33 @@ this method needs rewriting when the arrayOfElements become a list instead of an
 ]]></Implementation>
 </Method>
 
+<Method name="reorderProwebElements">
+<FormalSpec>orderedElementIds:%String</FormalSpec>
+<Implementation><![CDATA[
+	#dim key as %String = ""
+	#dim element as EF.pageController.element
+	#dim prowebItemID as %Integer
+	for displayOrder = 1:1:$Length(orderedElementIds,"|") {
+		set prowebItemID = $Piece(orderedElementIds,"|",displayOrder)
+		if $Length(prowebItemID) {
+			set prowebItems(prowebItemID) = displayOrder
+		}
+	}
+	
+	for {
+		set element=..allPageElements.GetNext(.key)
+		if key="" quit
+		if element.%Extends("EF.pageController.proweb.prowebBase") {
+			if $Data(prowebItems(element.prowebID)) {
+				set prowebELement=##class(sc.objData).%OpenId(element.prowebID)
+				set prowebELement.displayOrder=prowebItems(element.prowebID)
+				do prowebELement.%Save()
+			}
+		}
+	}
+]]></Implementation>
+</Method>
+
 <Method name="copyAllDataToEComTemp">
 <Implementation><![CDATA[
 	#dim key as %String = ""
@@ -1914,7 +1881,7 @@ this method needs rewriting when the arrayOfElements become a list instead of an
 
 <Class name="EF.pageController.proweb.pageTestCase">
 <Super>EF.ISC.UnitTest.TestCase</Super>
-<TimeChanged>64197,42972.025579</TimeChanged>
+<TimeChanged>64197,61563.918892</TimeChanged>
 <TimeCreated>64189,44993.632692</TimeCreated>
 
 <Method name="TestVeryBasicPage">
@@ -1928,8 +1895,8 @@ this method needs rewriting when the arrayOfElements become a list instead of an
 	set contextData = ##class(EF.contextDataRegistrationMock).createMock()
 	
 	set page= ##class(EF.pageController.proweb.page).createNew(contextData)
-	set element = page.addProwebTextInput(elementIdentifier, labelText, value)
-	do page.uiComponent.childComponents.SetAt(element.uiComponent,1)
+	set element = ##class(EF.pageController.proweb.textInput).addElementToParent(page, elementIdentifier, labelText, value, 0)
+	;do page.uiComponent.childComponents.SetAt(element.uiComponent,1)
 	set element.uiComponent.contextData = contextData
 	
 	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(page,"render")
@@ -1939,12 +1906,16 @@ this method needs rewriting when the arrayOfElements become a list instead of an
 ]]></Implementation>
 </Method>
 
-<Method name="TestBasicPageWithMandatoryTextField">
-<Implementation><![CDATA[
+<UDLText name="T">
+<Content><![CDATA[
+/*
+Method TestBasicPageWithMandatoryTextField()
+{
 	set contextData = ##class(EF.contextDataRegistrationMock).createMock()
 	set page=##class(EF.pageController.proweb.page).createNew(contextData)
 	set elementIdentifier = "proweb-1"
-	set element = page.addProwebTextInput(elementIdentifier, "First Name", "Elvis")
+	set element = ##class(EF.pageController.proweb.textInput).addElementToParent($this, elementIdentifier, "First Name", "Elvis", 0)
+
 	set element.displayOrder = 1
 	do page.uiComponent.childComponents.SetAt(element.uiComponent,1)
 	set element.uiComponent.contextData = contextData
@@ -1954,11 +1925,10 @@ this method needs rewriting when the arrayOfElements become a list instead of an
 	set returnedHTML = $ZStrip(returnedHTML,"*WC")
 	set expectedHTML = "<divclass='rowef-proweb-form-row'><divclass='col-sm-4ef_proweb_form_promptef-required-field'><labelclass=""control-label""for=""proweb-1""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;FirstName\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);"">FirstName</label></div><divclass='col-sm-8ef_proweb_form_prompt'><inputtype=""text""class=""form-controlef-proweb-input-element""title=""""id=""proweb-1""name=""proweb-1""value=""""placeholder=""""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;FirstName\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""></div></div>"
 	do $$$AssertEquals(returnedHTML,expectedHTML)
-]]></Implementation>
-</Method>
+}
 
-<Method name="TestBasicPageWithTextBlock">
-<Implementation><![CDATA[
+Method TestBasicPageWithTextBlock()
+{
 	set contextData = ##class(EF.contextDataRegistrationMock).createMock()
 	set page=##class(EF.pageController.proweb.page).createNew(contextData)
 	set elementIdentifier = "proweb-1"
@@ -1970,11 +1940,10 @@ this method needs rewriting when the arrayOfElements become a list instead of an
 	set returnedHTML = $ZStrip(returnedHTML,"*WC")
 	set expectedHTML = "<divclass='rowef-proweb-form-row'><divclass='col-sm-12'><div>loremipsum</div></div></div>"
 	do $$$AssertEquals(returnedHTML,expectedHTML)
-]]></Implementation>
-</Method>
+}
 
-<Method name="TestBasicPageWithDivider">
-<Implementation><![CDATA[
+Method TestBasicPageWithDivider()
+{
 	set contextData = ##class(EF.contextDataRegistrationMock).createMock()
 	set page=##class(EF.pageController.proweb.page).createNew(contextData)
 	
@@ -1986,11 +1955,10 @@ this method needs rewriting when the arrayOfElements become a list instead of an
 	set returnedHTML = $ZStrip(returnedHTML,"*WC")
 	set expectedHTML = "<divclass='rowef-proweb-form-row'><divclass='col-sm-12'><hrclass='ef_form_divider'></div></div>"
 	do $$$AssertEquals(returnedHTML,expectedHTML)
-]]></Implementation>
-</Method>
+}
 
-<Method name="TestPageWithDropdown">
-<Implementation><![CDATA[
+Method TestPageWithDropdown()
+{
 	set contextData = ##class(EF.contextDataRegistrationMock).createMock()
 	set page=##class(EF.pageController.proweb.page).createNew(contextData)
 	set elementIdentifier = "proweb-1"
@@ -2005,11 +1973,10 @@ this method needs rewriting when the arrayOfElements become a list instead of an
 	set returnedHTML = $ZStrip(returnedHTML,"*WC")
 	set expectedHTML = "<divclass='rowef-proweb-form-row'><divclass='col-sm-4ef_proweb_form_prompt'><labelclass=""control-label""for=""proweb-1"">diet</label></div><divclass='col-sm-8ef_proweb_form_prompt'><selectclass=""form-controlef-proweb-input-element""name=""proweb-1""id=""proweb-1""title=""""><optionvalue=''></option><optionvalue=""meat"">meat</option><optionvalue=""vegetarian"">vegetarian</option><optionvalue=""vegan"">vegan</option></select></div></div>"
 	do $$$AssertEquals(returnedHTML,expectedHTML)
-]]></Implementation>
-</Method>
+}
 
-<Method name="TestPageWithDropdownPreSelected">
-<Implementation><![CDATA[
+Method TestPageWithDropdownPreSelected()
+{
 	#dim element as EF.pageController.element
 	set contextData = ##class(EF.contextDataRegistrationMock).createMock()
 	set page=##class(EF.pageController.proweb.page).createNew(contextData)
@@ -2027,11 +1994,10 @@ this method needs rewriting when the arrayOfElements become a list instead of an
 	set returnedHTML = $ZStrip(returnedHTML,"*WC")
 	set expectedHTML = "<divclass='rowef-proweb-form-row'><divclass='col-sm-4ef_proweb_form_prompt'><labelclass=""control-label""for=""proweb-1"">diet</label></div><divclass='col-sm-8ef_proweb_form_prompt'><selectclass=""form-controlef-proweb-input-element""name=""proweb-1""id=""proweb-1""title=""""><optionvalue=''></option><optionvalue=""meat"">meat</option><optionvalue=""vegetarian"">vegetarian</option><optionselected=""""value=""vegan"">vegan</option></select></div></div>"
 	do $$$AssertEquals(returnedHTML,expectedHTML)
-]]></Implementation>
-</Method>
+}
 
-<Method name="TestPageWithDropdownMandatory">
-<Implementation><![CDATA[
+Method TestPageWithDropdownMandatory()
+{
 	set contextData = ##class(EF.contextDataRegistrationMock).createMock()
 	set page=##class(EF.pageController.proweb.page).createNew(contextData)
 	set elementIdentifier = "proweb-1"
@@ -2048,11 +2014,10 @@ this method needs rewriting when the arrayOfElements become a list instead of an
 	set returnedHTML = $ZStrip(returnedHTML,"*WC")
 	set expectedHTML = "<divclass='rowef-proweb-form-row'><divclass='col-sm-4ef_proweb_form_promptef-required-field'><labelclass=""control-label""for=""proweb-1"">diet</label></div><divclass='col-sm-8ef_proweb_form_prompt'><selectclass=""form-controlef-proweb-input-element""name=""proweb-1""id=""proweb-1""title=""""><optionvalue=''selecteddisabled>Chooseone...</option><optionvalue=""meat"">meat</option><optionvalue=""vegetarian"">vegetarian</option><optionselected=""""value=""vegan"">vegan</option></select></div></div>"
 	do $$$AssertEquals(returnedHTML,expectedHTML)
-]]></Implementation>
-</Method>
+}
 
-<Method name="TestWithRadioButtons">
-<Implementation><![CDATA[
+Method TestWithRadioButtons()
+{
 	#dim element as EF.pageController.element
 	
 	set contextData = ##class(EF.contextDataRegistrationMock).createMock()
@@ -2071,11 +2036,10 @@ this method needs rewriting when the arrayOfElements become a list instead of an
 	set returnedHTML = $ZStrip(returnedHTML,"*WC")
 	set expectedHTML = "<divclass='rowef-proweb-form-row'><divclass='col-sm-4ef_proweb_form_prompt'><labelclass=""control-label""for=""proweb-1"">diet</label></div><divclass='col-sm-8ef_proweb_form_promptef-proweb-radio-group'><divclass=""btn-group""id=""proweb-1""data-toggle=""buttons""title=""""><divclass='col-sm-12ef-proweb-radio-button'><labelclass=""btnef-btn-defaultef-proweb-radio-button""id=""proweb-1_1-label""><inputtype=""radio""value=""meat""name=""proweb-1""id=""proweb-1_1"">&nbsp;meat</label></div><divclass='col-sm-12ef-proweb-radio-button'><labelclass=""btnef-btn-defaultef-proweb-radio-button""id=""proweb-1_2-label""><inputtype=""radio""value=""vegetarian""name=""proweb-1""id=""proweb-1_2"">&nbsp;vegetarian</label></div><divclass='col-sm-12ef-proweb-radio-button'><labelclass=""btnef-btn-defaultef-proweb-radio-buttonactive""id=""proweb-1_3-label""><inputtype=""radio""checkedvalue=""vegan""name=""proweb-1""id=""proweb-1_3"">&nbsp;vegan</label></div></div></div></div>"
 	do $$$AssertEquals(returnedHTML,expectedHTML)
-]]></Implementation>
-</Method>
+}
 
-<Method name="TestWithMulticheckboxNoneSelected">
-<Implementation><![CDATA[
+Method TestWithMulticheckboxNoneSelected()
+{
 	#dim element as EF.pageController.element
 	
 	set contextData = ##class(EF.contextDataRegistrationMock).createMock()
@@ -2096,25 +2060,21 @@ this method needs rewriting when the arrayOfElements become a list instead of an
 	set returnedHTML = $ZStrip(returnedHTML,"*WC")
 	set expectedHTML = "<divclass='rowef-proweb-form-row'><divclass='col-sm-4ef_proweb_form_prompt'><labelclass=""control-label""for=""proweb-1"">diet</label></div><divclass='col-sm-8ef_proweb_form_prompt'><divclass=""form-group""><divclass=""inputs-listef-proweb-input-elementef-proweb-checkboxGroup""><label><inputtype=""checkbox""value=""1""id=""proweb-1-1""class=""""name=""proweb-1-1""title="""">meat</label><br/><label><inputtype=""checkbox""value=""1""id=""proweb-1-2""class=""""name=""proweb-1-2""title="""">vegetarian</label><br/><label><inputtype=""checkbox""value=""1""id=""proweb-1-3""class=""""name=""proweb-1-3""title="""">vegan</label><br/><label><inputtype=""checkbox""value=""1""id=""proweb-1-4""class=""""name=""proweb-1-4""title="""">fish</label><br/></div></div></div></div>"
 	do $$$AssertEquals(returnedHTML,expectedHTML)
-]]></Implementation>
-</Method>
+}
+*/
+]]></Content>
+</UDLText>
 </Class>
 
 
 <Class name="EF.pageController.proweb.phoneNumber">
 <Super>EF.pageController.proweb.textInput</Super>
-<TimeChanged>64197,41141.521804</TimeChanged>
+<TimeChanged>64197,58652.450875</TimeChanged>
 <TimeCreated>64189,53629.035726</TimeCreated>
 
 <Method name="getDefaultUIComponent">
 <ReturnType>EF.ui.components.inputBase</ReturnType>
 <Implementation><![CDATA[	quit ##class(EF.ui.components.frontend.phoneNumber).%New(..identifier)
-]]></Implementation>
-</Method>
-
-<Method name="updateValue">
-<FormalSpec>value</FormalSpec>
-<Implementation><![CDATA[	set ..value=$ZSTRIP(value,"<>W")
 ]]></Implementation>
 </Method>
 
@@ -2149,8 +2109,8 @@ this method needs rewriting when the arrayOfElements become a list instead of an
 
 
 <Class name="EF.pageController.proweb.textBlock">
-<Super>EF.pageController.element</Super>
-<TimeChanged>64191,36596</TimeChanged>
+<Super>EF.pageController.proweb.prowebBase</Super>
+<TimeChanged>64197,56479.383488</TimeChanged>
 <TimeCreated>64183,49747.663252</TimeCreated>
 
 <Method name="getDefaultUIComponent">
@@ -2175,7 +2135,7 @@ this method needs rewriting when the arrayOfElements become a list instead of an
 
 <Class name="EF.pageController.proweb.textInput">
 <Super>EF.pageController.proweb.inputElement</Super>
-<TimeChanged>64189,54700.789213</TimeChanged>
+<TimeChanged>64197,58681.00979</TimeChanged>
 <TimeCreated>64189,53629.035726</TimeCreated>
 
 <Method name="getDefaultUIComponent">
@@ -2187,6 +2147,23 @@ this method needs rewriting when the arrayOfElements become a list instead of an
 <Method name="updateValue">
 <FormalSpec>value</FormalSpec>
 <Implementation><![CDATA[	set ..value=$ZSTRIP(value,"<>W")
+]]></Implementation>
+</Method>
+
+<Storage name="Default">
+<Type>%Library.CacheStorage</Type>
+</Storage>
+</Class>
+
+
+<Class name="EF.pageController.proweb.wholeNumber">
+<Super>EF.pageController.proweb.textInput</Super>
+<TimeChanged>64197,58632.50177</TimeChanged>
+<TimeCreated>64189,53629.035726</TimeCreated>
+
+<Method name="getDefaultUIComponent">
+<ReturnType>EF.ui.components.inputBase</ReturnType>
+<Implementation><![CDATA[	quit ##class(EF.ui.components.frontend.wholeNumber).%New(..identifier)
 ]]></Implementation>
 </Method>
 
@@ -2811,7 +2788,7 @@ this is for version 1 of proweb</Description>
 
 <Class name="EF.ui.components.frontend.inputElement">
 <Super>EF.ui.components.frontend.prowebBase,EF.ui.components.inputBase</Super>
-<TimeChanged>64194,43103.245139</TimeChanged>
+<TimeChanged>64197,64495.11304</TimeChanged>
 <TimeCreated>64183,40678.260093</TimeCreated>
 
 <Property name="alternatives">
@@ -2868,20 +2845,6 @@ this is for version 1 of proweb</Description>
 ]]></Implementation>
 </Method>
 
-<Method name="getDefaultClasses">
-<ClassMethod>1</ClassMethod>
-<ReturnType>%String</ReturnType>
-<Implementation><![CDATA[	Return ##super()_" form-control"
-]]></Implementation>
-</Method>
-
-<Method name="getDefaultContainerClasses">
-<ClassMethod>1</ClassMethod>
-<ReturnType>%String</ReturnType>
-<Implementation><![CDATA[	Return ##super()_" form-group"
-]]></Implementation>
-</Method>
-
 <Method name="renderLabelCellOpeningMandatory">
 <Implementation><![CDATA[	write "<div class='col-sm-4 ef_proweb_form_prompt ef-required-field'>"
 ]]></Implementation>
@@ -2900,70 +2863,21 @@ this is for version 1 of proweb</Description>
 
 
 <Class name="EF.ui.components.frontend.phoneNumber">
-<Super>EF.ui.components.textInput,EF.ui.components.frontend.textInput</Super>
-<TimeChanged>64197,42417.796888</TimeChanged>
+<Super>EF.ui.components.frontend.textInput</Super>
+<TimeChanged>64197,62099.100904</TimeChanged>
 <TimeCreated>63357,57620.613738</TimeCreated>
 
-<Property name="labelSpanPrefixClass">
-<Type>%String</Type>
-</Property>
-
 <Parameter name="typeAttribute">
-<Default>text</Default>
+<Default>tel</Default>
 </Parameter>
 
 <Parameter name="html5Validation">
 <Default>1</Default>
 </Parameter>
 
-<Method name="getDefaultClasses">
-<ClassMethod>1</ClassMethod>
-<ReturnType>%String</ReturnType>
-<Implementation><![CDATA[	Return ##super()_" form-control ef-proweb-input-element"
-]]></Implementation>
-</Method>
-
-<Method name="getDefaultContainerClasses">
-<ClassMethod>1</ClassMethod>
-<ReturnType>%String</ReturnType>
-<Implementation><![CDATA[	Return ##super()_" form-group"
-]]></Implementation>
-</Method>
-
 <Method name="getDefaultValidator">
 <ReturnType>EF.validator.base</ReturnType>
-<Implementation><![CDATA[
-	set validator = ##class(EF.validator.phoneNumber).%New() 
-	return validator
-]]></Implementation>
-</Method>
-
-<Method name="render">
-<Implementation><![CDATA[
-	if ..hasError {
-		set ..containerClasses=..containerClasses_" has-error"
-	}
-	set disabledString=""
-	if ..isDisabled {
-		set disabledString="disabled=""disabled"""
-	}
-	if ..#html5Validation {
-		set regex=..validator.getRegex()
-		if $length(regex) {
-			do ..addAttribute("pattern",regex)
-		}
-		do ..addAttribute("oninvalid","ef.html5CustomMessages.setMessage(this,"""_..encodeForJavaScript(..validator.getErrorMessage())_""");")
-		do ..addAttribute("oninput","ef.html5CustomMessages.clearMessage(this);")	
-	}
-
-	do ..renderRowOpeningAndLabel()
-	&html<
-    	    <input type="#(..encodeHTMLAttribute(..#typeAttribute))#" class="#(..encodeHTMLAttribute(..classes))#" #(..rawHTML(disabledString))# title="#(..encodeHTMLAttribute(..title))#" id="#(..encodeHTMLAttribute(..htmlID))#" name="#(..encodeHTMLAttribute(..htmlName))#" value="#(..encodeHTMLAttribute(..value))#" placeholder="#(..encodeHTMLAttribute(..placeHolder))#"  #(..rawHTML(..getProwebExtraAttributes()))#>
-    	
-	>
-
-	do ..renderHelpAndRowClosing()
-	do ##super()
+<Implementation><![CDATA[	return ##class(EF.validator.phoneNumber).%New()
 ]]></Implementation>
 </Method>
 </Class>
@@ -3187,12 +3101,8 @@ this is for version 1 of proweb</Description>
 
 <Class name="EF.ui.components.frontend.textInput">
 <Super>EF.ui.components.textInput,EF.ui.components.frontend.inputElement</Super>
-<TimeChanged>64194,43079.595913</TimeChanged>
+<TimeChanged>64197,64506.20977</TimeChanged>
 <TimeCreated>63357,57620.613738</TimeCreated>
-
-<Property name="labelSpanPrefixClass">
-<Type>%String</Type>
-</Property>
 
 <Parameter name="typeAttribute">
 <Default>text</Default>
@@ -3205,22 +3115,12 @@ this is for version 1 of proweb</Description>
 <Method name="getDefaultClasses">
 <ClassMethod>1</ClassMethod>
 <ReturnType>%String</ReturnType>
-<Implementation><![CDATA[	Return ##super()_" form-control ef-proweb-input-element"
-]]></Implementation>
-</Method>
-
-<Method name="getDefaultContainerClasses">
-<ClassMethod>1</ClassMethod>
-<ReturnType>%String</ReturnType>
-<Implementation><![CDATA[	Return ##super()_" form-group"
+<Implementation><![CDATA[	Return "form-control ef-proweb-input-element"
 ]]></Implementation>
 </Method>
 
 <Method name="render">
 <Implementation><![CDATA[
-	if ..hasError {
-		set ..containerClasses=..containerClasses_" has-error"
-	}
 	set disabledString=""
 	if ..isDisabled {
 		set disabledString="disabled=""disabled"""
@@ -3237,12 +3137,33 @@ this is for version 1 of proweb</Description>
 
 	do ..renderRowOpeningAndLabel()
 	&html<
-    	    <input type="#(..encodeHTMLAttribute(..#typeAttribute))#" class="#(..encodeHTMLAttribute(..classes))#" #(..rawHTML(disabledString))# title="#(..encodeHTMLAttribute(..title))#" id="#(..encodeHTMLAttribute(..htmlID))#" name="#(..encodeHTMLAttribute(..htmlName))#" value="#(..encodeHTMLAttribute(..value))#" placeholder="#(..encodeHTMLAttribute(..placeHolder))#"  #(..rawHTML(..getProwebExtraAttributes()))#>
+    	    <input type="#(..encodeHTMLAttribute(..#typeAttribute))#" class="#(..encodeHTMLAttribute(..classes))#" #(..rawHTML(disabledString))# 
+    	    title="#(..encodeHTMLAttribute(..title))#" id="#(..encodeHTMLAttribute(..htmlID))#" name="#(..encodeHTMLAttribute(..htmlName))#" 
+    	    value="#(..encodeHTMLAttribute(..value))#" placeholder="#(..encodeHTMLAttribute(..placeHolder))#"  #(..rawHTML(..getProwebExtraAttributes()))#>
     	
 	>
-
 	do ..renderHelpAndRowClosing()
-	do ##super()
+]]></Implementation>
+</Method>
+</Class>
+
+
+<Class name="EF.ui.components.frontend.wholeNumber">
+<Super>EF.ui.components.frontend.textInput</Super>
+<TimeChanged>64197,62116.754161</TimeChanged>
+<TimeCreated>63357,57620.613738</TimeCreated>
+
+<Parameter name="typeAttribute">
+<Default>number</Default>
+</Parameter>
+
+<Parameter name="html5Validation">
+<Default>1</Default>
+</Parameter>
+
+<Method name="getDefaultValidator">
+<ReturnType>EF.validator.base</ReturnType>
+<Implementation><![CDATA[	return ##class(EF.validator.integer).%New()
 ]]></Implementation>
 </Method>
 </Class>
@@ -3396,37 +3317,25 @@ this is for version 1 of proweb</Description>
 
 
 <script language="javascript">
-	(function ($) {
-		 $.fn.efReorderableDiv = function (sortableOptions) {
-	        // When we are dragged, we copy the dragged row and set a width on each td - if we don't
-	        // do this then the rows will collapse. See http://stackoverflow.com/questions/1307705/jquery-ui-sortable-with-table-and-tr-width
-	        //
-	        // We also set a border for the tr as a whole so it looks right on its own
-	        
-	        sortableOptions.stop = function () {
-	            $(this).find("input[type=radio]").each(function () {
-	                if ($(this).data("efTempRadioChecked") === true) {
-	                    $(this).prop("checked", true);
-	                }
-	                $(this).data("efTempRadioChecked", "");
-	            });
-	        };
-
-	        // Use jQueryUI sortable to do all the dirty work.
-	        this.sortable(sortableOptions);
-	    };
-	}(jQuery));
+	
 	$(function() {
-		$(".ef-admin-reorderable").each( function() {
+		$(".ef-proweb-reorderable").each( function() {
 			var draggableList = this
-			$(draggableList).efReorderableDiv({
+			var postURL = $(this).data("efReorderableSaveUrl")
+			$(draggableList).sortable({
 	            items: "> .ef-draggable-div",
 	            update: function () {
-	                var idsInOrder = [];
+	                var orderedElementIds = "";
 	                $(draggableList).find(".ef-draggable-div").each(function () {
-	                    idsInOrder.push($(this).data("prowebId"));
+	                    orderedElementIds = orderedElementIds + "|" + $(this).data("prowebId");
 	                });
-	                console.log(idsInOrder);
+	                $.ajax( {
+		                type: "POST",
+		            	url : postURL,
+		            	data : { pageControllerID : $('[name="pageControllerID"]').val(),
+		            		orderedElementIds : orderedElementIds
+		            	} 
+	                });
 	            }
 		    });
 		});
@@ -3435,7 +3344,7 @@ this is for version 1 of proweb</Description>
 
 <csp:section name="PageContent">
 	<ef-pc-container type="panel-body">
-	   	<div class="row ef-admin-reorderable">
+	   	<div class="row ef-proweb-reorderable" data-ef-reorderable-save-url="#(..encodeForHTMLAttribute(..Link("../../frontend/reg/reorderProwebElements.csp")))#">
 				<ef-pc-element prowebcomponentname="Main List">
 			
 				
@@ -6998,7 +6907,7 @@ The basic frontend default stuff</Description>
 </Class>
 
 
-<Project name="proweb 2" LastModified="2016-10-06 13:54:22.323647" Target="##class(EF.pageController.proweb.page).debugTarget()" TargetType="2">
+<Project name="proweb 2" LastModified="2016-10-06 17:15:20.081828" Target="largedevsrc/backend/home/Login.csp" TargetType="3">
   <Items>
     <ProjectItem name="EF.contextDataRegistration" type="CLS"></ProjectItem>
     <ProjectItem name="EF.contextDataRegistrationMock" type="CLS"></ProjectItem>
@@ -7040,7 +6949,14 @@ The basic frontend default stuff</Description>
     <ProjectItem name="EF.validator.phoneNumber" type="CLS"></ProjectItem>
     <ProjectItem name="EF.validatorphoneNumberTestCase" type="CLS"></ProjectItem>
     <ProjectItem name="EF.validator.phoneNumberTestCase" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.pageController.proweb.wholeNumber" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.ui.components.frontend.wholeNumber" type="CLS"></ProjectItem>
   </Items>
+  <WatchVariables>
+    <WatchVariable Variable="##class(sc.xModules.objCODitem).getType(..prowebID)" Pane="1"></WatchVariable>
+    <WatchVariable Variable="child" Pane="1"></WatchVariable>
+    <WatchVariable Variable="tmpArray" Pane="1"></WatchVariable>
+  </WatchVariables>
 </Project>
 
 

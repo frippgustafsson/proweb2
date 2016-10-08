@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2015.2 (Build 664_3_16032U)" ts="2016-10-06 17:55:26">
+<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2015.2 (Build 664_3_16032U)" ts="2016-10-08 16:20:46">
 <Class name="EF.contextDataRegistration">
 <Description><![CDATA[
 <!-- ;vc;-
@@ -1494,6 +1494,23 @@ Should be run if any of the sub-classes are deleted</Description>
 </Class>
 
 
+<Class name="EF.pageController.proweb.emailInput">
+<Super>EF.pageController.proweb.textInput</Super>
+<TimeChanged>64198,32956.969715</TimeChanged>
+<TimeCreated>64189,53629.035726</TimeCreated>
+
+<Method name="getDefaultUIComponent">
+<ReturnType>EF.ui.components.inputBase</ReturnType>
+<Implementation><![CDATA[	quit ##class(EF.ui.components.frontend.emailInput).%New(..identifier)
+]]></Implementation>
+</Method>
+
+<Storage name="Default">
+<Type>%Library.CacheStorage</Type>
+</Storage>
+</Class>
+
+
 <Class name="EF.pageController.proweb.inputElement">
 <Super>EF.pageController.inputElement,EF.pageController.proweb.prowebBase</Super>
 <TimeChanged>64197,58675.669215</TimeChanged>
@@ -1521,7 +1538,7 @@ Should be run if any of the sub-classes are deleted</Description>
 
 <Class name="EF.pageController.proweb.page">
 <Super>EF.pageController.page</Super>
-<TimeChanged>64197,64123.95266</TimeChanged>
+<TimeChanged>64198,62910.945394</TimeChanged>
 <TimeCreated>64189,51696.559047</TimeCreated>
 
 <Property name="contextData">
@@ -1679,6 +1696,15 @@ Should be run if any of the sub-classes are deleted</Description>
 
 	} elseif prowebItem.type = "integer" {
 		set element = ##class(EF.pageController.proweb.wholeNumber).addElementToParent($this, elementIdentifier, labelText, value, isReadOnly)
+					
+	} elseif prowebItem.type = "emailAddress" {
+		set element = ##class(EF.pageController.proweb.emailInput).addElementToParent($this, elementIdentifier, labelText, value, isReadOnly)
+					
+	} elseif prowebItem.type = "time" {
+		set element = ##class(EF.pageController.proweb.timeInput).addElementToParent($this, elementIdentifier, labelText, value, isReadOnly)
+					
+	} elseif prowebItem.type = "webAddress" {
+		set element = ##class(EF.pageController.proweb.webAddress).addElementToParent($this, elementIdentifier, labelText, value, isReadOnly)
 					
 	} elseif prowebItem.type = "checkbox" {
 		set isChecked = $Select(value="true":1, 1:0)
@@ -1881,7 +1907,7 @@ this method needs rewriting when the arrayOfElements become a list instead of an
 
 <Class name="EF.pageController.proweb.pageTestCase">
 <Super>EF.ISC.UnitTest.TestCase</Super>
-<TimeChanged>64197,61563.918892</TimeChanged>
+<TimeChanged>64198,62457.033537</TimeChanged>
 <TimeCreated>64189,44993.632692</TimeCreated>
 
 <Method name="TestVeryBasicPage">
@@ -1896,7 +1922,7 @@ this method needs rewriting when the arrayOfElements become a list instead of an
 	
 	set page= ##class(EF.pageController.proweb.page).createNew(contextData)
 	set element = ##class(EF.pageController.proweb.textInput).addElementToParent(page, elementIdentifier, labelText, value, 0)
-	;do page.uiComponent.childComponents.SetAt(element.uiComponent,1)
+	do page.uiComponent.addChild(element.uiComponent)
 	set element.uiComponent.contextData = contextData
 	
 	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(page,"render")
@@ -1908,16 +1934,41 @@ this method needs rewriting when the arrayOfElements become a list instead of an
 
 <UDLText name="T">
 <Content><![CDATA[
-/*
-Method TestBasicPageWithMandatoryTextField()
+/* ##### leave this out until we refactor the floaters ####
+Method TestVeryBasicPageInEditMode()
 {
+	#dim elementIdentifier as %String = "proweb-1"
+	#dim labelText as %String = "First Name"
+	#dim value as %String = "Elvis"
+	#dim element as EF.pageController.element
+	#dim page as EF.pageController.proweb.page
+	
+	set contextData = ##class(EF.contextDataRegistrationMock).createMock()
+	
+	set page= ##class(EF.pageController.proweb.page).createNew(contextData)
+	set element = ##class(EF.pageController.proweb.textInput).addElementToParent(page, elementIdentifier, labelText, value, 0)
+	do page.uiComponent.addChild(element.uiComponent)
+	set element.uiComponent.contextData = contextData
+	set element.uiComponent.isProwebEditMode = 1
+	
+	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(page,"render")
+	set returnedHTML = $ZStrip(returnedHTML,"*WC")
+	set expectedHTML = "<divclass='rowef-proweb-form-row'><divclass='col-sm-4ef_proweb_form_prompt'><labelclass=""control-label""for=""proweb-1""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;FirstName\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);"">FirstName</label></div><divclass='col-sm-8ef_proweb_form_prompt'><inputtype=""text""class=""form-controlef-proweb-input-element""title=""""id=""proweb-1""name=""proweb-1""value=""""placeholder=""""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;FirstName\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""></div></div>"
+	do $$$AssertEquals(returnedHTML,expectedHTML)
+}
+*/
+]]></Content>
+</UDLText>
+
+<Method name="TestBasicPageWithMandatoryTextField">
+<Implementation><![CDATA[
 	set contextData = ##class(EF.contextDataRegistrationMock).createMock()
 	set page=##class(EF.pageController.proweb.page).createNew(contextData)
 	set elementIdentifier = "proweb-1"
-	set element = ##class(EF.pageController.proweb.textInput).addElementToParent($this, elementIdentifier, "First Name", "Elvis", 0)
+	set element = ##class(EF.pageController.proweb.textInput).addElementToParent(page, elementIdentifier, "First Name", "Elvis", 0)
 
 	set element.displayOrder = 1
-	do page.uiComponent.childComponents.SetAt(element.uiComponent,1)
+	do page.uiComponent.addChild(element.uiComponent)
 	set element.uiComponent.contextData = contextData
 	set element.uiComponent.isMandatory = 1
 	
@@ -1925,44 +1976,138 @@ Method TestBasicPageWithMandatoryTextField()
 	set returnedHTML = $ZStrip(returnedHTML,"*WC")
 	set expectedHTML = "<divclass='rowef-proweb-form-row'><divclass='col-sm-4ef_proweb_form_promptef-required-field'><labelclass=""control-label""for=""proweb-1""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;FirstName\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);"">FirstName</label></div><divclass='col-sm-8ef_proweb_form_prompt'><inputtype=""text""class=""form-controlef-proweb-input-element""title=""""id=""proweb-1""name=""proweb-1""value=""""placeholder=""""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;FirstName\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""></div></div>"
 	do $$$AssertEquals(returnedHTML,expectedHTML)
-}
+]]></Implementation>
+</Method>
 
-Method TestBasicPageWithTextBlock()
-{
+<Method name="TestPhoneNumber">
+<Implementation><![CDATA[
+	#dim elementIdentifier as %String = "proweb-1"
+	#dim labelText as %String = "phone number"
+	#dim value as %String = "020 76 88 32 38"
+	#dim element as EF.pageController.element
+	#dim page as EF.pageController.proweb.page
+	
+	set contextData = ##class(EF.contextDataRegistrationMock).createMock()
+	
+	set page= ##class(EF.pageController.proweb.page).createNew(contextData)
+	set element = ##class(EF.pageController.proweb.phoneNumber).addElementToParent(page, elementIdentifier, labelText, value, 0)
+	do page.uiComponent.addChild(element.uiComponent)
+	set element.uiComponent.contextData = contextData
+	
+	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(page,"render")
+	set returnedHTML = $ZStrip(returnedHTML,"*WC")
+	set expectedHTML = "<divclass='rowef-proweb-form-row'><divclass='col-sm-4ef_proweb_form_prompt'><labelclass=""control-label""for=""proweb-1""pattern=""^(?!(.*-(\s)*-.*))(?!(.*\.(\s)*\..*))(?=.*[\d\)](\s)*$)(?=.*(\d)+.*)(\+(\d){1,3}){0,1}(?=\s*([\d\(]).*)(([\d\s\-\.])|(\(([\d\-\.\s])+\)))*(\s)*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;phonenumber\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);"">phonenumber</label></div><divclass='col-sm-8ef_proweb_form_prompt'><inputtype=""tel""class=""form-controlef-proweb-input-element""title=""""id=""proweb-1""name=""proweb-1""value=""""placeholder=""""pattern=""^(?!(.*-(\s)*-.*))(?!(.*\.(\s)*\..*))(?=.*[\d\)](\s)*$)(?=.*(\d)+.*)(\+(\d){1,3}){0,1}(?=\s*([\d\(]).*)(([\d\s\-\.])|(\(([\d\-\.\s])+\)))*(\s)*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;phonenumber\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""></div></div>"
+	do $$$AssertEquals(returnedHTML,expectedHTML)
+]]></Implementation>
+</Method>
+
+<Method name="TestEmail">
+<Implementation><![CDATA[
+	#dim elementIdentifier as %String = "proweb-1"
+	#dim labelText as %String = "email"
+	#dim value as %String = "fred@eventsforce.com"
+	#dim element as EF.pageController.element
+	#dim page as EF.pageController.proweb.page
+	
+	set contextData = ##class(EF.contextDataRegistrationMock).createMock()
+	
+	set page= ##class(EF.pageController.proweb.page).createNew(contextData)
+	set element = ##class(EF.pageController.proweb.emailInput).addElementToParent(page, elementIdentifier, labelText, value, 0)
+	do page.uiComponent.addChild(element.uiComponent)
+	set element.uiComponent.contextData = contextData
+	
+	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(page,"render")
+	set returnedHTML = $ZStrip(returnedHTML,"*WC")
+	set expectedHTML = "<divclass='rowef-proweb-form-row'><divclass='col-sm-4ef_proweb_form_prompt'><labelclass=""control-label""for=""proweb-1""pattern=""^(([a-zA-Z0-9_\-\.&#39;]+)(\+[a-zA-Z0-9_\-\.&#39;]+){0,1}@(([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([a-zA-Z0-9\-]+\.)+))([a-zA-Z]{2,63}|[0-9]{1,3}))$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;email\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);"">email</label></div><divclass='col-sm-8ef_proweb_form_prompt'><inputtype=""email""class=""form-controlef-proweb-input-element""title=""""id=""proweb-1""name=""proweb-1""value=""""placeholder=""""pattern=""^(([a-zA-Z0-9_\-\.&#39;]+)(\+[a-zA-Z0-9_\-\.&#39;]+){0,1}@(([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([a-zA-Z0-9\-]+\.)+))([a-zA-Z]{2,63}|[0-9]{1,3}))$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;email\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""></div></div>"
+	do $$$AssertEquals(returnedHTML,expectedHTML)
+]]></Implementation>
+</Method>
+
+<Method name="TestTime">
+<Implementation><![CDATA[
+	#dim elementIdentifier as %String = "proweb-1"
+	#dim labelText as %String = "time"
+	#dim value as %String = "14:23"
+	#dim element as EF.pageController.element
+	#dim page as EF.pageController.proweb.page
+	
+	set contextData = ##class(EF.contextDataRegistrationMock).createMock()
+	
+	set page= ##class(EF.pageController.proweb.page).createNew(contextData)
+	set element = ##class(EF.pageController.proweb.timeInput).addElementToParent(page, elementIdentifier, labelText, value, 0)
+	do page.uiComponent.addChild(element.uiComponent)
+	set element.uiComponent.contextData = contextData
+	
+	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(page,"render")
+	set returnedHTML = $ZStrip(returnedHTML,"*WC")
+	set expectedHTML = "<divclass='rowef-proweb-form-row'><divclass='col-sm-4ef_proweb_form_prompt'><labelclass=""control-label""for=""proweb-1""pattern=""(([01]?[0-9])|(2[0-3]))\:[0-5][0-9](\:[0-5][0-9])?""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;time\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);"">time</label></div><divclass='col-sm-8ef_proweb_form_prompt'><inputtype=""time""class=""form-controlef-proweb-input-element""title=""""id=""proweb-1""name=""proweb-1""value=""""placeholder=""""pattern=""(([01]?[0-9])|(2[0-3]))\:[0-5][0-9](\:[0-5][0-9])?""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;time\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""></div></div>"
+	do $$$AssertEquals(returnedHTML,expectedHTML)
+]]></Implementation>
+</Method>
+
+<Method name="TestWholeNumber">
+<Implementation><![CDATA[
+	#dim elementIdentifier as %String = "proweb-1"
+	#dim labelText as %String = "Shoesize"
+	#dim value as %String = "42"
+	#dim element as EF.pageController.element
+	#dim page as EF.pageController.proweb.page
+	
+	set contextData = ##class(EF.contextDataRegistrationMock).createMock()
+	
+	set page= ##class(EF.pageController.proweb.page).createNew(contextData)
+	set element = ##class(EF.pageController.proweb.wholeNumber).addElementToParent(page, elementIdentifier, labelText, value, 0)
+	do page.uiComponent.addChild(element.uiComponent)
+	set element.uiComponent.contextData = contextData
+	
+	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(page,"render")
+	set returnedHTML = $ZStrip(returnedHTML,"*WC")
+	set expectedHTML = "<divclass='rowef-proweb-form-row'><divclass='col-sm-4ef_proweb_form_prompt'><labelclass=""control-label""for=""proweb-1""pattern=""^([\+\-]){0,1}\d+$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;Shoesize\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);"">Shoesize</label></div><divclass='col-sm-8ef_proweb_form_prompt'><inputtype=""number""class=""form-controlef-proweb-input-elementform-controlef-proweb-input-element""title=""""id=""proweb-1""name=""proweb-1""value=""""placeholder=""""pattern=""^([\+\-]){0,1}\d+$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;Shoesize\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""></div></div>"
+	do $$$AssertEquals(returnedHTML,expectedHTML)
+]]></Implementation>
+</Method>
+
+<Method name="TestBasicPageWithTextBlock">
+<Implementation><![CDATA[
 	set contextData = ##class(EF.contextDataRegistrationMock).createMock()
 	set page=##class(EF.pageController.proweb.page).createNew(contextData)
 	set elementIdentifier = "proweb-1"
-	set element = page.addProwebTextBlock(elementIdentifier, "lorem ipsum")
-	do page.uiComponent.childComponents.SetAt(element.uiComponent,1)
+	
+	set element = ##class(EF.pageController.proweb.textBlock).addElementToParent(page, elementIdentifier, "lorem ipsum")
+	do page.uiComponent.addChild(element.uiComponent)
 	set element.uiComponent.contextData = contextData
 	
 	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(page,"render")
 	set returnedHTML = $ZStrip(returnedHTML,"*WC")
 	set expectedHTML = "<divclass='rowef-proweb-form-row'><divclass='col-sm-12'><div>loremipsum</div></div></div>"
 	do $$$AssertEquals(returnedHTML,expectedHTML)
-}
+]]></Implementation>
+</Method>
 
-Method TestBasicPageWithDivider()
-{
+<Method name="TestBasicPageWithDivider">
+<Implementation><![CDATA[
 	set contextData = ##class(EF.contextDataRegistrationMock).createMock()
 	set page=##class(EF.pageController.proweb.page).createNew(contextData)
 	
 	set elementIdentifier = "proweb-1"
-	set element = page.addProwebDivider(elementIdentifier,"")
-	do page.uiComponent.childComponents.SetAt(element.uiComponent,1)
+	set element = ##class(EF.pageController.proweb.divider).addElementToParent(page, elementIdentifier,"")
+	do page.uiComponent.addChild(element.uiComponent)	
 	set element.uiComponent.contextData = contextData
 	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(page,"render")
 	set returnedHTML = $ZStrip(returnedHTML,"*WC")
 	set expectedHTML = "<divclass='rowef-proweb-form-row'><divclass='col-sm-12'><hrclass='ef_form_divider'></div></div>"
 	do $$$AssertEquals(returnedHTML,expectedHTML)
-}
+]]></Implementation>
+</Method>
 
-Method TestPageWithDropdown()
-{
+<Method name="TestPageWithDropdown">
+<Implementation><![CDATA[
 	set contextData = ##class(EF.contextDataRegistrationMock).createMock()
 	set page=##class(EF.pageController.proweb.page).createNew(contextData)
 	set elementIdentifier = "proweb-1"
-	set element = page.addProwebDropdown(elementIdentifier, "diet", "")
+	set element = ##class(EF.pageController.proweb.dropdown).addElementToParent(page, elementIdentifier,"diet","")
+	do page.uiComponent.addChild(element.uiComponent)	
+	
 	set alternative = element.addAlternative("meat","meat")
 	set alternative = element.addAlternative("vegetarian","vegetarian")
 	set alternative = element.addAlternative("vegan","vegan")
@@ -1973,15 +2118,17 @@ Method TestPageWithDropdown()
 	set returnedHTML = $ZStrip(returnedHTML,"*WC")
 	set expectedHTML = "<divclass='rowef-proweb-form-row'><divclass='col-sm-4ef_proweb_form_prompt'><labelclass=""control-label""for=""proweb-1"">diet</label></div><divclass='col-sm-8ef_proweb_form_prompt'><selectclass=""form-controlef-proweb-input-element""name=""proweb-1""id=""proweb-1""title=""""><optionvalue=''></option><optionvalue=""meat"">meat</option><optionvalue=""vegetarian"">vegetarian</option><optionvalue=""vegan"">vegan</option></select></div></div>"
 	do $$$AssertEquals(returnedHTML,expectedHTML)
-}
+]]></Implementation>
+</Method>
 
-Method TestPageWithDropdownPreSelected()
-{
+<Method name="TestPageWithDropdownPreSelected">
+<Implementation><![CDATA[
 	#dim element as EF.pageController.element
 	set contextData = ##class(EF.contextDataRegistrationMock).createMock()
 	set page=##class(EF.pageController.proweb.page).createNew(contextData)
 	set elementIdentifier = "proweb-1"
-	set element = page.addProwebDropdown(elementIdentifier, "diet", "vegan")
+	set element = ##class(EF.pageController.proweb.dropdown).addElementToParent(page, elementIdentifier,"diet","vegan")
+	do page.uiComponent.addChild(element.uiComponent)	
 	set alternative = element.addAlternative("meat","meat")
 	set alternative = element.addAlternative("vegetarian","vegetarian")
 	set alternative = element.addAlternative("vegan","vegan")
@@ -1994,14 +2141,16 @@ Method TestPageWithDropdownPreSelected()
 	set returnedHTML = $ZStrip(returnedHTML,"*WC")
 	set expectedHTML = "<divclass='rowef-proweb-form-row'><divclass='col-sm-4ef_proweb_form_prompt'><labelclass=""control-label""for=""proweb-1"">diet</label></div><divclass='col-sm-8ef_proweb_form_prompt'><selectclass=""form-controlef-proweb-input-element""name=""proweb-1""id=""proweb-1""title=""""><optionvalue=''></option><optionvalue=""meat"">meat</option><optionvalue=""vegetarian"">vegetarian</option><optionselected=""""value=""vegan"">vegan</option></select></div></div>"
 	do $$$AssertEquals(returnedHTML,expectedHTML)
-}
+]]></Implementation>
+</Method>
 
-Method TestPageWithDropdownMandatory()
-{
+<Method name="TestPageWithDropdownMandatory">
+<Implementation><![CDATA[
 	set contextData = ##class(EF.contextDataRegistrationMock).createMock()
 	set page=##class(EF.pageController.proweb.page).createNew(contextData)
 	set elementIdentifier = "proweb-1"
-	set element = page.addProwebDropdown(elementIdentifier, "diet", "vegan")
+	set element = ##class(EF.pageController.proweb.dropdown).addElementToParent(page, elementIdentifier,"diet","vegan")
+	do page.uiComponent.addChild(element.uiComponent)	
 	set alternative = element.addAlternative("meat","meat")
 	set alternative = element.addAlternative("vegetarian","vegetarian")
 	set alternative = element.addAlternative("vegan","vegan")
@@ -2014,16 +2163,18 @@ Method TestPageWithDropdownMandatory()
 	set returnedHTML = $ZStrip(returnedHTML,"*WC")
 	set expectedHTML = "<divclass='rowef-proweb-form-row'><divclass='col-sm-4ef_proweb_form_promptef-required-field'><labelclass=""control-label""for=""proweb-1"">diet</label></div><divclass='col-sm-8ef_proweb_form_prompt'><selectclass=""form-controlef-proweb-input-element""name=""proweb-1""id=""proweb-1""title=""""><optionvalue=''selecteddisabled>Chooseone...</option><optionvalue=""meat"">meat</option><optionvalue=""vegetarian"">vegetarian</option><optionselected=""""value=""vegan"">vegan</option></select></div></div>"
 	do $$$AssertEquals(returnedHTML,expectedHTML)
-}
+]]></Implementation>
+</Method>
 
-Method TestWithRadioButtons()
-{
+<Method name="TestWithRadioButtons">
+<Implementation><![CDATA[
 	#dim element as EF.pageController.element
 	
 	set contextData = ##class(EF.contextDataRegistrationMock).createMock()
 	set page=##class(EF.pageController.proweb.page).createNew(contextData)
 	set elementIdentifier = "proweb-1"
-	set element = page.addProwebRadioButtons(elementIdentifier, "diet", "vegan")
+	set element = ##class(EF.pageController.proweb.radioButtons).addElementToParent(page, elementIdentifier,"diet","vegan")
+	do page.uiComponent.addChild(element.uiComponent)	
 	set alternative = element.addAlternative("meat","meat")
 	set alternative = element.addAlternative("vegetarian","vegetarian")
 	set alternative = element.addAlternative("vegan","vegan")
@@ -2036,16 +2187,19 @@ Method TestWithRadioButtons()
 	set returnedHTML = $ZStrip(returnedHTML,"*WC")
 	set expectedHTML = "<divclass='rowef-proweb-form-row'><divclass='col-sm-4ef_proweb_form_prompt'><labelclass=""control-label""for=""proweb-1"">diet</label></div><divclass='col-sm-8ef_proweb_form_promptef-proweb-radio-group'><divclass=""btn-group""id=""proweb-1""data-toggle=""buttons""title=""""><divclass='col-sm-12ef-proweb-radio-button'><labelclass=""btnef-btn-defaultef-proweb-radio-button""id=""proweb-1_1-label""><inputtype=""radio""value=""meat""name=""proweb-1""id=""proweb-1_1"">&nbsp;meat</label></div><divclass='col-sm-12ef-proweb-radio-button'><labelclass=""btnef-btn-defaultef-proweb-radio-button""id=""proweb-1_2-label""><inputtype=""radio""value=""vegetarian""name=""proweb-1""id=""proweb-1_2"">&nbsp;vegetarian</label></div><divclass='col-sm-12ef-proweb-radio-button'><labelclass=""btnef-btn-defaultef-proweb-radio-buttonactive""id=""proweb-1_3-label""><inputtype=""radio""checkedvalue=""vegan""name=""proweb-1""id=""proweb-1_3"">&nbsp;vegan</label></div></div></div></div>"
 	do $$$AssertEquals(returnedHTML,expectedHTML)
-}
+]]></Implementation>
+</Method>
 
-Method TestWithMulticheckboxNoneSelected()
-{
+<Method name="TestWithMulticheckboxNoneSelected">
+<Implementation><![CDATA[
 	#dim element as EF.pageController.element
 	
 	set contextData = ##class(EF.contextDataRegistrationMock).createMock()
 	set page=##class(EF.pageController.proweb.page).createNew(contextData)
 	set elementIdentifier = "proweb-1"
-	set element = page.addProwebCheckboxGroup(elementIdentifier, "diet", "")
+	
+	set element = ##class(EF.pageController.proweb.checkboxGroup).addElementToParent(page, elementIdentifier,"diet","")
+	do page.uiComponent.addChild(element.uiComponent)	
 
 	set childController = element.addProwebCheckbox(element, elementIdentifier_"-"_1, "meat", 0)
 	set childController = element.addProwebCheckbox(element, elementIdentifier_"-"_2, "vegetarian", 0)
@@ -2060,10 +2214,20 @@ Method TestWithMulticheckboxNoneSelected()
 	set returnedHTML = $ZStrip(returnedHTML,"*WC")
 	set expectedHTML = "<divclass='rowef-proweb-form-row'><divclass='col-sm-4ef_proweb_form_prompt'><labelclass=""control-label""for=""proweb-1"">diet</label></div><divclass='col-sm-8ef_proweb_form_prompt'><divclass=""form-group""><divclass=""inputs-listef-proweb-input-elementef-proweb-checkboxGroup""><label><inputtype=""checkbox""value=""1""id=""proweb-1-1""class=""""name=""proweb-1-1""title="""">meat</label><br/><label><inputtype=""checkbox""value=""1""id=""proweb-1-2""class=""""name=""proweb-1-2""title="""">vegetarian</label><br/><label><inputtype=""checkbox""value=""1""id=""proweb-1-3""class=""""name=""proweb-1-3""title="""">vegan</label><br/><label><inputtype=""checkbox""value=""1""id=""proweb-1-4""class=""""name=""proweb-1-4""title="""">fish</label><br/></div></div></div></div>"
 	do $$$AssertEquals(returnedHTML,expectedHTML)
-}
-*/
-]]></Content>
-</UDLText>
+]]></Implementation>
+</Method>
+
+<Method name="debugTarget">
+<ClassMethod>1</ClassMethod>
+<Implementation><![CDATA[
+	set contextData = ##class(EF.contextDataRegistrationMock).createMock()
+	set page= ##class(EF.pageController.proweb.page).createNew(contextData)
+	set element = ##class(EF.pageController.proweb.textInput).addElementToParent(page,"p-1","shoe",33, 0)
+	set element.uiComponent.contextData = contextData
+	do page.uiComponent.addChild(element.uiComponent)
+	do page.render()
+]]></Implementation>
+</Method>
 </Class>
 
 
@@ -2147,6 +2311,40 @@ Method TestWithMulticheckboxNoneSelected()
 <Method name="updateValue">
 <FormalSpec>value</FormalSpec>
 <Implementation><![CDATA[	set ..value=$ZSTRIP(value,"<>W")
+]]></Implementation>
+</Method>
+
+<Storage name="Default">
+<Type>%Library.CacheStorage</Type>
+</Storage>
+</Class>
+
+
+<Class name="EF.pageController.proweb.timeInput">
+<Super>EF.pageController.proweb.textInput</Super>
+<TimeChanged>64198,33582.083553</TimeChanged>
+<TimeCreated>64189,53629.035726</TimeCreated>
+
+<Method name="getDefaultUIComponent">
+<ReturnType>EF.ui.components.inputBase</ReturnType>
+<Implementation><![CDATA[	quit ##class(EF.ui.components.frontend.timeInput).%New(..identifier)
+]]></Implementation>
+</Method>
+
+<Storage name="Default">
+<Type>%Library.CacheStorage</Type>
+</Storage>
+</Class>
+
+
+<Class name="EF.pageController.proweb.webAddress">
+<Super>EF.pageController.proweb.textInput</Super>
+<TimeChanged>64198,62804.621561</TimeChanged>
+<TimeCreated>64189,53629.035726</TimeCreated>
+
+<Method name="getDefaultUIComponent">
+<ReturnType>EF.ui.components.inputBase</ReturnType>
+<Implementation><![CDATA[	quit ##class(EF.ui.components.frontend.webAddress).%New(..identifier)
 ]]></Implementation>
 </Method>
 
@@ -2567,6 +2765,27 @@ this is for version 1 of proweb</Description>
 </Class>
 
 
+<Class name="EF.ui.components.frontend.emailInput">
+<Super>EF.ui.components.frontend.textInput</Super>
+<TimeChanged>64198,33019.928048</TimeChanged>
+<TimeCreated>63357,57620.613738</TimeCreated>
+
+<Parameter name="typeAttribute">
+<Default>email</Default>
+</Parameter>
+
+<Parameter name="html5Validation">
+<Default>1</Default>
+</Parameter>
+
+<Method name="getDefaultValidator">
+<ReturnType>EF.validator.base</ReturnType>
+<Implementation><![CDATA[	return ##class(EF.validator.emailAddress).%New()
+]]></Implementation>
+</Method>
+</Class>
+
+
 <Class name="EF.ui.components.frontend.floatingMenuAdd">
 <Super>%RegisteredObject</Super>
 <TimeChanged>64196,52998.169116</TimeChanged>
@@ -2885,7 +3104,7 @@ this is for version 1 of proweb</Description>
 
 <Class name="EF.ui.components.frontend.prowebBase">
 <Super>EF.ui.components.base</Super>
-<TimeChanged>64197,52431.589518</TimeChanged>
+<TimeChanged>64198,60387.737864</TimeChanged>
 <TimeCreated>64183,41819.123112</TimeCreated>
 
 <Property name="isProwebEditMode">
@@ -2906,7 +3125,11 @@ this is for version 1 of proweb</Description>
 <Implementation><![CDATA[
 	#dim floatingEditMenuID as %Integer = ..contextData.getNewFloatingMenuCounter()
 	
-	set prowebId=..prowebItem.%Id()
+	if ..contextData.%IsA("EF.contextDataRegistrationMock") {
+		set prowebId = "mock-1"	
+	} else {
+		set prowebId=..prowebItem.%Id()
+	}
 	
 	if ..isProwebEditMode {
 		write !,"<div class='row ef-draggable-div ef-proweb-form-row-editable' data-proweb-id="_prowebId_" onContextMenu=""HM_f_PopUp('HM_Menu"_floatingEditMenuID_"',event); return false;"" onMouseOut=""HM_f_PopDown('HM_Menu"_floatingEditMenuID_"');"">"
@@ -3148,6 +3371,48 @@ this is for version 1 of proweb</Description>
 </Class>
 
 
+<Class name="EF.ui.components.frontend.timeInput">
+<Super>EF.ui.components.frontend.textInput</Super>
+<TimeChanged>64198,33660.397284</TimeChanged>
+<TimeCreated>63357,57620.613738</TimeCreated>
+
+<Parameter name="typeAttribute">
+<Default>time</Default>
+</Parameter>
+
+<Parameter name="html5Validation">
+<Default>1</Default>
+</Parameter>
+
+<Method name="getDefaultValidator">
+<ReturnType>EF.validator.base</ReturnType>
+<Implementation><![CDATA[	return ##class(EF.validator.timeInput).%New()
+]]></Implementation>
+</Method>
+</Class>
+
+
+<Class name="EF.ui.components.frontend.webAddress">
+<Super>EF.ui.components.frontend.textInput</Super>
+<TimeChanged>64198,62864.573985</TimeChanged>
+<TimeCreated>63357,57620.613738</TimeCreated>
+
+<Parameter name="typeAttribute">
+<Default>url</Default>
+</Parameter>
+
+<Parameter name="html5Validation">
+<Default>1</Default>
+</Parameter>
+
+<Method name="getDefaultValidator">
+<ReturnType>EF.validator.base</ReturnType>
+<Implementation><![CDATA[	return ##class(EF.validator.webAddress).%New()
+]]></Implementation>
+</Method>
+</Class>
+
+
 <Class name="EF.ui.components.frontend.wholeNumber">
 <Super>EF.ui.components.frontend.textInput</Super>
 <TimeChanged>64197,62116.754161</TimeChanged>
@@ -3179,8 +3444,8 @@ this is for version 1 of proweb</Description>
 ;vc;      User: AdrianM2
 ;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>EF.validator.integer.CLS/EV.3</td><td>CLS.EF.validator.integer</td><td>LargeDev</td><td style='white-space: nowrap;'>07-Mar-16 16:09</td><td>AdrianM2</td></tr></table>
 ]]></Description>
-<Super>EF.validator.numeric</Super>
-<TimeChanged>64197,42353.287487</TimeChanged>
+<Super>EF.validator.base</Super>
+<TimeChanged>64198,63518.953556</TimeChanged>
 <TimeCreated>63364,34365.891052</TimeCreated>
 
 <Method name="getRegex">
@@ -3234,6 +3499,88 @@ this is for version 1 of proweb</Description>
 		set validator=""
 	}
 	do $$$AssertTrue(($IsObject(validator))&&(validator.%IsA("EF.validator.phoneNumber")))
+]]></Implementation>
+</Method>
+</Class>
+
+
+<Class name="EF.validator.webAddress">
+<Description><![CDATA[
+<!-- ;vc;-
+;vc;    Object: EF.validator.integer.CLS/EV.3
+;vc; Component: CLS.EF.validator.integer
+;vc;  Location: LargeDev
+;vc; Date/Time: 07-Mar-16 16:09
+;vc;      User: AdrianM2
+;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>EF.validator.integer.CLS/EV.3</td><td>CLS.EF.validator.integer</td><td>LargeDev</td><td style='white-space: nowrap;'>07-Mar-16 16:09</td><td>AdrianM2</td></tr></table>
+]]></Description>
+<Super>EF.validator.base</Super>
+<TimeChanged>64198,63556.464934</TimeChanged>
+<TimeCreated>63364,34365.891052</TimeCreated>
+
+<Method name="getRegex">
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[	return ##class(EF.utils.dataValidation).getValidationPatternForDataType("webAddress")
+]]></Implementation>
+</Method>
+</Class>
+
+
+<Class name="EF.validator.webAddressTestCase">
+<Super>EF.ISC.UnitTest.TestCase</Super>
+<TimeChanged>64198,63839.009025</TimeChanged>
+<TimeCreated>63375,58376.236052</TimeCreated>
+
+<Method name="TestisInputValid">
+<Implementation><![CDATA[
+	set validator=##class(webAddress).%New()
+
+	do $$$AssertTrue(validator.isInputValid("http://www.bbc.com"))
+	do $$$AssertTrue(validator.isInputValid("http://www.bbc.com/myparam=666"))
+	do $$$AssertTrue(validator.isInputValid("http://www.bbc.com/myparam=666&something=else"))
+
+	do $$$AssertTrue(validator.isInputValid("https://www.bbc.com"))
+	do $$$AssertTrue(validator.isInputValid("https://www.bbc.com/myparam=666"))
+	do $$$AssertTrue(validator.isInputValid("https://www.bbc.com/myparam=666&something=else"))
+
+	do $$$AssertTrue(validator.isInputValid("www.bbc.com/myparam=666&something=else"))
+	do $$$AssertTrue(validator.isInputValid("www.bbc.com/myparam=666"))
+	do $$$AssertTrue(validator.isInputValid("www.bbc.com/myparam=666&something=else"))
+
+	do $$$AssertNotTrue(validator.isInputValid("fish"))
+	do $$$AssertNotTrue(validator.isInputValid("1234123"))
+	do $$$AssertTrue(validator.isInputValid("www.bbc.com"))
+
+	do $$$AssertNotTrue(validator.isInputValid("hxtp://www.bbc.com"))
+	do $$$AssertNotTrue(validator.isInputValid("xhttp://www.bbc.com/myparam=666"))
+	do $$$AssertNotTrue(validator.isInputValid("htxtp://www.bbc.com/myparam=666&something=else"))
+
+
+	set validator.isMandatory=1
+	do $$$AssertNotTrue(validator.isInputValid(""))
+]]></Implementation>
+</Method>
+
+<Method name="TestgetErrorMessage">
+<Implementation><![CDATA[	do $$$AssertNotEquals(##class(webAddress).%New().getErrorMessage(),"")
+]]></Implementation>
+</Method>
+
+<Method name="TestGetRegEx">
+<Implementation><![CDATA[
+	set validator=##class(webAddress).%New()
+	do $$$AssertEquals(validator.getRegex(),"^(?:https?:\/\/)?(?:\S+(?::\S*)?@)?(?:(?:[1-9]\d?|1\d\d|2[01]\d|22[0-3])(?:\.(?:1?\d{1,2}|2[0-4]\d|25[0-5])){2}(?:\.(?:[1-9]\d?|1\d\d|2[0-4]\d|25[0-4]))|(?:(?:[a-z\u00a1-\uffff0-9]+-?)*[a-z\u00a1-\uffff0-9]+)(?:\.(?:[a-z\u00a1-\uffff0-9]+-?)*[a-z\u00a1-\uffff0-9]+)*(?:\.(?:[a-z\u00a1-\uffff]{2,})))(?::\d{2,5})?(?:\/.*)?$")
+]]></Implementation>
+</Method>
+
+<Method name="TestgetValidatorObject">
+<Implementation><![CDATA[
+	try {
+		set validator=##class(base).getValidatorObject("webAddress")
+	} catch {
+		set validator=""
+	}
+	do $$$AssertTrue(($IsObject(validator))&&(validator.%IsA("EF.validator.webAddress")))
 ]]></Implementation>
 </Method>
 </Class>
@@ -6907,7 +7254,7 @@ The basic frontend default stuff</Description>
 </Class>
 
 
-<Project name="proweb 2" LastModified="2016-10-06 17:15:20.081828" Target="largedevsrc/backend/home/Login.csp" TargetType="3">
+<Project name="proweb 2" LastModified="2016-10-08 16:20:46.372858" Target="##class(EF.pageController.proweb.pageTestCase).debugTarget()" TargetType="2">
   <Items>
     <ProjectItem name="EF.contextDataRegistration" type="CLS"></ProjectItem>
     <ProjectItem name="EF.contextDataRegistrationMock" type="CLS"></ProjectItem>
@@ -6947,15 +7294,23 @@ The basic frontend default stuff</Description>
     <ProjectItem name="EF.pageController.proweb.phoneNumber" type="CLS"></ProjectItem>
     <ProjectItem name="EF.ui.components.frontend.phoneNumber" type="CLS"></ProjectItem>
     <ProjectItem name="EF.validator.phoneNumber" type="CLS"></ProjectItem>
-    <ProjectItem name="EF.validatorphoneNumberTestCase" type="CLS"></ProjectItem>
     <ProjectItem name="EF.validator.phoneNumberTestCase" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.proweb.wholeNumber" type="CLS"></ProjectItem>
     <ProjectItem name="EF.ui.components.frontend.wholeNumber" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.pageController.proweb.emailInput" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.ui.components.frontend.emailInput" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.ui.components.frontend.timeInput" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.pageController.proweb.timeInput" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.pageController.proweb.webAddress" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.ui.components.frontend.webAddress" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.validator.webAddress" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.validator.webAddressTestCase" type="CLS"></ProjectItem>
   </Items>
   <WatchVariables>
-    <WatchVariable Variable="##class(sc.xModules.objCODitem).getType(..prowebID)" Pane="1"></WatchVariable>
-    <WatchVariable Variable="child" Pane="1"></WatchVariable>
-    <WatchVariable Variable="tmpArray" Pane="1"></WatchVariable>
+    <WatchVariable Variable="..childComponents.Count()" Pane="1"></WatchVariable>
+    <WatchVariable Variable="element" Pane="1"></WatchVariable>
+    <WatchVariable Variable="page" Pane="1"></WatchVariable>
+    <WatchVariable Variable="contextData" Pane="1"></WatchVariable>
   </WatchVariables>
 </Project>
 

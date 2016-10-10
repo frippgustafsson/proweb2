@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2015.2 (Build 664_3_16032U)" ts="2016-10-10 18:34:55">
+<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2015.2 (Build 664_3_16032U)" ts="2016-10-10 19:57:21">
 <Class name="EF.contextDataRegistration">
 <Description><![CDATA[
 <!-- ;vc;-
@@ -879,7 +879,7 @@ Adds a translation button with warning icon which opens an in-form modal</Descri
 ]]></Description>
 <IncludeCode>EF.common.macros</IncludeCode>
 <Super>%Library.Persistent,shared.timeStamp</Super>
-<TimeChanged>64196,64765.943871</TimeChanged>
+<TimeChanged>64201,70851.405281</TimeChanged>
 <TimeCreated>63350,63749.535929</TimeCreated>
 
 <Property name="elementParent">
@@ -1124,7 +1124,7 @@ Anything marked with isModalTempData set will be cleared down when a modal is re
 	for {
 		set elementChild=..elementChildren.GetNext(.key)
 		if key="" quit
-		do elementChild.validateElement()
+		do elementChild.validateElement() 
  	}
  	if ..isUpdated() {
 	 	do ..validateValue()
@@ -1449,14 +1449,14 @@ Should be run if any of the sub-classes are deleted</Description>
 
 <Class name="EF.pageController.proweb.datePicker">
 <Super>EF.pageController.proweb.inputElement</Super>
-<TimeChanged>64200,61756.695716</TimeChanged>
+<TimeChanged>64201,71470.600729</TimeChanged>
 <TimeCreated>63384,38321.657735</TimeCreated>
 
 <Method name="getDefaultUIComponent">
 <ReturnType>EF.ui.components.inputBase</ReturnType>
 <Implementation><![CDATA[
 	set uiElement=##class(EF.ui.components.frontend.datePicker).%New(..identifier)
-	set uiElement.validator.dateFormat=##class(shared.dateFunctions).getFrontendInputDateFormat()
+	;set uiElement.validator.dateFormat=##class(shared.dateFunctions).getFrontendInputDateFormat()
 	quit uiElement
 ]]></Implementation>
 </Method>
@@ -1550,12 +1550,25 @@ Should be run if any of the sub-classes are deleted</Description>
 
 <Class name="EF.pageController.proweb.inputElement">
 <Super>EF.pageController.inputElement,EF.pageController.proweb.prowebBase</Super>
-<TimeChanged>64201,64377.347864</TimeChanged>
+<TimeChanged>64201,70879.161977</TimeChanged>
 <TimeCreated>64189,53012.909524</TimeCreated>
 
 <Property name="isMandatory">
 <Type>%Boolean</Type>
 </Property>
+
+<Method name="validateElement">
+<Implementation><![CDATA[
+	do ..errorMessages.Clear()
+	set key=""
+	for {
+		set elementChild=..elementChildren.GetNext(.key)
+		if key="" quit
+		do elementChild.validateElement() 
+ 	}
+ 	do ..validateValue()
+]]></Implementation>
+</Method>
 
 <Storage name="Default">
 <Type>%Library.CacheStorage</Type>
@@ -1609,7 +1622,7 @@ Should be run if any of the sub-classes are deleted</Description>
 
 <Class name="EF.pageController.proweb.page">
 <Super>EF.pageController.page</Super>
-<TimeChanged>64201,66678.190023</TimeChanged>
+<TimeChanged>64201,70362.336899</TimeChanged>
 <TimeCreated>64189,51696.559047</TimeCreated>
 
 <Property name="contextData">
@@ -1643,9 +1656,26 @@ Should be run if any of the sub-classes are deleted</Description>
 		if (..contextData.prowebMode = "edit")  {
 			do ..outputFloatingMenuForAddToTop()	
 		}
+		if ..hasError {
+			do ..renderErrorMessages()
+		}
 		do ..renderProwebItemsForComponent()
 	}
 	quit
+]]></Implementation>
+</Method>
+
+<Method name="renderErrorMessages">
+<Implementation><![CDATA[
+	write !,"<div class='ef-proweb-error-panel'><div class='ef-proweb-error-header'>",##class(shared.pCSP).out("Error on page"),"</div><UL>"
+		for {
+			set element=..allPageElements.GetNext(.key)
+			if key="" quit
+			if element.uiComponent.hasError {
+				write !,"<LI>",element.uiComponent.validator.getErrorMessage(),"</LI>"
+			}
+		}
+		write !,"</UL></div>"
 ]]></Implementation>
 </Method>
 
@@ -1999,7 +2029,7 @@ this method needs rewriting when the arrayOfElements become a list instead of an
 
 <Class name="EF.pageController.proweb.pageTestCase">
 <Super>EF.ISC.UnitTest.TestCase</Super>
-<TimeChanged>64201,49044.802212</TimeChanged>
+<TimeChanged>64201,71770.116972</TimeChanged>
 <TimeCreated>64189,44993.632692</TimeCreated>
 
 <Method name="TestVeryBasicPage">
@@ -2093,6 +2123,28 @@ Method TestVeryBasicPageInEditMode()
 ]]></Implementation>
 </Method>
 
+<Method name="TestTextArea">
+<Implementation><![CDATA[
+	#dim elementIdentifier as %String = "proweb-1"
+	#dim labelText as %String = "write an essay here"
+	#dim value as %String = "lorem ipsum"
+	#dim element as EF.pageController.element
+	#dim page as EF.pageController.proweb.page
+	
+	set contextData = ##class(EF.contextDataRegistrationMock).createMock()
+	
+	set page= ##class(EF.pageController.proweb.page).createNew(contextData)
+	set element = ##class(EF.pageController.proweb.textArea).addElementToParent(page, elementIdentifier, labelText, value, 0)
+	do page.uiComponent.addChild(element.uiComponent)
+	set element.uiComponent.contextData = contextData
+	
+	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(page,"render")
+	set returnedHTML = $ZStrip(returnedHTML,"*WC")
+	set expectedHTML = "<divclass='rowef-proweb-form-row'><divclass='col-sm-4ef_proweb_form_prompt'><labelclass=""control-label""for=""proweb-1"">writeanessayhere</label></div><divclass='col-sm-8ef_proweb_form_prompt'><textareatype=""text""class=""form-controlef-proweb-input-element""title=""""id=""proweb-1""name=""proweb-1""placeholder=""""></textArea></div></div>"
+	do $$$AssertEquals(returnedHTML,expectedHTML)
+]]></Implementation>
+</Method>
+
 <Method name="TestEmail">
 <Implementation><![CDATA[
 	#dim elementIdentifier as %String = "proweb-1"
@@ -2132,7 +2184,29 @@ Method TestVeryBasicPageInEditMode()
 	
 	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(page,"render")
 	set returnedHTML = $ZStrip(returnedHTML,"*WC")
-	set expectedHTML = "<divclass='rowef-proweb-form-row'><divclass='col-sm-4ef_proweb_form_prompt'><labelclass=""control-label""for=""proweb-1"">time</label></div><divclass='col-sm-8ef_proweb_form_prompt'><divclass=""ef_proweb_form_field_container_type_timeef-proweb-input-element-short""><inputtype=""time""class=""form-controlef-proweb-input-elementefTimePicker""title=""""id=""proweb-1""name=""proweb-1""value=""""placeholder=""HH:MM24hour""efKendoTimeFormat=""24""efKendoTimeInterval=15></div></div></div>"
+	set expectedHTML = "<divclass='rowef-proweb-form-row'><divclass='col-sm-4ef_proweb_form_prompt'><labelclass=""control-label""for=""proweb-1"">time</label></div><divclass='col-sm-8ef_proweb_form_prompt'><divclass=""ef_proweb_form_field_container_type_timeef-proweb-input-element-short""><inputtype=""text""class=""form-controlef-proweb-input-elementefTimePicker""title=""""id=""proweb-1""name=""proweb-1""value=""""placeholder=""HH:MM24hour""efKendoTimeFormat=""24""efKendoTimeInterval=15></div></div></div>"
+	do $$$AssertEquals(returnedHTML,expectedHTML)
+]]></Implementation>
+</Method>
+
+<Method name="TestDatePicker">
+<Implementation><![CDATA[
+	#dim elementIdentifier as %String = "proweb-1"
+	#dim labelText as %String = "date"
+	#dim value as %String = "12/12/2016"
+	#dim element as EF.pageController.element
+	#dim page as EF.pageController.proweb.page
+	
+	set contextData = ##class(EF.contextDataRegistrationMock).createMock()
+	
+	set page= ##class(EF.pageController.proweb.page).createNew(contextData)
+	set element = ##class(EF.pageController.proweb.datePicker).addElementToParent(page, elementIdentifier, labelText, value, 0)
+	do page.uiComponent.addChild(element.uiComponent)
+	set element.uiComponent.contextData = contextData
+	
+	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(page,"render")
+	set returnedHTML = $ZStrip(returnedHTML,"*WC")
+	set expectedHTML = "<divclass='rowef-proweb-form-row'><divclass='col-sm-4ef_proweb_form_prompt'><labelclass=""control-label""for=""proweb-1"">date</label></div><divclass='col-sm-8ef_proweb_form_prompt'><divclass=""ef-proweb-input-element-short""><inputtype=""date""class=""ef-kendo-form-controlefDatePicker""title=""""id=""proweb-1""name=""proweb-1""value=""""placeholder=""DD/MM/YYYY""efKendoDateFormat=""dd/MM/yyyy""efKendoTimeInterval=15></div></div></div>"
 	do $$$AssertEquals(returnedHTML,expectedHTML)
 ]]></Implementation>
 </Method>
@@ -2176,7 +2250,7 @@ Method TestVeryBasicPageInEditMode()
 	
 	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(page,"render")
 	set returnedHTML = $ZStrip(returnedHTML,"*WC")
-	set expectedHTML = "<divclass='rowef-proweb-form-row'><divclass='col-sm-4ef_proweb_form_prompt'><labelclass=""control-label""for=""proweb-1""pattern=""^([\+\-]){0,1}\d+$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;Shoesize\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);"">Shoesize</label></div><divclass='col-sm-8ef_proweb_form_prompt'><inputtype=""number""class=""form-controlef-proweb-input-element-short""title=""""id=""proweb-1""name=""proweb-1""value=""""placeholder=""""pattern=""^([\+\-]){0,1}\d+$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;Shoesize\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""></div></div>"
+	set expectedHTML = "<divclass='rowef-proweb-form-row'><divclass='col-sm-4ef_proweb_form_prompt'><labelclass=""control-label""for=""proweb-1""pattern=""^[+-]?((0)|([1-9][0-9]*?))?(\.[0-9]{1,2})?$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;Shoesize\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);"">Shoesize</label></div><divclass='col-sm-8ef_proweb_form_prompt'><inputtype=""text""class=""form-controlef-proweb-input-element-short""title=""""id=""proweb-1""name=""proweb-1""value=""""placeholder=""""pattern=""^[+-]?((0)|([1-9][0-9]*?))?(\.[0-9]{1,2})?$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;Shoesize\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""></div></div>"
 	do $$$AssertEquals(returnedHTML,expectedHTML)
 ]]></Implementation>
 </Method>
@@ -3031,7 +3105,7 @@ this is for version 1 of proweb</Description>
 ;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>EF.ui.components.backend.datePicker.CLS/EV.3</td><td>CLS.EF.ui.components.backend.datePicker</td><td>LargeDev</td><td style='white-space: nowrap;'>02-Feb-16 12:32</td><td>AdrianM2</td></tr></table>
 ]]></Description>
 <Super>EF.ui.components.textInput,EF.ui.components.frontend.inputElement</Super>
-<TimeChanged>64201,35096.130149</TimeChanged>
+<TimeChanged>64201,71518.40155</TimeChanged>
 <TimeCreated>63384,38215.518113</TimeCreated>
 
 <Parameter name="typeAttribute">
@@ -3064,7 +3138,10 @@ this is for version 1 of proweb</Description>
 
 <Method name="getDefaultValidator">
 <ReturnType>EF.validator.base</ReturnType>
-<Implementation><![CDATA[	quit ##class(EF.validator.dateInput).%New()
+<Implementation><![CDATA[
+	set validator = ##class(EF.validator.dateInput).%New()
+	set validator.dateFormat=##class(shared.dateFunctions).getFrontendInputDateFormat(..contextData.eventID)
+	return validator
 ]]></Implementation>
 </Method>
 
@@ -3583,7 +3660,7 @@ this is for version 1 of proweb</Description>
 
 <Class name="EF.ui.components.frontend.numericInput">
 <Super>EF.ui.components.frontend.textInput</Super>
-<TimeChanged>64201,62741.663556</TimeChanged>
+<TimeChanged>64201,70886.199963</TimeChanged>
 <TimeCreated>63357,57620.613738</TimeCreated>
 
 <Parameter name="typeAttribute">
@@ -3593,7 +3670,7 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 </Parameter>
 
 <Parameter name="html5Validation">
-<Default>0</Default>
+<Default>1</Default>
 </Parameter>
 
 <Method name="getDefaultValidator">
@@ -4157,8 +4234,6 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 <csp:class encoded="1" private="1">
 
 <script language="cache" method="OnPreHTTPafter" arguments="" returntype="%Library.Boolean"> 
-	/// saves the submitted data from the request into the temp structure
-	/// this page can be called by all pages using the pageClass structure for temp storage, no configuration required
 	set contextData = ##class(EF.contextDataRegistration).createFromFrontendCSPSession()
 	set pageControllerID=%request.Get("pageControllerID")
 	
@@ -4166,12 +4241,12 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 	try {
 		set pageController=##class(EF.pageController.page).open(pageControllerID,contextData)
 	} catch {
-		w 1/0 set ok=0 // ###########
+		throw ##class(shared.exceptions.generalException).%New("Failed to open the frontend page controller when saving page")
 	}
 	
-	set backforward=##class(setup.objPageNav).goWhere("codFormSave.csp", , contextData.tempPersonID, %request.Get("pageID"))
+	set backforward=##class(setup.objPageNav).goWhere("codFormSave.csp", , contextData.tempPersonID, %request.Get("pageID")) // #########
 	set redirectURL = $Piece(backforward,"|",2)
-	set %response.Redirect=redirectURL
+	
 
 	set pageController.submitButtonClickedIdentifier=%request.Get("efSubmitButtonIdentifier")
 	
@@ -4179,16 +4254,24 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 		// copy submitted fields into the pageController
 		do pageController.updateFromRequest()
 		do pageController.%Save()
+		
 
 	} else {
 		// copy submitted fields into the pageController
 		do pageController.updateFromRequest()
 		
 		// validate all data
-		do pageController.validatePage()
+		do pageController.validatePage() 
+		if pageController.errorMessages.Count() {
+			set pageController.hasError=1
+		}
 		
 		// save the temp structure to database
-		if 'pageController.hasError {
+		if pageController.hasError {
+			set redirectURL = ##class(shared.pageMethods).addParamsToURL("t4registration.csp", "pageControllerID="_pageControllerID) // #############
+			
+
+		} else {
 			// save temp structure to database
 			Try {
 				// the save has the validation and THROWS exceptions if any validations fail
@@ -4204,23 +4287,22 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 					throw exObj
 				}
 				do pageController.setErrorMessage(error)
-				
 			}
-			
 		}
-		
 		do pageController.%Save()
 	}
 	do pageController.copyAllDataToEComTemp()
+	set %response.Redirect=redirectURL
 	quit 0
 </script>
-#(backforward)#
+
 ]]></CSP>
 
 
 <CSP name="frontEnd/reg/t4Registration.csp" application="/largedevsrc/" default="1"><![CDATA[
 <csp:class super="EF.pages.frontend.baseProweb">
 <csp:parameter name="efPageName" value="tregistration.csp">
+
 <script language="cache" runat="server">
 	Do ##super() 
 </script>
@@ -5577,7 +5659,7 @@ FRRE RULE
 <Abstract>1</Abstract>
 <ClassType/>
 <ProcedureBlock>1</ProcedureBlock>
-<TimeChanged>64200,62756.365764</TimeChanged>
+<TimeChanged>64201,70934.903888</TimeChanged>
 <TimeCreated>63046,56232.897117</TimeCreated>
 
 <Method name="outputDefaultCSS">
@@ -5835,6 +5917,13 @@ yellow red grey etc. Used for ALL templates below gen3</Description>
 		}
 		.ef-proweb-checkboxGroup {
 			text-align: left;	
+		}
+		.ef-proweb-error-panel { /* ################## */
+			margin-left: 10%;
+			margin-right: 10%;
+			padding: 10px;
+			background-color: RED;
+			color: WHITE;	
 		}
 		.ef-registration-section td label {
 			display: inline-block;
@@ -7795,7 +7884,7 @@ The basic frontend default stuff</Description>
 </Class>
 
 
-<Project name="proweb 2" LastModified="2016-10-10 17:47:28.160187" Target="##class(EF.pageController.proweb.pageTestCase).debugTarget()" TargetType="2">
+<Project name="proweb 2" LastModified="2016-10-10 19:11:26.773643" Target="dev.efsys.net/LARGEDEVSRC/backend/home/efSupportLogin.htm" TargetType="3">
   <Items>
     <ProjectItem name="EF.contextDataRegistration" type="CLS"></ProjectItem>
     <ProjectItem name="EF.contextDataRegistrationMock" type="CLS"></ProjectItem>
@@ -7859,6 +7948,9 @@ The basic frontend default stuff</Description>
     <ProjectItem name="EF.validator.emailAddressMulti" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.proweb.prowebBase" type="CLS"></ProjectItem>
   </Items>
+  <BreakPoints>
+    <BreakPoint Routine="cspRealEV.frontend.reg.pagecontrollerstandardsave.CLS" Offset="OnPreHTTPafter+28"></BreakPoint>
+  </BreakPoints>
   <WatchVariables>
     <WatchVariable Variable="..childComponents.Count()" Pane="1"></WatchVariable>
     <WatchVariable Variable="element" Pane="1"></WatchVariable>

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2015.2 (Build 664_3_16032U)" ts="2016-10-08 16:20:46">
+<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2015.2 (Build 664_3_16032U)" ts="2016-10-10 18:34:55">
 <Class name="EF.contextDataRegistration">
 <Description><![CDATA[
 <!-- ;vc;-
@@ -1447,6 +1447,26 @@ Should be run if any of the sub-classes are deleted</Description>
 </Class>
 
 
+<Class name="EF.pageController.proweb.datePicker">
+<Super>EF.pageController.proweb.inputElement</Super>
+<TimeChanged>64200,61756.695716</TimeChanged>
+<TimeCreated>63384,38321.657735</TimeCreated>
+
+<Method name="getDefaultUIComponent">
+<ReturnType>EF.ui.components.inputBase</ReturnType>
+<Implementation><![CDATA[
+	set uiElement=##class(EF.ui.components.frontend.datePicker).%New(..identifier)
+	set uiElement.validator.dateFormat=##class(shared.dateFunctions).getFrontendInputDateFormat()
+	quit uiElement
+]]></Implementation>
+</Method>
+
+<Storage name="Default">
+<Type>%Library.CacheStorage</Type>
+</Storage>
+</Class>
+
+
 <Class name="EF.pageController.proweb.divider">
 <Super>EF.pageController.proweb.prowebBase</Super>
 <TimeChanged>64197,56440.726899</TimeChanged>
@@ -1511,9 +1531,26 @@ Should be run if any of the sub-classes are deleted</Description>
 </Class>
 
 
+<Class name="EF.pageController.proweb.emailInputMulti">
+<Super>EF.pageController.proweb.textInput</Super>
+<TimeChanged>64201,44206.111927</TimeChanged>
+<TimeCreated>64189,53629.035726</TimeCreated>
+
+<Method name="getDefaultUIComponent">
+<ReturnType>EF.ui.components.inputBase</ReturnType>
+<Implementation><![CDATA[	quit ##class(EF.ui.components.frontend.emailInputMulti).%New(..identifier)
+]]></Implementation>
+</Method>
+
+<Storage name="Default">
+<Type>%Library.CacheStorage</Type>
+</Storage>
+</Class>
+
+
 <Class name="EF.pageController.proweb.inputElement">
 <Super>EF.pageController.inputElement,EF.pageController.proweb.prowebBase</Super>
-<TimeChanged>64197,58675.669215</TimeChanged>
+<TimeChanged>64201,64377.347864</TimeChanged>
 <TimeCreated>64189,53012.909524</TimeCreated>
 
 <Property name="isMandatory">
@@ -1536,9 +1573,43 @@ Should be run if any of the sub-classes are deleted</Description>
 </Class>
 
 
+<Class name="EF.pageController.proweb.integerInput">
+<Super>EF.pageController.proweb.textInput</Super>
+<TimeChanged>64201,43333.133276</TimeChanged>
+<TimeCreated>64189,53629.035726</TimeCreated>
+
+<Method name="getDefaultUIComponent">
+<ReturnType>EF.ui.components.inputBase</ReturnType>
+<Implementation><![CDATA[	quit ##class(EF.ui.components.frontend.integerInput).%New(..identifier)
+]]></Implementation>
+</Method>
+
+<Storage name="Default">
+<Type>%Library.CacheStorage</Type>
+</Storage>
+</Class>
+
+
+<Class name="EF.pageController.proweb.numericInput">
+<Super>EF.pageController.proweb.textInput</Super>
+<TimeChanged>64201,43313.656158</TimeChanged>
+<TimeCreated>63939,36505.690987</TimeCreated>
+
+<Method name="getDefaultUIComponent">
+<ReturnType>EF.ui.components.inputBase</ReturnType>
+<Implementation><![CDATA[	quit ##class(EF.ui.components.frontend.numericInput).%New(..identifier)
+]]></Implementation>
+</Method>
+
+<Storage name="Default">
+<Type>%Library.CacheStorage</Type>
+</Storage>
+</Class>
+
+
 <Class name="EF.pageController.proweb.page">
 <Super>EF.pageController.page</Super>
-<TimeChanged>64198,62910.945394</TimeChanged>
+<TimeChanged>64201,66678.190023</TimeChanged>
 <TimeCreated>64189,51696.559047</TimeCreated>
 
 <Property name="contextData">
@@ -1565,6 +1636,7 @@ Should be run if any of the sub-classes are deleted</Description>
 		do element.render()
 		
 	} elseif $Get(attrs("prowebcomponentname"))'="" {
+		set ..objEvent = ##class(setup.objEvent).%OpenId(..contextData.eventID)
 		set ..contextData.prowebComponentName = attrs("prowebcomponentname")
 		do ..initialiseComponent()
 		//if (..contextData.prowebMode = "edit") && (..allPageElements.Count() = 1 ) { // ###### This would be nice but we need a new way of outputting the add menu somewhere so that we can call it.
@@ -1682,40 +1754,36 @@ Should be run if any of the sub-classes are deleted</Description>
 	#dim itemName as %String = ##class(sc.xModules.objCODitem).getCODItemName(prowebID)
 	#dim value as %String  = ##class(eCom.tempCodData).get(..contextData.tempPersonID, itemName)
 	#dim elementIdentifier as %String = ..getElementIdentifierForProwebItems(prowebItem)	
+	#dim labelText as %String = ##class(sc.objData).getQuestionPrompt(prowebID, ..contextData.languageID)
 
-	set labelText = ##class(sc.objData).getQuestionPrompt(prowebID, ..contextData.languageID)
-	
-	if prowebItem.type = "text" {
-		set element = ##class(EF.pageController.proweb.textInput).addElementToParent($this, elementIdentifier, labelText, value, isReadOnly)
+	set pageControllerClassName = $Case(prowebItem.type,
+										"text":"textInput",
+										"emailAddress":"emailInput",
+										"time":"timeInput",
+										"date":"datePicker",
+										"textarea":"textArea",
+										"phoneNumber":"phoneNumber",
+										"integer":"integerInput",
+										"floatingPointNumber":"numericInput",
+										"webAddress":"webAddress",
+										"multiEmailAddress":"emailInputMulti",
+										"checkbox":"checkboxGroup",
+										:"exception"
+										)
+	if pageControllerClassName '= "exception" {										
+		set element = $ClassMethod("EF.pageController.proweb."_pageControllerClassName, "addElementToParent", $this, elementIdentifier, labelText, value, isReadOnly)
 		
 	} elseif (prowebItem.type = "dropdown") ! (prowebItem.type = "radiobutton") ! (prowebItem.type = "multibox") {
 		set element = ..addProwebSelectionElement(prowebItem)
 				
-	} elseif prowebItem.type = "phoneNumber" {
-		set element = ##class(EF.pageController.proweb.phoneNumber).addElementToParent($this, elementIdentifier, labelText, value, isReadOnly)
-
-	} elseif prowebItem.type = "integer" {
-		set element = ##class(EF.pageController.proweb.wholeNumber).addElementToParent($this, elementIdentifier, labelText, value, isReadOnly)
-					
-	} elseif prowebItem.type = "emailAddress" {
-		set element = ##class(EF.pageController.proweb.emailInput).addElementToParent($this, elementIdentifier, labelText, value, isReadOnly)
-					
-	} elseif prowebItem.type = "time" {
-		set element = ##class(EF.pageController.proweb.timeInput).addElementToParent($this, elementIdentifier, labelText, value, isReadOnly)
-					
-	} elseif prowebItem.type = "webAddress" {
-		set element = ##class(EF.pageController.proweb.webAddress).addElementToParent($this, elementIdentifier, labelText, value, isReadOnly)
-					
-	} elseif prowebItem.type = "checkbox" {
-		set isChecked = $Select(value="true":1, 1:0)
-		set element=##class(EF.pageController.proweb.checkboxGroup).addElementToParent($this, elementIdentifier, "", value)
-		
-		set childController = element.addProwebCheckbox(element, elementIdentifier_"-"_1, labelText, isChecked)
-
-			
 	} else {
 		throw ##class(shared.exceptions.generalException).%New("proweb question type is not implemented yet")	
 	}
+
+	if prowebItem.type = "checkbox" {
+		set childController = element.addProwebCheckbox(element, elementIdentifier_"-"_1, labelText, value)
+		set childController.prowebID = prowebItem.%Id()
+	}		
 	
 	if 'element.%IsA("EF.pageController.proweb.checkboxGroup") {
 		set element.isMandatory = prowebItem.mandatory
@@ -1754,7 +1822,6 @@ Should be run if any of the sub-classes are deleted</Description>
 		set value = ##class(eCom.tempCodData).get(..contextData.tempPersonID, itemName,"",getRawData)
 		set element=##class(EF.pageController.proweb.checkboxGroup).addElementToParent($this, elementIdentifier, labelText, value)
 		set element.uiComponent.columns=1
-		
 			
 	} else {
 		throw ##class(shared.exceptions.generalException).%New("Proweb selection type not implemented")
@@ -1771,6 +1838,7 @@ Should be run if any of the sub-classes are deleted</Description>
 			set counter = counter+1
 			set isChecked = ##class(EF.pageController.proweb.checkboxGroup).isAlternativeInValueString(alternativeDescription, value)
 			set childController = element.addProwebCheckbox(element, elementIdentifier_"-"_counter, alternativeDescription, isChecked)
+			set childController.prowebID = prowebItem.%Id()
 
 		} else {
 			set alternative = element.addAlternative(alternativeValue,alternativeDescription)
@@ -1834,13 +1902,13 @@ this method needs rewriting when the arrayOfElements become a list instead of an
 	}
 	
 	for {
-		set element=..allPageElements.GetNext(.key)
-		if key="" quit
+		set element = ..allPageElements.GetNext(.key)
+		if key = "" quit
 		if element.%Extends("EF.pageController.proweb.prowebBase") {
 			if $Data(prowebItems(element.prowebID)) {
-				set prowebELement=##class(sc.objData).%OpenId(element.prowebID)
-				set prowebELement.displayOrder=prowebItems(element.prowebID)
-				do prowebELement.%Save()
+				set prowebElement = ##class(sc.objData).%OpenId(element.prowebID)
+				set prowebElement.displayOrder = prowebItems(element.prowebID)
+				do prowebElement.%Save()
 			}
 		}
 	}
@@ -1861,8 +1929,32 @@ this method needs rewriting when the arrayOfElements become a list instead of an
 		if element.%IsA("EF.pageController.proweb.inputElement") {
 			set prowebItemID = element.prowebID
 			set prowbItemName = ##class(sc.xModules.objCODitem).getCODItemName(prowebItemID)
-			do ##class(eCom.tempCodData).set(..contextData.tempPersonID, prowbItemName, element.value)	
+			
+			if ( element.%IsA("EF.pageController.proweb.checkbox") ) && ( element.elementParent.elementChildren.Count() > 1 ) { // multi checkboxes only
+				if element.value = 1 {
+					set multiCheckboxData(prowbItemName, $I(multiCheckboxData(prowbItemName))) = element.description
+				}
+			} else {
+				do ##class(eCom.tempCodData).set(..contextData.tempPersonID, prowbItemName, element.value)	
+			}
 		}
+	}
+	do ..copyAndFormatMultiCheckboxData(.multiCheckboxData)
+]]></Implementation>
+</Method>
+
+<Method name="copyAndFormatMultiCheckboxData">
+<FormalSpec><![CDATA[&multiCheckboxData]]></FormalSpec>
+<Implementation><![CDATA[
+	set prowbItemName = ""
+	for {  
+		set prowbItemName = $Order(multiCheckboxData(prowbItemName))
+		if prowbItemName = "" quit
+		kill tmpArray
+		merge tmpArray=multiCheckboxData(prowbItemName)
+		
+		set value = ##class(cod.methods).formatMultiCheckBox(..contextData.eventID, prowbItemName, .tmpArray)
+		do ##class(eCom.tempCodData).set(..contextData.tempPersonID, prowbItemName, value, ..contextData.pageID, ..contextData.eventID)
 	}
 ]]></Implementation>
 </Method>
@@ -1907,7 +1999,7 @@ this method needs rewriting when the arrayOfElements become a list instead of an
 
 <Class name="EF.pageController.proweb.pageTestCase">
 <Super>EF.ISC.UnitTest.TestCase</Super>
-<TimeChanged>64198,62457.033537</TimeChanged>
+<TimeChanged>64201,49044.802212</TimeChanged>
 <TimeCreated>64189,44993.632692</TimeCreated>
 
 <Method name="TestVeryBasicPage">
@@ -2040,12 +2132,12 @@ Method TestVeryBasicPageInEditMode()
 	
 	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(page,"render")
 	set returnedHTML = $ZStrip(returnedHTML,"*WC")
-	set expectedHTML = "<divclass='rowef-proweb-form-row'><divclass='col-sm-4ef_proweb_form_prompt'><labelclass=""control-label""for=""proweb-1""pattern=""(([01]?[0-9])|(2[0-3]))\:[0-5][0-9](\:[0-5][0-9])?""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;time\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);"">time</label></div><divclass='col-sm-8ef_proweb_form_prompt'><inputtype=""time""class=""form-controlef-proweb-input-element""title=""""id=""proweb-1""name=""proweb-1""value=""""placeholder=""""pattern=""(([01]?[0-9])|(2[0-3]))\:[0-5][0-9](\:[0-5][0-9])?""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;time\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""></div></div>"
+	set expectedHTML = "<divclass='rowef-proweb-form-row'><divclass='col-sm-4ef_proweb_form_prompt'><labelclass=""control-label""for=""proweb-1"">time</label></div><divclass='col-sm-8ef_proweb_form_prompt'><divclass=""ef_proweb_form_field_container_type_timeef-proweb-input-element-short""><inputtype=""time""class=""form-controlef-proweb-input-elementefTimePicker""title=""""id=""proweb-1""name=""proweb-1""value=""""placeholder=""HH:MM24hour""efKendoTimeFormat=""24""efKendoTimeInterval=15></div></div></div>"
 	do $$$AssertEquals(returnedHTML,expectedHTML)
 ]]></Implementation>
 </Method>
 
-<Method name="TestWholeNumber">
+<Method name="TestInteger">
 <Implementation><![CDATA[
 	#dim elementIdentifier as %String = "proweb-1"
 	#dim labelText as %String = "Shoesize"
@@ -2056,13 +2148,35 @@ Method TestVeryBasicPageInEditMode()
 	set contextData = ##class(EF.contextDataRegistrationMock).createMock()
 	
 	set page= ##class(EF.pageController.proweb.page).createNew(contextData)
-	set element = ##class(EF.pageController.proweb.wholeNumber).addElementToParent(page, elementIdentifier, labelText, value, 0)
+	set element = ##class(EF.pageController.proweb.integerInput).addElementToParent(page, elementIdentifier, labelText, value, 0)
 	do page.uiComponent.addChild(element.uiComponent)
 	set element.uiComponent.contextData = contextData
 	
 	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(page,"render")
 	set returnedHTML = $ZStrip(returnedHTML,"*WC")
-	set expectedHTML = "<divclass='rowef-proweb-form-row'><divclass='col-sm-4ef_proweb_form_prompt'><labelclass=""control-label""for=""proweb-1""pattern=""^([\+\-]){0,1}\d+$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;Shoesize\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);"">Shoesize</label></div><divclass='col-sm-8ef_proweb_form_prompt'><inputtype=""number""class=""form-controlef-proweb-input-elementform-controlef-proweb-input-element""title=""""id=""proweb-1""name=""proweb-1""value=""""placeholder=""""pattern=""^([\+\-]){0,1}\d+$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;Shoesize\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""></div></div>"
+	set expectedHTML = "<divclass='rowef-proweb-form-row'><divclass='col-sm-4ef_proweb_form_prompt'><labelclass=""control-label""for=""proweb-1""pattern=""^([\+\-]){0,1}\d+$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;Shoesize\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);"">Shoesize</label></div><divclass='col-sm-8ef_proweb_form_prompt'><inputtype=""number""class=""form-controlef-proweb-input-element-short""title=""""id=""proweb-1""name=""proweb-1""value=""""placeholder=""""pattern=""^([\+\-]){0,1}\d+$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;Shoesize\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""></div></div>"
+	do $$$AssertEquals(returnedHTML,expectedHTML)
+]]></Implementation>
+</Method>
+
+<Method name="TestDecimalNumber">
+<Implementation><![CDATA[
+	#dim elementIdentifier as %String = "proweb-1"
+	#dim labelText as %String = "Shoesize"
+	#dim value as %String = "42"
+	#dim element as EF.pageController.element
+	#dim page as EF.pageController.proweb.page
+	
+	set contextData = ##class(EF.contextDataRegistrationMock).createMock()
+	
+	set page= ##class(EF.pageController.proweb.page).createNew(contextData)
+	set element = ##class(EF.pageController.proweb.numericInput).addElementToParent(page, elementIdentifier, labelText, value, 0)
+	do page.uiComponent.addChild(element.uiComponent)
+	set element.uiComponent.contextData = contextData
+	
+	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(page,"render")
+	set returnedHTML = $ZStrip(returnedHTML,"*WC")
+	set expectedHTML = "<divclass='rowef-proweb-form-row'><divclass='col-sm-4ef_proweb_form_prompt'><labelclass=""control-label""for=""proweb-1""pattern=""^([\+\-]){0,1}\d+$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;Shoesize\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);"">Shoesize</label></div><divclass='col-sm-8ef_proweb_form_prompt'><inputtype=""number""class=""form-controlef-proweb-input-element-short""title=""""id=""proweb-1""name=""proweb-1""value=""""placeholder=""""pattern=""^([\+\-]){0,1}\d+$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;Shoesize\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""></div></div>"
 	do $$$AssertEquals(returnedHTML,expectedHTML)
 ]]></Implementation>
 </Method>
@@ -2248,6 +2362,28 @@ Method TestVeryBasicPageInEditMode()
 </Class>
 
 
+<Class name="EF.pageController.proweb.prowebBase">
+<Super>EF.pageController.element</Super>
+<TimeChanged>64201,64111.121557</TimeChanged>
+<TimeCreated>64183,49747.663252</TimeCreated>
+
+<Property name="prowebID">
+<Type>%Integer</Type>
+</Property>
+
+<Storage name="Default">
+<Type>%Library.CacheStorage</Type>
+<DefaultData>prowebBaseDefaultData</DefaultData>
+<Data name="prowebBaseDefaultData">
+<Subscript>"prowebBase"</Subscript>
+<Value name="1">
+<Value>prowebID</Value>
+</Value>
+</Data>
+</Storage>
+</Class>
+
+
 <Class name="EF.pageController.proweb.radioButtons">
 <Super>EF.pageController.proweb.inputElement</Super>
 <TimeChanged>64194,39069.789892</TimeChanged>
@@ -2263,6 +2399,29 @@ Method TestVeryBasicPageInEditMode()
 <FormalSpec>value,description,isDefault=0</FormalSpec>
 <ReturnType>EF.ui.components.alternative</ReturnType>
 <Implementation><![CDATA[	return ..uiComponent.addAlternative(value,description,isDefault)
+]]></Implementation>
+</Method>
+
+<Storage name="Default">
+<Type>%Library.CacheStorage</Type>
+</Storage>
+</Class>
+
+
+<Class name="EF.pageController.proweb.textArea">
+<Super>EF.pageController.proweb.inputElement</Super>
+<TimeChanged>64201,42310.34868</TimeChanged>
+<TimeCreated>63403,57168.063256</TimeCreated>
+
+<Method name="getDefaultUIComponent">
+<ReturnType>EF.ui.components.inputBase</ReturnType>
+<Implementation><![CDATA[	quit ##class(EF.ui.components.frontend.textArea).%New(..identifier)
+]]></Implementation>
+</Method>
+
+<Method name="updateValue">
+<FormalSpec>value</FormalSpec>
+<Implementation><![CDATA[	set ..value=$ZSTRIP(value,"<>W")
 ]]></Implementation>
 </Method>
 
@@ -2354,23 +2513,6 @@ Method TestVeryBasicPageInEditMode()
 </Class>
 
 
-<Class name="EF.pageController.proweb.wholeNumber">
-<Super>EF.pageController.proweb.textInput</Super>
-<TimeChanged>64197,58632.50177</TimeChanged>
-<TimeCreated>64189,53629.035726</TimeCreated>
-
-<Method name="getDefaultUIComponent">
-<ReturnType>EF.ui.components.inputBase</ReturnType>
-<Implementation><![CDATA[	quit ##class(EF.ui.components.frontend.wholeNumber).%New(..identifier)
-]]></Implementation>
-</Method>
-
-<Storage name="Default">
-<Type>%Library.CacheStorage</Type>
-</Storage>
-</Class>
-
-
 <Class name="EF.pages.frontend.base">
 <Description><![CDATA[
 Common page that all frontend pages could/should inherit from.
@@ -2385,7 +2527,7 @@ Common page that all frontend pages could/should inherit from.
 <Language>cache</Language>
 <ProcedureBlock>0</ProcedureBlock>
 <Super>shared.pCSPmanage</Super>
-<TimeChanged>64196,65150.958833</TimeChanged>
+<TimeChanged>64201,41555.410872</TimeChanged>
 <TimeCreated>63635,40114.778424</TimeCreated>
 
 <Parameter name="showRegistrationProgressBar">
@@ -2433,7 +2575,9 @@ Common page that all frontend pages could/should inherit from.
 	Do ..Include("frontendHTTPheader.csp")
 	Write !
 	Do ..Include("colourScheme.csp")
+	do ..renderCommonCSS()
 	do ..OnPagePageHeaderCSS()
+	do ..renderCommonJavascript()
 	Write !,!,"</head>"
 	Write !,"<body class=""bodyBackground"">"
 	Write !,!,!,!
@@ -2453,11 +2597,19 @@ Common page that all frontend pages could/should inherit from.
 		}
  	}
  	do ##class(layout.objTemplate).writeBit("{{ef_main_progress}}","{{ef_main_header}}")
- 	w "</h1>" // ######### ugly hack
+ 	do ##class(layout.objTemplate).writeBit("{{ef_main_header}}", "{{ef_main_content}}")
 ]]></Implementation>
 </Method>
 
 <Method name="OnPagePageHeaderCSS">
+<ClassMethod>1</ClassMethod>
+</Method>
+
+<Method name="renderCommonCSS">
+<ClassMethod>1</ClassMethod>
+</Method>
+
+<Method name="renderCommonJavascript">
 <ClassMethod>1</ClassMethod>
 </Method>
 
@@ -2542,6 +2694,214 @@ this is for version 1 of proweb</Description>
 <Private>1</Private>
 <ReturnType>%String</ReturnType>
 <Implementation><![CDATA[	Quit "EF.pageController.pagesFrontend."_$PIECE($PIECE(..#CSPFILE,"\",$LENGTH(..#CSPFILE,"\")),".",1)
+]]></Implementation>
+</Method>
+</Class>
+
+
+<Class name="EF.pages.frontend.baseProweb">
+<ProcedureBlock>0</ProcedureBlock>
+<Super>EF.pages.frontend.base</Super>
+<TimeChanged>64201,44276.327133</TimeChanged>
+<TimeCreated>64191,31442.531402</TimeCreated>
+
+<Parameter name="ENCODED">
+<Default>1</Default>
+</Parameter>
+
+<Parameter name="PRIVATE">
+<Default>0</Default>
+</Parameter>
+
+<Parameter name="efPageGenerationNumber">
+<Type>%Integer</Type>
+<Default>4</Default>
+</Parameter>
+
+<Parameter name="efUsePageController">
+<Type>%Boolean</Type>
+<Default>1</Default>
+</Parameter>
+
+<Parameter name="efFormName">
+<Type>%String</Type>
+<Default>myForm</Default>
+</Parameter>
+
+<Parameter name="efFormID">
+<Type>%String</Type>
+<Default>EFFrontendForm</Default>
+</Parameter>
+
+<Parameter name="efServerStorageSaveLevel">
+<Type>%String</Type>
+<Default>event</Default>
+</Parameter>
+
+<Parameter name="efRenderMainModal">
+<Type>%Boolean</Type>
+<Default>1</Default>
+</Parameter>
+
+<Parameter name="efFormAction">
+<Type>%String</Type>
+<Default>pageControllerStandardSave.csp</Default>
+</Parameter>
+
+<Property name="pageControllerID">
+<Type>%String</Type>
+</Property>
+
+<Method name="OnPageCSPROOT">
+<ClassMethod>1</ClassMethod>
+<ReturnType>%Boolean</ReturnType>
+<Implementation><![CDATA[
+	do ..OnPagePageTop()
+	do ..initPageController()
+	do ..outputFormBeginning()
+	do ..OnPagePageContent()
+	do ..outputButtons()
+	do ..outputFormEnding()
+	do ..OnPagePageBottom()
+]]></Implementation>
+</Method>
+
+<Method name="initPageController">
+<ClassMethod>1</ClassMethod>
+<Implementation><![CDATA[
+	set contextData = ##class(EF.contextDataRegistration).createFromFrontendCSPSession()
+	if ..usePageController() {
+		set pageControllerID=%request.Get("pageControllerID")
+		merge requestData=%request.Data
+		
+		if pageControllerID {
+			try {
+				do ..beforePageControllerReload(pageControllerID)
+				set pageController=##class(EF.pageController.page).open(pageControllerID,contextData)
+			} catch {
+				// force a reload if there is a problem opening the page
+				set pageControllerID=""
+			}
+		}
+		if 'pageControllerID {
+			set pageController=$CLASSMETHOD(..getPageDataClassName(),"createNew",contextData,.requestData)
+			do pageController.%Save()
+		}
+		
+		set pageControllerID=pageController.%Id()
+	}
+]]></Implementation>
+</Method>
+
+<Method name="beforePageControllerReload">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>pageControllerID</FormalSpec>
+</Method>
+
+<Method name="renderCommonCSS">
+<ClassMethod>1</ClassMethod>
+<Implementation><![CDATA[
+	w ##class(shared.pageMethods).getEditMode()
+	if ##class(shared.pageMethods).getEditMode() = "edit" {
+		&html<
+			<link type="text/css" href="https://2bb0f132f679bac07fa4-638acaa65ecf53798e8a5faa656f2b95.ssl.cf3.rackcdn.com/libs/jQueryUI/v.1.8.21/jquery.css" rel="Stylesheet"/>
+		>
+	}
+]]></Implementation>
+</Method>
+
+<Method name="renderCommonJavascript">
+<ClassMethod>1</ClassMethod>
+<Implementation><![CDATA[
+	if ##class(shared.pageMethods).getEditMode() = "edit"  {
+		&html<
+			<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js"></script>
+			<script type="text/javascript" src="../../media/javascript/distribution/ef-website-admin.min.js"></script>
+		>
+	}
+]]></Implementation>
+</Method>
+
+<Method name="outputFormBeginning">
+<ClassMethod>1</ClassMethod>
+<Implementation><![CDATA[
+	&html<
+		<form id="#(..#efFormID)#" name="#(..getFormName())#" method="POST" action="#(..Link(..getFormAction()))#">
+			<input type="hidden" name="pageControllerID" value="#(pageControllerID)#">
+			<input type="hidden" name="pageID" value="#(contextData.pageID)#">
+			
+			<input type="hidden" id="efSubmitButtonIdentifier" name="efSubmitButtonIdentifier" value="">
+			<input type="hidden" id="efDeleteButtonIdentifier" name="efDeleteButtonIdentifier" value="">
+			<input type="hidden" id="efSaveAndReloadFormOnly" name="efSaveAndReloadFormOnly" value="">
+	>
+]]></Implementation>
+</Method>
+
+<Method name="outputFormEnding">
+<ClassMethod>1</ClassMethod>
+<Implementation><![CDATA[
+	write !,"</form>"
+	do ##class(EF.pageController.javascriptMethods).outputMainJS(pageController)
+]]></Implementation>
+</Method>
+
+<Method name="outputButtons">
+<ClassMethod>1</ClassMethod>
+<Implementation><![CDATA[
+	&html<
+			<button id="ef_frontend_button_back" type="button" class="noPrint standardButton ef_frontend_button ef_frontend_button_back on-click-redirect" data-link-url="#(..encodeForHTMLAttribute(..Link(..getBackButtonURL())))#">
+            	Back
+        	</button>
+
+        	
+	>
+	// ###### ugly hack ####
+	set %request.Data("isSubmit",1) = 1
+	set %request.Data("name",1) = "butProceed"
+	set %request.Data("buttonText",1) = "Proceed"
+	set %request.Data("hoverText",1) = "Submit and proceed"
+	do ##class(cspRealEV.frontend.reg.frontendbutton).OnPage()
+]]></Implementation>
+</Method>
+
+<Method name="getBackButtonURL">
+<ClassMethod>1</ClassMethod>
+<Private>1</Private>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	new URL,backforward
+	set backforward=##class(setup.objPageNav).goWhere(contextData.pageID, , contextData.tempPersonID)
+	set URL = $Piece(backforward,"|",1)  // go back
+	return URL
+]]></Implementation>
+</Method>
+
+<Method name="verifyValidPage">
+<ClassMethod>1</ClassMethod>
+<ReturnType>%Library.Boolean</ReturnType>
+<Implementation><![CDATA[	return ##class(EF.pages.frontend.registrationProcess).verifyValidPage()
+]]></Implementation>
+</Method>
+
+<Method name="getFormName">
+<ClassMethod>1</ClassMethod>
+<Private>1</Private>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[	return ..#efFormName
+]]></Implementation>
+</Method>
+
+<Method name="getFormID">
+<ClassMethod>1</ClassMethod>
+<Implementation><![CDATA[	return ..#efFormID
+]]></Implementation>
+</Method>
+
+<Method name="getFormAction">
+<ClassMethod>1</ClassMethod>
+<Private>1</Private>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[	return ..#efFormAction
 ]]></Implementation>
 </Method>
 </Class>
@@ -2655,6 +3015,75 @@ this is for version 1 of proweb</Description>
 			#[do checkbox.render()]#
 		
 	>
+]]></Implementation>
+</Method>
+</Class>
+
+
+<Class name="EF.ui.components.frontend.datePicker">
+<Description><![CDATA[
+<!-- ;vc;-
+;vc;    Object: EF.ui.components.backend.datePicker.CLS/EV.3
+;vc; Component: CLS.EF.ui.components.backend.datePicker
+;vc;  Location: LargeDev
+;vc; Date/Time: 02-Feb-16 12:32
+;vc;      User: AdrianM2
+;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>EF.ui.components.backend.datePicker.CLS/EV.3</td><td>CLS.EF.ui.components.backend.datePicker</td><td>LargeDev</td><td style='white-space: nowrap;'>02-Feb-16 12:32</td><td>AdrianM2</td></tr></table>
+]]></Description>
+<Super>EF.ui.components.textInput,EF.ui.components.frontend.inputElement</Super>
+<TimeChanged>64201,35096.130149</TimeChanged>
+<TimeCreated>63384,38215.518113</TimeCreated>
+
+<Parameter name="typeAttribute">
+<Default>date</Default>
+</Parameter>
+
+<Parameter name="html5Validation">
+<Default>0</Default>
+</Parameter>
+
+<Method name="getDefaultClasses">
+<ClassMethod>1</ClassMethod>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[	Return ##super()_" ef-kendo-form-control"
+]]></Implementation>
+</Method>
+
+<Method name="renderJS">
+<Implementation><![CDATA[
+	&js<
+		$(function() {
+			$('##(..encodeJS(..htmlID))#').kendoDatePicker({
+				format: getKendoDateFormat(#(..encodeJS(..validator.dateFormat))#),
+			});
+		});
+	>
+	do ##super()
+]]></Implementation>
+</Method>
+
+<Method name="getDefaultValidator">
+<ReturnType>EF.validator.base</ReturnType>
+<Implementation><![CDATA[	quit ##class(EF.validator.dateInput).%New()
+]]></Implementation>
+</Method>
+
+<Method name="render">
+<Implementation><![CDATA[
+	do ..renderRowOpeningAndLabel()
+	set ..classes = ..classes_"  efDatePicker "
+	set kendoDateFormat = ##class(shared.dateFunctions).getKendoDateFormat(..validator.dateFormat)
+	set ..placeHolder = ##class(shared.dateFunctions).datePattern(..validator.dateFormat)
+
+	&html<
+    	    <div class=" ef-proweb-input-element-short">
+	    	    <input type="#(..encodeHTMLAttribute(..#typeAttribute))#" class="#(..encodeHTMLAttribute(..classes))#" #(..rawHTML(..getDisabledString()))# 
+	    	    title="#(..encodeHTMLAttribute(..title))#" id="#(..encodeHTMLAttribute(..htmlID))#" name="#(..encodeHTMLAttribute(..htmlName))#" 
+	    	    value="#(..encodeHTMLAttribute(..value))#" placeholder="#(..encodeHTMLAttribute(..placeHolder))#"  #(..rawHTML(..getProwebExtraAttributes()))#
+	    	    efKendoDateFormat="#(..encodeHTMLAttribute(kendoDateFormat))#" efKendoTimeInterval=15>
+			</div>
+	>
+	do ..renderHelpAndRowClosing()
 ]]></Implementation>
 </Method>
 </Class>
@@ -2781,6 +3210,35 @@ this is for version 1 of proweb</Description>
 <Method name="getDefaultValidator">
 <ReturnType>EF.validator.base</ReturnType>
 <Implementation><![CDATA[	return ##class(EF.validator.emailAddress).%New()
+]]></Implementation>
+</Method>
+</Class>
+
+
+<Class name="EF.ui.components.frontend.emailInputMulti">
+<Super>EF.ui.components.frontend.textInput</Super>
+<TimeChanged>64201,49815.627658</TimeChanged>
+<TimeCreated>63357,57620.613738</TimeCreated>
+
+<Parameter name="typeAttribute">
+<Default>email</Default>
+</Parameter>
+
+<Parameter name="html5Validation">
+<Default>1</Default>
+</Parameter>
+
+<Method name="getDefaultValidator">
+<ReturnType>EF.validator.base</ReturnType>
+<Implementation><![CDATA[	return ##class(EF.validator.emailAddressMulti).%New()
+]]></Implementation>
+</Method>
+
+<Method name="getExtraAttributes">
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	do ..addAttribute("multiple","")
+	return ##super()
 ]]></Implementation>
 </Method>
 </Class>
@@ -3007,7 +3465,7 @@ this is for version 1 of proweb</Description>
 
 <Class name="EF.ui.components.frontend.inputElement">
 <Super>EF.ui.components.frontend.prowebBase,EF.ui.components.inputBase</Super>
-<TimeChanged>64197,64495.11304</TimeChanged>
+<TimeChanged>64201,49777.053858</TimeChanged>
 <TimeCreated>64183,40678.260093</TimeCreated>
 
 <Property name="alternatives">
@@ -3024,8 +3482,22 @@ this is for version 1 of proweb</Description>
 <Parameter name="MAXLEN" value="32000"/>
 </Property>
 
+<Parameter name="html5Validation">
+<Default>0</Default>
+</Parameter>
+
 <Method name="renderRowOpeningAndLabel">
 <Implementation><![CDATA[
+	if ..#html5Validation {
+		set regex=..validator.getRegex()
+		if $length(regex) {
+			do ..addAttribute("pattern",regex)
+		}
+		do ..addAttribute("oninvalid","ef.html5CustomMessages.setMessage(this,"""_..encodeForJavaScript(..validator.getErrorMessage())_""");")
+		do ..addAttribute("oninput","ef.html5CustomMessages.clearMessage(this);")	
+	}
+	
+	
 	do ..renderRowOpening()
 	if ..isMandatory {
 		do ..renderLabelCellOpeningMandatory()
@@ -3076,6 +3548,67 @@ this is for version 1 of proweb</Description>
 
 <Method name="renderInputElementCellOpening">
 <Implementation><![CDATA[	write "<div class='col-sm-8 ef_proweb_form_prompt'>"
+]]></Implementation>
+</Method>
+</Class>
+
+
+<Class name="EF.ui.components.frontend.integerInput">
+<Super>EF.ui.components.frontend.textInput</Super>
+<TimeChanged>64201,43151.319515</TimeChanged>
+<TimeCreated>63357,57620.613738</TimeCreated>
+
+<Parameter name="typeAttribute">
+<Default>number</Default>
+</Parameter>
+
+<Parameter name="html5Validation">
+<Default>1</Default>
+</Parameter>
+
+<Method name="getDefaultValidator">
+<ReturnType>EF.validator.base</ReturnType>
+<Implementation><![CDATA[	return ##class(EF.validator.integer).%New()
+]]></Implementation>
+</Method>
+
+<Method name="getDefaultClasses">
+<ClassMethod>1</ClassMethod>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[	Return "form-control ef-proweb-input-element-short"
+]]></Implementation>
+</Method>
+</Class>
+
+
+<Class name="EF.ui.components.frontend.numericInput">
+<Super>EF.ui.components.frontend.textInput</Super>
+<TimeChanged>64201,62741.663556</TimeChanged>
+<TimeCreated>63357,57620.613738</TimeCreated>
+
+<Parameter name="typeAttribute">
+<Description>
+this cannot be set to 'number' as Chrome will then require you to define step increment as well</Description>
+<Default>text</Default>
+</Parameter>
+
+<Parameter name="html5Validation">
+<Default>0</Default>
+</Parameter>
+
+<Method name="getDefaultValidator">
+<ReturnType>EF.validator.base</ReturnType>
+<Implementation><![CDATA[
+	set validator = ##class(EF.validator.numeric).%New()
+	set validator.precision = 2
+	return validator
+]]></Implementation>
+</Method>
+
+<Method name="getDefaultClasses">
+<ClassMethod>1</ClassMethod>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[	Return "form-control ef-proweb-input-element-short"
 ]]></Implementation>
 </Method>
 </Class>
@@ -3298,6 +3831,37 @@ this is for version 1 of proweb</Description>
 </Class>
 
 
+<Class name="EF.ui.components.frontend.textArea">
+<Super>EF.ui.components.textInput,EF.ui.components.frontend.inputElement</Super>
+<TimeChanged>64201,42513.017278</TimeChanged>
+<TimeCreated>63357,57620.613738</TimeCreated>
+
+<Parameter name="html5Validation">
+<Default>0</Default>
+</Parameter>
+
+<Method name="getDefaultClasses">
+<ClassMethod>1</ClassMethod>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[	Return "form-control ef-proweb-input-element"
+]]></Implementation>
+</Method>
+
+<Method name="render">
+<Implementation><![CDATA[
+	do ..renderRowOpeningAndLabel()
+	&html<
+    	    <textarea type="text" class="#(..encodeHTMLAttribute(..classes))#" #(..rawHTML(..getDisabledString()))# title="#(..encodeHTMLAttribute(..title))#" 
+    	    id="#(..encodeHTMLAttribute(..htmlID))#" name="#(..encodeHTMLAttribute(..htmlName))#" placeholder="#(..encodeHTMLAttribute(..placeHolder))#" 
+    	    #(..rawHTML(..getExtraAttributes()))#>#(..encodeHTMLContentForTextarea(..value))#</textArea>
+    	
+	>
+	do ..renderHelpAndRowClosing()
+]]></Implementation>
+</Method>
+</Class>
+
+
 <Class name="EF.ui.components.frontend.textBlock">
 <Super>EF.ui.components.frontend.prowebBase</Super>
 <TimeChanged>64190,59092.755529</TimeChanged>
@@ -3324,7 +3888,7 @@ this is for version 1 of proweb</Description>
 
 <Class name="EF.ui.components.frontend.textInput">
 <Super>EF.ui.components.textInput,EF.ui.components.frontend.inputElement</Super>
-<TimeChanged>64197,64506.20977</TimeChanged>
+<TimeChanged>64201,49944.787362</TimeChanged>
 <TimeCreated>63357,57620.613738</TimeCreated>
 
 <Parameter name="typeAttribute">
@@ -3344,23 +3908,9 @@ this is for version 1 of proweb</Description>
 
 <Method name="render">
 <Implementation><![CDATA[
-	set disabledString=""
-	if ..isDisabled {
-		set disabledString="disabled=""disabled"""
-	}
-	
-	if ..#html5Validation {
-		set regex=..validator.getRegex()
-		if $length(regex) {
-			do ..addAttribute("pattern",regex)
-		}
-		do ..addAttribute("oninvalid","ef.html5CustomMessages.setMessage(this,"""_..encodeForJavaScript(..validator.getErrorMessage())_""");")
-		do ..addAttribute("oninput","ef.html5CustomMessages.clearMessage(this);")	
-	}
-
 	do ..renderRowOpeningAndLabel()
 	&html<
-    	    <input type="#(..encodeHTMLAttribute(..#typeAttribute))#" class="#(..encodeHTMLAttribute(..classes))#" #(..rawHTML(disabledString))# 
+    	    <input type="#(..encodeHTMLAttribute(..#typeAttribute))#" class="#(..encodeHTMLAttribute(..classes))#" #(..rawHTML(..getDisabledString()))# 
     	    title="#(..encodeHTMLAttribute(..title))#" id="#(..encodeHTMLAttribute(..htmlID))#" name="#(..encodeHTMLAttribute(..htmlName))#" 
     	    value="#(..encodeHTMLAttribute(..value))#" placeholder="#(..encodeHTMLAttribute(..placeHolder))#"  #(..rawHTML(..getProwebExtraAttributes()))#>
     	
@@ -3373,20 +3923,46 @@ this is for version 1 of proweb</Description>
 
 <Class name="EF.ui.components.frontend.timeInput">
 <Super>EF.ui.components.frontend.textInput</Super>
-<TimeChanged>64198,33660.397284</TimeChanged>
+<TimeChanged>64201,62853.575239</TimeChanged>
 <TimeCreated>63357,57620.613738</TimeCreated>
 
 <Parameter name="typeAttribute">
-<Default>time</Default>
+<Default>text</Default>
 </Parameter>
 
 <Parameter name="html5Validation">
-<Default>1</Default>
+<Default>0</Default>
 </Parameter>
 
 <Method name="getDefaultValidator">
 <ReturnType>EF.validator.base</ReturnType>
-<Implementation><![CDATA[	return ##class(EF.validator.timeInput).%New()
+<Implementation><![CDATA[
+	set validator = ##class(EF.validator.timeInput).%New()
+	
+	set timeFormat=##class(setup.objEventSetting).getParameter("system","time format", ..contextData.eventID)	
+	if 'timeFormat set timeFormat=24
+	set validator.timeFormat = timeFormat
+	
+	return validator
+]]></Implementation>
+</Method>
+
+<Method name="render">
+<Implementation><![CDATA[
+	do ..renderRowOpeningAndLabel()
+	set ..classes = ..classes_" efTimePicker "
+	set timeFormat = ..validator.timeFormat
+	set ..placeHolder = ##class(shared.timeFunctions).getFrontendInputTimePattern(timeFormat)
+	&html<
+    	    <div class="ef_proweb_form_field_container_type_time ef-proweb-input-element-short">
+	    	    <input type="#(..encodeHTMLAttribute(..#typeAttribute))#" class="#(..encodeHTMLAttribute(..classes))#" #(..rawHTML(..getDisabledString()))# 
+	    	    title="#(..encodeHTMLAttribute(..title))#" id="#(..encodeHTMLAttribute(..htmlID))#" name="#(..encodeHTMLAttribute(..htmlName))#" 
+	    	    value="#(..encodeHTMLAttribute(..value))#" placeholder="#(..encodeHTMLAttribute(..placeHolder))#"  #(..rawHTML(..getProwebExtraAttributes()))#
+	    	    efKendoTimeFormat="#(..encodeHTMLAttribute(timeFormat))#" efKendoTimeInterval=15>
+			</div>
+			   	
+	>
+	do ..renderHelpAndRowClosing()
 ]]></Implementation>
 </Method>
 </Class>
@@ -3413,24 +3989,15 @@ this is for version 1 of proweb</Description>
 </Class>
 
 
-<Class name="EF.ui.components.frontend.wholeNumber">
-<Super>EF.ui.components.frontend.textInput</Super>
-<TimeChanged>64197,62116.754161</TimeChanged>
-<TimeCreated>63357,57620.613738</TimeCreated>
+<Class name="EF.validator.emailAddressMulti">
+<Super>EF.validator.base</Super>
+<TimeChanged>64201,61804.004963</TimeChanged>
+<TimeCreated>63883,60398.119435</TimeCreated>
 
-<Parameter name="typeAttribute">
-<Default>number</Default>
-</Parameter>
-
-<Parameter name="html5Validation">
-<Default>1</Default>
-</Parameter>
-
-<Method name="getDefaultValidator">
-<ReturnType>EF.validator.base</ReturnType>
-<Implementation><![CDATA[	return ##class(EF.validator.integer).%New()
-]]></Implementation>
-</Method>
+<Property name="regex">
+<Type>%String</Type>
+<InitialExpression>##class(EF.utils.dataValidation).getValidationPatternForDataType("multiEmailAddress")</InitialExpression>
+</Property>
 </Class>
 
 
@@ -3656,37 +4223,6 @@ this is for version 1 of proweb</Description>
 <csp:parameter name="efPageName" value="tregistration.csp">
 <script language="cache" runat="server">
 	Do ##super() 
-</script>
-<script type="text/javascript" src="../../media/javascript/distribution/ef-admin-portal.min.js?v=53"></script>
-<link type="text/css" href="https://2bb0f132f679bac07fa4-638acaa65ecf53798e8a5faa656f2b95.ssl.cf3.rackcdn.com/libs/jQueryUI/v.1.8.21/jquery.css" rel="Stylesheet"/>
-
-<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js"></script>
-
-
-<script language="javascript">
-	
-	$(function() {
-		$(".ef-proweb-reorderable").each( function() {
-			var draggableList = this
-			var postURL = $(this).data("efReorderableSaveUrl")
-			$(draggableList).sortable({
-	            items: "> .ef-draggable-div",
-	            update: function () {
-	                var orderedElementIds = "";
-	                $(draggableList).find(".ef-draggable-div").each(function () {
-	                    orderedElementIds = orderedElementIds + "|" + $(this).data("prowebId");
-	                });
-	                $.ajax( {
-		                type: "POST",
-		            	url : postURL,
-		            	data : { pageControllerID : $('[name="pageControllerID"]').val(),
-		            		orderedElementIds : orderedElementIds
-		            	} 
-	                });
-	            }
-		    });
-		});
-	});
 </script>
 
 <csp:section name="PageContent">
@@ -4148,7 +4684,7 @@ this is for version 1 of proweb</Description>
 						</select>	
 					</csp:if>
 				</csp:if>									
-			<a href="t4Registration.csp?pageID=#(pageID)#">Goto Experimental CMS version</a>
+			
 			</td>
 			<td width="34%" align="right">
 				
@@ -5041,7 +5577,7 @@ FRRE RULE
 <Abstract>1</Abstract>
 <ClassType/>
 <ProcedureBlock>1</ProcedureBlock>
-<TimeChanged>64197,52918.733355</TimeChanged>
+<TimeChanged>64200,62756.365764</TimeChanged>
 <TimeCreated>63046,56232.897117</TimeCreated>
 
 <Method name="outputDefaultCSS">
@@ -5277,6 +5813,11 @@ yellow red grey etc. Used for ALL templates below gen3</Description>
 			padding-top: 4px;
 			padding-bottom:4px;	
 		}
+		.ef-proweb-input-element-short {
+			width: 30%;
+			text-align: left; 	
+		}
+
 		.ef-proweb-radio-group {
 			text-align: left;
 			padding-bottom: 0px;
@@ -7254,7 +7795,7 @@ The basic frontend default stuff</Description>
 </Class>
 
 
-<Project name="proweb 2" LastModified="2016-10-08 16:20:46.372858" Target="##class(EF.pageController.proweb.pageTestCase).debugTarget()" TargetType="2">
+<Project name="proweb 2" LastModified="2016-10-10 17:47:28.160187" Target="##class(EF.pageController.proweb.pageTestCase).debugTarget()" TargetType="2">
   <Items>
     <ProjectItem name="EF.contextDataRegistration" type="CLS"></ProjectItem>
     <ProjectItem name="EF.contextDataRegistrationMock" type="CLS"></ProjectItem>
@@ -7282,7 +7823,6 @@ The basic frontend default stuff</Description>
     <ProjectItem name="EF.ui.components.frontend.radioButtons" type="CLS"></ProjectItem>
     <ProjectItem name="EF.ui.components.frontend.textBlock" type="CLS"></ProjectItem>
     <ProjectItem name="EF.ui.components.frontend.textInput" type="CLS"></ProjectItem>
-    <ProjectItem name="freddev/system/proweb/templateStop.csp" type="CSP"></ProjectItem>
     <ProjectItem name="largedevsrc/frontEnd/reg/pageControllerStandardSave.csp" type="CSP"></ProjectItem>
     <ProjectItem name="largedevsrc/frontEnd/reg/t4Registration.csp" type="CSP"></ProjectItem>
     <ProjectItem name="largedevsrc/frontEnd/reg/tRegistration.csp" type="CSP"></ProjectItem>
@@ -7305,6 +7845,19 @@ The basic frontend default stuff</Description>
     <ProjectItem name="EF.ui.components.frontend.webAddress" type="CLS"></ProjectItem>
     <ProjectItem name="EF.validator.webAddress" type="CLS"></ProjectItem>
     <ProjectItem name="EF.validator.webAddressTestCase" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.ui.components.frontend.datePicker" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.pageController.proweb.datePicker" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.pageController.proweb.textArea" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.ui.components.frontend.textArea" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.pageController.proweb.numericInput" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.ui.components.frontend.integerInput" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.ui.components.frontend.numericInput" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.pageController.proweb.integerInput" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.pages.frontend.baseProweb" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.pageController.proweb.emailInputMulti" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.ui.components.frontend.emailInputMulti" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.validator.emailAddressMulti" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.pageController.proweb.prowebBase" type="CLS"></ProjectItem>
   </Items>
   <WatchVariables>
     <WatchVariable Variable="..childComponents.Count()" Pane="1"></WatchVariable>

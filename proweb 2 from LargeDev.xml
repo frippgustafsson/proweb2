@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2015.2 (Build 664_3_16032U)" ts="2016-10-11 11:20:39">
+<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2015.2 (Build 664_3_16032U)" ts="2016-10-11 14:19:00">
 <Class name="EF.contextDataRegistration">
 <Description><![CDATA[
 <!-- ;vc;-
@@ -1362,7 +1362,7 @@ Should be run if any of the sub-classes are deleted</Description>
 
 <Class name="EF.pageController.proweb.checkboxGroup">
 <Super>EF.pageController.proweb.inputElement</Super>
-<TimeChanged>64197,55588.485528</TimeChanged>
+<TimeChanged>64202,50428.439222</TimeChanged>
 <TimeCreated>64189,53206.554402</TimeCreated>
 
 <Method name="getDefaultUIComponent">
@@ -1427,16 +1427,6 @@ Should be run if any of the sub-classes are deleted</Description>
 ]]></Implementation>
 </Method>
 
-<Method name="validateValue">
-<Implementation><![CDATA[
-	set isValid=1 ;..uiComponent.validator.isInputValid(..value) ##############	
-	
-	if 'isValid {
-		do ..setErrorMessage(..uiComponent.validator.getErrorMessage())
-	}
-]]></Implementation>
-</Method>
-
 <Method name="setNameForValidationError">
 <FormalSpec>name</FormalSpec>
 </Method>
@@ -1468,13 +1458,13 @@ Should be run if any of the sub-classes are deleted</Description>
 
 <Class name="EF.pageController.proweb.dateRange">
 <Super>EF.pageController.proweb.inputElement</Super>
-<TimeChanged>64202,34962.459189</TimeChanged>
+<TimeChanged>64202,41832.54542</TimeChanged>
 <TimeCreated>63384,38321.657735</TimeCreated>
 
 <Method name="getDefaultUIComponent">
 <ReturnType>EF.ui.components.inputBase</ReturnType>
 <Implementation><![CDATA[
-	set uiElement=##class(EF.ui.components.frontend.datePicker).%New(..identifier)
+	set uiElement=##class(EF.ui.components.frontend.dateRange).%New(..identifier)
 	quit uiElement
 ]]></Implementation>
 </Method>
@@ -1641,7 +1631,7 @@ Should be run if any of the sub-classes are deleted</Description>
 
 <Class name="EF.pageController.proweb.page">
 <Super>EF.pageController.page</Super>
-<TimeChanged>64202,39679.014885</TimeChanged>
+<TimeChanged>64202,49811.492533</TimeChanged>
 <TimeCreated>64189,51696.559047</TimeCreated>
 
 <Property name="contextData">
@@ -1844,6 +1834,30 @@ Should be run if any of the sub-classes are deleted</Description>
 		set childController = element.addProwebCheckbox(element, elementIdentifier_"-"_1, labelText, value)
 		set childController.prowebID = prowebItem.%Id()
 	}		
+	if prowebItem.type = "dateRange" {
+		set databaseItemID  = prowebItem.objItemName.%Id()
+		
+		set childControllerStart = ##class(EF.pageController.proweb.datePicker).addElementToParent(element, elementIdentifier_"-startDate", "", isReadOnly)	
+		set childControllerStart.prowebID = prowebItem.%Id()
+		set childControllerStart.uiComponent.contextData = ..contextData
+		set childControllerStart.uiComponent.prowebItem = prowebItem
+		set childControllerStart.value = $Piece(##class(eCom.tempCodData).get(..contextData.tempPersonID, itemName), "|", 1)
+		
+		set earliestAllowedStartDate = $Piece(##class(cod.lnkItemNameEventDateRange).getMinTimeStamp(..contextData.eventID, databaseItemID), " ", 1)
+		set earliestAllowedStartDate = ##class(shared.dateFunctions).multiDate(earliestAllowedStartDate, childControllerStart.uiComponent.validator.dateFormat )
+		do childControllerStart.uiComponent.addAttribute("efdaterangestartmin", earliestAllowedStartDate )
+		
+					
+		set childControllerEnd = ##class(EF.pageController.proweb.datePicker).addElementToParent(element, elementIdentifier_"-endDate", "", isReadOnly)		
+		set childControllerEnd.prowebID = prowebItem.%Id()	
+		set childControllerEnd.uiComponent.contextData = ..contextData
+		set childControllerEnd.uiComponent.prowebItem = prowebItem
+		set childControllerEnd.value = $Piece(##class(eCom.tempCodData).get(..contextData.tempPersonID, itemName), "|", 2)
+
+		set latestAllowedEndDate = $Piece(##class(cod.lnkItemNameEventDateRange).getMinTimeStamp(..contextData.eventID, databaseItemID), " ", 1)
+		set latestAllowedEndDate = ##class(shared.dateFunctions).multiDate(latestAllowedEndDate, childControllerStart.uiComponent.validator.dateFormat )
+		do childControllerEnd.uiComponent.addAttribute("efdaterangeendmax", latestAllowedEndDate )
+	}
 	
 	if 'element.%IsA("EF.pageController.proweb.checkboxGroup") {
 		set element.isMandatory = +prowebItem.mandatory
@@ -1996,6 +2010,11 @@ this method needs rewriting when the arrayOfElements become a list instead of an
 				if element.value = 1 {
 					set multiCheckboxData(prowbItemName, $I(multiCheckboxData(prowbItemName))) = element.description
 				}
+			} elseif ( element.%IsA("EF.pageController.proweb.datePicker") ) && ( element.elementParent.elementChildren.Count() = 2 ) { // date range
+				set startDate = element.elementParent.elementChildren.GetAt(1).value
+				set endDate = element.elementParent.elementChildren.GetAt(2).value
+				do ##class(eCom.tempCodData).set(..contextData.tempPersonID, prowbItemName, startDate_"|"_endDate )	
+			
 			} else {
 				do ##class(eCom.tempCodData).set(..contextData.tempPersonID, prowbItemName, element.value)	
 			}
@@ -2064,30 +2083,8 @@ this method needs rewriting when the arrayOfElements become a list instead of an
 
 <Class name="EF.pageController.proweb.pageTestCase">
 <Super>EF.ISC.UnitTest.TestCase</Super>
-<TimeChanged>64202,34733.815523</TimeChanged>
+<TimeChanged>64202,51503.740286</TimeChanged>
 <TimeCreated>64189,44993.632692</TimeCreated>
-
-<Method name="TestVeryBasicPage">
-<Implementation><![CDATA[
-	#dim elementIdentifier as %String = "proweb-1"
-	#dim labelText as %String = "First Name"
-	#dim value as %String = "Elvis"
-	#dim element as EF.pageController.element
-	#dim page as EF.pageController.proweb.page
-	
-	set contextData = ##class(EF.contextDataRegistrationMock).createMock()
-	
-	set page= ##class(EF.pageController.proweb.page).createNew(contextData)
-	set element = ##class(EF.pageController.proweb.textInput).addElementToParent(page, elementIdentifier, labelText, value, 0)
-	do page.uiComponent.addChild(element.uiComponent)
-	set element.uiComponent.contextData = contextData
-	
-	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(page,"render")
-	set returnedHTML = $ZStrip(returnedHTML,"*WC")
-	set expectedHTML = "<divclass='rowef-proweb-form-row'><divclass='col-sm-4ef_proweb_form_prompt'><labelclass=""control-label""for=""proweb-1""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;FirstName\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);"">FirstName</label></div><divclass='col-sm-8ef_proweb_form_prompt'><inputtype=""text""class=""form-controlef-proweb-input-element""title=""""id=""proweb-1""name=""proweb-1""value=""""placeholder=""""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;FirstName\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""></div></div>"
-	do $$$AssertEquals(returnedHTML,expectedHTML)
-]]></Implementation>
-</Method>
 
 <UDLText name="T">
 <Content><![CDATA[
@@ -2116,6 +2113,28 @@ Method TestVeryBasicPageInEditMode()
 */
 ]]></Content>
 </UDLText>
+
+<Method name="TestVeryBasicPage">
+<Implementation><![CDATA[
+	#dim elementIdentifier as %String = "proweb-1"
+	#dim labelText as %String = "First Name"
+	#dim value as %String = "Elvis"
+	#dim element as EF.pageController.element
+	#dim page as EF.pageController.proweb.page
+	
+	set contextData = ##class(EF.contextDataRegistrationMock).createMock()
+	
+	set page= ##class(EF.pageController.proweb.page).createNew(contextData)
+	set element = ##class(EF.pageController.proweb.textInput).addElementToParent(page, elementIdentifier, labelText, value, 0)
+	do page.uiComponent.addChild(element.uiComponent)
+	set element.uiComponent.contextData = contextData
+	
+	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(page,"render")
+	set returnedHTML = $ZStrip(returnedHTML,"*WC")
+	set expectedHTML = "<divclass='rowef-proweb-form-row'><divclass='col-sm-4ef_proweb_form_prompt'><labelclass=""control-label""for=""proweb-1""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;FirstName\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);"">FirstName</label></div><divclass='col-sm-8ef_proweb_form_prompt'><inputtype=""text""class=""form-controlef-proweb-input-element""title=""""id=""proweb-1""name=""proweb-1""value=""""placeholder=""""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;FirstName\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""></div></div>"
+	do $$$AssertEquals(returnedHTML,expectedHTML)
+]]></Implementation>
+</Method>
 
 <Method name="TestBasicPageWithMandatoryTextField">
 <Implementation><![CDATA[
@@ -2268,6 +2287,9 @@ Method TestVeryBasicPageInEditMode()
 ]]></Implementation>
 </Method>
 
+<Method name="TestCheckbox">
+</Method>
+
 <Method name="TestDatePicker">
 <Implementation><![CDATA[
 	#dim elementIdentifier as %String = "proweb-1"
@@ -2285,7 +2307,44 @@ Method TestVeryBasicPageInEditMode()
 	
 	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(page,"render")
 	set returnedHTML = $ZStrip(returnedHTML,"*WC")
-	set expectedHTML = "<divclass='rowef-proweb-form-row'><divclass='col-sm-4ef_proweb_form_prompt'><labelclass=""control-label""for=""proweb-1"">date</label></div><divclass='col-sm-8ef_proweb_form_prompt'><divclass=""ef-proweb-input-element-short""><inputtype=""date""class=""ef-kendo-form-controlefDatePicker""title=""""id=""proweb-1""name=""proweb-1""value=""""placeholder=""DD/MM/YYYY""efKendoDateFormat=""dd/MM/yyyy""efKendoTimeInterval=15></div></div></div>"
+	set expectedHTML = "<divclass='rowef-proweb-form-row'><divclass='col-sm-4ef_proweb_form_prompt'><labelclass=""control-label""for=""proweb-1"">date</label></div><divclass='col-sm-8ef_proweb_form_prompt'><divclass=""ef-proweb-input-element-short""><inputtype=""date""class=""ef-kendo-form-controlefDatePicker""title=""""id=""proweb-1""name=""proweb-1""value=""""placeholder=""DD/MM/YYYY""efKendoDateFormat=""dd/MM/yyyy""></div></div></div>"
+	do $$$AssertEquals(returnedHTML,expectedHTML)
+]]></Implementation>
+</Method>
+
+<Method name="TestDateRange">
+<Implementation><![CDATA[
+	#dim elementIdentifier as %String = "proweb-1"
+	#dim labelText as %String = "date ranger"
+	#dim value as %String = ""
+	#dim element as EF.pageController.element
+	#dim page as EF.pageController.proweb.page
+	#dim isReadOnly as %Boolean = 0
+	
+	set contextData = ##class(EF.contextDataRegistrationMock).createMock()
+	
+	set page= ##class(EF.pageController.proweb.page).createNew(contextData)
+	set element = ##class(EF.pageController.proweb.dateRange).addElementToParent(page, elementIdentifier, labelText, value, 0)
+	set element.uiComponent.contextData = contextData
+	do page.uiComponent.addChild(element.uiComponent)
+	
+	set childControllerStart = ##class(EF.pageController.proweb.datePicker).addElementToParent(element, elementIdentifier_"-startDate", "", isReadOnly)	
+	set childControllerStart.prowebID = 1
+	set childControllerStart.uiComponent.validator.dateFormat = 3
+	set childControllerStart.uiComponent.contextData = contextData
+	do childControllerStart.uiComponent.addAttribute("efdaterangestartmin", "24/12/2001" )
+	do element.uiComponent.childComponents.SetAt(childControllerStart.uiComponent,1)
+	
+	set childControllerEnd = ##class(EF.pageController.proweb.datePicker).addElementToParent(element, elementIdentifier_"-endDate", "", isReadOnly)	
+	set childControllerEnd.prowebID = 1
+	set childControllerEnd.uiComponent.validator.dateFormat = 3
+	set childControllerEnd.uiComponent.contextData = contextData
+	do childControllerEnd.uiComponent.addAttribute("efdaterangeendmax", "31/12/2001" )
+	do element.uiComponent.childComponents.SetAt(childControllerEnd.uiComponent,2)
+			
+	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(page,"render")
+	set returnedHTML = $ZStrip(returnedHTML,"*WC")
+	set expectedHTML = "<divclass='rowef-proweb-form-row'><divclass='col-sm-4ef_proweb_form_prompt'><labelclass=""control-label""for=""proweb-1"">dateranger</label></div><divclass='col-sm-8ef_proweb_form_prompt'><divstyle='float:left;text-align:left;'><inputtype=""date""class=""ef-kendo-form-controlefDatePicker""title=""""id=""proweb-1-startDate""name=""proweb-1-startDate""value=""""placeholder=""DD/MM/YYYY""efdaterangestartmin=""24/12/2001""efKendoDateFormat=""dd/MM/yyyy""></div><divstyle='float:left;text-align:left;margin-left:15px;margin-right:15px;'>to</div><divstyle='float:left;text-align:left;'><inputtype=""date""class=""ef-kendo-form-controlefDatePicker""title=""""id=""proweb-1-endDate""name=""proweb-1-endDate""value=""""placeholder=""DD/MM/YYYY""efdaterangeendmax=""31/12/2001""efKendoDateFormat=""dd/MM/yyyy""></div></div></div>"
 	do $$$AssertEquals(returnedHTML,expectedHTML)
 ]]></Implementation>
 </Method>
@@ -3117,7 +3176,7 @@ this is for version 1 of proweb</Description>
 
 <Class name="EF.ui.components.frontend.checkboxGroup">
 <Super>EF.ui.components.checkboxGroup,EF.ui.components.frontend.inputElement</Super>
-<TimeChanged>64195,32113.886974</TimeChanged>
+<TimeChanged>64202,46838.872221</TimeChanged>
 <TimeCreated>63356,56848.077942</TimeCreated>
 
 <Method name="render">
@@ -3168,14 +3227,7 @@ this is for version 1 of proweb</Description>
 
 <Method name="renderCheckbox">
 <FormalSpec>checkbox:EF.ui.components.frontend.checkbox</FormalSpec>
-<Implementation><![CDATA[
-	
-	// The html bit
-	&html<
-		
-			#[do checkbox.render()]#
-		
-	>
+<Implementation><![CDATA[	do checkbox.render()
 ]]></Implementation>
 </Method>
 </Class>
@@ -3192,7 +3244,7 @@ this is for version 1 of proweb</Description>
 ;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>EF.ui.components.backend.datePicker.CLS/EV.3</td><td>CLS.EF.ui.components.backend.datePicker</td><td>LargeDev</td><td style='white-space: nowrap;'>02-Feb-16 12:32</td><td>AdrianM2</td></tr></table>
 ]]></Description>
 <Super>EF.ui.components.textInput,EF.ui.components.frontend.inputElement</Super>
-<TimeChanged>64201,71518.40155</TimeChanged>
+<TimeChanged>64202,48246.626466</TimeChanged>
 <TimeCreated>63384,38215.518113</TimeCreated>
 
 <Parameter name="typeAttribute">
@@ -3235,19 +3287,25 @@ this is for version 1 of proweb</Description>
 <Method name="render">
 <Implementation><![CDATA[
 	do ..renderRowOpeningAndLabel()
+	&html<<div class=" ef-proweb-input-element-short">>
+	do ..renderInputElementOnly()
+	&html<</div>>
+	do ..renderHelpAndRowClosing()
+]]></Implementation>
+</Method>
+
+<Method name="renderInputElementOnly">
+<Implementation><![CDATA[
 	set ..classes = ..classes_"  efDatePicker "
 	set kendoDateFormat = ##class(shared.dateFunctions).getKendoDateFormat(..validator.dateFormat)
 	set ..placeHolder = ##class(shared.dateFunctions).datePattern(..validator.dateFormat)
-
+	
 	&html<
-    	    <div class=" ef-proweb-input-element-short">
-	    	    <input type="#(..encodeHTMLAttribute(..#typeAttribute))#" class="#(..encodeHTMLAttribute(..classes))#" #(..rawHTML(..getDisabledString()))# 
-	    	    title="#(..encodeHTMLAttribute(..title))#" id="#(..encodeHTMLAttribute(..htmlID))#" name="#(..encodeHTMLAttribute(..htmlName))#" 
-	    	    value="#(..encodeHTMLAttribute(..value))#" placeholder="#(..encodeHTMLAttribute(..placeHolder))#"  #(..rawHTML(..getProwebExtraAttributes()))#
-	    	    efKendoDateFormat="#(..encodeHTMLAttribute(kendoDateFormat))#" efKendoTimeInterval=15>
-			</div>
+    	    <input type="#(..encodeHTMLAttribute(..#typeAttribute))#" class="#(..encodeHTMLAttribute(..classes))#" #(..rawHTML(..getDisabledString()))# 
+    	    title="#(..encodeHTMLAttribute(..title))#" id="#(..encodeHTMLAttribute(..htmlID))#" name="#(..encodeHTMLAttribute(..htmlName))#" 
+    	    value="#(..encodeHTMLAttribute(..value))#" placeholder="#(..encodeHTMLAttribute(..placeHolder))#"  #(..rawHTML(..getProwebExtraAttributes()))#
+    	    efKendoDateFormat="#(..encodeHTMLAttribute(kendoDateFormat))#">
 	>
-	do ..renderHelpAndRowClosing()
 ]]></Implementation>
 </Method>
 </Class>
@@ -3264,7 +3322,7 @@ this is for version 1 of proweb</Description>
 ;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>EF.ui.components.backend.datePicker.CLS/EV.3</td><td>CLS.EF.ui.components.backend.datePicker</td><td>LargeDev</td><td style='white-space: nowrap;'>02-Feb-16 12:32</td><td>AdrianM2</td></tr></table>
 ]]></Description>
 <Super>EF.ui.components.textInput,EF.ui.components.frontend.inputElement</Super>
-<TimeChanged>64202,34919.727815</TimeChanged>
+<TimeChanged>64202,51214.347117</TimeChanged>
 <TimeCreated>63384,38215.518113</TimeCreated>
 
 <Parameter name="typeAttribute">
@@ -3307,19 +3365,35 @@ this is for version 1 of proweb</Description>
 <Method name="render">
 <Implementation><![CDATA[
 	do ..renderRowOpeningAndLabel()
-	set ..classes = ..classes_"  efDatePicker "
 	set kendoDateFormat = ##class(shared.dateFunctions).getKendoDateFormat(..validator.dateFormat)
-	set ..placeHolder = ##class(shared.dateFunctions).datePattern(..validator.dateFormat)
 
-	&html<
-    	    <div class=" ef-proweb-input-element-short">
-	    	    <input type="#(..encodeHTMLAttribute(..#typeAttribute))#" class="#(..encodeHTMLAttribute(..classes))#" #(..rawHTML(..getDisabledString()))# 
-	    	    title="#(..encodeHTMLAttribute(..title))#" id="#(..encodeHTMLAttribute(..htmlID))#" name="#(..encodeHTMLAttribute(..htmlName))#" 
-	    	    value="#(..encodeHTMLAttribute(..value))#" placeholder="#(..encodeHTMLAttribute(..placeHolder))#"  #(..rawHTML(..getProwebExtraAttributes()))#
-	    	    efKendoDateFormat="#(..encodeHTMLAttribute(kendoDateFormat))#" efKendoTimeInterval=15>
-			</div>
-	>
+	do ..renderColumnStart()
+	set startDateComponent = ..childComponents.GetAt(1)
+	set startDateComponent.placeHolder = ##class(shared.dateFunctions).datePattern(..validator.dateFormat)
+	do startDateComponent.renderInputElementOnly()
+	do ..renderColumnEnd()
+
+	write !,"<div style='float: left; text-align: left; margin-left: 15px; margin-right: 15px;'>"
+	write !,##class(shared.pCSP).out("to")
+	do ..renderColumnEnd()
+
+	do ..renderColumnStart()
+	set endDateComponent = ..childComponents.GetAt(2) 
+	set endDateComponent.placeHolder = ##class(shared.dateFunctions).datePattern(..validator.dateFormat)
+	do endDateComponent.renderInputElementOnly()
+	do ..renderColumnEnd()
+	
 	do ..renderHelpAndRowClosing()
+]]></Implementation>
+</Method>
+
+<Method name="renderColumnStart">
+<Implementation><![CDATA[	write !,"<div style='float: left; text-align: left;'>"
+]]></Implementation>
+</Method>
+
+<Method name="renderColumnEnd">
+<Implementation><![CDATA[	write !,"</div>"
 ]]></Implementation>
 </Method>
 </Class>

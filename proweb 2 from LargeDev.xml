@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2015.2 (Build 664_3_16032U)" ts="2016-10-11 14:19:00">
+<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2015.2 (Build 664_3_16032U)" ts="2016-10-12 16:50:37">
 <Class name="EF.contextDataRegistration">
 <Description><![CDATA[
 <!-- ;vc;-
@@ -2914,7 +2914,7 @@ this is for version 1 of proweb</Description>
 <Class name="EF.pages.frontend.baseProweb">
 <ProcedureBlock>0</ProcedureBlock>
 <Super>EF.pages.frontend.base</Super>
-<TimeChanged>64202,36030.560068</TimeChanged>
+<TimeChanged>64203,55441.976788</TimeChanged>
 <TimeCreated>64191,31442.531402</TimeCreated>
 
 <Parameter name="ENCODED">
@@ -2973,8 +2973,17 @@ this is for version 1 of proweb</Description>
 	do ..outputFormBeginning()
 	do ..OnPagePageContent()
 	do ..outputButtons()
+
 	do ..outputFormEnding()
 	do ..OnPagePageBottom()
+
+	if ##class(shared.pageMethods).getEditMode() = "edit" {
+		kill %session.Data("insertBeforeProwebID")
+		kill %session.Data("insertAfterProwebID")
+		set floatingMenu = ##class(EF.ui.components.frontend.floatingMenu).%New()
+		do floatingMenu.outputFloatingMenuHTML()	
+		do floatingMenu.outputFloatingMenuJS()
+	}
 ]]></Implementation>
 </Method>
 
@@ -3554,6 +3563,138 @@ this is for version 1 of proweb</Description>
 </Class>
 
 
+<Class name="EF.ui.components.frontend.floatingMenu">
+<Super>shared.pCSPmanage</Super>
+<TimeChanged>64203,60412.234421</TimeChanged>
+<TimeCreated>64203,40625.329831</TimeCreated>
+
+<Method name="outputFloatingMenuJS">
+<Description>
+####### move this to external file? ############</Description>
+<Implementation><![CDATA[
+	
+	write !,"<script language='javascript'>"
+	&js<
+	
+    $(document).ready(function() {
+	    efProwebEditBaseURL = '#(..encodeForHTMLAttribute(..Link("../../backend/proweb/codQuestionDetails.csp")))#'; 
+	    efProwebAddQuestionBaseURL = '#(..encodeForHTMLAttribute(..Link(..getInitalURL("codQuestionDetails.csp"))))#'; 
+
+		$('div.ef-proweb-form-row-editable').mousemove(function(e) {
+            $('#myFloater').css('top',e.pageY)
+            $('#myFloater').css('left',e.pageX)
+         });
+
+
+        $('div.ef-proweb-form-row-editable').mouseover(function() {
+	        var prowebTitle = $(this).data("proweb-title");
+	        var prowebID = $(this).data("proweb-id");
+	      	var prowebListID = $(this).data("proweb-list-id");
+	        console.log('prowebListID='+prowebListID);
+	        $('#efProwebHeader').text( prowebTitle );
+	        $('#efProwebEditLink').attr('href', efProwebEditBaseURL + '&dataID=' + prowebID);
+	        $('#efProwebDeleteLink').attr('href', 'javascript: confirmDelete(' + prowebID + ');');
+	        $('#efProwebInsertAboveLink').attr('href', efProwebAddQuestionBaseURL + '&insertBeforeProwebID=' + prowebID + '&parent=' + prowebListID);
+	        $('#efProwebInsertBelowLink').attr('href', efProwebAddQuestionBaseURL + '&insertAfterProwebID=' + prowebID + '&parent=' + prowebListID);
+
+            $('#myFloater').show('slow');
+        });
+
+        $('div.ef-proweb-form-row-editable').click(function() { // ###### not triggering
+			$('#myFloater').hide();
+			console.log('hide on click');
+        });
+        
+        
+        $('#myFloater').mouseout(function() {
+	        console.log('setting fade timeout on mouseout');
+            ef_hide_floater = setTimeout(ef_proweb_floater_fadeout, 6000);
+        });
+        
+        
+        $('#myFloater').mouseover(function() {
+           if (typeof ef_hide_floater !== "undefined") {
+           		console.log('clear timeout on mouseover');
+           		clearTimeout(ef_hide_floater);
+           }
+           return true;
+        });
+    });
+    
+    function ef_proweb_floater_fadeout() {
+	    $('#myFloater').fadeOut('slow');
+    }	
+	>	
+	write !,"</script>"
+]]></Implementation>
+</Method>
+
+<Method name="outputFloatingMenuHTML">
+<Implementation><![CDATA[
+	&html<
+		<div id="myFloater" class="container ef-proweb-menu-handle" style="display: none;">
+			<div class="row">
+		        <div class="dropdown ef-proweb-dropdown">
+		            <a id="efProwebHeader" role="button" data-toggle="dropdown" class="btn btn-primary ef-proweb-dropdown-button" data-target="#" href="/page.html">
+		            	Address Line 1 
+		            	<span class="caret"></span>
+		            </a>
+		    		<ul class="dropdown-menu multi-level ef-proweb-dropdown-sub" role="menu" aria-labelledby="dropdownMenu">
+		              <li><a id="efProwebEditLink" href="#">Edit</a></li>
+		              <li><a id="efProwebDeleteLink" href="#">Delete</a></li>
+		              <li class="divider"></li>
+		              
+	                >
+	                for aboveOrBelow = "Above","Below" {
+		                &html<
+				              <li class="dropdown-submenu">
+				                <a tabindex="-1" href="#">Insert #(aboveOrBelow)#</a>
+				                <ul class="dropdown-menu">
+				                  <li><a id="efProwebInsert#(aboveOrBelow)#Link" tabindex="-1" href="#">Registration Question</a></li>
+				                  <li><a href="#">Divider</a></li>
+				                  <li><a href="#">text Block</a></li>
+				                </ul>
+				              </li>
+							>
+	                	}
+	                &html<		              
+		            </ul>
+		        </div>
+			</div>
+		</div>
+	>
+]]></Implementation>
+</Method>
+
+<Method name="getInitalURL">
+<FormalSpec>targetPage:%String</FormalSpec>
+<Private>1</Private>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	#dim URL as %String
+	#dim contextData as EF.contextDataRegistration = ##class(EF.contextDataRegistration).createFromFrontendCSPSession()
+	 
+	set URL = "../../backend/proweb/"_targetPage
+
+	set URL = ##class(EF.htmlGenerator).addParameterToURL(URL,"dataID","NEW")
+	;set URL = ##class(EF.htmlGenerator).addParameterToURL(URL,"templateURL",  ..templateFilename)
+	;set URL = ##class(EF.htmlGenerator).addParameterToURL(URL,"componentName",contextData.prowebComponentName)
+	;set URL = ##class(EF.htmlGenerator).addParameterToURL(URL,"templateID",..templateID)
+	set URL = ##class(EF.htmlGenerator).addParameterToURL(URL,"orgDataID","ADD")
+	
+	set URL = ##class(EF.htmlGenerator).addParameterToURL(URL,"displayOrder",0)
+	;set URL = ##class(EF.htmlGenerator).addParameterToURL(URL,"classNo",1)
+	set URL = ##class(EF.htmlGenerator).addParameterToURL(URL,"addToTop","true")
+	set URL = ##class(EF.htmlGenerator).addParameterToURL(URL,"isCOD",1)
+	set URL = ##class(EF.htmlGenerator).addParameterToURL(URL,"pageID",contextData.pageID)
+	set URL = ##class(EF.htmlGenerator).addParameterToURL(URL,"itemNameID","NEW")
+	
+	return URL
+]]></Implementation>
+</Method>
+</Class>
+
+
 <Class name="EF.ui.components.frontend.floatingMenuAdd">
 <Super>%RegisteredObject</Super>
 <TimeChanged>64196,52998.169116</TimeChanged>
@@ -3953,7 +4094,7 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 
 <Class name="EF.ui.components.frontend.prowebBase">
 <Super>EF.ui.components.base</Super>
-<TimeChanged>64198,60387.737864</TimeChanged>
+<TimeChanged>64203,57401.136203</TimeChanged>
 <TimeCreated>64183,41819.123112</TimeCreated>
 
 <Property name="isProwebEditMode">
@@ -3973,20 +4114,28 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 <Method name="renderRowOpening">
 <Implementation><![CDATA[
 	#dim floatingEditMenuID as %Integer = ..contextData.getNewFloatingMenuCounter()
-	
+	#dim prowebListID as %Integer = ..prowebItem.parent.%Id()
+	 
 	if ..contextData.%IsA("EF.contextDataRegistrationMock") {
-		set prowebId = "mock-1"	
+		set prowebID = "mock-1"	
 	} else {
-		set prowebId=..prowebItem.%Id()
+		set prowebID=..prowebItem.%Id()
 	}
 	
 	if ..isProwebEditMode {
-		write !,"<div class='row ef-draggable-div ef-proweb-form-row-editable' data-proweb-id="_prowebId_" onContextMenu=""HM_f_PopUp('HM_Menu"_floatingEditMenuID_"',event); return false;"" onMouseOut=""HM_f_PopDown('HM_Menu"_floatingEditMenuID_"');"">"
-		do ..renderFloatingEditMenu(floatingEditMenuID)	
+		set floaterTitle = ..getFloatingMenuHeader() 
+		write !,"<div class='row ef-draggable-div ef-proweb-form-row-editable' data-proweb-title="_..encodeForHTMLAttribute(floaterTitle)_" data-proweb-id="_prowebID_" data-proweb-list-id="_prowebListID_">"
+		//do ..renderFloatingEditMenu(floatingEditMenuID)	
 		
 	} else {
 		write !,"<div class='row ef-proweb-form-row'>"	
 	}
+]]></Implementation>
+</Method>
+
+<Method name="getFloatingMenuHeader">
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[	return ##class(sc.xModules.objCODitem).getCODItemName(..prowebItem.%Id())
 ]]></Implementation>
 </Method>
 
@@ -4552,6 +4701,7 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 	Do ##super() 
 </script>
 
+
 <csp:section name="PageContent">
 	<ef-pc-container type="panel-body">
 	   	<div class="row ef-proweb-reorderable" data-ef-reorderable-save-url="#(..encodeForHTMLAttribute(..Link("../../frontend/reg/reorderProwebElements.csp")))#">
@@ -4564,7 +4714,92 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 	
 </csp:section>
 
-]]></CSP>
+
+
+<!-- ########### MOVE THIS TO EXTERNAL FILE ######## -->
+<style>
+.row {
+	margin: 20px;	
+}
+.dropdown-submenu {
+    position: relative;
+}
+
+.dropdown-submenu>.dropdown-menu {
+    top: 0;
+    left: 100%;
+    margin-top: -6px;
+    margin-left: -1px;
+    -webkit-border-radius: 0 6px 6px 6px;
+    -moz-border-radius: 0 6px 6px;
+    border-radius: 0 6px 6px 6px;
+}
+
+.dropdown-submenu:hover>.dropdown-menu {
+    display: block;
+}
+
+.dropdown-submenu>a:after {
+    display: block;
+    content: " ";
+    float: right;
+    width: 0;
+    height: 0;
+    border-color: transparent;
+    border-style: solid;
+    border-width: 5px 0 5px 5px;
+    border-left-color: #ccc;
+    margin-top: 5px;
+    margin-right: -10px;
+}
+
+.dropdown-submenu:hover>a:after {
+    border-left-color: #fff;
+}
+
+.dropdown-submenu.pull-left {
+    float: none;
+}
+
+.dropdown-submenu.pull-left>.dropdown-menu {
+    left: -100%;
+    margin-left: 10px;
+    -webkit-border-radius: 6px 0 6px 6px;
+    -moz-border-radius: 6px 0 6px 6px;
+    border-radius: 6px 0 6px 6px;
+}
+.ef-proweb-dropdown-button {
+	background-color: #3e3e3e !important;
+	color: rgb(220, 220, 220) !important;
+	border: 0px;	
+}
+.ef-proweb-dropdown-button:hover{
+	background-color: rgb(255,160,49) !important;
+	color: WHITE !important;	
+}
+.ef-proweb-dropdown a {
+	text-decoration: none;
+	background-color: #3e3e3e !important;
+	color: rgb(220, 220, 220) !important;	
+}
+.ef-proweb-dropdown a:hover {
+	text-decoration: none;
+	background-color: rgb(255,160,49) !important;
+	color: WHITE !important;	
+}
+.dropdown-menu {
+	background-color: #3e3e3e ;
+}
+.ef-proweb-dropdown-sub {
+	margin-top: 0px;
+	border: 0px;	
+}
+.ef-proweb-menu-handle {
+	position: absolute;
+	left: 0px;
+	top: 0px;	
+}
+</style>]]></CSP>
 
 
 <CSP name="frontEnd/reg/tRegistration.csp" application="/largedevsrc/" default="1"><![CDATA[
@@ -8126,7 +8361,7 @@ The basic frontend default stuff</Description>
 </Class>
 
 
-<Project name="proweb 2" LastModified="2016-10-11 10:18:17.032795" Target="dev.efsys.net/LARGEDEVSRC/backend/home/efSupportLogin.htm" TargetType="3">
+<Project name="proweb 2" LastModified="2016-10-12 16:50:37.623527" Target="dev.efsys.net/LARGEDEVSRC/backend/home/efSupportLogin.htm" TargetType="3">
   <Items>
     <ProjectItem name="EF.contextDataRegistration" type="CLS"></ProjectItem>
     <ProjectItem name="EF.contextDataRegistrationMock" type="CLS"></ProjectItem>
@@ -8135,25 +8370,54 @@ The basic frontend default stuff</Description>
     <ProjectItem name="EF.pageController.pagesFrontend.t4Registration" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.proweb.checkbox" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.proweb.checkboxGroup" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.pageController.proweb.datePicker" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.pageController.proweb.dateRange" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.proweb.divider" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.proweb.dropdown" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.pageController.proweb.emailInput" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.pageController.proweb.emailInputMulti" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.proweb.inputElement" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.pageController.proweb.integerInput" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.pageController.proweb.numericInput" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.proweb.page" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.proweb.pageTestCase" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.pageController.proweb.phoneNumber" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.pageController.proweb.prowebBase" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.proweb.radioButtons" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.pageController.proweb.textArea" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.proweb.textBlock" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.proweb.textInput" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.pageController.proweb.timeInput" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.pageController.proweb.webAddress" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.pageController.proweb.wholeNumber" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pages.frontend.base" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.pages.frontend.baseProweb" type="CLS"></ProjectItem>
     <ProjectItem name="EF.ui.components.frontend.checkbox" type="CLS"></ProjectItem>
     <ProjectItem name="EF.ui.components.frontend.checkboxGroup" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.ui.components.frontend.datePicker" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.ui.components.frontend.dateRange" type="CLS"></ProjectItem>
     <ProjectItem name="EF.ui.components.frontend.divider" type="CLS"></ProjectItem>
     <ProjectItem name="EF.ui.components.frontend.dropdown" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.ui.components.frontend.emailInput" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.ui.components.frontend.emailInputMulti" type="CLS"></ProjectItem>
     <ProjectItem name="EF.ui.components.frontend.floatingMenuAdd" type="CLS"></ProjectItem>
     <ProjectItem name="EF.ui.components.frontend.inputElement" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.ui.components.frontend.integerInput" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.ui.components.frontend.numericInput" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.ui.components.frontend.phoneNumber" type="CLS"></ProjectItem>
     <ProjectItem name="EF.ui.components.frontend.prowebBase" type="CLS"></ProjectItem>
     <ProjectItem name="EF.ui.components.frontend.radioButtons" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.ui.components.frontend.textArea" type="CLS"></ProjectItem>
     <ProjectItem name="EF.ui.components.frontend.textBlock" type="CLS"></ProjectItem>
     <ProjectItem name="EF.ui.components.frontend.textInput" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.ui.components.frontend.timeInput" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.ui.components.frontend.webAddress" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.ui.components.frontend.wholeNumber" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.validator.emailAddressMulti" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.validator.phoneNumber" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.validator.phoneNumberTestCase" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.validator.webAddress" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.validator.webAddressTestCase" type="CLS"></ProjectItem>
     <ProjectItem name="largedevsrc/frontEnd/reg/pageControllerStandardSave.csp" type="CSP"></ProjectItem>
     <ProjectItem name="largedevsrc/frontEnd/reg/t4Registration.csp" type="CSP"></ProjectItem>
     <ProjectItem name="largedevsrc/frontEnd/reg/tRegistration.csp" type="CSP"></ProjectItem>
@@ -8162,45 +8426,11 @@ The basic frontend default stuff</Description>
     <ProjectItem name="sc.objData" type="CLS"></ProjectItem>
     <ProjectItem name="sc.xModules.objList" type="CLS"></ProjectItem>
     <ProjectItem name="shared.pageMethods" type="CLS"></ProjectItem>
-    <ProjectItem name="EF.pageController.proweb.phoneNumber" type="CLS"></ProjectItem>
-    <ProjectItem name="EF.ui.components.frontend.phoneNumber" type="CLS"></ProjectItem>
-    <ProjectItem name="EF.validator.phoneNumber" type="CLS"></ProjectItem>
-    <ProjectItem name="EF.validator.phoneNumberTestCase" type="CLS"></ProjectItem>
-    <ProjectItem name="EF.pageController.proweb.wholeNumber" type="CLS"></ProjectItem>
-    <ProjectItem name="EF.ui.components.frontend.wholeNumber" type="CLS"></ProjectItem>
-    <ProjectItem name="EF.pageController.proweb.emailInput" type="CLS"></ProjectItem>
-    <ProjectItem name="EF.ui.components.frontend.emailInput" type="CLS"></ProjectItem>
-    <ProjectItem name="EF.ui.components.frontend.timeInput" type="CLS"></ProjectItem>
-    <ProjectItem name="EF.pageController.proweb.timeInput" type="CLS"></ProjectItem>
-    <ProjectItem name="EF.pageController.proweb.webAddress" type="CLS"></ProjectItem>
-    <ProjectItem name="EF.ui.components.frontend.webAddress" type="CLS"></ProjectItem>
-    <ProjectItem name="EF.validator.webAddress" type="CLS"></ProjectItem>
-    <ProjectItem name="EF.validator.webAddressTestCase" type="CLS"></ProjectItem>
-    <ProjectItem name="EF.ui.components.frontend.datePicker" type="CLS"></ProjectItem>
-    <ProjectItem name="EF.pageController.proweb.datePicker" type="CLS"></ProjectItem>
-    <ProjectItem name="EF.pageController.proweb.textArea" type="CLS"></ProjectItem>
-    <ProjectItem name="EF.ui.components.frontend.textArea" type="CLS"></ProjectItem>
-    <ProjectItem name="EF.pageController.proweb.numericInput" type="CLS"></ProjectItem>
-    <ProjectItem name="EF.ui.components.frontend.integerInput" type="CLS"></ProjectItem>
-    <ProjectItem name="EF.ui.components.frontend.numericInput" type="CLS"></ProjectItem>
-    <ProjectItem name="EF.pageController.proweb.integerInput" type="CLS"></ProjectItem>
-    <ProjectItem name="EF.pages.frontend.baseProweb" type="CLS"></ProjectItem>
-    <ProjectItem name="EF.pageController.proweb.emailInputMulti" type="CLS"></ProjectItem>
-    <ProjectItem name="EF.ui.components.frontend.emailInputMulti" type="CLS"></ProjectItem>
-    <ProjectItem name="EF.validator.emailAddressMulti" type="CLS"></ProjectItem>
-    <ProjectItem name="EF.pageController.proweb.prowebBase" type="CLS"></ProjectItem>
-    <ProjectItem name="EF.ui.components.frontend.dateRange" type="CLS"></ProjectItem>
-    <ProjectItem name="EF.pageController.proweb.dateRange" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.ui.components.frontend.floatingMenu" type="CLS"></ProjectItem>
   </Items>
   <BreakPoints>
     <BreakPoint Routine="cspRealEV.frontend.reg.pagecontrollerstandardsave.CLS" Offset="OnPreHTTPafter+28"></BreakPoint>
   </BreakPoints>
-  <WatchVariables>
-    <WatchVariable Variable="..childComponents.Count()" Pane="1"></WatchVariable>
-    <WatchVariable Variable="element" Pane="1"></WatchVariable>
-    <WatchVariable Variable="page" Pane="1"></WatchVariable>
-    <WatchVariable Variable="contextData" Pane="1"></WatchVariable>
-  </WatchVariables>
 </Project>
 
 
@@ -9547,7 +9777,7 @@ Holds a list of other objects as children.
 <ClassType>persistent</ClassType>
 <ProcedureBlock>1</ProcedureBlock>
 <Super>sc.objData</Super>
-<TimeChanged>64190,37117.017265</TimeChanged>
+<TimeChanged>64203,55727.052985</TimeChanged>
 <TimeCreated>58926,57261</TimeCreated>
 
 <Parameter name="EXTENTSIZE">
@@ -9598,6 +9828,39 @@ Creates new list object. Should be done the first time the page is loaded</Descr
 		}
 	}
 	return ""
+]]></Implementation>
+</Method>
+
+<Method name="moveChildToPosition">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>childProwebID:%Integer,targetPosition:%Integer</FormalSpec>
+<Implementation><![CDATA[
+	set child = ##class(sc.objData).%OpenId(childProwebID)
+	
+	if '$IsObject(child)   {
+		throw ##class(shared.exceptions.generalException).%New("Could not open child object ID: "_childProwebID)
+	}
+	if 'child.parent.%IsA("sc.xModules.objList") {
+		throw ##class(shared.exceptions.generalException).%New("Passsed in childID is not a a child of an objList")
+	}
+
+	set currentDisplayOrder = child.displayOrder
+	set listID = child.parent.%Id()
+	
+	set difference = $Select(targetPosition < currentDisplayOrder:+1, 1:-1)
+
+	&SQL(UPDATE sc.objData 
+		 SET displayOrder = (displayOrder + :difference) 
+		 WHERE (parent = :listID) 
+		 AND (displayOrder >= :targetPosition) 
+		 AND (ID <> :childProwebID)
+	 )
+	
+	set child.displayOrder = targetPosition
+	set status = child.%Save()
+	if 'status {
+		throw ##class(shared.exceptions.generalStatusException).CreateFromStatus(status)
+	}
 ]]></Implementation>
 </Method>
 

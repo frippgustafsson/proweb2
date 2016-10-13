@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2015.2 (Build 664_3_16032U)" ts="2016-10-13 14:43:04">
+<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2015.2 (Build 664_3_16032U)" ts="2016-10-13 15:45:12">
 <Class name="EF.contextDataRegistration">
 <Description><![CDATA[
 <!-- ;vc;-
@@ -1670,7 +1670,7 @@ Should be run if any of the sub-classes are deleted</Description>
 
 <Class name="EF.pageController.proweb.page">
 <Super>EF.pageController.page</Super>
-<TimeChanged>64204,50777.397633</TimeChanged>
+<TimeChanged>64204,56682.482153</TimeChanged>
 <TimeCreated>64189,51696.559047</TimeCreated>
 
 <Property name="contextData">
@@ -1679,6 +1679,11 @@ Should be run if any of the sub-classes are deleted</Description>
 
 <Property name="prowebPageID">
 <Type>%Integer</Type>
+</Property>
+
+<Property name="listOfElementsSorted">
+<Type>EF.pageController.proweb.prowebBase</Type>
+<Collection>list</Collection>
 </Property>
 
 <Method name="load">
@@ -1958,21 +1963,20 @@ Should be run if any of the sub-classes are deleted</Description>
 <Description>
 this method needs rewriting when the arrayOfUiComponents become a list instead of an array</Description>
 <Implementation><![CDATA[
-	#dim arrayOfUiComponents as EF.pageController.element
-	do ..getAllElementsReordered(.arrayOfUiComponents)
-	do ..insertPanelElementsAroundGuestQuestions(.arrayOfUiComponents)
-	do ..renderElements(.arrayOfUiComponents)
+	
+	do ..getAllElementsReordered()
+	do ..insertPanelElementsAroundGuestQuestions()
+	do ..renderElements()
 ]]></Implementation>
 </Method>
 
 <Method name="getAllElementsReordered">
-<FormalSpec><![CDATA[&arrayOfUiComponents]]></FormalSpec>
 <Private>1</Private>
 <Implementation><![CDATA[
 	#dim key as %String = ""
 	#dim element as EF.pageController.element
 	#dim sparseArrayOfUiComponents
-	k ^xfg
+
 	for {
 		set element=..allPageElements.GetNext(.key)
 		if key="" quit
@@ -1987,87 +1991,69 @@ this method needs rewriting when the arrayOfUiComponents become a list instead o
 			set sparseArrayOfUiComponents(element.displayOrder) = element.uiComponent	
 		}
 	}
-	m ^xfg("sparseArrayOfUiComponents")=sparseArrayOfUiComponents
 	
-	for counter=1:1 { // make sure there is no empty slots in the key sequence
+	for counter=1:1 { 
 		set key = $Order(sparseArrayOfUiComponents(key))
 		if key="" quit
 		
-		set arrayOfUiComponents(counter) = sparseArrayOfUiComponents(key)	
+		set element = sparseArrayOfUiComponents(key)
+		do ..listOfElementsSorted.Insert(element)
 	}
-	m ^xfg("arrayOfUiComponents")=arrayOfUiComponents
 ]]></Implementation>
 </Method>
 
 <Method name="insertPanelElementsAroundGuestQuestions">
-<FormalSpec><![CDATA[&arrayOfUiComponents]]></FormalSpec>
 <Private>1</Private>
 <Implementation><![CDATA[
 	#dim key as %String = ""
 	#dim lastUsedKey as %String = ""
 	#dim uiComponent as EF.ui.components.base
 	#dim hasFoundGuestUiComponent as %Boolean = 0
-	
+
 	for  {
-		set key = $order(arrayOfUiComponents(key))
-		if key = "" quit
-		
+		set uiComponent = ..listOfElementsSorted.GetNext(.key)
+		if key="" quit
 		set lastUsedKey = key
-		set uiComponent = arrayOfUiComponents(key)
 		
 		if (uiComponent.%Extends("EF.ui.components.frontend.inputElement")) && (uiComponent.isGuest = 1) && (hasFoundGuestUiComponent = 0) {
 			set hasFoundGuestUiComponent = 1
-			do ..insertUiComponentForGuestPanel(key, .arrayOfUiComponents, "opening")
+			do ..insertUiComponentForGuestPanel(key, "opening")
 		}
 
 		if (uiComponent.%Extends("EF.ui.components.frontend.inputElement")) && (uiComponent.isGuest = 0) && (hasFoundGuestUiComponent = 1) {
 			set hasFoundGuestUiComponent = 0
-			do ..insertUiComponentForGuestPanel(key, .arrayOfUiComponents, "closing") 
+			do ..insertUiComponentForGuestPanel(key, "closing") w "<br>no guest question closer"
 		}
-
 		if (uiComponent.%Extends("EF.ui.components.frontend.divider")) && (hasFoundGuestUiComponent = 1) {
 			set hasFoundGuestUiComponent = 0
-			do ..insertUiComponentForGuestPanel(key, .arrayOfUiComponents, "closing") 
+			do ..insertUiComponentForGuestPanel(key, "closing") w "<br>divider closer"
 		}
-
 	}
 
 	if hasFoundGuestUiComponent {
-		do ..insertUiComponentForGuestPanel(lastUsedKey+1, .arrayOfUiComponents, "closing")	
+		do ..insertUiComponentForGuestPanel(lastUsedKey+1, "closing") w "<br>end of page closer"
 	}
 ]]></Implementation>
 </Method>
 
 <Method name="insertUiComponentForGuestPanel">
-<FormalSpec><![CDATA[insertPosition:%Integer,&arrayOfUiComponents,openOrClose:%String]]></FormalSpec>
+<FormalSpec>insertPosition:%Integer,openOrClose:%String</FormalSpec>
 <Private>1</Private>
 <Implementation><![CDATA[
 	#dim key as %String = ""
 	#dim uiComponentForPanel as EF.ui.components.frontend.panel
 	
-	for  {    // move subsequent uiComponents down one position
-		set key = $order(arrayOfUiComponents(key), -1)
-		if key < insertPosition quit
-		set arrayOfUiComponents(key+1) = arrayOfUiComponents(key)
-	}
-	
 	set uiComponentForPanel = ##class(EF.ui.components.frontend.panel).%New("GuestPanel-"_insertPosition)
 	set uiComponentForPanel.isOpeningOrClosing = openOrClose
-	set arrayOfUiComponents(insertPosition) = uiComponentForPanel
+	do ..listOfElementsSorted.InsertAt(uiComponentForPanel, insertPosition)
 ]]></Implementation>
 </Method>
 
 <Method name="renderElements">
-<FormalSpec><![CDATA[&arrayOfUiComponents]]></FormalSpec>
 <Private>1</Private>
 <Implementation><![CDATA[
-	#dim key as %String = ""
-	
-	for  {
-		set key = $order(arrayOfUiComponents(key))
-		if key = "" quit	
-		
-		do arrayOfUiComponents(key).render()
+	for position = 1:1:..listOfElementsSorted.Count() {
+		do ..listOfElementsSorted.GetAt(position).render()		
 	}
 ]]></Implementation>
 </Method>
@@ -2187,6 +2173,9 @@ this method needs rewriting when the arrayOfUiComponents become a list instead o
 </Value>
 <Value name="4">
 <Value>prowebPageID</Value>
+</Value>
+<Value name="5">
+<Value>listOfElementsSorted</Value>
 </Value>
 </Data>
 </Storage>
@@ -15202,7 +15191,7 @@ Creates new list object. Should be done the first time the page is loaded</Descr
 <Abstract>1</Abstract>
 <ClassType/>
 <ProcedureBlock>1</ProcedureBlock>
-<TimeChanged>64197,32660.946834</TimeChanged>
+<TimeChanged>64204,53132.183324</TimeChanged>
 <TimeCreated>60747,44410.590792</TimeCreated>
 
 <Method name="prePartOne">
@@ -16836,6 +16825,12 @@ sets up the session variables based on the xWorkLangID. If that is not found, we
 		set url=url_"?"_extraParams
 	}
 	return url
+]]></Implementation>
+</Method>
+
+<Method name="getCurrentRelativeURLFromRequest">
+<ClassMethod>1</ClassMethod>
+<Implementation><![CDATA[	return %request.PageName_"?"_##class(shared.pageMethods).requestDataToParams("CSPPAGE,CSPToken,CSPCHD")
 ]]></Implementation>
 </Method>
 

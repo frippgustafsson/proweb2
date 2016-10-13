@@ -1,0 +1,1626 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2015.2 (Build 664_3_16032U)" ts="2016-10-13 14:31:34">
+<Class name="EF.pageController.proweb.checkbox">
+<Super>EF.pageController.proweb.inputElement</Super>
+<TimeChanged>64194,61822.238449</TimeChanged>
+<TimeCreated>63372,44893.197087</TimeCreated>
+
+<Method name="getDefaultUIComponent">
+<ReturnType>EF.ui.components.backend.checkbox</ReturnType>
+<Implementation><![CDATA[	quit ##class(EF.ui.components.frontend.checkbox).%New(..identifier)
+]]></Implementation>
+</Method>
+
+<Method name="addDependentList">
+<FormalSpec>identifier:%String</FormalSpec>
+<ReturnType>EF.pageController.containerElements.list</ReturnType>
+<Implementation><![CDATA[
+	set element=##class(EF.pageController.containerElements.list).addElementToParent($this,identifier,"")
+	set element.enableDisableDependencyList=##class(EF.ui.components.dependencyList).createNew(..identifier,1)
+	quit element
+]]></Implementation>
+</Method>
+
+<Storage name="Default">
+<Type>%Library.CacheStorage</Type>
+</Storage>
+</Class>
+
+
+<Class name="EF.pageController.proweb.checkboxGroup">
+<Super>EF.pageController.proweb.inputElement</Super>
+<TimeChanged>64202,50428.439222</TimeChanged>
+<TimeCreated>64189,53206.554402</TimeCreated>
+
+<Method name="getDefaultUIComponent">
+<ReturnType>EF.ui.components.backend.checkbox</ReturnType>
+<Implementation><![CDATA[	quit ##class(EF.ui.components.frontend.checkboxGroup).%New(..identifier)
+]]></Implementation>
+</Method>
+
+<Method name="addAlternative">
+<FormalSpec>value,description,isDefault=0</FormalSpec>
+<ReturnType>EF.ui.components.alternative</ReturnType>
+<Implementation><![CDATA[	return ..uiComponent.addAlternative(value,description,isDefault)
+]]></Implementation>
+</Method>
+
+<Method name="isAlternativeInValueString">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>alternative:%String,valueString:%String</FormalSpec>
+<ReturnType>%Boolean</ReturnType>
+<Implementation><![CDATA[
+	for i=1:1:$Length(valueString,"|") {
+		if $ZCVT($ZSTRIP($Piece(valueString,"|",i),"<>W"),"U") = $ZCVT($ZSTRIP(alternative,"<>W"),"U") {
+			return 1	
+		}	
+	}
+	return 0
+]]></Implementation>
+</Method>
+
+<Method name="addProwebCheckbox">
+<FormalSpec>parent:EF.pageController.proweb.checkboxGroup,identifier:%String,description:%String,value:%String,isReadOnly=0</FormalSpec>
+<ReturnType>EF.pageController.inputElements.checkbox</ReturnType>
+<Implementation><![CDATA[
+	set element=##class(EF.pageController.proweb.checkbox).addElementToParent(parent, identifier,description,value,isReadOnly)
+
+	quit element
+]]></Implementation>
+</Method>
+
+<Method name="getValueFromRequest">
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	#dim child as EF.pageController.proweb.checkbox
+	#dim valueString as %String = ""
+	
+	for index = 1:1:..elementChildren.Count() {
+		set child = ..elementChildren.GetAt(index)
+		if %request.Get(child.identifier) = 1 {
+			set tmpArray(index) = child.description
+		}
+	}
+	set codItemName = ##class(sc.xModules.objCODitem).getCODItemName(..prowebID)
+	set eventID = ##class(sc.objData).getEventID(..prowebID)
+	
+	if ##class(sc.xModules.objCODitem).getType(..prowebID) = "multibox" {
+		set valueString = ##class(cod.methods).formatMultiCheckBox(eventID, codItemName, .tmpArray)
+		
+	} elseif ##class(sc.xModules.objCODitem).getType(..prowebID) = "checkbox" {
+		set valueString = "true"	
+	}
+	return valueString
+]]></Implementation>
+</Method>
+
+<Method name="setNameForValidationError">
+<FormalSpec>name</FormalSpec>
+</Method>
+
+<Storage name="Default">
+<Type>%Library.CacheStorage</Type>
+</Storage>
+</Class>
+
+
+<Class name="EF.pageController.proweb.checkboxGroupTestCase">
+<Super>EF.ISC.UnitTest.TestCase</Super>
+<TimeChanged>64204,52190.845512</TimeChanged>
+<TimeCreated>64204,52190.845512</TimeCreated>
+
+<Method name="TestWithMulticheckboxNoneSelected">
+<Implementation><![CDATA[
+	#dim element as EF.pageController.element
+	
+	set contextData = ##class(EF.contextDataRegistrationMock).createMock()
+	set page=##class(EF.pageController.proweb.page).createNew(contextData)
+	set elementIdentifier = "proweb-1"
+	
+	set element = ##class(EF.pageController.proweb.checkboxGroup).addElementToParent(page, elementIdentifier,"diet","")
+	do page.uiComponent.addChild(element.uiComponent)	
+
+	set childController = element.addProwebCheckbox(element, elementIdentifier_"-"_1, "meat", 0)
+	set childController = element.addProwebCheckbox(element, elementIdentifier_"-"_2, "vegetarian", 0)
+	set childController = element.addProwebCheckbox(element, elementIdentifier_"-"_3, "vegan", 0)
+	set childController = element.addProwebCheckbox(element, elementIdentifier_"-"_4, "fish", 0)
+	
+	do page.uiComponent.childComponents.SetAt(element.uiComponent,1)
+	set element.uiComponent.contextData = contextData
+	do element.updateUIComponent()
+	
+	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(page,"render")
+	set returnedHTML = $ZStrip(returnedHTML,"*WC")
+	set expectedHTML = "<divclass='rowef-proweb-form-row'><divclass='col-sm-4ef_proweb_form_prompt'><labelclass=""control-label""for=""proweb-1"">diet</label></div><divclass='col-sm-8ef_proweb_form_prompt'><divclass=""form-group""><divclass=""inputs-listef-proweb-input-elementef-proweb-checkboxGroup""><label><inputtype=""checkbox""value=""1""id=""proweb-1-1""class=""""name=""proweb-1-1""title="""">meat</label><br/><label><inputtype=""checkbox""value=""1""id=""proweb-1-2""class=""""name=""proweb-1-2""title="""">vegetarian</label><br/><label><inputtype=""checkbox""value=""1""id=""proweb-1-3""class=""""name=""proweb-1-3""title="""">vegan</label><br/><label><inputtype=""checkbox""value=""1""id=""proweb-1-4""class=""""name=""proweb-1-4""title="""">fish</label><br/></div></div></div></div>"
+	do $$$AssertEquals(returnedHTML,expectedHTML)
+]]></Implementation>
+</Method>
+</Class>
+
+
+<Class name="EF.pageController.proweb.datePIckerTestCase">
+<Super>EF.ISC.UnitTest.TestCase</Super>
+<TimeChanged>64204,51790.977231</TimeChanged>
+<TimeCreated>64204,51790.977231</TimeCreated>
+
+<Method name="TestDatePicker">
+<Implementation><![CDATA[
+	#dim elementIdentifier as %String = "proweb-1"
+	#dim labelText as %String = "date"
+	#dim value as %String = "12/12/2016"
+	#dim element as EF.pageController.element
+	#dim page as EF.pageController.proweb.page
+	
+	set contextData = ##class(EF.contextDataRegistrationMock).createMock()
+	
+	set page= ##class(EF.pageController.proweb.page).createNew(contextData)
+	set element = ##class(EF.pageController.proweb.datePicker).addElementToParent(page, elementIdentifier, labelText, value, 0)
+	do page.uiComponent.addChild(element.uiComponent)
+	set element.uiComponent.contextData = contextData
+	
+	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(page,"render")
+	set returnedHTML = $ZStrip(returnedHTML,"*WC")
+	set expectedHTML = "<divclass='rowef-proweb-form-row'><divclass='col-sm-4ef_proweb_form_prompt'><labelclass=""control-label""for=""proweb-1"">date</label></div><divclass='col-sm-8ef_proweb_form_prompt'><divclass=""ef-proweb-input-element-short""><inputtype=""date""class=""ef-kendo-form-controlefDatePicker""title=""""id=""proweb-1""name=""proweb-1""value=""""placeholder=""DD/MM/YYYY""efKendoDateFormat=""dd/MM/yyyy""></div></div></div>"
+	do $$$AssertEquals(returnedHTML,expectedHTML)
+]]></Implementation>
+</Method>
+</Class>
+
+
+<Class name="EF.pageController.proweb.datePicker">
+<Super>EF.pageController.proweb.inputElement</Super>
+<TimeChanged>64202,34967.838153</TimeChanged>
+<TimeCreated>63384,38321.657735</TimeCreated>
+
+<Method name="getDefaultUIComponent">
+<ReturnType>EF.ui.components.inputBase</ReturnType>
+<Implementation><![CDATA[
+	set uiElement=##class(EF.ui.components.frontend.datePicker).%New(..identifier)
+	quit uiElement
+]]></Implementation>
+</Method>
+
+<Storage name="Default">
+<Type>%Library.CacheStorage</Type>
+</Storage>
+</Class>
+
+
+<Class name="EF.pageController.proweb.dateRange">
+<Super>EF.pageController.proweb.inputElement</Super>
+<TimeChanged>64202,41832.54542</TimeChanged>
+<TimeCreated>63384,38321.657735</TimeCreated>
+
+<Method name="getDefaultUIComponent">
+<ReturnType>EF.ui.components.inputBase</ReturnType>
+<Implementation><![CDATA[
+	set uiElement=##class(EF.ui.components.frontend.dateRange).%New(..identifier)
+	quit uiElement
+]]></Implementation>
+</Method>
+
+<Storage name="Default">
+<Type>%Library.CacheStorage</Type>
+</Storage>
+</Class>
+
+
+<Class name="EF.pageController.proweb.dateRangeTestCase">
+<Super>EF.ISC.UnitTest.TestCase</Super>
+<TimeChanged>64204,51832.260251</TimeChanged>
+<TimeCreated>64204,51832.260251</TimeCreated>
+
+<Method name="TestDateRange">
+<Implementation><![CDATA[
+	#dim elementIdentifier as %String = "proweb-1"
+	#dim labelText as %String = "date ranger"
+	#dim value as %String = ""
+	#dim element as EF.pageController.element
+	#dim page as EF.pageController.proweb.page
+	#dim isReadOnly as %Boolean = 0
+	
+	set contextData = ##class(EF.contextDataRegistrationMock).createMock()
+	
+	set page= ##class(EF.pageController.proweb.page).createNew(contextData)
+	set element = ##class(EF.pageController.proweb.dateRange).addElementToParent(page, elementIdentifier, labelText, value, 0)
+	set element.uiComponent.contextData = contextData
+	do page.uiComponent.addChild(element.uiComponent)
+	
+	set childControllerStart = ##class(EF.pageController.proweb.datePicker).addElementToParent(element, elementIdentifier_"-startDate", "", isReadOnly)	
+	set childControllerStart.prowebID = 1
+	set childControllerStart.uiComponent.validator.dateFormat = 3
+	set childControllerStart.uiComponent.contextData = contextData
+	do childControllerStart.uiComponent.addAttribute("efdaterangestartmin", "24/12/2001" )
+	do element.uiComponent.childComponents.SetAt(childControllerStart.uiComponent,1)
+	
+	set childControllerEnd = ##class(EF.pageController.proweb.datePicker).addElementToParent(element, elementIdentifier_"-endDate", "", isReadOnly)	
+	set childControllerEnd.prowebID = 1
+	set childControllerEnd.uiComponent.validator.dateFormat = 3
+	set childControllerEnd.uiComponent.contextData = contextData
+	do childControllerEnd.uiComponent.addAttribute("efdaterangeendmax", "31/12/2001" )
+	do element.uiComponent.childComponents.SetAt(childControllerEnd.uiComponent,2)
+			
+	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(page,"render")
+	set returnedHTML = $ZStrip(returnedHTML,"*WC")
+	set expectedHTML = "<divclass='rowef-proweb-form-row'><divclass='col-sm-4ef_proweb_form_prompt'><labelclass=""control-label""for=""proweb-1"">dateranger</label></div><divclass='col-sm-8ef_proweb_form_prompt'><divstyle='float:left;text-align:left;'><inputtype=""date""class=""ef-kendo-form-controlefDatePicker""title=""""id=""proweb-1-startDate""name=""proweb-1-startDate""value=""""placeholder=""DD/MM/YYYY""efdaterangestartmin=""24/12/2001""efKendoDateFormat=""dd/MM/yyyy""></div><divstyle='float:left;text-align:left;margin-left:15px;margin-right:15px;'>to</div><divstyle='float:left;text-align:left;'><inputtype=""date""class=""ef-kendo-form-controlefDatePicker""title=""""id=""proweb-1-endDate""name=""proweb-1-endDate""value=""""placeholder=""DD/MM/YYYY""efdaterangeendmax=""31/12/2001""efKendoDateFormat=""dd/MM/yyyy""></div></div></div>"
+	do $$$AssertEquals(returnedHTML,expectedHTML)
+]]></Implementation>
+</Method>
+</Class>
+
+
+<Class name="EF.pageController.proweb.divider">
+<Super>EF.pageController.proweb.prowebBase</Super>
+<TimeChanged>64203,63320.354946</TimeChanged>
+<TimeCreated>64183,49747.663252</TimeCreated>
+
+<Parameter name="canBeDependent">
+<Type>%Boolean</Type>
+<Default>0</Default>
+</Parameter>
+
+<Method name="getDefaultUIComponent">
+<ReturnType>EF.ui.components.base</ReturnType>
+<Implementation><![CDATA[	quit ##class(EF.ui.components.frontend.divider).%New(..identifier)
+]]></Implementation>
+</Method>
+
+<Method name="initialiseUIComponent">
+<FormalSpec>uiComponent:EF.ui.components.base</FormalSpec>
+<Implementation><![CDATA[	do ##super(uiComponent)
+]]></Implementation>
+</Method>
+
+<Storage name="Default">
+<Type>%Library.CacheStorage</Type>
+</Storage>
+</Class>
+
+
+<Class name="EF.pageController.proweb.dividerTestCase">
+<Super>EF.ISC.UnitTest.TestCase</Super>
+<TimeChanged>64204,52058.150579</TimeChanged>
+<TimeCreated>64204,52058.150579</TimeCreated>
+
+<Method name="TestBasicPageWithDivider">
+<Implementation><![CDATA[
+	set contextData = ##class(EF.contextDataRegistrationMock).createMock()
+	set page=##class(EF.pageController.proweb.page).createNew(contextData)
+	
+	set elementIdentifier = "proweb-1"
+	set element = ##class(EF.pageController.proweb.divider).addElementToParent(page, elementIdentifier,"")
+	do page.uiComponent.addChild(element.uiComponent)	
+	set element.uiComponent.contextData = contextData
+	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(page,"render")
+	set returnedHTML = $ZStrip(returnedHTML,"*WC")
+	set expectedHTML = "<divclass='rowef-proweb-form-row'><divclass='col-sm-12'><hrclass='ef_form_divider'></div></div>"
+	do $$$AssertEquals(returnedHTML,expectedHTML)
+]]></Implementation>
+</Method>
+</Class>
+
+
+<Class name="EF.pageController.proweb.dropdown">
+<Super>EF.pageController.proweb.inputElement</Super>
+<TimeChanged>64189,54711.498322</TimeChanged>
+<TimeCreated>64189,53206.554402</TimeCreated>
+
+<Method name="getDefaultUIComponent">
+<ReturnType>EF.ui.components.backend.checkbox</ReturnType>
+<Implementation><![CDATA[	quit ##class(EF.ui.components.frontend.dropdown).%New(..identifier)
+]]></Implementation>
+</Method>
+
+<Method name="addAlternative">
+<FormalSpec>value,description,isDefault=0</FormalSpec>
+<ReturnType>EF.ui.components.alternative</ReturnType>
+<Implementation><![CDATA[	return ..uiComponent.addAlternative(value,description,isDefault)
+]]></Implementation>
+</Method>
+
+<Storage name="Default">
+<Type>%Library.CacheStorage</Type>
+</Storage>
+</Class>
+
+
+<Class name="EF.pageController.proweb.dropdownTestCase">
+<Super>EF.ISC.UnitTest.TestCase</Super>
+<TimeChanged>64204,52097.681704</TimeChanged>
+<TimeCreated>64204,52097.681704</TimeCreated>
+
+<Method name="TestPageWithDropdown">
+<Implementation><![CDATA[
+	set contextData = ##class(EF.contextDataRegistrationMock).createMock()
+	set page=##class(EF.pageController.proweb.page).createNew(contextData)
+	set elementIdentifier = "proweb-1"
+	set element = ##class(EF.pageController.proweb.dropdown).addElementToParent(page, elementIdentifier,"diet","")
+	do page.uiComponent.addChild(element.uiComponent)	
+	
+	set alternative = element.addAlternative("meat","meat")
+	set alternative = element.addAlternative("vegetarian","vegetarian")
+	set alternative = element.addAlternative("vegan","vegan")
+	do page.uiComponent.childComponents.SetAt(element.uiComponent,1)
+	set element.uiComponent.contextData = contextData
+	
+	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(page,"render")
+	set returnedHTML = $ZStrip(returnedHTML,"*WC")
+	set expectedHTML = "<divclass='rowef-proweb-form-row'><divclass='col-sm-4ef_proweb_form_prompt'><labelclass=""control-label""for=""proweb-1"">diet</label></div><divclass='col-sm-8ef_proweb_form_prompt'><selectclass=""form-controlef-proweb-input-element""name=""proweb-1""id=""proweb-1""title=""""><optionvalue=''></option><optionvalue=""meat"">meat</option><optionvalue=""vegetarian"">vegetarian</option><optionvalue=""vegan"">vegan</option></select></div></div>"
+	do $$$AssertEquals(returnedHTML,expectedHTML)
+]]></Implementation>
+</Method>
+
+<Method name="TestPageWithDropdownPreSelected">
+<Implementation><![CDATA[
+	#dim element as EF.pageController.element
+	set contextData = ##class(EF.contextDataRegistrationMock).createMock()
+	set page=##class(EF.pageController.proweb.page).createNew(contextData)
+	set elementIdentifier = "proweb-1"
+	set element = ##class(EF.pageController.proweb.dropdown).addElementToParent(page, elementIdentifier,"diet","vegan")
+	do page.uiComponent.addChild(element.uiComponent)	
+	set alternative = element.addAlternative("meat","meat")
+	set alternative = element.addAlternative("vegetarian","vegetarian")
+	set alternative = element.addAlternative("vegan","vegan")
+	
+	do page.uiComponent.childComponents.SetAt(element.uiComponent,1)
+	set element.uiComponent.contextData = contextData
+	do element.updateUIComponent()
+	
+	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(page,"render")
+	set returnedHTML = $ZStrip(returnedHTML,"*WC")
+	set expectedHTML = "<divclass='rowef-proweb-form-row'><divclass='col-sm-4ef_proweb_form_prompt'><labelclass=""control-label""for=""proweb-1"">diet</label></div><divclass='col-sm-8ef_proweb_form_prompt'><selectclass=""form-controlef-proweb-input-element""name=""proweb-1""id=""proweb-1""title=""""><optionvalue=''></option><optionvalue=""meat"">meat</option><optionvalue=""vegetarian"">vegetarian</option><optionselected=""""value=""vegan"">vegan</option></select></div></div>"
+	do $$$AssertEquals(returnedHTML,expectedHTML)
+]]></Implementation>
+</Method>
+
+<Method name="TestPageWithDropdownMandatory">
+<Implementation><![CDATA[
+	set contextData = ##class(EF.contextDataRegistrationMock).createMock()
+	set page=##class(EF.pageController.proweb.page).createNew(contextData)
+	set elementIdentifier = "proweb-1"
+	set element = ##class(EF.pageController.proweb.dropdown).addElementToParent(page, elementIdentifier,"diet","vegan")
+	do page.uiComponent.addChild(element.uiComponent)	
+	set alternative = element.addAlternative("meat","meat")
+	set alternative = element.addAlternative("vegetarian","vegetarian")
+	set alternative = element.addAlternative("vegan","vegan")
+	do page.uiComponent.childComponents.SetAt(element.uiComponent,1)
+	set element.uiComponent.contextData = contextData
+	set element.uiComponent.isMandatory = 1
+	do element.updateUIComponent()
+	
+	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(page,"render")
+	set returnedHTML = $ZStrip(returnedHTML,"*WC")
+	set expectedHTML = "<divclass='rowef-proweb-form-row'><divclass='col-sm-4ef_proweb_form_promptef-required-field'><labelclass=""control-label""for=""proweb-1"">diet</label></div><divclass='col-sm-8ef_proweb_form_prompt'><selectclass=""form-controlef-proweb-input-element""name=""proweb-1""id=""proweb-1""title=""""><optionvalue=''selecteddisabled>Chooseone...</option><optionvalue=""meat"">meat</option><optionvalue=""vegetarian"">vegetarian</option><optionselected=""""value=""vegan"">vegan</option></select></div></div>"
+	do $$$AssertEquals(returnedHTML,expectedHTML)
+]]></Implementation>
+</Method>
+</Class>
+
+
+<Class name="EF.pageController.proweb.emailInput">
+<Super>EF.pageController.proweb.textInput</Super>
+<TimeChanged>64198,32956.969715</TimeChanged>
+<TimeCreated>64189,53629.035726</TimeCreated>
+
+<Method name="getDefaultUIComponent">
+<ReturnType>EF.ui.components.inputBase</ReturnType>
+<Implementation><![CDATA[	quit ##class(EF.ui.components.frontend.emailInput).%New(..identifier)
+]]></Implementation>
+</Method>
+
+<Storage name="Default">
+<Type>%Library.CacheStorage</Type>
+</Storage>
+</Class>
+
+
+<Class name="EF.pageController.proweb.emailInputMulti">
+<Super>EF.pageController.proweb.textInput</Super>
+<TimeChanged>64201,44206.111927</TimeChanged>
+<TimeCreated>64189,53629.035726</TimeCreated>
+
+<Method name="getDefaultUIComponent">
+<ReturnType>EF.ui.components.inputBase</ReturnType>
+<Implementation><![CDATA[	quit ##class(EF.ui.components.frontend.emailInputMulti).%New(..identifier)
+]]></Implementation>
+</Method>
+
+<Storage name="Default">
+<Type>%Library.CacheStorage</Type>
+</Storage>
+</Class>
+
+
+<Class name="EF.pageController.proweb.emailInputMultiTestCase">
+<Super>EF.ISC.UnitTest.TestCase</Super>
+<TimeChanged>64204,51717.446706</TimeChanged>
+<TimeCreated>64204,51717.446706</TimeCreated>
+
+<Method name="TestMultiEmail">
+<Implementation><![CDATA[
+	#dim elementIdentifier as %String = "proweb-1"
+	#dim labelText as %String = "email"
+	#dim value as %String = "fred@eventsforce.com"
+	#dim element as EF.pageController.element
+	#dim page as EF.pageController.proweb.page
+	
+	set contextData = ##class(EF.contextDataRegistrationMock).createMock()
+	
+	set page= ##class(EF.pageController.proweb.page).createNew(contextData)
+	set element = ##class(EF.pageController.proweb.emailInputMulti).addElementToParent(page, elementIdentifier, labelText, value, 0)
+	do page.uiComponent.addChild(element.uiComponent)
+	set element.uiComponent.contextData = contextData
+	
+	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(page,"render")
+	set returnedHTML = $ZStrip(returnedHTML,"*WC")
+	set expectedHTML = "<divclass='rowef-proweb-form-row'><divclass='col-sm-4ef_proweb_form_prompt'><labelclass=""control-label""for=""proweb-1""pattern=""^(([a-zA-Z0-9_\-\.&#39;]+)(\+[a-zA-Z0-9_\-\.&#39;]+){0,1}@(([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([a-zA-Z0-9\-]+\.)+))([a-zA-Z]{2,63}|[0-9]{1,3}))(\s*[;,]\s*(([a-zA-Z0-9_\-\.&#39;]+)(\+[a-zA-Z0-9_\-\.&#39;]+){0,1}@(([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([a-zA-Z0-9\-]+\.)+))([a-zA-Z]{2,63}|[0-9]{1,3})))*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;email\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""multiple>email</label></div><divclass='col-sm-8ef_proweb_form_prompt'><inputtype=""email""class=""form-controlef-proweb-input-element""title=""""id=""proweb-1""name=""proweb-1""value=""""placeholder=""""pattern=""^(([a-zA-Z0-9_\-\.&#39;]+)(\+[a-zA-Z0-9_\-\.&#39;]+){0,1}@(([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([a-zA-Z0-9\-]+\.)+))([a-zA-Z]{2,63}|[0-9]{1,3}))(\s*[;,]\s*(([a-zA-Z0-9_\-\.&#39;]+)(\+[a-zA-Z0-9_\-\.&#39;]+){0,1}@(([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([a-zA-Z0-9\-]+\.)+))([a-zA-Z]{2,63}|[0-9]{1,3})))*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;email\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""multiplemultiple></div></div>"
+	do $$$AssertEquals(returnedHTML,expectedHTML)
+]]></Implementation>
+</Method>
+</Class>
+
+
+<Class name="EF.pageController.proweb.emailInputTestCase">
+<Super>EF.ISC.UnitTest.TestCase</Super>
+<TimeChanged>64204,51673.552581</TimeChanged>
+<TimeCreated>64204,51673.552581</TimeCreated>
+
+<Method name="TestEmail">
+<Implementation><![CDATA[
+	#dim elementIdentifier as %String = "proweb-1"
+	#dim labelText as %String = "email"
+	#dim value as %String = "fred@eventsforce.com"
+	#dim element as EF.pageController.element
+	#dim page as EF.pageController.proweb.page
+	
+	set contextData = ##class(EF.contextDataRegistrationMock).createMock()
+	
+	set page= ##class(EF.pageController.proweb.page).createNew(contextData)
+	set element = ##class(EF.pageController.proweb.emailInput).addElementToParent(page, elementIdentifier, labelText, value, 0)
+	do page.uiComponent.addChild(element.uiComponent)
+	set element.uiComponent.contextData = contextData
+	
+	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(page,"render")
+	set returnedHTML = $ZStrip(returnedHTML,"*WC")
+	set expectedHTML = "<divclass='rowef-proweb-form-row'><divclass='col-sm-4ef_proweb_form_prompt'><labelclass=""control-label""for=""proweb-1""pattern=""^(([a-zA-Z0-9_\-\.&#39;]+)(\+[a-zA-Z0-9_\-\.&#39;]+){0,1}@(([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([a-zA-Z0-9\-]+\.)+))([a-zA-Z]{2,63}|[0-9]{1,3}))$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;email\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);"">email</label></div><divclass='col-sm-8ef_proweb_form_prompt'><inputtype=""email""class=""form-controlef-proweb-input-element""title=""""id=""proweb-1""name=""proweb-1""value=""""placeholder=""""pattern=""^(([a-zA-Z0-9_\-\.&#39;]+)(\+[a-zA-Z0-9_\-\.&#39;]+){0,1}@(([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([a-zA-Z0-9\-]+\.)+))([a-zA-Z]{2,63}|[0-9]{1,3}))$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;email\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""></div></div>"
+	do $$$AssertEquals(returnedHTML,expectedHTML)
+]]></Implementation>
+</Method>
+</Class>
+
+
+<Class name="EF.pageController.proweb.inputElement">
+<Super>EF.pageController.inputElement,EF.pageController.proweb.prowebBase</Super>
+<TimeChanged>64202,40605.101516</TimeChanged>
+<TimeCreated>64189,53012.909524</TimeCreated>
+
+<Property name="isMandatory">
+<Type>%Boolean</Type>
+</Property>
+
+<Method name="validateElement">
+<Implementation><![CDATA[
+	do ..errorMessages.Clear()
+	set key=""
+	for {
+		set elementChild=..elementChildren.GetNext(.key)
+		if key="" quit
+		do elementChild.validateElement() 
+ 	}
+ 	
+	do ..validateValue()
+]]></Implementation>
+</Method>
+
+<Storage name="Default">
+<Type>%Library.CacheStorage</Type>
+<DefaultData>inputElementDefaultData1</DefaultData>
+<Data name="inputElementDefaultData1">
+<Subscript>"inputElement1"</Subscript>
+<Value name="1">
+<Value>isMandatory</Value>
+</Value>
+<Value name="2">
+<Value>prowebID</Value>
+</Value>
+</Data>
+</Storage>
+</Class>
+
+
+<Class name="EF.pageController.proweb.integerInput">
+<Super>EF.pageController.proweb.textInput</Super>
+<TimeChanged>64201,43333.133276</TimeChanged>
+<TimeCreated>64189,53629.035726</TimeCreated>
+
+<Method name="getDefaultUIComponent">
+<ReturnType>EF.ui.components.inputBase</ReturnType>
+<Implementation><![CDATA[	quit ##class(EF.ui.components.frontend.integerInput).%New(..identifier)
+]]></Implementation>
+</Method>
+
+<Storage name="Default">
+<Type>%Library.CacheStorage</Type>
+</Storage>
+</Class>
+
+
+<Class name="EF.pageController.proweb.integerInputTestCase">
+<Super>EF.ISC.UnitTest.TestCase</Super>
+<TimeChanged>64204,51876.726258</TimeChanged>
+<TimeCreated>64204,51876.726258</TimeCreated>
+
+<Method name="TestInteger">
+<Implementation><![CDATA[
+	#dim elementIdentifier as %String = "proweb-1"
+	#dim labelText as %String = "Shoesize"
+	#dim value as %String = "42"
+	#dim element as EF.pageController.element
+	#dim page as EF.pageController.proweb.page
+	
+	set contextData = ##class(EF.contextDataRegistrationMock).createMock()
+	
+	set page= ##class(EF.pageController.proweb.page).createNew(contextData)
+	set element = ##class(EF.pageController.proweb.integerInput).addElementToParent(page, elementIdentifier, labelText, value, 0)
+	do page.uiComponent.addChild(element.uiComponent)
+	set element.uiComponent.contextData = contextData
+	
+	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(page,"render")
+	set returnedHTML = $ZStrip(returnedHTML,"*WC")
+	set expectedHTML = "<divclass='rowef-proweb-form-row'><divclass='col-sm-4ef_proweb_form_prompt'><labelclass=""control-label""for=""proweb-1""pattern=""^([\+\-]){0,1}\d+$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;Shoesize\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);"">Shoesize</label></div><divclass='col-sm-8ef_proweb_form_prompt'><inputtype=""number""class=""form-controlef-proweb-input-element-short""title=""""id=""proweb-1""name=""proweb-1""value=""""placeholder=""""pattern=""^([\+\-]){0,1}\d+$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;Shoesize\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""></div></div>"
+	do $$$AssertEquals(returnedHTML,expectedHTML)
+]]></Implementation>
+</Method>
+</Class>
+
+
+<Class name="EF.pageController.proweb.numericInput">
+<Super>EF.pageController.proweb.textInput</Super>
+<TimeChanged>64201,43313.656158</TimeChanged>
+<TimeCreated>63939,36505.690987</TimeCreated>
+
+<Method name="getDefaultUIComponent">
+<ReturnType>EF.ui.components.inputBase</ReturnType>
+<Implementation><![CDATA[	quit ##class(EF.ui.components.frontend.numericInput).%New(..identifier)
+]]></Implementation>
+</Method>
+
+<Storage name="Default">
+<Type>%Library.CacheStorage</Type>
+</Storage>
+</Class>
+
+
+<Class name="EF.pageController.proweb.numericInputTestCase">
+<Super>EF.ISC.UnitTest.TestCase</Super>
+<TimeChanged>64204,51945.096715</TimeChanged>
+<TimeCreated>64204,51945.096715</TimeCreated>
+
+<Method name="TestDecimalNumber">
+<Implementation><![CDATA[
+	#dim elementIdentifier as %String = "proweb-1"
+	#dim labelText as %String = "Shoesize"
+	#dim value as %String = "42"
+	#dim element as EF.pageController.element
+	#dim page as EF.pageController.proweb.page
+	
+	set contextData = ##class(EF.contextDataRegistrationMock).createMock()
+	
+	set page= ##class(EF.pageController.proweb.page).createNew(contextData)
+	set element = ##class(EF.pageController.proweb.numericInput).addElementToParent(page, elementIdentifier, labelText, value, 0)
+	do page.uiComponent.addChild(element.uiComponent)
+	set element.uiComponent.contextData = contextData
+	
+	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(page,"render")
+	set returnedHTML = $ZStrip(returnedHTML,"*WC")
+	set expectedHTML = "<divclass='rowef-proweb-form-row'><divclass='col-sm-4ef_proweb_form_prompt'><labelclass=""control-label""for=""proweb-1""pattern=""^[+-]?((0)|([1-9][0-9]*?))?(\.[0-9]{1,2})?$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;Shoesize\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);"">Shoesize</label></div><divclass='col-sm-8ef_proweb_form_prompt'><inputtype=""text""class=""form-controlef-proweb-input-element-short""title=""""id=""proweb-1""name=""proweb-1""value=""""placeholder=""""pattern=""^[+-]?((0)|([1-9][0-9]*?))?(\.[0-9]{1,2})?$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;Shoesize\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""></div></div>"
+	do $$$AssertEquals(returnedHTML,expectedHTML)
+]]></Implementation>
+</Method>
+</Class>
+
+
+<Class name="EF.pageController.proweb.page">
+<Super>EF.pageController.page</Super>
+<TimeChanged>64204,50777.397633</TimeChanged>
+<TimeCreated>64189,51696.559047</TimeCreated>
+
+<Property name="contextData">
+<Type>EF.contextDataRegistration</Type>
+</Property>
+
+<Property name="prowebPageID">
+<Type>%Integer</Type>
+</Property>
+
+<Method name="load">
+<Implementation><![CDATA[
+	set ..contextData.prowebFloatingMenuCounter = 100 // offset to keep them separate from the include pages' counters
+	do ..loadData()
+	if ..contextData.%IsA("EF.contextDataRegistration") {
+		do ..insertAllProwebItems() 
+	}
+	do ..updateUIComponents()
+]]></Implementation>
+</Method>
+
+<Method name="renderHTMLControlFromTag">
+<FormalSpec><![CDATA[&attrs]]></FormalSpec>
+<Implementation><![CDATA[
+	set identifier=$G(attrs("identifier"))
+	set element=..getElementByIdentifier(identifier)
+	if $IsObject(element) {
+		do element.render()
+		
+	} elseif $Get(attrs("prowebcomponentname"))'="" {
+		if '..contextData.pageID {
+			throw ##class(shared.exceptions.generalException).%New("PageID was missing when attempting to render Proweb tag")
+		}
+		
+		set ..objEvent = ##class(setup.objEvent).%OpenId(..contextData.eventID)
+		set ..contextData.prowebComponentName = attrs("prowebcomponentname")
+				
+		do ..initialiseComponent()
+		
+		if ..hasError {
+			do ..renderErrorMessages()
+		}
+
+		do ..renderProwebItemsForComponent()
+	}
+	quit
+]]></Implementation>
+</Method>
+
+<Method name="renderErrorMessages">
+<Implementation><![CDATA[
+	write !,"<div class='ef-proweb-error-panel'><div class='ef-proweb-error-header'>",##class(shared.pCSP).out("Error on page"),"</div><UL>"
+		for {
+			set element=..allPageElements.GetNext(.key)
+			if key="" quit
+			if element.uiComponent.hasError {
+				write !,"<LI>",element.uiComponent.validator.getErrorMessage(),"</LI>"
+			}
+		}
+		write !,"</UL></div>"
+]]></Implementation>
+</Method>
+
+<Method name="initialiseComponent">
+<Implementation><![CDATA[
+	if '##class(sc.xModules.objList).getListIDFromPageIDAndComponentName(..contextData.pageID,..contextData.prowebComponentName) {
+		set listID = ##class(sc.xModules.objList).add(..contextData.pageID)
+		if 'listID {
+			throw ##class(shared.exceptions.generalException).%New("Failed to create new objList")	
+		}
+		set templateID = ##class(sc.pageMethods).getTemplateIDfromPageID(..contextData.pageID)
+		set componentID = ##class(sc.objComponent).add(..contextData.prowebComponentName, templateID, listID)
+		if 'componentID {
+			throw ##class(shared.exceptions.generalException).%New("Failed to cerate new objComponent")
+		}
+	}
+]]></Implementation>
+</Method>
+
+<Method name="insertAllProwebItems">
+<Private>1</Private>
+<Implementation><![CDATA[
+	set rsLists = ##class(%ResultSet).%New("sc.objData:qGetChildren")
+	do rsLists.Execute(..contextData.pageID)
+	
+	while rsLists.Next() {
+		set listID = rsLists.Get("ID")
+		
+		set rsProwebItems = ##class(%ResultSet).%New("sc.xModules.objList:qGetChildren")
+		do rsProwebItems.Execute(listID)
+		while rsProwebItems.Next() {	
+			set dataID = rsProwebItems.Get("ID")
+			set prowebItem = ##class(sc.objData).%OpenId(dataID)
+			do ..addControllerForProwebItem(prowebItem)
+		}
+	}
+]]></Implementation>
+</Method>
+
+<Method name="addControllerForProwebItem">
+<FormalSpec>prowebItem:sc.objData</FormalSpec>
+<Private>1</Private>
+<Implementation><![CDATA[
+	#dim elementIdentifier as %String = ..getElementIdentifierForProwebItems(prowebItem)
+	#dim element as EF.pageController.element
+		
+	if prowebItem.dataType = "objCODitem" { 
+		set element = ..getElementForQuestion(prowebItem)
+	
+	} elseif prowebItem.dataType = "objText" {
+		set element = ##class(EF.pageController.proweb.textBlock).addElementToParent($this, elementIdentifier, prowebItem.description)
+	
+	} elseif prowebItem.dataType = "objFormDivider" {
+		set element = ##class(EF.pageController.proweb.divider).addElementToParent($this, elementIdentifier, "")
+
+	} else {
+		throw ##class(shared.exceptions.generalException).%New("proweb item type not implemented yet")	
+	}
+
+	set element.displayOrder = prowebItem.displayOrder
+	set element.uiComponent.isProwebEditMode = (..contextData.prowebMode = "edit")
+	set element.uiComponent.prowebItem = prowebItem
+	set element.uiComponent.contextData = ..contextData
+	set element.prowebListID = prowebItem.getParentID(prowebItem.%Id())
+	set element.prowebID = prowebItem.%Id()
+	
+	if element.#canBeDependent {
+		set dependsOnAlternativeDescription = ##class(sc.dependencyMethods).getDependsOnAlternativeDescription(prowebItem.%Id())
+		if dependsOnAlternativeDescription '="" {
+			set parentProwebID = ##class(sc.dependencyMethods).getDependsOnPrompt(prowebItem.%Id())
+			set parentProwebItem = ##class(sc.objData).%OpenId(parentProwebID)
+			set parentElementIdentifier = ..getElementIdentifierForProwebItems(parentProwebItem)
+			set dependencyList = ##class(EF.ui.components.dependencyList).createNew(parentElementIdentifier, dependsOnAlternativeDescription)	
+			set element.showHideDependencyList = dependencyList
+		}
+	}
+]]></Implementation>
+</Method>
+
+<Method name="getElementForQuestion">
+<FormalSpec>prowebItem:sc.objData</FormalSpec>
+<Private>1</Private>
+<ReturnType>EF.pageController.proweb.inputElement</ReturnType>
+<Implementation><![CDATA[
+	#dim isReadOnly as %Boolean = 0
+	#dim prowebID as %Integer = prowebItem.%Id()
+	#dim itemName as %String = ##class(sc.xModules.objCODitem).getCODItemName(prowebID)
+	#dim value as %String  = ##class(eCom.tempCodData).get(..contextData.tempPersonID, itemName)
+	#dim elementIdentifier as %String = ..getElementIdentifierForProwebItems(prowebItem)	
+	#dim labelText as %String = ##class(sc.objData).getQuestionPrompt(prowebID, ..contextData.languageID)
+
+	set pageControllerClassName = $Case(prowebItem.type,
+										"text":"textInput",
+										"emailAddress":"emailInput",
+										"time":"timeInput",
+										"date":"datePicker",
+										"textarea":"textArea",
+										"phoneNumber":"phoneNumber",
+										"integer":"integerInput",
+										"floatingPointNumber":"numericInput",
+										"webAddress":"webAddress",
+										"multiEmailAddress":"emailInputMulti",
+										"checkbox":"checkboxGroup",
+										"dateRange":"dateRange",
+										:"exception"
+										)
+	if pageControllerClassName '= "exception" {										
+		set panel = ##class(EF.pageController.containerElements.panel).addElementToParent($this, "myPanel"_prowebID, "Top Panel")
+		set element = $ClassMethod("EF.pageController.proweb."_pageControllerClassName, "addElementToParent", panel, elementIdentifier, labelText, value, isReadOnly)
+		
+	} elseif (prowebItem.type = "dropdown") ! (prowebItem.type = "radiobutton") ! (prowebItem.type = "multibox") {
+		set element = ..addProwebSelectionElement(prowebItem)
+				
+	} else {
+		throw ##class(shared.exceptions.generalException).%New("proweb question type is not implemented yet")	
+	}
+
+	if prowebItem.type = "checkbox" {
+		set childController = element.addProwebCheckbox(element, elementIdentifier_"-"_1, labelText, value)
+		set childController.prowebID = prowebItem.%Id()
+	}		
+	if prowebItem.type = "dateRange" {
+		set databaseItemID  = prowebItem.objItemName.%Id()
+		
+		set childControllerStart = ##class(EF.pageController.proweb.datePicker).addElementToParent(element, elementIdentifier_"-startDate", "", isReadOnly)	
+		set childControllerStart.prowebID = prowebItem.%Id()
+		set childControllerStart.uiComponent.contextData = ..contextData
+		set childControllerStart.uiComponent.prowebItem = prowebItem
+		set childControllerStart.value = $Piece(##class(eCom.tempCodData).get(..contextData.tempPersonID, itemName), "|", 1)
+		
+		set earliestAllowedStartDate = $Piece(##class(cod.lnkItemNameEventDateRange).getMinTimeStamp(..contextData.eventID, databaseItemID), " ", 1)
+		set earliestAllowedStartDate = ##class(shared.dateFunctions).multiDate(earliestAllowedStartDate, childControllerStart.uiComponent.validator.dateFormat )
+		do childControllerStart.uiComponent.addAttribute("efdaterangestartmin", earliestAllowedStartDate )
+		
+					
+		set childControllerEnd = ##class(EF.pageController.proweb.datePicker).addElementToParent(element, elementIdentifier_"-endDate", "", isReadOnly)		
+		set childControllerEnd.prowebID = prowebItem.%Id()	
+		set childControllerEnd.uiComponent.contextData = ..contextData
+		set childControllerEnd.uiComponent.prowebItem = prowebItem
+		set childControllerEnd.value = $Piece(##class(eCom.tempCodData).get(..contextData.tempPersonID, itemName), "|", 2)
+
+		set latestAllowedEndDate = $Piece(##class(cod.lnkItemNameEventDateRange).getMinTimeStamp(..contextData.eventID, databaseItemID), " ", 1)
+		set latestAllowedEndDate = ##class(shared.dateFunctions).multiDate(latestAllowedEndDate, childControllerStart.uiComponent.validator.dateFormat )
+		do childControllerEnd.uiComponent.addAttribute("efdaterangeendmax", latestAllowedEndDate )
+	}
+	
+	if (element.%IsA("EF.pageController.proweb.checkboxGroup") = 0) && (element.uiComponent.isGuest = 0) {
+		set element.isMandatory = +prowebItem.mandatory
+		set element.uiComponent.isMandatory = +prowebItem.mandatory
+		set element.uiComponent.validator.isMandatory = +prowebItem.mandatory
+	}
+	
+	set element.uiComponent.isGuest = prowebItem.isGuest
+	set element.uiComponent.helpText = prowebItem.helpText	
+	set element.prowebID = prowebItem.%Id()
+
+	return element
+]]></Implementation>
+</Method>
+
+<Method name="addProwebSelectionElement">
+<FormalSpec>prowebItem:sc.objData</FormalSpec>
+<Private>1</Private>
+<ReturnType>EF.pageController.element</ReturnType>
+<Implementation><![CDATA[
+	#dim isReadOnly as %Boolean = 0
+	#dim prowebID as %Integer = prowebItem.%Id()
+	#dim itemName as %String = ##class(sc.xModules.objCODitem).getCODItemName(prowebID)
+	#dim value as %String 
+	#dim elementIdentifier as %String = ..getElementIdentifierForProwebItems(prowebItem)
+	#dim labelText as %String = ##class(sc.objData).getQuestionPrompt(prowebID, ..contextData.languageID)
+	#dim counter as %Integer = 0
+	#dim getRawData as %Boolean = 1
+	
+	if prowebItem.type = "dropdown" {
+		set value = ##class(eCom.tempCodData).get(..contextData.tempPersonID, itemName)
+		set element=##class(EF.pageController.proweb.dropdown).addElementToParent($this, elementIdentifier, labelText, value, isReadOnly)
+		
+	} elseif prowebItem.type = "radiobutton" {
+		set value = ##class(eCom.tempCodData).get(..contextData.tempPersonID, itemName)
+		set element=##class(EF.pageController.proweb.radioButtons).addElementToParent($this, elementIdentifier, labelText,value,isReadOnly)
+		
+	} elseif prowebItem.type = "multibox" {
+		set value = ##class(eCom.tempCodData).get(..contextData.tempPersonID, itemName,"",getRawData)
+		set element=##class(EF.pageController.proweb.checkboxGroup).addElementToParent($this, elementIdentifier, labelText, value)
+		set element.uiComponent.columns=1
+			
+	} else {
+		throw ##class(shared.exceptions.generalException).%New("Proweb selection type not implemented")
+	}
+	set element.displayOrder = prowebItem.displayOrder	
+	
+	set rsAlternative = ##class(cod.objItemAlternatives).getAlternativesForCodItemAsResultSet( prowebItem.objItemName.%Id() )
+	while rsAlternative.Next()	{
+		set alternativeValue = rsAlternative.Get("description") 
+		set alternativeDescription = ##class(cod.objItemAlternativeDetails).getDescription(rsAlternative.Get("ID"), ..contextData.languageID)
+		set alternativeDescription = ##class(EF.htmlGenerator).unescapeXSSFix(alternativeDescription)
+		
+		if prowebItem.type = "multibox" {
+			set counter = counter+1
+			set isChecked = ##class(EF.pageController.proweb.checkboxGroup).isAlternativeInValueString(alternativeDescription, value)
+			set childController = element.addProwebCheckbox(element, elementIdentifier_"-"_counter, alternativeDescription, isChecked)
+			set childController.prowebID = prowebItem.%Id()
+
+		} else {
+			set alternative = element.addAlternative(alternativeValue,alternativeDescription)
+		}
+    }
+	
+	return element
+]]></Implementation>
+</Method>
+
+<Method name="getElementIdentifierForProwebItems">
+<FormalSpec>prowebItem:sc.objData</FormalSpec>
+<Private>1</Private>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	#dim prowebID as %Integer = prowebItem.%Id()
+	return "proweb-"_prowebID
+]]></Implementation>
+</Method>
+
+<Method name="renderProwebItemsForComponent">
+<Description>
+this method needs rewriting when the arrayOfUiComponents become a list instead of an array</Description>
+<Implementation><![CDATA[
+	#dim arrayOfUiComponents as EF.pageController.element
+	do ..getAllElementsReordered(.arrayOfUiComponents)
+	do ..insertPanelElementsAroundGuestQuestions(.arrayOfUiComponents)
+	do ..renderElements(.arrayOfUiComponents)
+]]></Implementation>
+</Method>
+
+<Method name="getAllElementsReordered">
+<FormalSpec><![CDATA[&arrayOfUiComponents]]></FormalSpec>
+<Private>1</Private>
+<Implementation><![CDATA[
+	#dim key as %String = ""
+	#dim element as EF.pageController.element
+	#dim sparseArrayOfUiComponents
+	k ^xfg
+	for {
+		set element=..allPageElements.GetNext(.key)
+		if key="" quit
+		
+		set elementListID = element.prowebListID
+		set componentListID = ##class(sc.xModules.objList).getListIDFromPageIDAndComponentName(..contextData.pageID, ..contextData.prowebComponentName)
+				
+		if (elementListID = componentListID) && ('element.%IsA("EF.pageController.proweb.page")) {
+			if element.displayOrder = "" {
+				throw ##class(shared.exceptions.generalException).%New("No displayOrder defined for element: "_element)	
+			}
+			set sparseArrayOfUiComponents(element.displayOrder) = element.uiComponent	
+		}
+	}
+	m ^xfg("sparseArrayOfUiComponents")=sparseArrayOfUiComponents
+	
+	for counter=1:1 { // make sure there is no empty slots in the key sequence
+		set key = $Order(sparseArrayOfUiComponents(key))
+		if key="" quit
+		
+		set arrayOfUiComponents(counter) = sparseArrayOfUiComponents(key)	
+	}
+	m ^xfg("arrayOfUiComponents")=arrayOfUiComponents
+]]></Implementation>
+</Method>
+
+<Method name="insertPanelElementsAroundGuestQuestions">
+<FormalSpec><![CDATA[&arrayOfUiComponents]]></FormalSpec>
+<Private>1</Private>
+<Implementation><![CDATA[
+	#dim key as %String = ""
+	#dim lastUsedKey as %String = ""
+	#dim uiComponent as EF.ui.components.base
+	#dim hasFoundGuestUiComponent as %Boolean = 0
+	
+	for  {
+		set key = $order(arrayOfUiComponents(key))
+		if key = "" quit
+		
+		set lastUsedKey = key
+		set uiComponent = arrayOfUiComponents(key)
+		
+		if (uiComponent.%Extends("EF.ui.components.frontend.inputElement")) && (uiComponent.isGuest = 1) && (hasFoundGuestUiComponent = 0) {
+			set hasFoundGuestUiComponent = 1
+			do ..insertUiComponentForGuestPanel(key, .arrayOfUiComponents, "opening")
+		}
+
+		if (uiComponent.%Extends("EF.ui.components.frontend.inputElement")) && (uiComponent.isGuest = 0) && (hasFoundGuestUiComponent = 1) {
+			set hasFoundGuestUiComponent = 0
+			do ..insertUiComponentForGuestPanel(key, .arrayOfUiComponents, "closing") 
+		}
+
+		if (uiComponent.%Extends("EF.ui.components.frontend.divider")) && (hasFoundGuestUiComponent = 1) {
+			set hasFoundGuestUiComponent = 0
+			do ..insertUiComponentForGuestPanel(key, .arrayOfUiComponents, "closing") 
+		}
+
+	}
+
+	if hasFoundGuestUiComponent {
+		do ..insertUiComponentForGuestPanel(lastUsedKey+1, .arrayOfUiComponents, "closing")	
+	}
+]]></Implementation>
+</Method>
+
+<Method name="insertUiComponentForGuestPanel">
+<FormalSpec><![CDATA[insertPosition:%Integer,&arrayOfUiComponents,openOrClose:%String]]></FormalSpec>
+<Private>1</Private>
+<Implementation><![CDATA[
+	#dim key as %String = ""
+	#dim uiComponentForPanel as EF.ui.components.frontend.panel
+	
+	for  {    // move subsequent uiComponents down one position
+		set key = $order(arrayOfUiComponents(key), -1)
+		if key < insertPosition quit
+		set arrayOfUiComponents(key+1) = arrayOfUiComponents(key)
+	}
+	
+	set uiComponentForPanel = ##class(EF.ui.components.frontend.panel).%New("GuestPanel-"_insertPosition)
+	set uiComponentForPanel.isOpeningOrClosing = openOrClose
+	set arrayOfUiComponents(insertPosition) = uiComponentForPanel
+]]></Implementation>
+</Method>
+
+<Method name="renderElements">
+<FormalSpec><![CDATA[&arrayOfUiComponents]]></FormalSpec>
+<Private>1</Private>
+<Implementation><![CDATA[
+	#dim key as %String = ""
+	
+	for  {
+		set key = $order(arrayOfUiComponents(key))
+		if key = "" quit	
+		
+		do arrayOfUiComponents(key).render()
+	}
+]]></Implementation>
+</Method>
+
+<Method name="reorderProwebElements">
+<FormalSpec>orderedElementIds:%String</FormalSpec>
+<Implementation><![CDATA[
+	#dim key as %String = ""
+	#dim element as EF.pageController.element
+	#dim prowebItemID as %Integer
+	
+	set displayOrder = 0
+	for index = 1:1:$Length(orderedElementIds,"|") {
+		
+		set prowebItemID = $Piece(orderedElementIds,"|",index)
+		if $Length(prowebItemID) {
+			set displayOrder = displayOrder + 1
+			set prowebItems(prowebItemID) = displayOrder
+		}
+	}
+	
+	for {
+		set element = ..allPageElements.GetNext(.key)
+		if key = "" quit
+		if element.%Extends("EF.pageController.proweb.prowebBase") {
+			if $Data(prowebItems(element.prowebID)) {
+				set prowebElement = ##class(sc.objData).%OpenId(element.prowebID)
+				set prowebElement.displayOrder = prowebItems(element.prowebID)
+				do prowebElement.%Save()
+			}
+		}
+	}
+]]></Implementation>
+</Method>
+
+<Method name="copyAllDataToEComTemp">
+<Implementation><![CDATA[
+	#dim key as %String = ""
+	#dim element as EF.pageController.element
+	#dim prowebItemID as %Integer
+	#dim prowbItemName as %String
+	
+	for {
+		set element=..allPageElements.GetNext(.key)
+		if key="" quit
+		
+		if element.%IsA("EF.pageController.proweb.inputElement") {
+			set prowebItemID = element.prowebID
+			set prowbItemName = ##class(sc.xModules.objCODitem).getCODItemName(prowebItemID)
+			
+			if ( element.%IsA("EF.pageController.proweb.checkbox") ) && ( element.elementParent.elementChildren.Count() > 1 ) { // multi checkboxes only
+				if element.value = 1 {
+					set multiCheckboxData(prowbItemName, $I(multiCheckboxData(prowbItemName))) = element.description
+				}
+			} elseif ( element.%IsA("EF.pageController.proweb.datePicker") ) && ( element.elementParent.elementChildren.Count() = 2 ) { // date range
+				set startDate = element.elementParent.elementChildren.GetAt(1).value
+				set endDate = element.elementParent.elementChildren.GetAt(2).value
+				do ##class(eCom.tempCodData).set(..contextData.tempPersonID, prowbItemName, startDate_"|"_endDate )	
+			
+			} else {
+				do ##class(eCom.tempCodData).set(..contextData.tempPersonID, prowbItemName, element.value)	
+			}
+		}
+	}
+	do ..copyAndFormatMultiCheckboxData(.multiCheckboxData)
+]]></Implementation>
+</Method>
+
+<Method name="copyAndFormatMultiCheckboxData">
+<FormalSpec><![CDATA[&multiCheckboxData]]></FormalSpec>
+<Implementation><![CDATA[
+	set prowbItemName = ""
+	for {  
+		set prowbItemName = $Order(multiCheckboxData(prowbItemName))
+		if prowbItemName = "" quit
+		kill tmpArray
+		merge tmpArray=multiCheckboxData(prowbItemName)
+		
+		set value = ##class(cod.methods).formatMultiCheckBox(..contextData.eventID, prowbItemName, .tmpArray)
+		do ##class(eCom.tempCodData).set(..contextData.tempPersonID, prowbItemName, value, ..contextData.pageID, ..contextData.eventID)
+	}
+]]></Implementation>
+</Method>
+
+<Method name="debugTarget">
+<ClassMethod>1</ClassMethod>
+<Implementation><![CDATA[
+	#dim elementIdentifier as %String = "proweb-1"
+	#dim labelText as %String = "First Name"
+	#dim value as %String = "Elvis"
+	#dim element as EF.pageController.element
+	#dim page as EF.pageController.proweb.page
+	
+	set contextData = ##class(EF.contextDataRegistrationMock).createMock()
+	
+	set page=..createNew(contextData)
+	set element = page.addProwebTextInput(elementIdentifier, labelText, value)
+	do page.uiComponent.childComponents.SetAt(element.uiComponent,1)
+	set element.uiComponent.contextData = contextData
+	do page.render()
+]]></Implementation>
+</Method>
+
+<Storage name="Default">
+<Type>%Library.CacheStorage</Type>
+<DefaultData>pageDefaultData1</DefaultData>
+<Data name="pageDefaultData1">
+<Subscript>"page1"</Subscript>
+<Value name="1">
+<Value>floatingMenuCounter</Value>
+</Value>
+<Value name="2">
+<Value>prowebComponentName</Value>
+</Value>
+<Value name="3">
+<Value>contextData</Value>
+</Value>
+<Value name="4">
+<Value>prowebPageID</Value>
+</Value>
+</Data>
+</Storage>
+</Class>
+
+
+<Class name="EF.pageController.proweb.pageTestCase">
+<Super>EF.ISC.UnitTest.TestCase</Super>
+<TimeChanged>64204,52228.461918</TimeChanged>
+<TimeCreated>64189,44993.632692</TimeCreated>
+
+<Method name="TestEditModeHTML">
+<Implementation><![CDATA[
+	set floatingMenu = ##class(EF.ui.components.frontend.floatingMenu).%New()
+	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(floatingMenu,"outputFloatingMenuHTML")
+	set returnedHTML = $ZStrip(returnedHTML,"*WC")
+	set expectedHTML = "<divid=""myFloater""class=""containeref-proweb-menu-handlerow""style=""display:none;""><divclass=""dropdownef-proweb-dropdown""><aid=""efProwebHeader""role=""button""data-toggle=""dropdown""class=""btnbtn-primaryef-proweb-dropdown-button""data-target=""#""href=""/page.html"">DfeaultHeaderText<spanclass=""caret""></span></a><ulclass=""dropdown-menumulti-levelef-proweb-dropdown-sub""role=""menu""aria-labelledby=""dropdownMenu""><li><aid=""efProwebEditLink""href=""#"">Edit</a></li><li><aid=""efProwebDeleteLink""href=""#"">Delete</a></li><liclass=""divider""></li><liclass=""dropdown-submenu""><atabindex=""-1""href=""#"">InsertAbove</a><ulclass=""dropdown-menu""><li><aid=""efProwebInsertQuestionAboveLink""tabindex=""-1""href=""#"">Question</a></li><li><aid=""efProwebInsertDividerAboveLink""href=""#"">Divider</a></li><li><aid=""efProwebInsertTextBlockAboveLink""href=""#"">Textblock</a></li></ul></li><liclass=""dropdown-submenu""><atabindex=""-1""href=""#"">InsertBelow</a><ulclass=""dropdown-menu""><li><aid=""efProwebInsertQuestionBelowLink""tabindex=""-1""href=""#"">Question</a></li><li><aid=""efProwebInsertDividerBelowLink""href=""#"">Divider</a></li><li><aid=""efProwebInsertTextBlockBelowLink""href=""#"">Textblock</a></li></ul></li></ul></div></div>"
+	do $$$AssertEquals(returnedHTML,expectedHTML)
+]]></Implementation>
+</Method>
+
+<Method name="debugTarget">
+<ClassMethod>1</ClassMethod>
+<Implementation><![CDATA[
+	set contextData = ##class(EF.contextDataRegistrationMock).createMock()
+	set page= ##class(EF.pageController.proweb.page).createNew(contextData)
+	set element = ##class(EF.pageController.proweb.textInput).addElementToParent(page,"p-1","shoe",33, 0)
+	set element.uiComponent.contextData = contextData
+	do page.uiComponent.addChild(element.uiComponent)
+	do page.render()
+]]></Implementation>
+</Method>
+
+<Method name="TestGuestPromptsPanel">
+<Implementation><![CDATA[
+	#dim value as %String = ""
+	#dim element as EF.pageController.element
+	#dim page as EF.pageController.proweb.page
+	
+	set contextData = ##class(EF.contextDataRegistrationMock).createMock()
+	
+	set page= ##class(EF.pageController.proweb.page).createNew(contextData)
+	
+	
+	set element = ##class(EF.pageController.proweb.textInput).addElementToParent(page, "proweb-1", "Attendee First name", value, 0)
+	do page.uiComponent.addChild(element.uiComponent)
+	set element.uiComponent.contextData = contextData
+	set element.displayOrder = 1
+	
+	set element = ##class(EF.pageController.proweb.textInput).addElementToParent(page, "proweb-2", "Attendee Last name", value, 0)
+	do page.uiComponent.addChild(element.uiComponent)
+	set element.uiComponent.contextData = contextData
+	set element.displayOrder = 2
+	
+	set element = ##class(EF.pageController.proweb.textInput).addElementToParent(page, "proweb-3", "Guest First name", value, 0)
+	do page.uiComponent.addChild(element.uiComponent)
+	set element.uiComponent.contextData = contextData
+	set element.uiComponent.isGuest = 1
+	set element.displayOrder = 3
+	
+	set element = ##class(EF.pageController.proweb.textInput).addElementToParent(page, "proweb-4", "Guest Last name", value, 0)
+	do page.uiComponent.addChild(element.uiComponent)
+	set element.uiComponent.contextData = contextData
+	set element.uiComponent.isGuest = 1
+	set element.displayOrder = 4
+	
+	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(page,"renderProwebItemsForComponent")
+	set returnedHTML = $ZStrip(returnedHTML,"*WC")
+	set expectedHTML = "<divclass='rowef-proweb-form-row'><divclass='col-sm-4ef_proweb_form_prompt'><labelclass=""control-label""for=""proweb-1""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;AttendeeFirstname\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);"">AttendeeFirstname</label></div><divclass='col-sm-8ef_proweb_form_prompt'><inputtype=""text""class=""form-controlef-proweb-input-element""title=""""id=""proweb-1""name=""proweb-1""value=""""placeholder=""""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;AttendeeFirstname\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""></div></div><divclass='rowef-proweb-form-row'><divclass='col-sm-4ef_proweb_form_prompt'><labelclass=""control-label""for=""proweb-2""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;AttendeeLastname\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);"">AttendeeLastname</label></div><divclass='col-sm-8ef_proweb_form_prompt'><inputtype=""text""class=""form-controlef-proweb-input-element""title=""""id=""proweb-2""name=""proweb-2""value=""""placeholder=""""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;AttendeeLastname\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""></div></div><divclass=""ef-proweb-guest-panelef-draggable-div""><divclass=""panel-heading"">Guest</div><divclass=""panel-body""><divclass='rowef-proweb-form-row'><divclass='col-sm-4ef_proweb_form_prompt'><labelclass=""control-label""for=""proweb-3""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;GuestFirstname\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);"">GuestFirstname</label></div><divclass='col-sm-8ef_proweb_form_prompt'><inputtype=""text""class=""form-controlef-proweb-input-element""title=""""id=""proweb-3""name=""proweb-3""value=""""placeholder=""""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;GuestFirstname\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""></div></div><divclass='rowef-proweb-form-row'><divclass='col-sm-4ef_proweb_form_prompt'><labelclass=""control-label""for=""proweb-4""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;GuestLastname\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);"">GuestLastname</label></div><divclass='col-sm-8ef_proweb_form_prompt'><inputtype=""text""class=""form-controlef-proweb-input-element""title=""""id=""proweb-4""name=""proweb-4""value=""""placeholder=""""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;GuestLastname\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""></div></div></div></div>"
+	do $$$AssertEquals(returnedHTML,expectedHTML)
+]]></Implementation>
+</Method>
+</Class>
+
+
+<Class name="EF.pageController.proweb.panel">
+<Super>EF.pageController.containerElements.panel</Super>
+<TimeChanged>64204,36283.387705</TimeChanged>
+<TimeCreated>63372,47064.603748</TimeCreated>
+
+<Method name="getDefaultUIComponent">
+<ReturnType>EF.ui.components.container</ReturnType>
+<Implementation><![CDATA[	quit ##class(EF.ui.components.front.panel).%New(..identifier)
+]]></Implementation>
+</Method>
+
+<Storage name="Default">
+<Type>%Library.CacheStorage</Type>
+</Storage>
+</Class>
+
+
+<Class name="EF.pageController.proweb.phoneNumber">
+<Super>EF.pageController.proweb.textInput</Super>
+<TimeChanged>64197,58652.450875</TimeChanged>
+<TimeCreated>64189,53629.035726</TimeCreated>
+
+<Method name="getDefaultUIComponent">
+<ReturnType>EF.ui.components.inputBase</ReturnType>
+<Implementation><![CDATA[	quit ##class(EF.ui.components.frontend.phoneNumber).%New(..identifier)
+]]></Implementation>
+</Method>
+
+<Storage name="Default">
+<Type>%Library.CacheStorage</Type>
+</Storage>
+</Class>
+
+
+<Class name="EF.pageController.proweb.phoneNumberTestCase">
+<Super>EF.ISC.UnitTest.TestCase</Super>
+<TimeChanged>64204,51525.013742</TimeChanged>
+<TimeCreated>64204,51525.013742</TimeCreated>
+
+<Method name="TestPhoneNumber">
+<Implementation><![CDATA[
+	#dim elementIdentifier as %String = "proweb-1"
+	#dim labelText as %String = "phone number"
+	#dim value as %String = "020 76 88 32 38"
+	#dim element as EF.pageController.element
+	#dim page as EF.pageController.proweb.page
+	
+	set contextData = ##class(EF.contextDataRegistrationMock).createMock()
+	
+	set page= ##class(EF.pageController.proweb.page).createNew(contextData)
+	set element = ##class(EF.pageController.proweb.phoneNumber).addElementToParent(page, elementIdentifier, labelText, value, 0)
+	do page.uiComponent.addChild(element.uiComponent)
+	set element.uiComponent.contextData = contextData
+	
+	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(page,"render")
+	set returnedHTML = $ZStrip(returnedHTML,"*WC")
+	set expectedHTML = "<divclass='rowef-proweb-form-row'><divclass='col-sm-4ef_proweb_form_prompt'><labelclass=""control-label""for=""proweb-1""pattern=""^(?!(.*-(\s)*-.*))(?!(.*\.(\s)*\..*))(?=.*[\d\)](\s)*$)(?=.*(\d)+.*)(\+(\d){1,3}){0,1}(?=\s*([\d\(]).*)(([\d\s\-\.])|(\(([\d\-\.\s])+\)))*(\s)*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;phonenumber\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);"">phonenumber</label></div><divclass='col-sm-8ef_proweb_form_prompt'><inputtype=""tel""class=""form-controlef-proweb-input-element""title=""""id=""proweb-1""name=""proweb-1""value=""""placeholder=""""pattern=""^(?!(.*-(\s)*-.*))(?!(.*\.(\s)*\..*))(?=.*[\d\)](\s)*$)(?=.*(\d)+.*)(\+(\d){1,3}){0,1}(?=\s*([\d\(]).*)(([\d\s\-\.])|(\(([\d\-\.\s])+\)))*(\s)*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;phonenumber\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""></div></div>"
+	do $$$AssertEquals(returnedHTML,expectedHTML)
+]]></Implementation>
+</Method>
+</Class>
+
+
+
+
+<Class name="EF.pageController.proweb.prowebBase">
+<Super>EF.pageController.element</Super>
+<TimeChanged>64203,63285.186891</TimeChanged>
+<TimeCreated>64183,49747.663252</TimeCreated>
+
+<Parameter name="canBeDependent">
+<Type>%Boolean</Type>
+<Default>1</Default>
+</Parameter>
+
+<Property name="prowebID">
+<Type>%Integer</Type>
+</Property>
+
+<Storage name="Default">
+<Type>%Library.CacheStorage</Type>
+<DefaultData>prowebBaseDefaultData</DefaultData>
+<Data name="prowebBaseDefaultData">
+<Subscript>"prowebBase"</Subscript>
+<Value name="1">
+<Value>prowebID</Value>
+</Value>
+</Data>
+</Storage>
+</Class>
+
+
+<Class name="EF.pageController.proweb.radioButtons">
+<Super>EF.pageController.proweb.inputElement</Super>
+<TimeChanged>64202,37012.627519</TimeChanged>
+<TimeCreated>64189,53206.554402</TimeCreated>
+
+<Method name="getDefaultUIComponent">
+<ReturnType>EF.ui.components.backend.checkbox</ReturnType>
+<Implementation><![CDATA[	quit ##class(EF.ui.components.frontend.radioButtons).%New(..identifier)
+]]></Implementation>
+</Method>
+
+<Method name="addAlternative">
+<FormalSpec>value,description,isDefault=0</FormalSpec>
+<ReturnType>EF.ui.components.alternative</ReturnType>
+<Implementation><![CDATA[	return ..uiComponent.addAlternative(value,description,isDefault)
+]]></Implementation>
+</Method>
+
+<Storage name="Default">
+<Type>%Library.CacheStorage</Type>
+</Storage>
+</Class>
+
+
+<Class name="EF.pageController.proweb.radioButtonsTestCase">
+<Super>EF.ISC.UnitTest.TestCase</Super>
+<TimeChanged>64204,52140.010472</TimeChanged>
+<TimeCreated>64204,52140.010472</TimeCreated>
+
+<Method name="TestWithRadioButtons">
+<Implementation><![CDATA[
+	#dim element as EF.pageController.element
+	
+	set contextData = ##class(EF.contextDataRegistrationMock).createMock()
+	set page=##class(EF.pageController.proweb.page).createNew(contextData)
+	set elementIdentifier = "proweb-1"
+	set element = ##class(EF.pageController.proweb.radioButtons).addElementToParent(page, elementIdentifier,"diet","vegan")
+	do page.uiComponent.addChild(element.uiComponent)	
+	set alternative = element.addAlternative("meat","meat")
+	set alternative = element.addAlternative("vegetarian","vegetarian")
+	set alternative = element.addAlternative("vegan","vegan")
+	
+	do page.uiComponent.childComponents.SetAt(element.uiComponent,1)
+	set element.uiComponent.contextData = contextData
+	do element.updateUIComponent()
+	
+	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(page,"render")
+	set returnedHTML = $ZStrip(returnedHTML,"*WC")
+	set expectedHTML = "<divclass='rowef-proweb-form-row'><divclass='col-sm-4ef_proweb_form_prompt'><labelclass=""control-label""for=""proweb-1"">diet</label></div><divclass='col-sm-8ef_proweb_form_promptef-proweb-radio-group'><divclass=""btn-group""id=""proweb-1""data-toggle=""buttons""title=""""><divclass='col-sm-12ef-proweb-radio-button'><labelclass=""btnef-btn-defaultef-proweb-radio-button""id=""proweb-1_1-label""><inputtype=""radio""value=""meat""name=""proweb-1""id=""proweb-1_1"">&nbsp;meat</label></div><divclass='col-sm-12ef-proweb-radio-button'><labelclass=""btnef-btn-defaultef-proweb-radio-button""id=""proweb-1_2-label""><inputtype=""radio""value=""vegetarian""name=""proweb-1""id=""proweb-1_2"">&nbsp;vegetarian</label></div><divclass='col-sm-12ef-proweb-radio-button'><labelclass=""btnef-btn-defaultef-proweb-radio-buttonactive""id=""proweb-1_3-label""><inputtype=""radio""checkedvalue=""vegan""name=""proweb-1""id=""proweb-1_3"">&nbsp;vegan</label></div></div></div></div>"
+	do $$$AssertEquals(returnedHTML,expectedHTML)
+]]></Implementation>
+</Method>
+</Class>
+
+
+<Class name="EF.pageController.proweb.textArea">
+<Super>EF.pageController.proweb.inputElement</Super>
+<TimeChanged>64201,42310.34868</TimeChanged>
+<TimeCreated>63403,57168.063256</TimeCreated>
+
+<Method name="getDefaultUIComponent">
+<ReturnType>EF.ui.components.inputBase</ReturnType>
+<Implementation><![CDATA[	quit ##class(EF.ui.components.frontend.textArea).%New(..identifier)
+]]></Implementation>
+</Method>
+
+<Method name="updateValue">
+<FormalSpec>value</FormalSpec>
+<Implementation><![CDATA[	set ..value=$ZSTRIP(value,"<>W")
+]]></Implementation>
+</Method>
+
+<Storage name="Default">
+<Type>%Library.CacheStorage</Type>
+</Storage>
+</Class>
+
+
+<Class name="EF.pageController.proweb.textAreaTestCase">
+<Super>EF.ISC.UnitTest.TestCase</Super>
+<TimeChanged>64204,51564.918608</TimeChanged>
+<TimeCreated>64204,51564.918608</TimeCreated>
+
+<Method name="TestTextArea">
+<Implementation><![CDATA[
+	#dim elementIdentifier as %String = "proweb-1"
+	#dim labelText as %String = "write an essay here"
+	#dim value as %String = "lorem ipsum"
+	#dim element as EF.pageController.element
+	#dim page as EF.pageController.proweb.page
+	
+	set contextData = ##class(EF.contextDataRegistrationMock).createMock()
+	
+	set page= ##class(EF.pageController.proweb.page).createNew(contextData)
+	set element = ##class(EF.pageController.proweb.textArea).addElementToParent(page, elementIdentifier, labelText, value, 0)
+	do page.uiComponent.addChild(element.uiComponent)
+	set element.uiComponent.contextData = contextData
+	
+	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(page,"render")
+	set returnedHTML = $ZStrip(returnedHTML,"*WC")
+	set expectedHTML = "<divclass='rowef-proweb-form-row'><divclass='col-sm-4ef_proweb_form_prompt'><labelclass=""control-label""for=""proweb-1"">writeanessayhere</label></div><divclass='col-sm-8ef_proweb_form_prompt'><textareatype=""text""class=""form-controlef-proweb-input-element""title=""""id=""proweb-1""name=""proweb-1""placeholder=""""></textArea></div></div>"
+	do $$$AssertEquals(returnedHTML,expectedHTML)
+]]></Implementation>
+</Method>
+</Class>
+
+
+<Class name="EF.pageController.proweb.textBlock">
+<Super>EF.pageController.proweb.prowebBase</Super>
+<TimeChanged>64197,56479.383488</TimeChanged>
+<TimeCreated>64183,49747.663252</TimeCreated>
+
+<Method name="getDefaultUIComponent">
+<ReturnType>EF.ui.components.base</ReturnType>
+<Implementation><![CDATA[	quit ##class(EF.ui.components.frontend.textBlock).%New(..identifier)
+]]></Implementation>
+</Method>
+
+<Method name="initialiseUIComponent">
+<FormalSpec>uiComponent:EF.ui.components.inputBase</FormalSpec>
+<Implementation><![CDATA[
+	do ##super(uiComponent)
+	set ..uiComponent.text=..description
+]]></Implementation>
+</Method>
+
+<Storage name="Default">
+<Type>%Library.CacheStorage</Type>
+</Storage>
+</Class>
+
+
+<Class name="EF.pageController.proweb.textBlockTestCase">
+<Super>EF.ISC.UnitTest.TestCase</Super>
+<TimeChanged>64204,51990.179803</TimeChanged>
+<TimeCreated>64204,51990.179803</TimeCreated>
+
+<Method name="TestBasicPageWithTextBlock">
+<Implementation><![CDATA[
+	set contextData = ##class(EF.contextDataRegistrationMock).createMock()
+	set page=##class(EF.pageController.proweb.page).createNew(contextData)
+	set elementIdentifier = "proweb-1"
+	
+	set element = ##class(EF.pageController.proweb.textBlock).addElementToParent(page, elementIdentifier, "lorem ipsum")
+	do page.uiComponent.addChild(element.uiComponent)
+	set element.uiComponent.contextData = contextData
+	
+	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(page,"render")
+	set returnedHTML = $ZStrip(returnedHTML,"*WC")
+	set expectedHTML = "<divclass='rowef-proweb-form-row'><divclass='col-sm-12'><div>loremipsum</div></div></div>"
+	do $$$AssertEquals(returnedHTML,expectedHTML)
+]]></Implementation>
+</Method>
+</Class>
+
+
+<Class name="EF.pageController.proweb.textInput">
+<Super>EF.pageController.proweb.inputElement</Super>
+<TimeChanged>64197,58681.00979</TimeChanged>
+<TimeCreated>64189,53629.035726</TimeCreated>
+
+<Method name="getDefaultUIComponent">
+<ReturnType>EF.ui.components.inputBase</ReturnType>
+<Implementation><![CDATA[	quit ##class(EF.ui.components.frontend.textInput).%New(..identifier)
+]]></Implementation>
+</Method>
+
+<Method name="updateValue">
+<FormalSpec>value</FormalSpec>
+<Implementation><![CDATA[	set ..value=$ZSTRIP(value,"<>W")
+]]></Implementation>
+</Method>
+
+<Storage name="Default">
+<Type>%Library.CacheStorage</Type>
+</Storage>
+</Class>
+
+
+<Class name="EF.pageController.proweb.textInputTestCase">
+<Super>EF.ISC.UnitTest.TestCase</Super>
+<TimeChanged>64204,51464.150243</TimeChanged>
+<TimeCreated>64204,51464.150243</TimeCreated>
+
+<Method name="TestbasicInputField">
+<Implementation><![CDATA[
+	#dim elementIdentifier as %String = "proweb-1"
+	#dim labelText as %String = "First Name"
+	#dim value as %String = "Elvis"
+	#dim element as EF.pageController.element
+	#dim page as EF.pageController.proweb.page
+	
+	set contextData = ##class(EF.contextDataRegistrationMock).createMock()
+	
+	set page= ##class(EF.pageController.proweb.page).createNew(contextData)
+	set element = ##class(EF.pageController.proweb.textInput).addElementToParent(page, elementIdentifier, labelText, value, 0)
+	do page.uiComponent.addChild(element.uiComponent)
+	set element.uiComponent.contextData = contextData
+	
+	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(page,"render")
+	set returnedHTML = $ZStrip(returnedHTML,"*WC")
+	set expectedHTML = "<divclass='rowef-proweb-form-row'><divclass='col-sm-4ef_proweb_form_prompt'><labelclass=""control-label""for=""proweb-1""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;FirstName\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);"">FirstName</label></div><divclass='col-sm-8ef_proweb_form_prompt'><inputtype=""text""class=""form-controlef-proweb-input-element""title=""""id=""proweb-1""name=""proweb-1""value=""""placeholder=""""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;FirstName\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""></div></div>"
+	do $$$AssertEquals(returnedHTML,expectedHTML)
+]]></Implementation>
+</Method>
+
+<Method name="TestBasicPageWithMandatoryTextField">
+<Implementation><![CDATA[
+	set contextData = ##class(EF.contextDataRegistrationMock).createMock()
+	set page=##class(EF.pageController.proweb.page).createNew(contextData)
+	set elementIdentifier = "proweb-1"
+	set element = ##class(EF.pageController.proweb.textInput).addElementToParent(page, elementIdentifier, "First Name", "Elvis", 0)
+
+	set element.displayOrder = 1
+	do page.uiComponent.addChild(element.uiComponent)
+	set element.uiComponent.contextData = contextData
+	set element.uiComponent.isMandatory = 1
+	
+	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(page,"render")
+	set returnedHTML = $ZStrip(returnedHTML,"*WC")
+	set expectedHTML = "<divclass='rowef-proweb-form-row'><divclass='col-sm-4ef_proweb_form_promptef-required-field'><labelclass=""control-label""for=""proweb-1""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;FirstName\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);"">FirstName</label></div><divclass='col-sm-8ef_proweb_form_prompt'><inputtype=""text""class=""form-controlef-proweb-input-element""title=""""id=""proweb-1""name=""proweb-1""value=""""placeholder=""""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;FirstName\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""></div></div>"
+	do $$$AssertEquals(returnedHTML,expectedHTML)
+]]></Implementation>
+</Method>
+</Class>
+
+
+<Class name="EF.pageController.proweb.timeInput">
+<Super>EF.pageController.proweb.textInput</Super>
+<TimeChanged>64198,33582.083553</TimeChanged>
+<TimeCreated>64189,53629.035726</TimeCreated>
+
+<Method name="getDefaultUIComponent">
+<ReturnType>EF.ui.components.inputBase</ReturnType>
+<Implementation><![CDATA[	quit ##class(EF.ui.components.frontend.timeInput).%New(..identifier)
+]]></Implementation>
+</Method>
+
+<Storage name="Default">
+<Type>%Library.CacheStorage</Type>
+</Storage>
+</Class>
+
+
+<Class name="EF.pageController.proweb.timeInputTestCase">
+<Super>EF.ISC.UnitTest.TestCase</Super>
+<TimeChanged>64204,51756.821561</TimeChanged>
+<TimeCreated>64204,51756.821561</TimeCreated>
+
+<Method name="TestTime">
+<Implementation><![CDATA[
+	#dim elementIdentifier as %String = "proweb-1"
+	#dim labelText as %String = "time"
+	#dim value as %String = "14:23"
+	#dim element as EF.pageController.element
+	#dim page as EF.pageController.proweb.page
+	
+	set contextData = ##class(EF.contextDataRegistrationMock).createMock()
+	
+	set page= ##class(EF.pageController.proweb.page).createNew(contextData)
+	set element = ##class(EF.pageController.proweb.timeInput).addElementToParent(page, elementIdentifier, labelText, value, 0)
+	do page.uiComponent.addChild(element.uiComponent)
+	set element.uiComponent.contextData = contextData
+	
+	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(page,"render")
+	set returnedHTML = $ZStrip(returnedHTML,"*WC")
+	set expectedHTML = "<divclass='rowef-proweb-form-row'><divclass='col-sm-4ef_proweb_form_prompt'><labelclass=""control-label""for=""proweb-1"">time</label></div><divclass='col-sm-8ef_proweb_form_prompt'><divclass=""ef_proweb_form_field_container_type_timeef-proweb-input-element-short""><inputtype=""text""class=""form-controlef-proweb-input-elementefTimePicker""title=""""id=""proweb-1""name=""proweb-1""value=""""placeholder=""HH:MM24hour""efKendoTimeFormat=""24""efKendoTimeInterval=15></div></div></div>"
+	do $$$AssertEquals(returnedHTML,expectedHTML)
+]]></Implementation>
+</Method>
+</Class>
+
+
+<Class name="EF.pageController.proweb.webAddress">
+<Super>EF.pageController.proweb.textInput</Super>
+<TimeChanged>64198,62804.621561</TimeChanged>
+<TimeCreated>64189,53629.035726</TimeCreated>
+
+<Method name="getDefaultUIComponent">
+<ReturnType>EF.ui.components.inputBase</ReturnType>
+<Implementation><![CDATA[	quit ##class(EF.ui.components.frontend.webAddress).%New(..identifier)
+]]></Implementation>
+</Method>
+
+<Storage name="Default">
+<Type>%Library.CacheStorage</Type>
+</Storage>
+</Class>
+
+
+<Class name="EF.pageController.proweb.webAddressTestCase">
+<Super>EF.ISC.UnitTest.TestCase</Super>
+<TimeChanged>64204,51635.119213</TimeChanged>
+<TimeCreated>64204,51604.334511</TimeCreated>
+
+<Method name="TestWebAddress">
+<Implementation><![CDATA[
+	#dim elementIdentifier as %String = "proweb-1"
+	#dim labelText as %String = "your website"
+	#dim value as %String = "http://www.bbc.com"
+	#dim element as EF.pageController.element
+	#dim page as EF.pageController.proweb.page
+	
+	set contextData = ##class(EF.contextDataRegistrationMock).createMock()
+	
+	set page= ##class(EF.pageController.proweb.page).createNew(contextData)
+	set element = ##class(EF.pageController.proweb.webAddress).addElementToParent(page, elementIdentifier, labelText, value, 0)
+	do page.uiComponent.addChild(element.uiComponent)
+	set element.uiComponent.contextData = contextData
+	
+	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(page,"render")
+	set returnedHTML = $ZStrip(returnedHTML,"*WC")
+	set expectedHTML = "<divclass='rowef-proweb-form-row'><divclass='col-sm-4ef_proweb_form_prompt'><labelclass=""control-label""for=""proweb-1""pattern=""^(?:https?:\/\/)?(?:\S+(?::\S*)?@)?(?:(?:[1-9]\d?|1\d\d|2[01]\d|22[0-3])(?:\.(?:1?\d{1,2}|2[0-4]\d|25[0-5])){2}(?:\.(?:[1-9]\d?|1\d\d|2[0-4]\d|25[0-4]))|(?:(?:[a-z\u00a1-\uffff0-9]+-?)*[a-z\u00a1-\uffff0-9]+)(?:\.(?:[a-z\u00a1-\uffff0-9]+-?)*[a-z\u00a1-\uffff0-9]+)*(?:\.(?:[a-z\u00a1-\uffff]{2,})))(?::\d{2,5})?(?:\/.*)?$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;yourwebsite\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);"">yourwebsite</label></div><divclass='col-sm-8ef_proweb_form_prompt'><inputtype=""url""class=""form-controlef-proweb-input-element""title=""""id=""proweb-1""name=""proweb-1""value=""""placeholder=""""pattern=""^(?:https?:\/\/)?(?:\S+(?::\S*)?@)?(?:(?:[1-9]\d?|1\d\d|2[01]\d|22[0-3])(?:\.(?:1?\d{1,2}|2[0-4]\d|25[0-5])){2}(?:\.(?:[1-9]\d?|1\d\d|2[0-4]\d|25[0-4]))|(?:(?:[a-z\u00a1-\uffff0-9]+-?)*[a-z\u00a1-\uffff0-9]+)(?:\.(?:[a-z\u00a1-\uffff0-9]+-?)*[a-z\u00a1-\uffff0-9]+)*(?:\.(?:[a-z\u00a1-\uffff]{2,})))(?::\d{2,5})?(?:\/.*)?$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;yourwebsite\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""></div></div>"
+	do $$$AssertEquals(returnedHTML,expectedHTML)
+]]></Implementation>
+</Method>
+</Class>
+</Export>

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2015.2 (Build 664_3_16032U)" ts="2016-10-13 15:45:12">
+<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2015.2 (Build 664_3_16032U)" ts="2016-10-13 18:43:06">
 <Class name="EF.contextDataRegistration">
 <Description><![CDATA[
 <!-- ;vc;-
@@ -1670,7 +1670,7 @@ Should be run if any of the sub-classes are deleted</Description>
 
 <Class name="EF.pageController.proweb.page">
 <Super>EF.pageController.page</Super>
-<TimeChanged>64204,56682.482153</TimeChanged>
+<TimeChanged>64204,67150.280416</TimeChanged>
 <TimeCreated>64189,51696.559047</TimeCreated>
 
 <Property name="contextData">
@@ -1681,7 +1681,12 @@ Should be run if any of the sub-classes are deleted</Description>
 <Type>%Integer</Type>
 </Property>
 
-<Property name="listOfElementsSorted">
+<Property name="listOfUiComponentsSorted">
+<Type>EF.pageController.proweb.prowebBase</Type>
+<Collection>list</Collection>
+</Property>
+
+<Property name="listOfGuestUiComponents">
 <Type>EF.pageController.proweb.prowebBase</Type>
 <Collection>list</Collection>
 </Property>
@@ -1889,6 +1894,9 @@ Should be run if any of the sub-classes are deleted</Description>
 	}
 	
 	set element.uiComponent.isGuest = prowebItem.isGuest
+	if prowebItem.isGuest {
+		set element.uiComponent.guestID = 1	
+	}
 	set element.uiComponent.helpText = prowebItem.helpText	
 	set element.prowebID = prowebItem.%Id()
 
@@ -1965,6 +1973,7 @@ this method needs rewriting when the arrayOfUiComponents become a list instead o
 <Implementation><![CDATA[
 	
 	do ..getAllElementsReordered()
+	do ..repeatAnyGuestQuestions()
 	do ..insertPanelElementsAroundGuestQuestions()
 	do ..renderElements()
 ]]></Implementation>
@@ -1996,8 +2005,61 @@ this method needs rewriting when the arrayOfUiComponents become a list instead o
 		set key = $Order(sparseArrayOfUiComponents(key))
 		if key="" quit
 		
-		set element = sparseArrayOfUiComponents(key)
-		do ..listOfElementsSorted.Insert(element)
+		set uiComponent = sparseArrayOfUiComponents(key)
+		do ..listOfUiComponentsSorted.Insert(uiComponent)
+	}
+]]></Implementation>
+</Method>
+
+<Method name="repeatAnyGuestQuestions">
+<Private>1</Private>
+<Implementation><![CDATA[
+	#dim key as %String = ""
+	#dim lastUsedKey as %String = ""
+	#dim uiComponent as EF.ui.components.base
+	#dim positionOfNextNonGuestQuestion as %Integer = 0
+	#dim hasFoundGuestUiComponent as %Boolean = 0
+	#dim eventConfiguration as setup.eventConfiguration
+	
+	set eventConfiguration = ##class(setup.eventConfiguration).createForEventID(..contextData.eventID)
+
+	for  {
+		set uiComponent = ..listOfUiComponentsSorted.GetNext(.key)
+		if key="" quit
+		set lastUsedKey = key
+		
+		if (uiComponent.%Extends("EF.ui.components.frontend.inputElement")) && (uiComponent.isGuest = 1)  {
+			do ..listOfGuestUiComponents.Insert(uiComponent)
+			set hasFoundGuestUiComponent = 1
+		} 
+		
+		if (uiComponent.%Extends("EF.ui.components.frontend.inputElement")) && (uiComponent.isGuest = 0) && (hasFoundGuestUiComponent = 1) {
+			set hasFoundGuestUiComponent = 0
+			set positionOfNextNonGuestQuestion = lastUsedKey
+		}
+		if (uiComponent.%Extends("EF.ui.components.frontend.divider")) && (hasFoundGuestUiComponent = 1) {
+			set hasFoundGuestUiComponent = 0
+			set positionOfNextNonGuestQuestion = lastUsedKey
+		}
+
+	}
+	if 'positionOfNextNonGuestQuestion {
+		set positionOfNextNonGuestQuestion = lastUsedKey
+	}
+	
+	for guestNumber = 2:1:eventConfiguration.getMaxGuestsPerAttendee() {
+		for  {
+			set uiComponent = ..listOfGuestUiComponents.GetNext(.key)
+			if key="" quit
+			
+			set newUiComponent = uiComponent.%ConstructClone(0)
+			set newUiComponent.guestID = guestNumber
+			
+			do ..listOfUiComponentsSorted.InsertAt(newUiComponent, positionOfNextNonGuestQuestion)
+			
+			set positionOfNextNonGuestQuestion = positionOfNextNonGuestQuestion + 1
+			kill uiComponent
+		}
 	}
 ]]></Implementation>
 </Method>
@@ -2008,30 +2070,38 @@ this method needs rewriting when the arrayOfUiComponents become a list instead o
 	#dim key as %String = ""
 	#dim lastUsedKey as %String = ""
 	#dim uiComponent as EF.ui.components.base
-	#dim hasFoundGuestUiComponent as %Boolean = 0
+	#dim currentGuestID as %Boolean = 0
 
 	for  {
-		set uiComponent = ..listOfElementsSorted.GetNext(.key)
+		set uiComponent = ..listOfUiComponentsSorted.GetNext(.key)
 		if key="" quit
 		set lastUsedKey = key
+		if (uiComponent.%Extends("EF.ui.components.frontend.inputElement")) 
 		
-		if (uiComponent.%Extends("EF.ui.components.frontend.inputElement")) && (uiComponent.isGuest = 1) && (hasFoundGuestUiComponent = 0) {
-			set hasFoundGuestUiComponent = 1
+		if (uiComponent.%Extends("EF.ui.components.frontend.inputElement")) && (uiComponent.isGuest = 1) && (currentGuestID = 0) {
+			set currentGuestID = uiComponent.guestID
 			do ..insertUiComponentForGuestPanel(key, "opening")
 		}
 
-		if (uiComponent.%Extends("EF.ui.components.frontend.inputElement")) && (uiComponent.isGuest = 0) && (hasFoundGuestUiComponent = 1) {
-			set hasFoundGuestUiComponent = 0
-			do ..insertUiComponentForGuestPanel(key, "closing") w "<br>no guest question closer"
+		if (uiComponent.%Extends("EF.ui.components.frontend.inputElement")) && ( uiComponent.isGuest = 0) && (currentGuestID) {
+			set currentGuestID = 0
+			do ..insertUiComponentForGuestPanel(key, "closing") 
 		}
-		if (uiComponent.%Extends("EF.ui.components.frontend.divider")) && (hasFoundGuestUiComponent = 1) {
-			set hasFoundGuestUiComponent = 0
-			do ..insertUiComponentForGuestPanel(key, "closing") w "<br>divider closer"
+		
+		if (uiComponent.%Extends("EF.ui.components.frontend.inputElement")) && (uiComponent.isGuest = 1) && (+uiComponent.guestID '= +currentGuestID) {
+			set currentGuestID = 0
+			do ..insertUiComponentForGuestPanel(key, "closing") 
 		}
-	}
 
-	if hasFoundGuestUiComponent {
-		do ..insertUiComponentForGuestPanel(lastUsedKey+1, "closing") w "<br>end of page closer"
+		if (uiComponent.%Extends("EF.ui.components.frontend.divider")) && (currentGuestID) {
+			set currentGuestID = 0
+			do ..insertUiComponentForGuestPanel(key, "closing") 
+		}
+		
+	}
+	
+	if currentGuestID {
+		do ..insertUiComponentForGuestPanel(lastUsedKey+1, "closing") 
 	}
 ]]></Implementation>
 </Method>
@@ -2045,15 +2115,15 @@ this method needs rewriting when the arrayOfUiComponents become a list instead o
 	
 	set uiComponentForPanel = ##class(EF.ui.components.frontend.panel).%New("GuestPanel-"_insertPosition)
 	set uiComponentForPanel.isOpeningOrClosing = openOrClose
-	do ..listOfElementsSorted.InsertAt(uiComponentForPanel, insertPosition)
+	do ..listOfUiComponentsSorted.InsertAt(uiComponentForPanel, insertPosition)
 ]]></Implementation>
 </Method>
 
 <Method name="renderElements">
 <Private>1</Private>
 <Implementation><![CDATA[
-	for position = 1:1:..listOfElementsSorted.Count() {
-		do ..listOfElementsSorted.GetAt(position).render()		
+	for position = 1:1:..listOfUiComponentsSorted.Count() {
+		do ..listOfUiComponentsSorted.GetAt(position).render()		
 	}
 ]]></Implementation>
 </Method>
@@ -2175,7 +2245,10 @@ this method needs rewriting when the arrayOfUiComponents become a list instead o
 <Value>prowebPageID</Value>
 </Value>
 <Value name="5">
-<Value>listOfElementsSorted</Value>
+<Value>listOfUiComponentsSorted</Value>
+</Value>
+<Value name="6">
+<Value>listOfGuestUiComponents</Value>
 </Value>
 </Data>
 </Storage>
@@ -4193,7 +4266,7 @@ this is for version 1 of proweb</Description>
 
 <Class name="EF.ui.components.frontend.inputElement">
 <Super>EF.ui.components.frontend.prowebBase,EF.ui.components.inputBase</Super>
-<TimeChanged>64204,48766.877325</TimeChanged>
+<TimeChanged>64204,67050.304134</TimeChanged>
 <TimeCreated>64183,40678.260093</TimeCreated>
 
 <Property name="alternatives">
@@ -4207,6 +4280,12 @@ this is for version 1 of proweb</Description>
 
 <Property name="isGuest">
 <Type>%Boolean</Type>
+</Property>
+
+<Property name="guestID">
+<Description>
+used to keep the multiple guests apart</Description>
+<Type>%Integer</Type>
 </Property>
 
 <Property name="helpText">

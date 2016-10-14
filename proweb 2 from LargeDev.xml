@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2015.2 (Build 664_3_16032U)" ts="2016-10-14 11:56:44">
+<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2015.2 (Build 664_3_16032U)" ts="2016-10-14 17:35:08">
 <Class name="EF.contextDataRegistration">
 <Description><![CDATA[
 <!-- ;vc;-
@@ -1437,40 +1437,6 @@ Should be run if any of the sub-classes are deleted</Description>
 </Class>
 
 
-<Class name="EF.pageController.proweb.checkboxGroupTestCase">
-<Super>EF.ISC.UnitTest.TestCase</Super>
-<TimeChanged>64204,52190.845512</TimeChanged>
-<TimeCreated>64204,52190.845512</TimeCreated>
-
-<Method name="TestWithMulticheckboxNoneSelected">
-<Implementation><![CDATA[
-	#dim element as EF.pageController.element
-	
-	set contextData = ##class(EF.contextDataRegistrationMock).createMock()
-	set page=##class(EF.pageController.proweb.page).createNew(contextData)
-	set elementIdentifier = "proweb-1"
-	
-	set element = ##class(EF.pageController.proweb.checkboxGroup).addElementToParent(page, elementIdentifier,"diet","")
-	do page.uiComponent.addChild(element.uiComponent)	
-
-	set childController = element.addProwebCheckbox(element, elementIdentifier_"-"_1, "meat", 0)
-	set childController = element.addProwebCheckbox(element, elementIdentifier_"-"_2, "vegetarian", 0)
-	set childController = element.addProwebCheckbox(element, elementIdentifier_"-"_3, "vegan", 0)
-	set childController = element.addProwebCheckbox(element, elementIdentifier_"-"_4, "fish", 0)
-	
-	do page.uiComponent.childComponents.SetAt(element.uiComponent,1)
-	set element.uiComponent.contextData = contextData
-	do element.updateUIComponent()
-	
-	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(page,"render")
-	set returnedHTML = $ZStrip(returnedHTML,"*WC")
-	set expectedHTML = "<divclass='rowef-proweb-form-row'><divclass='col-sm-4ef_proweb_form_prompt'><labelclass=""control-label""for=""proweb-1"">diet</label></div><divclass='col-sm-8ef_proweb_form_prompt'><divclass=""form-group""><divclass=""inputs-listef-proweb-input-elementef-proweb-checkboxGroup""><label><inputtype=""checkbox""value=""1""id=""proweb-1-1""class=""""name=""proweb-1-1""title="""">meat</label><br/><label><inputtype=""checkbox""value=""1""id=""proweb-1-2""class=""""name=""proweb-1-2""title="""">vegetarian</label><br/><label><inputtype=""checkbox""value=""1""id=""proweb-1-3""class=""""name=""proweb-1-3""title="""">vegan</label><br/><label><inputtype=""checkbox""value=""1""id=""proweb-1-4""class=""""name=""proweb-1-4""title="""">fish</label><br/></div></div></div></div>"
-	do $$$AssertEquals(returnedHTML,expectedHTML)
-]]></Implementation>
-</Method>
-</Class>
-
-
 <Class name="EF.pageController.proweb.datePicker">
 <Super>EF.pageController.proweb.inputElement</Super>
 <TimeChanged>64202,34967.838153</TimeChanged>
@@ -1687,7 +1653,7 @@ Should be run if any of the sub-classes are deleted</Description>
 
 <Class name="EF.pageController.proweb.page">
 <Super>EF.pageController.page</Super>
-<TimeChanged>64205,42794.672137</TimeChanged>
+<TimeChanged>64205,63239.164381</TimeChanged>
 <TimeCreated>64189,51696.559047</TimeCreated>
 
 <Property name="contextData">
@@ -1717,9 +1683,13 @@ Should be run if any of the sub-classes are deleted</Description>
 <Implementation><![CDATA[
 	set ..contextData.prowebFloatingMenuCounter = 100 // offset to keep them separate from the include pages' counters
 	do ..loadData()
-	if ..contextData.%IsA("EF.contextDataRegistration") {
-		do ..insertAllProwebItems() 
-	}
+	
+	do ..insertAllProwebItems() 
+	
+	do ..populateListOfControllerIDsSorted()
+	do ..repeatAnyGuestQuestions()
+	do ..insertPanelElementsAroundGuestQuestions()
+
 	do ..updateUIComponents()
 ]]></Implementation>
 </Method>
@@ -1901,8 +1871,9 @@ Should be run if any of the sub-classes are deleted</Description>
 	
 	set element.uiComponent.isGuest = prowebItem.isGuest
 	if prowebItem.isGuest {
-		set element.guestNumber = 1	
-		set element.uiComponent.guestNumber = 1	
+		set element.guestNumber = optionalGuestNumber	
+		set element.isGuest = 1
+		set element.uiComponent.guestNumber = optionalGuestNumber	
 	}
 	set element.uiComponent.helpText = prowebItem.helpText	
 	set element.prowebID = prowebItem.%Id()
@@ -1941,7 +1912,22 @@ Should be run if any of the sub-classes are deleted</Description>
 			return rsTemps.Get("ID")
 		}
 	}
-	return ""
+	return ..createNewTempPersonForGuest()
+]]></Implementation>
+</Method>
+
+<Method name="createNewTempPersonForGuest">
+<ReturnType>%Integer</ReturnType>
+<Implementation><![CDATA[
+	#define notBooker 0
+	#define notDelegate 0
+	#define isGuest 1
+	
+	set tempPersonGuestID = ##class(eCom.tempPerson).add(%session.%Id(), $$$notBooker, $$$notDelegate, $$$isGuest, ..contextData.tempPersonID)
+	if 'tempPersonGuestID {
+		throw ##class(shared.exceptions.generalException).%New("Failed to create a new tempPerson for guest")
+	}
+	return tempPersonGuestID
 ]]></Implementation>
 </Method>
 
@@ -2054,17 +2040,11 @@ Should be run if any of the sub-classes are deleted</Description>
 <Method name="renderProwebItemsForComponent">
 <Description>
 this method needs rewriting when the arrayOfUiComponents become a list instead of an array</Description>
-<Implementation><![CDATA[
-	do ..populatelistOfControllerIDsSorted()
-	;if 'reloadingPage ( // ######################################
-	do ..repeatAnyGuestQuestions()
-	do ..insertPanelElementsAroundGuestQuestions()
-	do ..renderElements()
+<Implementation><![CDATA[	do ..renderElements()
 ]]></Implementation>
 </Method>
 
-<Method name="populatelistOfControllerIDsSorted">
-<Private>1</Private>
+<Method name="populateListOfControllerIDsSorted">
 <Implementation><![CDATA[
 	#dim controller as EF.pageController.element
 	#dim sparseArrayOfControllers
@@ -2072,18 +2052,15 @@ this method needs rewriting when the arrayOfUiComponents become a list instead o
 	for {
 		set controller=..allPageElements.GetNext(.key)
 		if key="" quit
-		
+
 		if controller.%Extends("EF.pageController.proweb.prowebBase") {
-			
 			set elementListID = controller.prowebListID
 			set componentListID = ##class(sc.xModules.objList).getListIDFromPageIDAndComponentName(..contextData.pageID, ..contextData.prowebComponentName)
-					
-			if (elementListID = componentListID) && ('controller.%IsA("EF.pageController.proweb.page")) {
-				if controller.displayOrder = "" {
-					throw ##class(shared.exceptions.generalException).%New("No displayOrder defined for element: "_controller)	
-				}
-				set sparseArrayOfControllers(controller.displayOrder) = controller.identifier	
+
+			if controller.displayOrder = "" {
+				throw ##class(shared.exceptions.generalException).%New("No displayOrder defined for element: "_controller)	
 			}
+			set sparseArrayOfControllers(controller.displayOrder) = controller.identifier	
 		}
 	}
 	
@@ -2098,7 +2075,6 @@ this method needs rewriting when the arrayOfUiComponents become a list instead o
 </Method>
 
 <Method name="repeatAnyGuestQuestions">
-<Private>1</Private>
 <Implementation><![CDATA[
 	do ..findAllGuestQuestions()
 	do ..insertOneSetOfQuestionsPerGuest()
@@ -2118,6 +2094,7 @@ this method needs rewriting when the arrayOfUiComponents become a list instead o
 	for  {
 		set controllerID = ..listOfControllerIDsSorted.GetNext(.key)
 		if key="" quit
+
 		set lastUsedKey = key
 		set controller = ..getElementByIdentifier(controllerID)
 
@@ -2151,8 +2128,12 @@ this method needs rewriting when the arrayOfUiComponents become a list instead o
 	#dim key as %Integer = ""
 	#dim controller as EF.pageController.element
 	#dim eventConfiguration as setup.eventConfiguration = ##class(setup.eventConfiguration).createForEventID(..contextData.eventID)
+	#dim maxGuests as %Integer = eventConfiguration.getMaxGuestsPerAttendee()
 	
-	for guestNumber = 2:1:eventConfiguration.getMaxGuestsPerAttendee() {
+	if ..contextData.%IsA("EF.contextDataRegistrationMock") { // #################
+		set maxGuests = 2	
+	}
+	for guestNumber = 2:1:maxGuests {
 	
 		for  {
 			set controllerID = ..listOfGuestControllerIDs.GetNext(.key)
@@ -2161,13 +2142,11 @@ this method needs rewriting when the arrayOfUiComponents become a list instead o
 			
 			set newController = ..getNewElementForQuestion(controller.uiComponent.prowebItem, guestNumber)
 			
-			set newController.guestNumber = guestNumber
 			set newController.displayOrder = ..positionOfNextNonGuestQuestion
 			set newController.uiComponent.isProwebEditMode = (..contextData.prowebMode = "edit")
 			set newController.uiComponent.prowebItem = controller.uiComponent.prowebItem
 			set newController.uiComponent.contextData = ..contextData
 			set newController.prowebListID = controller.prowebListID
-			set newController.prowebID = controller.prowebID
 						
 			do ..listOfControllerIDsSorted.InsertAt(newController.identifier, ..positionOfNextNonGuestQuestion) 
 			
@@ -2179,7 +2158,6 @@ this method needs rewriting when the arrayOfUiComponents become a list instead o
 </Method>
 
 <Method name="insertPanelElementsAroundGuestQuestions">
-<Private>1</Private>
 <Implementation><![CDATA[
 	#dim key as %Integer = ""
 	#dim lastUsedKey as %String = ""
@@ -2231,11 +2209,15 @@ this method needs rewriting when the arrayOfUiComponents become a list instead o
 <Implementation><![CDATA[
 	#dim controllerForPanel as EF.pageController.proweb.panel
 	
-	set controllerForPanel = ##class(panel).addElementToParent($this, "GuestPanel-"_insertPosition, "")
-	set controllerForPanel.isOpeningOrClosing = openOrClose
-	set controllerForPanel.uiComponent.isOpeningOrClosing = openOrClose
-		
-	do ..listOfControllerIDsSorted.InsertAt(controllerForPanel.identifier, insertPosition)
+	set controllerForPanel = ##class(EF.pageController.proweb.panel).addElementToParent($this, "GuestPanel-"_insertPosition, "")
+	if $IsObject(controllerForPanel) {
+		set controllerForPanel.isOpeningOrClosing = openOrClose
+		set controllerForPanel.displayOrder = insertPosition
+		set controllerForPanel.uiComponent.isOpeningOrClosing = openOrClose
+		set controllerForPanel.uiComponent.contextData = ..contextData
+			
+		do ..listOfControllerIDsSorted.InsertAt(controllerForPanel.identifier, insertPosition)
+	}
 ]]></Implementation>
 </Method>
 
@@ -2284,10 +2266,12 @@ this method needs rewriting when the arrayOfUiComponents become a list instead o
 <Method name="copyAllDataToEComTemp">
 <Implementation><![CDATA[
 	#dim key as %Integer = ""
-	#dim element as EF.pageController.element
+	#dim element as EF.pageController.proweb.inputElement
 	#dim prowebItemID as %Integer
 	#dim prowbItemName as %String
+	#dim tempPersonID as %Integer
 	
+	k ^xfg
 	for {
 		set element=..allPageElements.GetNext(.key)
 		if key="" quit
@@ -2296,6 +2280,12 @@ this method needs rewriting when the arrayOfUiComponents become a list instead o
 			set prowebItemID = element.prowebID
 			set prowbItemName = ##class(sc.xModules.objCODitem).getCODItemName(prowebItemID)
 			
+			if element.isGuest {
+				set tempPersonID = ..getTempPersonIdForGuestNumber(element.guestNumber)
+			} else {
+				set tempPersonID = ..contextData.tempPersonID	
+			}
+			
 			if ( element.%IsA("EF.pageController.proweb.checkbox") ) && ( element.elementParent.elementChildren.Count() > 1 ) { // multi checkboxes only
 				if element.value = 1 {
 					set multiCheckboxData(prowbItemName, $I(multiCheckboxData(prowbItemName))) = element.description
@@ -2303,19 +2293,31 @@ this method needs rewriting when the arrayOfUiComponents become a list instead o
 			} elseif ( element.%IsA("EF.pageController.proweb.datePicker") ) && ( element.elementParent.elementChildren.Count() = 2 ) { // date range
 				set startDate = element.elementParent.elementChildren.GetAt(1).value
 				set endDate = element.elementParent.elementChildren.GetAt(2).value
-				do ##class(eCom.tempCodData).set(..contextData.tempPersonID, prowbItemName, startDate_"|"_endDate )	
+				do ##class(eCom.tempCodData).set(tempPersonID, prowbItemName, startDate_"|"_endDate )	
 			
 			} else {
-				do ##class(eCom.tempCodData).set(..contextData.tempPersonID, prowbItemName, element.value)	
+				do ##class(eCom.tempCodData).set(tempPersonID, prowbItemName, element.value)	
+			}
+
+			s x=$I(^xfg)
+			s ^xfg(x,"element")=element
+			s ^xfg(x,"prowbItemName")=prowbItemName
+			try {
+				s ^xfg(x,"element.value")=element.value
+				s ^xfg(x,"tempPersonID")=tempPersonID
+				s ^xfg(x,"element.guestNumber")=element.guestNumber
+				s ^xfg(x,"element.isGuest")=element.isGuest
+			} catch {
+					
 			}
 		}
 	}
-	do ..copyAndFormatMultiCheckboxData(.multiCheckboxData)
+	do ..copyAndFormatMultiCheckboxData(tempPersonID, .multiCheckboxData)
 ]]></Implementation>
 </Method>
 
 <Method name="copyAndFormatMultiCheckboxData">
-<FormalSpec><![CDATA[&multiCheckboxData]]></FormalSpec>
+<FormalSpec><![CDATA[tempPersonID:%Integer,&multiCheckboxData]]></FormalSpec>
 <Implementation><![CDATA[
 	set prowbItemName = ""
 	for {  
@@ -2325,7 +2327,7 @@ this method needs rewriting when the arrayOfUiComponents become a list instead o
 		merge tmpArray=multiCheckboxData(prowbItemName)
 		
 		set value = ##class(cod.methods).formatMultiCheckBox(..contextData.eventID, prowbItemName, .tmpArray)
-		do ##class(eCom.tempCodData).set(..contextData.tempPersonID, prowbItemName, value, ..contextData.pageID, ..contextData.eventID)
+		do ##class(eCom.tempCodData).set(tempPersonID, prowbItemName, value, ..contextData.pageID, ..contextData.eventID)
 	}
 ]]></Implementation>
 </Method>
@@ -2384,8 +2386,8 @@ this method needs rewriting when the arrayOfUiComponents become a list instead o
 
 
 <Class name="EF.pageController.proweb.panel">
-<Super>EF.pageController.containerElements.panel</Super>
-<TimeChanged>64205,32081.565306</TimeChanged>
+<Super>EF.pageController.containerElements.panel,EF.pageController.proweb.prowebBase</Super>
+<TimeChanged>64205,49081.563893</TimeChanged>
 <TimeCreated>63372,47064.603748</TimeCreated>
 
 <Property name="isOpeningOrClosing">
@@ -2405,6 +2407,12 @@ this method needs rewriting when the arrayOfUiComponents become a list instead o
 <Subscript>"panel"</Subscript>
 <Value name="1">
 <Value>isOpeningOrClosing</Value>
+</Value>
+<Value name="2">
+<Value>contextData</Value>
+</Value>
+<Value name="3">
+<Value>prowebID</Value>
 </Value>
 </Data>
 </Storage>
@@ -2777,7 +2785,7 @@ this method needs rewriting when the arrayOfUiComponents become a list instead o
 
 <Class name="EF.pageController.proweb.testCases.pageTestCase">
 <Super>EF.ISC.UnitTest.TestCase</Super>
-<TimeChanged>64204,52737.158858</TimeChanged>
+<TimeChanged>64205,62819.926599</TimeChanged>
 <TimeCreated>64189,44993.632692</TimeCreated>
 
 <Method name="TestEditModeHTML">
@@ -2812,33 +2820,79 @@ this method needs rewriting when the arrayOfUiComponents become a list instead o
 	
 	set page= ##class(EF.pageController.proweb.page).createNew(contextData)
 	
-	
 	set element = ##class(EF.pageController.proweb.textInput).addElementToParent(page, "proweb-1", "Attendee First name", value, 0)
 	do page.uiComponent.addChild(element.uiComponent)
 	set element.uiComponent.contextData = contextData
 	set element.displayOrder = 1
 	
 	set element = ##class(EF.pageController.proweb.textInput).addElementToParent(page, "proweb-2", "Attendee Last name", value, 0)
-	do page.uiComponent.addChild(element.uiComponent)
 	set element.uiComponent.contextData = contextData
 	set element.displayOrder = 2
 	
 	set element = ##class(EF.pageController.proweb.textInput).addElementToParent(page, "proweb-3", "Guest First name", value, 0)
-	do page.uiComponent.addChild(element.uiComponent)
 	set element.uiComponent.contextData = contextData
 	set element.uiComponent.isGuest = 1
 	set element.displayOrder = 3
 	
 	set element = ##class(EF.pageController.proweb.textInput).addElementToParent(page, "proweb-4", "Guest Last name", value, 0)
-	do page.uiComponent.addChild(element.uiComponent)
 	set element.uiComponent.contextData = contextData
 	set element.uiComponent.isGuest = 1
 	set element.displayOrder = 4
 	
+	do page.populateListOfControllerIDsSorted()
+	do page.insertPanelElementsAroundGuestQuestions()
+
 	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(page,"renderProwebItemsForComponent")
 	set returnedHTML = $ZStrip(returnedHTML,"*WC")
-	set expectedHTML = "<divclass='rowef-proweb-form-row'><divclass='col-sm-4ef_proweb_form_prompt'><labelclass=""control-label""for=""proweb-1""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;AttendeeFirstname\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);"">AttendeeFirstname</label></div><divclass='col-sm-8ef_proweb_form_prompt'><inputtype=""text""class=""form-controlef-proweb-input-element""title=""""id=""proweb-1""name=""proweb-1""value=""""placeholder=""""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;AttendeeFirstname\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""></div></div><divclass='rowef-proweb-form-row'><divclass='col-sm-4ef_proweb_form_prompt'><labelclass=""control-label""for=""proweb-2""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;AttendeeLastname\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);"">AttendeeLastname</label></div><divclass='col-sm-8ef_proweb_form_prompt'><inputtype=""text""class=""form-controlef-proweb-input-element""title=""""id=""proweb-2""name=""proweb-2""value=""""placeholder=""""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;AttendeeLastname\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""></div></div><divclass=""ef-proweb-guest-panelef-draggable-div""><divclass=""panel-heading"">Guest</div><divclass=""panel-body""><divclass='rowef-proweb-form-row'><divclass='col-sm-4ef_proweb_form_prompt'><labelclass=""control-label""for=""proweb-3""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;GuestFirstname\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);"">GuestFirstname</label></div><divclass='col-sm-8ef_proweb_form_prompt'><inputtype=""text""class=""form-controlef-proweb-input-element""title=""""id=""proweb-3""name=""proweb-3""value=""""placeholder=""""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;GuestFirstname\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""></div></div><divclass='rowef-proweb-form-row'><divclass='col-sm-4ef_proweb_form_prompt'><labelclass=""control-label""for=""proweb-4""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;GuestLastname\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);"">GuestLastname</label></div><divclass='col-sm-8ef_proweb_form_prompt'><inputtype=""text""class=""form-controlef-proweb-input-element""title=""""id=""proweb-4""name=""proweb-4""value=""""placeholder=""""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;GuestLastname\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""></div></div></div></div>"
+	set expectedHTML = "<divclass='rowef-proweb-form-row'><divclass='col-sm-4ef_proweb_form_prompt'><labelclass=""control-label""for=""proweb-1""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;AttendeeFirstname\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);"">AttendeeFirstname</label></div><divclass='col-sm-8ef_proweb_form_prompt'><inputtype=""text""class=""form-controlef-proweb-input-element""title=""""id=""proweb-1""name=""proweb-1""value=""""placeholder=""""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;AttendeeFirstname\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""></div></div><divclass='rowef-proweb-form-row'><divclass='col-sm-4ef_proweb_form_prompt'><labelclass=""control-label""for=""proweb-2""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;AttendeeLastname\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);"">AttendeeLastname</label></div><divclass='col-sm-8ef_proweb_form_prompt'><inputtype=""text""class=""form-controlef-proweb-input-element""title=""""id=""proweb-2""name=""proweb-2""value=""""placeholder=""""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;AttendeeLastname\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""></div></div><divclass=""ef-proweb-guest-panelef-draggable-div""><divclass=""panel-heading"">Guest</div><divclass=""panel-body""><divclass='rowef-proweb-form-row'><divclass='col-sm-4ef_proweb_form_prompt'><labelclass=""control-label""for=""proweb-3""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;GuestFirstname\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);"">GuestFirstname</label></div><divclass='col-sm-8ef_proweb_form_prompt'><inputtype=""text""class=""form-controlef-proweb-input-element""title=""""id=""proweb-3""name=""proweb-3""value=""""placeholder=""""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;GuestFirstname\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""></div></div><divclass='rowef-proweb-form-row'><divclass='col-sm-4ef_proweb_form_prompt'><labelclass=""control-label""for=""proweb-4""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;GuestLastname\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);"">GuestLastname</label></div><divclass='col-sm-8ef_proweb_form_prompt'><inputtype=""text""class=""form-controlef-proweb-input-element""title=""""id=""proweb-4""name=""proweb-4""value=""""placeholder=""""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;GuestLastname\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""></div></div>"
 	do $$$AssertEquals(returnedHTML,expectedHTML)
+]]></Implementation>
+</Method>
+
+<Method name="debug">
+<ClassMethod>1</ClassMethod>
+<Implementation><![CDATA[
+	#dim page as EF.pageController.proweb.page
+	#dim element as EF.pageController.proweb.textInput
+	
+	set eventConfiguration = ##class(setup.eventConfiguration.storageMock).createEventConfiguration()
+	set eventConfiguration.storage.maxGuests=2
+	
+	set contextData = ##class(EF.contextDataRegistrationMock).createMock()
+	set page= ##class(EF.pageController.proweb.page).createNew(contextData,,,eventConfiguration)		
+	
+	set element = ##class(EF.pageController.proweb.textInput).addElementToParent(page, "proweb-1", "Attendee First name", "Elvis", 0)
+	set element.displayOrder = 1
+	set element.uiComponent.contextData = contextData
+
+
+	set element = ##class(EF.pageController.proweb.textInput).addElementToParent(page, "proweb-2", "Attendee Last name", "pesley", 0)
+	set element.uiComponent.contextData = contextData
+	set element.displayOrder = 2
+	
+	set element = ##class(EF.pageController.proweb.textInput).addElementToParent(page, "proweb-3", "Guest First name", "", 0)
+	set element.uiComponent.contextData = contextData
+	set element.uiComponent.isGuest = 1
+	set element.displayOrder = 3
+	
+	set element = ##class(EF.pageController.proweb.textInput).addElementToParent(page, "proweb-4", "Guest Last name", "", 0)
+	set element.uiComponent.contextData = contextData
+	set element.uiComponent.isGuest = 1
+	set element.displayOrder = 4
+	
+
+	
+	do page.populateListOfControllerIDsSorted()
+	do page.repeatAnyGuestQuestions()
+	
+	set page.eventConfiguration = eventConfiguration
+	do page.insertPanelElementsAroundGuestQuestions()
+	do page.updateUIComponents()
+	do page.%Save()
+	
+	w !,"element count=",page.allPageElements.Count()
+	w !,"list count=",page.listOfControllerIDsSorted.Count()
+	;do page.renderProwebItemsForComponent()
 ]]></Implementation>
 </Method>
 </Class>
@@ -3620,25 +3674,150 @@ this is for version 1 of proweb</Description>
 </Class>
 
 
+<Class name="EF.ui.components.attribute">
+<Description><![CDATA[
+<!-- ;vc;-
+;vc;    Object: EF.ui.components.attribute.CLS/EV.4
+;vc; Component: CLS.EF.ui.components.attribute
+;vc;  Location: LargeDev
+;vc; Date/Time: 14-Oct-16 15:01
+;vc;      User: AdrianM2
+;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>EF.ui.components.attribute.CLS/EV.4</td><td>CLS.EF.ui.components.attribute</td><td>LargeDev</td><td style='white-space: nowrap;'>14-Oct-16 15:01</td><td>AdrianM2</td></tr></table>
+]]></Description>
+<Super>%RegisteredObject,EF.htmlGenerator</Super>
+<TimeChanged>64205,54100.384005</TimeChanged>
+<TimeCreated>63771,55871.797567</TimeCreated>
+
+<Property name="name">
+<Type>%String</Type>
+<Parameter name="MAXLEN" value="3641144"/>
+</Property>
+
+<Property name="value">
+<Type>%String</Type>
+<Parameter name="MAXLEN" value="3641144"/>
+</Property>
+
+<Method name="addAttributeToList">
+<ClassMethod>1</ClassMethod>
+<FormalSpec><![CDATA[&listOfAttributes:%ListOfObjects,name:%String,value:%String]]></FormalSpec>
+<Implementation><![CDATA[
+	set attribute=##class(EF.ui.components.attribute).%New()
+	set attribute.name=name
+	set attribute.value=value
+	do listOfAttributes.Insert(attribute)
+]]></Implementation>
+</Method>
+
+<Method name="getAttributesAsHTML">
+<ClassMethod>1</ClassMethod>
+<FormalSpec><![CDATA[&listOfAttributes:%ListOfObjects]]></FormalSpec>
+<Implementation><![CDATA[
+	set extraAttributes=""
+	for i=1:1:listOfAttributes.Count() {
+		set attribute=listOfAttributes.GetAt(i)
+		if $Length(attribute.name) {
+			if $Length(attribute.value) {
+				set extraAttributes=extraAttributes_" "_..encodeForHTMLAttribute(attribute.name)_"="""_..encodeForHTMLAttribute(attribute.value)_""""
+			} else {
+				set extraAttributes=extraAttributes_" "_..encodeForHTMLAttribute(attribute.name)
+			}
+		}
+	}
+	return extraAttributes
+]]></Implementation>
+</Method>
+</Class>
+
+
 <Class name="EF.ui.components.backend.panel">
 <Description><![CDATA[
 <!-- ;vc;-
-;vc;    Object: EF.ui.components.backend.panel.CLS/EV.6
+;vc;    Object: EF.ui.components.backend.panel.CLS/EV.5
 ;vc; Component: CLS.EF.ui.components.backend.panel
 ;vc;  Location: LargeDev
-;vc; Date/Time: 13-Oct-16 10:07
-;vc;      User: FredG
-;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>EF.ui.components.backend.panel.CLS/EV.6</td><td>CLS.EF.ui.components.backend.panel</td><td>LargeDev</td><td style='white-space: nowrap;'>13-Oct-16 10:07</td><td>FredG</td></tr></table>
+;vc; Date/Time: 14-Oct-16 15:01
+;vc;      User: AdrianM2
+;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>EF.ui.components.backend.panel.CLS/EV.5</td><td>CLS.EF.ui.components.backend.panel</td><td>LargeDev</td><td style='white-space: nowrap;'>14-Oct-16 15:01</td><td>AdrianM2</td></tr></table>
 ]]></Description>
-<Super>EF.ui.components.panel</Super>
-<TimeChanged>64204,36476.928811</TimeChanged>
+<Super>EF.ui.components.container</Super>
+<TimeChanged>64203,38572</TimeChanged>
 <TimeCreated>63361,62973.538498</TimeCreated>
+
+<Property name="heading">
+<Type>%String</Type>
+<Parameter name="MAXLEN" value="3641144"/>
+</Property>
+
+<Property name="errorMessage">
+<Type>%String</Type>
+<Parameter name="MAXLEN" value="3641144"/>
+</Property>
+
+<Method name="renderStart">
+<Implementation><![CDATA[
+	set classes="ef-admin-settings-panel"
+	if $l(..errorMessage) {
+		set classes=classes_" ef-panel-with-error"
+	}
+	&HTML<
+		<div class="#(classes)#" id="#(..encodeHTMLAttribute(..htmlID))#">
+            <div class="panel-heading">#(..encodeHTMLContent(..heading))#</div>
+            	#[do ..renderErrorMessage()]#
+	>
+]]></Implementation>
+</Method>
+
+<Method name="renderEnd">
+<Implementation><![CDATA[
+	&HTML<
+        </div>
+	>
+]]></Implementation>
+</Method>
+
+<Method name="renderErrorMessage">
+<Implementation><![CDATA[
+	if $l(..errorMessage) {
+		&html<
+			<div class="ef-panel-message-area">
+				<div class="alert alert-danger ">#(..rawHTML(..errorMessage))#
+	            </div>
+	        </div>
+		>
+	}
+]]></Implementation>
+</Method>
+
+<Method name="addErrorMessage">
+<FormalSpec>errorMessage</FormalSpec>
+<Implementation><![CDATA[
+	if $l(..errorMessage) {
+		set ..errorMessage=..errorMessage_..rawHTML("<br>")	
+	}
+	set ..errorMessage=..errorMessage_..encodeHTMLContent(errorMessage)
+]]></Implementation>
+</Method>
+
+<Storage name="Default">
+<Type>%Library.CacheStorage</Type>
+<DefaultData>panelDefaultData</DefaultData>
+<Data name="panelDefaultData">
+<Subscript>"panel"</Subscript>
+<Value name="1">
+<Value>heading</Value>
+</Value>
+<Value name="2">
+<Value>errorMessage</Value>
+</Value>
+</Data>
+</Storage>
 </Class>
 
 
 <Class name="EF.ui.components.frontend.checkbox">
 <Super>EF.ui.components.checkbox,EF.ui.components.frontend.inputElement</Super>
-<TimeChanged>64194,60882.313555</TimeChanged>
+<TimeChanged>64205,53553.955163</TimeChanged>
 <TimeCreated>63355,62572.097775</TimeCreated>
 
 <Method name="render">
@@ -3680,12 +3859,45 @@ this is for version 1 of proweb</Description>
 	>
 ]]></Implementation>
 </Method>
+
+<Storage name="Default">
+<Type>%Library.CacheStorage</Type>
+<DefaultData>checkboxDefaultData</DefaultData>
+<Data name="checkboxDefaultData">
+<Structure>listnode</Structure>
+<Subscript>"checkbox"</Subscript>
+<Value name="1">
+<Value>alternatives</Value>
+</Value>
+<Value name="2">
+<Value>isMandatory</Value>
+</Value>
+<Value name="3">
+<Value>contextData</Value>
+</Value>
+<Value name="4">
+<Value>isGuest</Value>
+</Value>
+<Value name="5">
+<Value>helpText</Value>
+</Value>
+<Value name="6">
+<Value>guestNumber</Value>
+</Value>
+<Value name="7">
+<Value>isProwebEditMode</Value>
+</Value>
+<Value name="8">
+<Value>prowebItem</Value>
+</Value>
+</Data>
+</Storage>
 </Class>
 
 
 <Class name="EF.ui.components.frontend.checkboxGroup">
 <Super>EF.ui.components.checkboxGroup,EF.ui.components.frontend.inputElement</Super>
-<TimeChanged>64202,46838.872221</TimeChanged>
+<TimeChanged>64205,53554.107978</TimeChanged>
 <TimeCreated>63356,56848.077942</TimeCreated>
 
 <Method name="render">
@@ -3739,6 +3951,51 @@ this is for version 1 of proweb</Description>
 <Implementation><![CDATA[	do checkbox.render()
 ]]></Implementation>
 </Method>
+
+<Storage name="Default">
+<Type>%Library.CacheStorage</Type>
+<DefaultData>checkboxGroupDefaultData1</DefaultData>
+<Data name="checkboxGroupDefaultData1">
+<Structure>listnode</Structure>
+<Subscript>"checkboxGroup1"</Subscript>
+<Value name="1">
+<Value>alternatives</Value>
+</Value>
+<Value name="2">
+<Value>isMandatory</Value>
+</Value>
+<Value name="3">
+<Value>contextData</Value>
+</Value>
+<Value name="4">
+<Value>htmlName</Value>
+</Value>
+<Value name="5">
+<Value>helpText</Value>
+</Value>
+<Value name="6">
+<Value>title</Value>
+</Value>
+<Value name="7">
+<Value>guestNumber</Value>
+</Value>
+<Value name="8">
+<Value>isGuest</Value>
+</Value>
+<Value name="9">
+<Value>isProwebEditMode</Value>
+</Value>
+<Value name="10">
+<Value>prowebItem</Value>
+</Value>
+<Value name="11">
+<Value>validator</Value>
+</Value>
+<Value name="12">
+<Value>value</Value>
+</Value>
+</Data>
+</Storage>
 </Class>
 
 
@@ -3753,7 +4010,7 @@ this is for version 1 of proweb</Description>
 ;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>EF.ui.components.backend.datePicker.CLS/EV.3</td><td>CLS.EF.ui.components.backend.datePicker</td><td>LargeDev</td><td style='white-space: nowrap;'>02-Feb-16 12:32</td><td>AdrianM2</td></tr></table>
 ]]></Description>
 <Super>EF.ui.components.textInput,EF.ui.components.frontend.inputElement</Super>
-<TimeChanged>64203,61940.738865</TimeChanged>
+<TimeChanged>64205,53554.268754</TimeChanged>
 <TimeCreated>63384,38215.518113</TimeCreated>
 
 <Parameter name="typeAttribute">
@@ -3804,6 +4061,39 @@ this is for version 1 of proweb</Description>
 	>
 ]]></Implementation>
 </Method>
+
+<Storage name="Default">
+<Type>%Library.CacheStorage</Type>
+<DefaultData>datePickerDefaultData</DefaultData>
+<Data name="datePickerDefaultData">
+<Structure>listnode</Structure>
+<Subscript>"datePicker"</Subscript>
+<Value name="1">
+<Value>alternatives</Value>
+</Value>
+<Value name="2">
+<Value>isMandatory</Value>
+</Value>
+<Value name="3">
+<Value>contextData</Value>
+</Value>
+<Value name="4">
+<Value>isGuest</Value>
+</Value>
+<Value name="5">
+<Value>helpText</Value>
+</Value>
+<Value name="6">
+<Value>guestNumber</Value>
+</Value>
+<Value name="7">
+<Value>isProwebEditMode</Value>
+</Value>
+<Value name="8">
+<Value>prowebItem</Value>
+</Value>
+</Data>
+</Storage>
 </Class>
 
 
@@ -3818,7 +4108,7 @@ this is for version 1 of proweb</Description>
 ;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>EF.ui.components.backend.datePicker.CLS/EV.3</td><td>CLS.EF.ui.components.backend.datePicker</td><td>LargeDev</td><td style='white-space: nowrap;'>02-Feb-16 12:32</td><td>AdrianM2</td></tr></table>
 ]]></Description>
 <Super>EF.ui.components.textInput,EF.ui.components.frontend.inputElement</Super>
-<TimeChanged>64202,51214.347117</TimeChanged>
+<TimeChanged>64205,53554.426301</TimeChanged>
 <TimeCreated>63384,38215.518113</TimeCreated>
 
 <Parameter name="typeAttribute">
@@ -3892,12 +4182,45 @@ this is for version 1 of proweb</Description>
 <Implementation><![CDATA[	write !,"</div>"
 ]]></Implementation>
 </Method>
+
+<Storage name="Default">
+<Type>%Library.CacheStorage</Type>
+<DefaultData>dateRangeDefaultData</DefaultData>
+<Data name="dateRangeDefaultData">
+<Structure>listnode</Structure>
+<Subscript>"dateRange"</Subscript>
+<Value name="1">
+<Value>alternatives</Value>
+</Value>
+<Value name="2">
+<Value>isMandatory</Value>
+</Value>
+<Value name="3">
+<Value>contextData</Value>
+</Value>
+<Value name="4">
+<Value>isGuest</Value>
+</Value>
+<Value name="5">
+<Value>helpText</Value>
+</Value>
+<Value name="6">
+<Value>guestNumber</Value>
+</Value>
+<Value name="7">
+<Value>isProwebEditMode</Value>
+</Value>
+<Value name="8">
+<Value>prowebItem</Value>
+</Value>
+</Data>
+</Storage>
 </Class>
 
 
 <Class name="EF.ui.components.frontend.divider">
 <Super>EF.ui.components.frontend.prowebBase</Super>
-<TimeChanged>64188,60850.760112</TimeChanged>
+<TimeChanged>64205,53540.549524</TimeChanged>
 <TimeCreated>64188,59498.911424</TimeCreated>
 
 <Method name="render">
@@ -3909,12 +4232,16 @@ this is for version 1 of proweb</Description>
 	do ..renderRowClosing()
 ]]></Implementation>
 </Method>
+
+<Storage name="Default">
+<Type>%Library.CacheStorage</Type>
+</Storage>
 </Class>
 
 
 <Class name="EF.ui.components.frontend.dropdown">
 <Super>EF.ui.components.listInput,EF.ui.components.frontend.inputElement</Super>
-<TimeChanged>64194,43219.104852</TimeChanged>
+<TimeChanged>64205,53554.5823</TimeChanged>
 <TimeCreated>63355,56609.363142</TimeCreated>
 
 <Property name="isPersistent">
@@ -3997,12 +4324,45 @@ this is for version 1 of proweb</Description>
 	return 0
 ]]></Implementation>
 </Method>
+
+<Storage name="Default">
+<Type>%Library.CacheStorage</Type>
+<DefaultData>dropdownDefaultData</DefaultData>
+<Data name="dropdownDefaultData">
+<Structure>listnode</Structure>
+<Subscript>"dropdown"</Subscript>
+<Value name="1">
+<Value>isPersistent</Value>
+</Value>
+<Value name="2">
+<Value>isMandatory</Value>
+</Value>
+<Value name="3">
+<Value>contextData</Value>
+</Value>
+<Value name="4">
+<Value>isGuest</Value>
+</Value>
+<Value name="5">
+<Value>helpText</Value>
+</Value>
+<Value name="6">
+<Value>guestNumber</Value>
+</Value>
+<Value name="7">
+<Value>isProwebEditMode</Value>
+</Value>
+<Value name="8">
+<Value>prowebItem</Value>
+</Value>
+</Data>
+</Storage>
 </Class>
 
 
 <Class name="EF.ui.components.frontend.emailInput">
 <Super>EF.ui.components.frontend.textInput</Super>
-<TimeChanged>64198,33019.928048</TimeChanged>
+<TimeChanged>64205,53559.255246</TimeChanged>
 <TimeCreated>63357,57620.613738</TimeCreated>
 
 <Parameter name="typeAttribute">
@@ -4018,12 +4378,16 @@ this is for version 1 of proweb</Description>
 <Implementation><![CDATA[	return ##class(EF.validator.emailAddress).%New()
 ]]></Implementation>
 </Method>
+
+<Storage name="Default">
+<Type>%Library.CacheStorage</Type>
+</Storage>
 </Class>
 
 
 <Class name="EF.ui.components.frontend.emailInputMulti">
 <Super>EF.ui.components.frontend.textInput</Super>
-<TimeChanged>64201,49815.627658</TimeChanged>
+<TimeChanged>64205,53559.406126</TimeChanged>
 <TimeCreated>63357,57620.613738</TimeCreated>
 
 <Parameter name="typeAttribute">
@@ -4047,6 +4411,10 @@ this is for version 1 of proweb</Description>
 	return ##super()
 ]]></Implementation>
 </Method>
+
+<Storage name="Default">
+<Type>%Library.CacheStorage</Type>
+</Storage>
 </Class>
 
 
@@ -4409,7 +4777,7 @@ this is for version 1 of proweb</Description>
 
 <Class name="EF.ui.components.frontend.inputElement">
 <Super>EF.ui.components.frontend.prowebBase,EF.ui.components.inputBase</Super>
-<TimeChanged>64205,30717.151496</TimeChanged>
+<TimeChanged>64205,53540.678185</TimeChanged>
 <TimeCreated>64183,40678.260093</TimeCreated>
 
 <Property name="alternatives">
@@ -4508,12 +4876,51 @@ this is for version 1 of proweb</Description>
 <Implementation><![CDATA[	write "<div class='col-sm-8 ef_proweb_form_prompt'>"
 ]]></Implementation>
 </Method>
+
+<Storage name="Default">
+<Type>%Library.CacheStorage</Type>
+<DefaultData>inputElementDefaultData</DefaultData>
+<Data name="inputElementDefaultData">
+<Structure>listnode</Structure>
+<Subscript>"inputElement"</Subscript>
+<Value name="1">
+<Value>alternatives</Value>
+</Value>
+<Value name="2">
+<Value>isMandatory</Value>
+</Value>
+<Value name="3">
+<Value>guestNumber</Value>
+</Value>
+<Value name="4">
+<Value>htmlName</Value>
+</Value>
+<Value name="5">
+<Value>helpText</Value>
+</Value>
+<Value name="6">
+<Value>title</Value>
+</Value>
+<Value name="7">
+<Value>isGuest</Value>
+</Value>
+<Value name="8">
+<Value>label</Value>
+</Value>
+<Value name="9">
+<Value>validator</Value>
+</Value>
+<Value name="10">
+<Value>value</Value>
+</Value>
+</Data>
+</Storage>
 </Class>
 
 
 <Class name="EF.ui.components.frontend.integerInput">
 <Super>EF.ui.components.frontend.textInput</Super>
-<TimeChanged>64201,43151.319515</TimeChanged>
+<TimeChanged>64205,53559.551207</TimeChanged>
 <TimeCreated>63357,57620.613738</TimeCreated>
 
 <Parameter name="typeAttribute">
@@ -4536,12 +4943,16 @@ this is for version 1 of proweb</Description>
 <Implementation><![CDATA[	Return "form-control ef-proweb-input-element-short"
 ]]></Implementation>
 </Method>
+
+<Storage name="Default">
+<Type>%Library.CacheStorage</Type>
+</Storage>
 </Class>
 
 
 <Class name="EF.ui.components.frontend.numericInput">
 <Super>EF.ui.components.frontend.textInput</Super>
-<TimeChanged>64201,70886.199963</TimeChanged>
+<TimeChanged>64205,53559.69249</TimeChanged>
 <TimeCreated>63357,57620.613738</TimeCreated>
 
 <Parameter name="typeAttribute">
@@ -4569,12 +4980,16 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 <Implementation><![CDATA[	Return "form-control ef-proweb-input-element-short"
 ]]></Implementation>
 </Method>
+
+<Storage name="Default">
+<Type>%Library.CacheStorage</Type>
+</Storage>
 </Class>
 
 
 <Class name="EF.ui.components.frontend.panel">
-<Super>EF.ui.components.panel</Super>
-<TimeChanged>64204,43615.45981</TimeChanged>
+<Super>EF.ui.components.frontend.prowebBase,EF.ui.components.panel</Super>
+<TimeChanged>64205,53554.843175</TimeChanged>
 <TimeCreated>64204,36543.176151</TimeCreated>
 
 <Property name="isOpeningOrClosing">
@@ -4599,12 +5014,30 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 	}
 ]]></Implementation>
 </Method>
+
+<Storage name="Default">
+<Type>%Library.CacheStorage</Type>
+<DefaultData>panelDefaultData</DefaultData>
+<Data name="panelDefaultData">
+<Structure>listnode</Structure>
+<Subscript>"panel"</Subscript>
+<Value name="1">
+<Value>heading</Value>
+</Value>
+<Value name="2">
+<Value>errorMessage</Value>
+</Value>
+<Value name="3">
+<Value>isOpeningOrClosing</Value>
+</Value>
+</Data>
+</Storage>
 </Class>
 
 
 <Class name="EF.ui.components.frontend.phoneNumber">
 <Super>EF.ui.components.frontend.textInput</Super>
-<TimeChanged>64197,62099.100904</TimeChanged>
+<TimeChanged>64205,53559.838424</TimeChanged>
 <TimeCreated>63357,57620.613738</TimeCreated>
 
 <Parameter name="typeAttribute">
@@ -4620,12 +5053,16 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 <Implementation><![CDATA[	return ##class(EF.validator.phoneNumber).%New()
 ]]></Implementation>
 </Method>
+
+<Storage name="Default">
+<Type>%Library.CacheStorage</Type>
+</Storage>
 </Class>
 
 
 <Class name="EF.ui.components.frontend.prowebBase">
 <Super>EF.ui.components.base</Super>
-<TimeChanged>64205,40952.483624</TimeChanged>
+<TimeChanged>64205,53532.602109</TimeChanged>
 <TimeCreated>64183,41819.123112</TimeCreated>
 
 <Property name="isProwebEditMode">
@@ -4645,6 +5082,10 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 <Method name="renderRowOpening">
 <Implementation><![CDATA[
 	#dim prowebListID as %Integer
+	
+	;try {
+	;	do $SYSTEM.OBJ.Dump($this)
+	;} catch {}
 	 
 	if ..contextData.%IsA("EF.contextDataRegistrationMock") {
 		set prowebID = "mock-1"	
@@ -4716,12 +5157,30 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 	}
 ]]></Implementation>
 </Method>
+
+<Storage name="Default">
+<Type>%Library.CacheStorage</Type>
+<DefaultData>prowebBaseDefaultData</DefaultData>
+<Data name="prowebBaseDefaultData">
+<Structure>listnode</Structure>
+<Subscript>"prowebBase"</Subscript>
+<Value name="1">
+<Value>isProwebEditMode</Value>
+</Value>
+<Value name="2">
+<Value>prowebItem</Value>
+</Value>
+<Value name="3">
+<Value>contextData</Value>
+</Value>
+</Data>
+</Storage>
 </Class>
 
 
 <Class name="EF.ui.components.frontend.radioButtons">
 <Super>EF.ui.components.listInput,EF.ui.components.frontend.inputElement</Super>
-<TimeChanged>64202,37247.377273</TimeChanged>
+<TimeChanged>64205,53554.967318</TimeChanged>
 <TimeCreated>63356,39686.205586</TimeCreated>
 
 <Method name="getDefaultClasses">
@@ -4792,12 +5251,42 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 	return radio
 ]]></Implementation>
 </Method>
+
+<Storage name="Default">
+<Type>%Library.CacheStorage</Type>
+<DefaultData>radioButtonsDefaultData</DefaultData>
+<Data name="radioButtonsDefaultData">
+<Structure>listnode</Structure>
+<Subscript>"radioButtons"</Subscript>
+<Value name="1">
+<Value>isProwebEditMode</Value>
+</Value>
+<Value name="2">
+<Value>isMandatory</Value>
+</Value>
+<Value name="3">
+<Value>contextData</Value>
+</Value>
+<Value name="4">
+<Value>isGuest</Value>
+</Value>
+<Value name="5">
+<Value>helpText</Value>
+</Value>
+<Value name="6">
+<Value>guestNumber</Value>
+</Value>
+<Value name="7">
+<Value>prowebItem</Value>
+</Value>
+</Data>
+</Storage>
 </Class>
 
 
 <Class name="EF.ui.components.frontend.textArea">
 <Super>EF.ui.components.textInput,EF.ui.components.frontend.inputElement</Super>
-<TimeChanged>64201,42513.017278</TimeChanged>
+<TimeChanged>64205,53555.11302</TimeChanged>
 <TimeCreated>63357,57620.613738</TimeCreated>
 
 <Parameter name="html5Validation">
@@ -4823,12 +5312,45 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 	do ..renderHelpAndRowClosing()
 ]]></Implementation>
 </Method>
+
+<Storage name="Default">
+<Type>%Library.CacheStorage</Type>
+<DefaultData>textAreaDefaultData</DefaultData>
+<Data name="textAreaDefaultData">
+<Structure>listnode</Structure>
+<Subscript>"textArea"</Subscript>
+<Value name="1">
+<Value>alternatives</Value>
+</Value>
+<Value name="2">
+<Value>isMandatory</Value>
+</Value>
+<Value name="3">
+<Value>contextData</Value>
+</Value>
+<Value name="4">
+<Value>isGuest</Value>
+</Value>
+<Value name="5">
+<Value>helpText</Value>
+</Value>
+<Value name="6">
+<Value>guestNumber</Value>
+</Value>
+<Value name="7">
+<Value>isProwebEditMode</Value>
+</Value>
+<Value name="8">
+<Value>prowebItem</Value>
+</Value>
+</Data>
+</Storage>
 </Class>
 
 
 <Class name="EF.ui.components.frontend.textBlock">
 <Super>EF.ui.components.frontend.prowebBase</Super>
-<TimeChanged>64190,59092.755529</TimeChanged>
+<TimeChanged>64205,53540.802471</TimeChanged>
 <TimeCreated>64183,38661.128484</TimeCreated>
 
 <Property name="text">
@@ -4847,12 +5369,24 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 	do ..renderRowClosing()
 ]]></Implementation>
 </Method>
+
+<Storage name="Default">
+<Type>%Library.CacheStorage</Type>
+<DefaultData>textBlockDefaultData</DefaultData>
+<Data name="textBlockDefaultData">
+<Structure>listnode</Structure>
+<Subscript>"textBlock"</Subscript>
+<Value name="1">
+<Value>text</Value>
+</Value>
+</Data>
+</Storage>
 </Class>
 
 
 <Class name="EF.ui.components.frontend.textInput">
 <Super>EF.ui.components.textInput,EF.ui.components.frontend.inputElement</Super>
-<TimeChanged>64201,49944.787362</TimeChanged>
+<TimeChanged>64205,53555.26163</TimeChanged>
 <TimeCreated>63357,57620.613738</TimeCreated>
 
 <Parameter name="typeAttribute">
@@ -4882,12 +5416,45 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 	do ..renderHelpAndRowClosing()
 ]]></Implementation>
 </Method>
+
+<Storage name="Default">
+<Type>%Library.CacheStorage</Type>
+<DefaultData>textInputDefaultData1</DefaultData>
+<Data name="textInputDefaultData1">
+<Structure>listnode</Structure>
+<Subscript>"textInput1"</Subscript>
+<Value name="1">
+<Value>alternatives</Value>
+</Value>
+<Value name="2">
+<Value>isMandatory</Value>
+</Value>
+<Value name="3">
+<Value>contextData</Value>
+</Value>
+<Value name="4">
+<Value>isGuest</Value>
+</Value>
+<Value name="5">
+<Value>helpText</Value>
+</Value>
+<Value name="6">
+<Value>guestNumber</Value>
+</Value>
+<Value name="7">
+<Value>isProwebEditMode</Value>
+</Value>
+<Value name="8">
+<Value>prowebItem</Value>
+</Value>
+</Data>
+</Storage>
 </Class>
 
 
 <Class name="EF.ui.components.frontend.timeInput">
 <Super>EF.ui.components.frontend.textInput</Super>
-<TimeChanged>64201,62853.575239</TimeChanged>
+<TimeChanged>64205,53559.980726</TimeChanged>
 <TimeCreated>63357,57620.613738</TimeCreated>
 
 <Parameter name="typeAttribute">
@@ -4929,12 +5496,16 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 	do ..renderHelpAndRowClosing()
 ]]></Implementation>
 </Method>
+
+<Storage name="Default">
+<Type>%Library.CacheStorage</Type>
+</Storage>
 </Class>
 
 
 <Class name="EF.ui.components.frontend.webAddress">
 <Super>EF.ui.components.frontend.textInput</Super>
-<TimeChanged>64198,62864.573985</TimeChanged>
+<TimeChanged>64205,53560.130874</TimeChanged>
 <TimeCreated>63357,57620.613738</TimeCreated>
 
 <Parameter name="typeAttribute">
@@ -4950,12 +5521,16 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 <Implementation><![CDATA[	return ##class(EF.validator.webAddress).%New()
 ]]></Implementation>
 </Method>
+
+<Storage name="Default">
+<Type>%Library.CacheStorage</Type>
+</Storage>
 </Class>
 
 
 <Class name="EF.ui.components.panel">
 <Super>EF.ui.components.container</Super>
-<TimeChanged>64204,36438.670197</TimeChanged>
+<TimeChanged>64205,53541.434064</TimeChanged>
 <TimeCreated>63361,62973.538498</TimeCreated>
 
 <Property name="heading">
@@ -5012,6 +5587,21 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 	set ..errorMessage=..errorMessage_..encodeHTMLContent(errorMessage)
 ]]></Implementation>
 </Method>
+
+<Storage name="Default">
+<Type>%Library.CacheStorage</Type>
+<DefaultData>panelDefaultData</DefaultData>
+<Data name="panelDefaultData">
+<Structure>listnode</Structure>
+<Subscript>"panel"</Subscript>
+<Value name="1">
+<Value>heading</Value>
+</Value>
+<Value name="2">
+<Value>errorMessage</Value>
+</Value>
+</Data>
+</Storage>
 </Class>
 
 
@@ -10060,7 +10650,6 @@ function updateAlts(codPromptID) {
 		// save the temp structure to database
 		if pageController.hasError {
 			set redirectURL = ##class(shared.pageMethods).addParamsToURL("t4registration.csp", "pageControllerID="_pageControllerID) // #############
-			
 
 		} else {
 			// save temp structure to database
@@ -13796,7 +14385,7 @@ The basic frontend default stuff</Description>
 </Class>
 
 
-<Project name="proweb 2" LastModified="2016-10-13 14:43:04.277082" Target="dev.efsys.net/LARGEDEVSRC/backend/home/efSupportLogin.htm" TargetType="3">
+<Project name="proweb 2" LastModified="2016-10-14 16:09:28.919971" Target="dev.efsys.net/LARGEDEVSRC/backend/home/efSupportLogin.htm" TargetType="3">
   <Items>
     <ProjectItem name="EF.contextDataRegistration" type="CLS"></ProjectItem>
     <ProjectItem name="EF.contextDataRegistrationMock" type="CLS"></ProjectItem>
@@ -13805,6 +14394,7 @@ The basic frontend default stuff</Description>
     <ProjectItem name="EF.pageController.pagesFrontend.t4Registration" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.proweb.checkbox" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.proweb.checkboxGroup" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.pageController.proweb.checkboxGroupTestCase" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.proweb.datePicker" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.proweb.dateRange" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.proweb.divider" type="CLS"></ProjectItem>
@@ -13815,62 +14405,10 @@ The basic frontend default stuff</Description>
     <ProjectItem name="EF.pageController.proweb.integerInput" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.proweb.numericInput" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.proweb.page" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.pageController.proweb.panel" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.proweb.phoneNumber" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.proweb.prowebBase" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.proweb.radioButtons" type="CLS"></ProjectItem>
-    <ProjectItem name="EF.pageController.proweb.textArea" type="CLS"></ProjectItem>
-    <ProjectItem name="EF.pageController.proweb.textBlock" type="CLS"></ProjectItem>
-    <ProjectItem name="EF.pageController.proweb.textInput" type="CLS"></ProjectItem>
-    <ProjectItem name="EF.pageController.proweb.timeInput" type="CLS"></ProjectItem>
-    <ProjectItem name="EF.pageController.proweb.webAddress" type="CLS"></ProjectItem>
-    <ProjectItem name="EF.pages.frontend.base" type="CLS"></ProjectItem>
-    <ProjectItem name="EF.pages.frontend.baseProweb" type="CLS"></ProjectItem>
-    <ProjectItem name="EF.ui.components.frontend.checkbox" type="CLS"></ProjectItem>
-    <ProjectItem name="EF.ui.components.frontend.checkboxGroup" type="CLS"></ProjectItem>
-    <ProjectItem name="EF.ui.components.frontend.datePicker" type="CLS"></ProjectItem>
-    <ProjectItem name="EF.ui.components.frontend.dateRange" type="CLS"></ProjectItem>
-    <ProjectItem name="EF.ui.components.frontend.divider" type="CLS"></ProjectItem>
-    <ProjectItem name="EF.ui.components.frontend.dropdown" type="CLS"></ProjectItem>
-    <ProjectItem name="EF.ui.components.frontend.emailInput" type="CLS"></ProjectItem>
-    <ProjectItem name="EF.ui.components.frontend.emailInputMulti" type="CLS"></ProjectItem>
-    <ProjectItem name="EF.ui.components.frontend.floatingMenuAdd" type="CLS"></ProjectItem>
-    <ProjectItem name="EF.ui.components.frontend.inputElement" type="CLS"></ProjectItem>
-    <ProjectItem name="EF.ui.components.frontend.integerInput" type="CLS"></ProjectItem>
-    <ProjectItem name="EF.ui.components.frontend.numericInput" type="CLS"></ProjectItem>
-    <ProjectItem name="EF.ui.components.frontend.phoneNumber" type="CLS"></ProjectItem>
-    <ProjectItem name="EF.ui.components.frontend.prowebBase" type="CLS"></ProjectItem>
-    <ProjectItem name="EF.ui.components.frontend.radioButtons" type="CLS"></ProjectItem>
-    <ProjectItem name="EF.ui.components.frontend.textArea" type="CLS"></ProjectItem>
-    <ProjectItem name="EF.ui.components.frontend.textBlock" type="CLS"></ProjectItem>
-    <ProjectItem name="EF.ui.components.frontend.textInput" type="CLS"></ProjectItem>
-    <ProjectItem name="EF.ui.components.frontend.timeInput" type="CLS"></ProjectItem>
-    <ProjectItem name="EF.ui.components.frontend.webAddress" type="CLS"></ProjectItem>
-    <ProjectItem name="EF.ui.components.frontend.wholeNumber" type="CLS"></ProjectItem>
-    <ProjectItem name="EF.validator.emailAddressMulti" type="CLS"></ProjectItem>
-    <ProjectItem name="EF.validator.phoneNumber" type="CLS"></ProjectItem>
-    <ProjectItem name="EF.validator.phoneNumberTestCase" type="CLS"></ProjectItem>
-    <ProjectItem name="EF.validator.webAddress" type="CLS"></ProjectItem>
-    <ProjectItem name="EF.validator.webAddressTestCase" type="CLS"></ProjectItem>
-    <ProjectItem name="largedevsrc/frontEnd/reg/pageControllerStandardSave.csp" type="CSP"></ProjectItem>
-    <ProjectItem name="largedevsrc/frontEnd/reg/t4Registration.csp" type="CSP"></ProjectItem>
-    <ProjectItem name="largedevsrc/frontEnd/reg/tRegistration.csp" type="CSP"></ProjectItem>
-    <ProjectItem name="largedevsrc/system/eventsForceRules.csr" type="CSP"></ProjectItem>
-    <ProjectItem name="layout.cssDefaultMethods" type="CLS"></ProjectItem>
-    <ProjectItem name="sc.objData" type="CLS"></ProjectItem>
-    <ProjectItem name="sc.xModules.objList" type="CLS"></ProjectItem>
-    <ProjectItem name="shared.pageMethods" type="CLS"></ProjectItem>
-    <ProjectItem name="EF.ui.components.frontend.floatingMenu" type="CLS"></ProjectItem>
-    <ProjectItem name="largedevsrc/backEnd/proweb/codQuestionDetails2.csp" type="CSP"></ProjectItem>
-    <ProjectItem name="largedevsrc/backEnd/proweb/formDivider.csp" type="CSP"></ProjectItem>
-    <ProjectItem name="largedevsrc/backEnd/proweb/textDetailsMoxie2.csp" type="CSP"></ProjectItem>
-    <ProjectItem name="largedevsrc/backEnd/proweb/codQuestionDetails.csp" type="CSP"></ProjectItem>
-    <ProjectItem name="largedevsrc/backEnd/proweb/textDetailsMoxie.csp" type="CSP"></ProjectItem>
-    <ProjectItem name="largedevsrc/frontEnd/reg/reorderProwebElements.csp" type="CSP"></ProjectItem>
-    <ProjectItem name="EF.pageController.proweb.panel" type="CLS"></ProjectItem>
-    <ProjectItem name="EF.ui.components.panel" type="CLS"></ProjectItem>
-    <ProjectItem name="EF.ui.components.backend.panel" type="CLS"></ProjectItem>
-    <ProjectItem name="EF.ui.components.frontend.panel" type="CLS"></ProjectItem>
-    <ProjectItem name="EF.pageController.proweb.checkboxGroupTestCase" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.proweb.testCases.checkboxGroupTestCase" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.proweb.testCases.datePIckerTestCase" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.proweb.testCases.dateRangeTestCase" type="CLS"></ProjectItem>
@@ -13887,6 +14425,58 @@ The basic frontend default stuff</Description>
     <ProjectItem name="EF.pageController.proweb.testCases.textInputTestCase" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.proweb.testCases.timeInputTestCase" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.proweb.testCases.webAddressTestCase" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.pageController.proweb.textArea" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.pageController.proweb.textBlock" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.pageController.proweb.textInput" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.pageController.proweb.timeInput" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.pageController.proweb.webAddress" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.pages.frontend.base" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.pages.frontend.baseProweb" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.ui.components.backend.panel" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.ui.components.frontend.checkbox" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.ui.components.frontend.checkboxGroup" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.ui.components.frontend.datePicker" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.ui.components.frontend.dateRange" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.ui.components.frontend.divider" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.ui.components.frontend.dropdown" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.ui.components.frontend.emailInput" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.ui.components.frontend.emailInputMulti" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.ui.components.frontend.floatingMenu" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.ui.components.frontend.floatingMenuAdd" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.ui.components.frontend.inputElement" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.ui.components.frontend.integerInput" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.ui.components.frontend.numericInput" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.ui.components.frontend.panel" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.ui.components.frontend.phoneNumber" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.ui.components.frontend.prowebBase" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.ui.components.frontend.radioButtons" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.ui.components.frontend.textArea" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.ui.components.frontend.textBlock" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.ui.components.frontend.textInput" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.ui.components.frontend.timeInput" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.ui.components.frontend.webAddress" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.ui.components.frontend.wholeNumber" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.ui.components.panel" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.validator.emailAddressMulti" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.validator.phoneNumber" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.validator.phoneNumberTestCase" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.validator.webAddress" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.validator.webAddressTestCase" type="CLS"></ProjectItem>
+    <ProjectItem name="largedevsrc/backEnd/proweb/codQuestionDetails.csp" type="CSP"></ProjectItem>
+    <ProjectItem name="largedevsrc/backEnd/proweb/codQuestionDetails2.csp" type="CSP"></ProjectItem>
+    <ProjectItem name="largedevsrc/backEnd/proweb/formDivider.csp" type="CSP"></ProjectItem>
+    <ProjectItem name="largedevsrc/backEnd/proweb/textDetailsMoxie.csp" type="CSP"></ProjectItem>
+    <ProjectItem name="largedevsrc/backEnd/proweb/textDetailsMoxie2.csp" type="CSP"></ProjectItem>
+    <ProjectItem name="largedevsrc/frontEnd/reg/pageControllerStandardSave.csp" type="CSP"></ProjectItem>
+    <ProjectItem name="largedevsrc/frontEnd/reg/reorderProwebElements.csp" type="CSP"></ProjectItem>
+    <ProjectItem name="largedevsrc/frontEnd/reg/t4Registration.csp" type="CSP"></ProjectItem>
+    <ProjectItem name="largedevsrc/frontEnd/reg/tRegistration.csp" type="CSP"></ProjectItem>
+    <ProjectItem name="largedevsrc/system/eventsForceRules.csr" type="CSP"></ProjectItem>
+    <ProjectItem name="layout.cssDefaultMethods" type="CLS"></ProjectItem>
+    <ProjectItem name="sc.objData" type="CLS"></ProjectItem>
+    <ProjectItem name="sc.xModules.objList" type="CLS"></ProjectItem>
+    <ProjectItem name="shared.pageMethods" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.ui.components.attribute" type="CLS"></ProjectItem>
   </Items>
   <BreakPoints>
     <BreakPoint Routine="cspRealEV.frontend.reg.pagecontrollerstandardsave.CLS" Offset="OnPreHTTPafter+28"></BreakPoint>

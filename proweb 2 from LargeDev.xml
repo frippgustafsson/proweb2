@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2015.2 (Build 664_3_16032U)" ts="2016-10-13 18:43:06">
+<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2015.2 (Build 664_3_16032U)" ts="2016-10-14 11:19:36">
 <Class name="EF.contextDataRegistration">
 <Description><![CDATA[
 <!-- ;vc;-
@@ -1597,10 +1597,18 @@ Should be run if any of the sub-classes are deleted</Description>
 
 <Class name="EF.pageController.proweb.inputElement">
 <Super>EF.pageController.inputElement,EF.pageController.proweb.prowebBase</Super>
-<TimeChanged>64202,40605.101516</TimeChanged>
+<TimeChanged>64205,30734.008767</TimeChanged>
 <TimeCreated>64189,53012.909524</TimeCreated>
 
 <Property name="isMandatory">
+<Type>%Boolean</Type>
+</Property>
+
+<Property name="guestNumber">
+<Type>%Integer</Type>
+</Property>
+
+<Property name="isGuest">
 <Type>%Boolean</Type>
 </Property>
 
@@ -1628,6 +1636,15 @@ Should be run if any of the sub-classes are deleted</Description>
 </Value>
 <Value name="2">
 <Value>prowebID</Value>
+</Value>
+<Value name="3">
+<Value>guestNumebr</Value>
+</Value>
+<Value name="4">
+<Value>isGuest</Value>
+</Value>
+<Value name="5">
+<Value>guestNumber</Value>
 </Value>
 </Data>
 </Storage>
@@ -1670,7 +1687,7 @@ Should be run if any of the sub-classes are deleted</Description>
 
 <Class name="EF.pageController.proweb.page">
 <Super>EF.pageController.page</Super>
-<TimeChanged>64204,67150.280416</TimeChanged>
+<TimeChanged>64205,40635.28672</TimeChanged>
 <TimeCreated>64189,51696.559047</TimeCreated>
 
 <Property name="contextData">
@@ -1681,14 +1698,19 @@ Should be run if any of the sub-classes are deleted</Description>
 <Type>%Integer</Type>
 </Property>
 
-<Property name="listOfUiComponentsSorted">
-<Type>EF.pageController.proweb.prowebBase</Type>
-<Collection>list</Collection>
+<Property name="listOfControllerIDsSorted">
+<Type>%ListOfDataTypes</Type>
+<Transient>1</Transient>
 </Property>
 
-<Property name="listOfGuestUiComponents">
-<Type>EF.pageController.proweb.prowebBase</Type>
-<Collection>list</Collection>
+<Property name="listOfGuestControllerIDs">
+<Type>%ListOfDataTypes</Type>
+<Transient>1</Transient>
+</Property>
+
+<Property name="positionOfNextNonGuestQuestion">
+<Type>%Integer</Type>
+<Private>1</Private>
 </Property>
 
 <Method name="load">
@@ -1788,7 +1810,7 @@ Should be run if any of the sub-classes are deleted</Description>
 	#dim element as EF.pageController.element
 		
 	if prowebItem.dataType = "objCODitem" { 
-		set element = ..getElementForQuestion(prowebItem)
+		set element = ..getNewElementForQuestion(prowebItem)
 	
 	} elseif prowebItem.dataType = "objText" {
 		set element = ##class(EF.pageController.proweb.textBlock).addElementToParent($this, elementIdentifier, prowebItem.description)
@@ -1820,8 +1842,8 @@ Should be run if any of the sub-classes are deleted</Description>
 ]]></Implementation>
 </Method>
 
-<Method name="getElementForQuestion">
-<FormalSpec>prowebItem:sc.objData</FormalSpec>
+<Method name="getNewElementForQuestion">
+<FormalSpec>prowebItem:sc.objData,optionalGuestNumber:%Integer=""</FormalSpec>
 <Private>1</Private>
 <ReturnType>EF.pageController.proweb.inputElement</ReturnType>
 <Implementation><![CDATA[
@@ -1829,9 +1851,14 @@ Should be run if any of the sub-classes are deleted</Description>
 	#dim prowebID as %Integer = prowebItem.%Id()
 	#dim itemName as %String = ##class(sc.xModules.objCODitem).getCODItemName(prowebID)
 	#dim value as %String  = ##class(eCom.tempCodData).get(..contextData.tempPersonID, itemName)
-	#dim elementIdentifier as %String = ..getElementIdentifierForProwebItems(prowebItem)	
+	#dim elementIdentifier as %String 
 	#dim labelText as %String = ##class(sc.objData).getQuestionPrompt(prowebID, ..contextData.languageID)
 
+	if (prowebItem.isGuest) && (optionalGuestNumber = "") {
+		set optionalGuestNumber = 1
+	}
+	set elementIdentifier = ..getElementIdentifierForProwebItems(prowebItem, optionalGuestNumber)
+	
 	set pageControllerClassName = $Case(prowebItem.type,
 										"text":"textInput",
 										"emailAddress":"emailInput",
@@ -1848,8 +1875,7 @@ Should be run if any of the sub-classes are deleted</Description>
 										:"exception"
 										)
 	if pageControllerClassName '= "exception" {										
-		set panel = ##class(EF.pageController.containerElements.panel).addElementToParent($this, "myPanel"_prowebID, "Top Panel")
-		set element = $ClassMethod("EF.pageController.proweb."_pageControllerClassName, "addElementToParent", panel, elementIdentifier, labelText, value, isReadOnly)
+		set element = $ClassMethod("EF.pageController.proweb."_pageControllerClassName, "addElementToParent", $this, elementIdentifier, labelText, value, isReadOnly)
 		
 	} elseif (prowebItem.type = "dropdown") ! (prowebItem.type = "radiobutton") ! (prowebItem.type = "multibox") {
 		set element = ..addProwebSelectionElement(prowebItem)
@@ -1895,7 +1921,8 @@ Should be run if any of the sub-classes are deleted</Description>
 	
 	set element.uiComponent.isGuest = prowebItem.isGuest
 	if prowebItem.isGuest {
-		set element.uiComponent.guestID = 1	
+		set element.guestNumber = 1	
+		set element.uiComponent.guestNumber = 1	
 	}
 	set element.uiComponent.helpText = prowebItem.helpText	
 	set element.prowebID = prowebItem.%Id()
@@ -1958,12 +1985,17 @@ Should be run if any of the sub-classes are deleted</Description>
 </Method>
 
 <Method name="getElementIdentifierForProwebItems">
-<FormalSpec>prowebItem:sc.objData</FormalSpec>
+<FormalSpec>prowebItem:sc.objData,optionalGuestNumber:%Integer=""</FormalSpec>
 <Private>1</Private>
 <ReturnType>%String</ReturnType>
 <Implementation><![CDATA[
 	#dim prowebID as %Integer = prowebItem.%Id()
-	return "proweb-"_prowebID
+	
+	set identifier = "proweb-"_prowebID
+	if optionalGuestNumber {
+		set identifier = identifier_"-"_optionalGuestNumber		
+	}
+	return identifier
 ]]></Implementation>
 </Method>
 
@@ -1971,42 +2003,44 @@ Should be run if any of the sub-classes are deleted</Description>
 <Description>
 this method needs rewriting when the arrayOfUiComponents become a list instead of an array</Description>
 <Implementation><![CDATA[
-	
-	do ..getAllElementsReordered()
+	do ..populatelistOfControllerIDsSorted()
+	;if 'reloadingPage ( // ######################################
 	do ..repeatAnyGuestQuestions()
 	do ..insertPanelElementsAroundGuestQuestions()
 	do ..renderElements()
 ]]></Implementation>
 </Method>
 
-<Method name="getAllElementsReordered">
+<Method name="populatelistOfControllerIDsSorted">
 <Private>1</Private>
 <Implementation><![CDATA[
-	#dim key as %String = ""
-	#dim element as EF.pageController.element
-	#dim sparseArrayOfUiComponents
+	#dim controller as EF.pageController.element
+	#dim sparseArrayOfControllers
 
 	for {
-		set element=..allPageElements.GetNext(.key)
+		set controller=..allPageElements.GetNext(.key)
 		if key="" quit
 		
-		set elementListID = element.prowebListID
-		set componentListID = ##class(sc.xModules.objList).getListIDFromPageIDAndComponentName(..contextData.pageID, ..contextData.prowebComponentName)
-				
-		if (elementListID = componentListID) && ('element.%IsA("EF.pageController.proweb.page")) {
-			if element.displayOrder = "" {
-				throw ##class(shared.exceptions.generalException).%New("No displayOrder defined for element: "_element)	
+		if controller.%Extends("EF.pageController.proweb.prowebBase") {
+			
+			set elementListID = controller.prowebListID
+			set componentListID = ##class(sc.xModules.objList).getListIDFromPageIDAndComponentName(..contextData.pageID, ..contextData.prowebComponentName)
+					
+			if (elementListID = componentListID) && ('controller.%IsA("EF.pageController.proweb.page")) {
+				if controller.displayOrder = "" {
+					throw ##class(shared.exceptions.generalException).%New("No displayOrder defined for element: "_controller)	
+				}
+				set sparseArrayOfControllers(controller.displayOrder) = controller.identifier	
 			}
-			set sparseArrayOfUiComponents(element.displayOrder) = element.uiComponent	
 		}
 	}
 	
 	for counter=1:1 { 
-		set key = $Order(sparseArrayOfUiComponents(key))
+		set key = $Order(sparseArrayOfControllers(key))
 		if key="" quit
 		
-		set uiComponent = sparseArrayOfUiComponents(key)
-		do ..listOfUiComponentsSorted.Insert(uiComponent)
+		set controllerID = sparseArrayOfControllers(key)
+		do ..listOfControllerIDsSorted.Insert(controllerID)
 	}
 ]]></Implementation>
 </Method>
@@ -2014,51 +2048,79 @@ this method needs rewriting when the arrayOfUiComponents become a list instead o
 <Method name="repeatAnyGuestQuestions">
 <Private>1</Private>
 <Implementation><![CDATA[
-	#dim key as %String = ""
-	#dim lastUsedKey as %String = ""
-	#dim uiComponent as EF.ui.components.base
-	#dim positionOfNextNonGuestQuestion as %Integer = 0
-	#dim hasFoundGuestUiComponent as %Boolean = 0
-	#dim eventConfiguration as setup.eventConfiguration
-	
-	set eventConfiguration = ##class(setup.eventConfiguration).createForEventID(..contextData.eventID)
+	do ..findAllGuestQuestions()
+	do ..insertOneSetOfQuestionsPerGuest()
+]]></Implementation>
+</Method>
 
+<Method name="findAllGuestQuestions">
+<Private>1</Private>
+<Implementation><![CDATA[
+	#dim key as %Integer = ""
+	#dim lastUsedKey as %String = ""
+	#dim controller as EF.pageController.element
+	#dim hasFoundGuestUiComponent as %Boolean = 0
+	#define isGuestElement (controller.uiComponent.isGuest = 1)
+	#define isNotGuestElement (+controller.uiComponent.isGuest = 0)
+	
 	for  {
-		set uiComponent = ..listOfUiComponentsSorted.GetNext(.key)
+		set controllerID = ..listOfControllerIDsSorted.GetNext(.key)
 		if key="" quit
 		set lastUsedKey = key
-		
-		if (uiComponent.%Extends("EF.ui.components.frontend.inputElement")) && (uiComponent.isGuest = 1)  {
-			do ..listOfGuestUiComponents.Insert(uiComponent)
-			set hasFoundGuestUiComponent = 1
-		} 
-		
-		if (uiComponent.%Extends("EF.ui.components.frontend.inputElement")) && (uiComponent.isGuest = 0) && (hasFoundGuestUiComponent = 1) {
-			set hasFoundGuestUiComponent = 0
-			set positionOfNextNonGuestQuestion = lastUsedKey
-		}
-		if (uiComponent.%Extends("EF.ui.components.frontend.divider")) && (hasFoundGuestUiComponent = 1) {
-			set hasFoundGuestUiComponent = 0
-			set positionOfNextNonGuestQuestion = lastUsedKey
-		}
+		set controller = ..getElementByIdentifier(controllerID)
 
+		if controller.%Extends("EF.pageController.proweb.inputElement") {
+			if $$$isGuestElement  {
+				do ..listOfGuestControllerIDs.Insert(controllerID)
+				set hasFoundGuestUiComponent = 1
+			} 
+			
+			if $$$isNotGuestElement && (hasFoundGuestUiComponent = 1) {
+				set hasFoundGuestUiComponent = 0
+				set ..positionOfNextNonGuestQuestion = key
+			}			
+
+		} else { // non-questions
+			if hasFoundGuestUiComponent = 1 {
+				set hasFoundGuestUiComponent = 0
+				set ..positionOfNextNonGuestQuestion = lastUsedKey
+			}
+		}
 	}
-	if 'positionOfNextNonGuestQuestion {
-		set positionOfNextNonGuestQuestion = lastUsedKey
+	if '..positionOfNextNonGuestQuestion {
+		set ..positionOfNextNonGuestQuestion = lastUsedKey+1 // end of page
 	}
+]]></Implementation>
+</Method>
+
+<Method name="insertOneSetOfQuestionsPerGuest">
+<Private>1</Private>
+<Implementation><![CDATA[
+	#dim key as %Integer = ""
+	#dim controller as EF.pageController.element
+	#dim eventConfiguration as setup.eventConfiguration = ##class(setup.eventConfiguration).createForEventID(..contextData.eventID)
 	
 	for guestNumber = 2:1:eventConfiguration.getMaxGuestsPerAttendee() {
+	
 		for  {
-			set uiComponent = ..listOfGuestUiComponents.GetNext(.key)
+			set controllerID = ..listOfGuestControllerIDs.GetNext(.key)
 			if key="" quit
+			set controller = ..getElementByIdentifier(controllerID)
 			
-			set newUiComponent = uiComponent.%ConstructClone(0)
-			set newUiComponent.guestID = guestNumber
+			set newController = ..getNewElementForQuestion(controller.uiComponent.prowebItem, guestNumber)
 			
-			do ..listOfUiComponentsSorted.InsertAt(newUiComponent, positionOfNextNonGuestQuestion)
+			set newController.guestNumber = guestNumber
+			set newController.displayOrder = ..positionOfNextNonGuestQuestion
+			set newController.uiComponent.isProwebEditMode = (..contextData.prowebMode = "edit")
+			set newController.uiComponent.prowebItem = controller.uiComponent.prowebItem
+			set newController.uiComponent.contextData = ..contextData
+			set newController.prowebListID = controller.prowebListID
+			set newController.prowebID = controller.prowebID
+						
+			do ..listOfControllerIDsSorted.InsertAt(newController.identifier, ..positionOfNextNonGuestQuestion) 
 			
-			set positionOfNextNonGuestQuestion = positionOfNextNonGuestQuestion + 1
-			kill uiComponent
+			set ..positionOfNextNonGuestQuestion = ..positionOfNextNonGuestQuestion + 1
+			kill newController
 		}
 	}
 ]]></Implementation>
@@ -2067,63 +2129,71 @@ this method needs rewriting when the arrayOfUiComponents become a list instead o
 <Method name="insertPanelElementsAroundGuestQuestions">
 <Private>1</Private>
 <Implementation><![CDATA[
-	#dim key as %String = ""
+	#dim key as %Integer = ""
 	#dim lastUsedKey as %String = ""
-	#dim uiComponent as EF.ui.components.base
-	#dim currentGuestID as %Boolean = 0
-
+	#dim controller as EF.pageController.element
+	#dim currentGuestNumber as %Integer = 0
+	#define isGuestElement (controller.uiComponent.isGuest = 1)
+	#define isNotGuestElement (+controller.uiComponent.isGuest = 0)
+	
 	for  {
-		set uiComponent = ..listOfUiComponentsSorted.GetNext(.key)
+		set controllerID = ..listOfControllerIDsSorted.GetNext(.key)
 		if key="" quit
+		set controller = ..getElementByIdentifier(controllerID)
 		set lastUsedKey = key
-		if (uiComponent.%Extends("EF.ui.components.frontend.inputElement")) 
 		
-		if (uiComponent.%Extends("EF.ui.components.frontend.inputElement")) && (uiComponent.isGuest = 1) && (currentGuestID = 0) {
-			set currentGuestID = uiComponent.guestID
-			do ..insertUiComponentForGuestPanel(key, "opening")
-		}
+		if controller.%Extends("EF.pageController.proweb.inputElement") {
 
-		if (uiComponent.%Extends("EF.ui.components.frontend.inputElement")) && ( uiComponent.isGuest = 0) && (currentGuestID) {
-			set currentGuestID = 0
-			do ..insertUiComponentForGuestPanel(key, "closing") 
-		}
-		
-		if (uiComponent.%Extends("EF.ui.components.frontend.inputElement")) && (uiComponent.isGuest = 1) && (+uiComponent.guestID '= +currentGuestID) {
-			set currentGuestID = 0
-			do ..insertUiComponentForGuestPanel(key, "closing") 
-		}
+			if $$$isGuestElement && (currentGuestNumber = 0) {
+				set currentGuestNumber = controller.guestNumber
+				do ..insertControllerForGuestPanel(key, "opening")
+			}
 
-		if (uiComponent.%Extends("EF.ui.components.frontend.divider")) && (currentGuestID) {
-			set currentGuestID = 0
-			do ..insertUiComponentForGuestPanel(key, "closing") 
+			if $$$isNotGuestElement && (currentGuestNumber) {
+				set currentGuestNumber = 0
+				do ..insertControllerForGuestPanel(key, "closing") 
+			}
+			
+			if $$$isGuestElement && (+controller.guestNumber '= +currentGuestNumber) {
+				set currentGuestNumber = 0
+				do ..insertControllerForGuestPanel(key, "closing") 
+			}
+			
+		} else { // non-questions
+			if currentGuestNumber {
+				set currentGuestNumber = 0
+				do ..insertControllerForGuestPanel(key, "closing") 
+			}			
 		}
-		
 	}
 	
-	if currentGuestID {
-		do ..insertUiComponentForGuestPanel(lastUsedKey+1, "closing") 
+	if currentGuestNumber {
+		do ..insertControllerForGuestPanel(lastUsedKey+1, "closing") 
 	}
 ]]></Implementation>
 </Method>
 
-<Method name="insertUiComponentForGuestPanel">
+<Method name="insertControllerForGuestPanel">
 <FormalSpec>insertPosition:%Integer,openOrClose:%String</FormalSpec>
 <Private>1</Private>
 <Implementation><![CDATA[
-	#dim key as %String = ""
-	#dim uiComponentForPanel as EF.ui.components.frontend.panel
+	#dim controllerForPanel as EF.pageController.proweb.panel
 	
-	set uiComponentForPanel = ##class(EF.ui.components.frontend.panel).%New("GuestPanel-"_insertPosition)
-	set uiComponentForPanel.isOpeningOrClosing = openOrClose
-	do ..listOfUiComponentsSorted.InsertAt(uiComponentForPanel, insertPosition)
+	set controllerForPanel = ##class(panel).addElementToParent($this, "GuestPanel-"_insertPosition, "")
+	set controllerForPanel.isOpeningOrClosing = openOrClose
+	set controllerForPanel.uiComponent.isOpeningOrClosing = openOrClose
+		
+	do ..listOfControllerIDsSorted.InsertAt(controllerForPanel.identifier, insertPosition)
 ]]></Implementation>
 </Method>
 
 <Method name="renderElements">
 <Private>1</Private>
 <Implementation><![CDATA[
-	for position = 1:1:..listOfUiComponentsSorted.Count() {
-		do ..listOfUiComponentsSorted.GetAt(position).render()		
+	for position = 1:1:..listOfControllerIDsSorted.Count() {
+		set controllerID = ..listOfControllerIDsSorted.GetAt(position)
+		set controller = ..getElementByIdentifier(controllerID)
+		do controller.uiComponent.render()		
 	}
 ]]></Implementation>
 </Method>
@@ -2131,7 +2201,7 @@ this method needs rewriting when the arrayOfUiComponents become a list instead o
 <Method name="reorderProwebElements">
 <FormalSpec>orderedElementIds:%String</FormalSpec>
 <Implementation><![CDATA[
-	#dim key as %String = ""
+	#dim key as %Integer = ""
 	#dim element as EF.pageController.element
 	#dim prowebItemID as %Integer
 	
@@ -2161,7 +2231,7 @@ this method needs rewriting when the arrayOfUiComponents become a list instead o
 
 <Method name="copyAllDataToEComTemp">
 <Implementation><![CDATA[
-	#dim key as %String = ""
+	#dim key as %Integer = ""
 	#dim element as EF.pageController.element
 	#dim prowebItemID as %Integer
 	#dim prowbItemName as %String
@@ -2245,10 +2315,16 @@ this method needs rewriting when the arrayOfUiComponents become a list instead o
 <Value>prowebPageID</Value>
 </Value>
 <Value name="5">
-<Value>listOfUiComponentsSorted</Value>
+<Value>listOfControllerIDsSorted</Value>
 </Value>
 <Value name="6">
-<Value>listOfGuestUiComponents</Value>
+<Value>listOfGuestControllerIDs</Value>
+</Value>
+<Value name="7">
+<Value>..positionOfNextNonGuestQuestion</Value>
+</Value>
+<Value name="8">
+<Value>positionOfNextNonGuestQuestion</Value>
 </Value>
 </Data>
 </Storage>
@@ -2257,17 +2333,28 @@ this method needs rewriting when the arrayOfUiComponents become a list instead o
 
 <Class name="EF.pageController.proweb.panel">
 <Super>EF.pageController.containerElements.panel</Super>
-<TimeChanged>64204,36283.387705</TimeChanged>
+<TimeChanged>64205,32081.565306</TimeChanged>
 <TimeCreated>63372,47064.603748</TimeCreated>
+
+<Property name="isOpeningOrClosing">
+<Type>%String</Type>
+</Property>
 
 <Method name="getDefaultUIComponent">
 <ReturnType>EF.ui.components.container</ReturnType>
-<Implementation><![CDATA[	quit ##class(EF.ui.components.front.panel).%New(..identifier)
+<Implementation><![CDATA[	quit ##class(EF.ui.components.frontend.panel).%New(..identifier)
 ]]></Implementation>
 </Method>
 
 <Storage name="Default">
 <Type>%Library.CacheStorage</Type>
+<DefaultData>panelDefaultData</DefaultData>
+<Data name="panelDefaultData">
+<Subscript>"panel"</Subscript>
+<Value name="1">
+<Value>isOpeningOrClosing</Value>
+</Value>
+</Data>
 </Storage>
 </Class>
 
@@ -3218,7 +3305,7 @@ this is for version 1 of proweb</Description>
 <Class name="EF.pages.frontend.baseProweb">
 <ProcedureBlock>0</ProcedureBlock>
 <Super>EF.pages.frontend.base</Super>
-<TimeChanged>64204,32482.302959</TimeChanged>
+<TimeChanged>64205,34829.113358</TimeChanged>
 <TimeCreated>64191,31442.531402</TimeCreated>
 
 <Parameter name="ENCODED">
@@ -3317,7 +3404,11 @@ this is for version 1 of proweb</Description>
 			set pageController.isReadOnly = 0
 			set pageController.prowebPageID = contextData.pageID
 			
-			do pageController.%Save()
+			set sc = pageController.%Save()
+			if 'sc {
+				throw ##class(shared.exceptions.generalStatusException).CreateFromStatus(sc)
+					
+			}
 		}
 		
 		set pageControllerID=pageController.%Id()
@@ -4266,7 +4357,7 @@ this is for version 1 of proweb</Description>
 
 <Class name="EF.ui.components.frontend.inputElement">
 <Super>EF.ui.components.frontend.prowebBase,EF.ui.components.inputBase</Super>
-<TimeChanged>64204,67050.304134</TimeChanged>
+<TimeChanged>64205,30717.151496</TimeChanged>
 <TimeCreated>64183,40678.260093</TimeCreated>
 
 <Property name="alternatives">
@@ -4278,14 +4369,12 @@ this is for version 1 of proweb</Description>
 <Type>%Boolean</Type>
 </Property>
 
-<Property name="isGuest">
-<Type>%Boolean</Type>
+<Property name="guestNumber">
+<Type>%Integer</Type>
 </Property>
 
-<Property name="guestID">
-<Description>
-used to keep the multiple guests apart</Description>
-<Type>%Integer</Type>
+<Property name="isGuest">
+<Type>%Boolean</Type>
 </Property>
 
 <Property name="helpText">
@@ -4484,7 +4573,7 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 
 <Class name="EF.ui.components.frontend.prowebBase">
 <Super>EF.ui.components.base</Super>
-<TimeChanged>64204,35853.81398</TimeChanged>
+<TimeChanged>64205,38783.086605</TimeChanged>
 <TimeCreated>64183,41819.123112</TimeCreated>
 
 <Property name="isProwebEditMode">
@@ -4503,7 +4592,6 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 
 <Method name="renderRowOpening">
 <Implementation><![CDATA[
-	#dim floatingEditMenuID as %Integer = ..contextData.getNewFloatingMenuCounter()
 	#dim prowebListID as %Integer
 	 
 	if ..contextData.%IsA("EF.contextDataRegistrationMock") {
@@ -9970,7 +10058,7 @@ function updateAlts(codPromptID) {
 
 <csp:section name="PageContent">
 	<ef-pc-container type="panel-body">
-	   	<div class="row ef-proweb-reorderable" data-ef-reorderable-save-url="#(..encodeForHTMLAttribute(..Link("../../frontend/reg/reorderProwebElements.csp")))#">
+	   	<div class="row ef-proweb-reorderable" data-ef-reorderable-save-url="#(..encodeForHTMLAttribute(..Link("../../frontend/reg/reorderProwebElements.csp")))#" >
 				<ef-pc-element prowebcomponentname="Main List">
 			
 				

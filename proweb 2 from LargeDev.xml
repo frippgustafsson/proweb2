@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2015.2 (Build 664_3_16032U)" ts="2016-10-14 11:19:36">
+<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2015.2 (Build 664_3_16032U)" ts="2016-10-14 11:56:44">
 <Class name="EF.contextDataRegistration">
 <Description><![CDATA[
 <!-- ;vc;-
@@ -1687,7 +1687,7 @@ Should be run if any of the sub-classes are deleted</Description>
 
 <Class name="EF.pageController.proweb.page">
 <Super>EF.pageController.page</Super>
-<TimeChanged>64205,40635.28672</TimeChanged>
+<TimeChanged>64205,42794.672137</TimeChanged>
 <TimeCreated>64189,51696.559047</TimeCreated>
 
 <Property name="contextData">
@@ -1850,7 +1850,7 @@ Should be run if any of the sub-classes are deleted</Description>
 	#dim isReadOnly as %Boolean = 0
 	#dim prowebID as %Integer = prowebItem.%Id()
 	#dim itemName as %String = ##class(sc.xModules.objCODitem).getCODItemName(prowebID)
-	#dim value as %String  = ##class(eCom.tempCodData).get(..contextData.tempPersonID, itemName)
+	#dim value as %String
 	#dim elementIdentifier as %String 
 	#dim labelText as %String = ##class(sc.objData).getQuestionPrompt(prowebID, ..contextData.languageID)
 
@@ -1858,6 +1858,7 @@ Should be run if any of the sub-classes are deleted</Description>
 		set optionalGuestNumber = 1
 	}
 	set elementIdentifier = ..getElementIdentifierForProwebItems(prowebItem, optionalGuestNumber)
+	set value = ..getValueFromEComTemp(itemName, optionalGuestNumber)
 	
 	set pageControllerClassName = $Case(prowebItem.type,
 										"text":"textInput",
@@ -1889,28 +1890,7 @@ Should be run if any of the sub-classes are deleted</Description>
 		set childController.prowebID = prowebItem.%Id()
 	}		
 	if prowebItem.type = "dateRange" {
-		set databaseItemID  = prowebItem.objItemName.%Id()
-		
-		set childControllerStart = ##class(EF.pageController.proweb.datePicker).addElementToParent(element, elementIdentifier_"-startDate", "", isReadOnly)	
-		set childControllerStart.prowebID = prowebItem.%Id()
-		set childControllerStart.uiComponent.contextData = ..contextData
-		set childControllerStart.uiComponent.prowebItem = prowebItem
-		set childControllerStart.value = $Piece(##class(eCom.tempCodData).get(..contextData.tempPersonID, itemName), "|", 1)
-		
-		set earliestAllowedStartDate = $Piece(##class(cod.lnkItemNameEventDateRange).getMinTimeStamp(..contextData.eventID, databaseItemID), " ", 1)
-		set earliestAllowedStartDate = ##class(shared.dateFunctions).multiDate(earliestAllowedStartDate, childControllerStart.uiComponent.validator.dateFormat )
-		do childControllerStart.uiComponent.addAttribute("efdaterangestartmin", earliestAllowedStartDate )
-		
-					
-		set childControllerEnd = ##class(EF.pageController.proweb.datePicker).addElementToParent(element, elementIdentifier_"-endDate", "", isReadOnly)		
-		set childControllerEnd.prowebID = prowebItem.%Id()	
-		set childControllerEnd.uiComponent.contextData = ..contextData
-		set childControllerEnd.uiComponent.prowebItem = prowebItem
-		set childControllerEnd.value = $Piece(##class(eCom.tempCodData).get(..contextData.tempPersonID, itemName), "|", 2)
-
-		set latestAllowedEndDate = $Piece(##class(cod.lnkItemNameEventDateRange).getMinTimeStamp(..contextData.eventID, databaseItemID), " ", 1)
-		set latestAllowedEndDate = ##class(shared.dateFunctions).multiDate(latestAllowedEndDate, childControllerStart.uiComponent.validator.dateFormat )
-		do childControllerEnd.uiComponent.addAttribute("efdaterangeendmax", latestAllowedEndDate )
+		do ..addSecondDatePickerForDateRange(prowebItem, element)
 	}
 	
 	if (element.%IsA("EF.pageController.proweb.checkboxGroup") = 0) && (element.uiComponent.isGuest = 0) {
@@ -1928,6 +1908,40 @@ Should be run if any of the sub-classes are deleted</Description>
 	set element.prowebID = prowebItem.%Id()
 
 	return element
+]]></Implementation>
+</Method>
+
+<Method name="getValueFromEComTemp">
+<FormalSpec>itemName:%String,optionalGuestNumber:%Integer</FormalSpec>
+<Private>1</Private>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	if optionalGuestNumber {
+		set tempPersonID = ..getTempPersonIdForGuestNumber(optionalGuestNumber)	
+	} else {
+		set tempPersonID = ..contextData.tempPersonID
+	}
+	set value = ##class(eCom.tempCodData).get(tempPersonID, itemName)
+	return value
+]]></Implementation>
+</Method>
+
+<Method name="getTempPersonIdForGuestNumber">
+<FormalSpec>optionalGuestNumber:%Integer</FormalSpec>
+<ReturnType>%Integer</ReturnType>
+<Implementation><![CDATA[
+	#dim counter as %Integer = 0
+	
+	set rsTemps = ##class(%ResultSet).%New()
+	do rsTemps.Prepare("SELECT ID FROM eCom.tempPerson WHERE (tempPurchase = ?) AND (isGuest = 1) AND (active = 1) ORDER BY ID")
+	do rsTemps.Execute(..contextData.tempPurchaseID)
+	while rsTemps.Next() {
+		set counter = counter + 1	
+		if counter = optionalGuestNumber {
+			return rsTemps.Get("ID")
+		}
+	}
+	return ""
 ]]></Implementation>
 </Method>
 
@@ -1980,6 +1994,44 @@ Should be run if any of the sub-classes are deleted</Description>
 		}
     }
 	
+	return element
+]]></Implementation>
+</Method>
+
+<Method name="addSecondDatePickerForDateRange">
+<FormalSpec>prowebItem:sc.objData,element:EF.pageController.proweb.datePicker</FormalSpec>
+<Private>1</Private>
+<ReturnType>EF.pageController.element</ReturnType>
+<Implementation><![CDATA[
+	#dim isReadOnly as %Boolean = 0
+	#dim prowebID as %Integer = prowebItem.%Id()
+	#dim itemName as %String = ##class(sc.xModules.objCODitem).getCODItemName(prowebID)
+	#dim value as %String 
+	#dim elementIdentifier as %String = ..getElementIdentifierForProwebItems(prowebItem)
+
+	set databaseItemID  = prowebItem.objItemName.%Id()
+	
+	set childControllerStart = ##class(EF.pageController.proweb.datePicker).addElementToParent(element, elementIdentifier_"-startDate", "", isReadOnly)	
+	set childControllerStart.prowebID = prowebItem.%Id()
+	set childControllerStart.uiComponent.contextData = ..contextData
+	set childControllerStart.uiComponent.prowebItem = prowebItem
+	set childControllerStart.value = $Piece(##class(eCom.tempCodData).get(..contextData.tempPersonID, itemName), "|", 1)
+	
+	set earliestAllowedStartDate = $Piece(##class(cod.lnkItemNameEventDateRange).getMinTimeStamp(..contextData.eventID, databaseItemID), " ", 1)
+	set earliestAllowedStartDate = ##class(shared.dateFunctions).multiDate(earliestAllowedStartDate, childControllerStart.uiComponent.validator.dateFormat )
+	do childControllerStart.uiComponent.addAttribute("efdaterangestartmin", earliestAllowedStartDate )
+	
+				
+	set childControllerEnd = ##class(EF.pageController.proweb.datePicker).addElementToParent(element, elementIdentifier_"-endDate", "", isReadOnly)		
+	set childControllerEnd.prowebID = prowebItem.%Id()	
+	set childControllerEnd.uiComponent.contextData = ..contextData
+	set childControllerEnd.uiComponent.prowebItem = prowebItem
+	set childControllerEnd.value = $Piece(##class(eCom.tempCodData).get(..contextData.tempPersonID, itemName), "|", 2)
+
+	set latestAllowedEndDate = $Piece(##class(cod.lnkItemNameEventDateRange).getMinTimeStamp(..contextData.eventID, databaseItemID), " ", 1)
+	set latestAllowedEndDate = ##class(shared.dateFunctions).multiDate(latestAllowedEndDate, childControllerStart.uiComponent.validator.dateFormat )
+	do childControllerEnd.uiComponent.addAttribute("efdaterangeendmax", latestAllowedEndDate )	
+
 	return element
 ]]></Implementation>
 </Method>
@@ -4573,7 +4625,7 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 
 <Class name="EF.ui.components.frontend.prowebBase">
 <Super>EF.ui.components.base</Super>
-<TimeChanged>64205,38783.086605</TimeChanged>
+<TimeChanged>64205,40952.483624</TimeChanged>
 <TimeCreated>64183,41819.123112</TimeCreated>
 
 <Property name="isProwebEditMode">
@@ -4618,6 +4670,10 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 <Implementation><![CDATA[
 	if ..%IsA("EF.ui.components.frontend.divider") {
 		return "Divider"	
+		
+	} elseif ..%IsA("EF.ui.components.frontend.textBlock") {
+		return "Text Block"
+		
 	} else {
 		return ##class(sc.xModules.objCODitem).getCODItemName(..prowebItem.%Id())
 	}

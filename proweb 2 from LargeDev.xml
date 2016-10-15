@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2015.2 (Build 664_3_16032U)" ts="2016-10-15 15:49:56">
+<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2015.2 (Build 664_3_16032U)" ts="2016-10-15 17:29:19">
 <Class name="EF.contextDataRegistration">
 <Description><![CDATA[
 <!-- ;vc;-
@@ -11,7 +11,7 @@
 ;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>EF.contextDataRegistration.CLS/EV.4</td><td>CLS.EF.contextDataRegistration</td><td>SmallDev</td><td style='white-space: nowrap;'>02-Sep-16 14:23</td><td>JeremyW</td></tr></table>
 ]]></Description>
 <Super>EF.contextData</Super>
-<TimeChanged>64196,64348.208768</TimeChanged>
+<TimeChanged>64206,58498.912792</TimeChanged>
 <TimeCreated>63755,56082.660879</TimeCreated>
 
 <Property name="tempPurchaseID">
@@ -219,7 +219,7 @@ if website is private, this will be set to the cod.objPerson.ID of that logged i
 ;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>EF.contextDataRegistration.CLS/EV.4</td><td>CLS.EF.contextDataRegistration</td><td>SmallDev</td><td style='white-space: nowrap;'>02-Sep-16 14:23</td><td>JeremyW</td></tr></table>
 ]]></Description>
 <Super>EF.contextDataRegistration</Super>
-<TimeChanged>64178,51986.405601</TimeChanged>
+<TimeChanged>64206,61441.600998</TimeChanged>
 <TimeCreated>63755,56082.660879</TimeCreated>
 
 <Property name="tempPurchaseID">
@@ -260,7 +260,7 @@ if website is private, this will be set to the cod.objPerson.ID of that logged i
 
 <Property name="isTestMode">
 <Type>%Boolean</Type>
-<InitialExpression>0</InitialExpression>
+<InitialExpression>1</InitialExpression>
 </Property>
 
 <Property name="prowebMode">
@@ -288,6 +288,16 @@ if website is private, this will be set to the cod.objPerson.ID of that logged i
 
 <Property name="isBackendSuperUser">
 <Type>%Boolean</Type>
+<InitialExpression>0</InitialExpression>
+</Property>
+
+<Property name="listOfProwebItemsToAdd">
+<Type>sc.facade.prowebItem</Type>
+<Collection>list</Collection>
+</Property>
+
+<Property name="maxGuests">
+<Type>%Integer</Type>
 <InitialExpression>0</InitialExpression>
 </Property>
 
@@ -1656,7 +1666,7 @@ Should be run if any of the sub-classes are deleted</Description>
 
 <Class name="EF.pageController.proweb.page">
 <Super>EF.pageController.page</Super>
-<TimeChanged>64206,56351.972041</TimeChanged>
+<TimeChanged>64206,62913.181324</TimeChanged>
 <TimeCreated>64189,51696.559047</TimeCreated>
 
 <Property name="contextData">
@@ -1687,7 +1697,11 @@ Should be run if any of the sub-classes are deleted</Description>
 	set ..contextData.prowebFloatingMenuCounter = 100 // offset to keep them separate from the include pages' counters
 	do ..loadData()
 	
-	do ..insertAllProwebItems() 
+	if ..contextData.isTestMode {
+		do ..insertMockProwebItems()	
+	} else {	
+		do ..findAllProwebItemsFromDatabase() 
+	}
 	
 	do ..populateListOfControllerIDsSorted()
 	do ..repeatAnyGuestQuestions()
@@ -1720,7 +1734,7 @@ Should be run if any of the sub-classes are deleted</Description>
 			do ..renderErrorMessages()
 		}
 
-		do ..renderProwebItemsForComponent()
+		do ..renderElements()
 	}
 	quit
 ]]></Implementation>
@@ -1756,9 +1770,10 @@ Should be run if any of the sub-classes are deleted</Description>
 ]]></Implementation>
 </Method>
 
-<Method name="insertAllProwebItems">
+<Method name="findAllProwebItemsFromDatabase">
 <Private>1</Private>
 <Implementation><![CDATA[
+
 	set rsLists = ##class(%ResultSet).%New("sc.objData:qGetChildren")
 	do rsLists.Execute(..contextData.pageID)
 	
@@ -1770,15 +1785,11 @@ Should be run if any of the sub-classes are deleted</Description>
 		while rsProwebItems.Next() {	
 			set prowebID = rsProwebItems.Get("ID")
 			set typeOfElement = rsProwebItems.Get("dataType")
-			;w "<br>prowebID=",prowebID," typeOfElement=",typeOfElement
 			if typeOfElement = "objCODitem" {
-			;	w "<br>creating input element"
 				set storage = ##class(sc.facade.prowebItemStorageInputElement).createNew(prowebID, ..contextData.languageID)
 			} elseif typeOfElement = "objText" {
-			;	w "<br>creating text block"
 				set storage = ##class(sc.facade.prowebItemStorageTextBlock).createNew(prowebID)
 			} elseif typeOfElement = "objFormDivider" {
-			;	w "<br>creating divider"
 				set storage = ##class(sc.facade.prowebItemStorageDivider).createNew(prowebID)
 			}	
 						
@@ -1786,6 +1797,19 @@ Should be run if any of the sub-classes are deleted</Description>
 			
 			do ..addControllerForProwebItem(prowebItem)
 		}
+	}
+]]></Implementation>
+</Method>
+
+<Method name="insertMockProwebItems">
+<Implementation><![CDATA[
+	#dim key as %Integer = ""
+	
+	for  {
+		set prowebItem = ..contextData.listOfProwebItemsToAdd.GetNext(.key)	
+		if key = "" quit
+		
+		do ..addControllerForProwebItem(prowebItem)
 	}
 ]]></Implementation>
 </Method>
@@ -1919,6 +1943,9 @@ Should be run if any of the sub-classes are deleted</Description>
 <FormalSpec>optionalGuestNumber:%Integer</FormalSpec>
 <ReturnType>%Integer</ReturnType>
 <Implementation><![CDATA[
+	if ..contextData.isTestMode {
+		return 666	
+	}
 	#dim counter as %Integer = 0
 	
 	set rsTemps = ##class(%ResultSet).%New()
@@ -2052,11 +2079,6 @@ Should be run if any of the sub-classes are deleted</Description>
 ]]></Implementation>
 </Method>
 
-<Method name="renderProwebItemsForComponent">
-<Implementation><![CDATA[	do ..renderElements()
-]]></Implementation>
-</Method>
-
 <Method name="populateListOfControllerIDsSorted">
 <Implementation><![CDATA[
 	#dim controller as EF.pageController.element
@@ -2140,6 +2162,9 @@ Should be run if any of the sub-classes are deleted</Description>
 	#dim eventConfiguration as setup.eventConfiguration = ##class(setup.eventConfiguration).createForEventID(..contextData.eventID)
 	#dim maxGuests as %Integer = eventConfiguration.getMaxGuestsPerAttendee()
 	
+	if ..contextData.isTestMode {
+		set maxGuests = ..contextData.maxGuests
+	}
 	for guestNumber = 2:1:maxGuests {
 		for  {
 			set controllerID = ..listOfGuestControllerIDs.GetNext(.key)
@@ -2228,7 +2253,6 @@ Should be run if any of the sub-classes are deleted</Description>
 </Method>
 
 <Method name="renderElements">
-<Private>1</Private>
 <Implementation><![CDATA[
 	for position = 1:1:..listOfControllerIDsSorted.Count() {
 		set controllerID = ..listOfControllerIDsSorted.GetAt(position)
@@ -2505,7 +2529,7 @@ Should be run if any of the sub-classes are deleted</Description>
 
 <Class name="EF.pageController.proweb.testCases.checkboxGroupTestCase">
 <Super>EF.ISC.UnitTest.TestCase</Super>
-<TimeChanged>64204,52598.182886</TimeChanged>
+<TimeChanged>64206,61752.960923</TimeChanged>
 <TimeCreated>64204,52598.182886</TimeCreated>
 
 <Method name="TestWithMulticheckboxNoneSelected">
@@ -2530,7 +2554,7 @@ Should be run if any of the sub-classes are deleted</Description>
 	
 	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(page,"render")
 	set returnedHTML = $ZStrip(returnedHTML,"*WC")
-	set expectedHTML = "<divclass='rowef-proweb-form-row'><divclass='col-sm-4ef_proweb_form_prompt'><labelclass=""control-label""for=""proweb-1"">diet</label></div><divclass='col-sm-8ef_proweb_form_prompt'><divclass=""form-group""><divclass=""inputs-listef-proweb-input-elementef-proweb-checkboxGroup""><label><inputtype=""checkbox""value=""1""id=""proweb-1-1""class=""""name=""proweb-1-1""title="""">meat</label><br/><label><inputtype=""checkbox""value=""1""id=""proweb-1-2""class=""""name=""proweb-1-2""title="""">vegetarian</label><br/><label><inputtype=""checkbox""value=""1""id=""proweb-1-3""class=""""name=""proweb-1-3""title="""">vegan</label><br/><label><inputtype=""checkbox""value=""1""id=""proweb-1-4""class=""""name=""proweb-1-4""title="""">fish</label><br/></div></div></div></div>"
+	set expectedHTML = "<divclass=""rowef-proweb-form-row""><divclass=""col-sm-4ef_proweb_form_prompt""><labelclass=""control-label""for=""proweb-1"">diet</label></div><divclass=""col-sm-8ef_proweb_form_prompt""><divclass=""form-group""><divclass=""inputs-listef-proweb-input-elementef-proweb-checkboxGroup""><label><inputtype=""checkbox""value=""1""id=""proweb-1-1""class=""""name=""proweb-1-1""title="""">meat</label><br/><label><inputtype=""checkbox""value=""1""id=""proweb-1-2""class=""""name=""proweb-1-2""title="""">vegetarian</label><br/><label><inputtype=""checkbox""value=""1""id=""proweb-1-3""class=""""name=""proweb-1-3""title="""">vegan</label><br/><label><inputtype=""checkbox""value=""1""id=""proweb-1-4""class=""""name=""proweb-1-4""title="""">fish</label><br/></div></div></div></div>"
 	do $$$AssertEquals(returnedHTML,expectedHTML)
 ]]></Implementation>
 </Method>
@@ -2539,7 +2563,7 @@ Should be run if any of the sub-classes are deleted</Description>
 
 <Class name="EF.pageController.proweb.testCases.datePIckerTestCase">
 <Super>EF.ISC.UnitTest.TestCase</Super>
-<TimeChanged>64204,52627.550246</TimeChanged>
+<TimeChanged>64206,61777.333008</TimeChanged>
 <TimeCreated>64204,52627.550246</TimeCreated>
 
 <Method name="TestDatePicker">
@@ -2559,7 +2583,7 @@ Should be run if any of the sub-classes are deleted</Description>
 	
 	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(page,"render")
 	set returnedHTML = $ZStrip(returnedHTML,"*WC")
-	set expectedHTML = "<divclass='rowef-proweb-form-row'><divclass='col-sm-4ef_proweb_form_prompt'><labelclass=""control-label""for=""proweb-1"">date</label></div><divclass='col-sm-8ef_proweb_form_prompt'><divclass=""ef-proweb-input-element-short""><inputtype=""date""class=""ef-kendo-form-controlefDatePicker""title=""""id=""proweb-1""name=""proweb-1""value=""""placeholder=""DD/MM/YYYY""efKendoDateFormat=""dd/MM/yyyy""></div></div></div>"
+	set expectedHTML = "<divclass=""rowef-proweb-form-row""><divclass=""col-sm-4ef_proweb_form_prompt""><labelclass=""control-label""for=""proweb-1"">date</label></div><divclass=""col-sm-8ef_proweb_form_prompt""><divclass=""ef-proweb-input-element-short""><inputtype=""date""class=""ef-kendo-form-controlefDatePicker""title=""""id=""proweb-1""name=""proweb-1""value=""""placeholder=""DD/MM/YYYY""efKendoDateFormat=""dd/MM/yyyy""></div></div></div>"
 	do $$$AssertEquals(returnedHTML,expectedHTML)
 ]]></Implementation>
 </Method>
@@ -2568,7 +2592,7 @@ Should be run if any of the sub-classes are deleted</Description>
 
 <Class name="EF.pageController.proweb.testCases.dateRangeTestCase">
 <Super>EF.ISC.UnitTest.TestCase</Super>
-<TimeChanged>64204,52642.759507</TimeChanged>
+<TimeChanged>64206,61939.640011</TimeChanged>
 <TimeCreated>64204,52642.759507</TimeCreated>
 
 <Method name="TestDateRange">
@@ -2603,7 +2627,7 @@ Should be run if any of the sub-classes are deleted</Description>
 			
 	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(page,"render")
 	set returnedHTML = $ZStrip(returnedHTML,"*WC")
-	set expectedHTML = "<divclass='rowef-proweb-form-row'><divclass='col-sm-4ef_proweb_form_prompt'><labelclass=""control-label""for=""proweb-1"">dateranger</label></div><divclass='col-sm-8ef_proweb_form_prompt'><divstyle='float:left;text-align:left;'><inputtype=""date""class=""ef-kendo-form-controlefDatePicker""title=""""id=""proweb-1-startDate""name=""proweb-1-startDate""value=""""placeholder=""DD/MM/YYYY""efdaterangestartmin=""24/12/2001""efKendoDateFormat=""dd/MM/yyyy""></div><divstyle='float:left;text-align:left;margin-left:15px;margin-right:15px;'>to</div><divstyle='float:left;text-align:left;'><inputtype=""date""class=""ef-kendo-form-controlefDatePicker""title=""""id=""proweb-1-endDate""name=""proweb-1-endDate""value=""""placeholder=""DD/MM/YYYY""efdaterangeendmax=""31/12/2001""efKendoDateFormat=""dd/MM/yyyy""></div></div></div>"
+	set expectedHTML = "<divclass=""rowef-proweb-form-row""><divclass=""col-sm-4ef_proweb_form_prompt""><labelclass=""control-label""for=""proweb-1"">dateranger</label></div><divclass=""col-sm-8ef_proweb_form_prompt""><divstyle='float:left;text-align:left;'><inputtype=""date""class=""ef-kendo-form-controlefDatePicker""title=""""id=""proweb-1-startDate""name=""proweb-1-startDate""value=""""placeholder=""DD/MM/YYYY""efdaterangestartmin=""24/12/2001""efKendoDateFormat=""dd/MM/yyyy""></div><divstyle='float:left;text-align:left;margin-left:15px;margin-right:15px;'>to</div><divstyle='float:left;text-align:left;'><inputtype=""date""class=""ef-kendo-form-controlefDatePicker""title=""""id=""proweb-1-endDate""name=""proweb-1-endDate""value=""""placeholder=""DD/MM/YYYY""efdaterangeendmax=""31/12/2001""efKendoDateFormat=""dd/MM/yyyy""></div></div></div>"
 	do $$$AssertEquals(returnedHTML,expectedHTML)
 ]]></Implementation>
 </Method>
@@ -2612,7 +2636,7 @@ Should be run if any of the sub-classes are deleted</Description>
 
 <Class name="EF.pageController.proweb.testCases.dropdownTestCase">
 <Super>EF.ISC.UnitTest.TestCase</Super>
-<TimeChanged>64204,52666.398429</TimeChanged>
+<TimeChanged>64206,62121.969433</TimeChanged>
 <TimeCreated>64204,52666.398429</TimeCreated>
 
 <Method name="TestPageWithDropdown">
@@ -2631,7 +2655,7 @@ Should be run if any of the sub-classes are deleted</Description>
 	
 	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(page,"render")
 	set returnedHTML = $ZStrip(returnedHTML,"*WC")
-	set expectedHTML = "<divclass='rowef-proweb-form-row'><divclass='col-sm-4ef_proweb_form_prompt'><labelclass=""control-label""for=""proweb-1"">diet</label></div><divclass='col-sm-8ef_proweb_form_prompt'><selectclass=""form-controlef-proweb-input-element""name=""proweb-1""id=""proweb-1""title=""""><optionvalue=''></option><optionvalue=""meat"">meat</option><optionvalue=""vegetarian"">vegetarian</option><optionvalue=""vegan"">vegan</option></select></div></div>"
+	set expectedHTML = "<divclass=""rowef-proweb-form-row""><divclass=""col-sm-4ef_proweb_form_prompt""><labelclass=""control-label""for=""proweb-1"">diet</label></div><divclass=""col-sm-8ef_proweb_form_prompt""><selectclass=""form-controlef-proweb-input-element""name=""proweb-1""id=""proweb-1""title=""""><optionvalue=''></option><optionvalue=""meat"">meat</option><optionvalue=""vegetarian"">vegetarian</option><optionvalue=""vegan"">vegan</option></select></div></div>"
 	do $$$AssertEquals(returnedHTML,expectedHTML)
 ]]></Implementation>
 </Method>
@@ -2654,7 +2678,7 @@ Should be run if any of the sub-classes are deleted</Description>
 	
 	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(page,"render")
 	set returnedHTML = $ZStrip(returnedHTML,"*WC")
-	set expectedHTML = "<divclass='rowef-proweb-form-row'><divclass='col-sm-4ef_proweb_form_prompt'><labelclass=""control-label""for=""proweb-1"">diet</label></div><divclass='col-sm-8ef_proweb_form_prompt'><selectclass=""form-controlef-proweb-input-element""name=""proweb-1""id=""proweb-1""title=""""><optionvalue=''></option><optionvalue=""meat"">meat</option><optionvalue=""vegetarian"">vegetarian</option><optionselected=""""value=""vegan"">vegan</option></select></div></div>"
+	set expectedHTML = "<divclass=""rowef-proweb-form-row""><divclass=""col-sm-4ef_proweb_form_prompt""><labelclass=""control-label""for=""proweb-1"">diet</label></div><divclass=""col-sm-8ef_proweb_form_prompt""><selectclass=""form-controlef-proweb-input-element""name=""proweb-1""id=""proweb-1""title=""""><optionvalue=''></option><optionvalue=""meat"">meat</option><optionvalue=""vegetarian"">vegetarian</option><optionselected=""""value=""vegan"">vegan</option></select></div></div>"
 	do $$$AssertEquals(returnedHTML,expectedHTML)
 ]]></Implementation>
 </Method>
@@ -2675,8 +2699,8 @@ Should be run if any of the sub-classes are deleted</Description>
 	do element.updateUIComponent()
 	
 	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(page,"render")
+	set expectedHTML = "<divclass=""rowef-proweb-form-row""><divclass=""col-sm-4ef_proweb_form_promptef-required-field""><labelclass=""control-label""for=""proweb-1"">diet</label></div><divclass=""col-sm-8ef_proweb_form_prompt""><selectclass=""form-controlef-proweb-input-element""name=""proweb-1""id=""proweb-1""title=""""><optionvalue=''selecteddisabled>Chooseone...</option><optionvalue=""meat"">meat</option><optionvalue=""vegetarian"">vegetarian</option><optionselected=""""value=""vegan"">vegan</option></select></div></div>"
 	set returnedHTML = $ZStrip(returnedHTML,"*WC")
-	set expectedHTML = "<divclass='rowef-proweb-form-row'><divclass='col-sm-4ef_proweb_form_promptef-required-field'><labelclass=""control-label""for=""proweb-1"">diet</label></div><divclass='col-sm-8ef_proweb_form_prompt'><selectclass=""form-controlef-proweb-input-element""name=""proweb-1""id=""proweb-1""title=""""><optionvalue=''selecteddisabled>Chooseone...</option><optionvalue=""meat"">meat</option><optionvalue=""vegetarian"">vegetarian</option><optionselected=""""value=""vegan"">vegan</option></select></div></div>"
 	do $$$AssertEquals(returnedHTML,expectedHTML)
 ]]></Implementation>
 </Method>
@@ -2685,7 +2709,7 @@ Should be run if any of the sub-classes are deleted</Description>
 
 <Class name="EF.pageController.proweb.testCases.emailInputMultiTestCase">
 <Super>EF.ISC.UnitTest.TestCase</Super>
-<TimeChanged>64204,52684.401246</TimeChanged>
+<TimeChanged>64206,61816.424788</TimeChanged>
 <TimeCreated>64204,52684.401246</TimeCreated>
 
 <Method name="TestMultiEmail">
@@ -2705,7 +2729,7 @@ Should be run if any of the sub-classes are deleted</Description>
 	
 	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(page,"render")
 	set returnedHTML = $ZStrip(returnedHTML,"*WC")
-	set expectedHTML = "<divclass='rowef-proweb-form-row'><divclass='col-sm-4ef_proweb_form_prompt'><labelclass=""control-label""for=""proweb-1""pattern=""^(([a-zA-Z0-9_\-\.&#39;]+)(\+[a-zA-Z0-9_\-\.&#39;]+){0,1}@(([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([a-zA-Z0-9\-]+\.)+))([a-zA-Z]{2,63}|[0-9]{1,3}))(\s*[;,]\s*(([a-zA-Z0-9_\-\.&#39;]+)(\+[a-zA-Z0-9_\-\.&#39;]+){0,1}@(([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([a-zA-Z0-9\-]+\.)+))([a-zA-Z]{2,63}|[0-9]{1,3})))*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;email\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""multiple>email</label></div><divclass='col-sm-8ef_proweb_form_prompt'><inputtype=""email""class=""form-controlef-proweb-input-element""title=""""id=""proweb-1""name=""proweb-1""value=""""placeholder=""""pattern=""^(([a-zA-Z0-9_\-\.&#39;]+)(\+[a-zA-Z0-9_\-\.&#39;]+){0,1}@(([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([a-zA-Z0-9\-]+\.)+))([a-zA-Z]{2,63}|[0-9]{1,3}))(\s*[;,]\s*(([a-zA-Z0-9_\-\.&#39;]+)(\+[a-zA-Z0-9_\-\.&#39;]+){0,1}@(([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([a-zA-Z0-9\-]+\.)+))([a-zA-Z]{2,63}|[0-9]{1,3})))*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;email\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""multiplemultiple></div></div>"
+	set expectedHTML = "<divclass=""rowef-proweb-form-row""><divclass=""col-sm-4ef_proweb_form_prompt""><labelclass=""control-label""for=""proweb-1""pattern=""^(([a-zA-Z0-9_\-\.&#39;]+)(\+[a-zA-Z0-9_\-\.&#39;]+){0,1}@(([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([a-zA-Z0-9\-]+\.)+))([a-zA-Z]{2,63}|[0-9]{1,3}))(\s*[;,]\s*(([a-zA-Z0-9_\-\.&#39;]+)(\+[a-zA-Z0-9_\-\.&#39;]+){0,1}@(([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([a-zA-Z0-9\-]+\.)+))([a-zA-Z]{2,63}|[0-9]{1,3})))*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;email\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""multiple>email</label></div><divclass=""col-sm-8ef_proweb_form_prompt""><inputtype=""email""class=""form-controlef-proweb-input-element""title=""""id=""proweb-1""name=""proweb-1""value=""""placeholder=""""pattern=""^(([a-zA-Z0-9_\-\.&#39;]+)(\+[a-zA-Z0-9_\-\.&#39;]+){0,1}@(([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([a-zA-Z0-9\-]+\.)+))([a-zA-Z]{2,63}|[0-9]{1,3}))(\s*[;,]\s*(([a-zA-Z0-9_\-\.&#39;]+)(\+[a-zA-Z0-9_\-\.&#39;]+){0,1}@(([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([a-zA-Z0-9\-]+\.)+))([a-zA-Z]{2,63}|[0-9]{1,3})))*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;email\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""multiplemultiple></div></div>"
 	do $$$AssertEquals(returnedHTML,expectedHTML)
 ]]></Implementation>
 </Method>
@@ -2714,7 +2738,7 @@ Should be run if any of the sub-classes are deleted</Description>
 
 <Class name="EF.pageController.proweb.testCases.emailInputTestCase">
 <Super>EF.ISC.UnitTest.TestCase</Super>
-<TimeChanged>64204,52696.984856</TimeChanged>
+<TimeChanged>64206,61824.135732</TimeChanged>
 <TimeCreated>64204,52696.984856</TimeCreated>
 
 <Method name="TestEmail">
@@ -2734,7 +2758,7 @@ Should be run if any of the sub-classes are deleted</Description>
 	
 	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(page,"render")
 	set returnedHTML = $ZStrip(returnedHTML,"*WC")
-	set expectedHTML = "<divclass='rowef-proweb-form-row'><divclass='col-sm-4ef_proweb_form_prompt'><labelclass=""control-label""for=""proweb-1""pattern=""^(([a-zA-Z0-9_\-\.&#39;]+)(\+[a-zA-Z0-9_\-\.&#39;]+){0,1}@(([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([a-zA-Z0-9\-]+\.)+))([a-zA-Z]{2,63}|[0-9]{1,3}))$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;email\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);"">email</label></div><divclass='col-sm-8ef_proweb_form_prompt'><inputtype=""email""class=""form-controlef-proweb-input-element""title=""""id=""proweb-1""name=""proweb-1""value=""""placeholder=""""pattern=""^(([a-zA-Z0-9_\-\.&#39;]+)(\+[a-zA-Z0-9_\-\.&#39;]+){0,1}@(([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([a-zA-Z0-9\-]+\.)+))([a-zA-Z]{2,63}|[0-9]{1,3}))$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;email\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""></div></div>"
+	set expectedHTML = "<divclass=""rowef-proweb-form-row""><divclass=""col-sm-4ef_proweb_form_prompt""><labelclass=""control-label""for=""proweb-1""pattern=""^(([a-zA-Z0-9_\-\.&#39;]+)(\+[a-zA-Z0-9_\-\.&#39;]+){0,1}@(([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([a-zA-Z0-9\-]+\.)+))([a-zA-Z]{2,63}|[0-9]{1,3}))$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;email\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);"">email</label></div><divclass=""col-sm-8ef_proweb_form_prompt""><inputtype=""email""class=""form-controlef-proweb-input-element""title=""""id=""proweb-1""name=""proweb-1""value=""""placeholder=""""pattern=""^(([a-zA-Z0-9_\-\.&#39;]+)(\+[a-zA-Z0-9_\-\.&#39;]+){0,1}@(([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([a-zA-Z0-9\-]+\.)+))([a-zA-Z]{2,63}|[0-9]{1,3}))$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;email\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""></div></div>"
 	do $$$AssertEquals(returnedHTML,expectedHTML)
 ]]></Implementation>
 </Method>
@@ -2743,7 +2767,7 @@ Should be run if any of the sub-classes are deleted</Description>
 
 <Class name="EF.pageController.proweb.testCases.integerInputTestCase">
 <Super>EF.ISC.UnitTest.TestCase</Super>
-<TimeChanged>64204,52712.809439</TimeChanged>
+<TimeChanged>64206,61874.622963</TimeChanged>
 <TimeCreated>64204,52712.809439</TimeCreated>
 
 <Method name="TestInteger">
@@ -2763,7 +2787,7 @@ Should be run if any of the sub-classes are deleted</Description>
 	
 	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(page,"render")
 	set returnedHTML = $ZStrip(returnedHTML,"*WC")
-	set expectedHTML = "<divclass='rowef-proweb-form-row'><divclass='col-sm-4ef_proweb_form_prompt'><labelclass=""control-label""for=""proweb-1""pattern=""^([\+\-]){0,1}\d+$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;Shoesize\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);"">Shoesize</label></div><divclass='col-sm-8ef_proweb_form_prompt'><inputtype=""number""class=""form-controlef-proweb-input-element-short""title=""""id=""proweb-1""name=""proweb-1""value=""""placeholder=""""pattern=""^([\+\-]){0,1}\d+$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;Shoesize\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""></div></div>"
+	set expectedHTML = "<divclass=""rowef-proweb-form-row""><divclass=""col-sm-4ef_proweb_form_prompt""><labelclass=""control-label""for=""proweb-1""pattern=""^([\+\-]){0,1}\d+$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;Shoesize\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);"">Shoesize</label></div><divclass=""col-sm-8ef_proweb_form_prompt""><inputtype=""number""class=""form-controlef-proweb-input-element-short""title=""""id=""proweb-1""name=""proweb-1""value=""""placeholder=""""pattern=""^([\+\-]){0,1}\d+$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;Shoesize\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""></div></div>"
 	do $$$AssertEquals(returnedHTML,expectedHTML)
 ]]></Implementation>
 </Method>
@@ -2772,7 +2796,7 @@ Should be run if any of the sub-classes are deleted</Description>
 
 <Class name="EF.pageController.proweb.testCases.numericInputTestCase">
 <Super>EF.ISC.UnitTest.TestCase</Super>
-<TimeChanged>64204,52723.013439</TimeChanged>
+<TimeChanged>64206,61875.072073</TimeChanged>
 <TimeCreated>64204,52723.013439</TimeCreated>
 
 <Method name="TestDecimalNumber">
@@ -2792,7 +2816,7 @@ Should be run if any of the sub-classes are deleted</Description>
 	
 	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(page,"render")
 	set returnedHTML = $ZStrip(returnedHTML,"*WC")
-	set expectedHTML = "<divclass='rowef-proweb-form-row'><divclass='col-sm-4ef_proweb_form_prompt'><labelclass=""control-label""for=""proweb-1""pattern=""^[+-]?((0)|([1-9][0-9]*?))?(\.[0-9]{1,2})?$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;Shoesize\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);"">Shoesize</label></div><divclass='col-sm-8ef_proweb_form_prompt'><inputtype=""text""class=""form-controlef-proweb-input-element-short""title=""""id=""proweb-1""name=""proweb-1""value=""""placeholder=""""pattern=""^[+-]?((0)|([1-9][0-9]*?))?(\.[0-9]{1,2})?$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;Shoesize\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""></div></div>"
+	set expectedHTML = "<divclass=""rowef-proweb-form-row""><divclass=""col-sm-4ef_proweb_form_prompt""><labelclass=""control-label""for=""proweb-1""pattern=""^[+-]?((0)|([1-9][0-9]*?))?(\.[0-9]{1,2})?$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;Shoesize\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);"">Shoesize</label></div><divclass=""col-sm-8ef_proweb_form_prompt""><inputtype=""text""class=""form-controlef-proweb-input-element-short""title=""""id=""proweb-1""name=""proweb-1""value=""""placeholder=""""pattern=""^[+-]?((0)|([1-9][0-9]*?))?(\.[0-9]{1,2})?$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;Shoesize\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""></div></div>"
 	do $$$AssertEquals(returnedHTML,expectedHTML)
 ]]></Implementation>
 </Method>
@@ -2801,7 +2825,7 @@ Should be run if any of the sub-classes are deleted</Description>
 
 <Class name="EF.pageController.proweb.testCases.pageTestCase">
 <Super>EF.ISC.UnitTest.TestCase</Super>
-<TimeChanged>64205,62819.926599</TimeChanged>
+<TimeChanged>64206,62946.871204</TimeChanged>
 <TimeCreated>64189,44993.632692</TimeCreated>
 
 <Method name="TestEditModeHTML">
@@ -2814,53 +2838,69 @@ Should be run if any of the sub-classes are deleted</Description>
 ]]></Implementation>
 </Method>
 
-<Method name="debugTarget">
-<ClassMethod>1</ClassMethod>
-<Implementation><![CDATA[
-	set contextData = ##class(EF.contextDataRegistrationMock).createMock()
-	set page= ##class(EF.pageController.proweb.page).createNew(contextData)
-	set element = ##class(EF.pageController.proweb.textInput).addElementToParent(page,"p-1","shoe",33, 0)
-	set element.uiComponent.contextData = contextData
-	do page.uiComponent.addChild(element.uiComponent)
-	do page.render()
-]]></Implementation>
-</Method>
-
 <Method name="TestGuestPromptsPanel">
 <Implementation><![CDATA[
-	#dim value as %String = ""
-	#dim element as EF.pageController.element
 	#dim page as EF.pageController.proweb.page
+	#dim element as EF.pageController.proweb.textInput
+	#dim storage as sc.facade.prowebItemStorageInputElementMock
+	#dim contextData as EF.contextDataRegistrationMock
+	#dim pageController as EF.pageController.pagesFrontend.t4Registration
+	
+	set eventConfiguration = ##class(setup.eventConfiguration.storageMock).createEventConfiguration()
 	
 	set contextData = ##class(EF.contextDataRegistrationMock).createMock()
+	set contextData.maxGuests=2
 	
-	set page= ##class(EF.pageController.proweb.page).createNew(contextData)
-	
-	set element = ##class(EF.pageController.proweb.textInput).addElementToParent(page, "proweb-1", "Attendee First name", value, 0)
-	do page.uiComponent.addChild(element.uiComponent)
-	set element.uiComponent.contextData = contextData
-	set element.displayOrder = 1
-	
-	set element = ##class(EF.pageController.proweb.textInput).addElementToParent(page, "proweb-2", "Attendee Last name", value, 0)
-	set element.uiComponent.contextData = contextData
-	set element.displayOrder = 2
-	
-	set element = ##class(EF.pageController.proweb.textInput).addElementToParent(page, "proweb-3", "Guest First name", value, 0)
-	set element.uiComponent.contextData = contextData
-	set element.uiComponent.isGuest = 1
-	set element.displayOrder = 3
-	
-	set element = ##class(EF.pageController.proweb.textInput).addElementToParent(page, "proweb-4", "Guest Last name", value, 0)
-	set element.uiComponent.contextData = contextData
-	set element.uiComponent.isGuest = 1
-	set element.displayOrder = 4
-	
-	do page.populateListOfControllerIDsSorted()
-	do page.insertPanelElementsAroundGuestQuestions()
+	set storage = ##class(sc.facade.prowebItemStorageInputElementMock).createNew()
+	set storage.displayOrder = 1
+	set storage.prowebID = "mock-1"
+	set storage.databaseItemName = "Firstname"
+	set storage.inputType = "text"
+	set storage.labelText = "Attendee First Name"
+	set storage.isMandatory = 1
+	set prowebItem = ##class(sc.facade.prowebItem).createNew(storage)
+	do contextData.listOfProwebItemsToAdd.Insert(prowebItem)
 
-	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(page,"renderProwebItemsForComponent")
+	set storage = ##class(sc.facade.prowebItemStorageInputElementMock).createNew()
+	set storage.displayOrder = 2
+	set storage.prowebID = "mock-2"
+	set storage.databaseItemName = "Lastname"
+	set storage.inputType = "text"
+	set storage.labelText = "Attendee Last Name"
+	set storage.isMandatory = 1
+	set prowebItem = ##class(sc.facade.prowebItem).createNew(storage)
+	do contextData.listOfProwebItemsToAdd.Insert(prowebItem)
+
+
+	set storage = ##class(sc.facade.prowebItemStorageInputElementMock).createNew()
+	set storage.displayOrder = 3
+	set storage.prowebID = "mock-1"
+	set storage.databaseItemName = "Firstname"
+	set storage.inputType = "text"
+	set storage.labelText = "Guest First Name"
+	set storage.isGuest = 1
+	set storage.isMandatory = 1
+	set prowebItem = ##class(sc.facade.prowebItem).createNew(storage)
+	do contextData.listOfProwebItemsToAdd.Insert(prowebItem)
+
+	set storage = ##class(sc.facade.prowebItemStorageInputElementMock).createNew()
+	set storage.displayOrder = 4
+	set storage.prowebID = "mock-2"
+	set storage.databaseItemName = "Lastname"
+	set storage.inputType = "text"
+	set storage.labelText = "Guest Last Name"
+	set storage.isGuest = 1
+	set storage.isMandatory = 1
+	set prowebItem = ##class(sc.facade.prowebItem).createNew(storage)
+	do contextData.listOfProwebItemsToAdd.Insert(prowebItem)
+
+
+	set pageController = ##class(EF.pageController.pagesFrontend.t4Registration).createNew(contextData,,,eventConfiguration)
+	//do pageController.renderElements()
+	
+	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(pageController,"renderElements")
 	set returnedHTML = $ZStrip(returnedHTML,"*WC")
-	set expectedHTML = "<divclass='rowef-proweb-form-row'><divclass='col-sm-4ef_proweb_form_prompt'><labelclass=""control-label""for=""proweb-1""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;AttendeeFirstname\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);"">AttendeeFirstname</label></div><divclass='col-sm-8ef_proweb_form_prompt'><inputtype=""text""class=""form-controlef-proweb-input-element""title=""""id=""proweb-1""name=""proweb-1""value=""""placeholder=""""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;AttendeeFirstname\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""></div></div><divclass='rowef-proweb-form-row'><divclass='col-sm-4ef_proweb_form_prompt'><labelclass=""control-label""for=""proweb-2""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;AttendeeLastname\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);"">AttendeeLastname</label></div><divclass='col-sm-8ef_proweb_form_prompt'><inputtype=""text""class=""form-controlef-proweb-input-element""title=""""id=""proweb-2""name=""proweb-2""value=""""placeholder=""""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;AttendeeLastname\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""></div></div><divclass=""ef-proweb-guest-panelef-draggable-div""><divclass=""panel-heading"">Guest</div><divclass=""panel-body""><divclass='rowef-proweb-form-row'><divclass='col-sm-4ef_proweb_form_prompt'><labelclass=""control-label""for=""proweb-3""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;GuestFirstname\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);"">GuestFirstname</label></div><divclass='col-sm-8ef_proweb_form_prompt'><inputtype=""text""class=""form-controlef-proweb-input-element""title=""""id=""proweb-3""name=""proweb-3""value=""""placeholder=""""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;GuestFirstname\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""></div></div><divclass='rowef-proweb-form-row'><divclass='col-sm-4ef_proweb_form_prompt'><labelclass=""control-label""for=""proweb-4""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;GuestLastname\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);"">GuestLastname</label></div><divclass='col-sm-8ef_proweb_form_prompt'><inputtype=""text""class=""form-controlef-proweb-input-element""title=""""id=""proweb-4""name=""proweb-4""value=""""placeholder=""""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;GuestLastname\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""></div></div>"
+	set expectedHTML = "<divclass=""rowef-proweb-form-row""><divclass=""col-sm-4ef_proweb_form_prompt""><labelclass=""control-label""for=""proweb-1""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;AttendeeFirstName\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);"">AttendeeFirstName</label></div><divclass=""col-sm-8ef_proweb_form_prompt""><inputtype=""text""class=""form-controlef-proweb-input-element""title=""""id=""proweb-1""name=""proweb-1""value=""Fred""placeholder=""""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;AttendeeFirstName\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""></div></div><divclass=""rowef-proweb-form-row""><divclass=""col-sm-4ef_proweb_form_prompt""><labelclass=""control-label""for=""proweb-2""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;AttendeeLastName\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);"">AttendeeLastName</label></div><divclass=""col-sm-8ef_proweb_form_prompt""><inputtype=""text""class=""form-controlef-proweb-input-element""title=""""id=""proweb-2""name=""proweb-2""value=""Fred""placeholder=""""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;AttendeeLastName\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""></div></div><divclass=""ef-proweb-guest-panelef-draggable-div""><divclass=""panel-heading"">Guest</div><divclass=""panel-body""><divclass=""rowef-proweb-form-row""><divclass=""col-sm-4ef_proweb_form_prompt""><labelclass=""control-label""for=""proweb-3-1""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;GuestFirstName\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);"">GuestFirstName</label></div><divclass=""col-sm-8ef_proweb_form_prompt""><inputtype=""text""class=""form-controlef-proweb-input-element""title=""""id=""proweb-3-1""name=""proweb-3-1""value=""Dfgdf""placeholder=""""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;GuestFirstName\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""></div></div><divclass=""rowef-proweb-form-row""><divclass=""col-sm-4ef_proweb_form_prompt""><labelclass=""control-label""for=""proweb-4-1""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;GuestLastName\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);"">GuestLastName</label></div><divclass=""col-sm-8ef_proweb_form_prompt""><inputtype=""text""class=""form-controlef-proweb-input-element""title=""""id=""proweb-4-1""name=""proweb-4-1""value=""Gdfg""placeholder=""""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;GuestLastName\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""></div></div></div></div><divclass=""ef-proweb-guest-panelef-draggable-div""><divclass=""panel-heading"">Guest</div><divclass=""panel-body""><divclass=""rowef-proweb-form-row""><divclass=""col-sm-4ef_proweb_form_prompt""><labelclass=""control-label""for=""proweb-3-2""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;GuestFirstName\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);"">GuestFirstName</label></div><divclass=""col-sm-8ef_proweb_form_prompt""><inputtype=""text""class=""form-controlef-proweb-input-element""title=""""id=""proweb-3-2""name=""proweb-3-2""value=""Dfgdf""placeholder=""""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;GuestFirstName\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""></div></div><divclass=""rowef-proweb-form-row""><divclass=""col-sm-4ef_proweb_form_prompt""><labelclass=""control-label""for=""proweb-4-2""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;GuestLastName\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);"">GuestLastName</label></div><divclass=""col-sm-8ef_proweb_form_prompt""><inputtype=""text""class=""form-controlef-proweb-input-element""title=""""id=""proweb-4-2""name=""proweb-4-2""value=""Gdfg""placeholder=""""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;GuestLastName\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""></div></div></div></div>"
 	do $$$AssertEquals(returnedHTML,expectedHTML)
 ]]></Implementation>
 </Method>
@@ -2870,45 +2910,40 @@ Should be run if any of the sub-classes are deleted</Description>
 <Implementation><![CDATA[
 	#dim page as EF.pageController.proweb.page
 	#dim element as EF.pageController.proweb.textInput
+	#dim storage as sc.facade.prowebItemStorageInputElementMock
+	#dim contextData as EF.contextDataRegistrationMock
+	#dim pageController as EF.pageController.pagesFrontend.t4Registration
 	
 	set eventConfiguration = ##class(setup.eventConfiguration.storageMock).createEventConfiguration()
 	set eventConfiguration.storage.maxGuests=2
 	
 	set contextData = ##class(EF.contextDataRegistrationMock).createMock()
-	set page= ##class(EF.pageController.proweb.page).createNew(contextData,,,eventConfiguration)		
 	
-	set element = ##class(EF.pageController.proweb.textInput).addElementToParent(page, "proweb-1", "Attendee First name", "Elvis", 0)
-	set element.displayOrder = 1
-	set element.uiComponent.contextData = contextData
-
-
-	set element = ##class(EF.pageController.proweb.textInput).addElementToParent(page, "proweb-2", "Attendee Last name", "pesley", 0)
-	set element.uiComponent.contextData = contextData
-	set element.displayOrder = 2
+	set storage = ##class(sc.facade.prowebItemStorageInputElementMock).createNew()
+	set storage.displayOrder = 1
+	set storage.prowebID = "mock-1"
+	set storage.databaseItemName = "Firstname"
+	set storage.helpText = "help me"
+	set storage.inputType = "text"
+	set storage.labelText = "First Name"
+	set storage.isMandatory = 1
+	set prowebItem = ##class(sc.facade.prowebItem).createNew(storage)
 	
-	set element = ##class(EF.pageController.proweb.textInput).addElementToParent(page, "proweb-3", "Guest First name", "", 0)
-	set element.uiComponent.contextData = contextData
-	set element.uiComponent.isGuest = 1
-	set element.displayOrder = 3
+	do contextData.listOfProwebItemsToAdd.Insert(prowebItem)
+	set pageController = ##class(EF.pageController.pagesFrontend.t4Registration).createNew(contextData,,,eventConfiguration)
+	do pageController.renderElements()
 	
-	set element = ##class(EF.pageController.proweb.textInput).addElementToParent(page, "proweb-4", "Guest Last name", "", 0)
-	set element.uiComponent.contextData = contextData
-	set element.uiComponent.isGuest = 1
-	set element.displayOrder = 4
+	/*	
 	
 
 	
-	do page.populateListOfControllerIDsSorted()
-	do page.repeatAnyGuestQuestions()
-	
-	set page.eventConfiguration = eventConfiguration
-	do page.insertPanelElementsAroundGuestQuestions()
-	do page.updateUIComponents()
-	do page.%Save()
-	
-	w !,"element count=",page.allPageElements.Count()
-	w !,"list count=",page.listOfControllerIDsSorted.Count()
-	;do page.renderProwebItemsForComponent()
+
+
+	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(floatingMenu,"outputFloatingMenuHTML")
+	set returnedHTML = $ZStrip(returnedHTML,"*WC")
+	set expectedHTML = "<divid=""myFloater""class=""containeref-proweb-menu-handlerow""style=""display:none;""><divclass=""dropdownef-proweb-dropdown""><aid=""efProwebHeader""role=""button""data-toggle=""dropdown""class=""btnbtn-primaryef-proweb-dropdown-button""data-target=""#""href=""/page.html"">DfeaultHeaderText<spanclass=""caret""></span></a><ulclass=""dropdown-menumulti-levelef-proweb-dropdown-sub""role=""menu""aria-labelledby=""dropdownMenu""><li><aid=""efProwebEditLink""href=""#"">Edit</a></li><li><aid=""efProwebDeleteLink""href=""#"">Delete</a></li><liclass=""divider""></li><liclass=""dropdown-submenu""><atabindex=""-1""href=""#"">InsertAbove</a><ulclass=""dropdown-menu""><li><aid=""efProwebInsertQuestionAboveLink""tabindex=""-1""href=""#"">Question</a></li><li><aid=""efProwebInsertDividerAboveLink""href=""#"">Divider</a></li><li><aid=""efProwebInsertTextBlockAboveLink""href=""#"">Textblock</a></li></ul></li><liclass=""dropdown-submenu""><atabindex=""-1""href=""#"">InsertBelow</a><ulclass=""dropdown-menu""><li><aid=""efProwebInsertQuestionBelowLink""tabindex=""-1""href=""#"">Question</a></li><li><aid=""efProwebInsertDividerBelowLink""href=""#"">Divider</a></li><li><aid=""efProwebInsertTextBlockBelowLink""href=""#"">Textblock</a></li></ul></li></ul></div></div>"
+	do $$$AssertEquals(returnedHTML,expectedHTML)
+	*/
 ]]></Implementation>
 </Method>
 </Class>
@@ -2916,7 +2951,7 @@ Should be run if any of the sub-classes are deleted</Description>
 
 <Class name="EF.pageController.proweb.testCases.phoneNumberTestCase">
 <Super>EF.ISC.UnitTest.TestCase</Super>
-<TimeChanged>64204,52750.117876</TimeChanged>
+<TimeChanged>64206,61875.409857</TimeChanged>
 <TimeCreated>64204,52750.117876</TimeCreated>
 
 <Method name="TestPhoneNumber">
@@ -2936,7 +2971,7 @@ Should be run if any of the sub-classes are deleted</Description>
 	
 	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(page,"render")
 	set returnedHTML = $ZStrip(returnedHTML,"*WC")
-	set expectedHTML = "<divclass='rowef-proweb-form-row'><divclass='col-sm-4ef_proweb_form_prompt'><labelclass=""control-label""for=""proweb-1""pattern=""^(?!(.*-(\s)*-.*))(?!(.*\.(\s)*\..*))(?=.*[\d\)](\s)*$)(?=.*(\d)+.*)(\+(\d){1,3}){0,1}(?=\s*([\d\(]).*)(([\d\s\-\.])|(\(([\d\-\.\s])+\)))*(\s)*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;phonenumber\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);"">phonenumber</label></div><divclass='col-sm-8ef_proweb_form_prompt'><inputtype=""tel""class=""form-controlef-proweb-input-element""title=""""id=""proweb-1""name=""proweb-1""value=""""placeholder=""""pattern=""^(?!(.*-(\s)*-.*))(?!(.*\.(\s)*\..*))(?=.*[\d\)](\s)*$)(?=.*(\d)+.*)(\+(\d){1,3}){0,1}(?=\s*([\d\(]).*)(([\d\s\-\.])|(\(([\d\-\.\s])+\)))*(\s)*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;phonenumber\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""></div></div>"
+	set expectedHTML = "<divclass=""rowef-proweb-form-row""><divclass=""col-sm-4ef_proweb_form_prompt""><labelclass=""control-label""for=""proweb-1""pattern=""^(?!(.*-(\s)*-.*))(?!(.*\.(\s)*\..*))(?=.*[\d\)](\s)*$)(?=.*(\d)+.*)(\+(\d){1,3}){0,1}(?=\s*([\d\(]).*)(([\d\s\-\.])|(\(([\d\-\.\s])+\)))*(\s)*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;phonenumber\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);"">phonenumber</label></div><divclass=""col-sm-8ef_proweb_form_prompt""><inputtype=""tel""class=""form-controlef-proweb-input-element""title=""""id=""proweb-1""name=""proweb-1""value=""""placeholder=""""pattern=""^(?!(.*-(\s)*-.*))(?!(.*\.(\s)*\..*))(?=.*[\d\)](\s)*$)(?=.*(\d)+.*)(\+(\d){1,3}){0,1}(?=\s*([\d\(]).*)(([\d\s\-\.])|(\(([\d\-\.\s])+\)))*(\s)*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;phonenumber\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""></div></div>"
 	do $$$AssertEquals(returnedHTML,expectedHTML)
 ]]></Implementation>
 </Method>
@@ -2945,7 +2980,7 @@ Should be run if any of the sub-classes are deleted</Description>
 
 <Class name="EF.pageController.proweb.testCases.radioButtonsTestCase">
 <Super>EF.ISC.UnitTest.TestCase</Super>
-<TimeChanged>64204,52760.35415</TimeChanged>
+<TimeChanged>64206,62154.618229</TimeChanged>
 <TimeCreated>64204,52760.35415</TimeCreated>
 
 <Method name="TestWithRadioButtons">
@@ -2967,7 +3002,7 @@ Should be run if any of the sub-classes are deleted</Description>
 	
 	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(page,"render")
 	set returnedHTML = $ZStrip(returnedHTML,"*WC")
-	set expectedHTML = "<divclass='rowef-proweb-form-row'><divclass='col-sm-4ef_proweb_form_prompt'><labelclass=""control-label""for=""proweb-1"">diet</label></div><divclass='col-sm-8ef_proweb_form_promptef-proweb-radio-group'><divclass=""btn-group""id=""proweb-1""data-toggle=""buttons""title=""""><divclass='col-sm-12ef-proweb-radio-button'><labelclass=""btnef-btn-defaultef-proweb-radio-button""id=""proweb-1_1-label""><inputtype=""radio""value=""meat""name=""proweb-1""id=""proweb-1_1"">&nbsp;meat</label></div><divclass='col-sm-12ef-proweb-radio-button'><labelclass=""btnef-btn-defaultef-proweb-radio-button""id=""proweb-1_2-label""><inputtype=""radio""value=""vegetarian""name=""proweb-1""id=""proweb-1_2"">&nbsp;vegetarian</label></div><divclass='col-sm-12ef-proweb-radio-button'><labelclass=""btnef-btn-defaultef-proweb-radio-buttonactive""id=""proweb-1_3-label""><inputtype=""radio""checkedvalue=""vegan""name=""proweb-1""id=""proweb-1_3"">&nbsp;vegan</label></div></div></div></div>"
+	set expectedHTML = "<divclass=""rowef-proweb-form-row""><divclass=""col-sm-4ef_proweb_form_prompt""><labelclass=""control-label""for=""proweb-1"">diet</label></div><divclass='col-sm-8ef_proweb_form_promptef-proweb-radio-group'><divclass=""btn-group""id=""proweb-1""data-toggle=""buttons""title=""""><divclass='col-sm-12ef-proweb-radio-button'><labelclass=""btnef-btn-defaultef-proweb-radio-button""id=""proweb-1_1-label""><inputtype=""radio""value=""meat""name=""proweb-1""id=""proweb-1_1"">&nbsp;meat</label></div><divclass='col-sm-12ef-proweb-radio-button'><labelclass=""btnef-btn-defaultef-proweb-radio-button""id=""proweb-1_2-label""><inputtype=""radio""value=""vegetarian""name=""proweb-1""id=""proweb-1_2"">&nbsp;vegetarian</label></div><divclass='col-sm-12ef-proweb-radio-button'><labelclass=""btnef-btn-defaultef-proweb-radio-buttonactive""id=""proweb-1_3-label""><inputtype=""radio""checkedvalue=""vegan""name=""proweb-1""id=""proweb-1_3"">&nbsp;vegan</label></div></div></div></div>"
 	do $$$AssertEquals(returnedHTML,expectedHTML)
 ]]></Implementation>
 </Method>
@@ -2976,7 +3011,7 @@ Should be run if any of the sub-classes are deleted</Description>
 
 <Class name="EF.pageController.proweb.testCases.textAreaTestCase">
 <Super>EF.ISC.UnitTest.TestCase</Super>
-<TimeChanged>64204,52770.974784</TimeChanged>
+<TimeChanged>64206,61876.225823</TimeChanged>
 <TimeCreated>64204,52770.974784</TimeCreated>
 
 <Method name="TestTextArea">
@@ -2996,7 +3031,7 @@ Should be run if any of the sub-classes are deleted</Description>
 	
 	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(page,"render")
 	set returnedHTML = $ZStrip(returnedHTML,"*WC")
-	set expectedHTML = "<divclass='rowef-proweb-form-row'><divclass='col-sm-4ef_proweb_form_prompt'><labelclass=""control-label""for=""proweb-1"">writeanessayhere</label></div><divclass='col-sm-8ef_proweb_form_prompt'><textareatype=""text""class=""form-controlef-proweb-input-element""title=""""id=""proweb-1""name=""proweb-1""placeholder=""""></textArea></div></div>"
+	set expectedHTML = "<divclass=""rowef-proweb-form-row""><divclass=""col-sm-4ef_proweb_form_prompt""><labelclass=""control-label""for=""proweb-1"">writeanessayhere</label></div><divclass=""col-sm-8ef_proweb_form_prompt""><textareatype=""text""class=""form-controlef-proweb-input-element""title=""""id=""proweb-1""name=""proweb-1""placeholder=""""></textArea></div></div>"
 	do $$$AssertEquals(returnedHTML,expectedHTML)
 ]]></Implementation>
 </Method>
@@ -3005,7 +3040,7 @@ Should be run if any of the sub-classes are deleted</Description>
 
 <Class name="EF.pageController.proweb.testCases.textBlockTestCase">
 <Super>EF.ISC.UnitTest.TestCase</Super>
-<TimeChanged>64204,52784.358512</TimeChanged>
+<TimeChanged>64206,61876.516511</TimeChanged>
 <TimeCreated>64204,52784.358512</TimeCreated>
 
 <Method name="TestBasicPageWithTextBlock">
@@ -3020,7 +3055,7 @@ Should be run if any of the sub-classes are deleted</Description>
 	
 	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(page,"render")
 	set returnedHTML = $ZStrip(returnedHTML,"*WC")
-	set expectedHTML = "<divclass='rowef-proweb-form-row'><divclass='col-sm-12'><div>loremipsum</div></div></div>"
+	set expectedHTML = "<divclass=""rowef-proweb-form-row""><divclass=""col-sm-12""><div>loremipsum</div></div></div>"
 	do $$$AssertEquals(returnedHTML,expectedHTML)
 ]]></Implementation>
 </Method>
@@ -3029,7 +3064,7 @@ Should be run if any of the sub-classes are deleted</Description>
 
 <Class name="EF.pageController.proweb.testCases.textInputTestCase">
 <Super>EF.ISC.UnitTest.TestCase</Super>
-<TimeChanged>64204,52795.592181</TimeChanged>
+<TimeChanged>64206,61876.852487</TimeChanged>
 <TimeCreated>64204,52795.592181</TimeCreated>
 
 <Method name="TestbasicInputField">
@@ -3049,7 +3084,7 @@ Should be run if any of the sub-classes are deleted</Description>
 	
 	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(page,"render")
 	set returnedHTML = $ZStrip(returnedHTML,"*WC")
-	set expectedHTML = "<divclass='rowef-proweb-form-row'><divclass='col-sm-4ef_proweb_form_prompt'><labelclass=""control-label""for=""proweb-1""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;FirstName\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);"">FirstName</label></div><divclass='col-sm-8ef_proweb_form_prompt'><inputtype=""text""class=""form-controlef-proweb-input-element""title=""""id=""proweb-1""name=""proweb-1""value=""""placeholder=""""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;FirstName\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""></div></div>"
+	set expectedHTML = "<divclass=""rowef-proweb-form-row""><divclass=""col-sm-4ef_proweb_form_prompt""><labelclass=""control-label""for=""proweb-1""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;FirstName\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);"">FirstName</label></div><divclass=""col-sm-8ef_proweb_form_prompt""><inputtype=""text""class=""form-controlef-proweb-input-element""title=""""id=""proweb-1""name=""proweb-1""value=""""placeholder=""""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;FirstName\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""></div></div>"
 	do $$$AssertEquals(returnedHTML,expectedHTML)
 ]]></Implementation>
 </Method>
@@ -3068,7 +3103,7 @@ Should be run if any of the sub-classes are deleted</Description>
 	
 	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(page,"render")
 	set returnedHTML = $ZStrip(returnedHTML,"*WC")
-	set expectedHTML = "<divclass='rowef-proweb-form-row'><divclass='col-sm-4ef_proweb_form_promptef-required-field'><labelclass=""control-label""for=""proweb-1""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;FirstName\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);"">FirstName</label></div><divclass='col-sm-8ef_proweb_form_prompt'><inputtype=""text""class=""form-controlef-proweb-input-element""title=""""id=""proweb-1""name=""proweb-1""value=""""placeholder=""""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;FirstName\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""></div></div>"
+	set expectedHTML = "<divclass=""rowef-proweb-form-row""><divclass=""col-sm-4ef_proweb_form_promptef-required-field""><labelclass=""control-label""for=""proweb-1""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;FirstName\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);"">FirstName</label></div><divclass=""col-sm-8ef_proweb_form_prompt""><inputtype=""text""class=""form-controlef-proweb-input-element""title=""""id=""proweb-1""name=""proweb-1""value=""""placeholder=""""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;FirstName\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""></div></div>"
 	do $$$AssertEquals(returnedHTML,expectedHTML)
 ]]></Implementation>
 </Method>
@@ -3077,7 +3112,7 @@ Should be run if any of the sub-classes are deleted</Description>
 
 <Class name="EF.pageController.proweb.testCases.timeInputTestCase">
 <Super>EF.ISC.UnitTest.TestCase</Super>
-<TimeChanged>64204,52806.787409</TimeChanged>
+<TimeChanged>64206,61877.212832</TimeChanged>
 <TimeCreated>64204,52806.787409</TimeCreated>
 
 <Method name="TestTime">
@@ -3097,7 +3132,7 @@ Should be run if any of the sub-classes are deleted</Description>
 	
 	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(page,"render")
 	set returnedHTML = $ZStrip(returnedHTML,"*WC")
-	set expectedHTML = "<divclass='rowef-proweb-form-row'><divclass='col-sm-4ef_proweb_form_prompt'><labelclass=""control-label""for=""proweb-1"">time</label></div><divclass='col-sm-8ef_proweb_form_prompt'><divclass=""ef_proweb_form_field_container_type_timeef-proweb-input-element-short""><inputtype=""text""class=""form-controlef-proweb-input-elementefTimePicker""title=""""id=""proweb-1""name=""proweb-1""value=""""placeholder=""HH:MM24hour""efKendoTimeFormat=""24""efKendoTimeInterval=15></div></div></div>"
+	set expectedHTML = "<divclass=""rowef-proweb-form-row""><divclass=""col-sm-4ef_proweb_form_prompt""><labelclass=""control-label""for=""proweb-1"">time</label></div><divclass=""col-sm-8ef_proweb_form_prompt""><divclass=""ef_proweb_form_field_container_type_timeef-proweb-input-element-short""><inputtype=""text""class=""form-controlef-proweb-input-elementefTimePicker""title=""""id=""proweb-1""name=""proweb-1""value=""""placeholder=""HH:MM24hour""efKendoTimeFormat=""24""efKendoTimeInterval=15></div></div></div>"
 	do $$$AssertEquals(returnedHTML,expectedHTML)
 ]]></Implementation>
 </Method>
@@ -3106,7 +3141,7 @@ Should be run if any of the sub-classes are deleted</Description>
 
 <Class name="EF.pageController.proweb.testCases.webAddressTestCase">
 <Super>EF.ISC.UnitTest.TestCase</Super>
-<TimeChanged>64204,52820.48381</TimeChanged>
+<TimeChanged>64206,61877.572961</TimeChanged>
 <TimeCreated>64204,51604.334511</TimeCreated>
 
 <Method name="TestWebAddress">
@@ -3126,7 +3161,7 @@ Should be run if any of the sub-classes are deleted</Description>
 	
 	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(page,"render")
 	set returnedHTML = $ZStrip(returnedHTML,"*WC")
-	set expectedHTML = "<divclass='rowef-proweb-form-row'><divclass='col-sm-4ef_proweb_form_prompt'><labelclass=""control-label""for=""proweb-1""pattern=""^(?:https?:\/\/)?(?:\S+(?::\S*)?@)?(?:(?:[1-9]\d?|1\d\d|2[01]\d|22[0-3])(?:\.(?:1?\d{1,2}|2[0-4]\d|25[0-5])){2}(?:\.(?:[1-9]\d?|1\d\d|2[0-4]\d|25[0-4]))|(?:(?:[a-z\u00a1-\uffff0-9]+-?)*[a-z\u00a1-\uffff0-9]+)(?:\.(?:[a-z\u00a1-\uffff0-9]+-?)*[a-z\u00a1-\uffff0-9]+)*(?:\.(?:[a-z\u00a1-\uffff]{2,})))(?::\d{2,5})?(?:\/.*)?$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;yourwebsite\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);"">yourwebsite</label></div><divclass='col-sm-8ef_proweb_form_prompt'><inputtype=""url""class=""form-controlef-proweb-input-element""title=""""id=""proweb-1""name=""proweb-1""value=""""placeholder=""""pattern=""^(?:https?:\/\/)?(?:\S+(?::\S*)?@)?(?:(?:[1-9]\d?|1\d\d|2[01]\d|22[0-3])(?:\.(?:1?\d{1,2}|2[0-4]\d|25[0-5])){2}(?:\.(?:[1-9]\d?|1\d\d|2[0-4]\d|25[0-4]))|(?:(?:[a-z\u00a1-\uffff0-9]+-?)*[a-z\u00a1-\uffff0-9]+)(?:\.(?:[a-z\u00a1-\uffff0-9]+-?)*[a-z\u00a1-\uffff0-9]+)*(?:\.(?:[a-z\u00a1-\uffff]{2,})))(?::\d{2,5})?(?:\/.*)?$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;yourwebsite\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""></div></div>"
+	set expectedHTML = "<divclass=""rowef-proweb-form-row""><divclass=""col-sm-4ef_proweb_form_prompt""><labelclass=""control-label""for=""proweb-1""pattern=""^(?:https?:\/\/)?(?:\S+(?::\S*)?@)?(?:(?:[1-9]\d?|1\d\d|2[01]\d|22[0-3])(?:\.(?:1?\d{1,2}|2[0-4]\d|25[0-5])){2}(?:\.(?:[1-9]\d?|1\d\d|2[0-4]\d|25[0-4]))|(?:(?:[a-z\u00a1-\uffff0-9]+-?)*[a-z\u00a1-\uffff0-9]+)(?:\.(?:[a-z\u00a1-\uffff0-9]+-?)*[a-z\u00a1-\uffff0-9]+)*(?:\.(?:[a-z\u00a1-\uffff]{2,})))(?::\d{2,5})?(?:\/.*)?$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;yourwebsite\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);"">yourwebsite</label></div><divclass=""col-sm-8ef_proweb_form_prompt""><inputtype=""url""class=""form-controlef-proweb-input-element""title=""""id=""proweb-1""name=""proweb-1""value=""""placeholder=""""pattern=""^(?:https?:\/\/)?(?:\S+(?::\S*)?@)?(?:(?:[1-9]\d?|1\d\d|2[01]\d|22[0-3])(?:\.(?:1?\d{1,2}|2[0-4]\d|25[0-5])){2}(?:\.(?:[1-9]\d?|1\d\d|2[0-4]\d|25[0-4]))|(?:(?:[a-z\u00a1-\uffff0-9]+-?)*[a-z\u00a1-\uffff0-9]+)(?:\.(?:[a-z\u00a1-\uffff0-9]+-?)*[a-z\u00a1-\uffff0-9]+)*(?:\.(?:[a-z\u00a1-\uffff]{2,})))(?::\d{2,5})?(?:\/.*)?$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;yourwebsite\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""></div></div>"
 	do $$$AssertEquals(returnedHTML,expectedHTML)
 ]]></Implementation>
 </Method>
@@ -3427,7 +3462,7 @@ this is for version 1 of proweb</Description>
 <Class name="EF.pages.frontend.baseProweb">
 <ProcedureBlock>0</ProcedureBlock>
 <Super>EF.pages.frontend.base</Super>
-<TimeChanged>64206,56405.335583</TimeChanged>
+<TimeChanged>64206,58293.532476</TimeChanged>
 <TimeCreated>64191,31442.531402</TimeCreated>
 
 <Parameter name="ENCODED">
@@ -3522,6 +3557,7 @@ this is for version 1 of proweb</Description>
 			}
 		}
 		if 'pageControllerID {
+			
 			set pageController=$CLASSMETHOD(..getPageDataClassName(),"createNew",contextData,.requestData)
 			set pageController.isReadOnly = 0
 			set pageController.prowebPageID = contextData.pageID
@@ -4812,7 +4848,7 @@ this is for version 1 of proweb</Description>
 
 <Class name="EF.ui.components.frontend.inputElement">
 <Super>EF.ui.components.frontend.prowebBase,EF.ui.components.inputBase</Super>
-<TimeChanged>64205,53540.678185</TimeChanged>
+<TimeChanged>64206,61123.278247</TimeChanged>
 <TimeCreated>64183,40678.260093</TimeCreated>
 
 <Property name="alternatives">
@@ -4898,17 +4934,17 @@ this is for version 1 of proweb</Description>
 </Method>
 
 <Method name="renderLabelCellOpeningMandatory">
-<Implementation><![CDATA[	write "<div class='col-sm-4 ef_proweb_form_prompt ef-required-field'>"
+<Implementation><![CDATA[	write "<div class=""col-sm-4 ef_proweb_form_prompt ef-required-field"">"
 ]]></Implementation>
 </Method>
 
 <Method name="renderLabelCellOpening">
-<Implementation><![CDATA[	write "<div class='col-sm-4 ef_proweb_form_prompt ",..encodeForHTMLAttribute(..getDependentClass()),"'>"
+<Implementation><![CDATA[	write "<div class=""col-sm-4 ef_proweb_form_prompt ",..encodeForHTMLAttribute(..getDependentClass()),""">"
 ]]></Implementation>
 </Method>
 
 <Method name="renderInputElementCellOpening">
-<Implementation><![CDATA[	write "<div class='col-sm-8 ef_proweb_form_prompt'>"
+<Implementation><![CDATA[	write "<div class=""col-sm-8 ef_proweb_form_prompt"">"
 ]]></Implementation>
 </Method>
 
@@ -4916,7 +4952,6 @@ this is for version 1 of proweb</Description>
 <Type>%Library.CacheStorage</Type>
 <DefaultData>inputElementDefaultData</DefaultData>
 <Data name="inputElementDefaultData">
-<Structure>listnode</Structure>
 <Subscript>"inputElement"</Subscript>
 <Value name="1">
 <Value>alternatives</Value>
@@ -5097,7 +5132,7 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 
 <Class name="EF.ui.components.frontend.prowebBase">
 <Super>EF.ui.components.base</Super>
-<TimeChanged>64206,56773.928921</TimeChanged>
+<TimeChanged>64206,61005.74689</TimeChanged>
 <TimeCreated>64183,41819.123112</TimeCreated>
 
 <Property name="isProwebEditMode">
@@ -5123,14 +5158,14 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 	if ..isProwebEditMode {
 		set floaterTitle = ..getFloatingMenuHeader() 
 		&HTML<
-			<div class='row ef-draggable-div ef-proweb-form-row-editable' 
-			data-proweb-title='#(..encodeForHTMLAttribute(floaterTitle))#' 
-			data-proweb-id='#(..prowebItem.storage.prowebID)#' 
-			data-proweb-list-id='#(..prowebItem.storage.getListID())#'>
+			<div class="row ef-draggable-div ef-proweb-form-row-editable" 
+			data-proweb-title="#(..encodeForHTMLAttribute(floaterTitle))#" 
+			data-proweb-id="#(..prowebItem.storage.prowebID)#" 
+			data-proweb-list-id="#(..prowebItem.storage.getListID())#">
 		>
 		
 	} else {
-		write !,"<div class='row ef-proweb-form-row'>"	
+		write !,"<div class=""row ef-proweb-form-row"">"	
 	}
 ]]></Implementation>
 </Method>
@@ -5155,7 +5190,10 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 </Method>
 
 <Method name="renderCellOpening">
-<Implementation><![CDATA[	write "<div class='col-sm-12 ",..encodeForHTMLAttribute(..getDependentClass()),"'>"
+<Implementation><![CDATA[
+	&html<
+		<div class="col-sm-12 #(..encodeForHTMLAttribute(..getDependentClass()))#">
+	>
 ]]></Implementation>
 </Method>
 
@@ -14432,7 +14470,7 @@ The basic frontend default stuff</Description>
 </Class>
 
 
-<Project name="proweb 2" LastModified="2016-10-15 15:49:32.107801" Target="dev.efsys.net/LARGEDEVSRC/backend/home/efSupportLogin.htm" TargetType="3">
+<Project name="proweb 2" LastModified="2016-10-15 17:11:30.500129" Target="dev.efsys.net/LARGEDEVSRC/backend/home/efSupportLogin.htm" TargetType="3">
   <Items>
     <ProjectItem name="EF.contextDataRegistration" type="CLS"></ProjectItem>
     <ProjectItem name="EF.contextDataRegistrationMock" type="CLS"></ProjectItem>
@@ -14527,9 +14565,9 @@ The basic frontend default stuff</Description>
     <ProjectItem name="sc.facade.prowebItem" type="CLS"></ProjectItem>
     <ProjectItem name="sc.facade.prowebItemStorage" type="CLS"></ProjectItem>
     <ProjectItem name="sc.facade.prowebItemStorageInputElement" type="CLS"></ProjectItem>
-    <ProjectItem name="sc.facade.prowebItemStorageMock" type="CLS"></ProjectItem>
     <ProjectItem name="sc.facade.prowebItemStorageTextBlock" type="CLS"></ProjectItem>
     <ProjectItem name="sc.facade.prowebItemStorageDivider" type="CLS"></ProjectItem>
+    <ProjectItem name="sc.facade.prowebItemStorageInputElementMock" type="CLS"></ProjectItem>
   </Items>
   <BreakPoints>
     <BreakPoint Routine="cspRealEV.frontend.reg.pagecontrollerstandardsave.CLS" Offset="OnPreHTTPafter+28"></BreakPoint>
@@ -14730,9 +14768,9 @@ Property alternatives As sc.facade.prowebItemAlternative;
 </Class>
 
 
-<Class name="sc.facade.prowebItemStorageMock">
-<Super>sc.facade.prowebItemStorage</Super>
-<TimeChanged>64206,39867.189792</TimeChanged>
+<Class name="sc.facade.prowebItemStorageInputElementMock">
+<Super>sc.facade.prowebItemStorageInputElement</Super>
+<TimeChanged>64206,59220.02964</TimeChanged>
 <TimeCreated>64206,37060.296556</TimeCreated>
 
 <Method name="createNew">

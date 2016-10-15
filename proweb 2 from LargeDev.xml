@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2015.2 (Build 664_3_16032U)" ts="2016-10-14 17:35:08">
+<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2015.2 (Build 664_3_16032U)" ts="2016-10-15 15:49:56">
 <Class name="EF.contextDataRegistration">
 <Description><![CDATA[
 <!-- ;vc;-
@@ -879,7 +879,7 @@ Adds a translation button with warning icon which opens an in-form modal</Descri
 ]]></Description>
 <IncludeCode>EF.common.macros</IncludeCode>
 <Super>%Library.Persistent,shared.timeStamp</Super>
-<TimeChanged>64201,70851.405281</TimeChanged>
+<TimeChanged>64206,47538.737574</TimeChanged>
 <TimeCreated>63350,63749.535929</TimeCreated>
 
 <Property name="elementParent">
@@ -1011,7 +1011,7 @@ Anything marked with isModalTempData set will be cleared down when a modal is re
 <FormalSpec>element:EF.pageController.element</FormalSpec>
 <Implementation><![CDATA[
 	if ..page.getElementByIdentifier(element.identifier) {
-		throw ##class(shared.exceptions.generalException).%New("Element identifier must be unique for page")
+ 		throw ##class(shared.exceptions.generalException).%New("Element identifier must be unique for page ID="_element.identifier)
 	}
 	set element.page=..page
 	if ..page.isPageReadOnly {
@@ -1563,7 +1563,7 @@ Should be run if any of the sub-classes are deleted</Description>
 
 <Class name="EF.pageController.proweb.inputElement">
 <Super>EF.pageController.inputElement,EF.pageController.proweb.prowebBase</Super>
-<TimeChanged>64205,30734.008767</TimeChanged>
+<TimeChanged>64206,56212.631595</TimeChanged>
 <TimeCreated>64189,53012.909524</TimeCreated>
 
 <Property name="isMandatory">
@@ -1612,6 +1612,9 @@ Should be run if any of the sub-classes are deleted</Description>
 <Value name="5">
 <Value>guestNumber</Value>
 </Value>
+<Value name="6">
+<Value>prowebItem</Value>
+</Value>
 </Data>
 </Storage>
 </Class>
@@ -1653,7 +1656,7 @@ Should be run if any of the sub-classes are deleted</Description>
 
 <Class name="EF.pageController.proweb.page">
 <Super>EF.pageController.page</Super>
-<TimeChanged>64205,63239.164381</TimeChanged>
+<TimeChanged>64206,56351.972041</TimeChanged>
 <TimeCreated>64189,51696.559047</TimeCreated>
 
 <Property name="contextData">
@@ -1689,7 +1692,7 @@ Should be run if any of the sub-classes are deleted</Description>
 	do ..populateListOfControllerIDsSorted()
 	do ..repeatAnyGuestQuestions()
 	do ..insertPanelElementsAroundGuestQuestions()
-
+	
 	do ..updateUIComponents()
 ]]></Implementation>
 </Method>
@@ -1697,6 +1700,7 @@ Should be run if any of the sub-classes are deleted</Description>
 <Method name="renderHTMLControlFromTag">
 <FormalSpec><![CDATA[&attrs]]></FormalSpec>
 <Implementation><![CDATA[
+	
 	set identifier=$G(attrs("identifier"))
 	set element=..getElementByIdentifier(identifier)
 	if $IsObject(element) {
@@ -1764,8 +1768,22 @@ Should be run if any of the sub-classes are deleted</Description>
 		set rsProwebItems = ##class(%ResultSet).%New("sc.xModules.objList:qGetChildren")
 		do rsProwebItems.Execute(listID)
 		while rsProwebItems.Next() {	
-			set dataID = rsProwebItems.Get("ID")
-			set prowebItem = ##class(sc.objData).%OpenId(dataID)
+			set prowebID = rsProwebItems.Get("ID")
+			set typeOfElement = rsProwebItems.Get("dataType")
+			;w "<br>prowebID=",prowebID," typeOfElement=",typeOfElement
+			if typeOfElement = "objCODitem" {
+			;	w "<br>creating input element"
+				set storage = ##class(sc.facade.prowebItemStorageInputElement).createNew(prowebID, ..contextData.languageID)
+			} elseif typeOfElement = "objText" {
+			;	w "<br>creating text block"
+				set storage = ##class(sc.facade.prowebItemStorageTextBlock).createNew(prowebID)
+			} elseif typeOfElement = "objFormDivider" {
+			;	w "<br>creating divider"
+				set storage = ##class(sc.facade.prowebItemStorageDivider).createNew(prowebID)
+			}	
+						
+			set prowebItem = ##class(sc.facade.prowebItem).createNew(storage)
+			
 			do ..addControllerForProwebItem(prowebItem)
 		}
 	}
@@ -1773,32 +1791,35 @@ Should be run if any of the sub-classes are deleted</Description>
 </Method>
 
 <Method name="addControllerForProwebItem">
-<FormalSpec>prowebItem:sc.objData</FormalSpec>
+<FormalSpec>prowebItem:sc.facade.prowebItem</FormalSpec>
 <Private>1</Private>
 <Implementation><![CDATA[
+	#define isInputElement prowebItem.storage.%Extends("sc.facade.prowebItemStorageInputElement")
+	#define isTextBlock prowebItem.storage.%Extends("sc.facade.prowebItemStorageTextBlock")
+	#define isDivider prowebItem.storage.%Extends("sc.facade.prowebItemStorageDivider")
+	 
 	#dim elementIdentifier as %String = ..getElementIdentifierForProwebItems(prowebItem)
 	#dim element as EF.pageController.element
-		
-	if prowebItem.dataType = "objCODitem" { 
+	
+	if $$$isInputElement { 
 		set element = ..getNewElementForQuestion(prowebItem)
-	
-	} elseif prowebItem.dataType = "objText" {
-		set element = ##class(EF.pageController.proweb.textBlock).addElementToParent($this, elementIdentifier, prowebItem.description)
-	
-	} elseif prowebItem.dataType = "objFormDivider" {
+	} elseif $$$isTextBlock {
+		set element = ##class(EF.pageController.proweb.textBlock).addElementToParent($this, elementIdentifier, prowebItem.storage.text)
+	} elseif $$$isDivider {
 		set element = ##class(EF.pageController.proweb.divider).addElementToParent($this, elementIdentifier, "")
-
 	} else {
 		throw ##class(shared.exceptions.generalException).%New("proweb item type not implemented yet")	
 	}
 
-	set element.displayOrder = prowebItem.displayOrder
+	set element.displayOrder = prowebItem.storage.displayOrder
 	set element.uiComponent.isProwebEditMode = (..contextData.prowebMode = "edit")
+	;set copyOfProwebItem = prowebItem.%ConstructClone(1)
 	set element.uiComponent.prowebItem = prowebItem
+	set element.prowebItem = prowebItem
+	;set element.uiComponent.prowebItemID = prowebItem.storage.prowebID
 	set element.uiComponent.contextData = ..contextData
-	set element.prowebListID = prowebItem.getParentID(prowebItem.%Id())
-	set element.prowebID = prowebItem.%Id()
 	
+	/* ##############
 	if element.#canBeDependent {
 		set dependsOnAlternativeDescription = ##class(sc.dependencyMethods).getDependsOnAlternativeDescription(prowebItem.%Id())
 		if dependsOnAlternativeDescription '="" {
@@ -1809,28 +1830,26 @@ Should be run if any of the sub-classes are deleted</Description>
 			set element.showHideDependencyList = dependencyList
 		}
 	}
+	*/
 ]]></Implementation>
 </Method>
 
 <Method name="getNewElementForQuestion">
-<FormalSpec>prowebItem:sc.objData,optionalGuestNumber:%Integer=""</FormalSpec>
+<FormalSpec>prowebItem:sc.facade.prowebItem,optionalGuestNumber:%Integer=""</FormalSpec>
 <Private>1</Private>
 <ReturnType>EF.pageController.proweb.inputElement</ReturnType>
 <Implementation><![CDATA[
-	#dim isReadOnly as %Boolean = 0
-	#dim prowebID as %Integer = prowebItem.%Id()
-	#dim itemName as %String = ##class(sc.xModules.objCODitem).getCODItemName(prowebID)
 	#dim value as %String
 	#dim elementIdentifier as %String 
-	#dim labelText as %String = ##class(sc.objData).getQuestionPrompt(prowebID, ..contextData.languageID)
+	#dim labelText as %String = prowebItem.storage.labelText
 
-	if (prowebItem.isGuest) && (optionalGuestNumber = "") {
+	if (prowebItem.storage.isGuest) && (optionalGuestNumber = "") {
 		set optionalGuestNumber = 1
 	}
 	set elementIdentifier = ..getElementIdentifierForProwebItems(prowebItem, optionalGuestNumber)
-	set value = ..getValueFromEComTemp(itemName, optionalGuestNumber)
+	set value = ..getValueFromEComTemp(prowebItem.storage.databaseItemName, optionalGuestNumber)
 	
-	set pageControllerClassName = $Case(prowebItem.type,
+	set pageControllerClassName = $Case(prowebItem.storage.inputType,
 										"text":"textInput",
 										"emailAddress":"emailInput",
 										"time":"timeInput",
@@ -1845,45 +1864,44 @@ Should be run if any of the sub-classes are deleted</Description>
 										"dateRange":"dateRange",
 										:"exception"
 										)
-	if pageControllerClassName '= "exception" {										
-		set element = $ClassMethod("EF.pageController.proweb."_pageControllerClassName, "addElementToParent", $this, elementIdentifier, labelText, value, isReadOnly)
+	if pageControllerClassName '= "exception" {		
+		set element = $ClassMethod("EF.pageController.proweb."_pageControllerClassName, "addElementToParent", $this, elementIdentifier, labelText, value, prowebItem.storage.isReadOnly)
+										
 		
-	} elseif (prowebItem.type = "dropdown") ! (prowebItem.type = "radiobutton") ! (prowebItem.type = "multibox") {
-		set element = ..addProwebSelectionElement(prowebItem)
+	} elseif (prowebItem.storage.inputType = "dropdown") ! (prowebItem.storage.inputType = "radiobutton") ! (prowebItem.storage.inputType = "multibox") {
+		set element = ..addProwebSelectionElement(prowebItem, optionalGuestNumber)
 				
 	} else {
 		throw ##class(shared.exceptions.generalException).%New("proweb question type is not implemented yet")	
 	}
 
-	if prowebItem.type = "checkbox" {
+	if prowebItem.storage.inputType = "checkbox" {
 		set childController = element.addProwebCheckbox(element, elementIdentifier_"-"_1, labelText, value)
-		set childController.prowebID = prowebItem.%Id()
 	}		
-	if prowebItem.type = "dateRange" {
+	if prowebItem.storage.inputType = "dateRange" {
 		do ..addSecondDatePickerForDateRange(prowebItem, element)
 	}
 	
 	if (element.%IsA("EF.pageController.proweb.checkboxGroup") = 0) && (element.uiComponent.isGuest = 0) {
-		set element.isMandatory = +prowebItem.mandatory
-		set element.uiComponent.isMandatory = +prowebItem.mandatory
-		set element.uiComponent.validator.isMandatory = +prowebItem.mandatory
+		set element.isMandatory = +prowebItem.storage.isMandatory
+		set element.uiComponent.isMandatory = +prowebItem.storage.mandatory
+		set element.uiComponent.validator.isMandatory = +prowebItem.storage.mandatory
 	}
 	
-	set element.uiComponent.isGuest = prowebItem.isGuest
-	if prowebItem.isGuest {
+	set element.uiComponent.isGuest = prowebItem.storage.isGuest
+	if prowebItem.storage.isGuest {
 		set element.guestNumber = optionalGuestNumber	
 		set element.isGuest = 1
 		set element.uiComponent.guestNumber = optionalGuestNumber	
 	}
-	set element.uiComponent.helpText = prowebItem.helpText	
-	set element.prowebID = prowebItem.%Id()
+	set element.uiComponent.helpText = prowebItem.storage.helpText	
 
 	return element
 ]]></Implementation>
 </Method>
 
 <Method name="getValueFromEComTemp">
-<FormalSpec>itemName:%String,optionalGuestNumber:%Integer</FormalSpec>
+<FormalSpec>itemName:%String,optionalGuestNumber:%Integer,getRawData=0</FormalSpec>
 <Private>1</Private>
 <ReturnType>%String</ReturnType>
 <Implementation><![CDATA[
@@ -1892,7 +1910,7 @@ Should be run if any of the sub-classes are deleted</Description>
 	} else {
 		set tempPersonID = ..contextData.tempPersonID
 	}
-	set value = ##class(eCom.tempCodData).get(tempPersonID, itemName)
+	set value = ##class(eCom.tempCodData).get(tempPersonID, itemName, ,getRawData)
 	return value
 ]]></Implementation>
 </Method>
@@ -1932,89 +1950,87 @@ Should be run if any of the sub-classes are deleted</Description>
 </Method>
 
 <Method name="addProwebSelectionElement">
-<FormalSpec>prowebItem:sc.objData</FormalSpec>
+<FormalSpec>prowebItem:sc.facade.prowebItem,optionalGuestNumber:%Integer</FormalSpec>
 <Private>1</Private>
 <ReturnType>EF.pageController.element</ReturnType>
 <Implementation><![CDATA[
-	#dim isReadOnly as %Boolean = 0
-	#dim prowebID as %Integer = prowebItem.%Id()
-	#dim itemName as %String = ##class(sc.xModules.objCODitem).getCODItemName(prowebID)
-	#dim value as %String 
+	#define getRawData 1
+	#dim value as %String
 	#dim elementIdentifier as %String = ..getElementIdentifierForProwebItems(prowebItem)
-	#dim labelText as %String = ##class(sc.objData).getQuestionPrompt(prowebID, ..contextData.languageID)
+	#dim labelText as %String = prowebItem.storage.labelText
+	#dim itemName as %String = prowebItem.storage.databaseItemName
+	#dim isReadOnly as %Boolean = prowebItem.storage.isReadOnly
 	#dim counter as %Integer = 0
 	#dim getRawData as %Boolean = 1
+	#dim key as %Integer = ""
 	
-	if prowebItem.type = "dropdown" {
-		set value = ##class(eCom.tempCodData).get(..contextData.tempPersonID, itemName)
+	if prowebItem.storage.inputType = "dropdown" {
+		set value = ..getValueFromEComTemp(prowebItem.storage.databaseItemName, optionalGuestNumber)
 		set element=##class(EF.pageController.proweb.dropdown).addElementToParent($this, elementIdentifier, labelText, value, isReadOnly)
 		
-	} elseif prowebItem.type = "radiobutton" {
-		set value = ##class(eCom.tempCodData).get(..contextData.tempPersonID, itemName)
-		set element=##class(EF.pageController.proweb.radioButtons).addElementToParent($this, elementIdentifier, labelText,value,isReadOnly)
+	} elseif prowebItem.storage.inputType = "radiobutton" {
+		set value = ..getValueFromEComTemp(prowebItem.storage.databaseItemName, optionalGuestNumber)
+		set element=##class(EF.pageController.proweb.radioButtons).addElementToParent($this, elementIdentifier, labelText, value,isReadOnly)
 		
-	} elseif prowebItem.type = "multibox" {
-		set value = ##class(eCom.tempCodData).get(..contextData.tempPersonID, itemName,"",getRawData)
+	} elseif prowebItem.storage.inputType = "multibox" {
+		set value = ..getValueFromEComTemp(prowebItem.storage.databaseItemName, optionalGuestNumber, $$$getRawData)
 		set element=##class(EF.pageController.proweb.checkboxGroup).addElementToParent($this, elementIdentifier, labelText, value)
 		set element.uiComponent.columns=1
 			
 	} else {
 		throw ##class(shared.exceptions.generalException).%New("Proweb selection type not implemented")
 	}
-	set element.displayOrder = prowebItem.displayOrder	
+	set element.displayOrder = prowebItem.storage.displayOrder
+	set element.prowebID = prowebItem.storage.prowebID	
 	
-	set rsAlternative = ##class(cod.objItemAlternatives).getAlternativesForCodItemAsResultSet( prowebItem.objItemName.%Id() )
-	while rsAlternative.Next()	{
-		set alternativeValue = rsAlternative.Get("description") 
-		set alternativeDescription = ##class(cod.objItemAlternativeDetails).getDescription(rsAlternative.Get("ID"), ..contextData.languageID)
-		set alternativeDescription = ##class(EF.htmlGenerator).unescapeXSSFix(alternativeDescription)
+	for  {
+		set alternative = prowebItem.storage.listOfAlternatives.GetNext(.key)
 		
-		if prowebItem.type = "multibox" {
+		if key ="" quit
+		set alternativeValue = $ListGet(alternative,1)
+		set alternativeDescription = $ListGet(alternative,2)
+		
+		if prowebItem.storage.inputType = "multibox" {
 			set counter = counter+1
 			set isChecked = ##class(EF.pageController.proweb.checkboxGroup).isAlternativeInValueString(alternativeDescription, value)
 			set childController = element.addProwebCheckbox(element, elementIdentifier_"-"_counter, alternativeDescription, isChecked)
-			set childController.prowebID = prowebItem.%Id()
-
+			
 		} else {
-			set alternative = element.addAlternative(alternativeValue,alternativeDescription)
-		}
-    }
-	
+			set childController = element.addAlternative(alternativeValue, alternativeDescription)	
+		} 
+	}
 	return element
 ]]></Implementation>
 </Method>
 
 <Method name="addSecondDatePickerForDateRange">
-<FormalSpec>prowebItem:sc.objData,element:EF.pageController.proweb.datePicker</FormalSpec>
+<FormalSpec>prowebItem:sc.facade.prowebItem,element:EF.pageController.proweb.datePicker</FormalSpec>
 <Private>1</Private>
 <ReturnType>EF.pageController.element</ReturnType>
 <Implementation><![CDATA[
 	#dim isReadOnly as %Boolean = 0
-	#dim prowebID as %Integer = prowebItem.%Id()
-	#dim itemName as %String = ##class(sc.xModules.objCODitem).getCODItemName(prowebID)
+	#dim itemName as %String = prowebItem.storage.databaseItemName
 	#dim value as %String 
 	#dim elementIdentifier as %String = ..getElementIdentifierForProwebItems(prowebItem)
 
-	set databaseItemID  = prowebItem.objItemName.%Id()
-	
 	set childControllerStart = ##class(EF.pageController.proweb.datePicker).addElementToParent(element, elementIdentifier_"-startDate", "", isReadOnly)	
-	set childControllerStart.prowebID = prowebItem.%Id()
 	set childControllerStart.uiComponent.contextData = ..contextData
+	set childControllerStart.prowebItem = prowebItem
 	set childControllerStart.uiComponent.prowebItem = prowebItem
 	set childControllerStart.value = $Piece(##class(eCom.tempCodData).get(..contextData.tempPersonID, itemName), "|", 1)
 	
-	set earliestAllowedStartDate = $Piece(##class(cod.lnkItemNameEventDateRange).getMinTimeStamp(..contextData.eventID, databaseItemID), " ", 1)
+	set earliestAllowedStartDate = $Piece(##class(cod.lnkItemNameEventDateRange).getMinTimeStamp(..contextData.eventID, prowebItem.storage.databaseItemID), " ", 1)
 	set earliestAllowedStartDate = ##class(shared.dateFunctions).multiDate(earliestAllowedStartDate, childControllerStart.uiComponent.validator.dateFormat )
 	do childControllerStart.uiComponent.addAttribute("efdaterangestartmin", earliestAllowedStartDate )
 	
 				
 	set childControllerEnd = ##class(EF.pageController.proweb.datePicker).addElementToParent(element, elementIdentifier_"-endDate", "", isReadOnly)		
-	set childControllerEnd.prowebID = prowebItem.%Id()	
 	set childControllerEnd.uiComponent.contextData = ..contextData
+	set childControllerEnd.prowebItem = prowebItem
 	set childControllerEnd.uiComponent.prowebItem = prowebItem
 	set childControllerEnd.value = $Piece(##class(eCom.tempCodData).get(..contextData.tempPersonID, itemName), "|", 2)
 
-	set latestAllowedEndDate = $Piece(##class(cod.lnkItemNameEventDateRange).getMinTimeStamp(..contextData.eventID, databaseItemID), " ", 1)
+	set latestAllowedEndDate = $Piece(##class(cod.lnkItemNameEventDateRange).getMinTimeStamp(..contextData.eventID, prowebItem.storage.databaseItemID), " ", 1)
 	set latestAllowedEndDate = ##class(shared.dateFunctions).multiDate(latestAllowedEndDate, childControllerStart.uiComponent.validator.dateFormat )
 	do childControllerEnd.uiComponent.addAttribute("efdaterangeendmax", latestAllowedEndDate )	
 
@@ -2023,13 +2039,12 @@ Should be run if any of the sub-classes are deleted</Description>
 </Method>
 
 <Method name="getElementIdentifierForProwebItems">
-<FormalSpec>prowebItem:sc.objData,optionalGuestNumber:%Integer=""</FormalSpec>
+<FormalSpec>prowebItem:sc.facade.prowebItem,optionalGuestNumber:%Integer=""</FormalSpec>
 <Private>1</Private>
 <ReturnType>%String</ReturnType>
 <Implementation><![CDATA[
-	#dim prowebID as %Integer = prowebItem.%Id()
+	set identifier = "proweb-"_prowebItem.storage.displayOrder
 	
-	set identifier = "proweb-"_prowebID
 	if optionalGuestNumber {
 		set identifier = identifier_"-"_optionalGuestNumber		
 	}
@@ -2038,8 +2053,6 @@ Should be run if any of the sub-classes are deleted</Description>
 </Method>
 
 <Method name="renderProwebItemsForComponent">
-<Description>
-this method needs rewriting when the arrayOfUiComponents become a list instead of an array</Description>
 <Implementation><![CDATA[	do ..renderElements()
 ]]></Implementation>
 </Method>
@@ -2054,9 +2067,6 @@ this method needs rewriting when the arrayOfUiComponents become a list instead o
 		if key="" quit
 
 		if controller.%Extends("EF.pageController.proweb.prowebBase") {
-			set elementListID = controller.prowebListID
-			set componentListID = ##class(sc.xModules.objList).getListIDFromPageIDAndComponentName(..contextData.pageID, ..contextData.prowebComponentName)
-
 			if controller.displayOrder = "" {
 				throw ##class(shared.exceptions.generalException).%New("No displayOrder defined for element: "_controller)	
 			}
@@ -2130,11 +2140,7 @@ this method needs rewriting when the arrayOfUiComponents become a list instead o
 	#dim eventConfiguration as setup.eventConfiguration = ##class(setup.eventConfiguration).createForEventID(..contextData.eventID)
 	#dim maxGuests as %Integer = eventConfiguration.getMaxGuestsPerAttendee()
 	
-	if ..contextData.%IsA("EF.contextDataRegistrationMock") { // #################
-		set maxGuests = 2	
-	}
 	for guestNumber = 2:1:maxGuests {
-	
 		for  {
 			set controllerID = ..listOfGuestControllerIDs.GetNext(.key)
 			if key="" quit
@@ -2387,7 +2393,7 @@ this method needs rewriting when the arrayOfUiComponents become a list instead o
 
 <Class name="EF.pageController.proweb.panel">
 <Super>EF.pageController.containerElements.panel,EF.pageController.proweb.prowebBase</Super>
-<TimeChanged>64205,49081.563893</TimeChanged>
+<TimeChanged>64206,56224.652285</TimeChanged>
 <TimeCreated>63372,47064.603748</TimeCreated>
 
 <Property name="isOpeningOrClosing">
@@ -2414,6 +2420,9 @@ this method needs rewriting when the arrayOfUiComponents become a list instead o
 <Value name="3">
 <Value>prowebID</Value>
 </Value>
+<Value name="4">
+<Value>prowebItem</Value>
+</Value>
 </Data>
 </Storage>
 </Class>
@@ -2438,13 +2447,17 @@ this method needs rewriting when the arrayOfUiComponents become a list instead o
 
 <Class name="EF.pageController.proweb.prowebBase">
 <Super>EF.pageController.element</Super>
-<TimeChanged>64203,63285.186891</TimeChanged>
+<TimeChanged>64206,47024.307139</TimeChanged>
 <TimeCreated>64183,49747.663252</TimeCreated>
 
 <Parameter name="canBeDependent">
 <Type>%Boolean</Type>
 <Default>1</Default>
 </Parameter>
+
+<Property name="prowebItem">
+<Type>sc.facade.prowebItem</Type>
+</Property>
 
 <Property name="prowebID">
 <Type>%Integer</Type>
@@ -2457,6 +2470,9 @@ this method needs rewriting when the arrayOfUiComponents become a list instead o
 <Subscript>"prowebBase"</Subscript>
 <Value name="1">
 <Value>prowebID</Value>
+</Value>
+<Value name="2">
+<Value>prowebItem</Value>
 </Value>
 </Data>
 </Storage>
@@ -3411,7 +3427,7 @@ this is for version 1 of proweb</Description>
 <Class name="EF.pages.frontend.baseProweb">
 <ProcedureBlock>0</ProcedureBlock>
 <Super>EF.pages.frontend.base</Super>
-<TimeChanged>64205,34829.113358</TimeChanged>
+<TimeChanged>64206,56405.335583</TimeChanged>
 <TimeCreated>64191,31442.531402</TimeCreated>
 
 <Parameter name="ENCODED">
@@ -3509,7 +3525,6 @@ this is for version 1 of proweb</Description>
 			set pageController=$CLASSMETHOD(..getPageDataClassName(),"createNew",contextData,.requestData)
 			set pageController.isReadOnly = 0
 			set pageController.prowebPageID = contextData.pageID
-			
 			set sc = pageController.%Save()
 			if 'sc {
 				throw ##class(shared.exceptions.generalStatusException).CreateFromStatus(sc)
@@ -3817,7 +3832,7 @@ this is for version 1 of proweb</Description>
 
 <Class name="EF.ui.components.frontend.checkbox">
 <Super>EF.ui.components.checkbox,EF.ui.components.frontend.inputElement</Super>
-<TimeChanged>64205,53553.955163</TimeChanged>
+<TimeChanged>64206,56225.704352</TimeChanged>
 <TimeCreated>63355,62572.097775</TimeCreated>
 
 <Method name="render">
@@ -3890,6 +3905,9 @@ this is for version 1 of proweb</Description>
 <Value name="8">
 <Value>prowebItem</Value>
 </Value>
+<Value name="9">
+<Value>prowebItemID</Value>
+</Value>
 </Data>
 </Storage>
 </Class>
@@ -3897,7 +3915,7 @@ this is for version 1 of proweb</Description>
 
 <Class name="EF.ui.components.frontend.checkboxGroup">
 <Super>EF.ui.components.checkboxGroup,EF.ui.components.frontend.inputElement</Super>
-<TimeChanged>64205,53554.107978</TimeChanged>
+<TimeChanged>64206,56225.724576</TimeChanged>
 <TimeCreated>63356,56848.077942</TimeCreated>
 
 <Method name="render">
@@ -3994,6 +4012,9 @@ this is for version 1 of proweb</Description>
 <Value name="12">
 <Value>value</Value>
 </Value>
+<Value name="13">
+<Value>prowebItemID</Value>
+</Value>
 </Data>
 </Storage>
 </Class>
@@ -4010,7 +4031,7 @@ this is for version 1 of proweb</Description>
 ;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>EF.ui.components.backend.datePicker.CLS/EV.3</td><td>CLS.EF.ui.components.backend.datePicker</td><td>LargeDev</td><td style='white-space: nowrap;'>02-Feb-16 12:32</td><td>AdrianM2</td></tr></table>
 ]]></Description>
 <Super>EF.ui.components.textInput,EF.ui.components.frontend.inputElement</Super>
-<TimeChanged>64205,53554.268754</TimeChanged>
+<TimeChanged>64206,56225.753206</TimeChanged>
 <TimeCreated>63384,38215.518113</TimeCreated>
 
 <Parameter name="typeAttribute">
@@ -4092,6 +4113,9 @@ this is for version 1 of proweb</Description>
 <Value name="8">
 <Value>prowebItem</Value>
 </Value>
+<Value name="9">
+<Value>prowebItemID</Value>
+</Value>
 </Data>
 </Storage>
 </Class>
@@ -4108,7 +4132,7 @@ this is for version 1 of proweb</Description>
 ;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>EF.ui.components.backend.datePicker.CLS/EV.3</td><td>CLS.EF.ui.components.backend.datePicker</td><td>LargeDev</td><td style='white-space: nowrap;'>02-Feb-16 12:32</td><td>AdrianM2</td></tr></table>
 ]]></Description>
 <Super>EF.ui.components.textInput,EF.ui.components.frontend.inputElement</Super>
-<TimeChanged>64205,53554.426301</TimeChanged>
+<TimeChanged>64206,56225.751597</TimeChanged>
 <TimeCreated>63384,38215.518113</TimeCreated>
 
 <Parameter name="typeAttribute">
@@ -4213,6 +4237,9 @@ this is for version 1 of proweb</Description>
 <Value name="8">
 <Value>prowebItem</Value>
 </Value>
+<Value name="9">
+<Value>prowebItemID</Value>
+</Value>
 </Data>
 </Storage>
 </Class>
@@ -4241,7 +4268,7 @@ this is for version 1 of proweb</Description>
 
 <Class name="EF.ui.components.frontend.dropdown">
 <Super>EF.ui.components.listInput,EF.ui.components.frontend.inputElement</Super>
-<TimeChanged>64205,53554.5823</TimeChanged>
+<TimeChanged>64206,56166.631443</TimeChanged>
 <TimeCreated>63355,56609.363142</TimeCreated>
 
 <Property name="isPersistent">
@@ -4262,7 +4289,10 @@ this is for version 1 of proweb</Description>
 	}	
 	do ..renderRowOpeningAndLabel()
 	&html<		
-		<select class="#(..encodeForHTMLAttribute(selectClass))#" name="#(..encodeHTMLAttribute(..htmlName))#" id="#(..encodeHTMLAttribute(..htmlID))#" title="#(..encodeHTMLAttribute(..title))#" #(..rawHTML(disabledString))# #(..rawHTML(..getExtraAttributes()))#>
+		<select class="#(..encodeForHTMLAttribute(selectClass))#" name="#(..encodeHTMLAttribute(..htmlName))#" 
+			id="#(..encodeHTMLAttribute(..htmlID))#" title="#(..encodeHTMLAttribute(..title))#" 
+			#(..rawHTML(disabledString))# #(..rawHTML(..getExtraAttributes()))#>
+			
     		#[do ..renderPlaceholder()]#
     		#[do ..renderAlternatives()]#
         </select>
@@ -4287,7 +4317,10 @@ this is for version 1 of proweb</Description>
 	
 	// The html bit
 	&html<
-        <option #(..rawHTML(selectedString))# #(..rawHTML(disabledString))# value="#(..encodeHTMLAttribute(alternative.value))#" #(..rawHTML(alternative.getExtraAttributes()))#>
+        <option #(..rawHTML(selectedString))# #(..rawHTML(disabledString))# 
+        		value="#(..encodeHTMLAttribute(alternative.value))#" 
+        		#(..rawHTML(alternative.getExtraAttributes()))#>
+        		
         	#(..encodeHTMLContent(alternative.label))#
         </option>
 	>
@@ -4329,7 +4362,6 @@ this is for version 1 of proweb</Description>
 <Type>%Library.CacheStorage</Type>
 <DefaultData>dropdownDefaultData</DefaultData>
 <Data name="dropdownDefaultData">
-<Structure>listnode</Structure>
 <Subscript>"dropdown"</Subscript>
 <Value name="1">
 <Value>isPersistent</Value>
@@ -4354,6 +4386,9 @@ this is for version 1 of proweb</Description>
 </Value>
 <Value name="8">
 <Value>prowebItem</Value>
+</Value>
+<Value name="9">
+<Value>prowebItemID</Value>
 </Value>
 </Data>
 </Storage>
@@ -5062,7 +5097,7 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 
 <Class name="EF.ui.components.frontend.prowebBase">
 <Super>EF.ui.components.base</Super>
-<TimeChanged>64205,53532.602109</TimeChanged>
+<TimeChanged>64206,56773.928921</TimeChanged>
 <TimeCreated>64183,41819.123112</TimeCreated>
 
 <Property name="isProwebEditMode">
@@ -5071,8 +5106,12 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 <Required>1</Required>
 </Property>
 
+<Property name="prowebItemID">
+<Type>%Integer</Type>
+</Property>
+
 <Property name="prowebItem">
-<Type>sc.objData</Type>
+<Type>sc.facade.prowebItem</Type>
 </Property>
 
 <Property name="contextData">
@@ -5081,24 +5120,14 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 
 <Method name="renderRowOpening">
 <Implementation><![CDATA[
-	#dim prowebListID as %Integer
-	
-	;try {
-	;	do $SYSTEM.OBJ.Dump($this)
-	;} catch {}
-	 
-	if ..contextData.%IsA("EF.contextDataRegistrationMock") {
-		set prowebID = "mock-1"	
-		set prowebListID = "mock-list-1"
-		
-	} else {
-		set prowebID=..prowebItem.%Id()
-		set prowebListID = ..prowebItem.parent.%Id()
-	}
-	
 	if ..isProwebEditMode {
 		set floaterTitle = ..getFloatingMenuHeader() 
-		write !,"<div class='row ef-draggable-div ef-proweb-form-row-editable' data-proweb-title='"_..encodeForHTMLAttribute(floaterTitle)_"' data-proweb-id='"_prowebID_"' data-proweb-list-id='"_prowebListID_"'>"
+		&HTML<
+			<div class='row ef-draggable-div ef-proweb-form-row-editable' 
+			data-proweb-title='#(..encodeForHTMLAttribute(floaterTitle))#' 
+			data-proweb-id='#(..prowebItem.storage.prowebID)#' 
+			data-proweb-list-id='#(..prowebItem.storage.getListID())#'>
+		>
 		
 	} else {
 		write !,"<div class='row ef-proweb-form-row'>"	
@@ -5116,7 +5145,11 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 		return "Text Block"
 		
 	} else {
-		return ##class(sc.xModules.objCODitem).getCODItemName(..prowebItem.%Id())
+		if $Length(..prowebItem.storage.labelText) {
+			return ..prowebItem.storage.labelText
+		} else {
+			return ..prowebItem.storage.databaseItemName
+		}
 	}
 ]]></Implementation>
 </Method>
@@ -5162,7 +5195,6 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 <Type>%Library.CacheStorage</Type>
 <DefaultData>prowebBaseDefaultData</DefaultData>
 <Data name="prowebBaseDefaultData">
-<Structure>listnode</Structure>
 <Subscript>"prowebBase"</Subscript>
 <Value name="1">
 <Value>isProwebEditMode</Value>
@@ -5173,6 +5205,12 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 <Value name="3">
 <Value>contextData</Value>
 </Value>
+<Value name="4">
+<Value>prowebItemStorage</Value>
+</Value>
+<Value name="5">
+<Value>prowebItemID</Value>
+</Value>
 </Data>
 </Storage>
 </Class>
@@ -5180,7 +5218,7 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 
 <Class name="EF.ui.components.frontend.radioButtons">
 <Super>EF.ui.components.listInput,EF.ui.components.frontend.inputElement</Super>
-<TimeChanged>64205,53554.967318</TimeChanged>
+<TimeChanged>64206,56225.911482</TimeChanged>
 <TimeCreated>63356,39686.205586</TimeCreated>
 
 <Method name="getDefaultClasses">
@@ -5279,6 +5317,9 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 <Value name="7">
 <Value>prowebItem</Value>
 </Value>
+<Value name="8">
+<Value>prowebItemID</Value>
+</Value>
 </Data>
 </Storage>
 </Class>
@@ -5286,7 +5327,7 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 
 <Class name="EF.ui.components.frontend.textArea">
 <Super>EF.ui.components.textInput,EF.ui.components.frontend.inputElement</Super>
-<TimeChanged>64205,53555.11302</TimeChanged>
+<TimeChanged>64206,56226.032191</TimeChanged>
 <TimeCreated>63357,57620.613738</TimeCreated>
 
 <Parameter name="html5Validation">
@@ -5343,6 +5384,9 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 <Value name="8">
 <Value>prowebItem</Value>
 </Value>
+<Value name="9">
+<Value>prowebItemID</Value>
+</Value>
 </Data>
 </Storage>
 </Class>
@@ -5386,7 +5430,7 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 
 <Class name="EF.ui.components.frontend.textInput">
 <Super>EF.ui.components.textInput,EF.ui.components.frontend.inputElement</Super>
-<TimeChanged>64205,53555.26163</TimeChanged>
+<TimeChanged>64206,56226.031165</TimeChanged>
 <TimeCreated>63357,57620.613738</TimeCreated>
 
 <Parameter name="typeAttribute">
@@ -5446,6 +5490,9 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 </Value>
 <Value name="8">
 <Value>prowebItem</Value>
+</Value>
+<Value name="9">
+<Value>prowebItemID</Value>
 </Value>
 </Data>
 </Storage>
@@ -14385,7 +14432,7 @@ The basic frontend default stuff</Description>
 </Class>
 
 
-<Project name="proweb 2" LastModified="2016-10-14 16:09:28.919971" Target="dev.efsys.net/LARGEDEVSRC/backend/home/efSupportLogin.htm" TargetType="3">
+<Project name="proweb 2" LastModified="2016-10-15 15:49:32.107801" Target="dev.efsys.net/LARGEDEVSRC/backend/home/efSupportLogin.htm" TargetType="3">
   <Items>
     <ProjectItem name="EF.contextDataRegistration" type="CLS"></ProjectItem>
     <ProjectItem name="EF.contextDataRegistrationMock" type="CLS"></ProjectItem>
@@ -14432,6 +14479,7 @@ The basic frontend default stuff</Description>
     <ProjectItem name="EF.pageController.proweb.webAddress" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pages.frontend.base" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pages.frontend.baseProweb" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.ui.components.attribute" type="CLS"></ProjectItem>
     <ProjectItem name="EF.ui.components.backend.panel" type="CLS"></ProjectItem>
     <ProjectItem name="EF.ui.components.frontend.checkbox" type="CLS"></ProjectItem>
     <ProjectItem name="EF.ui.components.frontend.checkboxGroup" type="CLS"></ProjectItem>
@@ -14476,12 +14524,257 @@ The basic frontend default stuff</Description>
     <ProjectItem name="sc.objData" type="CLS"></ProjectItem>
     <ProjectItem name="sc.xModules.objList" type="CLS"></ProjectItem>
     <ProjectItem name="shared.pageMethods" type="CLS"></ProjectItem>
-    <ProjectItem name="EF.ui.components.attribute" type="CLS"></ProjectItem>
+    <ProjectItem name="sc.facade.prowebItem" type="CLS"></ProjectItem>
+    <ProjectItem name="sc.facade.prowebItemStorage" type="CLS"></ProjectItem>
+    <ProjectItem name="sc.facade.prowebItemStorageInputElement" type="CLS"></ProjectItem>
+    <ProjectItem name="sc.facade.prowebItemStorageMock" type="CLS"></ProjectItem>
+    <ProjectItem name="sc.facade.prowebItemStorageTextBlock" type="CLS"></ProjectItem>
+    <ProjectItem name="sc.facade.prowebItemStorageDivider" type="CLS"></ProjectItem>
   </Items>
   <BreakPoints>
     <BreakPoint Routine="cspRealEV.frontend.reg.pagecontrollerstandardsave.CLS" Offset="OnPreHTTPafter+28"></BreakPoint>
   </BreakPoints>
 </Project>
+
+
+<Class name="sc.facade.prowebItem">
+<Description>
+Facade class for the sc.objData</Description>
+<Super>%RegisteredObject</Super>
+<TimeChanged>64206,39804.000095</TimeChanged>
+<TimeCreated>64206,36952.573447</TimeCreated>
+
+<Property name="storage">
+<Type>sc.facade.prowebItemStorage</Type>
+</Property>
+
+<Method name="createNew">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>storage:sc.facade.prowebItemStorage</FormalSpec>
+<ReturnType>sc.facade.prowebItemStorage</ReturnType>
+<Implementation><![CDATA[
+	set prowebItem = ..%New()
+	set prowebItem.storage = storage
+	return prowebItem
+]]></Implementation>
+</Method>
+</Class>
+
+
+<Class name="sc.facade.prowebItemStorage">
+<Super>%RegisteredObject</Super>
+<TimeChanged>64206,56875.732982</TimeChanged>
+<TimeCreated>64206,37017.045507</TimeCreated>
+
+<Property name="displayOrder">
+<Type>%Integer</Type>
+<Required>1</Required>
+</Property>
+
+<Property name="prowebID">
+<Type>%Integer</Type>
+</Property>
+
+<Method name="createNew">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>prowebItemID:%Integer</FormalSpec>
+<ReturnType>sc.facade.prowebItemStorage</ReturnType>
+<Implementation><![CDATA[	// only implemented in subclasses
+]]></Implementation>
+</Method>
+
+<Method name="getListID">
+<ReturnType>%Integer</ReturnType>
+<Implementation><![CDATA[
+	if ..prowebID {
+		return ##class(sc.objData).getParentID(..prowebID)	
+	} else {
+		return "dummy-listID"
+	}
+]]></Implementation>
+</Method>
+</Class>
+
+
+<Class name="sc.facade.prowebItemStorageDivider">
+<Super>sc.facade.prowebItemStorage</Super>
+<TimeChanged>64206,47177.234386</TimeChanged>
+<TimeCreated>64206,41722.621925</TimeCreated>
+
+<Method name="createNew">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>prowebItemID:%Integer</FormalSpec>
+<ReturnType>sc.facade.prowebItemStorage</ReturnType>
+<Implementation><![CDATA[
+	#dim prowebItem as sc.xModules.objCODitem
+	
+	set storage = ..%New()
+	set prowebItem = ##class(sc.objData).%OpenId(prowebItemID)
+	set storage.displayOrder = prowebItem.displayOrder
+	set storage.prowebID = prowebItemID
+	
+	return storage
+]]></Implementation>
+</Method>
+</Class>
+
+
+<Class name="sc.facade.prowebItemStorageInputElement">
+<Super>sc.facade.prowebItemStorage</Super>
+<TimeChanged>64206,53574.024477</TimeChanged>
+<TimeCreated>64206,40073.01042</TimeCreated>
+
+<Property name="inputType">
+<Type>%String</Type>
+<Required>1</Required>
+<Parameter name="VALUELIST" value=",text,textarea,radiobutton,checkbox,dropdown,password,multibox,date,dateRange,time,emailAddress,multiEmailAddress,phoneNumber,integer,floatingPointNumber,webAddress"/>
+</Property>
+
+<Property name="databaseItemName">
+<Type>%String</Type>
+<Required>1</Required>
+</Property>
+
+<Property name="databaseItemID">
+<Type>%Integer</Type>
+<Required>1</Required>
+</Property>
+
+<Property name="listOfAlternatives">
+<Type>%ListOfDataTypes</Type>
+</Property>
+
+<Property name="isGuest">
+<Type>%Boolean</Type>
+<InitialExpression>0</InitialExpression>
+</Property>
+
+<Property name="labelText">
+<Type>%String</Type>
+<Parameter name="MAXLEN" value="32000"/>
+</Property>
+
+<Property name="helpText">
+<Type>%String</Type>
+<Parameter name="MAXLEN" value="32000"/>
+</Property>
+
+<Property name="isBackendOnly">
+<Type>%Boolean</Type>
+<InitialExpression>0</InitialExpression>
+</Property>
+
+<Property name="isReadOnly">
+<Type>%Boolean</Type>
+<InitialExpression>0</InitialExpression>
+</Property>
+
+<Property name="isMandatory">
+<Type>%Boolean</Type>
+<InitialExpression>0</InitialExpression>
+</Property>
+
+<Property name="requiredAnswer">
+<Type>%String</Type>
+<Parameter name="MAXLEN" value="32000"/>
+</Property>
+
+<Property name="isSearchAsYouType">
+<Type>%Boolean</Type>
+<InitialExpression>0</InitialExpression>
+</Property>
+
+<Method name="createNew">
+<Description>
+property dependsOnAlternative as sc.facade.prowebItemAlternative;
+
+Property alternatives As sc.facade.prowebItemAlternative;
+</Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec>prowebItemID:%Integer,languageID:%Integer</FormalSpec>
+<ReturnType>sc.facade.prowebItemStorage</ReturnType>
+<Implementation><![CDATA[
+	#dim prowebItem as sc.xModules.objCODitem
+	
+	set storage = ..%New()
+	set prowebItem = ##class(sc.objData).%OpenId(prowebItemID)
+	
+	set storage.displayOrder = prowebItem.displayOrder
+	set storage.prowebID = prowebItemID
+	set storage.inputType = prowebItem.type
+	set storage.isGuest = prowebItem.isGuest
+	set storage.labelText = prowebItem.description
+	set storage.helpText = prowebItem.helpText
+	set storage.isReadOnly = prowebItem.readonlyFrontend
+
+	set storage.isMandatory = prowebItem.mandatory
+	set storage.requiredAnswer = prowebItem.requiredAnswer
+	set storage.isSearchAsYouType = prowebItem.searchAsYouType
+	set storage.databaseItemName = prowebItem.objItemName.description
+	set storage.databaseItemID = prowebItem.objItemName.%Id()
+	if (storage.inputType = "dropdown") !(storage.inputType = "multibox") !(storage.inputType = "radiobutton") {
+		set rsAlternative = ##class(cod.objItemAlternatives).getAlternativesForCodItemAsResultSet( storage.databaseItemID )
+		while rsAlternative.Next()	{
+			set alternativeValue = rsAlternative.Get("description") 
+			set alternativeDescription = ##class(cod.objItemAlternativeDetails).getDescription(rsAlternative.Get("ID"), languageID)
+			set alternativeDescription = ##class(EF.htmlGenerator).unescapeXSSFix(alternativeDescription)
+			do storage.listOfAlternatives.Insert( $ListBuild(alternativeValue, alternativeDescription) )
+			
+		}
+	}
+	
+	
+	return storage
+]]></Implementation>
+</Method>
+</Class>
+
+
+<Class name="sc.facade.prowebItemStorageMock">
+<Super>sc.facade.prowebItemStorage</Super>
+<TimeChanged>64206,39867.189792</TimeChanged>
+<TimeCreated>64206,37060.296556</TimeCreated>
+
+<Method name="createNew">
+<ClassMethod>1</ClassMethod>
+<ReturnType>sc.facade.prowebItemStorage</ReturnType>
+<Implementation><![CDATA[
+	set storage = ..%New()
+	set storage.inputType = "text"
+	set storage.displayOrder = 1
+	return storage
+]]></Implementation>
+</Method>
+</Class>
+
+
+<Class name="sc.facade.prowebItemStorageTextBlock">
+<Super>sc.facade.prowebItemStorage</Super>
+<TimeChanged>64206,47172.523002</TimeChanged>
+<TimeCreated>64206,41475.453349</TimeCreated>
+
+<Property name="text">
+<Type>%String</Type>
+<Parameter name="MAXLEN" value="3000000"/>
+</Property>
+
+<Method name="createNew">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>prowebItemID:%Integer</FormalSpec>
+<ReturnType>sc.facade.prowebItemStorage</ReturnType>
+<Implementation><![CDATA[
+	#dim prowebItem as sc.xModules.objCODitem
+	
+	set storage = ..%New()
+	set prowebItem = ##class(sc.objData).%OpenId(prowebItemID)
+	set storage.text = prowebItem.description
+	set storage.displayOrder = prowebItem.displayOrder
+	set storage.prowebID = prowebItemID
+	
+	return storage
+]]></Implementation>
+</Method>
+</Class>
 
 
 <Class name="sc.objData">

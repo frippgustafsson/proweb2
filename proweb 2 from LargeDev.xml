@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2015.2 (Build 664_3_16032U)" ts="2016-10-17 14:22:07">
+<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2015.2 (Build 664_3_16032U)" ts="2016-10-17 16:45:33">
 <Class name="EF.contextDataRegistration">
 <Description><![CDATA[
 <!-- ;vc;-
@@ -1677,7 +1677,7 @@ Should be run if any of the sub-classes are deleted</Description>
 
 <Class name="EF.pageController.proweb.page">
 <Super>EF.pageController.page</Super>
-<TimeChanged>64208,51251.90301</TimeChanged>
+<TimeChanged>64208,57537.998732</TimeChanged>
 <TimeCreated>64189,51696.559047</TimeCreated>
 
 <Property name="contextData">
@@ -1796,13 +1796,19 @@ Should be run if any of the sub-classes are deleted</Description>
 		while rsProwebItems.Next() {	
 			set prowebID = rsProwebItems.Get("ID")
 			set typeOfElement = rsProwebItems.Get("dataType")
+			
 			if typeOfElement = "objCODitem" {
 				set storage = ##class(sc.facade.prowebItemStorageInputElement).createNew(prowebID, ..contextData)
 			} elseif typeOfElement = "objText" {
 				set storage = ##class(sc.facade.prowebItemStorageTextBlock).createNew(prowebID, ..contextData)
 			} elseif typeOfElement = "objFormDivider" {
 				set storage = ##class(sc.facade.prowebItemStorageDivider).createNew(prowebID, ..contextData)
-			}	
+			} elseif typeOfElement = "objFlash" {
+				set storage = ##class(sc.facade.prowebItemStorageYouTubeVideo).createNew(prowebID, ..contextData)
+				
+			} else {
+				throw ##class(shared.exceptions.generalException).%New("Proweb type not implemented: "_typeOfElement)	
+			}
 						
 			set prowebItem = ##class(sc.facade.prowebItem).createNew(storage)
 			
@@ -1832,9 +1838,10 @@ Should be run if any of the sub-classes are deleted</Description>
 	#define isInputElement prowebItem.storage.%Extends("sc.facade.prowebItemStorageInputElement")
 	#define isTextBlock prowebItem.storage.%Extends("sc.facade.prowebItemStorageTextBlock")
 	#define isDivider prowebItem.storage.%Extends("sc.facade.prowebItemStorageDivider")
+	#define youTubeVideo prowebItem.storage.%Extends("sc.facade.prowebItemStorageYouTubeVideo")
 	 
 	#dim elementIdentifier as %String = ..getElementIdentifierForProwebItems(prowebItem)
-	#dim element as EF.pageController.element
+	#dim element as EF.pageController.proweb.prowebBase
 	
 	if $$$isInputElement { 
 		set element = ..getNewElementForQuestion(prowebItem)
@@ -1842,8 +1849,10 @@ Should be run if any of the sub-classes are deleted</Description>
 		set element = ##class(EF.pageController.proweb.textBlock).addElementToParent($this, elementIdentifier, prowebItem.storage.text)
 	} elseif $$$isDivider {
 		set element = ##class(EF.pageController.proweb.divider).addElementToParent($this, elementIdentifier, "")
+	} elseif $$$youTubeVideo {
+		set element = ##class(EF.pageController.proweb.youTubeVideo).addElementToParent($this, elementIdentifier, "")
 	} else {
-		throw ##class(shared.exceptions.generalException).%New("proweb item type not implemented yet")	
+		throw ##class(shared.exceptions.generalException).%New("proweb item type not implemented yet: "_prowebItem.storage)	
 	}
 
 	set element.displayOrder = prowebItem.storage.displayOrder
@@ -1851,6 +1860,7 @@ Should be run if any of the sub-classes are deleted</Description>
 	
 	set element.uiComponent.prowebItem = prowebItem
 	set element.prowebItem = prowebItem
+	set element.prowebID = prowebItem.storage.prowebID
 	set element.uiComponent.contextData = ..contextData
 	
 	if element.#canBeDependent {
@@ -2267,13 +2277,28 @@ Should be run if any of the sub-classes are deleted</Description>
 
 <Method name="renderElements">
 <Implementation><![CDATA[
+	#dim hasRenderedAtLeastOne as %Boolean = 0
+	
 	for position = 1:1:..listOfControllerIDsSorted.Count() {
 		set controllerID = ..listOfControllerIDsSorted.GetAt(position)
 		set controller = ..getElementByIdentifier(controllerID)
 		if controller.isOkToRender() {
 			do controller.uiComponent.render()		
+			set hasRenderedAtLeastOne =1
 		}
 	}
+	
+	if 'hasRenderedAtLeastOne {
+		do ..renderEmptyListNotification()	
+	}
+]]></Implementation>
+</Method>
+
+<Method name="renderEmptyListNotification">
+<Implementation><![CDATA[
+	&html<
+		<div class="row ef-proweb-form-row-editable"><img src="../../media/images/english/default/backend/add_itemTop.gif"></div>
+	>
 ]]></Implementation>
 </Method>
 
@@ -2286,7 +2311,6 @@ Should be run if any of the sub-classes are deleted</Description>
 	
 	set displayOrder = 0
 	for index = 1:1:$Length(orderedElementIds,"|") {
-		
 		set prowebItemID = $Piece(orderedElementIds,"|",index)
 		if $Length(prowebItemID) {
 			set displayOrder = displayOrder + 1
@@ -2298,10 +2322,15 @@ Should be run if any of the sub-classes are deleted</Description>
 		set element = ..allPageElements.GetNext(.key)
 		if key = "" quit
 		if element.%Extends("EF.pageController.proweb.prowebBase") {
-			if $Data(prowebItems(element.prowebID)) {
-				set prowebElement = ##class(sc.objData).%OpenId(element.prowebID)
-				set prowebElement.displayOrder = prowebItems(element.prowebID)
-				do prowebElement.%Save()
+			try {
+				if $Data(prowebItems(element.prowebItem.storage.prowebID)) {
+					set prowebElement = ##class(sc.objData).%OpenId(element.prowebID)
+					set prowebElement.displayOrder = prowebItems(element.prowebID)
+					do prowebElement.%Save()
+				}
+			} catch error {
+				;throw ##class(shared.exceptions.generalException).%New("Failed to get the prowebID of element: "_element)	
+				do $SYSTEM.OBJ.Dump(element)
 			}
 		}
 	}
@@ -2374,25 +2403,6 @@ Should be run if any of the sub-classes are deleted</Description>
 		set value = ##class(cod.methods).formatMultiCheckBox(..contextData.eventID, prowbItemName, .tmpArray)
 		do ##class(eCom.tempCodData).set(tempPersonID, prowbItemName, value, ..contextData.pageID, ..contextData.eventID)
 	}
-]]></Implementation>
-</Method>
-
-<Method name="debugTarget">
-<ClassMethod>1</ClassMethod>
-<Implementation><![CDATA[
-	#dim elementIdentifier as %String = "proweb-1"
-	#dim labelText as %String = "First Name"
-	#dim value as %String = "Elvis"
-	#dim element as EF.pageController.element
-	#dim page as EF.pageController.proweb.page
-	
-	set contextData = ##class(EF.contextDataRegistrationMock).createMock()
-	
-	set page=..createNew(contextData)
-	set element = page.addProwebTextInput(elementIdentifier, labelText, value)
-	do page.uiComponent.childComponents.SetAt(element.uiComponent,1)
-	set element.uiComponent.contextData = contextData
-	do page.render()
 ]]></Implementation>
 </Method>
 
@@ -2863,7 +2873,7 @@ Should be run if any of the sub-classes are deleted</Description>
 
 <Class name="EF.pageController.proweb.testCases.pageTestCase">
 <Super>EF.ISC.UnitTest.TestCase</Super>
-<TimeChanged>64208,39267.84954</TimeChanged>
+<TimeChanged>64208,60119.193454</TimeChanged>
 <TimeCreated>64189,44993.632692</TimeCreated>
 
 <Method name="TestEditModeHTML">
@@ -2871,7 +2881,7 @@ Should be run if any of the sub-classes are deleted</Description>
 	set floatingMenu = ##class(EF.ui.components.frontend.floatingMenu).%New()
 	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(floatingMenu,"outputFloatingMenuHTML")
 	set returnedHTML = $ZStrip(returnedHTML,"*WC")
-	set expectedHTML = "<divid=""myFloater""class=""containeref-proweb-menu-handlerow""style=""display:none;""><divclass=""dropdownef-proweb-dropdown""><aid=""efProwebHeader""role=""button""data-toggle=""dropdown""class=""btnbtn-primaryef-proweb-dropdown-button""data-target=""#""href=""/page.html"">DefaultHeaderText<spanclass=""caret""></span></a><ulclass=""dropdown-menumulti-levelef-proweb-dropdown-sub""role=""menu""aria-labelledby=""dropdownMenu""><li><aid=""efProwebEditLink""href=""#"">Edit</a></li><li><aid=""efProwebDeleteLink""href=""#"">Delete</a></li><liclass=""divider""></li><liclass=""dropdown-submenu""><atabindex=""-1""href=""#"">InsertAbove</a><ulclass=""dropdown-menu""><li><aid=""efProwebInsertQuestionAboveLink""tabindex=""-1""href=""#"">Question</a></li><li><aid=""efProwebInsertDividerAboveLink""href=""#"">Divider</a></li><li><aid=""efProwebInsertTextBlockAboveLink""href=""#"">Textblock</a></li></ul></li><liclass=""dropdown-submenu""><atabindex=""-1""href=""#"">InsertBelow</a><ulclass=""dropdown-menu""><li><aid=""efProwebInsertQuestionBelowLink""tabindex=""-1""href=""#"">Question</a></li><li><aid=""efProwebInsertDividerBelowLink""href=""#"">Divider</a></li><li><aid=""efProwebInsertTextBlockBelowLink""href=""#"">Textblock</a></li></ul></li></ul></div></div>"
+	set expectedHTML = "<divid=""myFloater""class=""containeref-proweb-menu-handlerow""style=""display:none;""><divclass=""dropdownef-proweb-dropdown""><aid=""efProwebHeader""role=""button""data-toggle=""dropdown""class=""btnbtn-primaryef-proweb-dropdown-button""data-target=""#""href=""/page.html"">[Emptylistsnotimplementedyet]<spanclass=""caret""></span></a><ulclass=""dropdown-menumulti-levelef-proweb-dropdown-sub""role=""menu""aria-labelledby=""dropdownMenu""><li><aid=""efProwebEditLink""href=""#"">Edit</a></li><li><aid=""efProwebDeleteLink""href=""#"">Delete</a></li><liclass=""divider""></li><liclass=""dropdown-submenu""><atabindex=""-1""href=""#"">InsertAbove</a><ulclass=""dropdown-menu""><li><aid=""efProwebInsertQuestionAboveLink""tabindex=""-1""href=""#"">Question</a></li><li><aid=""efProwebInsertDividerAboveLink""href=""#"">Divider</a></li><li><aid=""efProwebInsertTextBlockAboveLink""href=""#"">Textblock</a></li><li><aid=""efProwebInsertYouTubeVideoAboveLink""href=""#"">YouTubevideo</a></li></ul></li><liclass=""dropdown-submenu""><atabindex=""-1""href=""#"">InsertBelow</a><ulclass=""dropdown-menu""><li><aid=""efProwebInsertQuestionBelowLink""tabindex=""-1""href=""#"">Question</a></li><li><aid=""efProwebInsertDividerBelowLink""href=""#"">Divider</a></li><li><aid=""efProwebInsertTextBlockBelowLink""href=""#"">Textblock</a></li><li><aid=""efProwebInsertYouTubeVideoBelowLink""href=""#"">YouTubevideo</a></li></ul></li></ul></div></div>"
 	do $$$AssertEquals(returnedHTML,expectedHTML)
 ]]></Implementation>
 </Method>
@@ -3142,7 +3152,7 @@ Should be run if any of the sub-classes are deleted</Description>
 
 <Class name="EF.pageController.proweb.testCases.textInputTestCase">
 <Super>EF.ISC.UnitTest.TestCase</Super>
-<TimeChanged>64208,51471.158314</TimeChanged>
+<TimeChanged>64208,60303.179529</TimeChanged>
 <TimeCreated>64204,52795.592181</TimeCreated>
 
 <Method name="TestbasicInputField">
@@ -3239,8 +3249,16 @@ Should be run if any of the sub-classes are deleted</Description>
 	set storage.prowebID = "mock-1"
 	set storage.databaseItemName = "Firstname"
 	set storage.inputType = "text"
-	set storage.labelText = "Attendee First Name"
+	set storage.labelText = "Attendee First Name (SHOULD NOT BE DISPLAYED)"
 	set storage.isBackendOnly = 1
+
+	set storage = ##class(sc.facade.prowebItemStorageInputElementMock).createNew()
+	set storage.displayOrder = 2
+	set storage.prowebID = "mock-2"
+	set storage.databaseItemName = "Lastname"
+	set storage.inputType = "text"
+	set storage.labelText = "Attendee Last Name (SHOULD BE DISPLAYED)"
+	set storage.isBackendOnly = 0
 	
 	set prowebItem = ##class(sc.facade.prowebItem).createNew(storage)
 	do contextData.listOfProwebItemsToAdd.Insert(prowebItem)
@@ -3249,7 +3267,7 @@ Should be run if any of the sub-classes are deleted</Description>
 	
 	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(pageController,"renderElements")
 	set returnedHTML = $ZStrip(returnedHTML,"*WC")
-	set expectedHTML = ""
+	set expectedHTML = "<divclass=""rowef-proweb-form-row""><divclass=""col-sm-4ef_proweb_form_prompt""><labelclass=""control-label""for=""proweb-2""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;AttendeeLastName(SHOULDBEDISPLAYED)\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);"">AttendeeLastName(SHOULDBEDISPLAYED)</label></div><divclass=""col-sm-8ef_proweb_form_prompt""><inputtype=""text""class=""form-controlef-proweb-input-element""title=""""id=""proweb-2""name=""proweb-2""value=""Fred""placeholder=""""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;AttendeeLastName(SHOULDBEDISPLAYED)\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""></div></div>"
 	do $$$AssertEquals(returnedHTML,expectedHTML)
 ]]></Implementation>
 </Method>
@@ -3381,6 +3399,43 @@ Should be run if any of the sub-classes are deleted</Description>
 </Class>
 
 
+<Class name="EF.pageController.proweb.testCases.youTubeVideoTestCase">
+<Super>EF.ISC.UnitTest.TestCase</Super>
+<TimeChanged>64208,60049.120889</TimeChanged>
+<TimeCreated>64208,59801.380137</TimeCreated>
+
+<Method name="TestYouTubeVideo">
+<Implementation><![CDATA[
+	#dim page as EF.pageController.proweb.page
+	#dim element as EF.pageController.proweb.textInput
+	#dim storage as sc.facade.prowebItemStorageInputElementMock
+	#dim contextData as EF.contextDataRegistrationMock
+	#dim pageController as EF.pageController.pagesFrontend.t4Registration
+	
+	set eventConfiguration = ##class(setup.eventConfiguration.storageMock).createEventConfiguration()
+	
+	set contextData = ##class(EF.contextDataRegistrationMock).createMock()
+	set contextData.isBackendBooking = 1
+	set contextData.prowebMode = "preview"
+	
+	set storage = ##class(sc.facade.prowebItemStorageYouTubeVideoMock).createNew()
+	set storage.displayOrder = 1
+	set storage.prowebID = "mock-1"
+	
+	set prowebItem = ##class(sc.facade.prowebItem).createNew(storage)
+	do contextData.listOfProwebItemsToAdd.Insert(prowebItem)
+
+	set pageController = ##class(EF.pageController.pagesFrontend.t4Registration).createNew(contextData,,,eventConfiguration)
+	
+	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(pageController,"renderElements")
+	set returnedHTML = $ZStrip(returnedHTML,"*WC")
+	set expectedHTML = "<divclass=""rowef-proweb-form-row""><divclass=""col-sm-12""><objectclassid=""clsid:D27CDB6E-AE6D-11cf-96B8-444553540000""codebase=""//download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=5,0,0,0""width=800height=600><paramname=movievalue=""https://www.youtube.com/watch?feature=player_embedded&v=sJ363mnyHEk""><paramname=qualityvalue=high><paramname=wmodevalue=transparent><paramname=""LOOP""value=""1""><paramname=""menu""value=""false""><embedsrc=""//www.youtube.com/v/sJ363mnyHEk?fs=1&amp;hl=en_GB""wmode=transparentquality=highpluginspage=""//www.macromedia.com/shockwave/download/index.cgi?P1_Prod_Version=ShockwaveFlash""type=""application/x-shockwave-flash""loop=""true""width=600height=360></embed></object></div></div>"
+	do $$$AssertEquals(returnedHTML,expectedHTML)
+]]></Implementation>
+</Method>
+</Class>
+
+
 <Class name="EF.pageController.proweb.textArea">
 <Super>EF.pageController.proweb.inputElement</Super>
 <TimeChanged>64201,42310.34868</TimeChanged>
@@ -3482,6 +3537,50 @@ Should be run if any of the sub-classes are deleted</Description>
 
 <Storage name="Default">
 <Type>%Library.CacheStorage</Type>
+</Storage>
+</Class>
+
+
+<Class name="EF.pageController.proweb.youTubeVideo">
+<Super>EF.pageController.proweb.prowebBase</Super>
+<TimeChanged>64208,58565.902899</TimeChanged>
+<TimeCreated>64183,49747.663252</TimeCreated>
+
+<Parameter name="canBeDependent">
+<Type>%Boolean</Type>
+<Default>0</Default>
+</Parameter>
+
+<Method name="getDefaultUIComponent">
+<ReturnType>EF.ui.components.base</ReturnType>
+<Implementation><![CDATA[	quit ##class(EF.ui.components.frontend.youTubeVideo).%New(..identifier)
+]]></Implementation>
+</Method>
+
+<Method name="initialiseUIComponent">
+<FormalSpec>uiComponent:EF.ui.components.base</FormalSpec>
+<Implementation><![CDATA[	do ##super(uiComponent)
+]]></Implementation>
+</Method>
+
+<Storage name="Default">
+<Type>%Library.CacheStorage</Type>
+<DefaultData>youTubeVideoDefaultData</DefaultData>
+<Data name="youTubeVideoDefaultData">
+<Subscript>"youTubeVideo"</Subscript>
+<Value name="1">
+<Value>youTubeVideoURL</Value>
+</Value>
+<Value name="2">
+<Value>width</Value>
+</Value>
+<Value name="3">
+<Value>height</Value>
+</Value>
+<Value name="4">
+<Value>isLooped</Value>
+</Value>
+</Data>
 </Storage>
 </Class>
 
@@ -3680,7 +3779,7 @@ this is for version 1 of proweb</Description>
 <Class name="EF.pages.frontend.baseProweb">
 <ProcedureBlock>0</ProcedureBlock>
 <Super>EF.pages.frontend.base</Super>
-<TimeChanged>64208,38907.941858</TimeChanged>
+<TimeChanged>64208,57177.798468</TimeChanged>
 <TimeCreated>64191,31442.531402</TimeCreated>
 
 <Parameter name="ENCODED">
@@ -3817,6 +3916,7 @@ this is for version 1 of proweb</Description>
 	    <meta name="efProwebAddQuestionBaseURL" content="#(..encodeForHTMLAttribute(..Link(..getInitialURL("../../backend/proweb/codQuestionDetails.csp"))))#">
 	    <meta name="efProwebAddDividerBaseURL" content="#(..encodeForHTMLAttribute(..Link("../../backend/proweb/formDivider.csp")))#">
 	    <meta name="efProwebAddTextBlockBaseURL" content="#(..encodeForHTMLAttribute(..Link("../../backend/proweb/textDetailsMoxie.csp")))#">
+	    <meta name="efProwebAddYouTubeVideoBaseURL" content="#(..encodeForHTMLAttribute(..Link("../../backend/proweb/flashDetails.csp")))#">
 	>
 ]]></Implementation>
 </Method>
@@ -4747,14 +4847,13 @@ this is for version 1 of proweb</Description>
 
 <Class name="EF.ui.components.frontend.floatingMenu">
 <Super>shared.pCSPmanage</Super>
-<TimeChanged>64208,38948.216572</TimeChanged>
+<TimeChanged>64208,57222.55958</TimeChanged>
 <TimeCreated>64203,40625.329831</TimeCreated>
 
 <Method name="outputFloatingMenuJS">
 <Description>
 ####### move this to external file ############</Description>
 <Implementation><![CDATA[
-	
 	write !,"<script language='javascript'>"
 	&js<
 	
@@ -4772,6 +4871,7 @@ this is for version 1 of proweb</Description>
 		        var efProwebAddQuestionBaseURL = $('meta[name=efProwebAddQuestionBaseURL]').attr("content");
 		        var efProwebAddDividerBaseURL = $('meta[name=efProwebAddDividerBaseURL]').attr("content");
 		        var efProwebAddTextBlockBaseURL = $('meta[name=efProwebAddTextBlockBaseURL]').attr("content");
+		        var efProwebAddYouTubeVideoBaseURL = $('meta[name=efProwebAddYouTubeVideoBaseURL]').attr("content");
 		        
 		        
 		        $(this).addClass("ef-showing-floater");
@@ -4834,7 +4934,7 @@ this is for version 1 of proweb</Description>
 		<div id="myFloater" class="container ef-proweb-menu-handle row" style="display: none;">
 	        <div class="dropdown ef-proweb-dropdown">
 	            <a id="efProwebHeader" role="button" data-toggle="dropdown" class="btn btn-primary ef-proweb-dropdown-button" data-target="#" href="/page.html">
-	            	Default Header Text 
+	            	[Empty lists not implemented yet] 
 	            	<span class="caret"></span>
 	            </a>
 	    		<ul class="dropdown-menu multi-level ef-proweb-dropdown-sub" role="menu" aria-labelledby="dropdownMenu">
@@ -4851,6 +4951,7 @@ this is for version 1 of proweb</Description>
 			                  <li><a id="efProwebInsertQuestion#(aboveOrBelow)#Link" tabindex="-1" href="#">Question</a></li>
 			                  <li><a id="efProwebInsertDivider#(aboveOrBelow)#Link" href="#">Divider</a></li>
 			                  <li><a id="efProwebInsertTextBlock#(aboveOrBelow)#Link" href="#">Text block</a></li>
+			                  <li><a id="efProwebInsertYouTubeVideo#(aboveOrBelow)#Link" href="#">YouTube video</a></li>
 			                </ul>
 			              </li>
 						>
@@ -5186,7 +5287,7 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 
 <Class name="EF.ui.components.frontend.prowebBase">
 <Super>EF.ui.components.base</Super>
-<TimeChanged>64206,61005.74689</TimeChanged>
+<TimeChanged>64208,57902.961021</TimeChanged>
 <TimeCreated>64183,41819.123112</TimeCreated>
 
 <Property name="isProwebEditMode">
@@ -5233,12 +5334,19 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 	} elseif ..%IsA("EF.ui.components.frontend.textBlock") {
 		return "Text Block"
 		
-	} else {
+	} elseif ..%IsA("EF.ui.components.frontend.youTubeVideo") {
+		return "YouTube video"
+				
+	} elseif ..%Extends("EF.ui.components.frontend.inputElement") {
 		if $Length(..prowebItem.storage.labelText) {
-			return ..prowebItem.storage.labelText
+			return ##class(shared.stringFunctions).removeHTML(..prowebItem.storage.labelText)
+		
 		} else {
 			return ..prowebItem.storage.databaseItemName
 		}
+		
+	} else {
+		throw ##class(shared.exceptions.generalException).%New("Proweb uiComponent type not implemented: "_$this)	
 	}
 ]]></Implementation>
 </Method>
@@ -5677,6 +5785,47 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 
 <Storage name="Default">
 <Type>%Library.CacheStorage</Type>
+</Storage>
+</Class>
+
+
+<Class name="EF.ui.components.frontend.youTubeVideo">
+<Super>EF.ui.components.frontend.prowebBase</Super>
+<TimeChanged>64208,58750.977302</TimeChanged>
+<TimeCreated>64188,59498.911424</TimeCreated>
+
+<Property name="yourTubeVideoURL">
+<Type>%String</Type>
+</Property>
+
+<Method name="render">
+<Implementation><![CDATA[
+	do ..renderRowOpening()
+		do ..renderCellOpening()
+			&html<
+				<object classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000" codebase="//download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=5,0,0,0" width=#(..prowebItem.storage.width)# height=#(..prowebItem.storage.height)#>
+					<param name=movie value="#(..prowebItem.storage.youTubeVideoURL)#">
+					<param name=quality value=high>
+					<param name=wmode value=transparent>
+					<param name="LOOP" value="#(..prowebItem.storage.isLooped)#">
+					<param name="menu" value="false">
+					<embed src="//www.youtube.com/v/sJ363mnyHEk?fs=1&amp;hl=en_GB" wmode=transparent quality=high pluginspage="//www.macromedia.com/shockwave/download/index.cgi?P1_Prod_Version=ShockwaveFlash" type="application/x-shockwave-flash" loop="true" width=600 height=360>
+					</embed>
+				</object>			>
+		do ..renderCellClosing()
+	do ..renderRowClosing()
+]]></Implementation>
+</Method>
+
+<Storage name="Default">
+<Type>%Library.CacheStorage</Type>
+<DefaultData>youTubeVideoDefaultData</DefaultData>
+<Data name="youTubeVideoDefaultData">
+<Subscript>"youTubeVideo"</Subscript>
+<Value name="1">
+<Value>yourTubeVideoURL</Value>
+</Value>
+</Data>
 </Storage>
 </Class>
 
@@ -10857,9 +11006,7 @@ function updateAlts(codPromptID) {
 <csp:section name="PageContent">
 	<ef-pc-container type="panel-body">
 	   	<div class="row ef-proweb-reorderable" data-ef-reorderable-save-url="#(..encodeForHTMLAttribute(..Link("../../frontend/reg/reorderProwebElements.csp")))#" >
-				<ef-pc-element prowebcomponentname="Main List">
-			
-				
+			<ef-pc-element prowebcomponentname="Main List">
 		</div>
 			
 	</ef-pc-container>			
@@ -14549,7 +14696,7 @@ The basic frontend default stuff</Description>
 </Class>
 
 
-<Project name="proweb 2" LastModified="2016-10-17 14:21:59.998079" Target="dev.efsys.net/LARGEDEVSRC/backend/home/efSupportLogin.htm" TargetType="3">
+<Project name="proweb 2" LastModified="2016-10-17 16:45:33.971625" Target="dev.efsys.net/LARGEDEVSRC/backend/home/efSupportLogin.htm" TargetType="3">
   <Items>
     <ProjectItem name="EF.contextDataRegistration" type="CLS"></ProjectItem>
     <ProjectItem name="EF.contextDataRegistrationMock" type="CLS"></ProjectItem>
@@ -14570,6 +14717,7 @@ The basic frontend default stuff</Description>
     <ProjectItem name="EF.pageController.proweb.numericInput" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.proweb.page" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.proweb.panel" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.pageController.proweb.passwordInput" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.proweb.phoneNumber" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.proweb.prowebBase" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.proweb.radioButtons" type="CLS"></ProjectItem>
@@ -14582,6 +14730,7 @@ The basic frontend default stuff</Description>
     <ProjectItem name="EF.pageController.proweb.testCases.integerInputTestCase" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.proweb.testCases.numericInputTestCase" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.proweb.testCases.pageTestCase" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.pageController.proweb.testCases.passwordInputTestCase" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.proweb.testCases.phoneNumberTestCase" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.proweb.testCases.radioButtonsTestCase" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.proweb.testCases.textAreaTestCase" type="CLS"></ProjectItem>
@@ -14611,6 +14760,7 @@ The basic frontend default stuff</Description>
     <ProjectItem name="EF.ui.components.frontend.integerInput" type="CLS"></ProjectItem>
     <ProjectItem name="EF.ui.components.frontend.numericInput" type="CLS"></ProjectItem>
     <ProjectItem name="EF.ui.components.frontend.panel" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.ui.components.frontend.passwordInput" type="CLS"></ProjectItem>
     <ProjectItem name="EF.ui.components.frontend.phoneNumber" type="CLS"></ProjectItem>
     <ProjectItem name="EF.ui.components.frontend.prowebBase" type="CLS"></ProjectItem>
     <ProjectItem name="EF.ui.components.frontend.radioButtons" type="CLS"></ProjectItem>
@@ -14646,9 +14796,11 @@ The basic frontend default stuff</Description>
     <ProjectItem name="sc.objData" type="CLS"></ProjectItem>
     <ProjectItem name="sc.xModules.objList" type="CLS"></ProjectItem>
     <ProjectItem name="shared.pageMethods" type="CLS"></ProjectItem>
-    <ProjectItem name="EF.pageController.proweb.passwordInput" type="CLS"></ProjectItem>
-    <ProjectItem name="EF.ui.components.frontend.passwordInput" type="CLS"></ProjectItem>
-    <ProjectItem name="EF.pageController.proweb.testCases.passwordInputTestCase" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.pageController.proweb.youTubeVideo" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.ui.components.frontend.youTubeVideo" type="CLS"></ProjectItem>
+    <ProjectItem name="sc.facade.prowebItemStorageYouTubeVideo" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.pageController.proweb.testCases.youTubeVideoTestCase" type="CLS"></ProjectItem>
+    <ProjectItem name="sc.facade.prowebItemStorageYouTubeVideoMock" type="CLS"></ProjectItem>
   </Items>
   <BreakPoints>
     <BreakPoint Routine="cspRealEV.frontend.reg.pagecontrollerstandardsave.CLS" Offset="OnPreHTTPafter+28"></BreakPoint>
@@ -14740,7 +14892,7 @@ Facade class for the sc.objData</Description>
 
 <Class name="sc.facade.prowebItemStorageInputElement">
 <Super>sc.facade.prowebItemStorage</Super>
-<TimeChanged>64208,50677.049124</TimeChanged>
+<TimeChanged>64208,58834.801831</TimeChanged>
 <TimeCreated>64206,40073.01042</TimeCreated>
 
 <Property name="inputType">
@@ -14826,7 +14978,6 @@ Property alternatives As sc.facade.prowebItemAlternative;
 	set storage.helpText = prowebItem.helpText
 	set storage.isBackendOnly = prowebItem.backendOnly
 	set storage.isReadOnly = prowebItem.readonlyFrontend
-	if prowebItem.readonlyAmendment w 1/0
 	if (contextData.isAmendment) && (prowebItem.noAmendments) {
 		set storage.isReadOnly = 1	
 	}
@@ -14895,6 +15046,72 @@ Property alternatives As sc.facade.prowebItemAlternative;
 	set storage.displayOrder = prowebItem.displayOrder
 	set storage.prowebID = prowebItemID
 	
+	return storage
+]]></Implementation>
+</Method>
+</Class>
+
+
+<Class name="sc.facade.prowebItemStorageYouTubeVideo">
+<Super>sc.facade.prowebItemStorage</Super>
+<TimeChanged>64208,58538.006674</TimeChanged>
+<TimeCreated>64208,57300.34753</TimeCreated>
+
+<Property name="youTubeVideoURL">
+<Type>%String</Type>
+</Property>
+
+<Property name="width">
+<Type>%Integer</Type>
+</Property>
+
+<Property name="height">
+<Type>%Integer</Type>
+</Property>
+
+<Property name="isLooped">
+<Type>%Boolean</Type>
+</Property>
+
+<Method name="createNew">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>prowebItemID:%Integer,contextData:EF.contextDataRegistration</FormalSpec>
+<ReturnType>sc.facade.prowebItemStorage</ReturnType>
+<Implementation><![CDATA[
+	#dim prowebItem as sc.xModules.objFlash
+	
+	set storage = ..%New()
+	set prowebItem = ##class(sc.objData).%OpenId(prowebItemID)
+	set storage.displayOrder = prowebItem.displayOrder
+	set storage.prowebID = prowebItemID
+	
+	set storage.youTubeVideoURL = prowebItem.description
+	set storage.width = prowebItem.width
+	set storage.height = prowebItem.height
+	set storage.isLooped = prowebItem.loop
+	
+	return storage
+]]></Implementation>
+</Method>
+</Class>
+
+
+<Class name="sc.facade.prowebItemStorageYouTubeVideoMock">
+<Super>sc.facade.prowebItemStorageYouTubeVideo</Super>
+<TimeChanged>64208,59949.51444</TimeChanged>
+<TimeCreated>64208,59949.51444</TimeCreated>
+
+<Method name="createNew">
+<ClassMethod>1</ClassMethod>
+<ReturnType>sc.facade.prowebItemStorage</ReturnType>
+<Implementation><![CDATA[
+	set storage = ..%New()
+	set storage.youTubeVideoURL = "https://www.youtube.com/watch?feature=player_embedded&v=sJ363mnyHEk"
+	set storage.height = 600
+	set storage.width = 800
+	set storage.isLooped = 1
+	
+	set storage.displayOrder = 1
 	return storage
 ]]></Implementation>
 </Method>

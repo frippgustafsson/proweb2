@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2015.2 (Build 664_3_16032U)" ts="2016-10-15 17:29:19">
+<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2015.2 (Build 664_3_16032U)" ts="2016-10-17 10:51:02">
 <Class name="EF.contextDataRegistration">
 <Description><![CDATA[
 <!-- ;vc;-
@@ -1666,7 +1666,7 @@ Should be run if any of the sub-classes are deleted</Description>
 
 <Class name="EF.pageController.proweb.page">
 <Super>EF.pageController.page</Super>
-<TimeChanged>64206,62913.181324</TimeChanged>
+<TimeChanged>64208,35120.958838</TimeChanged>
 <TimeCreated>64189,51696.559047</TimeCreated>
 
 <Property name="contextData">
@@ -1929,8 +1929,12 @@ Should be run if any of the sub-classes are deleted</Description>
 <Private>1</Private>
 <ReturnType>%String</ReturnType>
 <Implementation><![CDATA[
-	if optionalGuestNumber {
-		set tempPersonID = ..getTempPersonIdForGuestNumber(optionalGuestNumber)	
+	if optionalGuestNumber  {
+		if ..contextData.prowebMode = "edit" {
+			set tempPersonID = "n/a"
+		} else {
+			set tempPersonID = ..getTempPersonIdForGuestNumber(optionalGuestNumber)	
+		}
 	} else {
 		set tempPersonID = ..contextData.tempPersonID
 	}
@@ -2825,7 +2829,7 @@ Should be run if any of the sub-classes are deleted</Description>
 
 <Class name="EF.pageController.proweb.testCases.pageTestCase">
 <Super>EF.ISC.UnitTest.TestCase</Super>
-<TimeChanged>64206,62946.871204</TimeChanged>
+<TimeChanged>64208,39038.905995</TimeChanged>
 <TimeCreated>64189,44993.632692</TimeCreated>
 
 <Method name="TestEditModeHTML">
@@ -2833,7 +2837,7 @@ Should be run if any of the sub-classes are deleted</Description>
 	set floatingMenu = ##class(EF.ui.components.frontend.floatingMenu).%New()
 	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(floatingMenu,"outputFloatingMenuHTML")
 	set returnedHTML = $ZStrip(returnedHTML,"*WC")
-	set expectedHTML = "<divid=""myFloater""class=""containeref-proweb-menu-handlerow""style=""display:none;""><divclass=""dropdownef-proweb-dropdown""><aid=""efProwebHeader""role=""button""data-toggle=""dropdown""class=""btnbtn-primaryef-proweb-dropdown-button""data-target=""#""href=""/page.html"">DfeaultHeaderText<spanclass=""caret""></span></a><ulclass=""dropdown-menumulti-levelef-proweb-dropdown-sub""role=""menu""aria-labelledby=""dropdownMenu""><li><aid=""efProwebEditLink""href=""#"">Edit</a></li><li><aid=""efProwebDeleteLink""href=""#"">Delete</a></li><liclass=""divider""></li><liclass=""dropdown-submenu""><atabindex=""-1""href=""#"">InsertAbove</a><ulclass=""dropdown-menu""><li><aid=""efProwebInsertQuestionAboveLink""tabindex=""-1""href=""#"">Question</a></li><li><aid=""efProwebInsertDividerAboveLink""href=""#"">Divider</a></li><li><aid=""efProwebInsertTextBlockAboveLink""href=""#"">Textblock</a></li></ul></li><liclass=""dropdown-submenu""><atabindex=""-1""href=""#"">InsertBelow</a><ulclass=""dropdown-menu""><li><aid=""efProwebInsertQuestionBelowLink""tabindex=""-1""href=""#"">Question</a></li><li><aid=""efProwebInsertDividerBelowLink""href=""#"">Divider</a></li><li><aid=""efProwebInsertTextBlockBelowLink""href=""#"">Textblock</a></li></ul></li></ul></div></div>"
+	set expectedHTML = "<divid=""myFloater""class=""containeref-proweb-menu-handlerow""style=""display:none;""><divclass=""dropdownef-proweb-dropdown""><aid=""efProwebHeader""role=""button""data-toggle=""dropdown""class=""btnbtn-primaryef-proweb-dropdown-button""data-target=""#""href=""/page.html"">DefaultHeaderText<spanclass=""caret""></span></a><ulclass=""dropdown-menumulti-levelef-proweb-dropdown-sub""role=""menu""aria-labelledby=""dropdownMenu""><li><aid=""efProwebEditLink""href=""#"">Edit</a></li><li><aid=""efProwebDeleteLink""href=""#"">Delete</a></li><liclass=""divider""></li><liclass=""dropdown-submenu""><atabindex=""-1""href=""#"">InsertAbove</a><ulclass=""dropdown-menu""><li><aid=""efProwebInsertQuestionAboveLink""tabindex=""-1""href=""#"">Question</a></li><li><aid=""efProwebInsertDividerAboveLink""href=""#"">Divider</a></li><li><aid=""efProwebInsertTextBlockAboveLink""href=""#"">Textblock</a></li></ul></li><liclass=""dropdown-submenu""><atabindex=""-1""href=""#"">InsertBelow</a><ulclass=""dropdown-menu""><li><aid=""efProwebInsertQuestionBelowLink""tabindex=""-1""href=""#"">Question</a></li><li><aid=""efProwebInsertDividerBelowLink""href=""#"">Divider</a></li><li><aid=""efProwebInsertTextBlockBelowLink""href=""#"">Textblock</a></li></ul></li></ul></div></div>"
 	do $$$AssertEquals(returnedHTML,expectedHTML)
 ]]></Implementation>
 </Method>
@@ -3287,7 +3291,7 @@ Common page that all frontend pages could/should inherit from.
 <Language>cache</Language>
 <ProcedureBlock>0</ProcedureBlock>
 <Super>shared.pCSPmanage</Super>
-<TimeChanged>64201,41555.410872</TimeChanged>
+<TimeChanged>64208,37686.31431</TimeChanged>
 <TimeCreated>63635,40114.778424</TimeCreated>
 
 <Parameter name="showRegistrationProgressBar">
@@ -3338,6 +3342,7 @@ Common page that all frontend pages could/should inherit from.
 	do ..renderCommonCSS()
 	do ..OnPagePageHeaderCSS()
 	do ..renderCommonJavascript()
+	do ..outputMetaTags()
 	Write !,!,"</head>"
 	Write !,"<body class=""bodyBackground"">"
 	Write !,!,!,!
@@ -3362,6 +3367,10 @@ Common page that all frontend pages could/should inherit from.
 </Method>
 
 <Method name="OnPagePageHeaderCSS">
+<ClassMethod>1</ClassMethod>
+</Method>
+
+<Method name="outputMetaTags">
 <ClassMethod>1</ClassMethod>
 </Method>
 
@@ -3462,7 +3471,7 @@ this is for version 1 of proweb</Description>
 <Class name="EF.pages.frontend.baseProweb">
 <ProcedureBlock>0</ProcedureBlock>
 <Super>EF.pages.frontend.base</Super>
-<TimeChanged>64206,58293.532476</TimeChanged>
+<TimeChanged>64208,38907.941858</TimeChanged>
 <TimeCreated>64191,31442.531402</TimeCreated>
 
 <Parameter name="ENCODED">
@@ -3588,6 +3597,40 @@ this is for version 1 of proweb</Description>
 			<link type="text/css" href="https://2bb0f132f679bac07fa4-638acaa65ecf53798e8a5faa656f2b95.ssl.cf3.rackcdn.com/libs/jQueryUI/v.1.8.21/jquery.css" rel="Stylesheet"/>
 		>
 	}
+]]></Implementation>
+</Method>
+
+<Method name="outputMetaTags">
+<ClassMethod>1</ClassMethod>
+<Implementation><![CDATA[
+	 &html<
+	    <meta name="efProwebEditBaseURL" content="#(..encodeForHTMLAttribute(..Link("../../backend/proweb/codQuestionDetails.csp")))#">
+	    <meta name="efProwebAddQuestionBaseURL" content="#(..encodeForHTMLAttribute(..Link(..getInitialURL("../../backend/proweb/codQuestionDetails.csp"))))#">
+	    <meta name="efProwebAddDividerBaseURL" content="#(..encodeForHTMLAttribute(..Link("../../backend/proweb/formDivider.csp")))#">
+	    <meta name="efProwebAddTextBlockBaseURL" content="#(..encodeForHTMLAttribute(..Link("../../backend/proweb/textDetailsMoxie.csp")))#">
+	>
+]]></Implementation>
+</Method>
+
+<Method name="getInitialURL">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>targetPage:%String</FormalSpec>
+<Private>1</Private>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	#dim URL as %String
+	#dim contextData as EF.contextDataRegistration = ##class(EF.contextDataRegistration).createFromFrontendCSPSession()
+	 
+	set URL = "../../backend/proweb/"_targetPage
+	set URL = ##class(EF.htmlGenerator).addParameterToURL(URL,"dataID","NEW")
+	set URL = ##class(EF.htmlGenerator).addParameterToURL(URL,"orgDataID","ADD")
+	set URL = ##class(EF.htmlGenerator).addParameterToURL(URL,"displayOrder",0)
+	set URL = ##class(EF.htmlGenerator).addParameterToURL(URL,"addToTop","true")
+	set URL = ##class(EF.htmlGenerator).addParameterToURL(URL,"isCOD",1)
+	set URL = ##class(EF.htmlGenerator).addParameterToURL(URL,"pageID",contextData.pageID)
+	set URL = ##class(EF.htmlGenerator).addParameterToURL(URL,"itemNameID","NEW")
+	
+	return URL
 ]]></Implementation>
 </Method>
 
@@ -4491,23 +4534,19 @@ this is for version 1 of proweb</Description>
 
 <Class name="EF.ui.components.frontend.floatingMenu">
 <Super>shared.pCSPmanage</Super>
-<TimeChanged>64204,51293.686856</TimeChanged>
+<TimeChanged>64208,38948.216572</TimeChanged>
 <TimeCreated>64203,40625.329831</TimeCreated>
 
 <Method name="outputFloatingMenuJS">
 <Description>
-####### move this to external file? ############</Description>
+####### move this to external file ############</Description>
 <Implementation><![CDATA[
 	
 	write !,"<script language='javascript'>"
 	&js<
 	
     $(document).ready(function() {
-	    efProwebEditBaseURL = '#(..encodeForHTMLAttribute(..Link("../../backend/proweb/codQuestionDetails.csp")))#'; 
-	    efProwebAddQuestionBaseURL = '#(..encodeForHTMLAttribute(..Link(..getInitalURL("codQuestionDetails.csp"))))#'; 
-	    efProwebAddDividerBaseURL = '#(..encodeForHTMLAttribute(..Link("../../backend/proweb/formDivider.csp")))#'; 
-		efProwebAddTextBlockBaseURL = '#(..encodeForHTMLAttribute(..Link("../../backend/proweb/textDetailsMoxie.csp")))#'; 
-
+		
 		var ef_hide_floater;
 
         $('div.ef-proweb-form-row-editable').mouseover(function(e) {
@@ -4515,6 +4554,13 @@ this is for version 1 of proweb</Description>
 		        var prowebTitle = $(this).data("proweb-title");
 		        var prowebID = $(this).data("proweb-id");
 		      	var prowebListID = $(this).data("proweb-list-id");
+		      	
+		        var efProwebEditBaseURL = $('meta[name=efProwebEditBaseURL]').attr("content");
+		        var efProwebAddQuestionBaseURL = $('meta[name=efProwebAddQuestionBaseURL]').attr("content");
+		        var efProwebAddDividerBaseURL = $('meta[name=efProwebAddDividerBaseURL]').attr("content");
+		        var efProwebAddTextBlockBaseURL = $('meta[name=efProwebAddTextBlockBaseURL]').attr("content");
+		        
+		        
 		        $(this).addClass("ef-showing-floater");
 		        $('#myFloater').css('top',e.pageY);
 				$('#myFloater').css('left',e.pageX);
@@ -4575,7 +4621,7 @@ this is for version 1 of proweb</Description>
 		<div id="myFloater" class="container ef-proweb-menu-handle row" style="display: none;">
 	        <div class="dropdown ef-proweb-dropdown">
 	            <a id="efProwebHeader" role="button" data-toggle="dropdown" class="btn btn-primary ef-proweb-dropdown-button" data-target="#" href="/page.html">
-	            	Dfeault Header Text 
+	            	Default Header Text 
 	            	<span class="caret"></span>
 	            </a>
 	    		<ul class="dropdown-menu multi-level ef-proweb-dropdown-sub" role="menu" aria-labelledby="dropdownMenu">
@@ -4601,246 +4647,6 @@ this is for version 1 of proweb</Description>
 	        </div>
 		</div>
 	>
-]]></Implementation>
-</Method>
-
-<Method name="getInitalURL">
-<FormalSpec>targetPage:%String</FormalSpec>
-<Private>1</Private>
-<ReturnType>%String</ReturnType>
-<Implementation><![CDATA[
-	#dim URL as %String
-	#dim contextData as EF.contextDataRegistration = ##class(EF.contextDataRegistration).createFromFrontendCSPSession()
-	 
-	set URL = "../../backend/proweb/"_targetPage
-	set URL = ##class(EF.htmlGenerator).addParameterToURL(URL,"dataID","NEW")
-	set URL = ##class(EF.htmlGenerator).addParameterToURL(URL,"orgDataID","ADD")
-	set URL = ##class(EF.htmlGenerator).addParameterToURL(URL,"displayOrder",0)
-	set URL = ##class(EF.htmlGenerator).addParameterToURL(URL,"addToTop","true")
-	set URL = ##class(EF.htmlGenerator).addParameterToURL(URL,"isCOD",1)
-	set URL = ##class(EF.htmlGenerator).addParameterToURL(URL,"pageID",contextData.pageID)
-	set URL = ##class(EF.htmlGenerator).addParameterToURL(URL,"itemNameID","NEW")
-	
-	return URL
-]]></Implementation>
-</Method>
-</Class>
-
-
-<Class name="EF.ui.components.frontend.floatingMenuAdd">
-<Super>%RegisteredObject</Super>
-<TimeChanged>64196,52998.169116</TimeChanged>
-<TimeCreated>64190,37989.914109</TimeCreated>
-
-<Property name="contextData">
-<Type>EF.contextDataRegistration</Type>
-</Property>
-
-<Property name="templateFilename">
-<Type>%String</Type>
-<Required>1</Required>
-</Property>
-
-<Property name="templateID">
-<Type>%Integer</Type>
-<Required>1</Required>
-</Property>
-
-<Property name="pageID">
-<Type>%String</Type>
-<Required>1</Required>
-</Property>
-
-<Property name="menuID">
-<Type>%String</Type>
-<Required>1</Required>
-</Property>
-
-<Property name="parentID">
-<Type>%String</Type>
-<Required>1</Required>
-</Property>
-
-<Property name="eventHotelID">
-<Type>%String</Type>
-<Required>1</Required>
-</Property>
-
-<Method name="createNew">
-<ClassMethod>1</ClassMethod>
-<FormalSpec>contextData:EF.contextDataRegistration</FormalSpec>
-<ReturnType>sc.floatingMenu</ReturnType>
-<Implementation><![CDATA[
-	#dim pageID as %Integer = contextData.pageID
-	#dim componentName as %String = contextData.prowebComponentName
-	
-	set menu = ..%New()
-	set menu.contextData = contextData
-	set menu.eventHotelID = ##class(accom.objEventHotel).getIDFromPageID(pageID)
-	set menu.templateID =  ##class(sc.pageMethods).getTemplateIDfromPageID(pageID)
-	set menu.templateFilename = ##class(sc.objTemplate).getFileName(menu.templateID)
-	set menu.parentID = ##class(sc.xModules.objList).getListIDFromPageIDAndComponentName(pageID,componentName)
-
-	return menu
-]]></Implementation>
-</Method>
-
-<Method name="outputJS">
-<Implementation><![CDATA[
-	#dim pageID as %Integer = ..contextData.pageID
-	#dim componentName as %String = ..contextData.prowebComponentName
-	set ..menuID = ..contextData.getNewFloatingMenuCounter()
-	
-	set page = ##class(sc.xModules.objPage).%OpenId(pageID)
-	set pageFileName = page.getFileNameWithoutPathLowerCase()
-	
-	if $Data(%session) {
-		set %session.Data("eventsforce","backend","email or web page")="web page"
-	}
-	if $IsObject(page.objEvent) {
-		set eventConfiguration=##class(setup.eventConfiguration).createForEventID(page.objEvent.%Id())
-	}
-	
-	write !,"<sc"_"ript language='javasc"_"ript'>"
-	write !,"HM_Array"_..menuID_" = [[150,,,,,,,,,,,,,,,,,,,,1],"
-	
-	if page.allowRegistrationQuestions(componentName){
-		write !,..getMenuItemJS("Registration Question")
-	
-	}
-	if page.allowABIs() {
-		write !,..getMenuItemJS("Bookable Item")
-		if eventConfiguration.areQBIsAllowed() {
-			write !,..getMenuItemJS("Quantity Bookable Item")
-		}
-	}
-	
-	if page.alllowPromptCollections() {
-		//write !,..getMenuItemJS("Reg Prompt Collections")	
-	}
-	if page.isSurvey() {
-		set surveyGroupID = ##class(sc.objData).getParentID(pageID)
-		&SQL(SELECT TOP 1 ID INTO :lastPageID FROM sc_xModules.objPage WHERE parent = :surveyGroupID ORDER BY displayOrder DESC)
-		if lastPageID '= pageID {
-			write !,..getMenuItemJS("Question")
-		}
-	}
-	if page.isHotel() {
-		write !,..getMenuItemJS("Question With Price")
-		write !,..getMenuItemJS("Question With No Price")
-	}
-	
-	write !,..getMenuItemJS("Text Block")
-	
-	if page.allowDivider(componentName) {
-		write !,..getMenuItemJS("Divider")	
-	}
-	if page.allowMiscMedia() {
-		write !,..getMenuItemJS("Menu Block")
-		write !,..getMenuItemJS("Scrolling Image")
-		write !,..getMenuItemJS("YouTube Video")
-	}
-	if page.allowFrontendUpload() {
-		//write !,..getMenuItemJS("File Upload")
-	}
-	write !,"]</sc"_"ript>"
-]]></Implementation>
-</Method>
-
-<Method name="getMenuItemJS">
-<FormalSpec>menuItemText:%String</FormalSpec>
-<ReturnType>%String</ReturnType>
-<Implementation><![CDATA[
-	#dim targetPage as %String
-	#dim URL as %String
-	#define codQuestionDetailsPage "codQuestionDetails.csp"
-	
-	
-	if menuItemText = "Registration Question" {
-		set URL = ..getInitalURL($$$codQuestionDetailsPage)
-	
-	} elseif menuItemText = "Question" {		//surveys
-		set URL = ..getInitalURL($$$codQuestionDetailsPage)
-
-	} elseif menuItemText = "Bookable Item" {
-		set URL = ..getInitalURL($$$codQuestionDetailsPage)
-		set URL = ##class(EF.htmlGenerator).addParameterToURL(URL,"additional",1)
-
-	} elseif menuItemText = "Quantity Bookable Item" {
-		set URL = ..getInitalURL($$$codQuestionDetailsPage)
-		set URL = ##class(EF.htmlGenerator).addParameterToURL(URL,"quantityItem",1)
-	
-	} elseif menuItemText = "Reg Prompt Collections" {
-		set URL = ..getInitalURL("regPromptCollectionDetails.csp")
-	
-	} elseif menuItemText = "Question With Price" { //accommodation
-		set URL = ..getInitalURL($$$codQuestionDetailsPage)
-		set URL = ##class(EF.htmlGenerator).addParameterToURL(URL,"additional",1)
-		set URL = ##class(EF.htmlGenerator).addParameterToURL(URL,"codGroup","Hotel")
-		set URL = ##class(EF.htmlGenerator).addParameterToURL(URL,"eventHotelID",..eventHotelID)
-	
-	} elseif menuItemText = "Question With No Price" { //accommodation
-		set URL = ..getInitalURL($$$codQuestionDetailsPage)
-		set URL = ##class(EF.htmlGenerator).addParameterToURL(URL,"codGroup","Hotel")
-		set URL = ##class(EF.htmlGenerator).addParameterToURL(URL,"eventHotelID",..eventHotelID)
-
-	} elseif menuItemText = "Text Block" {
-		set URL = ..getInitalURL("textDetailsMoxie.csp")
-
-	} elseif menuItemText = "Divider" {
-		set URL = ..getInitalURL("formDivider.csp")
-		set URL = ##class(EF.htmlGenerator).addParameterToURL(URL,"position","top")
-
-	} elseif menuItemText = "Menu Block" {
-		set URL = ..getInitalURL("menuDetails.csp")
-
-	} elseif menuItemText = "Button" {
-		set URL = ..getInitalURL("createImageDetails.csp")
-
-	} elseif menuItemText = "Scrolling Image" {
-		set URL = ..getInitalURL("scrollingImageDetails.csp")
-
-	} elseif menuItemText = "Flash" {
-		set URL = ..getInitalURL("flashDetails.csp")
-
-	} elseif menuItemText = "YouTube Video" {
-		set URL = ..getInitalURL("flashDetails.csp")
-		set URL = ##class(EF.htmlGenerator).addParameterToURL(URL,"isVideo",1)
-
-	} elseif menuItemText = "File Upload" {
-		set URL = ..getInitalURL("fileUploadDetails.csp")
-		
-	} else {
-		throw ##class(shared.exceptions.generalException).%New("Invalid menuItemText: "_menuItemText)
-	}
-	
-	return "['"_menuItemText_"','"_##class(EF.htmlGenerator).linkURL(URL)_"',1,0,0],"
-]]></Implementation>
-</Method>
-
-<Method name="getInitalURL">
-<FormalSpec>targetPage:%String</FormalSpec>
-<Private>1</Private>
-<ReturnType>%String</ReturnType>
-<Implementation><![CDATA[
-	#dim URL as %String
-	
-	set URL = "../../backend/proweb/"_targetPage
-
-	set URL = ##class(EF.htmlGenerator).addParameterToURL(URL,"dataID","NEW")
-	set URL = ##class(EF.htmlGenerator).addParameterToURL(URL,"templateURL",..templateFilename)
-	set URL = ##class(EF.htmlGenerator).addParameterToURL(URL,"componentName",..contextData.prowebComponentName)
-	set URL = ##class(EF.htmlGenerator).addParameterToURL(URL,"templateID",..templateID)
-	set URL = ##class(EF.htmlGenerator).addParameterToURL(URL,"orgDataID","ADD")
-	set URL = ##class(EF.htmlGenerator).addParameterToURL(URL,"parent",..parentID)
-	set URL = ##class(EF.htmlGenerator).addParameterToURL(URL,"displayOrder",0)
-	set URL = ##class(EF.htmlGenerator).addParameterToURL(URL,"classNo",1)
-	set URL = ##class(EF.htmlGenerator).addParameterToURL(URL,"addToTop","true")
-	set URL = ##class(EF.htmlGenerator).addParameterToURL(URL,"isCOD",1)
-	set URL = ##class(EF.htmlGenerator).addParameterToURL(URL,"pageID",..contextData.pageID)
-	set URL = ##class(EF.htmlGenerator).addParameterToURL(URL,"itemNameID","NEW")
-	
-	return URL
 ]]></Implementation>
 </Method>
 </Class>
@@ -14470,7 +14276,7 @@ The basic frontend default stuff</Description>
 </Class>
 
 
-<Project name="proweb 2" LastModified="2016-10-15 17:11:30.500129" Target="dev.efsys.net/LARGEDEVSRC/backend/home/efSupportLogin.htm" TargetType="3">
+<Project name="proweb 2" LastModified="2016-10-17 10:12:52.243785" Target="dev.efsys.net/LARGEDEVSRC/backend/home/efSupportLogin.htm" TargetType="3">
   <Items>
     <ProjectItem name="EF.contextDataRegistration" type="CLS"></ProjectItem>
     <ProjectItem name="EF.contextDataRegistrationMock" type="CLS"></ProjectItem>
@@ -14528,7 +14334,6 @@ The basic frontend default stuff</Description>
     <ProjectItem name="EF.ui.components.frontend.emailInput" type="CLS"></ProjectItem>
     <ProjectItem name="EF.ui.components.frontend.emailInputMulti" type="CLS"></ProjectItem>
     <ProjectItem name="EF.ui.components.frontend.floatingMenu" type="CLS"></ProjectItem>
-    <ProjectItem name="EF.ui.components.frontend.floatingMenuAdd" type="CLS"></ProjectItem>
     <ProjectItem name="EF.ui.components.frontend.inputElement" type="CLS"></ProjectItem>
     <ProjectItem name="EF.ui.components.frontend.integerInput" type="CLS"></ProjectItem>
     <ProjectItem name="EF.ui.components.frontend.numericInput" type="CLS"></ProjectItem>
@@ -14559,15 +14364,15 @@ The basic frontend default stuff</Description>
     <ProjectItem name="largedevsrc/frontEnd/reg/tRegistration.csp" type="CSP"></ProjectItem>
     <ProjectItem name="largedevsrc/system/eventsForceRules.csr" type="CSP"></ProjectItem>
     <ProjectItem name="layout.cssDefaultMethods" type="CLS"></ProjectItem>
+    <ProjectItem name="sc.facade.prowebItem" type="CLS"></ProjectItem>
+    <ProjectItem name="sc.facade.prowebItemStorage" type="CLS"></ProjectItem>
+    <ProjectItem name="sc.facade.prowebItemStorageDivider" type="CLS"></ProjectItem>
+    <ProjectItem name="sc.facade.prowebItemStorageInputElement" type="CLS"></ProjectItem>
+    <ProjectItem name="sc.facade.prowebItemStorageInputElementMock" type="CLS"></ProjectItem>
+    <ProjectItem name="sc.facade.prowebItemStorageTextBlock" type="CLS"></ProjectItem>
     <ProjectItem name="sc.objData" type="CLS"></ProjectItem>
     <ProjectItem name="sc.xModules.objList" type="CLS"></ProjectItem>
     <ProjectItem name="shared.pageMethods" type="CLS"></ProjectItem>
-    <ProjectItem name="sc.facade.prowebItem" type="CLS"></ProjectItem>
-    <ProjectItem name="sc.facade.prowebItemStorage" type="CLS"></ProjectItem>
-    <ProjectItem name="sc.facade.prowebItemStorageInputElement" type="CLS"></ProjectItem>
-    <ProjectItem name="sc.facade.prowebItemStorageTextBlock" type="CLS"></ProjectItem>
-    <ProjectItem name="sc.facade.prowebItemStorageDivider" type="CLS"></ProjectItem>
-    <ProjectItem name="sc.facade.prowebItemStorageInputElementMock" type="CLS"></ProjectItem>
   </Items>
   <BreakPoints>
     <BreakPoint Routine="cspRealEV.frontend.reg.pagecontrollerstandardsave.CLS" Offset="OnPreHTTPafter+28"></BreakPoint>

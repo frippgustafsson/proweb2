@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2015.2 (Build 664_3_16032U)" ts="2016-10-17 11:45:24">
+<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2015.2 (Build 664_3_16032U)" ts="2016-10-17 12:10:30">
 <Class name="EF.contextDataRegistration">
 <Description><![CDATA[
 <!-- ;vc;-
@@ -1573,7 +1573,7 @@ Should be run if any of the sub-classes are deleted</Description>
 
 <Class name="EF.pageController.proweb.inputElement">
 <Super>EF.pageController.inputElement,EF.pageController.proweb.prowebBase</Super>
-<TimeChanged>64206,56212.631595</TimeChanged>
+<TimeChanged>64208,43731.091365</TimeChanged>
 <TimeCreated>64189,53012.909524</TimeCreated>
 
 <Property name="isMandatory">
@@ -1599,6 +1599,17 @@ Should be run if any of the sub-classes are deleted</Description>
  	}
  	
 	do ..validateValue()
+]]></Implementation>
+</Method>
+
+<Method name="isOkToRender">
+<ReturnType>%Boolean</ReturnType>
+<Implementation><![CDATA[
+	if (..prowebItem.storage.isBackendOnly) && (..uiComponent.contextData.isBackendBooking = 0) && (..uiComponent.contextData.prowebMode ="preview") {
+		return 0	
+	}
+	
+	return 1
 ]]></Implementation>
 </Method>
 
@@ -1666,7 +1677,7 @@ Should be run if any of the sub-classes are deleted</Description>
 
 <Class name="EF.pageController.proweb.page">
 <Super>EF.pageController.page</Super>
-<TimeChanged>64208,40141.425765</TimeChanged>
+<TimeChanged>64208,42997.768346</TimeChanged>
 <TimeCreated>64189,51696.559047</TimeCreated>
 
 <Property name="contextData">
@@ -1842,18 +1853,16 @@ Should be run if any of the sub-classes are deleted</Description>
 	set element.prowebItem = prowebItem
 	set element.uiComponent.contextData = ..contextData
 	
-	/* ##############
 	if element.#canBeDependent {
-		set dependsOnAlternativeDescription = ##class(sc.dependencyMethods).getDependsOnAlternativeDescription(prowebItem.%Id())
+		set dependsOnAlternativeDescription = ##class(sc.dependencyMethods).getDependsOnAlternativeDescription(prowebItem.storage.prowebID)
 		if dependsOnAlternativeDescription '="" {
-			set parentProwebID = ##class(sc.dependencyMethods).getDependsOnPrompt(prowebItem.%Id())
+			set parentProwebID = ##class(sc.dependencyMethods).getDependsOnPrompt(prowebItem.storage.prowebID)
 			set parentProwebItem = ##class(sc.objData).%OpenId(parentProwebID)
 			set parentElementIdentifier = ..getElementIdentifierForProwebItems(parentProwebItem)
 			set dependencyList = ##class(EF.ui.components.dependencyList).createNew(parentElementIdentifier, dependsOnAlternativeDescription)	
 			set element.showHideDependencyList = dependencyList
 		}
 	}
-	*/
 ]]></Implementation>
 </Method>
 
@@ -2260,7 +2269,9 @@ Should be run if any of the sub-classes are deleted</Description>
 	for position = 1:1:..listOfControllerIDsSorted.Count() {
 		set controllerID = ..listOfControllerIDsSorted.GetAt(position)
 		set controller = ..getElementByIdentifier(controllerID)
-		do controller.uiComponent.render()		
+		if controller.isOkToRender() {
+			do controller.uiComponent.render()		
+		}
 	}
 ]]></Implementation>
 </Method>
@@ -2474,7 +2485,7 @@ Should be run if any of the sub-classes are deleted</Description>
 
 <Class name="EF.pageController.proweb.prowebBase">
 <Super>EF.pageController.element</Super>
-<TimeChanged>64206,47024.307139</TimeChanged>
+<TimeChanged>64208,43069.133615</TimeChanged>
 <TimeCreated>64183,49747.663252</TimeCreated>
 
 <Parameter name="canBeDependent">
@@ -2489,6 +2500,12 @@ Should be run if any of the sub-classes are deleted</Description>
 <Property name="prowebID">
 <Type>%Integer</Type>
 </Property>
+
+<Method name="isOkToRender">
+<ReturnType>%Boolean</ReturnType>
+<Implementation><![CDATA[	return 1
+]]></Implementation>
+</Method>
 
 <Storage name="Default">
 <Type>%Library.CacheStorage</Type>
@@ -14351,7 +14368,7 @@ The basic frontend default stuff</Description>
 </Class>
 
 
-<Project name="proweb 2" LastModified="2016-10-17 10:12:52.243785" Target="dev.efsys.net/LARGEDEVSRC/backend/home/efSupportLogin.htm" TargetType="3">
+<Project name="proweb 2" LastModified="2016-10-17 12:10:30.312886" Target="dev.efsys.net/LARGEDEVSRC/backend/home/efSupportLogin.htm" TargetType="3">
   <Items>
     <ProjectItem name="EF.contextDataRegistration" type="CLS"></ProjectItem>
     <ProjectItem name="EF.contextDataRegistrationMock" type="CLS"></ProjectItem>

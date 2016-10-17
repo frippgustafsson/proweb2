@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2015.2 (Build 664_3_16032U)" ts="2016-10-17 10:51:02">
+<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2015.2 (Build 664_3_16032U)" ts="2016-10-17 11:45:24">
 <Class name="EF.contextDataRegistration">
 <Description><![CDATA[
 <!-- ;vc;-
@@ -1666,7 +1666,7 @@ Should be run if any of the sub-classes are deleted</Description>
 
 <Class name="EF.pageController.proweb.page">
 <Super>EF.pageController.page</Super>
-<TimeChanged>64208,35120.958838</TimeChanged>
+<TimeChanged>64208,40141.425765</TimeChanged>
 <TimeCreated>64189,51696.559047</TimeCreated>
 
 <Property name="contextData">
@@ -1837,10 +1837,9 @@ Should be run if any of the sub-classes are deleted</Description>
 
 	set element.displayOrder = prowebItem.storage.displayOrder
 	set element.uiComponent.isProwebEditMode = (..contextData.prowebMode = "edit")
-	;set copyOfProwebItem = prowebItem.%ConstructClone(1)
+	
 	set element.uiComponent.prowebItem = prowebItem
 	set element.prowebItem = prowebItem
-	;set element.uiComponent.prowebItemID = prowebItem.storage.prowebID
 	set element.uiComponent.contextData = ..contextData
 	
 	/* ##############
@@ -2640,7 +2639,7 @@ Should be run if any of the sub-classes are deleted</Description>
 
 <Class name="EF.pageController.proweb.testCases.dropdownTestCase">
 <Super>EF.ISC.UnitTest.TestCase</Super>
-<TimeChanged>64206,62121.969433</TimeChanged>
+<TimeChanged>64208,42200.412867</TimeChanged>
 <TimeCreated>64204,52666.398429</TimeCreated>
 
 <Method name="TestPageWithDropdown">
@@ -2659,7 +2658,7 @@ Should be run if any of the sub-classes are deleted</Description>
 	
 	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(page,"render")
 	set returnedHTML = $ZStrip(returnedHTML,"*WC")
-	set expectedHTML = "<divclass=""rowef-proweb-form-row""><divclass=""col-sm-4ef_proweb_form_prompt""><labelclass=""control-label""for=""proweb-1"">diet</label></div><divclass=""col-sm-8ef_proweb_form_prompt""><selectclass=""form-controlef-proweb-input-element""name=""proweb-1""id=""proweb-1""title=""""><optionvalue=''></option><optionvalue=""meat"">meat</option><optionvalue=""vegetarian"">vegetarian</option><optionvalue=""vegan"">vegan</option></select></div></div>"
+	set expectedHTML = "<divclass=""rowef-proweb-form-row""><divclass=""col-sm-4ef_proweb_form_prompt""><labelclass=""control-label""for=""proweb-1"">diet</label></div><divclass=""col-sm-8ef_proweb_form_prompt""><selectplaceholder=""fish""class=""form-controlef-proweb-input-element""name=""proweb-1""id=""proweb-1""title=""""><optionvalue=''></option><optionvalue=""meat"">meat</option><optionvalue=""vegetarian"">vegetarian</option><optionvalue=""vegan"">vegan</option></select></div></div>"
 	do $$$AssertEquals(returnedHTML,expectedHTML)
 ]]></Implementation>
 </Method>
@@ -2682,7 +2681,7 @@ Should be run if any of the sub-classes are deleted</Description>
 	
 	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(page,"render")
 	set returnedHTML = $ZStrip(returnedHTML,"*WC")
-	set expectedHTML = "<divclass=""rowef-proweb-form-row""><divclass=""col-sm-4ef_proweb_form_prompt""><labelclass=""control-label""for=""proweb-1"">diet</label></div><divclass=""col-sm-8ef_proweb_form_prompt""><selectclass=""form-controlef-proweb-input-element""name=""proweb-1""id=""proweb-1""title=""""><optionvalue=''></option><optionvalue=""meat"">meat</option><optionvalue=""vegetarian"">vegetarian</option><optionselected=""""value=""vegan"">vegan</option></select></div></div>"
+	set expectedHTML = "<divclass=""rowef-proweb-form-row""><divclass=""col-sm-4ef_proweb_form_prompt""><labelclass=""control-label""for=""proweb-1"">diet</label></div><divclass=""col-sm-8ef_proweb_form_prompt""><selectplaceholder=""fish""class=""form-controlef-proweb-input-element""name=""proweb-1""id=""proweb-1""title=""""><optionvalue=''></option><optionvalue=""meat"">meat</option><optionvalue=""vegetarian"">vegetarian</option><optionselected=""""value=""vegan"">vegan</option></select></div></div>"
 	do $$$AssertEquals(returnedHTML,expectedHTML)
 ]]></Implementation>
 </Method>
@@ -2703,7 +2702,7 @@ Should be run if any of the sub-classes are deleted</Description>
 	do element.updateUIComponent()
 	
 	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(page,"render")
-	set expectedHTML = "<divclass=""rowef-proweb-form-row""><divclass=""col-sm-4ef_proweb_form_promptef-required-field""><labelclass=""control-label""for=""proweb-1"">diet</label></div><divclass=""col-sm-8ef_proweb_form_prompt""><selectclass=""form-controlef-proweb-input-element""name=""proweb-1""id=""proweb-1""title=""""><optionvalue=''selecteddisabled>Chooseone...</option><optionvalue=""meat"">meat</option><optionvalue=""vegetarian"">vegetarian</option><optionselected=""""value=""vegan"">vegan</option></select></div></div>"
+	set expectedHTML = "<divclass=""rowef-proweb-form-row""><divclass=""col-sm-4ef_proweb_form_promptef-required-field""><labelclass=""control-label""for=""proweb-1"">diet</label></div><divclass=""col-sm-8ef_proweb_form_prompt""><selectplaceholder=""fish""class=""form-controlef-proweb-input-element""name=""proweb-1""id=""proweb-1""title=""""><optionvalue=''selecteddisabled>Chooseone...</option><optionvalue=""meat"">meat</option><optionvalue=""vegetarian"">vegetarian</option><optionselected=""""value=""vegan"">vegan</option></select></div></div>"
 	set returnedHTML = $ZStrip(returnedHTML,"*WC")
 	do $$$AssertEquals(returnedHTML,expectedHTML)
 ]]></Implementation>
@@ -2829,7 +2828,7 @@ Should be run if any of the sub-classes are deleted</Description>
 
 <Class name="EF.pageController.proweb.testCases.pageTestCase">
 <Super>EF.ISC.UnitTest.TestCase</Super>
-<TimeChanged>64208,39038.905995</TimeChanged>
+<TimeChanged>64208,39267.84954</TimeChanged>
 <TimeCreated>64189,44993.632692</TimeCreated>
 
 <Method name="TestEditModeHTML">
@@ -2900,7 +2899,6 @@ Should be run if any of the sub-classes are deleted</Description>
 
 
 	set pageController = ##class(EF.pageController.pagesFrontend.t4Registration).createNew(contextData,,,eventConfiguration)
-	//do pageController.renderElements()
 	
 	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(pageController,"renderElements")
 	set returnedHTML = $ZStrip(returnedHTML,"*WC")
@@ -3068,7 +3066,7 @@ Should be run if any of the sub-classes are deleted</Description>
 
 <Class name="EF.pageController.proweb.testCases.textInputTestCase">
 <Super>EF.ISC.UnitTest.TestCase</Super>
-<TimeChanged>64206,61876.852487</TimeChanged>
+<TimeChanged>64208,42004.316998</TimeChanged>
 <TimeCreated>64204,52795.592181</TimeCreated>
 
 <Method name="TestbasicInputField">
@@ -3108,6 +3106,38 @@ Should be run if any of the sub-classes are deleted</Description>
 	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(page,"render")
 	set returnedHTML = $ZStrip(returnedHTML,"*WC")
 	set expectedHTML = "<divclass=""rowef-proweb-form-row""><divclass=""col-sm-4ef_proweb_form_promptef-required-field""><labelclass=""control-label""for=""proweb-1""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;FirstName\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);"">FirstName</label></div><divclass=""col-sm-8ef_proweb_form_prompt""><inputtype=""text""class=""form-controlef-proweb-input-element""title=""""id=""proweb-1""name=""proweb-1""value=""""placeholder=""""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;FirstName\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""></div></div>"
+	do $$$AssertEquals(returnedHTML,expectedHTML)
+]]></Implementation>
+</Method>
+
+<Method name="TestBackendOnlyField">
+<Implementation><![CDATA[
+	#dim page as EF.pageController.proweb.page
+	#dim element as EF.pageController.proweb.textInput
+	#dim storage as sc.facade.prowebItemStorageInputElementMock
+	#dim contextData as EF.contextDataRegistrationMock
+	#dim pageController as EF.pageController.pagesFrontend.t4Registration
+	
+	set eventConfiguration = ##class(setup.eventConfiguration.storageMock).createEventConfiguration()
+	
+	set contextData = ##class(EF.contextDataRegistrationMock).createMock()
+	set contextData.maxGuests=2
+	
+	set storage = ##class(sc.facade.prowebItemStorageInputElementMock).createNew()
+	set storage.displayOrder = 1
+	set storage.prowebID = "mock-1"
+	set storage.databaseItemName = "Firstname"
+	set storage.inputType = "text"
+	set storage.labelText = "Attendee First Name"
+	set storage.isBackendOnly = 1
+	set prowebItem = ##class(sc.facade.prowebItem).createNew(storage)
+	do contextData.listOfProwebItemsToAdd.Insert(prowebItem)
+
+	set pageController = ##class(EF.pageController.pagesFrontend.t4Registration).createNew(contextData,,,eventConfiguration)
+	
+	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(pageController,"renderElements")
+	set returnedHTML = $ZStrip(returnedHTML,"*WC")
+	set expectedHTML = "<divclass=""rowef-proweb-form-row""><divclass=""col-sm-4ef_proweb_form_prompt""><labelclass=""control-label""for=""proweb-1""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;AttendeeFirstName\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);"">AttendeeFirstName</label></div><divclass=""col-sm-8ef_proweb_form_prompt""><inputtype=""text""class=""form-controlef-proweb-input-elementef-proweb-input-element-backendOnly""title=""""id=""proweb-1""name=""proweb-1""value=""Fred""placeholder=""(Adminportalonly)""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;AttendeeFirstName\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""></div></div>"
 	do $$$AssertEquals(returnedHTML,expectedHTML)
 ]]></Implementation>
 </Method>
@@ -4347,7 +4377,7 @@ this is for version 1 of proweb</Description>
 
 <Class name="EF.ui.components.frontend.dropdown">
 <Super>EF.ui.components.listInput,EF.ui.components.frontend.inputElement</Super>
-<TimeChanged>64206,56166.631443</TimeChanged>
+<TimeChanged>64208,41668.674896</TimeChanged>
 <TimeCreated>63355,56609.363142</TimeCreated>
 
 <Property name="isPersistent">
@@ -4358,17 +4388,18 @@ this is for version 1 of proweb</Description>
 <Method name="render">
 <Implementation><![CDATA[
 	if ..hasError do ..addClass("has-error")
+
 	set selectClass="form-control ef-proweb-input-element"
-	if ..isPersistent {
-		set selectClass=selectClass_" ef-persistent-value"	
-	}
+
 	set disabledString=""
 	if ..isDisabled {
 		set disabledString="disabled=""disabled"""
 	}	
+	do ..getBackendOnlyStyles()
+	
 	do ..renderRowOpeningAndLabel()
 	&html<		
-		<select class="#(..encodeForHTMLAttribute(selectClass))#" name="#(..encodeHTMLAttribute(..htmlName))#" 
+		<select placeholder="fish" class="#(..encodeForHTMLAttribute(..classes_" "_selectClass))#" name="#(..encodeHTMLAttribute(..htmlName))#" 
 			id="#(..encodeHTMLAttribute(..htmlID))#" title="#(..encodeHTMLAttribute(..title))#" 
 			#(..rawHTML(disabledString))# #(..rawHTML(..getExtraAttributes()))#>
 			
@@ -4468,6 +4499,9 @@ this is for version 1 of proweb</Description>
 </Value>
 <Value name="9">
 <Value>prowebItemID</Value>
+</Value>
+<Value name="10">
+<Value>isBackendOnly</Value>
 </Value>
 </Data>
 </Storage>
@@ -4654,7 +4688,7 @@ this is for version 1 of proweb</Description>
 
 <Class name="EF.ui.components.frontend.inputElement">
 <Super>EF.ui.components.frontend.prowebBase,EF.ui.components.inputBase</Super>
-<TimeChanged>64206,61123.278247</TimeChanged>
+<TimeChanged>64208,41455.795058</TimeChanged>
 <TimeCreated>64183,40678.260093</TimeCreated>
 
 <Property name="alternatives">
@@ -4664,6 +4698,11 @@ this is for version 1 of proweb</Description>
 
 <Property name="isMandatory">
 <Type>%Boolean</Type>
+</Property>
+
+<Property name="isBackendOnly">
+<Type>%Boolean</Type>
+<InitialExpression>0</InitialExpression>
 </Property>
 
 <Property name="guestNumber">
@@ -4729,6 +4768,14 @@ this is for version 1 of proweb</Description>
 ]]></Implementation>
 </Method>
 
+<Method name="getBackendOnlyStyles">
+<Implementation><![CDATA[
+	if ..prowebItem.storage.isBackendOnly {
+		set ..classes = ..classes_" ef-proweb-input-element-backendOnly"	
+	}
+]]></Implementation>
+</Method>
+
 <Method name="getDisabledString">
 <Implementation><![CDATA[
 	set disabledString=""
@@ -4788,6 +4835,9 @@ this is for version 1 of proweb</Description>
 </Value>
 <Value name="10">
 <Value>value</Value>
+</Value>
+<Value name="11">
+<Value>isBackendOnly</Value>
 </Value>
 </Data>
 </Storage>
@@ -5171,7 +5221,7 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 
 <Class name="EF.ui.components.frontend.textArea">
 <Super>EF.ui.components.textInput,EF.ui.components.frontend.inputElement</Super>
-<TimeChanged>64206,56226.032191</TimeChanged>
+<TimeChanged>64208,41483.005611</TimeChanged>
 <TimeCreated>63357,57620.613738</TimeCreated>
 
 <Parameter name="html5Validation">
@@ -5187,6 +5237,10 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 
 <Method name="render">
 <Implementation><![CDATA[
+	do ..getBackendOnlyStyles()
+	if ..prowebItem.storage.isBackendOnly {
+		set $this.placeHolder = "(Admin portal only)"
+	}	
 	do ..renderRowOpeningAndLabel()
 	&html<
     	    <textarea type="text" class="#(..encodeHTMLAttribute(..classes))#" #(..rawHTML(..getDisabledString()))# title="#(..encodeHTMLAttribute(..title))#" 
@@ -5202,7 +5256,6 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 <Type>%Library.CacheStorage</Type>
 <DefaultData>textAreaDefaultData</DefaultData>
 <Data name="textAreaDefaultData">
-<Structure>listnode</Structure>
 <Subscript>"textArea"</Subscript>
 <Value name="1">
 <Value>alternatives</Value>
@@ -5230,6 +5283,9 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 </Value>
 <Value name="9">
 <Value>prowebItemID</Value>
+</Value>
+<Value name="10">
+<Value>isBackendOnly</Value>
 </Value>
 </Data>
 </Storage>
@@ -5274,7 +5330,7 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 
 <Class name="EF.ui.components.frontend.textInput">
 <Super>EF.ui.components.textInput,EF.ui.components.frontend.inputElement</Super>
-<TimeChanged>64206,56226.031165</TimeChanged>
+<TimeChanged>64208,41720.501258</TimeChanged>
 <TimeCreated>63357,57620.613738</TimeCreated>
 
 <Parameter name="typeAttribute">
@@ -5288,12 +5344,18 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 <Method name="getDefaultClasses">
 <ClassMethod>1</ClassMethod>
 <ReturnType>%String</ReturnType>
-<Implementation><![CDATA[	Return "form-control ef-proweb-input-element"
+<Implementation><![CDATA[
+	set defaultClasses = "form-control ef-proweb-input-element"
+	return defaultClasses
 ]]></Implementation>
 </Method>
 
 <Method name="render">
 <Implementation><![CDATA[
+	do ..getBackendOnlyStyles()
+	if ..prowebItem.storage.isBackendOnly {
+		set $this.placeHolder = "(Admin portal only)"
+	}
 	do ..renderRowOpeningAndLabel()
 	&html<
     	    <input type="#(..encodeHTMLAttribute(..#typeAttribute))#" class="#(..encodeHTMLAttribute(..classes))#" #(..rawHTML(..getDisabledString()))# 
@@ -5309,7 +5371,6 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 <Type>%Library.CacheStorage</Type>
 <DefaultData>textInputDefaultData1</DefaultData>
 <Data name="textInputDefaultData1">
-<Structure>listnode</Structure>
 <Subscript>"textInput1"</Subscript>
 <Value name="1">
 <Value>alternatives</Value>
@@ -5337,6 +5398,9 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 </Value>
 <Value name="9">
 <Value>prowebItemID</Value>
+</Value>
+<Value name="10">
+<Value>isBackendOnly</Value>
 </Value>
 </Data>
 </Storage>
@@ -12026,7 +12090,7 @@ FRRE RULE
 <Abstract>1</Abstract>
 <ClassType/>
 <ProcedureBlock>1</ProcedureBlock>
-<TimeChanged>64204,41926.682357</TimeChanged>
+<TimeChanged>64208,40996.885193</TimeChanged>
 <TimeCreated>63046,56232.897117</TimeCreated>
 
 <Method name="outputDefaultCSS">
@@ -12258,7 +12322,7 @@ yellow red grey etc. Used for ALL templates below gen3</Description>
 		.ef-dependent-field::after {
 		    content: "🔗";
 		}
-		/*  begin new classes for Proweb2 */
+		/* ===========  begin new classes for Proweb2 ========= */
 		.ef-proweb-form-row-editable, .ef-proweb-form-row {
 			padding-top: 4px;
 			padding-bottom:4px;	
@@ -12314,8 +12378,19 @@ yellow red grey etc. Used for ALL templates below gen3</Description>
 		.ef-proweb-guest-panel .panel-body {
 			padding: 0px;	
 		}
-		
-		/* end new classes for Proweb2 */
+		.ef-proweb-input-element-backendOnly {
+			background-color: rgb(245, 222, 179);
+		}
+		.ef-proweb-input-element-backendOnly::-webkit-input-placeholder { /* Chrome/Opera/Safari */
+ 			color: #CCCCCC;
+		}
+		.ef-proweb-input-element-backendOnly::-moz-placeholder { /* Firefox 19+ */
+ 			color: #CCCCCC;
+		}
+		.ef-proweb-input-element-backendOnly:-ms-input-placeholder { /* IE 10+ */
+ 			color: #CCCCCC;
+		}
+		/* =========== end new classes for Proweb2 ============ */
 		
 		.ef-registration-section td label {
 			display: inline-block;
@@ -14464,7 +14539,7 @@ Facade class for the sc.objData</Description>
 
 <Class name="sc.facade.prowebItemStorageInputElement">
 <Super>sc.facade.prowebItemStorage</Super>
-<TimeChanged>64206,53574.024477</TimeChanged>
+<TimeChanged>64208,39570.85257</TimeChanged>
 <TimeCreated>64206,40073.01042</TimeCreated>
 
 <Property name="inputType">
@@ -14548,6 +14623,7 @@ Property alternatives As sc.facade.prowebItemAlternative;
 	set storage.isGuest = prowebItem.isGuest
 	set storage.labelText = prowebItem.description
 	set storage.helpText = prowebItem.helpText
+	set storage.isBackendOnly = prowebItem.backendOnly
 	set storage.isReadOnly = prowebItem.readonlyFrontend
 
 	set storage.isMandatory = prowebItem.mandatory

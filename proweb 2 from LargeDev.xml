@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2015.2 (Build 664_3_16032U)" ts="2016-10-17 12:10:30">
+<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2015.2 (Build 664_3_16032U)" ts="2016-10-17 14:22:07">
 <Class name="EF.contextDataRegistration">
 <Description><![CDATA[
 <!-- ;vc;-
@@ -1677,7 +1677,7 @@ Should be run if any of the sub-classes are deleted</Description>
 
 <Class name="EF.pageController.proweb.page">
 <Super>EF.pageController.page</Super>
-<TimeChanged>64208,42997.768346</TimeChanged>
+<TimeChanged>64208,51251.90301</TimeChanged>
 <TimeCreated>64189,51696.559047</TimeCreated>
 
 <Property name="contextData">
@@ -1797,11 +1797,11 @@ Should be run if any of the sub-classes are deleted</Description>
 			set prowebID = rsProwebItems.Get("ID")
 			set typeOfElement = rsProwebItems.Get("dataType")
 			if typeOfElement = "objCODitem" {
-				set storage = ##class(sc.facade.prowebItemStorageInputElement).createNew(prowebID, ..contextData.languageID)
+				set storage = ##class(sc.facade.prowebItemStorageInputElement).createNew(prowebID, ..contextData)
 			} elseif typeOfElement = "objText" {
-				set storage = ##class(sc.facade.prowebItemStorageTextBlock).createNew(prowebID)
+				set storage = ##class(sc.facade.prowebItemStorageTextBlock).createNew(prowebID, ..contextData)
 			} elseif typeOfElement = "objFormDivider" {
-				set storage = ##class(sc.facade.prowebItemStorageDivider).createNew(prowebID)
+				set storage = ##class(sc.facade.prowebItemStorageDivider).createNew(prowebID, ..contextData)
 			}	
 						
 			set prowebItem = ##class(sc.facade.prowebItem).createNew(storage)
@@ -1894,6 +1894,7 @@ Should be run if any of the sub-classes are deleted</Description>
 										"multiEmailAddress":"emailInputMulti",
 										"checkbox":"checkboxGroup",
 										"dateRange":"dateRange",
+										"password":"passwordInput",
 										:"exception"
 										)
 	if pageControllerClassName '= "exception" {		
@@ -2466,6 +2467,23 @@ Should be run if any of the sub-classes are deleted</Description>
 </Class>
 
 
+<Class name="EF.pageController.proweb.passwordInput">
+<Super>EF.pageController.proweb.textInput</Super>
+<TimeChanged>64208,51186.846746</TimeChanged>
+<TimeCreated>64189,53629.035726</TimeCreated>
+
+<Method name="getDefaultUIComponent">
+<ReturnType>EF.ui.components.inputBase</ReturnType>
+<Implementation><![CDATA[	quit ##class(EF.ui.components.frontend.passwordInput).%New(..identifier)
+]]></Implementation>
+</Method>
+
+<Storage name="Default">
+<Type>%Library.CacheStorage</Type>
+</Storage>
+</Class>
+
+
 <Class name="EF.pageController.proweb.phoneNumber">
 <Super>EF.pageController.proweb.textInput</Super>
 <TimeChanged>64197,58652.450875</TimeChanged>
@@ -2968,6 +2986,47 @@ Should be run if any of the sub-classes are deleted</Description>
 </Class>
 
 
+<Class name="EF.pageController.proweb.testCases.passwordInputTestCase">
+<Super>EF.ISC.UnitTest.TestCase</Super>
+<TimeChanged>64208,51692.688648</TimeChanged>
+<TimeCreated>64208,51641.871984</TimeCreated>
+
+<Method name="TestPasswordInput">
+<Implementation><![CDATA[
+	#dim page as EF.pageController.proweb.page
+	#dim element as EF.pageController.proweb.textInput
+	#dim storage as sc.facade.prowebItemStorageInputElementMock
+	#dim contextData as EF.contextDataRegistrationMock
+	#dim pageController as EF.pageController.pagesFrontend.t4Registration
+	
+	set eventConfiguration = ##class(setup.eventConfiguration.storageMock).createEventConfiguration()
+	
+	set contextData = ##class(EF.contextDataRegistrationMock).createMock()
+	set contextData.isBackendBooking = 1
+	set contextData.prowebMode = "preview"
+	
+	set storage = ##class(sc.facade.prowebItemStorageInputElementMock).createNew()
+	set storage.displayOrder = 1
+	set storage.prowebID = "mock-1"
+	set storage.databaseItemName = "Password"
+	set storage.inputType = "password"
+	set storage.labelText = "Please enter your password"
+	
+	
+	set prowebItem = ##class(sc.facade.prowebItem).createNew(storage)
+	do contextData.listOfProwebItemsToAdd.Insert(prowebItem)
+
+	set pageController = ##class(EF.pageController.pagesFrontend.t4Registration).createNew(contextData,,,eventConfiguration)
+	
+	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(pageController,"renderElements")
+	set returnedHTML = $ZStrip(returnedHTML,"*WC")
+	set expectedHTML = "<divclass=""rowef-proweb-form-row""><divclass=""col-sm-4ef_proweb_form_prompt""><labelclass=""control-label""for=""proweb-1"">Pleaseenteryourpassword</label></div><divclass=""col-sm-8ef_proweb_form_prompt""><inputtype=""password""class=""form-controlef-proweb-input-element""title=""""id=""proweb-1""name=""proweb-1""value=""fred""placeholder=""""></div></div>"
+	do $$$AssertEquals(returnedHTML,expectedHTML)
+]]></Implementation>
+</Method>
+</Class>
+
+
 <Class name="EF.pageController.proweb.testCases.phoneNumberTestCase">
 <Super>EF.ISC.UnitTest.TestCase</Super>
 <TimeChanged>64206,61875.409857</TimeChanged>
@@ -3083,7 +3142,7 @@ Should be run if any of the sub-classes are deleted</Description>
 
 <Class name="EF.pageController.proweb.testCases.textInputTestCase">
 <Super>EF.ISC.UnitTest.TestCase</Super>
-<TimeChanged>64208,42004.316998</TimeChanged>
+<TimeChanged>64208,51471.158314</TimeChanged>
 <TimeCreated>64204,52795.592181</TimeCreated>
 
 <Method name="TestbasicInputField">
@@ -3127,7 +3186,7 @@ Should be run if any of the sub-classes are deleted</Description>
 ]]></Implementation>
 </Method>
 
-<Method name="TestBackendOnlyField">
+<Method name="TestBackendOnlyFieldAsBackendBooking">
 <Implementation><![CDATA[
 	#dim page as EF.pageController.proweb.page
 	#dim element as EF.pageController.proweb.textInput
@@ -3138,7 +3197,8 @@ Should be run if any of the sub-classes are deleted</Description>
 	set eventConfiguration = ##class(setup.eventConfiguration.storageMock).createEventConfiguration()
 	
 	set contextData = ##class(EF.contextDataRegistrationMock).createMock()
-	set contextData.maxGuests=2
+	set contextData.isBackendBooking = 1
+	set contextData.prowebMode = "preview"
 	
 	set storage = ##class(sc.facade.prowebItemStorageInputElementMock).createNew()
 	set storage.displayOrder = 1
@@ -3147,6 +3207,7 @@ Should be run if any of the sub-classes are deleted</Description>
 	set storage.inputType = "text"
 	set storage.labelText = "Attendee First Name"
 	set storage.isBackendOnly = 1
+	
 	set prowebItem = ##class(sc.facade.prowebItem).createNew(storage)
 	do contextData.listOfProwebItemsToAdd.Insert(prowebItem)
 
@@ -3155,6 +3216,107 @@ Should be run if any of the sub-classes are deleted</Description>
 	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(pageController,"renderElements")
 	set returnedHTML = $ZStrip(returnedHTML,"*WC")
 	set expectedHTML = "<divclass=""rowef-proweb-form-row""><divclass=""col-sm-4ef_proweb_form_prompt""><labelclass=""control-label""for=""proweb-1""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;AttendeeFirstName\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);"">AttendeeFirstName</label></div><divclass=""col-sm-8ef_proweb_form_prompt""><inputtype=""text""class=""form-controlef-proweb-input-elementef-proweb-input-element-backendOnly""title=""""id=""proweb-1""name=""proweb-1""value=""Fred""placeholder=""(Adminportalonly)""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;AttendeeFirstName\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""></div></div>"
+	do $$$AssertEquals(returnedHTML,expectedHTML)
+]]></Implementation>
+</Method>
+
+<Method name="TestBackendOnlyFieldAsFrontendBooking">
+<Implementation><![CDATA[
+	#dim page as EF.pageController.proweb.page
+	#dim element as EF.pageController.proweb.textInput
+	#dim storage as sc.facade.prowebItemStorageInputElementMock
+	#dim contextData as EF.contextDataRegistrationMock
+	#dim pageController as EF.pageController.pagesFrontend.t4Registration
+	
+	set eventConfiguration = ##class(setup.eventConfiguration.storageMock).createEventConfiguration()
+	
+	set contextData = ##class(EF.contextDataRegistrationMock).createMock()
+	set contextData.isBackendBooking = 0
+	set contextData.prowebMode = "preview"
+	
+	set storage = ##class(sc.facade.prowebItemStorageInputElementMock).createNew()
+	set storage.displayOrder = 1
+	set storage.prowebID = "mock-1"
+	set storage.databaseItemName = "Firstname"
+	set storage.inputType = "text"
+	set storage.labelText = "Attendee First Name"
+	set storage.isBackendOnly = 1
+	
+	set prowebItem = ##class(sc.facade.prowebItem).createNew(storage)
+	do contextData.listOfProwebItemsToAdd.Insert(prowebItem)
+
+	set pageController = ##class(EF.pageController.pagesFrontend.t4Registration).createNew(contextData,,,eventConfiguration)
+	
+	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(pageController,"renderElements")
+	set returnedHTML = $ZStrip(returnedHTML,"*WC")
+	set expectedHTML = ""
+	do $$$AssertEquals(returnedHTML,expectedHTML)
+]]></Implementation>
+</Method>
+
+<Method name="TestBackendOnlyFieldInEditMode">
+<Implementation><![CDATA[
+	#dim page as EF.pageController.proweb.page
+	#dim element as EF.pageController.proweb.textInput
+	#dim storage as sc.facade.prowebItemStorageInputElementMock
+	#dim contextData as EF.contextDataRegistrationMock
+	#dim pageController as EF.pageController.pagesFrontend.t4Registration
+	
+	set eventConfiguration = ##class(setup.eventConfiguration.storageMock).createEventConfiguration()
+	
+	set contextData = ##class(EF.contextDataRegistrationMock).createMock()
+	set contextData.prowebMode = "edit"
+	
+	set storage = ##class(sc.facade.prowebItemStorageInputElementMock).createNew()
+	set storage.displayOrder = 1
+	set storage.prowebID = "mock-1"
+	set storage.databaseItemName = "Firstname"
+	set storage.inputType = "text"
+	set storage.labelText = "Attendee First Name"
+	set storage.isBackendOnly = 1
+	
+	set prowebItem = ##class(sc.facade.prowebItem).createNew(storage)
+	do contextData.listOfProwebItemsToAdd.Insert(prowebItem)
+
+	set pageController = ##class(EF.pageController.pagesFrontend.t4Registration).createNew(contextData,,,eventConfiguration)
+	
+	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(pageController,"renderElements")
+	set returnedHTML = $ZStrip(returnedHTML,"*WC")
+	set expectedHTML = "<divclass=""rowef-draggable-divef-proweb-form-row-editable""data-proweb-title=""AttendeeFirstName""data-proweb-id=""mock-1""data-proweb-list-id=""dummy-listID""><divclass=""col-sm-4ef_proweb_form_prompt""><labelclass=""control-label""for=""proweb-1"">AttendeeFirstName</label></div><divclass=""col-sm-8ef_proweb_form_prompt""><inputtype=""text""class=""form-controlef-proweb-input-elementef-proweb-input-element-backendOnly""title=""""id=""proweb-1""name=""proweb-1""value=""Fred""placeholder=""(Adminportalonly)""></div></div>"
+	do $$$AssertEquals(returnedHTML,expectedHTML)
+]]></Implementation>
+</Method>
+
+<Method name="TestReadOnlyField">
+<Implementation><![CDATA[
+	#dim page as EF.pageController.proweb.page
+	#dim element as EF.pageController.proweb.textInput
+	#dim storage as sc.facade.prowebItemStorageInputElementMock
+	#dim contextData as EF.contextDataRegistrationMock
+	#dim pageController as EF.pageController.pagesFrontend.t4Registration
+	
+	set eventConfiguration = ##class(setup.eventConfiguration.storageMock).createEventConfiguration()
+	
+	set contextData = ##class(EF.contextDataRegistrationMock).createMock()
+	set contextData.isBackendBooking = 1
+	set contextData.prowebMode = "preview"
+	
+	set storage = ##class(sc.facade.prowebItemStorageInputElementMock).createNew()
+	set storage.displayOrder = 1
+	set storage.prowebID = "mock-1"
+	set storage.databaseItemName = "Firstname"
+	set storage.inputType = "text"
+	set storage.labelText = "Attendee First Name"
+	set storage.isReadOnly = 1
+	
+	set prowebItem = ##class(sc.facade.prowebItem).createNew(storage)
+	do contextData.listOfProwebItemsToAdd.Insert(prowebItem)
+
+	set pageController = ##class(EF.pageController.pagesFrontend.t4Registration).createNew(contextData,,,eventConfiguration)
+	
+	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(pageController,"renderElements")
+	set returnedHTML = $ZStrip(returnedHTML,"*WC")
+	set expectedHTML = "<divclass=""rowef-proweb-form-row""><divclass=""col-sm-4ef_proweb_form_prompt""><labelclass=""control-label""for=""proweb-1""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;AttendeeFirstName\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);"">AttendeeFirstName</label></div><divclass=""col-sm-8ef_proweb_form_prompt""><inputtype=""text""class=""form-controlef-proweb-input-element""disabled='disabled'title=""""id=""proweb-1""name=""proweb-1""value=""Fred""placeholder=""""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;AttendeeFirstName\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""></div></div>"
 	do $$$AssertEquals(returnedHTML,expectedHTML)
 ]]></Implementation>
 </Method>
@@ -4705,7 +4867,7 @@ this is for version 1 of proweb</Description>
 
 <Class name="EF.ui.components.frontend.inputElement">
 <Super>EF.ui.components.frontend.prowebBase,EF.ui.components.inputBase</Super>
-<TimeChanged>64208,41455.795058</TimeChanged>
+<TimeChanged>64208,50972.995546</TimeChanged>
 <TimeCreated>64183,40678.260093</TimeCreated>
 
 <Property name="alternatives">
@@ -4780,7 +4942,7 @@ this is for version 1 of proweb</Description>
 <Method name="renderLabel">
 <Implementation><![CDATA[
 	if $length(..label) {
-		&html<<label class="control-label" for="#(..encodeForHTMLAttribute(..htmlID))#" #(..rawHTML(..getProwebExtraAttributes()))#>#(..encodeForHTML(..label))#</label>>
+		&html<<label class="control-label" for="#(..encodeForHTMLAttribute(..htmlID))#" #(..rawHTML(..getProwebExtraAttributes()))#>#(..rawHTML(..label))#</label>>
 	}
 ]]></Implementation>
 </Method>
@@ -4974,6 +5136,25 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 <Value>isOpeningOrClosing</Value>
 </Value>
 </Data>
+</Storage>
+</Class>
+
+
+<Class name="EF.ui.components.frontend.passwordInput">
+<Super>EF.ui.components.frontend.textInput</Super>
+<TimeChanged>64208,51182.519457</TimeChanged>
+<TimeCreated>63357,57620.613738</TimeCreated>
+
+<Parameter name="typeAttribute">
+<Default>password</Default>
+</Parameter>
+
+<Parameter name="html5Validation">
+<Default>0</Default>
+</Parameter>
+
+<Storage name="Default">
+<Type>%Library.CacheStorage</Type>
 </Storage>
 </Class>
 
@@ -14368,7 +14549,7 @@ The basic frontend default stuff</Description>
 </Class>
 
 
-<Project name="proweb 2" LastModified="2016-10-17 12:10:30.312886" Target="dev.efsys.net/LARGEDEVSRC/backend/home/efSupportLogin.htm" TargetType="3">
+<Project name="proweb 2" LastModified="2016-10-17 14:21:59.998079" Target="dev.efsys.net/LARGEDEVSRC/backend/home/efSupportLogin.htm" TargetType="3">
   <Items>
     <ProjectItem name="EF.contextDataRegistration" type="CLS"></ProjectItem>
     <ProjectItem name="EF.contextDataRegistrationMock" type="CLS"></ProjectItem>
@@ -14465,6 +14646,9 @@ The basic frontend default stuff</Description>
     <ProjectItem name="sc.objData" type="CLS"></ProjectItem>
     <ProjectItem name="sc.xModules.objList" type="CLS"></ProjectItem>
     <ProjectItem name="shared.pageMethods" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.pageController.proweb.passwordInput" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.ui.components.frontend.passwordInput" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.pageController.proweb.testCases.passwordInputTestCase" type="CLS"></ProjectItem>
   </Items>
   <BreakPoints>
     <BreakPoint Routine="cspRealEV.frontend.reg.pagecontrollerstandardsave.CLS" Offset="OnPreHTTPafter+28"></BreakPoint>
@@ -14533,12 +14717,12 @@ Facade class for the sc.objData</Description>
 
 <Class name="sc.facade.prowebItemStorageDivider">
 <Super>sc.facade.prowebItemStorage</Super>
-<TimeChanged>64206,47177.234386</TimeChanged>
+<TimeChanged>64208,49898.769404</TimeChanged>
 <TimeCreated>64206,41722.621925</TimeCreated>
 
 <Method name="createNew">
 <ClassMethod>1</ClassMethod>
-<FormalSpec>prowebItemID:%Integer</FormalSpec>
+<FormalSpec>prowebItemID:%Integer,contextData:EF.contextDataRegistration</FormalSpec>
 <ReturnType>sc.facade.prowebItemStorage</ReturnType>
 <Implementation><![CDATA[
 	#dim prowebItem as sc.xModules.objCODitem
@@ -14556,7 +14740,7 @@ Facade class for the sc.objData</Description>
 
 <Class name="sc.facade.prowebItemStorageInputElement">
 <Super>sc.facade.prowebItemStorage</Super>
-<TimeChanged>64208,39570.85257</TimeChanged>
+<TimeChanged>64208,50677.049124</TimeChanged>
 <TimeCreated>64206,40073.01042</TimeCreated>
 
 <Property name="inputType">
@@ -14626,7 +14810,7 @@ property dependsOnAlternative as sc.facade.prowebItemAlternative;
 Property alternatives As sc.facade.prowebItemAlternative;
 </Description>
 <ClassMethod>1</ClassMethod>
-<FormalSpec>prowebItemID:%Integer,languageID:%Integer</FormalSpec>
+<FormalSpec>prowebItemID:%Integer,contextData:EF.contextDataRegistration</FormalSpec>
 <ReturnType>sc.facade.prowebItemStorage</ReturnType>
 <Implementation><![CDATA[
 	#dim prowebItem as sc.xModules.objCODitem
@@ -14642,7 +14826,11 @@ Property alternatives As sc.facade.prowebItemAlternative;
 	set storage.helpText = prowebItem.helpText
 	set storage.isBackendOnly = prowebItem.backendOnly
 	set storage.isReadOnly = prowebItem.readonlyFrontend
-
+	if prowebItem.readonlyAmendment w 1/0
+	if (contextData.isAmendment) && (prowebItem.noAmendments) {
+		set storage.isReadOnly = 1	
+	}
+	
 	set storage.isMandatory = prowebItem.mandatory
 	set storage.requiredAnswer = prowebItem.requiredAnswer
 	set storage.isSearchAsYouType = prowebItem.searchAsYouType
@@ -14652,7 +14840,7 @@ Property alternatives As sc.facade.prowebItemAlternative;
 		set rsAlternative = ##class(cod.objItemAlternatives).getAlternativesForCodItemAsResultSet( storage.databaseItemID )
 		while rsAlternative.Next()	{
 			set alternativeValue = rsAlternative.Get("description") 
-			set alternativeDescription = ##class(cod.objItemAlternativeDetails).getDescription(rsAlternative.Get("ID"), languageID)
+			set alternativeDescription = ##class(cod.objItemAlternativeDetails).getDescription(rsAlternative.Get("ID"), contextData.languageID)
 			set alternativeDescription = ##class(EF.htmlGenerator).unescapeXSSFix(alternativeDescription)
 			do storage.listOfAlternatives.Insert( $ListBuild(alternativeValue, alternativeDescription) )
 			
@@ -14686,7 +14874,7 @@ Property alternatives As sc.facade.prowebItemAlternative;
 
 <Class name="sc.facade.prowebItemStorageTextBlock">
 <Super>sc.facade.prowebItemStorage</Super>
-<TimeChanged>64206,47172.523002</TimeChanged>
+<TimeChanged>64208,49908.384033</TimeChanged>
 <TimeCreated>64206,41475.453349</TimeCreated>
 
 <Property name="text">
@@ -14696,7 +14884,7 @@ Property alternatives As sc.facade.prowebItemAlternative;
 
 <Method name="createNew">
 <ClassMethod>1</ClassMethod>
-<FormalSpec>prowebItemID:%Integer</FormalSpec>
+<FormalSpec>prowebItemID:%Integer,contextData:EF.contextDataRegistration</FormalSpec>
 <ReturnType>sc.facade.prowebItemStorage</ReturnType>
 <Implementation><![CDATA[
 	#dim prowebItem as sc.xModules.objCODitem

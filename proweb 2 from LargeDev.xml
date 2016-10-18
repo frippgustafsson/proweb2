@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2015.2 (Build 664_3_16032U)" ts="2016-10-17 16:45:33">
+<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2015.2 (Build 664_3_16032U)" ts="2016-10-18 15:01:34">
 <Class name="EF.contextDataRegistration">
 <Description><![CDATA[
 <!-- ;vc;-
@@ -1571,6 +1571,37 @@ Should be run if any of the sub-classes are deleted</Description>
 </Class>
 
 
+<Class name="EF.pageController.proweb.fileUpload">
+<Super>EF.pageController.proweb.inputElement</Super>
+<TimeChanged>64209,44648.61035</TimeChanged>
+<TimeCreated>64183,49747.663252</TimeCreated>
+
+<Parameter name="canBeDependent">
+<Type>%Boolean</Type>
+<Default>0</Default>
+</Parameter>
+
+<Method name="getDefaultUIComponent">
+<ReturnType>EF.ui.components.inputBase</ReturnType>
+<Implementation><![CDATA[	quit ##class(EF.ui.components.frontend.fileUpload).%New(..identifier)
+]]></Implementation>
+</Method>
+
+<Method name="setNameForValidationError">
+</Method>
+
+<Method name="initialiseUIComponent">
+<FormalSpec>uiComponent:EF.ui.components.inputBase</FormalSpec>
+<Implementation><![CDATA[	do ##super(uiComponent)
+]]></Implementation>
+</Method>
+
+<Storage name="Default">
+<Type>%Library.CacheStorage</Type>
+</Storage>
+</Class>
+
+
 <Class name="EF.pageController.proweb.inputElement">
 <Super>EF.pageController.inputElement,EF.pageController.proweb.prowebBase</Super>
 <TimeChanged>64208,43731.091365</TimeChanged>
@@ -1677,7 +1708,7 @@ Should be run if any of the sub-classes are deleted</Description>
 
 <Class name="EF.pageController.proweb.page">
 <Super>EF.pageController.page</Super>
-<TimeChanged>64208,57537.998732</TimeChanged>
+<TimeChanged>64209,37303.614593</TimeChanged>
 <TimeCreated>64189,51696.559047</TimeCreated>
 
 <Property name="contextData">
@@ -1803,6 +1834,8 @@ Should be run if any of the sub-classes are deleted</Description>
 				set storage = ##class(sc.facade.prowebItemStorageTextBlock).createNew(prowebID, ..contextData)
 			} elseif typeOfElement = "objFormDivider" {
 				set storage = ##class(sc.facade.prowebItemStorageDivider).createNew(prowebID, ..contextData)
+			} elseif typeOfElement = "objFileUpload" {
+				set storage = ##class(sc.facade.prowebItemStorageFileUpload).createNew(prowebID, ..contextData)
 			} elseif typeOfElement = "objFlash" {
 				set storage = ##class(sc.facade.prowebItemStorageYouTubeVideo).createNew(prowebID, ..contextData)
 				
@@ -1905,6 +1938,7 @@ Should be run if any of the sub-classes are deleted</Description>
 										"checkbox":"checkboxGroup",
 										"dateRange":"dateRange",
 										"password":"passwordInput",
+										"fileUpload":"fileUpload",
 										:"exception"
 										)
 	if pageControllerClassName '= "exception" {		
@@ -1915,7 +1949,7 @@ Should be run if any of the sub-classes are deleted</Description>
 		set element = ..addProwebSelectionElement(prowebItem, optionalGuestNumber)
 				
 	} else {
-		throw ##class(shared.exceptions.generalException).%New("proweb question type is not implemented yet")	
+		throw ##class(shared.exceptions.generalException).%New("proweb question type is not implemented yet: "_prowebItem.storage.inputType)	
 	}
 
 	if prowebItem.storage.inputType = "checkbox" {
@@ -3779,7 +3813,7 @@ this is for version 1 of proweb</Description>
 <Class name="EF.pages.frontend.baseProweb">
 <ProcedureBlock>0</ProcedureBlock>
 <Super>EF.pages.frontend.base</Super>
-<TimeChanged>64208,57177.798468</TimeChanged>
+<TimeChanged>64209,52156.342791</TimeChanged>
 <TimeCreated>64191,31442.531402</TimeCreated>
 
 <Parameter name="ENCODED">
@@ -3912,10 +3946,11 @@ this is for version 1 of proweb</Description>
 <ClassMethod>1</ClassMethod>
 <Implementation><![CDATA[
 	 &html<
-	    <meta name="efProwebEditBaseURL" content="#(..encodeForHTMLAttribute(..Link("../../backend/proweb/codQuestionDetails.csp")))#">
+	    <meta name="efProwebEditBaseURL" content="#(..encodeForHTMLAttribute(..Link("../../backend/proweb/editItem.csp")))#">
 	    <meta name="efProwebAddQuestionBaseURL" content="#(..encodeForHTMLAttribute(..Link(..getInitialURL("../../backend/proweb/codQuestionDetails.csp"))))#">
 	    <meta name="efProwebAddDividerBaseURL" content="#(..encodeForHTMLAttribute(..Link("../../backend/proweb/formDivider.csp")))#">
 	    <meta name="efProwebAddTextBlockBaseURL" content="#(..encodeForHTMLAttribute(..Link("../../backend/proweb/textDetailsMoxie.csp")))#">
+	    <meta name="efProwebAddFileUploadBaseURL" content="#(..encodeForHTMLAttribute(..Link("../../backend/proweb/fileUploadDetails.csp")))#">
 	    <meta name="efProwebAddYouTubeVideoBaseURL" content="#(..encodeForHTMLAttribute(..Link("../../backend/proweb/flashDetails.csp")))#">
 	>
 ]]></Implementation>
@@ -4220,7 +4255,7 @@ this is for version 1 of proweb</Description>
 
 <Class name="EF.ui.components.frontend.checkbox">
 <Super>EF.ui.components.checkbox,EF.ui.components.frontend.inputElement</Super>
-<TimeChanged>64206,56225.704352</TimeChanged>
+<TimeChanged>64209,43238.667295</TimeChanged>
 <TimeCreated>63355,62572.097775</TimeCreated>
 
 <Method name="render">
@@ -4296,6 +4331,9 @@ this is for version 1 of proweb</Description>
 <Value name="9">
 <Value>prowebItemID</Value>
 </Value>
+<Value name="10">
+<Value>isBackendOnly</Value>
+</Value>
 </Data>
 </Storage>
 </Class>
@@ -4303,7 +4341,7 @@ this is for version 1 of proweb</Description>
 
 <Class name="EF.ui.components.frontend.checkboxGroup">
 <Super>EF.ui.components.checkboxGroup,EF.ui.components.frontend.inputElement</Super>
-<TimeChanged>64206,56225.724576</TimeChanged>
+<TimeChanged>64209,43238.670206</TimeChanged>
 <TimeCreated>63356,56848.077942</TimeCreated>
 
 <Method name="render">
@@ -4403,6 +4441,9 @@ this is for version 1 of proweb</Description>
 <Value name="13">
 <Value>prowebItemID</Value>
 </Value>
+<Value name="14">
+<Value>isBackendOnly</Value>
+</Value>
 </Data>
 </Storage>
 </Class>
@@ -4419,7 +4460,7 @@ this is for version 1 of proweb</Description>
 ;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>EF.ui.components.backend.datePicker.CLS/EV.3</td><td>CLS.EF.ui.components.backend.datePicker</td><td>LargeDev</td><td style='white-space: nowrap;'>02-Feb-16 12:32</td><td>AdrianM2</td></tr></table>
 ]]></Description>
 <Super>EF.ui.components.textInput,EF.ui.components.frontend.inputElement</Super>
-<TimeChanged>64206,56225.753206</TimeChanged>
+<TimeChanged>64209,43238.713829</TimeChanged>
 <TimeCreated>63384,38215.518113</TimeCreated>
 
 <Parameter name="typeAttribute">
@@ -4504,6 +4545,9 @@ this is for version 1 of proweb</Description>
 <Value name="9">
 <Value>prowebItemID</Value>
 </Value>
+<Value name="10">
+<Value>isBackendOnly</Value>
+</Value>
 </Data>
 </Storage>
 </Class>
@@ -4520,7 +4564,7 @@ this is for version 1 of proweb</Description>
 ;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>EF.ui.components.backend.datePicker.CLS/EV.3</td><td>CLS.EF.ui.components.backend.datePicker</td><td>LargeDev</td><td style='white-space: nowrap;'>02-Feb-16 12:32</td><td>AdrianM2</td></tr></table>
 ]]></Description>
 <Super>EF.ui.components.textInput,EF.ui.components.frontend.inputElement</Super>
-<TimeChanged>64206,56225.751597</TimeChanged>
+<TimeChanged>64209,43238.701606</TimeChanged>
 <TimeCreated>63384,38215.518113</TimeCreated>
 
 <Parameter name="typeAttribute">
@@ -4627,6 +4671,9 @@ this is for version 1 of proweb</Description>
 </Value>
 <Value name="9">
 <Value>prowebItemID</Value>
+</Value>
+<Value name="10">
+<Value>isBackendOnly</Value>
 </Value>
 </Data>
 </Storage>
@@ -4845,9 +4892,120 @@ this is for version 1 of proweb</Description>
 </Class>
 
 
+<Class name="EF.ui.components.frontend.fileUpload">
+<Super>EF.ui.components.textInput,EF.ui.components.frontend.inputElement</Super>
+<TimeChanged>64209,49383.692031</TimeChanged>
+<TimeCreated>63357,57620.613738</TimeCreated>
+
+<Method name="getDefaultClasses">
+<ClassMethod>1</ClassMethod>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	set defaultClasses = "form-control ef-proweb-input-element noPrint standardButton ef_frontend_button "
+	return defaultClasses
+]]></Implementation>
+</Method>
+
+<Method name="render">
+<Implementation><![CDATA[
+	do ..renderRowOpeningAndLabel()
+	set dateForm = ##class(shared.dateFunctions).getFrontendInputDateFormat(..contextData.eventID)
+	set timeFormat = 24
+	set fileUploader=##class(EF.ui.components.frontend.fileUploadFacade).getFileUploader(..prowebItem.storage.prowebID, 3, 12)
+	do fileUploader.render()
+	
+	do ..renderHelpAndRowClosing()
+]]></Implementation>
+</Method>
+
+<Storage name="Default">
+<Type>%Library.CacheStorage</Type>
+<DefaultData>fileUploadDefaultData</DefaultData>
+<Data name="fileUploadDefaultData">
+<Subscript>"fileUpload"</Subscript>
+<Value name="1">
+<Value>alternatives</Value>
+</Value>
+<Value name="2">
+<Value>isMandatory</Value>
+</Value>
+<Value name="3">
+<Value>isBackendOnly</Value>
+</Value>
+<Value name="4">
+<Value>contextData</Value>
+</Value>
+<Value name="5">
+<Value>isGuest</Value>
+</Value>
+<Value name="6">
+<Value>helpText</Value>
+</Value>
+<Value name="7">
+<Value>guestNumber</Value>
+</Value>
+<Value name="8">
+<Value>isProwebEditMode</Value>
+</Value>
+<Value name="9">
+<Value>prowebItem</Value>
+</Value>
+<Value name="10">
+<Value>prowebItemID</Value>
+</Value>
+</Data>
+</Storage>
+</Class>
+
+
+<Class name="EF.ui.components.frontend.fileUploadFacade">
+<Super>EF.ui.frontend.controls.uploaderWithFileList</Super>
+<TimeChanged>64209,49927.749369</TimeChanged>
+<TimeCreated>64209,49036.783857</TimeCreated>
+
+<Method name="getFileUploader">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>prowebID:%Integer,dateFormat,timeFormat</FormalSpec>
+<ReturnType>EF.ui.frontend.controls.uploaderWithFileList</ReturnType>
+<Implementation><![CDATA[
+
+	set fileUploader=..%New()
+	set fileUploader.uploaderTitle = ##class(shared.pCSP).out("Supporting Files")
+	set fileUploader.htmlName = "fileUpload"
+	;set fileUploader.objectID = documentID
+	;set fileUploader.objectType = "abstract.objFile"
+	set fileUploader.fileList = ##class(EF.ui.frontend.controls.fileList).%New()
+	set fileUploader.fileList.htmlID = "fileUpload_"_prowebID
+	set fileUploader.fileList.fileItems = ""
+	
+	Return fileUploader
+]]></Implementation>
+</Method>
+
+<Method name="render">
+<Implementation><![CDATA[
+	do ..renderJS()
+	do ..renderHTML()
+]]></Implementation>
+</Method>
+
+<Method name="renderHTML">
+<Implementation><![CDATA[
+	// The html bit
+	&html<
+		
+		<div id="#(..encodeForHTMLAttribute(..htmlName))#_container" class="ef_frontend_file_uploader k-content">
+			<input type="file" name="#(..encodeForHTMLAttribute(..htmlName))#" id="#(..encodeForHTMLAttribute(..htmlName))#" title="#(..encodeForHTMLAttribute(##class(shared.pCSP).out("Upload")))#">
+	 	</div>
+	>
+]]></Implementation>
+</Method>
+</Class>
+
+
 <Class name="EF.ui.components.frontend.floatingMenu">
 <Super>shared.pCSPmanage</Super>
-<TimeChanged>64208,57222.55958</TimeChanged>
+<TimeChanged>64209,52938.539968</TimeChanged>
 <TimeCreated>64203,40625.329831</TimeCreated>
 
 <Method name="outputFloatingMenuJS">
@@ -4860,6 +5018,7 @@ this is for version 1 of proweb</Description>
     $(document).ready(function() {
 		
 		var ef_hide_floater;
+		var ef_show_label_edit;
 
         $('div.ef-proweb-form-row-editable').mouseover(function(e) {
 	        if (!$(this).hasClass("ef-showing-floater")) { 
@@ -4872,14 +5031,17 @@ this is for version 1 of proweb</Description>
 		        var efProwebAddDividerBaseURL = $('meta[name=efProwebAddDividerBaseURL]').attr("content");
 		        var efProwebAddTextBlockBaseURL = $('meta[name=efProwebAddTextBlockBaseURL]').attr("content");
 		        var efProwebAddYouTubeVideoBaseURL = $('meta[name=efProwebAddYouTubeVideoBaseURL]').attr("content");
+		        var efProwebAddFileUploadBaseURL = $('meta[name=efProwebAddFileUploadBaseURL]').attr("content");
 		        
 		        
 		        $(this).addClass("ef-showing-floater");
-		        $('#myFloater').css('top',e.pageY);
-				$('#myFloater').css('left',e.pageX);
-		        console.log('prowebListID='+prowebListID);
+		        var topPosition = $(this).children().offset().top;
+		        var leftPosition = $(this).children().offset().left + ($(this).width() / 2.3);
+		        $('#myFloater').css('top', topPosition);
+				$('#myFloater').css('left', leftPosition);
+		        
 		        $('#efProwebHeader').text( prowebTitle );
-		        $('#efProwebEditLink').attr('href', efProwebEditBaseURL + '&dataID=' + prowebID);
+		        $('#efProwebEditLink').attr('href', efProwebEditBaseURL + '&prowebID=' + prowebID);
 		        $('#efProwebDeleteLink').attr('href', 'javascript: confirmDelete(' + prowebID + ');');
 
 		        $('#efProwebInsertQuestionAboveLink').attr('href', efProwebAddQuestionBaseURL + '&insertBeforeProwebID=' + prowebID + '&parent=' + prowebListID);
@@ -4891,7 +5053,13 @@ this is for version 1 of proweb</Description>
 		        $('#efProwebInsertTextBlockAboveLink').attr('href', efProwebAddTextBlockBaseURL + '&dataID=NEW&insertBeforeProwebID=' + prowebID + '&parent=' + prowebListID);
 		        $('#efProwebInsertTextBlockBelowLink').attr('href', efProwebAddTextBlockBaseURL + '&dataID=NEW&&insertAfterProwebID=' + prowebID + '&parent=' + prowebListID);
 
-	            $('#myFloater').show('slow');
+		        $('#efProwebInsertYouTubeVideoAboveLink').attr('href', efProwebAddYouTubeVideoBaseURL + '&dataID=NEW&isVideo=1&insertBeforeProwebID=' + prowebID + '&parent=' + prowebListID);
+		        $('#efProwebInsertYouTubeVideoBelowLink').attr('href', efProwebAddYouTubeVideoBaseURL + '&dataID=NEW&isVideo=1&insertAfterProwebID=' + prowebID + '&parent=' + prowebListID);
+
+		        $('#efProwebInsertFileUploadAboveLink').attr('href', efProwebAddFileUploadBaseURL + '&dataID=NEW&itemNameID=NEW&insertBeforeProwebID=' + prowebID + '&parent=' + prowebListID);
+		        $('#efProwebInsertFileUploadBelowLink').attr('href', efProwebAddFileUploadBaseURL + '&dataID=NEW&itemNameID=NEW&insertAfterProwebID=' + prowebID + '&parent=' + prowebListID);
+
+	            $('#myFloater').show();
 	            clearTimeout(ef_hide_floater);
             	ef_hide_floater = setTimeout(function() { ef_proweb_floater_fadeout(this); }, 6000);
 	        }
@@ -4900,30 +5068,86 @@ this is for version 1 of proweb</Description>
         $('div.ef-proweb-form-row-editable').click(function() { // ###### not triggering
 			$('#myFloater').hide();
 			$(this).removeClass("ef-showing-floater");
-			console.log('hide on click');
+			//console.log('hide on click');
         });
         
         
         $('div.ef-proweb-form-row-editable').mouseleave(function() {
-	        console.log('setting fade timeout on mouseout');
+	        //console.log('setting fade timeout on mouseout');
 			$(this).removeClass("ef-showing-floater");
         });
         
         
         $('#myFloater').mouseover(function() {
            if (typeof ef_hide_floater !== "undefined") {
-           		console.log('clear timeout on mouseover');
+           		//console.log('clear timeout on mouseover');
            		clearTimeout(ef_hide_floater);
            }
            return true;
         });
+        
+        
+        $('.control-label').dblclick( function() {
+	        var clickedID = $(this).attr("for");
+
+	    	if (ef_show_label_edit == 1) {
+		    	ef_show_label_edit = 0;	
+				
+				$('#ef-display-label-'+clickedID).show();
+				$('#ef-edit-label-input-'+clickedID).hide();
+				
+				updateLabelText($('#ef-edit-label-input-'+clickedID).data("proweb-id"), $('#ef-edit-label-input-'+clickedID+' :input').val(), clickedID);
+
+	    	} else {
+		    	ef_show_label_edit = 1;
+
+				$('#ef-display-label-'+clickedID).hide();
+				$('#ef-edit-label-input-'+clickedID).show();
+				$('#ef-edit-label-input-'+clickedID+' :input').focus();
+
+	    	}   	
+	    	;return false;
+	    });
+	    
+	    $('.control-label').focusout( function() {
+	        var clickedID = $(this).attr("for");
+	        
+			if (ef_show_label_edit == 1) {
+				ef_show_label_edit = 0;
+				$('#ef-display-label-'+clickedID).show();
+				$('#ef-edit-label-input-'+clickedID).hide();
+				
+				updateLabelText($('#ef-edit-label-input-'+clickedID).data("proweb-id"), $('#ef-edit-label-input-'+clickedID+' :input').val(), clickedID);
+			}
+			;return false;
+	    })
     });
     
     function ef_proweb_floater_fadeout(div) {
 	    $('#myFloater').fadeOut('slow');
 	    $(div).removeClass("ef-showing-floater");
     }	
-	>	
+	
+
+	function updateLabelText(prowebID, labelText, clickedID) {
+		$.ajax({
+			type : 'POST',
+          	url: '#(##class(%CSP.Page).Link("../../backend/proweb/updateLabelText.csp?zzz=1"))#&prowebID=' + prowebID + '&labelText=' + labelText,
+          	dataType: "json",
+          	success: function(data) {
+	          	if (data.status == "ok") {
+		          	$('#ef-field-proweb-'+prowebID).data('proweb-title', data.labelText);
+		          	$('#ef-display-label-'+clickedID).text(data.labelText);
+		          	$('#ef-edit-label-input-'+clickedID+' :input').val(data.labelText);
+		          	console.log('Updated.');
+	          	} else {
+		          	$('#ef-edit-label-input-'+clickedID+' :input').val($('#ef-display-label-'+clickedID).text());
+					alert(data.errorMsg);
+	          	}
+         	}
+      	});
+	}
+	>
 	write !,"</script>"
 ]]></Implementation>
 </Method>
@@ -4951,6 +5175,7 @@ this is for version 1 of proweb</Description>
 			                  <li><a id="efProwebInsertQuestion#(aboveOrBelow)#Link" tabindex="-1" href="#">Question</a></li>
 			                  <li><a id="efProwebInsertDivider#(aboveOrBelow)#Link" href="#">Divider</a></li>
 			                  <li><a id="efProwebInsertTextBlock#(aboveOrBelow)#Link" href="#">Text block</a></li>
+			                  <li><a id="efProwebInsertFileUpload#(aboveOrBelow)#Link" href="#">File upload</a></li>
 			                  <li><a id="efProwebInsertYouTubeVideo#(aboveOrBelow)#Link" href="#">YouTube video</a></li>
 			                </ul>
 			              </li>
@@ -4968,7 +5193,7 @@ this is for version 1 of proweb</Description>
 
 <Class name="EF.ui.components.frontend.inputElement">
 <Super>EF.ui.components.frontend.prowebBase,EF.ui.components.inputBase</Super>
-<TimeChanged>64208,50972.995546</TimeChanged>
+<TimeChanged>64209,35125.977738</TimeChanged>
 <TimeCreated>64183,40678.260093</TimeCreated>
 
 <Property name="alternatives">
@@ -5043,7 +5268,12 @@ this is for version 1 of proweb</Description>
 <Method name="renderLabel">
 <Implementation><![CDATA[
 	if $length(..label) {
-		&html<<label class="control-label" for="#(..encodeForHTMLAttribute(..htmlID))#" #(..rawHTML(..getProwebExtraAttributes()))#>#(..rawHTML(..label))#</label>>
+		&html<
+			<label class="control-label" for="#(..encodeForHTMLAttribute(..htmlID))#" #(..rawHTML(..getProwebExtraAttributes()))#>
+				<div class="ef-label-text" id="ef-display-label-#(..encodeForHTMLAttribute(..htmlID))#">#(..rawHTML(..label))#</div>
+				<div class="ef-proweb-direct-label-edit" style="display: none;" id="ef-edit-label-input-#(..encodeForHTMLAttribute(..htmlID))#" data-proweb-id="#(..prowebItem.storage.prowebID)#"><input type="text" value="#(..encodeForHTMLAttribute(..label))#"></div>
+			</label>
+		>
 	}
 ]]></Implementation>
 </Method>
@@ -5287,7 +5517,7 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 
 <Class name="EF.ui.components.frontend.prowebBase">
 <Super>EF.ui.components.base</Super>
-<TimeChanged>64208,57902.961021</TimeChanged>
+<TimeChanged>64209,45891.71568</TimeChanged>
 <TimeCreated>64183,41819.123112</TimeCreated>
 
 <Property name="isProwebEditMode">
@@ -5314,6 +5544,7 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 		set floaterTitle = ..getFloatingMenuHeader() 
 		&HTML<
 			<div class="row ef-draggable-div ef-proweb-form-row-editable" 
+			id="ef-field-proweb-#(..prowebItem.storage.prowebID)#" 
 			data-proweb-title="#(..encodeForHTMLAttribute(floaterTitle))#" 
 			data-proweb-id="#(..prowebItem.storage.prowebID)#" 
 			data-proweb-list-id="#(..prowebItem.storage.getListID())#">
@@ -5418,7 +5649,7 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 
 <Class name="EF.ui.components.frontend.radioButtons">
 <Super>EF.ui.components.listInput,EF.ui.components.frontend.inputElement</Super>
-<TimeChanged>64206,56225.911482</TimeChanged>
+<TimeChanged>64209,33011.585805</TimeChanged>
 <TimeCreated>63356,39686.205586</TimeCreated>
 
 <Method name="getDefaultClasses">
@@ -5438,7 +5669,7 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 <Implementation><![CDATA[
 	do ..renderRowOpeningAndLabel()
 	&html<
-            <div class="#(..encodeHTMLAttribute(..classes))#" id="#(..encodeHTMLAttribute(..htmlID))#" data-toggle="buttons" title="#(..encodeHTMLAttribute(..title))#" #(..rawHTML(..getExtraAttributes()))#>
+            <div class="#(..encodeHTMLAttribute(..classes))#" id="#(..encodeHTMLAttribute(..htmlID))#"  title="#(..encodeHTMLAttribute(..title))#" #(..rawHTML(..getExtraAttributes()))#>
 	    		#[do ..renderAlternatives()]#
 	        </div>
 	        
@@ -5494,7 +5725,6 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 <Type>%Library.CacheStorage</Type>
 <DefaultData>radioButtonsDefaultData</DefaultData>
 <Data name="radioButtonsDefaultData">
-<Structure>listnode</Structure>
 <Subscript>"radioButtons"</Subscript>
 <Value name="1">
 <Value>isProwebEditMode</Value>
@@ -5519,6 +5749,9 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 </Value>
 <Value name="8">
 <Value>prowebItemID</Value>
+</Value>
+<Value name="9">
+<Value>isBackendOnly</Value>
 </Value>
 </Data>
 </Storage>
@@ -10104,6 +10337,1886 @@ function saveSameAs(categoryID) {
 ]]></CSP>
 
 
+<CSP name="backEnd/proweb/editItem.csp" application="/largedevsrc/" default="1"><![CDATA[
+<csp:class encoded="1" private="1">
+<script language="cache" method="OnPreHTTPafter" arguments="" returntype="%Library.Boolean"> 
+	set prowebID = %request.Get("prowebID")
+	if 'prowebID {
+		throw ##class(shared.exceptions.generalException).%New("No prowebID passed in into editItem.csp")
+	}
+	
+		
+	set prowebItem = ##class(sc.objData).%OpenId(prowebID)
+	if '$IsObject(prowebItem) {
+		throw ##class(shared.exceptions.generalException).%New("Could not open proweb item: "_prowebItem)
+	}
+	if prowebItem.%Extends("sc.xModules.objCODitem") {
+		set targetPage = "codQuestionDetails.csp"
+	
+	} elseif prowebItem.%Extends("sc.xModules.objFileUpload") {
+		set targetPage = "fileUploadDetails.csp?isVideo=1"	
+
+	} elseif prowebItem.%Extends("sc.xModules.objText") {
+		set targetPage = "textDetailsMoxie.csp"	
+		
+	} elseif prowebItem.%Extends("sc.xModules.objFlash") {
+		set targetPage = "flashDetails.csp"	
+		
+	} else {
+		throw ##class(shared.exceptions.generalException).%New("No edit page defined for proweb item type: "_prowebItem)	
+	}
+	
+	
+	set URL = ..addParameterToURL(targetPage, "dataID", prowebID) 
+	set %response.ServerSideRedirect = URL
+	
+	return 0
+</script>
+]]></CSP>
+
+
+<CSP name="backEnd/proweb/fileUploadDetails.csp" application="/largedevsrc/" default="1"><![CDATA[
+<csp:class encoded="1" private="1">
+<csp:include page="../../backend/home/backendTop.csp?hideBackendMenu=1">
+<script language="cache" runat="server">
+	set itemNameID=%request.Get("itemNameID")
+	if itemNameID="" set itemNameID=%session.Get("itemNameID")
+	set %session.Data("itemNameID")=itemNameID
+	set pageID=%session.Get("pageID")
+	set groupID=##class(sc.objData).getParentID(pageID)
+
+	set dataID=%request.Get("dataID")
+	if dataID="" set dataID=%session.Get("dataID")
+	// switch to the org data to enable edit when having multi-stage workflow
+	// but we can't do it for single workflow because the it will stop adding new ones in EF
+	if ##class(sc.objStep).getFinalLevel()>1 {
+		if %request.Get("orgDataID") set dataID=%request.Get("orgDataID")
+	}
+	set %session.Data("dataID")=dataID
+	
+	do ##class(EF.pages.frontend.baseProweb).savePassedInDesiredPositionToSession()
+	
+	set templateURL=%request.Get("templateURL")	
+	if templateURL="" set templateURL=%session.Get("templateURL")
+	set %session.Data("templateURL")=templateURL
+
+	set parent=%request.Get("parent")
+	if parent="" set parent=%session.Get("parent")
+	set %session.Data("parent")=parent
+
+	set isDOC=%request.Get("isDOC")
+	if isDOC="" set isDOC=$G(%session.Data("proweb","isDOC"))
+	set %session.Data("proweb","isDOC")=isDOC
+	
+	set isAwardsEntryPage=0
+	&SQL(SELECT ID INTO :tmp FROM awards.objCategory WHERE pageID=:pageID)
+	if +SQLCODE=0 {
+		set isAwardsEntryPage=1
+	}
+		
+	set addToTop=%request.Get("addToTop")
+	if addToTop="" set addToTop=%session.Get("addToTop")
+	set %session.Data("addToTop")=addToTop
+
+	kill %session.Data("eventsforce","backend","gotoPage")
+	set gotoPage=%request.Get("gotoPage")
+	set %session.Data("eventsforce","backend","file upload gotoPage")=gotoPage
+
+	set xWorkLangID=%request.Get("xWorkLangID")
+	if xWorkLangID="" set xWorkLangID=$G(%session.Data("eventsforce","backend","xWorkLangID"))
+	if xWorkLangID="" set xWorkLangID=$G(xLangID,1)
+
+	// are we in the bookers page?
+	set inBookersPage=0
+	if xEventID	{
+		set extraBit=""
+		if xWorkLangID,xWorkLangID'=xLangID set extraBit=" - "_##class(shared.objLanguage).getLanguageDesc(xWorkLangID)
+		if ##class(setup.objEventSetting).getParameter("bookings","bookerRegPageID"_extraBit,xEventID)=pageID set inBookersPage=1
+	}
+	
+	
+	if $G(%session.Data("proweb","backend","errMsg"))'="" {
+		write "<scri"_"pt language='javas"_"cript'>alert('"_%session.Data("proweb","backend","errMsg")_"');</scri"_"pt>"
+		kill %session.Data("proweb","backend","errMsg")
+	}
+	set meetingsEnabled=##class(setup.objEventSetting).getParameter("event setup","allow meeting manager",xEventID)
+</script>
+
+<csp:object name="objFileUpload" classname="sc.xModules.objFileUpload" objid="#(dataID)#">
+
+<script language="cache" runat="server">
+	// Get the itemNameID from the the proweb object if we are editing 
+	if dataID set itemNameID=objFileUpload.objItemName.%Id()
+</script>
+
+<csp:object name="objItemName" classname="cod.objItemName" objid="#(itemNameID)#">
+
+<script language="cache" runat="server">
+	set (description,prompt,helpText,mandatory,backendOnly,carryOver,maxFileSize,minFileSize,allowedFileTypes,isHardcoded,isDelegate,isGuest)=""
+	
+	// get the data from COD
+	if itemNameID {
+		set (description,prompt)=objItemName.description
+		set helpText=objItemName.helpText
+		set carryOver=objItemName.carryOver
+	}
+	
+	// get the data from proweb
+	if dataID {
+		set prompt=objFileUpload.description
+		set helpText=objFileUpload.helpText
+		set mandatory=objFileUpload.mandatory
+		set backendOnly=objFileUpload.backendOnly
+		set minFileSize=objFileUpload.minFileSize
+		set maxFileSize=objFileUpload.maxFileSize
+		set allowedFileTypes=objFileUpload.allowedFileTypes
+		set isDelegate=objFileUpload.isDelegate
+		set isGuest=objFileUpload.isGuest
+		do objFileUpload.%Close()
+	}
+	if description="Profile Picture" {
+		set isHardcoded=1
+		set allowedFileTypes="JPG,JPEG"
+	}
+	set showGuest=0
+	if ##class(setup.objSetting).getParameter("bookings","use guests") set showGuest=1
+
+	kill allRegPages,allRegPageIDs,allReg
+	set ok=##class(setup.lnkCategoryEvent).getAllRegPages(xEventID,xWorkLangID,1,.allRegPages,.allRegPageIDs,.allReg)
+</script>
+
+<form name="myform" method="post" action="fileUploadDetails2.csp" onSubmit="return checkSubmit();">
+
+
+<style>
+table {margin-left:0px;margin-right:0px;padding-left:24px;padding-right:24px;}
+table table {padding-left:0px;padding-right:0px;}
+</style>
+
+<div class="contentarea_in_popup">
+	<div class="contentbox">
+	<h2 style="margin-bottom:0px;">File Upload Details</h2>
+
+	<div class="gen1_panel_subheader">
+	<p class="black10px">
+		<tx>Select an existing item from the dropdown.</tx>
+		<tx>To create a new one click ADD NEW and enter a new Database Name.</tx> <br>
+		<tx>The Database Names are common to all events but their Frontend display can be overridden using the File Upload Prompt.</tx>
+	</p>
+	</div>
+
+								<table width="100%" border="0" cellspacing="0" cellpadding="0">
+									<tr>
+										<td align="left" valign="top">
+											<csp:if condition=(+itemNameID=0)>
+												<table border="0" cellspacing="0" cellpadding="0">
+													<tr>
+														<td width="145" height="30" align="left" nowrap class="black10px"><tx>Select Existing Item</tx>:&nbsp;&nbsp;</td>
+														<td height="30" width="608">
+															<table width="100%" border="0" cellspacing="0" cellpadding="0">
+																<tr>
+																	<td width="45%">
+																		<select name="selCODitem" class="black10px" style="width: 325px;" onChange="loadItem(this.value);">
+																			<option selected>---<tx>Select from List</tx>---</option>
+																			<script name="rs" language="SQL">
+																				SELECT ID,description FROM cod.objItemName
+																				WHERE (active=1)
+																				AND (type='fileupload')
+																				ORDER BY description
+																			</script>
+																			<csp:while condition="rs.Next()">
+																				<script language="cache" runat="server">
+																					set tempDesc=rs.Get("description")
+																					set tmpItemID=rs.Get("ID")
+																					set optionClass=""
+																					if ##class(setup.objSetting).getParameter("system","isEventsForce"),%session.Get("eventCategoryID")	{ // if we have come from regPages.csp
+																						set tmpEventCategory=%session.Get("eventCategoryID")
+																						// v2.7 get all the registration pages used so that we can decide whether we are in a registration page for this category
+																						set tmpPageID="",highlightItem=""
+																						for  {
+																							set tmpPageID=$O(allRegPageIDs(tmpEventCategory,tmpPageID))
+																							if tmpPageID="" quit
+																							// check each page																		
+																							&SQL(SELECT COUNT(ID) INTO :tmp FROM sc_xModules.objFileUpload WHERE (active=1 AND objItemName = :tmpItemID AND parent->parent = :tmpPageID))
+																							if +SQLCODE=0,tmp set highlightItem=1,highlightDesc="Already Used: "
+																						}
+																						if highlightItem	{
+																							set optionClass="redbold10px"
+																							set tempDesc=highlightDesc_tempDesc
+																						}
+																						
+																					}
+																				</script>
+																				<option value='#(tmpItemID)#' class="#(optionClass)#">#(tempDesc)#</option>
+																			</csp:while>
+																		</select>
+																	</td>
+																	<td width="20%" align="center" class="blackbold10px">&nbsp;<tx>OR</tx>&nbsp;&nbsp;</td>
+																	<td width="35%" align="left">
+																		<a href="javascript: gotoNewItem();"><img name="butCreateNew" id="butCreateNew" src="../../media/images/English/Default/backend/add.gif" border="0" alt="" width="65" height="17"></a>
+																	</td>
+																</tr>
+																<script language="javascript">
+																function gotoNewItem() {
+																	document.location= '#(..Link(%request.PageName_"?itemNameID=CREATE"))#'
+																}
+																</script>  
+															</table>
+														</td>
+													</tr>
+													<tr>
+														<td colspan=99>
+															<div id="divR_all" class="UnderTextField"></div>
+														</td>
+													</tr> 	
+													<tr>
+														<td colspan="3" height="30"><img src="../../media/images/English/Default/backend/line.gif" width="600" height="21"></td>
+													</tr>
+												</table>
+											</csp:if>
+											<table width="100%" border="0" cellspacing="0" cellpadding="0">
+												<tr height="30">
+													<td width="13">&nbsp;</td>
+													<td class="black10px" align="right" width="184"><tx>Database Name</tx>:&nbsp;*&nbsp;</td>
+													<td class="black10px" colspan="3">
+														<script language="cache" runat="server">
+															set disabled=""
+															if itemNameID'="CREATE" set disabled="disabled  style='background-color: #eeeeee;'"
+														</script>
+														<input type="text" name="txtDescription" size="50" maxlength="44" class="black10px" value="#(description)#" onchange="if (document.forms[0].txtPrompt.value.length <2) {document.forms[0].txtPrompt.value=this.value;}" #(disabled)#>
+													</td>
+												</tr>
+												<tr>
+													<td width="13" height="33">&nbsp;</td>
+													<td class="black10px" align="right" height="33" width="184" valign="top"><tx>File Upload Prompt</tx>:&nbsp;&nbsp;</td>
+													<td class="black10px" valign="middle" height="33" colspan="3">
+													<textarea name="txtPrompt" class="black10px" rows=1 cols=60>#(prompt)#</textarea>
+													</td>
+													<td class="black10px" valign="top" width="120" height="33">
+														<csp:if condition=((itemNameID="NEW")!(itemNameID="CREATE"))>
+															<img src="../../media/images/English/Default/backend/edit.gif" alt="" width="45" height="17" border="0" style="filter: alpha(opacity=35); opacity: 0.35;" title="You must save the question before you can edit the prompt.">
+														<csp:else>
+															<a href="javascript: popup('question');"><img src="../../media/images/English/Default/backend/edit.gif" alt="edit" width="45" height="17" border="0"></a>
+														</csp:if>
+													</td>
+												</tr>
+												
+												<script language="cache" runat="server">
+													set isAnonymousMode=+##class(setup.objEventSetting).getParameter("system","do not use email",xEventID)
+												</script>
+												<csp:if condition=('isAnonymousMode)>
+													<tr>
+														<td width="13">&nbsp;</td>
+														<td class="black10px" align="right">&nbsp;</td>
+														<td class="blackbold10px" colspan="98"><tx>Allow the data for this item to span events?</tx>
+															<csp:if condition=(itemNameID)>
+																<csp:if condition=(carryOver)>
+																	<span class="redbold12px">YES</span>
+																	<input type="checkbox" name="chkCarryOver" value="1" CHECKED style="visibility: hidden;">
+																<csp:else>
+																	<span class="redbold12px">NO</span>
+																	<input type="checkbox" name="chkCarryOver" value="1" style="visibility: hidden;">
+																</csp:if>
+															<csp:else>
+																<input type="checkbox" name="chkCarryOver" value="1">
+															</csp:if>
+															<br>
+															<tx>(required for any data that is imported and CANNOT be changed after setting up)</tx>
+														</td>								
+													</tr>
+													
+													<tr><td height=10></td></tr>
+												<csp:else>
+													<input type="checkbox" name="chkCarryOver" value="0" style="visibility: hidden;" CHECKED>
+												</csp:if>
+												
+												<csp:include page="dependancyOptionsInclude.csp">
+
+												<systemType:if module="Mandatory Questions">
+													<tr>
+														<td width="13" height="30">&nbsp;</td>
+														<td class="black10px" width="184" align="right">
+															<tx>Mandatory</tx>:&nbsp;		
+														</td>
+														<td>
+															<input type="checkbox" name='chkMandatory' value="1" class="black10px" #($S(mandatory=1:"checked",1:0))#>
+														</td>
+													</tr>
+												</systemType:if>
+												<systemType:if module="Backend Only Questions">
+													<tr>
+														<td width="13" height="30">&nbsp;</td>
+														<td class="black10px" width="184" align="right">
+															<tx>Backend Only</tx>:
+														</td>
+														<td>
+															<input type="checkbox" name='chkBackendOnly' value="1" class="black10px" #($S(backendOnly=1:"checked",1:0))#>
+														</td>
+													</tr>
+												</systemType:if>
+												<csp:if condition=(showGuest)>
+													<tr>
+														<td width="13">&nbsp;</td>
+														<td class="black10px" align="right"><tx>Applies to</tx>:&nbsp;</td>
+														<td class="black10px">
+															<input type="radio" name="radDelegateOrGuest" value="delegate" #($S((isDelegate)!(('isDelegate)&('isGuest)):"checked",1:0))#><tx>Attendees</tx>&nbsp;&nbsp;
+															<input type="radio" name="radDelegateOrGuest" value="guest" #($S(isGuest:"checked",1:0))#><tx>Guests</tx>&nbsp;&nbsp;
+															<csp:comment><!--<input type="radio" name="radDelegateOrGuest" value="both" #($S((isGuest)&(isDelegate):"checked",1:0))#>Both--></csp:comment>
+														</td>								
+													</tr>
+												<csp:else>
+													<input type="hidden" name="radDelegateOrGuest" value="delegate">
+												</csp:if>	
+												<tr>
+													<td width="13" height="30">&nbsp;</td>
+													<td class="black10px" width="184" align="right">
+														<tx>Min File Size</tx>:&nbsp;		
+													</td>
+													<td class="black10px">
+														<input type="text" name='txtMinFileSize' value='#(minFileSize)#' size=4 class="black10px">&nbsp;kb
+													</td>
+												</tr>
+												<tr>
+													<td width="13" height="30">&nbsp;</td>
+													<td class="black10px" width="184" align="right">
+														<tx>Max File Size</tx>:*&nbsp;		
+													</td>
+													<td class="black10px">
+														<input type="text" name='txtMaxFileSize' value='#(maxFileSize)#' size=4 class="black10px">&nbsp;kb
+													</td>
+												</tr>
+												<tr>
+													<td width="13" height="30">&nbsp;</td>
+													<td class="black10px" width="184" align="right" valign="top">
+														<tx>Allowed File Types</tx>:*&nbsp;		
+													</td>
+													<td class="black10px" colspan=4>
+														<table width="100%" border="0" cellspacing="0" cellpadding="0">
+															<tr>
+																<td class="black10px" align="right">
+																	<tx>CSV</tx>&nbsp;
+																	<script language="cache" runat="server">
+																		set isChecked=(","_allowedFileTypes_",")[(",CSV,")
+																	</script>
+																	<csp:if condition=(isHardcoded)>
+																		<input type="hidden" name='chkFileType_CSV' value="#(isChecked)#">
+																		<csp:if condition=(isChecked)>
+																			<img src="../../media/images/English/Default/backend/tick.gif" alt="File attached" width="14" height="12" />
+																		<csp:else>
+																			<img src="../../media/images/English/Default/backend/cross.gif" alt="File attached" width="14" height="12" />
+																		</csp:if>
+																	<csp:else>
+																		<input type="checkbox" name='chkFileType_CSV' value="1" class="black10px" #($S(isChecked:"checked",1:0))#>
+																	</csp:if>
+																</td>
+																<td class="black10px" align="right">
+																	<tx>DOC</tx>
+																	<script language="cache" runat="server">
+																		set isChecked=(","_allowedFileTypes_",")[(",DOC,")
+																	</script>
+																	<csp:if condition=(isHardcoded)>
+																		<input type="hidden" name='chkFileType_DOC' value="#(isChecked)#">
+																		<csp:if condition=(isChecked)>
+																			<img src="../../media/images/English/Default/backend/tick.gif" alt="File attached" width="14" height="12" />
+																		<csp:else>
+																			<img src="../../media/images/English/Default/backend/cross.gif" alt="File attached" width="14" height="12" />
+																		</csp:if>
+																	<csp:else>
+																		<input type="checkbox" name='chkFileType_DOC' value="1" class="black10px" #($S(isChecked:"checked",1:0))#>
+																	</csp:if>
+																</td>
+																<td class="black10px" align="right">
+																	<tx>DOCX</tx>&nbsp;
+																	<script language="cache" runat="server">
+																		set isChecked=(","_allowedFileTypes_",")[(",DOCX,")
+																	</script>
+																	<csp:if condition=(isHardcoded)>
+																		<input type="hidden" name='chkFileType_DOCX' value="#(isChecked)#">
+																		<csp:if condition=(isChecked)>
+																			<img src="../../media/images/English/Default/backend/tick.gif" alt="File attached" width="14" height="12" />
+																		<csp:else>
+																			<img src="../../media/images/English/Default/backend/cross.gif" alt="File attached" width="14" height="12" />
+																		</csp:if>
+																	<csp:else>
+																		<input type="checkbox" name='chkFileType_DOCX' value="1" class="black10px" #($S(isChecked:"checked",1:0))#>
+																	</csp:if>
+																</td>
+																<td class="black10px" align="right">
+																	<tx>DWG</tx>&nbsp;
+																	<script language="cache" runat="server">
+																		set isChecked=(","_allowedFileTypes_",")[(",DWG,")
+																	</script>
+																	<csp:if condition=(isHardcoded)>
+																		<input type="hidden" name='chkFileType_DWG' value="#(isChecked)#">
+																		<csp:if condition=(isChecked)>
+																			<img src="../../media/images/English/Default/backend/tick.gif" alt="File attached" width="14" height="12" />
+																		<csp:else>
+																			<img src="../../media/images/English/Default/backend/cross.gif" alt="File attached" width="14" height="12" />
+																		</csp:if>
+																	<csp:else>
+																		<input type="checkbox" name='chkFileType_DWG' value="1" class="black10px" #($S(isChecked:"checked",1:0))#>
+																	</csp:if>
+																</td>																
+																<td class="black10px" align="right">
+																	<tx>EPS</tx>&nbsp;
+																	<script language="cache" runat="server">
+																		set isChecked=(","_allowedFileTypes_",")[(",EPS,")
+																	</script>
+																	<csp:if condition=(isHardcoded)>
+																		<input type="hidden" name='chkFileType_EPS' value="#(isChecked)#">
+																		<csp:if condition=(isChecked)>
+																			<img src="../../media/images/English/Default/backend/tick.gif" alt="File attached" width="14" height="12" />
+																		<csp:else>
+																			<img src="../../media/images/English/Default/backend/cross.gif" alt="File attached" width="14" height="12" />
+																		</csp:if>
+																	<csp:else>
+																		<input type="checkbox" name='chkFileType_EPS' value="1" class="black10px" #($S(isChecked:"checked",1:0))#>
+																	</csp:if>
+																</td>
+																<td class="black10px" align="right">
+																	<tx>GIF</tx>&nbsp;
+																	<script language="cache" runat="server">
+																		set isChecked=(","_allowedFileTypes_",")[(",GIF,")
+																	</script>
+																	<csp:if condition=(isHardcoded)>
+																		<input type="hidden" name='chkFileType_GIF' value="#(isChecked)#">
+																		<csp:if condition=(isChecked)>
+																			<img src="../../media/images/English/Default/backend/tick.gif" alt="File attached" width="14" height="12" />
+																		<csp:else>
+																			<img src="../../media/images/English/Default/backend/cross.gif" alt="File attached" width="14" height="12" />
+																		</csp:if>
+																	<csp:else>
+																		<input type="checkbox" name='chkFileType_GIF' value="1" class="black10px" #($S(isChecked:"checked",1:0))#>
+																	</csp:if>
+																</td>
+																<td class="black10px" align="right">
+																	<tx>JPG</tx>&nbsp;
+																	<script language="cache" runat="server">
+																		set isChecked=(","_allowedFileTypes_",")[(",JPG,")
+																	</script>
+																	<csp:if condition=(isHardcoded)>
+																		<input type="hidden" name='chkFileType_JPG' value="#(isChecked)#">
+																		<csp:if condition=(isChecked)>
+																			<img src="../../media/images/English/Default/backend/tick.gif" alt="File attached" width="14" height="12" />
+																		<csp:else>
+																			<img src="../../media/images/English/Default/backend/cross.gif" alt="File attached" width="14" height="12" />
+																		</csp:if>
+																	<csp:else>
+																		<input type="checkbox" name='chkFileType_JPG' value="1" class="black10px" #($S(isChecked:"checked",1:0))#>
+																	</csp:if>
+																</td>
+															</tr>
+															<tr>
+																<td class="black10px" align="right">
+																	<tx>JPEG</tx>&nbsp;
+																	<script language="cache" runat="server">
+																		set isChecked=(","_allowedFileTypes_",")[(",JPEG,")
+																	</script>
+																	<csp:if condition=(isHardcoded)>
+																		<input type="hidden" name='chkFileType_JPEG' value="#(isChecked)#">
+																		<csp:if condition=(isChecked)>
+																			<img src="../../media/images/English/Default/backend/tick.gif" alt="File attached" width="14" height="12" />
+																		<csp:else>
+																			<img src="../../media/images/English/Default/backend/cross.gif" alt="File attached" width="14" height="12" />
+																		</csp:if>
+																	<csp:else>
+																		<input type="checkbox" name='chkFileType_JPEG' value="1" class="black10px" #($S(isChecked:"checked",1:0))#>
+																	</csp:if>
+																</td>
+																<td class="black10px" align="right">
+																	<tx>ODF</tx>&nbsp;
+																	<script language="cache" runat="server">
+																		set isChecked=(","_allowedFileTypes_",")[(",ODF,")
+																	</script>
+																	<csp:if condition=(isHardcoded)>
+																		<input type="hidden" name='chkFileType_ODF' value="#(isChecked)#">
+																		<csp:if condition=(isChecked)>
+																			<img src="../../media/images/English/Default/backend/tick.gif" alt="File attached" width="14" height="12" />
+																		<csp:else>
+																			<img src="../../media/images/English/Default/backend/cross.gif" alt="File attached" width="14" height="12" />
+																		</csp:if>
+																	<csp:else>
+																		<input type="checkbox" name='chkFileType_ODF' value="1" class="black10px" #($S(isChecked:"checked",1:0))#>
+																	</csp:if>
+																</td>
+																<td class="black10px" align="right">
+																	<tx>ODG</tx>&nbsp;
+																	<script language="cache" runat="server">
+																		set isChecked=(","_allowedFileTypes_",")[(",ODG,")
+																	</script>
+																	<csp:if condition=(isHardcoded)>
+																		<input type="hidden" name='chkFileType_ODG' value="#(isChecked)#">
+																		<csp:if condition=(isChecked)>
+																			<img src="../../media/images/English/Default/backend/tick.gif" alt="File attached" width="14" height="12" />
+																		<csp:else>
+																			<img src="../../media/images/English/Default/backend/cross.gif" alt="File attached" width="14" height="12" />
+																		</csp:if>
+																	<csp:else>
+																		<input type="checkbox" name='chkFileType_ODG' value="1" class="black10px" #($S(isChecked:"checked",1:0))#>
+																	</csp:if>
+																</td>
+																<td class="black10px" align="right">
+																	<tx>PDF</tx>&nbsp;
+																	<script language="cache" runat="server">
+																		set isChecked=(","_allowedFileTypes_",")[(",PDF,")
+																	</script>
+																	<csp:if condition=(isHardcoded)>
+																		<input type="hidden" name='chkFileType_PDF' value="#(isChecked)#">
+																		<csp:if condition=(isChecked)>
+																			<img src="../../media/images/English/Default/backend/tick.gif" alt="File attached" width="14" height="12" />
+																		<csp:else>
+																			<img src="../../media/images/English/Default/backend/cross.gif" alt="File attached" width="14" height="12" />
+																		</csp:if>
+																	<csp:else>
+																		<input type="checkbox" name='chkFileType_PDF' value="1" class="black10px" #($S(isChecked:"checked",1:0))#>
+																	</csp:if>
+																</td>
+																<td class="black10px" align="right">
+																	<tx>PNG</tx>&nbsp;
+																	<script language="cache" runat="server">
+																		set isChecked=(","_allowedFileTypes_",")[(",PNG,")
+																	</script>
+																	<csp:if condition=(isHardcoded)>
+																		<input type="hidden" name='chkFileType_PNG' value="#(isChecked)#">
+																		<csp:if condition=(isChecked)>
+																			<img src="../../media/images/English/Default/backend/tick.gif" alt="File attached" width="14" height="12" />
+																		<csp:else>
+																			<img src="../../media/images/English/Default/backend/cross.gif" alt="File attached" width="14" height="12" />
+																		</csp:if>
+																	<csp:else>
+																		<input type="checkbox" name='chkFileType_PNG' value="1" class="black10px" #($S(isChecked:"checked",1:0))#>
+																	</csp:if>
+																</td>
+																<td class="black10px" align="right">
+																	<tx>PPT</tx>&nbsp;
+																	<script language="cache" runat="server">
+																		set isChecked=(","_allowedFileTypes_",")[(",PPT,")
+																	</script>
+																	<csp:if condition=(isHardcoded)>
+																		<input type="hidden" name='chkFileType_PPT' value="#(isChecked)#">
+																		<csp:if condition=(isChecked)>
+																			<img src="../../media/images/English/Default/backend/tick.gif" alt="File attached" width="14" height="12" />
+																		<csp:else>
+																			<img src="../../media/images/English/Default/backend/cross.gif" alt="File attached" width="14" height="12" />
+																		</csp:if>
+																	<csp:else>
+																		<input type="checkbox" name='chkFileType_PPT' value="1" class="black10px" #($S(isChecked:"checked",1:0))#>
+																	</csp:if>
+																</td>
+																<td class="black10px" align="right">
+																	<tx>PPTX</tx>&nbsp;
+																	<script language="cache" runat="server">
+																		set isChecked=(","_allowedFileTypes_",")[(",PPTX,")
+																	</script>
+																	<csp:if condition=(isHardcoded)>
+																		<input type="hidden" name='chkFileType_PPTX' value="#(isChecked)#">
+																		<csp:if condition=(isChecked)>
+																			<img src="../../media/images/English/Default/backend/tick.gif" alt="File attached" width="14" height="12" />
+																		<csp:else>
+																			<img src="../../media/images/English/Default/backend/cross.gif" alt="File attached" width="14" height="12" />
+																		</csp:if>
+																	<csp:else>
+																		<input type="checkbox" name='chkFileType_PPTX' value="1" class="black10px" #($S(isChecked:"checked",1:0))#>
+																	</csp:if>
+																</td>
+															</tr>
+															<tr>
+																<td class="black10px" align="right">
+																	<tx>RTF</tx>&nbsp;
+																	<script language="cache" runat="server">
+																		set isChecked=(","_allowedFileTypes_",")[(",RTF,")
+																	</script>
+																	<csp:if condition=(isHardcoded)>
+																		<input type="hidden" name='chkFileType_RTF' value="#(isChecked)#">
+																		<csp:if condition=(isChecked)>
+																			<img src="../../media/images/English/Default/backend/tick.gif" alt="File attached" width="14" height="12" />
+																		<csp:else>
+																			<img src="../../media/images/English/Default/backend/cross.gif" alt="File attached" width="14" height="12" />
+																		</csp:if>
+																	<csp:else>
+																		<input type="checkbox" name='chkFileType_RTF' value="1" class="black10px" #($S(isChecked:"checked",1:0))#>
+																	</csp:if>
+																</td>
+																<td class="black10px" align="right">
+																	<tx>TIF</tx>&nbsp;
+																	<script language="cache" runat="server">
+																		set isChecked=(","_allowedFileTypes_",")[(",TIF,")
+																	</script>
+																	<csp:if condition=(isHardcoded)>
+																		<input type="hidden" name='chkFileType_TIF' value="#(isChecked)#">
+																		<csp:if condition=(isChecked)>
+																			<img src="../../media/images/English/Default/backend/tick.gif" alt="File attached" width="14" height="12" />
+																		<csp:else>
+																			<img src="../../media/images/English/Default/backend/cross.gif" alt="File attached" width="14" height="12" />
+																		</csp:if>
+																	<csp:else>
+																		<input type="checkbox" name='chkFileType_TIF' value="1" class="black10px" #($S(isChecked:"checked",1:0))#>
+																	</csp:if>
+																</td>
+
+
+																<td class="black10px" align="right">
+																	<tx>TIFF</tx>&nbsp;
+																	<script language="cache" runat="server">
+																		set isChecked=(","_allowedFileTypes_",")[(",TIFF,")
+																	</script>
+																	<csp:if condition=(isHardcoded)>
+																		<input type="hidden" name='chkFileType_TIFF' value="#(isChecked)#">
+																		<csp:if condition=(isChecked)>
+																			<img src="../../media/images/English/Default/backend/tick.gif" alt="File attached" width="14" height="12" />
+																		<csp:else>
+																			<img src="../../media/images/English/Default/backend/cross.gif" alt="File attached" width="14" height="12" />
+																		</csp:if>
+																	<csp:else>
+																		<input type="checkbox" name='chkFileType_TIFF' value="1" class="black10px" #($S(isChecked:"checked",1:0))#>
+																	</csp:if>
+																</td>																
+																<td class="black10px" align="right">
+																	<tx>TXT</tx>&nbsp;
+																	<script language="cache" runat="server">
+																		set isChecked=(","_allowedFileTypes_",")[(",TXT,")
+																	</script>
+																	<csp:if condition=(isHardcoded)>
+																		<input type="hidden" name='chkFileType_TXT' value="#(isChecked)#">
+																		<csp:if condition=(isChecked)>
+																			<img src="../../media/images/English/Default/backend/tick.gif" alt="File attached" width="14" height="12" />
+																		<csp:else>
+																			<img src="../../media/images/English/Default/backend/cross.gif" alt="File attached" width="14" height="12" />
+																		</csp:if>
+																	<csp:else>
+																		<input type="checkbox" name='chkFileType_TXT' value="1" class="black10px" #($S(isChecked:"checked",1:0))#>
+																	</csp:if>
+																</td>
+																<td class="black10px" align="right">
+																	<tx>XLS</tx>&nbsp;
+																	<script language="cache" runat="server">
+																		set isChecked=(","_allowedFileTypes_",")[(",XLS,")
+																	</script>
+																	<csp:if condition=(isHardcoded)>
+																		<input type="hidden" name='chkFileType_XLS' value="#(isChecked)#">
+																		<csp:if condition=(isChecked)>
+																			<img src="../../media/images/English/Default/backend/tick.gif" alt="File attached" width="14" height="12" />
+																		<csp:else>
+																			<img src="../../media/images/English/Default/backend/cross.gif" alt="File attached" width="14" height="12" />
+																		</csp:if>
+																	<csp:else>
+																		<input type="checkbox" name='chkFileType_XLS' value="1" class="black10px" #($S(isChecked:"checked",1:0))#>
+																	</csp:if>
+																</td>
+																<td class="black10px" align="right">
+																	<tx>XLSX</tx>&nbsp;
+																	<script language="cache" runat="server">
+																		set isChecked=(","_allowedFileTypes_",")[(",XLSX,")
+																	</script>
+																	<csp:if condition=(isHardcoded)>
+																		<input type="hidden" name='chkFileType_XLSX' value="#(isChecked)#">
+																		<csp:if condition=(isChecked)>
+																			<img src="../../media/images/English/Default/backend/tick.gif" alt="File attached" width="14" height="12" />
+																		<csp:else>
+																			<img src="../../media/images/English/Default/backend/cross.gif" alt="File attached" width="14" height="12" />
+																		</csp:if>
+																	<csp:else>
+																		<input type="checkbox" name='chkFileType_XLSX' value="1" class="black10px" #($S(isChecked:"checked",1:0))#>
+																	</csp:if>
+																</td>
+																<td class="black10px" align="right">
+																	<tx>ZIP</tx>&nbsp;
+																	<script language="cache" runat="server">
+																		set isChecked=(","_allowedFileTypes_",")[(",ZIP,")
+																	</script>
+																	<csp:if condition=(isHardcoded)>
+																		<input type="hidden" name='chkFileType_ZIP' value="#(isChecked)#">
+																		<csp:if condition=(isChecked)>
+																			<img src="../../media/images/English/Default/backend/tick.gif" alt="File attached" width="14" height="12" />
+																		<csp:else>
+																			<img src="../../media/images/English/Default/backend/cross.gif" alt="File attached" width="14" height="12" />
+																		</csp:if>
+																	<csp:else>
+																		<input type="checkbox" name='chkFileType_ZIP' value="1" class="black10px" #($S(isChecked:"checked",1:0))#>
+																	</csp:if>
+																</td>
+
+															</tr>
+															<tr>
+
+
+
+
+
+
+
+															</tr>
+															<tr>
+
+															
+															<tr>
+														</table>
+													</td>
+												</tr>
+												<tr>
+													<td width="20">&nbsp;</td>
+													<td class="black10px" align="right" height="15" width="160" valign="top"><tx>Help Text</tx>:&nbsp;&nbsp;</td>
+													<td class="black10px" width="334" valign="top">
+														<textarea name="txtHelpText" rows=2 cols=60 class="black10px">#(helpText)#</textarea>
+													</td>
+												</tr>
+												<tr>
+													<td colspan=7 align="center">
+														<img src="../../media/images/English/Default/backend/line.gif" width="600" height="21">
+													</td>
+												</td>
+												<script language="cache" runat="server">
+													set show=1
+													if $G(xEventID) {
+														set eventConfiguration=##class(setup.eventConfiguration).createForEventID(xEventID)
+														if 'eventConfiguration.areAttendeeCategoriesAllowed() {
+															set show=0
+														}
+													}
+												</script>	
+												<csp:if condition=(show)>
+							                        <img src="../../media/images/English/Default/backend/line.gif" width="600" height="21">
+														<systemType:if module="Attendee Categories">
+															<script language="cache" runat="server">
+																set eventID=$G(%session.Data("eventsforce","backend","xEventID"))
+																set langID=$G(%session.Data("eventsforce","backend","xLangID"))
+															</script>
+															<csp:if condition=(eventID)>
+																<script language="cache" runat="server">
+																	// get all the active categories for this event
+																	set rs=##class(%ResultSet).%New("setup.lnkAttendeeCategoryDetailsEvent:qAllActiveCategories")
+																	do rs.Execute(eventID)
+																</script>
+																<csp:while counter="x" condition="rs.Next()">
+																	<csp:if condition=(x=1)>
+																		<tr>
+																			<td width="20">&nbsp;</td>
+																			<td width="50">&nbsp;</td>
+																			<td class="blackbold10px" colspan="4" align="left" nowrap>&nbsp;&nbsp;<tx>Restrict access to these attendee categories</tx>:</td>
+																			<td width="50">&nbsp;</td>
+																		</tr>
+																	</csp:if>
+																	<csp:if condition=(x#2'=0)>
+																		<tr>
+																			<td width="50">&nbsp;</td>
+																	</csp:if>
+																	<script language="cache" runat="server">
+																		set eventCategoryID=rs.Data("objEventCategory")
+																		set CHECKED=""
+																		if ##class(links.lnkEventCategoryData).isSet(eventCategoryID,dataID) set CHECKED="CHECKED"
+																	</script>
+																	<td align="right" class="black10px">#(##class(shared.stringFunctions).sentenceCase(rs.Data("description")))#</td>
+																	<td align="left"><input type="checkbox" name="chkEventCategory_#(eventCategoryID)#" #(CHECKED)#></td>
+																	<csp:if condition=(x#2=0)>
+																			<td width="50">&nbsp;</td>
+																		</tr>
+																	</csp:if>
+																</csp:while>
+																<csp:if condition=(x#2'=0)>
+																		<td align="right" class="black10px">&nbsp;</td>
+																		<td align="left">&nbsp;</td>
+																	</tr>
+																</csp:if>
+														</csp:if>
+													</systemType:if>
+						                    	</csp:if>
+											</table>
+										</td>
+									</tr>
+								</table>
+
+	</div><!-- end of contentbox -->
+</div><!-- end of contentarea -->
+
+<div class="topsave_in_popup">
+	<script language="cache" runat="server">
+		set backPage="../../proweb/frontend/start.csp?mode=edit&version=current&pageID="_$G(%session.Data("pageID"))
+		if gotoPage'="" set backPage=gotoPage
+		set backPage=backPage_$S(backPage["?":"&",1:"?")_"mode=edit"
+	</script>
+	<a href="#(backPage)#"><img src="../../media/images/English/Default/backend/cancel.gif" alt="#" width="65" height="17" border="0"></a>
+	<input type="image" src="../../media/images/English/Default/backend/save.gif" border="0" alt="Save" width="65" height="17">
+</div>
+	
+	<input type="Hidden" name="gotoPage" value="#(gotoPage)#">
+	<input type="hidden" name="templateURL" value='#(templateURL)#'>
+	<input type="hidden" name="addToTop" value='#(addToTop)#'>
+	<input type="hidden" name="parent" value='#(parent)#'>
+	<input type="hidden" name="itemNameID" value='#(itemNameID)#'>
+	<input type="hidden" name="dataID" value='#(dataID)#'>
+	<input type="hidden" name="popupURL" value="">
+
+
+</form>
+
+
+
+<script language='javascript'>
+function checkSubmit() {
+	if (!checkName()) return false;
+	return true;
+}
+
+function checkName() {
+	var name= document.forms[0].txtDescription.value;
+	// JAW 18JUN2007
+	//alert("x"+name+"x");
+	if (name=='') {
+		alert('#(..out("Please enter a Database Name for this File Upload Prompt."))#');
+		return false;
+	}
+	
+	var dataID = document.forms[0].dataID.value;
+	var itemNameID = document.forms[0].itemNameID.value;
+	//Shahadat CASE000 : Stop people from entering special characters for databasename.
+	if((itemNameID == 'CREATE') && (!name.match("^[A-Za-z0-9 _\:]*[A-Za-z0-9][A-Za-z0-9 _\:]*$"))){
+			alert('#(..out("Only letters, numbers and spaces are allowed in Database Name. Please try again."))#');
+			document.forms[0].txtDescription.focus();
+			return false;	
+	}	
+	
+	if ((dataID == 'NEW') && (itemNameID == 'CREATE')) {
+		var found=0;
+		for (var i = 0 ; i<document.forms[0].selCODitem.options.length; i++) {
+			if (document.forms[0].selCODitem.options[i].text.toUpperCase() == name.toUpperCase()) {
+				alert('#(..out("The prompt you are trying to add is already in the database. Please re-use the existing one."))#');
+				return false;	
+			}
+		}
+	}
+	return true;	
+	//return false;	
+}
+
+function updateAlts(codPromptID) {
+	document.forms[0].selDependsOnCodAltID.options.length=0;
+	if (codPromptID != '') {
+		// populate the alternatives list box from the javascript array
+		
+		for (var i = 0; i < (alts[codPromptID].length); i++) {
+			var tmp = alts[codPromptID][i].split('|');
+			document.forms[0].selDependsOnCodAltID.options[i] = new Option(tmp[1],tmp[0])
+		}	
+	}
+}
+
+function loadItem(inStr) {
+	document.location = '#(..Link(%request.PageName_"?loadItem=true"))#&itemNameID=' + inStr;
+}
+function disableMe(formElem){
+	/* pjc 28 July 2009 */
+	// generic function to check for existence of form element and disable it
+	if (typeof document.myform[formElem] != "undefined") {
+		// it exists, but is it a set of radio buttons
+		if (typeof document.myform[formElem].length != "undefined") { 
+			// either radio or select
+			if ((typeof document.myform[formElem].type != "undefined")&&(document.myform[formElem].type.indexOf('select')!=-1)) { 
+				// select
+				document.myform[formElem].disabled=true;
+				document.myform[formElem].style.background="#EEEEEE";
+			} else {
+				// radio - iterate over the whole array or just one?
+				if (arguments.length > 1) { // if specific, the index will be passed as a second argument to the function
+					document.myform[formElem][arguments[1]].disabled=true;
+				} else {
+					for (var i=0;i<document.myform[formElem].length;i++) {
+						document.myform[formElem][i].disabled=true;
+					}
+				}
+			}
+		} else {
+			document.myform[formElem].disabled=true;
+			// is it a text field, textarea or password? 
+			if ((typeof document.myform[formElem].type != "undefined")&&((document.myform[formElem].type.indexOf('text')!=-1)||(document.myform[formElem].type.indexOf('password')!=-1))) { 
+				document.myform[formElem].style.background="#EEEEEE";
+			}
+		}
+		
+	}
+}
+
+function enableMe(formElem){
+	/* pjc 28 July 2009 */
+	// generic function to check for existence of form element and enable it
+	if (typeof document.myform[formElem] != "undefined") {
+		// it exists, but is it a set of radio buttons
+		if (typeof document.myform[formElem].length != "undefined") { 
+			// either radio or select
+			if ((typeof document.myform[formElem].type != "undefined")&&(document.myform[formElem].type.indexOf('select')!=-1)) { 
+				// select
+				document.myform[formElem].disabled=false;
+				document.myform[formElem].style.background="#FFFFFF";
+			} else {
+				// radio - iterate over the whole array or just one?
+				if (arguments.length > 1) { // if specific, the index will be passed as a second argument to the function
+					document.myform[formElem][arguments[1]].disabled=false;
+				} else {
+					for (var i=0;i<document.myform[formElem].length;i++) {
+						document.myform[formElem][i].disabled=false;
+					}
+				}
+			}
+		} else {
+			document.myform[formElem].disabled=false;
+			// is it a text field, textarea or password? 
+			if ((typeof document.myform[formElem].type != "undefined")&&((document.myform[formElem].type.indexOf('text')!=-1)||(document.myform[formElem].type.indexOf('password')!=-1))) { 
+				document.myform[formElem].style.background="#FFFFFF";
+			}
+		}
+		
+	}
+}
+
+function applyOpacityStyle(elem) {
+	/* pjc 28 July 2009 */
+	// generic function to apply opacity filter to a passed in DOM element
+	var myElem=document.getElementById(elem)
+
+	if (myElem) {
+		myElem.style.opacity="0.35";
+		myElem.style.filter="alpha(opacity=35)";
+	}
+}
+function disableOnLoad() {
+	if ('#(itemNameID)#' == 'CREATE') {	
+		disableMe('selCODitem');
+		applyOpacityStyle('butCreateNew');
+		enableMe('txtDescription');
+		document.forms[0].txtDescription.focus();
+	}
+}
+
+function popup(type) {
+	// save first
+	document.forms[0].gotoPage.value = 'fileUploadDetails.csp';
+	document.forms[0].submit();
+	
+	var theURL='#(..Link("codQuestionHTML.csp?dataID="_dataID))#'
+
+	// calculate where to open popup window
+	var width = 750;
+	var height = 450;
+	var myLeft = (screen.width) ? (screen.width-width)/2 : 0;
+	var myTop = (screen.height) ? (screen.height-height)/2 : 0;
+	var left = myLeft;
+	var top = myTop;
+	
+	myWindow = window.open(theURL,"LekOchLars",'location=no,screenX=' + left + ',screenY=' + top + ',top=' + top + ',left=' + left + ',directories=no,status=no,menubar=no,scrollbars=no,resizable=yes,hotkeys=no,toolbar=no,width=750,height=450');
+	myWindow.focus();
+}
+	// disable all field on load new
+	disableOnLoad();
+</script>
+
+<csp:include page="../../backend/home/backendBottom.csp">
+]]></CSP>
+
+
+<CSP name="backEnd/proweb/fileUploadDetails2.csp" application="/largedevsrc/" default="1"><![CDATA[
+<script language="CACHE" method="OnPreHTTPafter" arguments="" returntype="%Boolean">			// Fred April 2010 - in-page editing
+			//set %response.Redirect=%request.Get("templateURL") // after save
+			 set %response.Redirect="../../proweb/frontend/start.csp?mode=edit&version=current&pageID="_$G(%session.Data("pageID"))
+
+	set xEventID=$G(%session.Data("eventsforce","backend","xEventID"))
+	set xUserID=$G(%session.Data("eventsforce","backend","xPersonID"))
+	set xControllerID=""
+	if xEventID	{
+		set xControllerID=##class(setup.objEvent).getControllerID(xEventID)
+		set xLangID=$G(%session.Data("eventsforce","backend","xLangID"))
+		set xLanguage=$G(%session.Data("eventsforce","backend","xLanguage"))
+	}
+
+	set dataID=%request.Get("dataID")
+	set itemNameID=%request.Get("itemNameID")
+	set parent=%request.Get("parent")
+	set pageID=$G(%session.Data("pageID"))
+	set mandatory=%request.Get("chkMandatory")
+	set backendOnly=%request.Get("chkBackendOnly")
+	set pageName=""
+	&SQL(SELECT description INTO :tmp FROM sc_xModules.objPage WHERE ID = :pageID)
+	if +SQLCODE=0 set pageName=tmp
+	
+	set addToTop=%request.Get("addToTop")
+	set addToTop=$S(addToTop="true":1,1:0)
+	
+	set minFileSize=+%request.Get("txtMinFileSize")
+	
+	set maxFileSize=+%request.Get("txtMaxFileSize")
+	if maxFileSize<1 {
+		set %session.Data("proweb","backend","errMsg")=..out("Please give a value for the maximum file size.")
+		set %response.Redirect="fileUploadDetails.csp"
+		quit 0
+	}
+	
+	if maxFileSize>5120 {
+		set %session.Data("proweb","backend","errMsg")=..out("The maximum file size must not be greater than 5120 kB (5 MB).")
+		set %response.Redirect="fileUploadDetails.csp"
+		quit 0
+	}
+
+	if maxFileSize<minFileSize {
+		set %session.Data("proweb","backend","errMsg")=..out("The maximum file size must not be smaller than the minimum file size.")
+		set %response.Redirect="fileUploadDetails.csp"
+		quit 0
+	}
+	
+	
+	set allowedFileTypes=""
+	set item=""
+	for  {
+		set item=$o(%request.Data(item))
+		if item="" quit
+		if item["chkFileType_",%request.Get(item) {
+			set fileType=$p(item,"chkFileType_",2)
+			if ##class(shared.fileMethods).isAllowedExt(fileType) {
+				set allowedFileTypes=allowedFileTypes_fileType_","
+			}
+		}
+	}
+	if '$l(allowedFileTypes) {
+		set %session.Data("proweb","backend","errMsg")=..out("You must define which file types are allowed.")
+		set %response.Redirect="fileUploadDetails.csp"
+		quit 0
+	}
+	
+	set isGuest=(%request.Get("radDelegateOrGuest")="guest")
+	set isDelegate='isGuest
+
+	set dependsOnPrompt=%request.Get("selDependsOnDataID")
+	if dependsOnPrompt {
+		if isDelegate {
+			set isDependentParentForGuests=##class(sc.methods).isGuestItem(dependsOnPrompt)
+			if isDependentParentForGuests {
+				set %session.Data("proweb","backend","errMsg")=..out("You cannot make an attendee prompt dependent on a guest prompt")
+				set %response.Redirect="fileUploadDetails.csp"
+				quit 0
+			}
+		}
+	}
+	
+	set email=##class(cod.objItemData).get($G(%session.Data("eventsforce","backend","xPersonID")),"email")
+	if dataID="NEW" {
+		if itemNameID="CREATE" {
+			// new data and new cod
+			set description=%request.Get("txtDescription")
+			
+			if $G(%session.Data("templateURL"))["tAdditionalRegistration.csp"  {
+				// add the page name to the cod prompt if we are doing additional registration pages
+				 &SQL(SELECT description INTO :pageName FROM sc_xModules.objPage WHERE ID = :pageID)				
+				 set description=pageName_"|"_description
+			}
+
+			set errMsg=""
+			// make sure it doesn't exist already
+			if '##class(cod.objItemName).isNameValidForNewCrossEventQuestion(description,.tmpMsg) {
+				set errMsg=tmpMsg
+			}
+			 
+			if $l(errMsg) {
+				set %session.Data("proweb","backend","errMsg")=errMsg
+				set %response.Redirect="fileUploadDetails.csp"
+				quit 0		
+			}
+			
+			// create new proweb item
+			set itemNameID=##class(cod.objItemName).add(description,mandatory,"fileupload","",0,1,%request.Get("chkCarryOver"),"",0,1,1)
+			
+			// log it to the event audit trail
+			if xEventID do ##class(setup.objEventAudit).add(xUserID,xEventID,"Reg Page '"_pageName_"' ("_pageID_"), Added new database item: "_description)
+		}	
+			
+		// new data and existing file upload
+		set dataID=##class(sc.xModules.objFileUpload).add(itemNameID,%request.Get("txtPrompt"),parent,email,addToTop,%request.Get("txtHelpText"),mandatory,backendOnly,minFileSize,maxFileSize,allowedFileTypes,isDelegate,isGuest)
+		if 'dataID {
+			set %session.Data("proweb","backend","errMsg")=..out("Unable to create data item.")
+				set %response.Redirect="fileUploadDetails.csp"
+				quit 0
+		}
+		// log it to the event audit trail
+		set tmpDesc=##class(cod.objItemName).getDescFromID(itemNameID)
+		if xEventID do ##class(setup.objEventAudit).add(xUserID,xEventID,"Reg Page '"_pageName_"' ("_pageID_"), Added new File Upload: "_%request.Get("txtPrompt")_" ("_tmpDesc_"), "_$S(mandatory:"Mandatory",1:"Not Mandatory"))
+		
+		
+		// Add new, dependend children right underneath their parent
+		set dependsOnPrompt=%request.Get("selDependsOnDataID")
+		if dependsOnPrompt {
+			&SQL(SELECT displayOrder,parent INTO :parentDisplayOrder,:parentID FROM sc_xModules.objFileUpload WHERE ID = :dependsOnPrompt)
+			if +SQLCODE=0,dataID {
+				set lastPos=parentDisplayOrder
+				
+				// find the last dependend child
+				&SQL(SELECT displayorder INTO :lastChild FROM sc_xModules.objFileUpload WHERE (dependsOnPrompt = :dependsOnPrompt)  AND (active=1) ORDER BY displayOrder DESC)
+				if +SQLCODE=0 set lastPos=lastChild
+				
+				// move all the subsequent items one step down
+				&SQL(UPDATE sc.objData SET displayOrder = displayOrder+1 WHERE (parent = :parentID) AND (displayOrder > :lastPos))
+				
+				// move the new item to right after the parent	
+				&SQL(UPDATE sc_xModules.objFileUpload SET displayOrder = :lastPos + 1 WHERE ID = :dataID)
+			}
+		} else {
+			do ##class(EF.pages.frontend.baseProweb).moveNewElementToDesiredPosition()	
+		}
+	} else {  
+		// existing objData
+		if itemNameID="NEW" {
+			// don't allow this
+					
+		} else {
+			// existing cod item
+			set layout=%request.Get("radLayout")
+			if layout="" set layout="horizontal"
+			set mandatory=%request.Get("chkMandatory")
+			// make multiple checkboxes that have a minimum number of checks mandatory
+			if %request.Get("multiCheckboxMin") set mandatory=1	
+
+			set ok=##class(sc.xModules.objFileUpload).update(dataID,%request.Get("txtPrompt"),email,%request.Get("txtHelpText"),mandatory,backendOnly,minFileSize,maxFileSize,allowedFileTypes,isDelegate,isGuest)
+
+			// log to event audit trail
+			if xEventID do ##class(setup.objEventAudit).add(xUserID,xEventID,"Reg Page '"_pageName_"' ("_pageID_"), Saved Registration Question: "_%request.Get("txtPrompt")_", "_%request.Get("selType")_", "_$S(mandatory:"Mandatory",1:"Not Mandatory"))
+		}
+	
+	}
+
+	// store the depencies
+	set dependsOnPrompt=%request.Get("selDependsOnDataID")
+	set dependsOnAlternative=%request.Get("selDependsOnCodAltID")
+	if ('dependsOnAlternative || 'dependsOnPrompt) {
+		set (dependsOnAlternative,dependsOnPrompt)=""
+	}
+	&SQL(UPDATE sc_xModules.objFileUpload SET dependsOnPrompt = :dependsOnPrompt,dependsOnAlternative = :dependsOnAlternative WHERE ID = :dataID)
+	
+	if ##class(setup.objSystemTypes).isModuleAllowed("Attendee Categories")	{
+		// kill all category links and save
+		// - do this in method so it can compile without class
+		do ##class(links.lnkEventCategoryData).deleteAllForOne(dataID)
+		set item=""
+		for  {
+			set item=$o(%request.Data(item))
+			if item="" quit
+			if item["chkEventCategory" {
+				set eventCategoryID=$P(item,"_",2)
+				set ok=##class(links.lnkEventCategoryData).add(eventCategoryID,dataID)
+			}
+		}
+	}
+	
+	// always make it published if we are doing document manamenmt
+	if %session.Data("proweb","isDOC") {
+		set step=##class(sc.objStep).getFinalLevel()
+		do ##class(sc.objData).approve(dataID,step)
+	}
+	
+	set %session.Data("itemNameID")=itemNameID
+	
+	// Fred April 2010 - in-page editing
+	 set %response.Redirect="../../proweb/frontend/start.csp?mode=edit&version=current&pageID="_$G(%session.Data("pageID"))
+	
+	if %request.Get("popupURL")'="" {
+		set %session.Data("eventsforce","backend","popupURL") = %request.Get("popupURL")
+	}
+	
+	if %request.Get("gotoPage")'="" {
+		set %response.Redirect=%request.Get("gotoPage")
+	}
+	if %request.Get("backPage")'="" set %response.Redirect=%request.Get("backPage") // used from eventsForce/registraionDetails.csp
+	
+	set %response.Redirect=%response.Redirect_$S(%response.Redirect["?":"&",1:"?")_"mode=edit"
+	
+	quit 0
+</script>
+]]></CSP>
+
+
+<CSP name="backEnd/proweb/flashDetails.csp" application="/largedevsrc/" default="1"><![CDATA[
+<csp:class encoded="1" private="1">
+<csp:include page="../../backend/home/backendTop.csp?hideBackendMenu=1">
+<script language="CACHE" method="OnPreHTTPafter" arguments="" returntype="%Boolean">
+	// rediredct to button page if we are editing a submit button
+	if $ZCVT(%request.Get("componentName"),"U")["SUBMIT" {
+		set %response.ServerSideRedirect="submitButtonDetails.csp"
+		quit 0
+	}
+	
+	set quitFlag=##class(sc.objData).reuseLogic("objFlash")
+	quit quitFlag
+</script>
+<style>
+	#hideMe {
+		visibility : hidden;
+		position : absolute;
+		left : 0px;
+		top : 0px;
+	}
+</style>
+<script language="cache" runat="server">
+	set dataID=%request.Get("dataID")
+	if dataID="" set dataID=%session.Get("dataID")
+	set %session.Data("dataID")=dataID
+	
+	do ##class(EF.pages.frontend.baseProweb).savePassedInDesiredPositionToSession()
+	
+	set orgDataID=%request.Get("orgDataID") // used when creating a new version of a data item
+	if orgDataID="" set orgDataID=%session.Get("orgDataID")
+	set %session.Data("orgDataID")=orgDataID
+
+	set classNo=%request.Get("classNo")
+	if classNo="" set classNo=%session.Get("classNo")
+	set %session.Data("classNo")=classNo
+	
+	set templateURL=%request.Get("templateURL")
+	if templateURL="" set templateURL=%session.Get("templateURL")
+	set %session.Data("templateURL")=templateURL
+
+	set templateID=%request.Get("templateID")
+	if templateID="" set templateID=%session.Get("templateID")
+	set %session.Data("templateID")=templateID
+	
+	set displayOrder=%request.Get("displayOrder")
+	if displayOrder="" set displayOrder=%session.Get("displayOrder")
+	set %session.Data("displayOrder")=displayOrder
+
+	set addToTop=%request.Get("addToTop")
+	if addToTop="" set addToTop=%session.Get("addToTop")
+	set %session.Data("addToTop")=addToTop
+	
+	set xEventID=$G(%session.Data("eventsforce","backend","xEventID"))	
+	
+	// check if the event is using a template that is AA complient, if so, disable the legacy mode
+	&SQL(SELECT layoutObjTemplate->accessibilityLevel INTO :tmp FROM setup.objEvent WHERE ID = :xEventID)
+	set accessibilityLevel=tmp
+</script>
+<csp:object name="objData" classname="sc.objData" objid="#(dataID)#">
+<script language="cache" runat="server">
+
+	// So that the correct eventID is used in the file upload
+	set %session.Data("eventsforce","frontend","xEventID")=xEventID
+	set (currentPath,componentName,parent,componentName,fileName,mouseOverFileName,altText,titleText,border,width,height,loop)="" 
+	
+	if +dataID {
+		set parent=objData.parent
+		set parentID=objData.parent.%Id()
+	} else {
+		set parent=%request.Get("parent")
+		if parent="" set parent=%session.Get("parent")
+		set %session.Data("parent")=parent
+		set parentID=parent
+	}
+	
+	//set currentPath=##class(sc.objData).getPath(parent,0)
+	set currentPath=##class(sc.objData).getPath(dataID,0)
+
+	// get the data if we are editing
+	if dataID {
+		set fileNameNew=objData.fileNameNew
+		set width=objData.width
+		set height=objData.height
+		set description=objData.description
+		set loop=objData.loop
+		&SQL(SELECT description INTO :componentName FROM sc.objComponent WHERE (objData = :dataID) )
+		set fileName=$p(fileNameNew,"sc.objData_"_dataID_"_",2)
+	}
+	
+	// get selected page from page browser
+	if %request.Get("selectedPage")'="" {
+		set URL="pageID="_%request.Get("selectedPage")
+	}
+		
+	if border="" set border=0
+	
+	set componentName=%request.Get("componentName")
+	if componentName="" set componentName=%session.Get("componentName")
+	set %session.Data("componentName")=componentName
+
+	if (componentName="")&(dataID'="") {
+		&SQL(SELECT description INTO :componentName FROM sc.objComponent WHERE objData = :dataID)
+	}
+	
+	// Show error messages from the save
+	if %session.Get("errorMessage")'="" {
+		write !,"<scr"_"ipt language='javasc"_"ript'>alert('",%session.Data("errorMessage"),"');</scr"_"ipt>"
+		if %session.Data("errorMessage")?1"Error. Data cannot be saved.".E {	
+			write !,"<scr"_"ipt language='javasc"_"ript'>top.location='login.csp';</scr"_"ipt>"
+		}
+		kill %session.Data("errorMessage")
+	}
+
+	// Set the this page as return page  from the upload
+	set %session.Data("afterUpload")=..Link("../../backend/proweb/flashDetails.csp")
+	
+	//Conditional for Youtube video
+    set isVideo = 0, pageTitle = "Flash", validationFunc = "validateFormFlash"
+    if %request.Get("isVideo") '= "" {
+	     set isVideo = 1, pageTitle = "YouTube", validationFunc = "validateFormVideo", fileNameNew=""
+	     if 'dataID set width = 600, height = 360
+    }
+    if dataID {	    
+    	if fileNameNew [ "http://www.youtube.com/v/" set isVideo = 1, pageTitle = "YouTube", validationFunc = "validateFormVideo"       	
+    } 
+</script>
+<form method="post" action="flashDetails2.csp" name="myForm" onsubmit="return #(validationFunc)#(this);">
+
+<style>
+table {margin-left:0px;margin-right:0px;padding-left:24px;padding-right:24px;}
+table table {padding-left:0px;padding-right:0px;}
+</style>
+
+<div class="contentarea_in_popup">
+	<div class="contentbox">
+	<h2>Edit #(pageTitle)# Item</h2>
+
+                            <table width="100%" border="0" cellspacing="0" cellpadding="0">                                                  	
+							<csp:if condition=(isVideo=0)>
+                                <tr>
+                                    <td class="blackbold10px" height="40" width="25%" align="right">Component Name:</td>
+                                    <td height="20" width="2%">&nbsp;</td>
+                                    <td class="REDBOLD10px" height="20" width="73%">#(componentName)#
+                                </tr>
+								<tr><td height=5></td></tr>
+                                <tr>
+                                    <td class="blackbold10px" width="25%" align="right" valign='top'>File Name:</td>
+                                    <td width="2%">&nbsp;</td>
+                                    <td class="black10px" valign="top">
+                                        <input type="text" name="txtFileName" id="txtFileName" value="#(fileName)#" size="40" readonly class="black10px" style="background-color: Silver;">
+		                                <input type="hidden" name="hasHiddenImage" value=0>
+			                            <br>
+            			                <a href="javascript: saveData('#(dataID)#','fileNameNew');" class="ef_hyperlink">Upload File</a>
+										<csp:if condition=((fileName'="")&(dataID'="NEW"))>&nbsp;|&nbsp;<a href="javascript: removeImage('fileName');">Remove File</a></csp:if>
+									</td>
+                                </tr>
+								<csp:if condition=((fileName'="")&(dataID'="NEW"))>
+									<tr>
+	                                    <td class="blackbold10px" height="15" width="25%" align="right" valign="top"><br>
+	                            		</td>
+	                                    <td height="30" width="2%">&nbsp;</td>
+	                                </tr>
+									<tr>
+										<td class="blackbold10px" height="30" width="25%" align="right"></td>
+	                                    <td height="30" width="2%">&nbsp;</td>
+										<td class="black10px"  valign="top">
+											<table>
+												<tr>
+													<td>
+														<div style="border:solid 1px #000000; width=#(objData.width)#; height=#(objData.height)#;">
+					                                       <object classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000" codebase="http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=5,0,0,0" width="#(objData.width)#" height="#(objData.height)#"> 
+																<param name=movie value="#(objData.fileNameNew)#">
+																<param name=quality value=high>
+																<param name=loop value="#($S(objData.loop:"true",1:"false"))#">
+																<param name="menu" value="false">
+																<embed src="#(objData.fileNameNew)#" quality=high pluginspage="http://www.macromedia.com/shockwave/download/index.cgi?P1_Prod_Version=ShockwaveFlash" type="application/x-shockwave-flash" loop=#($S(objData.loop:"true",1:"false"))# width="#(objData.width)#" height="#(objData.height)#">
+																</embed>
+															</object>
+														</div>
+													</td>
+												</tr>
+											</table>
+										</td>
+									</tr>
+								</csp:if>
+							</csp:if>
+							
+							<csp:if condition=(isVideo=1)>
+								<tr><td height=30></td></tr>							
+								<tr>
+                                    <td class="blackbold10px" width="25%" align="right" valign='top'>Youtube video url:</td>
+                                    <td width="2%">&nbsp;</td>
+                                    <td class="black10px" valign="top">
+                                        <input type="text" name="txtFileName" id="txtFileName" value="#(fileNameNew)#" size="60" class="black10px">
+		                                <input type="hidden" name="hasHiddenImage" value=0>
+			                        </td>
+                                </tr>								
+							</csp:if>
+							
+                                <tr>
+                                    <td class="blackbold10px" height="30" width="25%" align="right" valign="top"><br>
+                            		</td>
+                                    <td height="30" width="2%">&nbsp;</td>
+                                </tr>
+                                <tr>
+                                    <td class="blackbold10px" height="30" width="25%" align="right">Width:</td>
+                                    <td height="30" width="2%">&nbsp;</td>
+                                    <td class="black10px" height="30" width="73%">
+                                        <input type="text" name="txtWidth" value="#(width)#" size="5" class="black10px" style="text-align:right;">
+										&nbsp;pixels
+									</td>
+                                </tr>
+                                <tr>
+                                    <td class="blackbold10px" height="30" width="25%" align="right">Height:</td>
+                                    <td height="30" width="2%">&nbsp;</td>
+                                    <td class="black10px" height="30" width="73%">
+                                        <input type="text" name="txtHeight" value="#(height)#" size="5" class="black10px" style="text-align:right;">
+										&nbsp;pixels
+									</td>
+                                </tr>
+								<tr>
+                                    <td class="blackbold10px" height="30" width="25%" align="right">Loop:</td>
+                                    <td height="30" width="2%">&nbsp;</td>
+                                    <td class="black10px" height="30" width="73%">
+                                        <input type="radio" name="radLoop" value="1" #($S(loop'=0:"checked",1:""))#>
+										&nbsp;Yes&nbsp;&nbsp;&nbsp;&nbsp;
+										<input type="radio" name="radLoop" value="0" #($S(loop=0:"checked",1:""))#>
+										&nbsp;No&nbsp;&nbsp;&nbsp;&nbsp;
+									</td>
+                                </tr>
+								<csp:if condition=(accessibilityLevel="AA")>
+									<tr>
+										<td colspan=99 align="center" class="redbold10px">
+											<tx>Please note that this event is using a template that is marked with 'AA' standard accessability.</tx>
+											<br>
+											<tx>It is not recommended to use flash on sites that are optimised for accessability.</tx>
+										</td>
+									</tr>
+								</csp:if>	
+					            <tr>
+						            <td width="25%" height="15">&nbsp;</td>
+                                    <td height="15" width="2%">&nbsp;</td>
+                                    <td height="15" width="73%">&nbsp;</td>
+                                </tr>
+					
+				            </table>
+
+	</div><!-- end of contentbox -->
+</div><!-- end of contentarea -->
+
+<div class="topsave_in_popup">
+	<a href="javascript:cancelUpdate();"><img name="butSave" src="../../media/images/english/default/backend/back.gif" alt="Quit" border="0"></a>
+	<csp:if condition=(##class(sc.objData).inMail(parent))>
+	<csp:else>
+		<script language="cache" runat="server">
+			set userID=%session.Get("xUserID"),myStepOrder=""
+			&SQL(SELECT approvalStep INTO :tmp FROM admin.objUser WHERE ID = :userID)
+			if +SQLCODE=0 set myStepOrder=tmp
+		</script>
+		<csp:comment><!-- ONly display the publish butto if you have access rights--></csp:comment>
+		<csp:if condition="myStepOrder>1">
+			<a href="javascript: publish();"><img name="butPublish" src="../media/buttons/button_approve.gif" alt="Publish" border="0" title="Save and publish this version. Any current version will be archived."></a>
+		</csp:if>
+	</csp:if>
+	<input type="image" name="butSave" src="../../media/images/english/default/backend/save.gif" alt="Save" border="0">
+</div>
+
+<input type="hidden" name="imageHeight" value="">
+<input type="hidden" name="imageWidth" value="">
+<input type="hidden" name="txtImageProp" value="">
+<input type="hidden" name="txtGotoPage" value="">
+<input type="hidden" name="displayOrder" value="#(%request.Get("displayOrder"))#">
+<input type="hidden" name="templateID" value="#(templateID)#">
+<input type="hidden" name="parent" value="#(parent)#">
+<input type="hidden" name="componentName" value="#(componentName)#">
+<input type="hidden" name="templateURL" value="#(templateURL)#">
+<input type="hidden" name="dataID" value="#(dataID)#">
+<input type="hidden" name="addToTop" value="#(addToTop)#">										
+<input type="hidden" name="orgDataID" value="#(orgDataID)#">
+<input type="hidden" name="cancelUpdate" value=0>
+<input type="hidden" name="isVideo" value=#(isVideo)#>
+
+
+<script language="javascript">
+
+function validateFormFlash(){
+	var fileName = document.getElementById('txtFileName');
+	if(fileName.value == '') { 		
+		alert('Please, upload a Flash item');
+		return false;	
+	}	
+}
+
+function validateFormVideo(){
+	var fileName = document.getElementById('txtFileName');
+	if(fileName.value == '') { 
+		fileName.focus();
+		alert('Please enter the URL to your Youtube video');
+		return false;	
+	}	
+	else
+	{
+		var file = fileName.value;
+		var matches = file.match(/http(?:s)?:\/\/(?:www\.)?youtube.*watch\?v=([a-zA-Z0-9\-_]+)/);
+		var matches1 = file.match(/http(?:s)?:\/\/(?:www\.)?youtube.*\/v\/([a-zA-Z0-9\-_]+)/);
+		var matches2 = file.match(/http(?:s)?:\/\/youtu.be.([a-zA-Z0-9\-_]+)/);
+		
+		if (matches) {
+			vPosIni = file.indexOf('v=')+2;
+		    vPosEnd = file.indexOf('&');
+		    if(vPosEnd < 0) { vPosEnd = file.length; }
+		    videoCode = file.substr(vPosIni,vPosEnd-vPosIni);
+		    fileName.value = '//www.youtube.com/v/'+videoCode+'?fs=1&amp;hl=en_GB';	
+		} else if (matches2) {
+			vPosIni = file.indexOf('.be/')+4;
+		    vPosEnd = file.indexOf('&');
+		    if(vPosEnd < 0) { vPosEnd = file.length; }
+		    videoCode = file.substr(vPosIni,vPosEnd-vPosIni);
+		    fileName.value = '//www.youtube.com/v/'+videoCode+'?fs=1&amp;hl=en_GB';	
+			
+		} else if (!matches1) {					
+		    alert('Please enter a valid #(pageTitle)# URL');
+		    return false;			    
+		}			    
+								
+	}
+	return true;
+}
+
+function publish() {
+	if (confirm("Are you sure that you want to approve this version?\nThe current version will be archived.") == true) {
+		document.myForm.publish.value="yes"
+		document.myForm.submit(); // save the data first
+	}
+}
+
+
+function saveData(dataID,prop) {
+	document.myForm.txtImageProp.value = prop;
+	document.myForm.txtGotoPage.value = 'upload';
+	document.myForm.submit();
+}
+
+function removeImage(prop) {
+	document.myForm.txtImageProp.value = prop;
+	document.myForm.txtGotoPage.value = 'remove';
+	document.myForm.submit();
+}
+
+
+
+function browseInternal() {
+	document.forms[0].txtGotoPage.value='#(%request.PageName)#';
+	document.forms[0].submit();
+	
+	window.open('pageBrowser.csp',"LekOchLars",'location=no,directories=no,status=no,menubar=no,scrollbars=yes,resizable=yes,hotkeys=no,toolbar=no,width=640,height=500');
+}
+function pwOpenWin(theURL,theName,theWidth,theHeight) {
+	var myLeft = window.screenLeft;
+	var myTop = window.screenTop;
+	if (myLeft == null) {
+		myLeft=window.pageXOffset;
+		myTop=window.pageYOffset;
+	}
+	var left = myLeft +250 ;
+	var top = myTop + 50;
+	if (typeof theWidth == 'undefined') theWidth="600"
+	if (typeof theHeight == 'undefined') theHeight="500"
+  	eval(theName + " = window.open(theURL,theName,'location=no,screenX=' + left + ',screenY=' + top + ',top=' + top + ',left=' + left + ',directories=no,status=no,menubar=no,scrollbars=yes,resizable=yes,hotkeys=no,toolbar=no,width=' + theWidth + ',height=' + theHeight)");
+	eval(theName + ".focus()");
+}
+
+// Need to go to de-activate the image if we have just created it. 
+function cancelUpdate() {
+	document.myForm.cancelUpdate.value = 1
+	document.forms[0].submit();
+}
+</script>
+</form>
+<csp:include page="../../backend/home/backendBottom.csp">
+]]></CSP>
+
+
+<CSP name="backEnd/proweb/flashDetails2.csp" application="/largedevsrc/" default="1"><![CDATA[
+<csp:class encoded="1" private="1">
+<script language="CACHE" method="OnPreHTTPafter" arguments="" returntype="%Boolean">
+	
+	// check if we have lost the userID due to a session switch in flash, if so get it back from the cookie created in login2.csp
+	if %session.Get("xUserID")="" set %session.Data("xUserID")=%request.GetCookie("xUserID")
+	set userID=%session.Get("xUserID")
+
+	// abort if we cant find a user, just to ensure database integrity
+	if %session.Get("xUserID")="" {
+		set %session.Data("errorMessage")="Error. Data cannot be saved. User Id cannot be found.\nPlease try again after a new logon"
+		set %response.Redirect="flashDetails.csp"
+		quit 0
+	}
+	new objData,objComponent
+
+	set dataID=%request.Get("dataID")
+	
+	// if they have clicked the cancel button
+	if %request.Get("cancelUpdate") {
+		// Fred April 2010 - in-page editing
+		//set %response.Redirect=%request.Get("templateURL") // after save
+		 set %response.Redirect="../../proweb/frontend/start.csp?mode=edit&version=current&pageID="_$G(%session.Data("pageID"))
+		quit 0
+	}
+	
+	set %session.Data("dataID")=dataID
+	set orgDataID=%request.Get("orgDataID")
+	set parent=%request.Get("parent")
+	set templateID=%request.Get("templateID")
+	set componentName=%request.Get("componentName")
+	set URL=%request.Get("txtURL")
+
+
+	set displayOrder=%request.Get("displayOrder")
+	if displayOrder="" set displayOrder=%session.Get("displayOrder")
+
+	// validate that the called page exists
+	if $ZCVT(URL,"U")?1"PAGEID=".E {
+		// make it case insensitive
+		set URL="pageID="_$p(URL,"=",2)
+		
+		// make sure it exists
+		set tmp=$p(URL,"=",2)
+		set tmp=$p(tmp,"#",1)
+		set tmp=$p(tmp,"&",1)
+		if '##class(sc.objData).%ExistsId(tmp) {
+			set %session.Data("errorMessage")="pageID does not exist"
+			set %response.Redirect="flashDetails.csp"
+			quit 0
+		}
+		
+		// make sure it is a page
+		set dataType=""
+		&SQL(SELECT dataType INTO :dataType FROM sc.objData WHERE ID = :tmp)
+		if dataType'="objPage" {
+			set %session.Data("errorMessage")="pageID is not pointing to a page. \nIt is pointing to a "_dataType
+			set %response.Redirect="flashDetails.csp"
+			quit 0
+		}
+	}	
+	
+		
+	// validate that the called anchor exists
+	if $ZCVT(URL,"U")?1"DATAID=".E {
+		// make it case insensitive
+		set URL="dataID="_$p(URL,"=",2)
+		
+		// make sure it exists
+		set (tmpdataID,tmp)=+$p(URL,"=",2)
+		
+		if '##class(sc.objData).%ExistsId(tmp) {
+			set %session.Data("errorMessage")="dataID does not exist"
+			set %response.Redirect="flashDetails.csp"
+			quit 0
+		}
+		
+		// make sure it is a valid type
+		set dataType=""
+		&SQL(SELECT dataType INTO :dataType FROM sc.objData WHERE ID = :tmp)
+		if "objPage,objGroup"[dataType {
+			set %session.Data("errorMessage")="dataID is not pointing to a valid item. \nIt is pointing to a "_dataType
+			set %response.Redirect="flashDetails.csp"
+			quit 0
+		}
+		
+		//find out the page of the data ID and add it to the link
+		set tmpPageID=##class(sc.objData).getPageID(tmpDataID)
+		set URL="pageID="_tmpPageID_"#dataID="_tmpDataID
+	}	
+	
+	set debugDataID=dataID
+	if dataID="NEW" {
+		// create new image object
+		set objData=##class(sc.xModules.objFlash).%New()
+		
+		// parent
+		do objData.parentSetObjectId(parent)
+		
+		set objData.active=1
+		
+		set user="unknown"
+		if %session.Get("xUserID")'="" {
+			set objUser=##class(admin.objUser).%OpenId(%session.Get("xUserID"))
+			set user=objUser.email
+			do objUser.%Close()
+		}
+		set objData.creator=user
+		
+		do objData.%Save()
+		set dataID=objData.%Id()
+		set %session.Data("dataID")=dataID
+		
+		// link to the previous version
+		if orgDataID'=""&(orgDataID'="NEW")&(orgDataID'="ADD") {
+			do objData.previousVersionSetObjectId(orgDataID)
+
+			// and link the previous to me
+			//&SQL(UPDATE sc.objData SET nextVersion = :dataID WHERE ID = :orgDataID)
+			set tempObj=##class(sc.objData).%OpenId(orgDataID)
+			do tempObj.nextVersionSetObjectId(dataID)
+
+			// copy the previous image to this version
+			do objData.fileStream.CopyFrom(tempObj.fileStream)
+			set objData.fileName=tempObj.fileName
+			do objData.mouseOverFileStream.CopyFrom(tempObj.mouseOverFileStream)
+			set objData.mouseOverFileName=tempObj.mouseOverFileName
+			
+			do tempObj.%Save()
+			do tempObj.%Close()
+		}
+		
+		// create new component object if we didn't have an predecessor
+		if (orgDataID="")!(orgDataID="NEW")!(orgDataID="ADD") {
+			if objData.parent.dataType'="objList",objData.parent.dataType'="objScrollingImage" {
+
+				set objComponent=##class(sc.objComponent).%New()
+				set objComponent.description=componentName
+				do objComponent.objTemplateSetObjectId(templateID)
+				do objComponent.objDataSetObjectId(dataID)
+				do objComponent.%Save()
+				do objComponent.%Close()
+			}
+		}
+		// set a displayOrder if my parent is a List
+		if (objData.parent.dataType="objList")!(objData.parent.dataType="objScrollingImage") {
+			if +displayOrder=0 {
+				if orgDataID="ADD" { // meaning that we are adding an item to the list
+				
+					
+					if %session.Get("addToTop")="false" { // add to the top of the list
+						set tmp=""
+						&SQL(SELECT displayOrder INTO :tmp FROM sc.objData WHERE parent = :parent ORDER BY displayOrder DESC)
+						set objData.displayOrder=(tmp+1)
+						set %session.Data("displayOrder")=(tmp+1)
+						
+					} else { // add to the bottom of the list
+						// increment everybodys displayorder with one before adding this one as number one
+						&SQL(UPDATE sc.objData SET displayOrder = (displayOrder+1) WHERE parent = :parent)
+						set objData.displayOrder=(1)
+						set %session.Data("displayOrder")=(1)
+					}
+					
+					// kill the addToTop not to confuse later saves
+					kill %session.Data("addToTop")
+					
+				} else {  // meaning that we are adding a version to one of the list items
+					set objData.displayOrder=objData.previousVersion.displayOrder  // use the same as previous version
+				}
+			} else { // set the passed in displayOrder if we are adding a column to an existing row
+				set objData.displayOrder=displayOrder
+			}
+		}
+		
+		// add my new ID to the list of sibling if my dad was a list
+		if objData.parent.dataType="objList" {
+			if displayOrder>0 {
+				new orgSibling
+				set orgSibling=%session.Get("siblings"_displayOrder)
+				set classNo=%session.Get("classNo")
+				set pis=$p(orgSibling,"|",classNo)
+				set $p(pis,"=",2)=dataID
+				set $p(orgSibling,"|",classNo)=pis
+				set %session.Data("siblings"_displayOrder)=orgSibling
+			}
+		}	
+				
+		 // audit trail
+		 set comments="created"
+		 &SQL(INSERT INTO sc.objAuditTrail (description,objData,objUser) VALUES (:comments,:dataID,:userID))
+			
+    	 do ##class(EF.pages.frontend.baseProweb).moveNewElementToDesiredPosition()	
+
+		 
+	} else {
+		// open existing
+		set objData=##class(sc.objData).%OpenId(dataID)
+
+		 // audit trail
+		 set comments="amended"
+		 &SQL(INSERT INTO sc.objAuditTrail (description,objData,objUser) VALUES (:comments,:dataID,:userID))
+	}
+	
+	// set the approval level to START for both new and existing items
+	set step=""
+	&SQL(SELECT ID INTO :step FROM sc.objStep WHERE stepOrder=1)
+	do objData.objStepSetObjectId(step)
+
+	// Send notification emails unless we are editing a bottom level item
+	set targetLevel=1 
+	if objData.objStep.stepOrder>1 do ##class(sc.objData).sendApprovalEmail(dataID,targetLevel)
+	
+	// add or remove the popup nvp (v3.5)
+	if $ZCVT(URL,"L")[".csp"	{  // only for eventsforce links
+		set urlTarget=$ZCVT(%request.Get("selTarget"),"L")
+		if URL["?" {
+			set firstbit="&"
+		} else {
+			set firstbit="?"
+		}
+		if urlTarget="new window"	{
+			if URL["popup=0" {
+				set URL=$P(URL,"popup=0",1)_"popup=1"_$P(URL,"popup=0",2)  // replace with zero to avoid issues with ? &
+			} elseif URL'["popup=1" {
+				set URL=URL_firstbit_"popup=1"
+			}
+		} else {
+			if URL["popup=1" set URL=$P(URL,"popup=1",1)_"popup=0"_$P(URL,"popup=1",2)  // replace with zero to avoid issues with ? &
+		}
+	}
+	
+	// The properties	
+	set isVideo = %request.Get("isVideo")	
+	if isVideo = 1 set objData.fileNameNew=%request.Get("txtFileName")	
+	set objData.width=%request.Get("txtWidth")
+	if objData.width=0 set objData.width=""
+	if objData.width="" & isVideo = 1 set objData.width=600
+	set objData.height=%request.Get("txtHeight")
+	if objData.height=0 set objData.height=""
+	if objData.height="" & isVideo = 1 set objData.height=360
+	set objData.streamHeight=%request.Get("imageHeight")
+	set objData.streamWidth=%request.Get("imageWidth")
+	
+	if $l(%request.Get("radLoop")) {
+		set objData.loop=%request.Get("radLoop")
+	}
+		
+	set ok=objData.%Save()
+
+	do objData.%Close()
+	if (orgDataID="")&(debugDataID="NEW")&($G(^xfg("z",4,"save"))'?1.N) {
+		set %session.Data("errorMessage")="Error while saving new object.\nNo component created"
+		set %response.Redirect="flashDetails.csp" 
+		quit 0
+	}
+
+	if %request.Get("txtGotoPage")="upload" {
+		// or have we just save before we are uploading an image
+
+		// are we doing emails or static pages_ If so, upload files - not streams
+		// always upload files
+		set stream=0
+		/*
+		if ##class(sc.objData).inMail(dataID) set stream=0	
+		if ##class(sc.objData).inStatic(dataID) set stream=0	
+		*/
+		if stream=0 {
+			set fileProp=%request.Get("txtImageProp")
+			set %response.Redirect="../../backend/home/uploadFile.csp?allowOverwrite=1&title=upload&className=sc.objData&descPropertyName="_fileProp_"&objectID="_dataID_"&isImage=1"
+		} else {
+			// or do a streambased upload in any other case
+			set fileProp="fileName"
+			set streamProp="fileStream"
+			if %request.Get("txtImageProp")["mouseOver" {
+				set fileProp="mouseOverFileName"
+				set streamProp="mouseOverFileStream"
+			}
+			set %response.Redirect="../../backend/home/uploadStream.csp?title=upload&streamPropertyName="_streamProp_"&descPropertyName="_fileProp_"&objectID="_dataID_"&className=sc.xModules.objImage"
+		}
+		
+	} elseif %request.Get("txtGotoPage")="remove" {
+		// remove image
+		set %response.Redirect="flashDetailsRemove.csp?prop="_%request.Get("txtImageProp")
+		
+	} else {
+		// Always autopublish if we are writing an email
+		if ##class(sc.objData).inMail(dataID) {
+			set %response.Redirect="publish.csp"
+		} else {
+			// or just go back to where we came from			
+			if isVideo = 1 {
+				set %response.Redirect="../../proweb/frontend/start.csp?mode=edit&version=current&pageID="_$G(%session.Data("pageID"))			
+				quit 0
+			}
+			else
+			{
+				set %response.Redirect="flashDetails.csp" 
+			}
+			
+		}
+	}
+	quit 0
+</script>
+]]></CSP>
+
+
 <CSP name="backEnd/proweb/formDivider.csp" application="/largedevsrc/" default="1"><![CDATA[
 <csp:class encoded="1" private="1">
 <script language="CACHE" method="OnPreHTTPafter" arguments="" returntype="%Boolean">
@@ -10910,6 +13023,42 @@ function updateAlts(codPromptID) {
 </script>
 </body>
 </html>
+]]></CSP>
+
+
+<CSP name="backEnd/proweb/updateLabelText.csp" application="/largedevsrc/" default="1"><![CDATA[
+<csp:class encoded="1" private="1">
+<script language="cache" runat="server">
+	set prowebID = %request.Get("prowebID")
+	set labelText = %request.Get("labelText")
+	set status = "error"
+	set errorMsg = "There was a problem changing the label text."
+	
+	try {
+		set labelText = ##class(EF.sanitiser).sanitise(labelText)
+		set objCODitem = ##class(sc.xModules.objCODitem).%OpenId(prowebID)
+		if ($ISOBJECT(objCODitem)) {
+			set objCODitem.description = labelText
+			
+			set ok = objCODitem.%Save()
+			if ('$$$ISERR(ok)) {
+				set status = "ok"
+			}
+		}
+	} catch errObj{
+		If errObj.%IsA("shared.exceptions.generalException") {
+			set errorMsg = errObj.DisplayString()
+		}	
+	}
+		
+	write "{ ""status"" : """_status_""""
+	if status = "error" {
+		write ", ""errorMsg"" : """_##class(shared.jsonFunctions).jsonEscape(errorMsg)_""""
+	} else {
+		write ", ""labelText"" : """_labelText_""""
+	}
+	write " }"
+</script>
 ]]></CSP>
 
 
@@ -12435,7 +14584,7 @@ FRRE RULE
 <Abstract>1</Abstract>
 <ClassType/>
 <ProcedureBlock>1</ProcedureBlock>
-<TimeChanged>64208,40996.885193</TimeChanged>
+<TimeChanged>64209,50744.68454</TimeChanged>
 <TimeCreated>63046,56232.897117</TimeCreated>
 
 <Method name="outputDefaultCSS">
@@ -12671,6 +14820,7 @@ yellow red grey etc. Used for ALL templates below gen3</Description>
 		.ef-proweb-form-row-editable, .ef-proweb-form-row {
 			padding-top: 4px;
 			padding-bottom:4px;	
+			margin: 10px !important;
 		}
 		.ef-proweb-input-element-short {
 			width: 30%;
@@ -12694,6 +14844,9 @@ yellow red grey etc. Used for ALL templates below gen3</Description>
 		}
 		.ef-proweb-checkboxGroup {
 			text-align: left;	
+		}
+		.ef-proweb-menu-handle {
+			width: 1%;	
 		}
 		.ef-proweb-error-panel { /* ################## */
 			margin-left: 10%;
@@ -12734,6 +14887,16 @@ yellow red grey etc. Used for ALL templates below gen3</Description>
 		}
 		.ef-proweb-input-element-backendOnly:-ms-input-placeholder { /* IE 10+ */
  			color: #CCCCCC;
+		}
+		.ef-proweb-direct-label-edit input {
+			text-align: right;	
+		}	
+		.k-upload-button {
+			margin: 0px !important;	
+		}	
+		.ef_frontend_file_uploader.k-content {
+			min-height: 0px;
+			text-alignment: left;	
 		}
 		/* =========== end new classes for Proweb2 ============ */
 		
@@ -14696,7 +16859,7 @@ The basic frontend default stuff</Description>
 </Class>
 
 
-<Project name="proweb 2" LastModified="2016-10-17 16:45:33.971625" Target="dev.efsys.net/LARGEDEVSRC/backend/home/efSupportLogin.htm" TargetType="3">
+<Project name="proweb 2" LastModified="2016-10-18 14:51:56.60324" Target="dev.efsys.net/LARGEDEVSRC/backend/home/efSupportLogin.htm" TargetType="3">
   <Items>
     <ProjectItem name="EF.contextDataRegistration" type="CLS"></ProjectItem>
     <ProjectItem name="EF.contextDataRegistrationMock" type="CLS"></ProjectItem>
@@ -14705,13 +16868,13 @@ The basic frontend default stuff</Description>
     <ProjectItem name="EF.pageController.pagesFrontend.t4Registration" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.proweb.checkbox" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.proweb.checkboxGroup" type="CLS"></ProjectItem>
-    <ProjectItem name="EF.pageController.proweb.checkboxGroupTestCase" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.proweb.datePicker" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.proweb.dateRange" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.proweb.divider" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.proweb.dropdown" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.proweb.emailInput" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.proweb.emailInputMulti" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.pageController.proweb.fileUpload" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.proweb.inputElement" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.proweb.integerInput" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.proweb.numericInput" type="CLS"></ProjectItem>
@@ -14738,11 +16901,13 @@ The basic frontend default stuff</Description>
     <ProjectItem name="EF.pageController.proweb.testCases.textInputTestCase" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.proweb.testCases.timeInputTestCase" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.proweb.testCases.webAddressTestCase" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.pageController.proweb.testCases.youTubeVideoTestCase" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.proweb.textArea" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.proweb.textBlock" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.proweb.textInput" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.proweb.timeInput" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.proweb.webAddress" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.pageController.proweb.youTubeVideo" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pages.frontend.base" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pages.frontend.baseProweb" type="CLS"></ProjectItem>
     <ProjectItem name="EF.ui.components.attribute" type="CLS"></ProjectItem>
@@ -14770,6 +16935,7 @@ The basic frontend default stuff</Description>
     <ProjectItem name="EF.ui.components.frontend.timeInput" type="CLS"></ProjectItem>
     <ProjectItem name="EF.ui.components.frontend.webAddress" type="CLS"></ProjectItem>
     <ProjectItem name="EF.ui.components.frontend.wholeNumber" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.ui.components.frontend.youTubeVideo" type="CLS"></ProjectItem>
     <ProjectItem name="EF.ui.components.panel" type="CLS"></ProjectItem>
     <ProjectItem name="EF.validator.emailAddressMulti" type="CLS"></ProjectItem>
     <ProjectItem name="EF.validator.phoneNumber" type="CLS"></ProjectItem>
@@ -14781,6 +16947,7 @@ The basic frontend default stuff</Description>
     <ProjectItem name="largedevsrc/backEnd/proweb/formDivider.csp" type="CSP"></ProjectItem>
     <ProjectItem name="largedevsrc/backEnd/proweb/textDetailsMoxie.csp" type="CSP"></ProjectItem>
     <ProjectItem name="largedevsrc/backEnd/proweb/textDetailsMoxie2.csp" type="CSP"></ProjectItem>
+    <ProjectItem name="largedevsrc/backEnd/proweb/updateLabelText.csp" type="CSP"></ProjectItem>
     <ProjectItem name="largedevsrc/frontEnd/reg/pageControllerStandardSave.csp" type="CSP"></ProjectItem>
     <ProjectItem name="largedevsrc/frontEnd/reg/reorderProwebElements.csp" type="CSP"></ProjectItem>
     <ProjectItem name="largedevsrc/frontEnd/reg/t4Registration.csp" type="CSP"></ProjectItem>
@@ -14790,17 +16957,22 @@ The basic frontend default stuff</Description>
     <ProjectItem name="sc.facade.prowebItem" type="CLS"></ProjectItem>
     <ProjectItem name="sc.facade.prowebItemStorage" type="CLS"></ProjectItem>
     <ProjectItem name="sc.facade.prowebItemStorageDivider" type="CLS"></ProjectItem>
+    <ProjectItem name="sc.facade.prowebItemStorageFileUpload" type="CLS"></ProjectItem>
     <ProjectItem name="sc.facade.prowebItemStorageInputElement" type="CLS"></ProjectItem>
     <ProjectItem name="sc.facade.prowebItemStorageInputElementMock" type="CLS"></ProjectItem>
     <ProjectItem name="sc.facade.prowebItemStorageTextBlock" type="CLS"></ProjectItem>
+    <ProjectItem name="sc.facade.prowebItemStorageYouTubeVideo" type="CLS"></ProjectItem>
+    <ProjectItem name="sc.facade.prowebItemStorageYouTubeVideoMock" type="CLS"></ProjectItem>
     <ProjectItem name="sc.objData" type="CLS"></ProjectItem>
     <ProjectItem name="sc.xModules.objList" type="CLS"></ProjectItem>
     <ProjectItem name="shared.pageMethods" type="CLS"></ProjectItem>
-    <ProjectItem name="EF.pageController.proweb.youTubeVideo" type="CLS"></ProjectItem>
-    <ProjectItem name="EF.ui.components.frontend.youTubeVideo" type="CLS"></ProjectItem>
-    <ProjectItem name="sc.facade.prowebItemStorageYouTubeVideo" type="CLS"></ProjectItem>
-    <ProjectItem name="EF.pageController.proweb.testCases.youTubeVideoTestCase" type="CLS"></ProjectItem>
-    <ProjectItem name="sc.facade.prowebItemStorageYouTubeVideoMock" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.ui.components.frontend.fileUpload" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.ui.components.frontend.fileUploadFacade" type="CLS"></ProjectItem>
+    <ProjectItem name="largedevsrc/backEnd/proweb/editItem.csp" type="CSP"></ProjectItem>
+    <ProjectItem name="largedevsrc/backEnd/proweb/fileUploadDetails.csp" type="CSP"></ProjectItem>
+    <ProjectItem name="largedevsrc/backEnd/proweb/fileUploadDetails2.csp" type="CSP"></ProjectItem>
+    <ProjectItem name="largedevsrc/backEnd/proweb/flashDetails.csp" type="CSP"></ProjectItem>
+    <ProjectItem name="largedevsrc/backEnd/proweb/flashDetails2.csp" type="CSP"></ProjectItem>
   </Items>
   <BreakPoints>
     <BreakPoint Routine="cspRealEV.frontend.reg.pagecontrollerstandardsave.CLS" Offset="OnPreHTTPafter+28"></BreakPoint>
@@ -14890,15 +17062,40 @@ Facade class for the sc.objData</Description>
 </Class>
 
 
+<Class name="sc.facade.prowebItemStorageFileUpload">
+<Super>sc.facade.prowebItemStorageInputElement</Super>
+<TimeChanged>64209,39508.711298</TimeChanged>
+<TimeCreated>64209,36902.156071</TimeCreated>
+
+<Method name="createNew">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>prowebItemID:%Integer,contextData:EF.contextDataRegistration</FormalSpec>
+<ReturnType>sc.facade.prowebItemStorage</ReturnType>
+<Implementation><![CDATA[
+	#dim prowebItem as sc.xModules.objFileUpload
+	
+	set storage = ..%New()
+	set prowebItem = ##class(sc.objData).%OpenId(prowebItemID)
+	set storage.displayOrder = prowebItem.displayOrder
+	set storage.prowebID = prowebItemID
+	set storage.inputType = "fileUpload"
+	set storage.labelText = prowebItem.description
+	
+	return storage
+]]></Implementation>
+</Method>
+</Class>
+
+
 <Class name="sc.facade.prowebItemStorageInputElement">
 <Super>sc.facade.prowebItemStorage</Super>
-<TimeChanged>64208,58834.801831</TimeChanged>
+<TimeChanged>64209,37257.878997</TimeChanged>
 <TimeCreated>64206,40073.01042</TimeCreated>
 
 <Property name="inputType">
 <Type>%String</Type>
 <Required>1</Required>
-<Parameter name="VALUELIST" value=",text,textarea,radiobutton,checkbox,dropdown,password,multibox,date,dateRange,time,emailAddress,multiEmailAddress,phoneNumber,integer,floatingPointNumber,webAddress"/>
+<Parameter name="VALUELIST" value=",text,textarea,radiobutton,checkbox,dropdown,password,multibox,date,dateRange,time,emailAddress,multiEmailAddress,phoneNumber,integer,floatingPointNumber,webAddress,fileUpload"/>
 </Property>
 
 <Property name="databaseItemName">

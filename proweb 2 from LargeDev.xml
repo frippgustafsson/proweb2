@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2015.2 (Build 664_3_16032U)" ts="2016-10-18 15:25:55">
+<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2015.2 (Build 664_3_16032U)" ts="2016-10-18 16:02:39">
 <Class name="EF.contextDataRegistration">
 <Description><![CDATA[
 <!-- ;vc;-
@@ -3227,7 +3227,7 @@ Should be run if any of the sub-classes are deleted</Description>
 
 <Class name="EF.pageController.proweb.testCases.textInputTestCase">
 <Super>EF.ISC.UnitTest.TestCase</Super>
-<TimeChanged>64209,54974.830271</TimeChanged>
+<TimeChanged>64209,57662.961941</TimeChanged>
 <TimeCreated>64204,52795.592181</TimeCreated>
 
 <Method name="TestbasicInputField">
@@ -3248,6 +3248,39 @@ Should be run if any of the sub-classes are deleted</Description>
 	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(page,"render")
 	set returnedHTML = $ZStrip(returnedHTML,"*WC")
 	set expectedHTML = "<divclass=""rowef-proweb-form-row""><divclass=""col-sm-4ef_proweb_form_prompt""><labelclass=""control-label""for=""proweb-1""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;FirstName\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""><divclass=""ef-label-text""id=""ef-display-label-proweb-1"">FirstName</div><divclass=""ef-proweb-direct-label-edit""style=""display:none;""id=""ef-edit-label-input-proweb-1""data-proweb-id=""""><inputtype=""text""value=""FirstName""></div></label></div><divclass=""col-sm-8ef_proweb_form_prompt""><inputtype=""text""class=""form-controlef-proweb-input-element""title=""""id=""proweb-1""name=""proweb-1""value=""""placeholder=""""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;FirstName\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""></div></div>"
+	do $$$AssertEquals(returnedHTML,expectedHTML)
+]]></Implementation>
+</Method>
+
+<Method name="TestHelpText">
+<Implementation><![CDATA[
+	#dim page as EF.pageController.proweb.page
+	#dim element as EF.pageController.proweb.textInput
+	#dim storage as sc.facade.prowebItemStorageInputElementMock
+	#dim contextData as EF.contextDataRegistrationMock
+	#dim pageController as EF.pageController.pagesFrontend.t4Registration
+	
+	set eventConfiguration = ##class(setup.eventConfiguration.storageMock).createEventConfiguration()
+	
+	set contextData = ##class(EF.contextDataRegistrationMock).createMock()
+	set contextData.prowebMode = "preview"
+	
+	set storage = ##class(sc.facade.prowebItemStorageInputElementMock).createNew()
+	set storage.displayOrder = 1
+	set storage.databaseItemName = "First Name"
+	set storage.inputType = "text"
+	set storage.labelText = "First name"	
+	set storage.prowebID = "mock-1"
+	set storage.helpText = "Help me!"
+	
+	set prowebItem = ##class(sc.facade.prowebItem).createNew(storage)
+	do contextData.listOfProwebItemsToAdd.Insert(prowebItem)
+
+	set pageController = ##class(EF.pageController.pagesFrontend.t4Registration).createNew(contextData,,,eventConfiguration)
+	
+	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(pageController,"renderElements")
+	set returnedHTML = $ZStrip(returnedHTML,"*WC")
+	set expectedHTML = "<divclass=""rowef-proweb-form-row""><divclass=""col-sm-4ef_proweb_form_prompt""><labelclass=""control-label""for=""proweb-1""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;Firstname\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""><divclass=""ef-label-text""id=""ef-display-label-proweb-1"">Firstname</div><divclass=""ef-proweb-direct-label-edit""style=""display:none;""id=""ef-edit-label-input-proweb-1""data-proweb-id=""mock-1""><inputtype=""text""value=""Firstname""></div></label></div><divclass=""col-sm-8ef_proweb_form_prompt""><inputtype=""text""class=""form-controlef-proweb-input-element""title=""""id=""proweb-1""name=""proweb-1""value=""""placeholder=""""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;Firstname\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""><divid=""helpTextIcon_Mock-1""class=""ef_frontend_help_text_icon"">?</div><divid=""helpTextIcon_Mock-1_content""class=""ef_frontend_help_text_content""style=""display:none;""><pre>Helpme!</pre></div><scriptlanguage=""javascript"">$(document).ready(function(){ef_create_help_text_qtip('helpTextIcon_Mock-1');});</script></div></div>"
 	do $$$AssertEquals(returnedHTML,expectedHTML)
 ]]></Implementation>
 </Method>
@@ -3854,7 +3887,7 @@ this is for version 1 of proweb</Description>
 <Class name="EF.pages.frontend.baseProweb">
 <ProcedureBlock>0</ProcedureBlock>
 <Super>EF.pages.frontend.base</Super>
-<TimeChanged>64209,52156.342791</TimeChanged>
+<TimeChanged>64209,56220.652288</TimeChanged>
 <TimeCreated>64191,31442.531402</TimeCreated>
 
 <Parameter name="ENCODED">
@@ -3908,6 +3941,9 @@ this is for version 1 of proweb</Description>
 <ClassMethod>1</ClassMethod>
 <ReturnType>%Boolean</ReturnType>
 <Implementation><![CDATA[
+	if %request.Get("pageID") {
+		set %session.Data("pageID") = %request.Get("pageID") 
+	}
 	do ..OnPagePageTop()
 	do ..initPageController()
 	do ..outputFormBeginning()
@@ -3958,6 +3994,7 @@ this is for version 1 of proweb</Description>
 				throw ##class(shared.exceptions.generalStatusException).CreateFromStatus(sc)
 					
 			}
+			
 		}
 		
 		set pageControllerID=pageController.%Id()
@@ -5001,7 +5038,7 @@ this is for version 1 of proweb</Description>
 
 <Class name="EF.ui.components.frontend.fileUploadFacade">
 <Super>EF.ui.frontend.controls.uploaderWithFileList</Super>
-<TimeChanged>64209,49927.749369</TimeChanged>
+<TimeChanged>64209,56313.983921</TimeChanged>
 <TimeCreated>64209,49036.783857</TimeCreated>
 
 <Method name="getFileUploader">
@@ -5038,6 +5075,63 @@ this is for version 1 of proweb</Description>
 		<div id="#(..encodeForHTMLAttribute(..htmlName))#_container" class="ef_frontend_file_uploader k-content">
 			<input type="file" name="#(..encodeForHTMLAttribute(..htmlName))#" id="#(..encodeForHTMLAttribute(..htmlName))#" title="#(..encodeForHTMLAttribute(##class(shared.pCSP).out("Upload")))#">
 	 	</div>
+	>
+]]></Implementation>
+</Method>
+
+<Method name="renderJS">
+<Implementation><![CDATA[
+	do ..renderUploadingTemplate()
+    &html<
+		<script language='javascript'>
+		var ef = ef || {};
+		ef.fileUploader = ef.fileUploader || {};
+		
+	    $(document).ready(function() {
+		    
+		    var uploaderInput=$("##(..encodeForJavaScript(..htmlName))#");
+	        uploaderInput.kendoUpload({
+	        	complete : onComplete,
+	        	upload: onUpload,
+	        	success: onSuccess,
+	        	error: onError,
+	        	progress: onProgress,
+	        	showFileList : true,
+	        	multiple : false,
+	        	localization : {
+		        	select : '#(..encodeForJavaScript(..buttonText))#'
+	        	},
+			    async: {
+			        #(..rawJS(..renderASyncURL()))#
+			    },
+                template: kendo.template($('#fileTemplate_#(..encodeForJavaScript(..htmlName))#').html())
+	        });
+	        
+	        function onSuccess(e) {
+				#(..rawJS(..renderOnSuccessJS()))#
+			}
+	        function onError(e) {
+				#(..rawJS(..renderOnErrorJS()))#
+			}
+	        function onComplete(e) {
+				#(..rawJS(..renderOnCompleteJS()))#
+				if (typeof ef.fileUploader.onCompleteCallback === "function") {
+					ef.fileUploader.onCompleteCallback()
+				}
+			}
+	        function onUpload(e) {
+				#(..rawJS(..renderOnUploadJS()))#
+				if (typeof ef.fileUploader.onUploadCallback === "function") {
+					ef.fileUploader.onUploadCallback()
+				}
+			}
+			function onProgress(e) {
+				#(..rawJS(..renderOnProgressJS()))#	
+			}
+	    });
+		
+				
+	</script>
 	>
 ]]></Implementation>
 </Method>
@@ -5234,7 +5328,7 @@ this is for version 1 of proweb</Description>
 
 <Class name="EF.ui.components.frontend.inputElement">
 <Super>EF.ui.components.frontend.prowebBase,EF.ui.components.inputBase</Super>
-<TimeChanged>64209,35125.977738</TimeChanged>
+<TimeChanged>64209,57408.060372</TimeChanged>
 <TimeCreated>64183,40678.260093</TimeCreated>
 
 <Property name="alternatives">
@@ -5300,7 +5394,24 @@ this is for version 1 of proweb</Description>
 
 <Method name="renderHelpAndRowClosing">
 <Implementation><![CDATA[
-    Do ##class(sc.codItemMethods).outputHelpTextHTML(..helpText)
+    //Do ##class(sc.codItemMethods).outputHelpTextHTML(..helpText)
+	if $Length(..helpText) > 0 {
+		if ..contextData.isTestMode {
+			Set helpTextID = "helpTextIcon_Mock-1"	
+		} else {
+			Set helpTextID = "helpTextIcon_"_$TR(##class(%SYSTEM.Util).CreateGUID(),"-","")
+		}
+			
+		&html<
+			<div id="#(helpTextID)#" class="ef_frontend_help_text_icon">?</div>
+			<div id="#(helpTextID)#_content" class="ef_frontend_help_text_content" style="display: none;"><pre>#(##class(%CSP.Page).EscapeHTML(..helpText))#</pre></div>
+			<script language="javascript">
+				$(document).ready(function(){
+					ef_create_help_text_qtip('#(helpTextID)#');
+				});
+			</script>
+		>
+	}    
 	do ..renderCellClosing()
 	do ..renderRowClosing()
 ]]></Implementation>

@@ -1,0 +1,135 @@
+sc.xModules.codItemGenerators.textField
+move classes to their own area
+debug target
+make sure old version works
+mandatory
+load data
+move the render method to the ui side of the trees
+move EF.proweb classes to EF.pageController.proweb
+add divider and dropdown to unit test
+menuID passed from template
+change the edit floater to trigger on the entire row
+dropdown
+make sure the order of items are correct
+change the populateFromListObject to push the new objects into the pageController
+text block should not be encoded
+change the output to be in two columns
+divider
+mandatory dropdown
+pre-selected dropdown
+help text
+unit test
+subclass EF.pageControler.page to frontEndPage or prowebPage?
+cleanup
+floaters - edit item
+floaters - addNew
+multiple lists on some pages
+dependency by using the backend mechanism
+dependent text blocks
+output dependency icon
+saving mechanism
+trigger edit floater on right click
+remove move options from the floater
+move add floater into edit floater
+radios
+HTML5 validator
+mulitcheckboxes
+unit tests
+validators
+drag and drop
+multilingual alternatives
+time fields
+email fields
+URL field
+date fields
+whole number fields
+fix the dependency javascript (currently hardcoded into t2Registration.csp)
+fix the missing </H1>
+refactor geteElementForQuestion
+find a way of mergin some of the ui components
+text area
+decimal number fails validation
+checkboxes not saving
+multi email
+format and display error messages
+phone number doesn't validate
+radios don't validate
+mandatory checks
+date-range
+improve addControllerForProwebItem
+Floater problems: 1. can't open dropdowns in edit mode  2. Can drag&drop  3. the hiding and showing only works correctly the first time
+add divider to floater
+add text block to floater
+panels
+guest data
+unit test with many guest items
+backend only fields
+read-only
+stop amendment
+password fields
+fix D&D
+youtube videos
+fix the radios click area
+figure out why flash files aren't playing in edit mode
+store the results of the 'direct label edit'
+file upload
+check competition
+improve floater UI
+implment direct label editing on double click
+youtube videos are not inserted in the correct position
+editing youtube video crashes with no pageID
+fix crash when previewing from 'edit reg pages'
+lock down the GUI of help icon when in test mode
+
+===============================================================================
+
+compiled version of the page has three calls to render
+test non/mandatory dropdowns&radios
+date-range boundary values are not honoured
+test dependencies with mandatory
+test mandatory on all element types
+cleanup
+update documentation
+full feature gap analysis incl javascript
+make sure we can't add questions on components that shouldn't allow it
+move JS and CSS to external files
+write A3 for implementation
+
+----  alpha version ----
+get rajib to implement the search as you type
+fixeds headers, banners and menues etc
+re-test with multiple list on a page
+add placeholders?
+do we still need "isProwebEditMode"?
+complete the implmentation fo the file upload
+add session to ABIs
+restrict by attendee category
+make time fields be the right width
+test more date formats
+dependency on multicheck
+output dependency hover text
+empty pages/lists
+autofocus
+unit test reorder list
+make sure it works with multiple lists
+auditing drag&drop
+autiding delete&add
+phone number is not validdationg in old proweb
+fix private and encoded parameters
+ABIs
+private fields in group booking when attendee has been booked by someone else
+custom validation
+warning before leaving the page
+table bookings
+mandatory postcode for ireland?
+other uiComponents
+add aria labels
+Fix right aligned labels in small browser
+searchAsYouType
+there are some unnecessary extra attributes on the label tag for dependent children
+max and min words count
+min and max on number fields?
+
+remove proweb version 1.5 code
+Search as you type
+time field placeholder in FF is outside the box

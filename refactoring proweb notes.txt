@@ -80,20 +80,24 @@ youtube videos are not inserted in the correct position
 editing youtube video crashes with no pageID
 fix crash when previewing from 'edit reg pages'
 lock down the GUI of help icon when in test mode
+update documentation
+cleanup
+move JS and CSS to external files
+compiled version of the page has three calls to render
 
 ===============================================================================
 
-compiled version of the page has three calls to render
+checkboxes and multichecks are buggered
+set up demo events
 test non/mandatory dropdowns&radios
 date-range boundary values are not honoured
 test dependencies with mandatory
 test mandatory on all element types
-cleanup
-update documentation
 full feature gap analysis incl javascript
 make sure we can't add questions on components that shouldn't allow it
-move JS and CSS to external files
 write A3 for implementation
+add advanced unit tests for guests
+do expenses
 
 ----  alpha version ----
 get rajib to implement the search as you type

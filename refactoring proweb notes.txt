@@ -88,14 +88,12 @@ checkboxes and multichecks are buggered
 set up demo events
 add advanced unit tests for guests
 test non/mandatory dropdowns&radios
+add-here is shown when display error pages
+test mandatory on all element types
 
 ===============================================================================
 
-HTML5 validation not working
-date-range boundary values are not honoured
-test dependencies with mandatory
-test mandatory on all element types
-add-here is shown when display error pages
+
 
 full feature gap analysis incl javascript
 write A3 for implementation
@@ -103,10 +101,13 @@ do expenses
 play around with edit panel ala surveymonkey
 
 ----  alpha version ----
+dependencies with mandatory doesn't work
 make sure we can't add questions on components that shouldn't allow it
 get rajib to implement the search as you type
 fixeds headers, banners and menues etc
 re-test with multiple list on a page
+HTML5 validation not working
+date-range boundary values are not honoured
 add placeholders?
 do we still need "isProwebEditMode"?
 complete the implmentation fo the file upload
@@ -117,6 +118,7 @@ test more date formats
 dependency on multicheck
 output dependency hover text
 empty pages/lists
+switching to preview mode and proceeding loses the edit button
 not that radios can't be left empty anymore
 autofocus
 unit test reorder list

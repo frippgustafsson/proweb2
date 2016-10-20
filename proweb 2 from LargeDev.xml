@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2015.2 (Build 664_3_16032U)" ts="2016-10-20 11:06:00">
+<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2015.2 (Build 664_3_16032U)" ts="2016-10-20 11:58:39">
 <Class name="EF.contextDataRegistration">
 <Description><![CDATA[
 <!-- ;vc;-
@@ -1693,7 +1693,7 @@ Should be run if any of the sub-classes are deleted</Description>
 
 <Class name="EF.pageController.proweb.page">
 <Super>EF.pageController.page</Super>
-<TimeChanged>64211,39760.046833</TimeChanged>
+<TimeChanged>64211,42493.132286</TimeChanged>
 <TimeCreated>64189,51696.559047</TimeCreated>
 
 <Property name="contextData">
@@ -1897,7 +1897,11 @@ Should be run if any of the sub-classes are deleted</Description>
 		set dependsOnAlternativeDescription = ##class(sc.dependencyMethods).getDependsOnAlternativeDescription(prowebItem.storage.prowebID)
 		if dependsOnAlternativeDescription '="" {
 			set parentProwebID = ##class(sc.dependencyMethods).getDependsOnPrompt(prowebItem.storage.prowebID)
-			set parentProwebItem = ##class(sc.objData).%OpenId(parentProwebID)
+			
+			;set parentProwebItem = ##class(sc.objData).%OpenId(parentProwebID)
+			set storage = ##class(sc.facade.prowebItemStorageInputElement).createNew(parentProwebID, ..contextData)
+			set parentProwebItem = ##class(sc.facade.prowebItem).createNew(storage)
+			
 			set parentElementIdentifier = ..getElementIdentifierForProwebItems(parentProwebItem)
 			set dependencyList = ##class(EF.ui.components.dependencyList).createNew(parentElementIdentifier, dependsOnAlternativeDescription)	
 			set element.showHideDependencyList = dependencyList
@@ -2684,7 +2688,7 @@ Should be run if any of the sub-classes are deleted</Description>
 
 <Class name="EF.pageController.proweb.testCases.dropdownTestCase">
 <Super>EF.ISC.UnitTest.TestCase</Super>
-<TimeChanged>64209,54398.41079</TimeChanged>
+<TimeChanged>64211,43067.6808</TimeChanged>
 <TimeCreated>64204,52666.398429</TimeCreated>
 
 <Method name="TestPageWithDropdown">
@@ -2703,7 +2707,7 @@ Should be run if any of the sub-classes are deleted</Description>
 	
 	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(page,"render")
 	set returnedHTML = $ZStrip(returnedHTML,"*WC")
-	set expectedHTML = "<divclass=""rowef-proweb-form-row""><divclass=""col-sm-4ef_proweb_form_prompt""><labelclass=""control-label""for=""proweb-1""><divclass=""ef-label-text""id=""ef-display-label-proweb-1"">diet</div><divclass=""ef-proweb-direct-label-edit""style=""display:none;""id=""ef-edit-label-input-proweb-1""data-proweb-id=""""><inputtype=""text""value=""diet""></div></label></div><divclass=""col-sm-8ef_proweb_form_prompt""><selectplaceholder=""fish""class=""form-controlef-proweb-input-element""name=""proweb-1""id=""proweb-1""title=""""><optionvalue=''></option><optionvalue=""meat"">meat</option><optionvalue=""vegetarian"">vegetarian</option><optionvalue=""vegan"">vegan</option></select></div></div>"
+	set expectedHTML = "<divclass=""rowef-proweb-form-row""><divclass=""col-sm-4ef_proweb_form_prompt""><labelclass=""control-label""for=""proweb-1""><divclass=""ef-label-text""id=""ef-display-label-proweb-1"">diet</div><divclass=""ef-proweb-direct-label-edit""style=""display:none;""id=""ef-edit-label-input-proweb-1""data-proweb-id=""""><inputtype=""text""value=""diet""></div></label></div><divclass=""col-sm-8ef_proweb_form_prompt""><selectplaceholder=""fish""class=""form-controlef-proweb-input-element""name=""proweb-1""id=""proweb-1""title=""""><optionvalue=""meat"">meat</option><optionvalue=""vegetarian"">vegetarian</option><optionvalue=""vegan"">vegan</option></select></div></div>"
 	do $$$AssertEquals(returnedHTML,expectedHTML)
 ]]></Implementation>
 </Method>
@@ -2726,7 +2730,7 @@ Should be run if any of the sub-classes are deleted</Description>
 	
 	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(page,"render")
 	set returnedHTML = $ZStrip(returnedHTML,"*WC")
-	set expectedHTML = "<divclass=""rowef-proweb-form-row""><divclass=""col-sm-4ef_proweb_form_prompt""><labelclass=""control-label""for=""proweb-1""><divclass=""ef-label-text""id=""ef-display-label-proweb-1"">diet</div><divclass=""ef-proweb-direct-label-edit""style=""display:none;""id=""ef-edit-label-input-proweb-1""data-proweb-id=""""><inputtype=""text""value=""diet""></div></label></div><divclass=""col-sm-8ef_proweb_form_prompt""><selectplaceholder=""fish""class=""form-controlef-proweb-input-element""name=""proweb-1""id=""proweb-1""title=""""><optionvalue=''></option><optionvalue=""meat"">meat</option><optionvalue=""vegetarian"">vegetarian</option><optionselected=""""value=""vegan"">vegan</option></select></div></div>"
+	set expectedHTML = "<divclass=""rowef-proweb-form-row""><divclass=""col-sm-4ef_proweb_form_prompt""><labelclass=""control-label""for=""proweb-1""><divclass=""ef-label-text""id=""ef-display-label-proweb-1"">diet</div><divclass=""ef-proweb-direct-label-edit""style=""display:none;""id=""ef-edit-label-input-proweb-1""data-proweb-id=""""><inputtype=""text""value=""diet""></div></label></div><divclass=""col-sm-8ef_proweb_form_prompt""><selectplaceholder=""fish""class=""form-controlef-proweb-input-element""name=""proweb-1""id=""proweb-1""title=""""><optionvalue=""meat"">meat</option><optionvalue=""vegetarian"">vegetarian</option><optionselected=""""value=""vegan"">vegan</option></select></div></div>"
 	do $$$AssertEquals(returnedHTML,expectedHTML)
 ]]></Implementation>
 </Method>
@@ -3102,7 +3106,7 @@ Should be run if any of the sub-classes are deleted</Description>
 
 <Class name="EF.pageController.proweb.testCases.passwordInputTestCase">
 <Super>EF.ISC.UnitTest.TestCase</Super>
-<TimeChanged>64210,56268.457553</TimeChanged>
+<TimeChanged>64211,43100.5715</TimeChanged>
 <TimeCreated>64208,51641.871984</TimeCreated>
 
 <Method name="TestPasswordInput">
@@ -3133,7 +3137,7 @@ Should be run if any of the sub-classes are deleted</Description>
 	
 	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(pageController,"renderElements")
 	set returnedHTML = $ZStrip(returnedHTML,"*WC")
-	set expectedHTML = "<divclass=""rowef-proweb-form-row""><divclass=""col-sm-4ef_proweb_form_prompt""><labelclass=""control-label""for=""proweb-1""><divclass=""ef-label-text""id=""ef-display-label-proweb-1"">Pleaseenteryourpassword</div><divclass=""ef-proweb-direct-label-edit""style=""display:none;""id=""ef-edit-label-input-proweb-1""data-proweb-id=""1""><inputtype=""text""value=""Pleaseenteryourpassword""></div></label></div><divclass=""col-sm-8ef_proweb_form_prompt""><inputtype=""password""class=""form-controlef-proweb-input-element""title=""""id=""proweb-1""name=""proweb-1""value=""fred""placeholder=""""></div></div>"
+	set expectedHTML = "<divclass=""rowef-proweb-form-row""><divclass=""col-sm-4ef_proweb_form_prompt""><labelclass=""control-label""for=""proweb-1""><divclass=""ef-label-text""id=""ef-display-label-proweb-1"">Pleaseenteryourpassword</div><divclass=""ef-proweb-direct-label-edit""style=""display:none;""id=""ef-edit-label-input-proweb-1""data-proweb-id=""1""><inputtype=""text""value=""Pleaseenteryourpassword""></div></label></div><divclass=""col-sm-8ef_proweb_form_prompt""><inputtype=""password""class=""form-controlef-proweb-input-element""title=""""id=""proweb-1""name=""proweb-1""value=""********""placeholder=""""></div></div>"
 	do $$$AssertEquals(returnedHTML,expectedHTML)
 ]]></Implementation>
 </Method>
@@ -3921,7 +3925,7 @@ this is for version 1 of proweb</Description>
 <Class name="EF.pages.frontend.baseProweb">
 <ProcedureBlock>0</ProcedureBlock>
 <Super>EF.pages.frontend.base</Super>
-<TimeChanged>64211,39375.084545</TimeChanged>
+<TimeChanged>64211,41675.350905</TimeChanged>
 <TimeCreated>64191,31442.531402</TimeCreated>
 
 <Parameter name="ENCODED">
@@ -4108,7 +4112,11 @@ this is for version 1 of proweb</Description>
 <ClassMethod>1</ClassMethod>
 <Implementation><![CDATA[
 	write !,"</form>"
-	do ##class(EF.pageController.javascriptMethods).outputMainJS(pageController)
+	write !,"<script language=""javascript"">"
+	do ##class(EF.pageController.javascriptMethods).renderEfGetElement(pageController)
+	write !,"</script>"
+	do ##class(EF.pageController.javascriptMethods).renderJSForElements(pageController)
+	do ##class(EF.pageController.javascriptMethods).outputGetElement(pageController)
 ]]></Implementation>
 </Method>
 

@@ -84,22 +84,26 @@ update documentation
 cleanup
 move JS and CSS to external files
 compiled version of the page has three calls to render
+checkboxes and multichecks are buggered
+set up demo events
+add advanced unit tests for guests
+test non/mandatory dropdowns&radios
 
 ===============================================================================
 
-checkboxes and multichecks are buggered
-set up demo events
-test non/mandatory dropdowns&radios
+HTML5 validation not working
 date-range boundary values are not honoured
 test dependencies with mandatory
 test mandatory on all element types
+add-here is shown when display error pages
+
 full feature gap analysis incl javascript
-make sure we can't add questions on components that shouldn't allow it
 write A3 for implementation
-add advanced unit tests for guests
 do expenses
+play around with edit panel ala surveymonkey
 
 ----  alpha version ----
+make sure we can't add questions on components that shouldn't allow it
 get rajib to implement the search as you type
 fixeds headers, banners and menues etc
 re-test with multiple list on a page
@@ -113,6 +117,7 @@ test more date formats
 dependency on multicheck
 output dependency hover text
 empty pages/lists
+not that radios can't be left empty anymore
 autofocus
 unit test reorder list
 make sure it works with multiple lists

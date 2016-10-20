@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2015.2 (Build 664_3_16032U)" ts="2016-10-19 16:19:08">
+<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2015.2 (Build 664_3_16032U)" ts="2016-10-20 11:06:00">
 <Class name="EF.contextDataRegistration">
 <Description><![CDATA[
 <!-- ;vc;-
@@ -1693,7 +1693,7 @@ Should be run if any of the sub-classes are deleted</Description>
 
 <Class name="EF.pageController.proweb.page">
 <Super>EF.pageController.page</Super>
-<TimeChanged>64210,58441.178836</TimeChanged>
+<TimeChanged>64211,39760.046833</TimeChanged>
 <TimeCreated>64189,51696.559047</TimeCreated>
 
 <Property name="contextData">
@@ -1740,14 +1740,15 @@ Should be run if any of the sub-classes are deleted</Description>
 <FormalSpec><![CDATA[&attrs]]></FormalSpec>
 <Implementation><![CDATA[
 	
-	set identifier=$G(attrs("identifier"))
-	set element=..getElementByIdentifier(identifier)
+	set identifier = $G(attrs("identifier"))
+	set element = ..getElementByIdentifier(identifier)
 	if $IsObject(element) {
 		do element.render()
 		
 	} elseif $Get(attrs("prowebcomponentname"))'="" {
+		
 		if '..contextData.pageID {
-			throw ##class(shared.exceptions.generalException).%New("PageID was missing when attempting to render Proweb tag")
+			throw ##class(shared.exceptions.generalException).%New("PageID was missing fro contextData when attempting to render Proweb tag")
 		}
 		
 		set ..objEvent = ##class(setup.objEvent).%OpenId(..contextData.eventID)
@@ -1781,7 +1782,8 @@ Should be run if any of the sub-classes are deleted</Description>
 
 <Method name="initialiseComponent">
 <Implementation><![CDATA[
-	if '##class(sc.xModules.objList).getListIDFromPageIDAndComponentName(..contextData.pageID,..contextData.prowebComponentName) {
+	
+	if '##class(sc.xModules.objList).getListIDFromPageIDAndComponentName(..contextData.pageID, ..contextData.prowebComponentName) {
 		set listID = ##class(sc.xModules.objList).add(..contextData.pageID)
 		if 'listID {
 			throw ##class(shared.exceptions.generalException).%New("Failed to create new objList")	
@@ -1798,9 +1800,14 @@ Should be run if any of the sub-classes are deleted</Description>
 <Method name="findAllProwebItemsFromDatabase">
 <Private>1</Private>
 <Implementation><![CDATA[
+	if ..isReload {
+		set pageID = ..prowebPageID
+	} else {
+		set pageID = ..contextData.pageID	
+	}
 
 	set rsLists = ##class(%ResultSet).%New("sc.objData:qGetChildren")
-	do rsLists.Execute(..contextData.pageID)
+	do rsLists.Execute(pageID)
 	
 	while rsLists.Next() {
 		set listID = rsLists.Get("ID")
@@ -1833,7 +1840,6 @@ Should be run if any of the sub-classes are deleted</Description>
 			set prowebItem = ##class(sc.facade.prowebItem).createNew(storage)
 			
 			do ..addControllerForProwebItem(prowebItem)
-			
 		}
 	}
 ]]></Implementation>
@@ -2029,6 +2035,8 @@ Should be run if any of the sub-classes are deleted</Description>
 <ReturnType>EF.pageController.element</ReturnType>
 <Implementation><![CDATA[
 	#define getRawData 1
+	#define optionValue 1
+	#dim element as EF.pageController.element
 	#dim value as %String
 	#dim elementIdentifier as %String = ..getElementIdentifierForProwebItems(prowebItem)
 	#dim labelText as %String = prowebItem.storage.labelText
@@ -2044,7 +2052,7 @@ Should be run if any of the sub-classes are deleted</Description>
 		
 	} elseif prowebItem.storage.inputType = "radiobutton" {
 		set value = ..getValueFromEComTemp(prowebItem.storage.databaseItemName, optionalGuestNumber)
-		set element=##class(EF.pageController.proweb.radioButtons).addElementToParent($this, elementIdentifier, labelText, value,isReadOnly)
+		set element=##class(EF.pageController.proweb.radioButtons).addElementToParent($this, elementIdentifier, labelText, value, isReadOnly)
 		
 	} elseif prowebItem.storage.inputType = "multibox" {
 		set value = ..getValueFromEComTemp(prowebItem.storage.databaseItemName, optionalGuestNumber, $$$getRawData)
@@ -2054,6 +2062,7 @@ Should be run if any of the sub-classes are deleted</Description>
 	} else {
 		throw ##class(shared.exceptions.generalException).%New("Proweb selection type not implemented")
 	}
+	
 	set element.prowebID = prowebItem.storage.prowebID	
 	
 	for  {
@@ -2071,6 +2080,10 @@ Should be run if any of the sub-classes are deleted</Description>
 		} else {
 			set childController = element.addAlternative(alternativeValue, alternativeDescription)	
 		} 
+	}
+	
+	if (value = "") && (prowebItem.storage.inputType = "radiobutton" ) {
+		set element.value = $ListGet( prowebItem.storage.listOfAlternatives.GetAt(1), $$$optionValue)
 	}
 	return element
 ]]></Implementation>
@@ -2121,34 +2134,6 @@ Should be run if any of the sub-classes are deleted</Description>
 		set identifier = identifier_"-"_optionalGuestNumber		
 	}
 	return identifier
-]]></Implementation>
-</Method>
-
-<Method name="populateListOfControllerIDsSorted">
-<Implementation><![CDATA[
-	#dim controller as EF.pageController.element
-	#dim sparseArrayOfControllers
-	#dim displayOrder as %Integer = 0
-
-	for {
-		set controller=..allPageElements.GetNext(.key)
-		if key="" quit
-
-		if controller.%Extends("EF.pageController.proweb.prowebBase") {
-			if 'controller.%Extends("EF.pageController.proweb.checkbox") {
-				set displayOrder = displayOrder +1
-				set sparseArrayOfControllers(displayOrder) = controller.identifier	
-			}
-		}
-	}
-	
-	for counter=1:1 { 
-		set key = $Order(sparseArrayOfControllers(key))
-		if key="" quit
-		
-		set controllerID = sparseArrayOfControllers(key)
-		do ..listOfControllerIDsSorted.Insert(controllerID)
-	}
 ]]></Implementation>
 </Method>
 
@@ -2300,6 +2285,7 @@ Should be run if any of the sub-classes are deleted</Description>
 
 <Method name="renderElements">
 <Implementation><![CDATA[
+	#dim controller as EF.pageController.element
 	#dim hasRenderedAtLeastOne as %Boolean = 0
 	
 	for position = 1:1:..listOfControllerIDsSorted.Count() {
@@ -2372,7 +2358,6 @@ Should be run if any of the sub-classes are deleted</Description>
 	#dim prowbItemName as %String
 	#dim tempPersonID as %Integer
 	
-	;k ^xfg
 	for {
 		set element=..allPageElements.GetNext(.key)
 		if key="" quit
@@ -2399,19 +2384,6 @@ Should be run if any of the sub-classes are deleted</Description>
 			} else {
 				do ##class(eCom.tempCodData).set(tempPersonID, prowbItemName, element.value)	
 			}
-			/*
-			s x=$I(^xfg)
-			s ^xfg(x,"element")=element
-			s ^xfg(x,"prowbItemName")=prowbItemName
-			try {
-				s ^xfg(x,"element.value")=element.value
-				s ^xfg(x,"tempPersonID")=tempPersonID
-				s ^xfg(x,"element.guestNumber")=element.guestNumber
-				s ^xfg(x,"element.isGuest")=element.isGuest
-			} catch {
-					
-			}
-			*/
 		}
 	}
 	do ..copyAndFormatMultiCheckboxData(tempPersonID, .multiCheckboxData)
@@ -2941,7 +2913,7 @@ Should be run if any of the sub-classes are deleted</Description>
 
 <Class name="EF.pageController.proweb.testCases.pageTestCase">
 <Super>EF.ISC.UnitTest.TestCase</Super>
-<TimeChanged>64210,58737.725609</TimeChanged>
+<TimeChanged>64210,61652.074828</TimeChanged>
 <TimeCreated>64189,44993.632692</TimeCreated>
 
 <Method name="TestEditModeHTML">
@@ -3012,6 +2984,75 @@ Should be run if any of the sub-classes are deleted</Description>
 	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(pageController,"renderElements")
 	set returnedHTML = $ZStrip(returnedHTML,"*WC")
 	set expectedHTML = "<divclass=""rowef-proweb-form-row""><divclass=""col-sm-4ef_proweb_form_promptef-required-field""><labelclass=""control-label""for=""proweb-1""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;AttendeeFirstName\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""><divclass=""ef-label-text""id=""ef-display-label-proweb-1"">AttendeeFirstName</div><divclass=""ef-proweb-direct-label-edit""style=""display:none;""id=""ef-edit-label-input-proweb-1""data-proweb-id=""1""><inputtype=""text""value=""AttendeeFirstName""></div></label></div><divclass=""col-sm-8ef_proweb_form_prompt""><inputtype=""text""class=""form-controlef-proweb-input-element""title=""""id=""proweb-1""name=""proweb-1""value=""Fred""placeholder=""""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;AttendeeFirstName\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""></div></div><divclass=""rowef-proweb-form-row""><divclass=""col-sm-4ef_proweb_form_promptef-required-field""><labelclass=""control-label""for=""proweb-2""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;AttendeeLastName\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""><divclass=""ef-label-text""id=""ef-display-label-proweb-2"">AttendeeLastName</div><divclass=""ef-proweb-direct-label-edit""style=""display:none;""id=""ef-edit-label-input-proweb-2""data-proweb-id=""2""><inputtype=""text""value=""AttendeeLastName""></div></label></div><divclass=""col-sm-8ef_proweb_form_prompt""><inputtype=""text""class=""form-controlef-proweb-input-element""title=""""id=""proweb-2""name=""proweb-2""value=""Fred""placeholder=""""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;AttendeeLastName\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""></div></div><divclass=""ef-proweb-guest-panelef-draggable-div""><divclass=""panel-heading"">Guest</div><divclass=""panel-body""><divclass=""rowef-proweb-form-row""><divclass=""col-sm-4ef_proweb_form_prompt""><labelclass=""control-label""for=""proweb-1-1""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;GuestFirstName\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""><divclass=""ef-label-text""id=""ef-display-label-proweb-1-1"">GuestFirstName</div><divclass=""ef-proweb-direct-label-edit""style=""display:none;""id=""ef-edit-label-input-proweb-1-1""data-proweb-id=""1""><inputtype=""text""value=""GuestFirstName""></div></label></div><divclass=""col-sm-8ef_proweb_form_prompt""><inputtype=""text""class=""form-controlef-proweb-input-element""title=""""id=""proweb-1-1""name=""proweb-1-1""value=""Dfgdf""placeholder=""""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;GuestFirstName\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""></div></div><divclass=""rowef-proweb-form-row""><divclass=""col-sm-4ef_proweb_form_prompt""><labelclass=""control-label""for=""proweb-2-1""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;GuestLastName\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""><divclass=""ef-label-text""id=""ef-display-label-proweb-2-1"">GuestLastName</div><divclass=""ef-proweb-direct-label-edit""style=""display:none;""id=""ef-edit-label-input-proweb-2-1""data-proweb-id=""2""><inputtype=""text""value=""GuestLastName""></div></label></div><divclass=""col-sm-8ef_proweb_form_prompt""><inputtype=""text""class=""form-controlef-proweb-input-element""title=""""id=""proweb-2-1""name=""proweb-2-1""value=""Gdfg""placeholder=""""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;GuestLastName\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""></div></div></div></div><divclass=""ef-proweb-guest-panelef-draggable-div""><divclass=""panel-heading"">Guest</div><divclass=""panel-body""><divclass=""rowef-proweb-form-row""><divclass=""col-sm-4ef_proweb_form_prompt""><labelclass=""control-label""for=""proweb-1-2""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;GuestFirstName\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""><divclass=""ef-label-text""id=""ef-display-label-proweb-1-2"">GuestFirstName</div><divclass=""ef-proweb-direct-label-edit""style=""display:none;""id=""ef-edit-label-input-proweb-1-2""data-proweb-id=""1""><inputtype=""text""value=""GuestFirstName""></div></label></div><divclass=""col-sm-8ef_proweb_form_prompt""><inputtype=""text""class=""form-controlef-proweb-input-element""title=""""id=""proweb-1-2""name=""proweb-1-2""value=""Dfgdf""placeholder=""""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;GuestFirstName\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""></div></div><divclass=""rowef-proweb-form-row""><divclass=""col-sm-4ef_proweb_form_prompt""><labelclass=""control-label""for=""proweb-2-2""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;GuestLastName\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""><divclass=""ef-label-text""id=""ef-display-label-proweb-2-2"">GuestLastName</div><divclass=""ef-proweb-direct-label-edit""style=""display:none;""id=""ef-edit-label-input-proweb-2-2""data-proweb-id=""2""><inputtype=""text""value=""GuestLastName""></div></label></div><divclass=""col-sm-8ef_proweb_form_prompt""><inputtype=""text""class=""form-controlef-proweb-input-element""title=""""id=""proweb-2-2""name=""proweb-2-2""value=""Gdfg""placeholder=""""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;GuestLastName\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""></div></div></div></div>"
+	do $$$AssertEquals(returnedHTML,expectedHTML)
+]]></Implementation>
+</Method>
+
+<Method name="TestGuestPromptsWithOtherElementAfter">
+<Implementation><![CDATA[
+	#dim page as EF.pageController.proweb.page
+	#dim element as EF.pageController.proweb.textInput
+	#dim storage as sc.facade.prowebItemStorageInputElementMock
+	#dim contextData as EF.contextDataRegistrationMock
+	#dim pageController as EF.pageController.pagesFrontend.t4Registration
+	
+	set eventConfiguration = ##class(setup.eventConfiguration.storageMock).createEventConfiguration()
+	
+	set contextData = ##class(EF.contextDataRegistrationMock).createMock()
+	set contextData.maxGuests=2
+	
+	set storage = ##class(sc.facade.prowebItemStorageInputElementMock).createNew()
+	set storage.prowebID = "1"
+	set storage.databaseItemName = "Firstname"
+	set storage.inputType = "text"
+	set storage.labelText = "Attendee First Name"
+	set storage.isMandatory = 1
+	set prowebItem = ##class(sc.facade.prowebItem).createNew(storage)
+	do contextData.listOfProwebItemsToAdd.Insert(prowebItem)
+
+	set storage = ##class(sc.facade.prowebItemStorageInputElementMock).createNew()
+	set storage.prowebID = "2"
+	set storage.databaseItemName = "Lastname"
+	set storage.inputType = "text"
+	set storage.labelText = "Attendee Last Name"
+	set storage.isMandatory = 1
+	set prowebItem = ##class(sc.facade.prowebItem).createNew(storage)
+	do contextData.listOfProwebItemsToAdd.Insert(prowebItem)
+
+
+	set storage = ##class(sc.facade.prowebItemStorageInputElementMock).createNew()
+	set storage.prowebID = "1"
+	set storage.databaseItemName = "Firstname"
+	set storage.inputType = "text"
+	set storage.labelText = "Guest First Name"
+	set storage.isGuest = 1
+	set storage.isMandatory = 1
+	set prowebItem = ##class(sc.facade.prowebItem).createNew(storage)
+	do contextData.listOfProwebItemsToAdd.Insert(prowebItem)
+
+	set storage = ##class(sc.facade.prowebItemStorageInputElementMock).createNew()
+	set storage.prowebID = "2"
+	set storage.databaseItemName = "Lastname"
+	set storage.inputType = "text"
+	set storage.labelText = "Guest Last Name"
+	set storage.isGuest = 1
+	set storage.isMandatory = 1
+	set prowebItem = ##class(sc.facade.prowebItem).createNew(storage)
+	do contextData.listOfProwebItemsToAdd.Insert(prowebItem)
+
+	set storage = ##class(sc.facade.prowebItemStorageInputElementMock).createNew()
+	set storage.prowebID = "3"
+	set storage.databaseItemName = "Company"
+	set storage.inputType = "text"
+	set storage.labelText = "Attendee Company"
+	set prowebItem = ##class(sc.facade.prowebItem).createNew(storage)
+	do contextData.listOfProwebItemsToAdd.Insert(prowebItem)
+
+	set pageController = ##class(EF.pageController.pagesFrontend.t4Registration).createNew(contextData,,,eventConfiguration)
+	
+	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(pageController,"renderElements")
+	set returnedHTML = $ZStrip(returnedHTML,"*WC")
+	set expectedHTML = "<divclass=""rowef-proweb-form-row""><divclass=""col-sm-4ef_proweb_form_promptef-required-field""><labelclass=""control-label""for=""proweb-1""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;AttendeeFirstName\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""><divclass=""ef-label-text""id=""ef-display-label-proweb-1"">AttendeeFirstName</div><divclass=""ef-proweb-direct-label-edit""style=""display:none;""id=""ef-edit-label-input-proweb-1""data-proweb-id=""1""><inputtype=""text""value=""AttendeeFirstName""></div></label></div><divclass=""col-sm-8ef_proweb_form_prompt""><inputtype=""text""class=""form-controlef-proweb-input-element""title=""""id=""proweb-1""name=""proweb-1""value=""Fred""placeholder=""""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;AttendeeFirstName\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""></div></div><divclass=""rowef-proweb-form-row""><divclass=""col-sm-4ef_proweb_form_promptef-required-field""><labelclass=""control-label""for=""proweb-2""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;AttendeeLastName\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""><divclass=""ef-label-text""id=""ef-display-label-proweb-2"">AttendeeLastName</div><divclass=""ef-proweb-direct-label-edit""style=""display:none;""id=""ef-edit-label-input-proweb-2""data-proweb-id=""2""><inputtype=""text""value=""AttendeeLastName""></div></label></div><divclass=""col-sm-8ef_proweb_form_prompt""><inputtype=""text""class=""form-controlef-proweb-input-element""title=""""id=""proweb-2""name=""proweb-2""value=""Fred""placeholder=""""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;AttendeeLastName\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""></div></div><divclass=""ef-proweb-guest-panelef-draggable-div""><divclass=""panel-heading"">Guest</div><divclass=""panel-body""><divclass=""rowef-proweb-form-row""><divclass=""col-sm-4ef_proweb_form_prompt""><labelclass=""control-label""for=""proweb-1-1""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;GuestFirstName\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""><divclass=""ef-label-text""id=""ef-display-label-proweb-1-1"">GuestFirstName</div><divclass=""ef-proweb-direct-label-edit""style=""display:none;""id=""ef-edit-label-input-proweb-1-1""data-proweb-id=""1""><inputtype=""text""value=""GuestFirstName""></div></label></div><divclass=""col-sm-8ef_proweb_form_prompt""><inputtype=""text""class=""form-controlef-proweb-input-element""title=""""id=""proweb-1-1""name=""proweb-1-1""value=""Dfgdf""placeholder=""""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;GuestFirstName\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""></div></div><divclass=""rowef-proweb-form-row""><divclass=""col-sm-4ef_proweb_form_prompt""><labelclass=""control-label""for=""proweb-2-1""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;GuestLastName\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""><divclass=""ef-label-text""id=""ef-display-label-proweb-2-1"">GuestLastName</div><divclass=""ef-proweb-direct-label-edit""style=""display:none;""id=""ef-edit-label-input-proweb-2-1""data-proweb-id=""2""><inputtype=""text""value=""GuestLastName""></div></label></div><divclass=""col-sm-8ef_proweb_form_prompt""><inputtype=""text""class=""form-controlef-proweb-input-element""title=""""id=""proweb-2-1""name=""proweb-2-1""value=""Gdfg""placeholder=""""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;GuestLastName\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""></div></div></div></div><divclass=""ef-proweb-guest-panelef-draggable-div""><divclass=""panel-heading"">Guest</div><divclass=""panel-body""><divclass=""rowef-proweb-form-row""><divclass=""col-sm-4ef_proweb_form_prompt""><labelclass=""control-label""for=""proweb-1-2""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;GuestFirstName\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""><divclass=""ef-label-text""id=""ef-display-label-proweb-1-2"">GuestFirstName</div><divclass=""ef-proweb-direct-label-edit""style=""display:none;""id=""ef-edit-label-input-proweb-1-2""data-proweb-id=""1""><inputtype=""text""value=""GuestFirstName""></div></label></div><divclass=""col-sm-8ef_proweb_form_prompt""><inputtype=""text""class=""form-controlef-proweb-input-element""title=""""id=""proweb-1-2""name=""proweb-1-2""value=""Dfgdf""placeholder=""""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;GuestFirstName\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""></div></div><divclass=""rowef-proweb-form-row""><divclass=""col-sm-4ef_proweb_form_prompt""><labelclass=""control-label""for=""proweb-2-2""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;GuestLastName\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""><divclass=""ef-label-text""id=""ef-display-label-proweb-2-2"">GuestLastName</div><divclass=""ef-proweb-direct-label-edit""style=""display:none;""id=""ef-edit-label-input-proweb-2-2""data-proweb-id=""2""><inputtype=""text""value=""GuestLastName""></div></label></div><divclass=""col-sm-8ef_proweb_form_prompt""><inputtype=""text""class=""form-controlef-proweb-input-element""title=""""id=""proweb-2-2""name=""proweb-2-2""value=""Gdfg""placeholder=""""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;GuestLastName\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""></div></div></div></div><divclass=""rowef-proweb-form-row""><divclass=""col-sm-4ef_proweb_form_prompt""><labelclass=""control-label""for=""proweb-3""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;AttendeeCompany\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""><divclass=""ef-label-text""id=""ef-display-label-proweb-3"">AttendeeCompany</div><divclass=""ef-proweb-direct-label-edit""style=""display:none;""id=""ef-edit-label-input-proweb-3""data-proweb-id=""3""><inputtype=""text""value=""AttendeeCompany""></div></label></div><divclass=""col-sm-8ef_proweb_form_prompt""><inputtype=""text""class=""form-controlef-proweb-input-element""title=""""id=""proweb-3""name=""proweb-3""value=""ikea""placeholder=""""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;AttendeeCompany\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""></div></div>"
 	do $$$AssertEquals(returnedHTML,expectedHTML)
 ]]></Implementation>
 </Method>
@@ -3880,7 +3921,7 @@ this is for version 1 of proweb</Description>
 <Class name="EF.pages.frontend.baseProweb">
 <ProcedureBlock>0</ProcedureBlock>
 <Super>EF.pages.frontend.base</Super>
-<TimeChanged>64210,42448.188762</TimeChanged>
+<TimeChanged>64211,39375.084545</TimeChanged>
 <TimeCreated>64191,31442.531402</TimeCreated>
 
 <Parameter name="ENCODED">
@@ -3934,9 +3975,6 @@ this is for version 1 of proweb</Description>
 <ClassMethod>1</ClassMethod>
 <ReturnType>%Boolean</ReturnType>
 <Implementation><![CDATA[
-	if %request.Get("pageID") {
-		set %session.Data("pageID") = %request.Get("pageID") 
-	}
 	do ..OnPagePageTop()
 	do ..initPageController()
 	do ..outputFormBeginning()
@@ -3963,34 +4001,25 @@ this is for version 1 of proweb</Description>
 	set contextData = ##class(EF.contextDataRegistration).createFromFrontendCSPSession()
 	if ..usePageController() {
 		set pageControllerID=%request.Get("pageControllerID")
+		
 		merge requestData=%request.Data
 		
-		if pageControllerID {
-			try {
-				do ..beforePageControllerReload(pageControllerID)
-				set pageController=##class(EF.pageController.page).open(pageControllerID,contextData)
-				set contextData.pageID = pageController.prowebPageID
-			
-			} catch {
-				// force a reload if there is a problem opening the page
-				set pageControllerID=""
-			}
-		}
-		if 'pageControllerID {
-			
+		if pageControllerID { // when reloading the page after an validation error
+			do ..beforePageControllerReload(pageControllerID)
+			set pageController=##class(EF.pageController.page).open(pageControllerID,contextData)
+			set contextData.pageID = pageController.prowebPageID
+
+		} else { // regular loading of a page
+			set contextData.pageID = %request.Get("pageID")
 			set pageController=$CLASSMETHOD(..getPageDataClassName(),"createNew",contextData,.requestData)
 			set pageController.isReadOnly = 0
-			set pageController.prowebPageID = contextData.pageID
+			set pageController.prowebPageID = %request.Get("pageID")
 			set sc = pageController.%Save()
 			if 'sc {
 				throw ##class(shared.exceptions.generalStatusException).CreateFromStatus(sc)
-					
 			}
-			
 		}
-		
 		set pageControllerID=pageController.%Id()
-		
 	}
 ]]></Implementation>
 </Method>
@@ -4003,7 +4032,6 @@ this is for version 1 of proweb</Description>
 <Method name="renderCommonCSS">
 <ClassMethod>1</ClassMethod>
 <Implementation><![CDATA[
-	w ##class(shared.pageMethods).getEditMode()
 	if ##class(shared.pageMethods).getEditMode() = "edit" {
 		&html<
 			<link type="text/css" href="https://2bb0f132f679bac07fa4-638acaa65ecf53798e8a5faa656f2b95.ssl.cf3.rackcdn.com/libs/jQueryUI/v.1.8.21/jquery.css" rel="Stylesheet"/>
@@ -4022,6 +4050,7 @@ this is for version 1 of proweb</Description>
 	    <meta name="efProwebAddTextBlockBaseURL" content="#(..encodeForHTMLAttribute(..Link("../../backend/proweb/textDetailsMoxie.csp")))#">
 	    <meta name="efProwebAddFileUploadBaseURL" content="#(..encodeForHTMLAttribute(..Link("../../backend/proweb/fileUploadDetails.csp")))#">
 	    <meta name="efProwebAddYouTubeVideoBaseURL" content="#(..encodeForHTMLAttribute(..Link("../../backend/proweb/flashDetails.csp")))#">
+	    <meta name="efProwebUpdateLabelTextURL" content="#(..encodeForHTMLAttribute(..Link("../../backend/proweb/updateLabelText.csp")))#">
 	>
 ]]></Implementation>
 </Method>
@@ -4773,7 +4802,7 @@ we need to refactor the frontend buttons to make them callable from class method
 
 <Class name="EF.ui.components.frontend.dropdown">
 <Super>EF.ui.components.listInput,EF.ui.components.frontend.inputElement</Super>
-<TimeChanged>64208,41668.674896</TimeChanged>
+<TimeChanged>64211,34292.775107</TimeChanged>
 <TimeCreated>63355,56609.363142</TimeCreated>
 
 <Property name="isPersistent">
@@ -4844,8 +4873,8 @@ we need to refactor the frontend buttons to make them callable from class method
 		}
 		write !,"<option value='' ",selectString," disabled>",..encodeHTMLContent(##class(shared.pCSP).out("Choose one...")),"</option>",!	
 		
-	} else {
-		write !,"<option value=''></option>",!
+	;} else {
+	;	write !,"<option value=''></option>",!
 	}
 ]]></Implementation>
 </Method>
@@ -5649,7 +5678,7 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 
 <Class name="EF.ui.components.frontend.radioButtons">
 <Super>EF.ui.components.listInput,EF.ui.components.frontend.inputElement</Super>
-<TimeChanged>64209,33011.585805</TimeChanged>
+<TimeChanged>64211,35851.690956</TimeChanged>
 <TimeCreated>63356,39686.205586</TimeCreated>
 
 <Method name="getDefaultClasses">
@@ -14460,10 +14489,6 @@ FRRE RULE
 	
 </script>
 <script language="CACHE" runat="SERVER">
-    set pageID = ##class(shared.pageMethods).getPageID()
-    if pageID {
-		set efRulesTempParams("pageid")=pageID
-    }
    Do pageController.renderHTMLControlFromTag(.efRulesTempParams)
    kill efRulesTempParams
 </script>
@@ -14584,7 +14609,7 @@ FRRE RULE
 <Abstract>1</Abstract>
 <ClassType/>
 <ProcedureBlock>1</ProcedureBlock>
-<TimeChanged>64210,41333.114579</TimeChanged>
+<TimeChanged>64210,60657.477341</TimeChanged>
 <TimeCreated>63046,56232.897117</TimeCreated>
 
 <Method name="outputDefaultCSS">
@@ -14817,6 +14842,11 @@ yellow red grey etc. Used for ALL templates below gen3</Description>
 		    content: "🔗";
 		}
 		/* ===========  begin new classes for Proweb2 ========= */
+		@media (max-width: 768px) {
+		   .ef_proweb_form_prompt {
+		      text-align: left; 
+		  }
+		}
 		.ef-proweb-form-row-editable, .ef-proweb-form-row {
 			padding-top: 4px;
 			padding-bottom:4px;	
@@ -17108,7 +17138,7 @@ Property displayOrder As %Integer [ Required ];</Description>
 
 <Class name="sc.facade.prowebItemStorageInputElement">
 <Super>sc.facade.prowebItemStorage</Super>
-<TimeChanged>64210,56671.405078</TimeChanged>
+<TimeChanged>64211,34648.807272</TimeChanged>
 <TimeCreated>64206,40073.01042</TimeCreated>
 
 <Property name="inputType">
@@ -17203,6 +17233,10 @@ Property alternatives As sc.facade.prowebItemAlternative;
 	set storage.databaseItemName = prowebItem.objItemName.description
 	set storage.databaseItemID = prowebItem.objItemName.%Id()
 	if (storage.inputType = "dropdown") !(storage.inputType = "multibox") !(storage.inputType = "radiobutton") {
+		if (prowebItem.type = "dropdown") && (+prowebItem.mandatory = 0) {
+			do storage.listOfAlternatives.Insert( $ListBuild("","") ) 
+		}
+		
 		set rsAlternative = ##class(cod.objItemAlternatives).getAlternativesForCodItemAsResultSet( storage.databaseItemID )
 		while rsAlternative.Next()	{
 			set alternativeValue = rsAlternative.Get("description") 
@@ -18839,17 +18873,17 @@ Creates new list object. Should be done the first time the page is loaded</Descr
 <Class name="shared.pageMethods">
 <Description><![CDATA[
 <!-- ;vc;-
-;vc;    Object: shared.pageMethods.CLS/EV.174
+;vc;    Object: shared.pageMethods.CLS/EV.177
 ;vc; Component: CLS.shared.pageMethods
-;vc;  Location: SmallDev
-;vc; Date/Time: 02-Sep-16 14:28
-;vc;      User: JeremyW
-;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>shared.pageMethods.CLS/EV.174</td><td>CLS.shared.pageMethods</td><td>SmallDev</td><td style='white-space: nowrap;'>02-Sep-16 14:28</td><td>JeremyW</td></tr></table>
+;vc;  Location: LargeDev
+;vc; Date/Time: 19-Oct-16 17:04
+;vc;      User: FredG
+;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>shared.pageMethods.CLS/EV.177</td><td>CLS.shared.pageMethods</td><td>LargeDev</td><td style='white-space: nowrap;'>19-Oct-16 17:04</td><td>FredG</td></tr></table>
 ]]></Description>
 <Abstract>1</Abstract>
 <ClassType/>
 <ProcedureBlock>1</ProcedureBlock>
-<TimeChanged>64204,53132.183324</TimeChanged>
+<TimeChanged>64210,61473.839481</TimeChanged>
 <TimeCreated>60747,44410.590792</TimeCreated>
 
 <Method name="prePartOne">

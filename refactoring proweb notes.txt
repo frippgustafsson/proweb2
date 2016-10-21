@@ -90,18 +90,26 @@ add advanced unit tests for guests
 test non/mandatory dropdowns&radios
 add-here is shown when display error pages
 test mandatory on all element types
+empty pages/lists
+note that radios can't be left empty anymore
+fix private and encoded parameters
+Fix right aligned labels in small browser
+full feature gap analysis incl javascript
+add all to vcm
+play around with edit panel ala surveymonkey
+make time fields be the right width
+write A3 for implementation
+refactor the dependency to use transient facade class
 
 ===============================================================================
 
-
-
-full feature gap analysis incl javascript
-write A3 for implementation
 do expenses
-play around with edit panel ala surveymonkey
+implement dependency properly
+do that pivotal story
 
 ----  alpha version ----
 dependencies with mandatory doesn't work
+refactor the dependency to use transient facade class
 make sure we can't add questions on components that shouldn't allow it
 get rajib to implement the search as you type
 fixeds headers, banners and menues etc
@@ -109,38 +117,25 @@ re-test with multiple list on a page
 HTML5 validation not working
 date-range boundary values are not honoured
 add placeholders?
-do we still need "isProwebEditMode"?
 complete the implmentation fo the file upload
 add session to ABIs
 restrict by attendee category
-make time fields be the right width
 test more date formats
 dependency on multicheck
 output dependency hover text
-empty pages/lists
 switching to preview mode and proceeding loses the edit button
-not that radios can't be left empty anymore
 autofocus
-unit test reorder list
 make sure it works with multiple lists
 auditing drag&drop
 autiding delete&add
 phone number is not validdationg in old proweb
-fix private and encoded parameters
 ABIs
 private fields in group booking when attendee has been booked by someone else
 custom validation
 warning before leaving the page
 table bookings
 mandatory postcode for ireland?
-other uiComponents
 add aria labels
-Fix right aligned labels in small browser
-searchAsYouType
-there are some unnecessary extra attributes on the label tag for dependent children
 max and min words count
-min and max on number fields?
-
 remove proweb version 1.5 code
-Search as you type
 time field placeholder in FF is outside the box

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2015.2 (Build 664_3_16032U)" ts="2016-10-20 11:58:39">
+<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2015.2 (Build 664_3_16032U)" ts="2016-10-21 10:02:48">
 <Class name="EF.contextDataRegistration">
 <Description><![CDATA[
 <!-- ;vc;-
@@ -1693,7 +1693,7 @@ Should be run if any of the sub-classes are deleted</Description>
 
 <Class name="EF.pageController.proweb.page">
 <Super>EF.pageController.page</Super>
-<TimeChanged>64211,42493.132286</TimeChanged>
+<TimeChanged>64212,34510.78311</TimeChanged>
 <TimeCreated>64189,51696.559047</TimeCreated>
 
 <Property name="contextData">
@@ -1865,7 +1865,7 @@ Should be run if any of the sub-classes are deleted</Description>
 	#define isInputElement prowebItem.storage.%Extends("sc.facade.prowebItemStorageInputElement")
 	#define isTextBlock prowebItem.storage.%Extends("sc.facade.prowebItemStorageTextBlock")
 	#define isDivider prowebItem.storage.%Extends("sc.facade.prowebItemStorageDivider")
-	#define youTubeVideo prowebItem.storage.%Extends("sc.facade.prowebItemStorageYouTubeVideo")
+	#define isYouTubeVideo prowebItem.storage.%Extends("sc.facade.prowebItemStorageYouTubeVideo")
 	 
 	#dim elementIdentifier as %String = ..getElementIdentifierForProwebItems(prowebItem)
 	#dim element as EF.pageController.proweb.prowebBase
@@ -1879,7 +1879,7 @@ Should be run if any of the sub-classes are deleted</Description>
 	} elseif $$$isDivider {
 		set element = ##class(EF.pageController.proweb.divider).addElementToParent($this, elementIdentifier, "")
 	
-	} elseif $$$youTubeVideo {
+	} elseif $$$isYouTubeVideo {
 		set element = ##class(EF.pageController.proweb.youTubeVideo).addElementToParent($this, elementIdentifier, "")
 	
 	} else {
@@ -1891,6 +1891,7 @@ Should be run if any of the sub-classes are deleted</Description>
 	set element.uiComponent.prowebItem = prowebItem
 	set element.prowebItem = prowebItem
 	set element.prowebID = prowebItem.storage.prowebID
+	set element.uiComponent.prowebItemID = prowebItem.storage.prowebID
 	set element.uiComponent.contextData = ..contextData
 	
 	if (element.#canBeDependent) & (..contextData.isTestMode = 0) {
@@ -1898,7 +1899,6 @@ Should be run if any of the sub-classes are deleted</Description>
 		if dependsOnAlternativeDescription '="" {
 			set parentProwebID = ##class(sc.dependencyMethods).getDependsOnPrompt(prowebItem.storage.prowebID)
 			
-			;set parentProwebItem = ##class(sc.objData).%OpenId(parentProwebID)
 			set storage = ##class(sc.facade.prowebItemStorageInputElement).createNew(parentProwebID, ..contextData)
 			set parentProwebItem = ##class(sc.facade.prowebItem).createNew(storage)
 			
@@ -2039,7 +2039,6 @@ Should be run if any of the sub-classes are deleted</Description>
 <ReturnType>EF.pageController.element</ReturnType>
 <Implementation><![CDATA[
 	#define getRawData 1
-	#define optionValue 1
 	#dim element as EF.pageController.element
 	#dim value as %String
 	#dim elementIdentifier as %String = ..getElementIdentifierForProwebItems(prowebItem)
@@ -2052,15 +2051,16 @@ Should be run if any of the sub-classes are deleted</Description>
 	
 	if prowebItem.storage.inputType = "dropdown" {
 		set value = ..getValueFromEComTemp(prowebItem.storage.databaseItemName, optionalGuestNumber)
-		set element=##class(EF.pageController.proweb.dropdown).addElementToParent($this, elementIdentifier, labelText, value, isReadOnly)
+		set element = ##class(EF.pageController.proweb.dropdown).addElementToParent($this, elementIdentifier, labelText, value, isReadOnly)
+		set element.uiComponent.isSearchAsYouType = prowebItem.storage.isSearchAsYouType
 		
 	} elseif prowebItem.storage.inputType = "radiobutton" {
 		set value = ..getValueFromEComTemp(prowebItem.storage.databaseItemName, optionalGuestNumber)
-		set element=##class(EF.pageController.proweb.radioButtons).addElementToParent($this, elementIdentifier, labelText, value, isReadOnly)
+		set element = ##class(EF.pageController.proweb.radioButtons).addElementToParent($this, elementIdentifier, labelText, value, isReadOnly)
 		
 	} elseif prowebItem.storage.inputType = "multibox" {
 		set value = ..getValueFromEComTemp(prowebItem.storage.databaseItemName, optionalGuestNumber, $$$getRawData)
-		set element=##class(EF.pageController.proweb.checkboxGroup).addElementToParent($this, elementIdentifier, labelText, value)
+		set element = ##class(EF.pageController.proweb.checkboxGroup).addElementToParent($this, elementIdentifier, labelText, value)
 		set element.uiComponent.columns=1
 			
 	} else {
@@ -2071,23 +2071,20 @@ Should be run if any of the sub-classes are deleted</Description>
 	
 	for  {
 		set alternative = prowebItem.storage.listOfAlternatives.GetNext(.key)
-		
 		if key ="" quit
-		set alternativeValue = $ListGet(alternative,1)
-		set alternativeDescription = $ListGet(alternative,2)
-		
+
 		if prowebItem.storage.inputType = "multibox" {
 			set counter = counter+1
-			set isChecked = ##class(EF.pageController.proweb.checkboxGroup).isAlternativeInValueString(alternativeDescription, value)
-			set childController = element.addProwebCheckbox(element, elementIdentifier_"-"_counter, alternativeDescription, isChecked)
+			set isChecked = ##class(EF.pageController.proweb.checkboxGroup).isAlternativeInValueString(alternative.displayText, value)
+			set childController = element.addProwebCheckbox(element, elementIdentifier_"-"_counter, alternative.displayText, isChecked)
 			
 		} else {
-			set childController = element.addAlternative(alternativeValue, alternativeDescription)	
+			set childController = element.addAlternative(alternative.value, alternative.displayText)	
 		} 
 	}
 	
 	if (value = "") && (prowebItem.storage.inputType = "radiobutton" ) {
-		set element.value = $ListGet( prowebItem.storage.listOfAlternatives.GetAt(1), $$$optionValue)
+		set element.value = prowebItem.storage.listOfAlternatives.GetAt(1).value
 	}
 	return element
 ]]></Implementation>
@@ -3490,7 +3487,7 @@ Should be run if any of the sub-classes are deleted</Description>
 
 <Class name="EF.pageController.proweb.testCases.timeInputTestCase">
 <Super>EF.ISC.UnitTest.TestCase</Super>
-<TimeChanged>64209,55007.335459</TimeChanged>
+<TimeChanged>64211,60829.580299</TimeChanged>
 <TimeCreated>64204,52806.787409</TimeCreated>
 
 <Method name="TestTime">
@@ -3510,7 +3507,7 @@ Should be run if any of the sub-classes are deleted</Description>
 	
 	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(page,"render")
 	set returnedHTML = $ZStrip(returnedHTML,"*WC")
-	set expectedHTML = "<divclass=""rowef-proweb-form-row""><divclass=""col-sm-4ef_proweb_form_prompt""><labelclass=""control-label""for=""proweb-1""><divclass=""ef-label-text""id=""ef-display-label-proweb-1"">time</div><divclass=""ef-proweb-direct-label-edit""style=""display:none;""id=""ef-edit-label-input-proweb-1""data-proweb-id=""""><inputtype=""text""value=""time""></div></label></div><divclass=""col-sm-8ef_proweb_form_prompt""><divclass=""ef_proweb_form_field_container_type_timeef-proweb-input-element-short""><inputtype=""text""class=""form-controlef-proweb-input-elementefTimePicker""title=""""id=""proweb-1""name=""proweb-1""value=""""placeholder=""HH:MM24hour""efKendoTimeFormat=""24""efKendoTimeInterval=15></div></div></div>"
+	set expectedHTML = "<divclass=""rowef-proweb-form-row""><divclass=""col-sm-4ef_proweb_form_prompt""><labelclass=""control-label""for=""proweb-1""><divclass=""ef-label-text""id=""ef-display-label-proweb-1"">time</div><divclass=""ef-proweb-direct-label-edit""style=""display:none;""id=""ef-edit-label-input-proweb-1""data-proweb-id=""""><inputtype=""text""value=""time""></div></label></div><divclass=""col-sm-8ef_proweb_form_prompt""><divclass=""ef_proweb_form_field_container_type_timeef-proweb-input-element-short""><inputtype=""text""class=""ef-kendo-form-controlef-proweb-input-elementefTimePicker""title=""""id=""proweb-1""name=""proweb-1""value=""""placeholder=""HH:MM24hour""efKendoTimeFormat=""24""efKendoTimeInterval=15style=""width:100%;""></div></div></div>"
 	do $$$AssertEquals(returnedHTML,expectedHTML)
 ]]></Implementation>
 </Method>
@@ -4810,10 +4807,15 @@ we need to refactor the frontend buttons to make them callable from class method
 
 <Class name="EF.ui.components.frontend.dropdown">
 <Super>EF.ui.components.listInput,EF.ui.components.frontend.inputElement</Super>
-<TimeChanged>64211,34292.775107</TimeChanged>
+<TimeChanged>64212,35172.616945</TimeChanged>
 <TimeCreated>63355,56609.363142</TimeCreated>
 
 <Property name="isPersistent">
+<Type>%Boolean</Type>
+<InitialExpression>0</InitialExpression>
+</Property>
+
+<Property name="isSearchAsYouType">
 <Type>%Boolean</Type>
 <InitialExpression>0</InitialExpression>
 </Property>
@@ -4823,7 +4825,12 @@ we need to refactor the frontend buttons to make them callable from class method
 	if ..hasError do ..addClass("has-error")
 
 	set selectClass="form-control ef-proweb-input-element"
-
+	set searchableDataAttributes = ""
+	if ..isSearchAsYouType {
+		set selectClass = selectClass_" ef_element_dropdown_searchable select2-hidden-accessible "
+		set searchableDataAttributes = "data-obj-cod-item-id="_..prowebItemID_" data-ef-cod-item-alternatives-url="_##class(shared.pCSP).Link("getCodItemAlternativesJSON.csp")
+	}
+	
 	set disabledString=""
 	if ..isDisabled {
 		set disabledString="disabled=""disabled"""
@@ -4832,9 +4839,9 @@ we need to refactor the frontend buttons to make them callable from class method
 	
 	do ..renderRowOpeningAndLabel()
 	&html<		
-		<select placeholder="fish" class="#(..encodeForHTMLAttribute(..classes_" "_selectClass))#" name="#(..encodeHTMLAttribute(..htmlName))#" 
+		<select class="#(..encodeForHTMLAttribute(..classes_" "_selectClass))#" name="#(..encodeHTMLAttribute(..htmlName))#" 
 			id="#(..encodeHTMLAttribute(..htmlID))#" title="#(..encodeHTMLAttribute(..title))#" 
-			#(..rawHTML(disabledString))# #(..rawHTML(..getExtraAttributes()))#>
+			#(..rawHTML(disabledString))# #(..rawHTML(..getExtraAttributes()))# #(..encodeHTMLAttribute(searchableDataAttributes))#>
 			
     		#[do ..renderPlaceholder()]#
     		#[do ..renderAlternatives()]#
@@ -4881,8 +4888,6 @@ we need to refactor the frontend buttons to make them callable from class method
 		}
 		write !,"<option value='' ",selectString," disabled>",..encodeHTMLContent(##class(shared.pCSP).out("Choose one...")),"</option>",!	
 		
-	;} else {
-	;	write !,"<option value=''></option>",!
 	}
 ]]></Implementation>
 </Method>
@@ -4935,6 +4940,9 @@ we need to refactor the frontend buttons to make them callable from class method
 </Value>
 <Value name="10">
 <Value>isBackendOnly</Value>
+</Value>
+<Value name="11">
+<Value>isSearchAsYouType</Value>
 </Value>
 </Data>
 </Storage>
@@ -5985,7 +5993,7 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 
 <Class name="EF.ui.components.frontend.timeInput">
 <Super>EF.ui.components.frontend.textInput</Super>
-<TimeChanged>64205,53559.980726</TimeChanged>
+<TimeChanged>64211,56840.567717</TimeChanged>
 <TimeCreated>63357,57620.613738</TimeCreated>
 
 <Parameter name="typeAttribute">
@@ -5995,6 +6003,15 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 <Parameter name="html5Validation">
 <Default>0</Default>
 </Parameter>
+
+<Method name="getDefaultClasses">
+<ClassMethod>1</ClassMethod>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	set defaultClasses = "ef-kendo-form-control ef-proweb-input-element"
+	return defaultClasses
+]]></Implementation>
+</Method>
 
 <Method name="getDefaultValidator">
 <ReturnType>EF.validator.base</ReturnType>
@@ -6020,7 +6037,7 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 	    	    <input type="#(..encodeHTMLAttribute(..#typeAttribute))#" class="#(..encodeHTMLAttribute(..classes))#" #(..rawHTML(..getDisabledString()))# 
 	    	    title="#(..encodeHTMLAttribute(..title))#" id="#(..encodeHTMLAttribute(..htmlID))#" name="#(..encodeHTMLAttribute(..htmlName))#" 
 	    	    value="#(..encodeHTMLAttribute(..value))#" placeholder="#(..encodeHTMLAttribute(..placeHolder))#"  #(..rawHTML(..getProwebExtraAttributes()))#
-	    	    efKendoTimeFormat="#(..encodeHTMLAttribute(timeFormat))#" efKendoTimeInterval=15>
+	    	    efKendoTimeFormat="#(..encodeHTMLAttribute(timeFormat))#" efKendoTimeInterval=15 style="width: 100%;">
 			</div>
 			   	
 	>
@@ -13075,10 +13092,17 @@ function updateAlts(codPromptID) {
 		set labelText = ##class(EF.sanitiser).sanitise(labelText)
 		set objCODitem = ##class(sc.xModules.objCODitem).%OpenId(prowebID)
 		if ($ISOBJECT(objCODitem)) {
+			set oldLabelText = objCODitem.description
 			set objCODitem.description = labelText
-			
 			set ok = objCODitem.%Save()
 			if ('$$$ISERR(ok)) {
+				set xUserID = $Get(%session.Data("eventsforce","backend","xPersonID"))
+				set eventID = objCODitem.objEvent.%Id()
+				set pageID = ##class(sc.xModules.objCODitem).getPageIDforQuestion(prowebID)
+				set pageName = ##class(sc.xModules.objPage).getDescription(pageID)
+				
+				do ##class(setup.objEventAudit).add(xUserID, eventID, "Reg Page '"_pageName_"' ("_pageID_"), Changed Registration Question Label Text: "_labelText_" (New Value) - "_oldLabelText_" (Old Value)")
+				
 				set status = "ok"
 			}
 		}
@@ -14617,7 +14641,7 @@ FRRE RULE
 <Abstract>1</Abstract>
 <ClassType/>
 <ProcedureBlock>1</ProcedureBlock>
-<TimeChanged>64210,60657.477341</TimeChanged>
+<TimeChanged>64211,54402.97192</TimeChanged>
 <TimeCreated>63046,56232.897117</TimeCreated>
 
 <Method name="outputDefaultCSS">
@@ -14859,9 +14883,28 @@ yellow red grey etc. Used for ALL templates below gen3</Description>
 			padding-top: 4px;
 			padding-bottom:4px;	
 			margin: 10px !important;
+			border-width: 1px;
+			border-color: transparent;
+			border-style: solid;
 		}
+		.ef-proweb-form-row-editable:hover {
+			background-color: #EEEEEE;	
+			border-color: GRAY;
+			border-style: dashed;
+			border-width: 1px;
+			border-radius: 5px;
+			
+		}
+		.ui-sortable-handle {
+			cursor: grab;
+ 			cursor: -webkit-grab; cursor:-moz-grab; 
+		}
+		.ui-sortable-handle:active {
+			cursor: grabbing;
+			cursor: -webkit-grabbing; cursor:-moz-grabbing;
+		}		
 		.ef-proweb-input-element-short {
-			width: 30%;
+			width: 40%;
 			text-align: left; 	
 		}
 
@@ -14878,7 +14921,6 @@ yellow red grey etc. Used for ALL templates below gen3</Description>
 		}
 		.ef-proweb-input-element {
 			width: 90%;
-			float: left;	
 		}
 		.ef-proweb-checkboxGroup {
 			text-align: left;	
@@ -16897,7 +16939,7 @@ The basic frontend default stuff</Description>
 </Class>
 
 
-<Project name="proweb 2" LastModified="2016-10-19 09:45:22.115018" Target="dev.efsys.net/LARGEDEVSRC/backend/home/efSupportLogin.htm" TargetType="3">
+<Project name="proweb 2" LastModified="2016-10-21 10:02:48.403062" Target="dev.efsys.net/LARGEDEVSRC/backend/home/efSupportLogin.htm" TargetType="3">
   <Items>
     <ProjectItem name="EF.contextDataRegistration" type="CLS"></ProjectItem>
     <ProjectItem name="EF.contextDataRegistrationMock" type="CLS"></ProjectItem>
@@ -17014,6 +17056,7 @@ The basic frontend default stuff</Description>
     <ProjectItem name="EF.pageController.proweb.testCases.fileUploadInputTestCase" type="CLS"></ProjectItem>
     <ProjectItem name="sc.facade.prowebItemStorageFileUploadMock" type="CLS"></ProjectItem>
     <ProjectItem name="EF.ui.components.frontend.buttonSubmit" type="CLS"></ProjectItem>
+    <ProjectItem name="sc.facade.prowebItemStorageInputElementAlternative" type="CLS"></ProjectItem>
   </Items>
   <BreakPoints>
     <BreakPoint Routine="cspRealEV.frontend.reg.pagecontrollerstandardsave.CLS" Offset="OnPreHTTPafter+28"></BreakPoint>
@@ -17047,12 +17090,16 @@ Facade class for the sc.objData</Description>
 
 <Class name="sc.facade.prowebItemStorage">
 <Super>%RegisteredObject</Super>
-<TimeChanged>64210,51211.583531</TimeChanged>
+<TimeChanged>64212,31735.489566</TimeChanged>
 <TimeCreated>64206,37017.045507</TimeCreated>
 
 <Property name="prowebID">
 <Description>
 Property displayOrder As %Integer [ Required ];</Description>
+<Type>%Integer</Type>
+</Property>
+
+<Property name="dependsOnProwebAlternativeID">
 <Type>%Integer</Type>
 </Property>
 
@@ -17079,7 +17126,7 @@ Property displayOrder As %Integer [ Required ];</Description>
 
 <Class name="sc.facade.prowebItemStorageDivider">
 <Super>sc.facade.prowebItemStorage</Super>
-<TimeChanged>64210,56670.766498</TimeChanged>
+<TimeChanged>64212,33280.177807</TimeChanged>
 <TimeCreated>64206,41722.621925</TimeCreated>
 
 <Method name="createNew">
@@ -17146,7 +17193,7 @@ Property displayOrder As %Integer [ Required ];</Description>
 
 <Class name="sc.facade.prowebItemStorageInputElement">
 <Super>sc.facade.prowebItemStorage</Super>
-<TimeChanged>64211,34648.807272</TimeChanged>
+<TimeChanged>64212,31688.389448</TimeChanged>
 <TimeCreated>64206,40073.01042</TimeCreated>
 
 <Property name="inputType">
@@ -17166,7 +17213,8 @@ Property displayOrder As %Integer [ Required ];</Description>
 </Property>
 
 <Property name="listOfAlternatives">
-<Type>%ListOfDataTypes</Type>
+<Type>sc.facade.prowebItemStorageInputElementAlternative</Type>
+<Collection>list</Collection>
 </Property>
 
 <Property name="isGuest">
@@ -17210,16 +17258,12 @@ Property displayOrder As %Integer [ Required ];</Description>
 </Property>
 
 <Method name="createNew">
-<Description>
-property dependsOnAlternative as sc.facade.prowebItemAlternative;
-
-Property alternatives As sc.facade.prowebItemAlternative;
-</Description>
 <ClassMethod>1</ClassMethod>
 <FormalSpec>prowebItemID:%Integer,contextData:EF.contextDataRegistration</FormalSpec>
 <ReturnType>sc.facade.prowebItemStorage</ReturnType>
 <Implementation><![CDATA[
 	#dim prowebItem as sc.xModules.objCODitem
+	#dim alternative as sc.facade.prowebItemStorageInputElementAlternative
 	
 	set storage = ..%New()
 	set prowebItem = ##class(sc.objData).%OpenId(prowebItemID)
@@ -17240,9 +17284,13 @@ Property alternatives As sc.facade.prowebItemAlternative;
 	set storage.isSearchAsYouType = prowebItem.searchAsYouType
 	set storage.databaseItemName = prowebItem.objItemName.description
 	set storage.databaseItemID = prowebItem.objItemName.%Id()
+	
+	set storage.dependsOnProwebAlternativeID = prowebItem.dependsOnAlternative
+	
 	if (storage.inputType = "dropdown") !(storage.inputType = "multibox") !(storage.inputType = "radiobutton") {
 		if (prowebItem.type = "dropdown") && (+prowebItem.mandatory = 0) {
-			do storage.listOfAlternatives.Insert( $ListBuild("","") ) 
+			set alternative = ##class(sc.facade.prowebItemStorageInputElementAlternative).createNew("", "")
+			do storage.listOfAlternatives.Insert( alternative ) 
 		}
 		
 		set rsAlternative = ##class(cod.objItemAlternatives).getAlternativesForCodItemAsResultSet( storage.databaseItemID )
@@ -17250,13 +17298,51 @@ Property alternatives As sc.facade.prowebItemAlternative;
 			set alternativeValue = rsAlternative.Get("description") 
 			set alternativeDescription = ##class(cod.objItemAlternativeDetails).getDescription(rsAlternative.Get("ID"), contextData.languageID)
 			set alternativeDescription = ##class(EF.htmlGenerator).unescapeXSSFix(alternativeDescription)
-			do storage.listOfAlternatives.Insert( $ListBuild(alternativeValue, alternativeDescription) )
+			
+			set alternative = ##class(sc.facade.prowebItemStorageInputElementAlternative).createNew(alternativeValue, alternativeDescription, rsAlternative.Get("ID") )
+			do storage.listOfAlternatives.Insert( alternative)
 			
 		}
 	}
-	
+	if storage.inputType = "dropdown" {
+		set storage.isSearchAsYouType = prowebItem.searchAsYouType	
+	}
 	
 	return storage
+]]></Implementation>
+</Method>
+</Class>
+
+
+<Class name="sc.facade.prowebItemStorageInputElementAlternative">
+<Super>%RegisteredObject</Super>
+<TimeChanged>64211,62339.914293</TimeChanged>
+<TimeCreated>64211,61761.805017</TimeCreated>
+
+<Property name="value">
+<Type>%String</Type>
+</Property>
+
+<Property name="displayText">
+<Type>%String</Type>
+</Property>
+
+<Property name="alternativeID">
+<Type>%Integer</Type>
+</Property>
+
+<Method name="createNew">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>alternativeValue,alternativeDescription,alternativeID:%Integer=""</FormalSpec>
+<ReturnType>sc.facade.prowebItemStorageInputElementAlternative</ReturnType>
+<Implementation><![CDATA[
+	set alternative = ..%New()
+	
+	set alternative.value = alternativeValue
+	set alternative.displayText = alternativeDescription
+	set alternative.alternativeID = alternativeID
+	
+	return alternative
 ]]></Implementation>
 </Method>
 </Class>
@@ -17281,7 +17367,7 @@ Property alternatives As sc.facade.prowebItemAlternative;
 
 <Class name="sc.facade.prowebItemStorageTextBlock">
 <Super>sc.facade.prowebItemStorage</Super>
-<TimeChanged>64210,56671.994653</TimeChanged>
+<TimeChanged>64212,31719.274003</TimeChanged>
 <TimeCreated>64206,41475.453349</TimeCreated>
 
 <Property name="text">
@@ -17300,6 +17386,9 @@ Property alternatives As sc.facade.prowebItemAlternative;
 	set prowebItem = ##class(sc.objData).%OpenId(prowebItemID)
 	set storage.text = prowebItem.description
 	set storage.prowebID = prowebItemID
+	set storage.dependsOnProwebAlternativeID = prowebItem.dependsOnAlternative
+	
+
 	
 	return storage
 ]]></Implementation>

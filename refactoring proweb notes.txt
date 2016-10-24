@@ -100,12 +100,12 @@ play around with edit panel ala surveymonkey
 make time fields be the right width
 write A3 for implementation
 refactor the dependency to use transient facade class
-
+do expenses
+do that pivotal story
 ===============================================================================
 
-do expenses
-implement dependency properly
-do that pivotal story
+
+
 
 ----  alpha version ----
 dependencies with mandatory doesn't work
@@ -117,6 +117,7 @@ re-test with multiple list on a page
 HTML5 validation not working
 date-range boundary values are not honoured
 add placeholders?
+dragging doesn't move the edit button
 complete the implmentation fo the file upload
 add session to ABIs
 restrict by attendee category

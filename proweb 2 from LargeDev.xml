@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2015.2 (Build 664_3_16032U)" ts="2016-10-21 10:02:48">
+<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2015.2 (Build 664_3_16032U)" ts="2016-10-24 10:43:58">
 <Class name="EF.contextDataRegistration">
 <Description><![CDATA[
 <!-- ;vc;-
@@ -2685,7 +2685,7 @@ Should be run if any of the sub-classes are deleted</Description>
 
 <Class name="EF.pageController.proweb.testCases.dropdownTestCase">
 <Super>EF.ISC.UnitTest.TestCase</Super>
-<TimeChanged>64211,43067.6808</TimeChanged>
+<TimeChanged>64215,38505.137066</TimeChanged>
 <TimeCreated>64204,52666.398429</TimeCreated>
 
 <Method name="TestPageWithDropdown">
@@ -2704,7 +2704,7 @@ Should be run if any of the sub-classes are deleted</Description>
 	
 	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(page,"render")
 	set returnedHTML = $ZStrip(returnedHTML,"*WC")
-	set expectedHTML = "<divclass=""rowef-proweb-form-row""><divclass=""col-sm-4ef_proweb_form_prompt""><labelclass=""control-label""for=""proweb-1""><divclass=""ef-label-text""id=""ef-display-label-proweb-1"">diet</div><divclass=""ef-proweb-direct-label-edit""style=""display:none;""id=""ef-edit-label-input-proweb-1""data-proweb-id=""""><inputtype=""text""value=""diet""></div></label></div><divclass=""col-sm-8ef_proweb_form_prompt""><selectplaceholder=""fish""class=""form-controlef-proweb-input-element""name=""proweb-1""id=""proweb-1""title=""""><optionvalue=""meat"">meat</option><optionvalue=""vegetarian"">vegetarian</option><optionvalue=""vegan"">vegan</option></select></div></div>"
+	set expectedHTML = "<divclass=""rowef-proweb-form-row""><divclass=""col-sm-4ef_proweb_form_prompt""><labelclass=""control-label""for=""proweb-1""><divclass=""ef-label-text""id=""ef-display-label-proweb-1"">diet</div><divclass=""ef-proweb-direct-label-edit""style=""display:none;""id=""ef-edit-label-input-proweb-1""data-proweb-id=""""><inputtype=""text""value=""diet""></div></label></div><divclass=""col-sm-8ef_proweb_form_prompt""><selectclass=""form-controlef-proweb-input-element""name=""proweb-1""id=""proweb-1""title=""""><optionvalue=""meat"">meat</option><optionvalue=""vegetarian"">vegetarian</option><optionvalue=""vegan"">vegan</option></select></div></div>"
 	do $$$AssertEquals(returnedHTML,expectedHTML)
 ]]></Implementation>
 </Method>
@@ -2727,7 +2727,7 @@ Should be run if any of the sub-classes are deleted</Description>
 	
 	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(page,"render")
 	set returnedHTML = $ZStrip(returnedHTML,"*WC")
-	set expectedHTML = "<divclass=""rowef-proweb-form-row""><divclass=""col-sm-4ef_proweb_form_prompt""><labelclass=""control-label""for=""proweb-1""><divclass=""ef-label-text""id=""ef-display-label-proweb-1"">diet</div><divclass=""ef-proweb-direct-label-edit""style=""display:none;""id=""ef-edit-label-input-proweb-1""data-proweb-id=""""><inputtype=""text""value=""diet""></div></label></div><divclass=""col-sm-8ef_proweb_form_prompt""><selectplaceholder=""fish""class=""form-controlef-proweb-input-element""name=""proweb-1""id=""proweb-1""title=""""><optionvalue=""meat"">meat</option><optionvalue=""vegetarian"">vegetarian</option><optionselected=""""value=""vegan"">vegan</option></select></div></div>"
+	set expectedHTML = "<divclass=""rowef-proweb-form-row""><divclass=""col-sm-4ef_proweb_form_prompt""><labelclass=""control-label""for=""proweb-1""><divclass=""ef-label-text""id=""ef-display-label-proweb-1"">diet</div><divclass=""ef-proweb-direct-label-edit""style=""display:none;""id=""ef-edit-label-input-proweb-1""data-proweb-id=""""><inputtype=""text""value=""diet""></div></label></div><divclass=""col-sm-8ef_proweb_form_prompt""><selectclass=""form-controlef-proweb-input-element""name=""proweb-1""id=""proweb-1""title=""""><optionvalue=""meat"">meat</option><optionvalue=""vegetarian"">vegetarian</option><optionselected=""""value=""vegan"">vegan</option></select></div></div>"
 	do $$$AssertEquals(returnedHTML,expectedHTML)
 ]]></Implementation>
 </Method>
@@ -2748,7 +2748,7 @@ Should be run if any of the sub-classes are deleted</Description>
 	do element.updateUIComponent()
 	
 	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(page,"render")
-	set expectedHTML = "<divclass=""rowef-proweb-form-row""><divclass=""col-sm-4ef_proweb_form_promptef-required-field""><labelclass=""control-label""for=""proweb-1""><divclass=""ef-label-text""id=""ef-display-label-proweb-1"">diet</div><divclass=""ef-proweb-direct-label-edit""style=""display:none;""id=""ef-edit-label-input-proweb-1""data-proweb-id=""""><inputtype=""text""value=""diet""></div></label></div><divclass=""col-sm-8ef_proweb_form_prompt""><selectplaceholder=""fish""class=""form-controlef-proweb-input-element""name=""proweb-1""id=""proweb-1""title=""""><optionvalue=''selecteddisabled>Chooseone...</option><optionvalue=""meat"">meat</option><optionvalue=""vegetarian"">vegetarian</option><optionselected=""""value=""vegan"">vegan</option></select></div></div>"
+	set expectedHTML = "<divclass=""rowef-proweb-form-row""><divclass=""col-sm-4ef_proweb_form_promptef-required-field""><labelclass=""control-label""for=""proweb-1""><divclass=""ef-label-text""id=""ef-display-label-proweb-1"">diet</div><divclass=""ef-proweb-direct-label-edit""style=""display:none;""id=""ef-edit-label-input-proweb-1""data-proweb-id=""""><inputtype=""text""value=""diet""></div></label></div><divclass=""col-sm-8ef_proweb_form_prompt""><selectclass=""form-controlef-proweb-input-element""name=""proweb-1""id=""proweb-1""title=""""><optionvalue=''selecteddisabled>Chooseone...</option><optionvalue=""meat"">meat</option><optionvalue=""vegetarian"">vegetarian</option><optionselected=""""value=""vegan"">vegan</option></select></div></div>"
 	set returnedHTML = $ZStrip(returnedHTML,"*WC")
 	do $$$AssertEquals(returnedHTML,expectedHTML)
 ]]></Implementation>
@@ -2914,7 +2914,7 @@ Should be run if any of the sub-classes are deleted</Description>
 
 <Class name="EF.pageController.proweb.testCases.pageTestCase">
 <Super>EF.ISC.UnitTest.TestCase</Super>
-<TimeChanged>64210,61652.074828</TimeChanged>
+<TimeChanged>64215,38544.881968</TimeChanged>
 <TimeCreated>64189,44993.632692</TimeCreated>
 
 <Method name="TestEditModeHTML">
@@ -2922,7 +2922,7 @@ Should be run if any of the sub-classes are deleted</Description>
 	set floatingMenu = ##class(EF.ui.components.frontend.floatingMenu).%New()
 	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(floatingMenu,"outputFloatingMenuHTML")
 	set returnedHTML = $ZStrip(returnedHTML,"*WC")
-	set expectedHTML = "<divid=""myFloater""class=""containeref-proweb-menu-handlerow""style=""display:none;""><divclass=""dropdownef-proweb-dropdown""><aid=""efProwebHeader""role=""button""data-toggle=""dropdown""class=""btnbtn-primaryef-proweb-dropdown-button""data-target=""#""href=""/page.html"">[Emptylistsnotimplementedyet]<spanclass=""caret""></span></a><ulclass=""dropdown-menumulti-levelef-proweb-dropdown-sub""role=""menu""aria-labelledby=""dropdownMenu""><li><aid=""efProwebEditLink""href=""#"">Edit</a></li><li><aid=""efProwebDeleteLink""href=""#"">Delete</a></li><liclass=""divider""></li><liclass=""dropdown-submenu""><atabindex=""-1""href=""#"">InsertAbove</a><ulclass=""dropdown-menu""><li><aid=""efProwebInsertQuestionAboveLink""tabindex=""-1""href=""#"">Question</a></li><li><aid=""efProwebInsertDividerAboveLink""href=""#"">Divider</a></li><li><aid=""efProwebInsertTextBlockAboveLink""href=""#"">Textblock</a></li><li><aid=""efProwebInsertFileUploadAboveLink""href=""#"">Fileupload</a></li><li><aid=""efProwebInsertYouTubeVideoAboveLink""href=""#"">YouTubevideo</a></li></ul></li><liclass=""dropdown-submenu""><atabindex=""-1""href=""#"">InsertBelow</a><ulclass=""dropdown-menu""><li><aid=""efProwebInsertQuestionBelowLink""tabindex=""-1""href=""#"">Question</a></li><li><aid=""efProwebInsertDividerBelowLink""href=""#"">Divider</a></li><li><aid=""efProwebInsertTextBlockBelowLink""href=""#"">Textblock</a></li><li><aid=""efProwebInsertFileUploadBelowLink""href=""#"">Fileupload</a></li><li><aid=""efProwebInsertYouTubeVideoBelowLink""href=""#"">YouTubevideo</a></li></ul></li></ul></div></div>"
+	set expectedHTML = "<divid=""myFloater""class=""containeref-proweb-menu-handlerow""style=""display:none;""><divclass=""dropdownef-proweb-dropdown""><aid=""efProwebHeader""role=""button""data-toggle=""dropdown""class=""btnbtn-primaryef-proweb-dropdown-button""data-target=""#""href=""/page.html"">[Emptylistsnotimplementedyet]<spanclass=""caret""></span></a><ulclass=""dropdown-menumulti-levelef-proweb-dropdown-sub""role=""menu""aria-labelledby=""dropdownMenu""><li><aid=""efProwebEditLink""href=""#"">Edit</a></li><li><aid=""efProwebDeleteLink""href=""#"">Delete</a></li><liclass=""dropdown-submenu""><atabindex=""-1""href=""#"">Add</a><ulclass=""dropdown-menu""><li><aid=""efProwebInsertQuestionBelowLink""tabindex=""-1""href=""#"">Question</a></li><li><aid=""efProwebInsertDividerBelowLink""href=""#"">Divider</a></li><li><aid=""efProwebInsertTextBlockBelowLink""href=""#"">Text</a></li><li><aid=""efProwebInsertFileUploadBelowLink""href=""#"">Fileupload</a></li><li><aid=""efProwebInsertYouTubeVideoBelowLink""href=""#"">YouTubevideo</a></li></ul></li></ul></div></div>"
 	do $$$AssertEquals(returnedHTML,expectedHTML)
 ]]></Implementation>
 </Method>
@@ -3256,7 +3256,7 @@ Should be run if any of the sub-classes are deleted</Description>
 
 <Class name="EF.pageController.proweb.testCases.textInputTestCase">
 <Super>EF.ISC.UnitTest.TestCase</Super>
-<TimeChanged>64210,56508.342044</TimeChanged>
+<TimeChanged>64215,38610.299906</TimeChanged>
 <TimeCreated>64204,52795.592181</TimeCreated>
 
 <Method name="TestbasicInputField">
@@ -3445,7 +3445,7 @@ Should be run if any of the sub-classes are deleted</Description>
 	
 	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(pageController,"renderElements")
 	set returnedHTML = $ZStrip(returnedHTML,"*WC")
-	set expectedHTML = "<divclass=""rowef-draggable-divef-proweb-form-row-editable""id=""ef-field-proweb-1""data-proweb-title=""AttendeeFirstName""data-proweb-id=""1""data-proweb-list-id=""""><divclass=""col-sm-4ef_proweb_form_prompt""><labelclass=""control-label""for=""proweb-1""><divclass=""ef-label-text""id=""ef-display-label-proweb-1"">AttendeeFirstName</div><divclass=""ef-proweb-direct-label-edit""style=""display:none;""id=""ef-edit-label-input-proweb-1""data-proweb-id=""1""><inputtype=""text""value=""AttendeeFirstName""></div></label></div><divclass=""col-sm-8ef_proweb_form_prompt""><inputtype=""text""class=""form-controlef-proweb-input-elementef-proweb-input-element-backendOnly""title=""""id=""proweb-1""name=""proweb-1""value=""Fred""placeholder=""(Adminportalonly)""></div></div>"
+	set expectedHTML = "<divclass=""rowef-draggable-divef-proweb-form-row-editable""id=""ef-field-proweb-1""data-proweb-title=""✎""data-proweb-id=""1""data-proweb-list-id=""""><divclass=""col-sm-4ef_proweb_form_prompt""><labelclass=""control-label""for=""proweb-1""><divclass=""ef-label-text""id=""ef-display-label-proweb-1"">AttendeeFirstName</div><divclass=""ef-proweb-direct-label-edit""style=""display:none;""id=""ef-edit-label-input-proweb-1""data-proweb-id=""1""><inputtype=""text""value=""AttendeeFirstName""></div></label></div><divclass=""col-sm-8ef_proweb_form_prompt""><inputtype=""text""class=""form-controlef-proweb-input-elementef-proweb-input-element-backendOnly""title=""""id=""proweb-1""name=""proweb-1""value=""Fred""placeholder=""(Adminportalonly)""></div></div>"
 	do $$$AssertEquals(returnedHTML,expectedHTML)
 ]]></Implementation>
 </Method>
@@ -4807,7 +4807,7 @@ we need to refactor the frontend buttons to make them callable from class method
 
 <Class name="EF.ui.components.frontend.dropdown">
 <Super>EF.ui.components.listInput,EF.ui.components.frontend.inputElement</Super>
-<TimeChanged>64212,35172.616945</TimeChanged>
+<TimeChanged>64212,46177.616976</TimeChanged>
 <TimeCreated>63355,56609.363142</TimeCreated>
 
 <Property name="isPersistent">
@@ -4828,7 +4828,12 @@ we need to refactor the frontend buttons to make them callable from class method
 	set searchableDataAttributes = ""
 	if ..isSearchAsYouType {
 		set selectClass = selectClass_" ef_element_dropdown_searchable select2-hidden-accessible "
-		set searchableDataAttributes = "data-obj-cod-item-id="_..prowebItemID_" data-ef-cod-item-alternatives-url="_##class(shared.pCSP).Link("getCodItemAlternativesJSON.csp")
+		if ..isMandatory {
+			set searchableDataAttributes = searchableDataAttributes_" data-placeholder=""Choose one..."""
+		} else {
+			set searchableDataAttributes = searchableDataAttributes_" data-placeholder="" """
+		}
+		set searchableDataAttributes = searchableDataAttributes_" data-obj-cod-item-id="_..encodeHTMLAttribute(..prowebItemID)_" data-ef-cod-item-alternatives-url="_..encodeHTMLAttribute(##class(shared.pCSP).Link("getCodItemAlternativesJSON.csp"))
 	}
 	
 	set disabledString=""
@@ -4841,7 +4846,7 @@ we need to refactor the frontend buttons to make them callable from class method
 	&html<		
 		<select class="#(..encodeForHTMLAttribute(..classes_" "_selectClass))#" name="#(..encodeHTMLAttribute(..htmlName))#" 
 			id="#(..encodeHTMLAttribute(..htmlID))#" title="#(..encodeHTMLAttribute(..title))#" 
-			#(..rawHTML(disabledString))# #(..rawHTML(..getExtraAttributes()))# #(..encodeHTMLAttribute(searchableDataAttributes))#>
+			#(..rawHTML(disabledString))# #(..rawHTML(..getExtraAttributes()))# #(..rawHTML(searchableDataAttributes))#>
 			
     		#[do ..renderPlaceholder()]#
     		#[do ..renderAlternatives()]#
@@ -5177,7 +5182,7 @@ we need to refactor the frontend buttons to make them callable from class method
 
 <Class name="EF.ui.components.frontend.floatingMenu">
 <Super>shared.pCSPmanage</Super>
-<TimeChanged>64210,40694.657585</TimeChanged>
+<TimeChanged>64215,33738.616993</TimeChanged>
 <TimeCreated>64203,40625.329831</TimeCreated>
 
 <Method name="outputFloatingMenuHTML">
@@ -5192,17 +5197,17 @@ we need to refactor the frontend buttons to make them callable from class method
 	    		<ul class="dropdown-menu multi-level ef-proweb-dropdown-sub" role="menu" aria-labelledby="dropdownMenu">
 	              <li><a id="efProwebEditLink" href="#">Edit</a></li>
 	              <li><a id="efProwebDeleteLink" href="#">Delete</a></li>
-	              <li class="divider"></li>
+	             
 	              
                 >
-                for aboveOrBelow = "Above","Below" {
+                for aboveOrBelow = "Below" {
 	                &html<
 			              <li class="dropdown-submenu">
-			                <a tabindex="-1" href="#">Insert #(aboveOrBelow)#</a>
+			                <a tabindex="-1" href="#">Add</a>
 			                <ul class="dropdown-menu">
 			                  <li><a id="efProwebInsertQuestion#(aboveOrBelow)#Link" tabindex="-1" href="#">Question</a></li>
 			                  <li><a id="efProwebInsertDivider#(aboveOrBelow)#Link" href="#">Divider</a></li>
-			                  <li><a id="efProwebInsertTextBlock#(aboveOrBelow)#Link" href="#">Text block</a></li>
+			                  <li><a id="efProwebInsertTextBlock#(aboveOrBelow)#Link" href="#">Text</a></li>
 			                  <li><a id="efProwebInsertFileUpload#(aboveOrBelow)#Link" href="#">File upload</a></li>
 			                  <li><a id="efProwebInsertYouTubeVideo#(aboveOrBelow)#Link" href="#">YouTube video</a></li>
 			                </ul>
@@ -5562,7 +5567,7 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 
 <Class name="EF.ui.components.frontend.prowebBase">
 <Super>EF.ui.components.base</Super>
-<TimeChanged>64209,45891.71568</TimeChanged>
+<TimeChanged>64212,50319.019481</TimeChanged>
 <TimeCreated>64183,41819.123112</TimeCreated>
 
 <Property name="isProwebEditMode">
@@ -5604,6 +5609,8 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 <Method name="getFloatingMenuHeader">
 <ReturnType>%String</ReturnType>
 <Implementation><![CDATA[
+	return "✎"
+	/*
 	if ..%IsA("EF.ui.components.frontend.divider") {
 		return "Divider"	
 		
@@ -5624,6 +5631,7 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 	} else {
 		throw ##class(shared.exceptions.generalException).%New("Proweb uiComponent type not implemented: "_$this)	
 	}
+	*/
 ]]></Implementation>
 </Method>
 
@@ -13308,6 +13316,13 @@ function updateAlts(codPromptID) {
 	left: 0px;
 	top: 0px;	
 }
+.efDatePicker, .efTimePicker {
+	border-width: 0px;
+	width: 100%;
+}
+[class*="col-"] .select2-container {
+    width:80%!important;
+}
 </style>]]></CSP>
 
 
@@ -14641,7 +14656,7 @@ FRRE RULE
 <Abstract>1</Abstract>
 <ClassType/>
 <ProcedureBlock>1</ProcedureBlock>
-<TimeChanged>64211,54402.97192</TimeChanged>
+<TimeChanged>64212,51460.981944</TimeChanged>
 <TimeCreated>63046,56232.897117</TimeCreated>
 
 <Method name="outputDefaultCSS">
@@ -14753,7 +14768,8 @@ yellow red grey etc. Used for ALL templates below gen3</Description>
 			font-style: normal; 
 			line-height: normal; 
 			font-weight: normal; 
-			text-decoration: none;			
+			text-decoration: none;
+			float: left;			
 		}
 		.select2-container .select2-selection--single .select2-selection__rendered {
 			padding-left: 5px;
@@ -14771,7 +14787,7 @@ yellow red grey etc. Used for ALL templates below gen3</Description>
 			margin-top: 2px;
 			margin-bottom: 2px;
 			border-width: 1px;
-			border-style: solid; 
+			border-style: solid;
 		}
 
 		.ef-registration-section .select2-container {
@@ -14879,6 +14895,31 @@ yellow red grey etc. Used for ALL templates below gen3</Description>
 		      text-align: left; 
 		  }
 		}
+		.EF_dropdown_searchable_container {
+			float: left;
+			max-width: 90%!important;
+		}
+		.EF_dropdown_searchable_selection {
+		    width: 100%;
+		    height: 34px!important;
+		    padding: 3px 10px;
+		    font-size: 14px;
+		    line-height: 1.42857143;
+		    color: #555;
+		    background-color: #fff;
+		    background-image: none;
+		    border: 1px solid #ccc!important;
+		    border-radius: 4px!important;
+		    -webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,.075)!important;
+		    box-shadow: inset 0 1px 1px rgba(0,0,0,.075);
+		    -webkit-transition: border-color ease-in-out .15s,-webkit-box-shadow ease-in-out .15s;
+		    -o-transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s;
+		    transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s;
+		}
+		.select2-selection__rendered {
+			background-color: inherit!important;
+			color: inherit!important;
+		}
 		.ef-proweb-form-row-editable, .ef-proweb-form-row {
 			padding-top: 4px;
 			padding-bottom:4px;	
@@ -14905,7 +14946,7 @@ yellow red grey etc. Used for ALL templates below gen3</Description>
 		}		
 		.ef-proweb-input-element-short {
 			width: 40%;
-			text-align: left; 	
+			float: left; 	
 		}
 
 		.ef-proweb-radio-group {
@@ -14920,7 +14961,8 @@ yellow red grey etc. Used for ALL templates below gen3</Description>
 			font-weight: 700;
 		}
 		.ef-proweb-input-element {
-			width: 90%;
+			width: 80%;
+			float: left;
 		}
 		.ef-proweb-checkboxGroup {
 			text-align: left;	
@@ -16001,6 +16043,7 @@ The basic frontend default stuff</Description>
 			text-overflow: ellipsis;
 			padding-right: 16px;
 			line-height: inherit;
+			text-align: left;
 		}
 		
 		.ef-highlight-warning {
@@ -16939,7 +16982,7 @@ The basic frontend default stuff</Description>
 </Class>
 
 
-<Project name="proweb 2" LastModified="2016-10-21 10:02:48.403062" Target="dev.efsys.net/LARGEDEVSRC/backend/home/efSupportLogin.htm" TargetType="3">
+<Project name="proweb 2" LastModified="2016-10-21 10:02:48.399405" Target="dev.efsys.net/LARGEDEVSRC/backend/home/efSupportLogin.htm" TargetType="3">
   <Items>
     <ProjectItem name="EF.contextDataRegistration" type="CLS"></ProjectItem>
     <ProjectItem name="EF.contextDataRegistrationMock" type="CLS"></ProjectItem>
@@ -16970,6 +17013,7 @@ The basic frontend default stuff</Description>
     <ProjectItem name="EF.pageController.proweb.testCases.dropdownTestCase" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.proweb.testCases.emailInputMultiTestCase" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.proweb.testCases.emailInputTestCase" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.pageController.proweb.testCases.fileUploadInputTestCase" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.proweb.testCases.integerInputTestCase" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.proweb.testCases.numericInputTestCase" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.proweb.testCases.pageTestCase" type="CLS"></ProjectItem>
@@ -16992,6 +17036,7 @@ The basic frontend default stuff</Description>
     <ProjectItem name="EF.pages.frontend.baseProweb" type="CLS"></ProjectItem>
     <ProjectItem name="EF.ui.components.attribute" type="CLS"></ProjectItem>
     <ProjectItem name="EF.ui.components.backend.panel" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.ui.components.frontend.buttonSubmit" type="CLS"></ProjectItem>
     <ProjectItem name="EF.ui.components.frontend.checkbox" type="CLS"></ProjectItem>
     <ProjectItem name="EF.ui.components.frontend.checkboxGroup" type="CLS"></ProjectItem>
     <ProjectItem name="EF.ui.components.frontend.datePicker" type="CLS"></ProjectItem>
@@ -17000,6 +17045,8 @@ The basic frontend default stuff</Description>
     <ProjectItem name="EF.ui.components.frontend.dropdown" type="CLS"></ProjectItem>
     <ProjectItem name="EF.ui.components.frontend.emailInput" type="CLS"></ProjectItem>
     <ProjectItem name="EF.ui.components.frontend.emailInputMulti" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.ui.components.frontend.fileUpload" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.ui.components.frontend.fileUploadFacade" type="CLS"></ProjectItem>
     <ProjectItem name="EF.ui.components.frontend.floatingMenu" type="CLS"></ProjectItem>
     <ProjectItem name="EF.ui.components.frontend.inputElement" type="CLS"></ProjectItem>
     <ProjectItem name="EF.ui.components.frontend.integerInput" type="CLS"></ProjectItem>
@@ -17024,6 +17071,11 @@ The basic frontend default stuff</Description>
     <ProjectItem name="EF.validator.webAddressTestCase" type="CLS"></ProjectItem>
     <ProjectItem name="largedevsrc/backEnd/proweb/codQuestionDetails.csp" type="CSP"></ProjectItem>
     <ProjectItem name="largedevsrc/backEnd/proweb/codQuestionDetails2.csp" type="CSP"></ProjectItem>
+    <ProjectItem name="largedevsrc/backEnd/proweb/editItem.csp" type="CSP"></ProjectItem>
+    <ProjectItem name="largedevsrc/backEnd/proweb/fileUploadDetails.csp" type="CSP"></ProjectItem>
+    <ProjectItem name="largedevsrc/backEnd/proweb/fileUploadDetails2.csp" type="CSP"></ProjectItem>
+    <ProjectItem name="largedevsrc/backEnd/proweb/flashDetails.csp" type="CSP"></ProjectItem>
+    <ProjectItem name="largedevsrc/backEnd/proweb/flashDetails2.csp" type="CSP"></ProjectItem>
     <ProjectItem name="largedevsrc/backEnd/proweb/formDivider.csp" type="CSP"></ProjectItem>
     <ProjectItem name="largedevsrc/backEnd/proweb/textDetailsMoxie.csp" type="CSP"></ProjectItem>
     <ProjectItem name="largedevsrc/backEnd/proweb/textDetailsMoxie2.csp" type="CSP"></ProjectItem>
@@ -17038,7 +17090,9 @@ The basic frontend default stuff</Description>
     <ProjectItem name="sc.facade.prowebItemStorage" type="CLS"></ProjectItem>
     <ProjectItem name="sc.facade.prowebItemStorageDivider" type="CLS"></ProjectItem>
     <ProjectItem name="sc.facade.prowebItemStorageFileUpload" type="CLS"></ProjectItem>
+    <ProjectItem name="sc.facade.prowebItemStorageFileUploadMock" type="CLS"></ProjectItem>
     <ProjectItem name="sc.facade.prowebItemStorageInputElement" type="CLS"></ProjectItem>
+    <ProjectItem name="sc.facade.prowebItemStorageInputElementAlternative" type="CLS"></ProjectItem>
     <ProjectItem name="sc.facade.prowebItemStorageInputElementMock" type="CLS"></ProjectItem>
     <ProjectItem name="sc.facade.prowebItemStorageTextBlock" type="CLS"></ProjectItem>
     <ProjectItem name="sc.facade.prowebItemStorageYouTubeVideo" type="CLS"></ProjectItem>
@@ -17046,17 +17100,6 @@ The basic frontend default stuff</Description>
     <ProjectItem name="sc.objData" type="CLS"></ProjectItem>
     <ProjectItem name="sc.xModules.objList" type="CLS"></ProjectItem>
     <ProjectItem name="shared.pageMethods" type="CLS"></ProjectItem>
-    <ProjectItem name="EF.ui.components.frontend.fileUpload" type="CLS"></ProjectItem>
-    <ProjectItem name="EF.ui.components.frontend.fileUploadFacade" type="CLS"></ProjectItem>
-    <ProjectItem name="largedevsrc/backEnd/proweb/editItem.csp" type="CSP"></ProjectItem>
-    <ProjectItem name="largedevsrc/backEnd/proweb/fileUploadDetails.csp" type="CSP"></ProjectItem>
-    <ProjectItem name="largedevsrc/backEnd/proweb/fileUploadDetails2.csp" type="CSP"></ProjectItem>
-    <ProjectItem name="largedevsrc/backEnd/proweb/flashDetails.csp" type="CSP"></ProjectItem>
-    <ProjectItem name="largedevsrc/backEnd/proweb/flashDetails2.csp" type="CSP"></ProjectItem>
-    <ProjectItem name="EF.pageController.proweb.testCases.fileUploadInputTestCase" type="CLS"></ProjectItem>
-    <ProjectItem name="sc.facade.prowebItemStorageFileUploadMock" type="CLS"></ProjectItem>
-    <ProjectItem name="EF.ui.components.frontend.buttonSubmit" type="CLS"></ProjectItem>
-    <ProjectItem name="sc.facade.prowebItemStorageInputElementAlternative" type="CLS"></ProjectItem>
   </Items>
   <BreakPoints>
     <BreakPoint Routine="cspRealEV.frontend.reg.pagecontrollerstandardsave.CLS" Offset="OnPreHTTPafter+28"></BreakPoint>

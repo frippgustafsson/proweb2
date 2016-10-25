@@ -103,10 +103,11 @@ refactor the dependency to use transient facade class
 do expenses
 do that pivotal story
 get rajib to implement the search as you type
+fix pageID bug
 ===============================================================================
 
-fix pageID bug
-create the 28 stories in the icebox
+
+add horizontal-form class
 
 
 

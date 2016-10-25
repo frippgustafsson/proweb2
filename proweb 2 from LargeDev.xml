@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2015.2 (Build 664_3_16032U)" ts="2016-10-25 13:26:17">
+<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2015.2 (Build 664_3_16032U)" ts="2016-10-25 14:49:23">
 <Class name="EF.contextDataRegistration">
 <Description><![CDATA[
 <!-- ;vc;-
@@ -5190,7 +5190,7 @@ we need to refactor the frontend buttons to make them callable from class method
 
 <Class name="EF.ui.components.frontend.floatingMenu">
 <Super>shared.pCSPmanage</Super>
-<TimeChanged>64215,33738.616993</TimeChanged>
+<TimeChanged>64216,51192.828215</TimeChanged>
 <TimeCreated>64203,40625.329831</TimeCreated>
 
 <Method name="outputFloatingMenuHTML">
@@ -5205,24 +5205,16 @@ we need to refactor the frontend buttons to make them callable from class method
 	    		<ul class="dropdown-menu multi-level ef-proweb-dropdown-sub" role="menu" aria-labelledby="dropdownMenu">
 	              <li><a id="efProwebEditLink" href="#">Edit</a></li>
 	              <li><a id="efProwebDeleteLink" href="#">Delete</a></li>
-	             
 	              
-                >
-                for aboveOrBelow = "Below" {
-	                &html<
-			              <li class="dropdown-submenu">
-			                <a tabindex="-1" href="#">Add</a>
-			                <ul class="dropdown-menu">
-			                  <li><a id="efProwebInsertQuestion#(aboveOrBelow)#Link" tabindex="-1" href="#">Question</a></li>
-			                  <li><a id="efProwebInsertDivider#(aboveOrBelow)#Link" href="#">Divider</a></li>
-			                  <li><a id="efProwebInsertTextBlock#(aboveOrBelow)#Link" href="#">Text</a></li>
-			                  <li><a id="efProwebInsertFileUpload#(aboveOrBelow)#Link" href="#">File upload</a></li>
-			                  <li><a id="efProwebInsertYouTubeVideo#(aboveOrBelow)#Link" href="#">YouTube video</a></li>
-			                </ul>
-			              </li>
-						>
-                	}
-                &html<		              
+
+                  <li><a id="efProwebInsertQuestionBelowLink" tabindex="-1" href="#">Question</a></li>
+                  <li><a id="efProwebInsertABIBelowLink" tabindex="-1" href="#">ABI</a></li>
+                  <li><a id="efProwebInsertQBIBelowLink" tabindex="-1" href="#">QBI</a></li>
+                  <li><a id="efProwebInsertDividerBelowLink" href="#">Divider</a></li>
+                  <li><a id="efProwebInsertTextBlockBelowLink" href="#">Text</a></li>
+                  <li><a id="efProwebInsertFileUploadBelowLink" href="#">File upload</a></li>
+                  <li><a id="efProwebInsertYouTubeVideoBelowLink" href="#">YouTube video</a></li>
+
 	            </ul>
 	        </div>
 		</div>
@@ -13344,12 +13336,16 @@ function updateAlts(codPromptID) {
 	border-width: 0px;
 	width: 100%;
 }
+.EF_dropdown_searchable_selection {
+	text-align: left;
+}
 [class*="col-"] .select2-container {
     width:80%!important;
 }
 .ef-showing-floater .col-sm-8.ef_proweb_form_prompt::after {
 	font-family: "Glyphicons Halflings";
     content: "\e119";
+    float: right;
 }
 </style>]]></CSP>
 
@@ -19062,7 +19058,7 @@ Creates new list object. Should be done the first time the page is loaded</Descr
 <Abstract>1</Abstract>
 <ClassType/>
 <ProcedureBlock>1</ProcedureBlock>
-<TimeChanged>64210,61473.839481</TimeChanged>
+<TimeChanged>64216,53316.580869</TimeChanged>
 <TimeCreated>60747,44410.590792</TimeCreated>
 
 <Method name="prePartOne">
@@ -19593,6 +19589,12 @@ clean the passed in URL to make sure only allow an internal redirection</Descrip
 	}
 	if 'pageID {
 		set pageID = %request.Get("pageID")
+	}
+	if 'pageID {
+		set pageController = ##class(EF.pageController.page).%OpenId( %request.Get("pageControllerID") )
+		if $IsObject(pageController) && (pageController.%IsA("EF.pageController.proweb.page")) {
+			set pageID = pageController.prowebPageID
+		}
 	}
 	quit pageID
 ]]></Implementation>

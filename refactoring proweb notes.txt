@@ -102,8 +102,11 @@ write A3 for implementation
 refactor the dependency to use transient facade class
 do expenses
 do that pivotal story
+get rajib to implement the search as you type
 ===============================================================================
 
+fix pageID bug
+create the 28 stories in the icebox
 
 
 
@@ -111,7 +114,6 @@ do that pivotal story
 dependencies with mandatory doesn't work
 refactor the dependency to use transient facade class
 make sure we can't add questions on components that shouldn't allow it
-get rajib to implement the search as you type
 fixeds headers, banners and menues etc
 re-test with multiple list on a page
 HTML5 validation not working

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2015.2 (Build 664_3_16032U)" ts="2016-10-25 15:41:38">
+<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2015.2 (Build 664_3_16032U)" ts="2016-10-25 16:29:09">
 <Class name="EF.contextDataRegistration">
 <Description><![CDATA[
 <!-- ;vc;-
@@ -1577,7 +1577,7 @@ Should be run if any of the sub-classes are deleted</Description>
 
 <Class name="EF.pageController.proweb.inputElement">
 <Super>EF.pageController.inputElement,EF.pageController.proweb.prowebBase</Super>
-<TimeChanged>64208,43731.091365</TimeChanged>
+<TimeChanged>64216,56927.063544</TimeChanged>
 <TimeCreated>64189,53012.909524</TimeCreated>
 
 <Property name="isMandatory">
@@ -1609,11 +1609,15 @@ Should be run if any of the sub-classes are deleted</Description>
 <Method name="isOkToRender">
 <ReturnType>%Boolean</ReturnType>
 <Implementation><![CDATA[
-	if (..prowebItem.storage.isBackendOnly) && (..uiComponent.contextData.isBackendBooking = 0) && (..uiComponent.contextData.prowebMode ="preview") {
-		return 0	
-	}
+	set isOkToRender = ##super()
 	
-	return 1
+	if isOkToRender {
+		if (..prowebItem.storage.isBackendOnly) && (..uiComponent.contextData.isBackendBooking = 0) && (..uiComponent.contextData.prowebMode ="preview") {
+			set isOkToRender = 0	
+		}
+	}
+		
+	return isOkToRender
 ]]></Implementation>
 </Method>
 
@@ -1681,7 +1685,7 @@ Should be run if any of the sub-classes are deleted</Description>
 
 <Class name="EF.pageController.proweb.page">
 <Super>EF.pageController.page</Super>
-<TimeChanged>64216,55351.017397</TimeChanged>
+<TimeChanged>64216,58223.255993</TimeChanged>
 <TimeCreated>64189,51696.559047</TimeCreated>
 
 <Property name="contextData">
@@ -1824,10 +1828,11 @@ Should be run if any of the sub-classes are deleted</Description>
 			} else {
 				throw ##class(shared.exceptions.generalException).%New("Proweb type not implemented: "_typeOfElement)	
 			}
-						
-			set prowebItem = ##class(sc.facade.prowebItem).createNew(storage)
 			
-			do ..addControllerForProwebItem(prowebItem)
+			if storage.isOkToUse(..contextData) {			
+				set prowebItem = ##class(sc.facade.prowebItem).createNew(storage)
+				do ..addControllerForProwebItem(prowebItem)
+			}
 		}
 	}
 ]]></Implementation>
@@ -2524,7 +2529,7 @@ Should be run if any of the sub-classes are deleted</Description>
 
 <Class name="EF.pageController.proweb.prowebBase">
 <Super>EF.pageController.element</Super>
-<TimeChanged>64208,43069.133615</TimeChanged>
+<TimeChanged>64216,58260.92232</TimeChanged>
 <TimeCreated>64183,49747.663252</TimeCreated>
 
 <Parameter name="canBeDependent">
@@ -17153,7 +17158,7 @@ Facade class for the sc.objData</Description>
 
 <Class name="sc.facade.prowebItemStorage">
 <Super>%RegisteredObject</Super>
-<TimeChanged>64216,47799.649696</TimeChanged>
+<TimeChanged>64216,59141.4142</TimeChanged>
 <TimeCreated>64206,37017.045507</TimeCreated>
 
 <Property name="prowebID">
@@ -17187,6 +17192,26 @@ Property displayOrder As %Integer [ Required ];</Description>
 	} else {
 		return "dummy-listID"
 	}
+]]></Implementation>
+</Method>
+
+<Method name="isOkToUse">
+<FormalSpec>contextData:EF.contextDataRegistration</FormalSpec>
+<ReturnType>%Boolean</ReturnType>
+<Implementation><![CDATA[
+	if 'contextData.%Extends("EF.contextDataRegistration") {
+		throw ##class(shared.exceptions.generalException).%New("Proweb2 has not been implemented for this type of contextData yet: "_contextData)
+	}
+	
+	if contextData.prowebMode = "edit" {
+		return 1
+	}
+	
+	if (contextData.attendeeCategoryID) {
+		return ##class(links.lnkEventCategoryData).allow(contextData.attendeeCategoryID, ..prowebID)	
+	}
+	
+	return 1
 ]]></Implementation>
 </Method>
 </Class>

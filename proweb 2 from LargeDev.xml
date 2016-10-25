@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2015.2 (Build 664_3_16032U)" ts="2016-10-25 10:31:02">
+<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2015.2 (Build 664_3_16032U)" ts="2016-10-25 13:26:17">
 <Class name="EF.contextDataRegistration">
 <Description><![CDATA[
 <!-- ;vc;-
@@ -318,13 +318,13 @@ if website is private, this will be set to the cod.objPerson.ID of that logged i
 <!-- ;vc;-
 ;vc;    Object: EF.pageController.containerElement.CLS/EV.17
 ;vc; Component: CLS.EF.pageController.containerElement
-;vc;  Location: SmallDev
-;vc; Date/Time: 02-Sep-16 14:23
-;vc;      User: JeremyW
-;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>EF.pageController.containerElement.CLS/EV.17</td><td>CLS.EF.pageController.containerElement</td><td>SmallDev</td><td style='white-space: nowrap;'>02-Sep-16 14:23</td><td>JeremyW</td></tr></table>
+;vc;  Location: LargeDev
+;vc; Date/Time: 25-Oct-16 12:34
+;vc;      User: FredG
+;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>EF.pageController.containerElement.CLS/EV.17</td><td>CLS.EF.pageController.containerElement</td><td>LargeDev</td><td style='white-space: nowrap;'>25-Oct-16 12:34</td><td>FredG</td></tr></table>
 ]]></Description>
 <Super>EF.pageController.element</Super>
-<TimeChanged>64197,64052.57974</TimeChanged>
+<TimeChanged>64142,56781</TimeChanged>
 <TimeCreated>63372,47273.826383</TimeCreated>
 
 <Property name="getContentsMethod">
@@ -859,16 +859,16 @@ Adds a translation button with warning icon which opens an in-form modal</Descri
 <Class name="EF.pageController.element">
 <Description><![CDATA[
 <!-- ;vc;-
-;vc;    Object: EF.pageController.element.CLS/EV.8
+;vc;    Object: EF.pageController.element.CLS/EV.9
 ;vc; Component: CLS.EF.pageController.element
-;vc;  Location: SmallDev
-;vc; Date/Time: 02-Sep-16 14:23
-;vc;      User: JeremyW
-;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>EF.pageController.element.CLS/EV.8</td><td>CLS.EF.pageController.element</td><td>SmallDev</td><td style='white-space: nowrap;'>02-Sep-16 14:23</td><td>JeremyW</td></tr></table>
+;vc;  Location: LargeDev
+;vc; Date/Time: 25-Oct-16 12:32
+;vc;      User: FredG
+;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>EF.pageController.element.CLS/EV.9</td><td>CLS.EF.pageController.element</td><td>LargeDev</td><td style='white-space: nowrap;'>25-Oct-16 12:32</td><td>FredG</td></tr></table>
 ]]></Description>
 <IncludeCode>EF.common.macros</IncludeCode>
 <Super>%Library.Persistent,shared.timeStamp</Super>
-<TimeChanged>64206,47538.737574</TimeChanged>
+<TimeChanged>64216,45146</TimeChanged>
 <TimeCreated>63350,63749.535929</TimeCreated>
 
 <Property name="elementParent">
@@ -927,12 +927,6 @@ The description of the property. Should be unique for each pageInstance</Descrip
 <Property name="showHideDependencyList">
 <Type>EF.ui.components.dependencyList</Type>
 <Transient>1</Transient>
-</Property>
-
-<Property name="displayOrder">
-<Description>
-needed to be able to output proweb items in the correct order until we change the 'allPageElements' proper in EF.pageController.page to be a list</Description>
-<Type>%Integer</Type>
 </Property>
 
 <Property name="isModalTempData">
@@ -1687,7 +1681,7 @@ Should be run if any of the sub-classes are deleted</Description>
 
 <Class name="EF.pageController.proweb.page">
 <Super>EF.pageController.page</Super>
-<TimeChanged>64216,37516.968168</TimeChanged>
+<TimeChanged>64216,48043.418528</TimeChanged>
 <TimeCreated>64189,51696.559047</TimeCreated>
 
 <Property name="contextData">
@@ -1918,7 +1912,7 @@ Should be run if any of the sub-classes are deleted</Description>
 		set optionalGuestNumber = 1
 	}
 	set elementIdentifier = ..getElementIdentifierForProwebItems(prowebItem, optionalGuestNumber)
-	set value = ..getValueFromEComTemp(prowebItem.storage.databaseItemName, optionalGuestNumber)
+	set value = ..getValueFromEComTemp(prowebItem, optionalGuestNumber)
 	
 	set pageControllerClassName = $Case(prowebItem.storage.inputType,
 											"text":"textInput",
@@ -1972,10 +1966,12 @@ Should be run if any of the sub-classes are deleted</Description>
 </Method>
 
 <Method name="getValueFromEComTemp">
-<FormalSpec>itemName:%String,optionalGuestNumber:%Integer,getRawData=0</FormalSpec>
+<FormalSpec>prowebItem:sc.facade.prowebItem,optionalGuestNumber:%Integer,getRawData=0</FormalSpec>
 <Private>1</Private>
 <ReturnType>%String</ReturnType>
 <Implementation><![CDATA[
+	#dim itemName as %String = prowebItem.storage.databaseItemName
+	
 	if optionalGuestNumber  {
 		if ..contextData.prowebMode = "edit" {
 			set tempPersonID = "n/a"
@@ -1986,6 +1982,10 @@ Should be run if any of the sub-classes are deleted</Description>
 		set tempPersonID = ..contextData.tempPersonID
 	}
 	set value = ##class(eCom.tempCodData).get(tempPersonID, itemName, ,getRawData)
+	
+	if (value = "") && (prowebItem.storage.defaultValue '= "") {
+		set value = prowebItem.storage.defaultValue	
+	}
 	return value
 ]]></Implementation>
 </Method>
@@ -2044,16 +2044,16 @@ Should be run if any of the sub-classes are deleted</Description>
 	#dim key as %Integer = ""
 	
 	if prowebItem.storage.inputType = "dropdown" {
-		set value = ..getValueFromEComTemp(prowebItem.storage.databaseItemName, optionalGuestNumber)
+		set value = ..getValueFromEComTemp(prowebItem, optionalGuestNumber)
 		set element = ##class(EF.pageController.proweb.dropdown).addElementToParent($this, elementIdentifier, labelText, value, isReadOnly)
 		set element.uiComponent.isSearchAsYouType = prowebItem.storage.isSearchAsYouType
 		
 	} elseif prowebItem.storage.inputType = "radiobutton" {
-		set value = ..getValueFromEComTemp(prowebItem.storage.databaseItemName, optionalGuestNumber)
+		set value = ..getValueFromEComTemp(prowebItem, optionalGuestNumber)
 		set element = ##class(EF.pageController.proweb.radioButtons).addElementToParent($this, elementIdentifier, labelText, value, isReadOnly)
 		
 	} elseif prowebItem.storage.inputType = "multibox" {
-		set value = ..getValueFromEComTemp(prowebItem.storage.databaseItemName, optionalGuestNumber, $$$getRawData)
+		set value = ..getValueFromEComTemp(prowebItem, optionalGuestNumber, $$$getRawData)
 		set element = ##class(EF.pageController.proweb.checkboxGroup).addElementToParent($this, elementIdentifier, labelText, value)
 		set element.uiComponent.columns=1
 			
@@ -3742,17 +3742,17 @@ Should be run if any of the sub-classes are deleted</Description>
 <Description><![CDATA[
 Common page that all frontend pages could/should inherit from.
 <!-- ;vc;
-;vc;    Object: EF.pages.frontend.base.CLS/EV.9
+;vc;    Object: EF.pages.frontend.base.CLS/EV.10
 ;vc; Component: CLS.EF.pages.frontend.base
-;vc;  Location: SmallDev
-;vc; Date/Time: 02-Sep-16 14:23
-;vc;      User: JeremyW
-;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>EF.pages.frontend.base.CLS/EV.9</td><td>CLS.EF.pages.frontend.base</td><td>SmallDev</td><td style='white-space: nowrap;'>02-Sep-16 14:23</td><td>JeremyW</td></tr></table>
+;vc;  Location: LargeDev
+;vc; Date/Time: 25-Oct-16 12:29
+;vc;      User: FredG
+;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>EF.pages.frontend.base.CLS/EV.10</td><td>CLS.EF.pages.frontend.base</td><td>LargeDev</td><td style='white-space: nowrap;'>25-Oct-16 12:29</td><td>FredG</td></tr></table>
 ]]></Description>
 <Language>cache</Language>
 <ProcedureBlock>0</ProcedureBlock>
 <Super>shared.pCSPmanage</Super>
-<TimeChanged>64208,37686.31431</TimeChanged>
+<TimeChanged>64216,44972</TimeChanged>
 <TimeCreated>63635,40114.778424</TimeCreated>
 
 <Parameter name="showRegistrationProgressBar">
@@ -3910,8 +3910,6 @@ this is for version 1 of proweb</Description>
 </Method>
 
 <Method name="usePageController">
-<Description>
-################ these methods shuld be moved to a super class ######################</Description>
 <ClassMethod>1</ClassMethod>
 <Private>1</Private>
 <ReturnType>%Boolean</ReturnType>
@@ -10011,7 +10009,8 @@ function saveSameAs(categoryID) {
 		set currencyID=%request.Get("selCurrency")
 		set priceDescriptorID=%request.Get("selPriceDescriptor")
 		set showBookingLevel=+%request.Get("chkqShowBookingLevel")
-		set qMin=+%request.Get("txtqMin"),qMax=+%request.Get("txtqMax")
+		set qMin=%request.Get("txtqMin")
+		set qMax=%request.Get("txtqMax")
 		
 		if (qMin'?.N) {
 			set %session.Data("proweb","backend","errMsg") = "The changes can't be saved because ""Optional booking levels - minimum"" must be a number"
@@ -12942,9 +12941,7 @@ function updateAlts(codPromptID) {
 				}
 			}
 		}
-		if '$IsObject(objData) {
-			throw ##class(shared.exceptions.generalException).%New("objData is not defined 1")
-		}
+
 		// add my new ID to the list of sibling if my dad was a list
 		if objData.parent.dataType="objList" {
 			if displayOrder>0 {
@@ -12957,9 +12954,6 @@ function updateAlts(codPromptID) {
 				set %session.Data("siblings"_displayOrder)=orgSibling
 			}
 		}	
-		if '$IsObject(objData) {
-			throw ##class(shared.exceptions.generalException).%New("objData is not defined 2")
-		}
 
 		 // audit trail
 		 set comments="created"
@@ -12976,10 +12970,6 @@ function updateAlts(codPromptID) {
 		 // audit trail
 		 set comments="amended"
 		 &SQL(INSERT INTO sc.objAuditTrail (description,objData,objUser) VALUES (:comments,:dataID,:userID))
-	}
-
-	if '$IsObject(objData) {
-		throw ##class(shared.exceptions.generalException).%New("objData is not defined 3")
 	}
 	
 	// set the approval level to START for both new and existing items
@@ -14561,7 +14551,6 @@ FRRE RULE
 <script language="CACHE" runat="COMPILER">
    Do ..WriteServer(" kill efRulesTempParams")
    kill paramsordered
-   
    do ..GetAttributesOrdered(.paramsordered)
    set index=""
    for {
@@ -14571,8 +14560,8 @@ FRRE RULE
 		set value=..QuoteAttribute(attr)
 		Do ..WriteServer(" set efRulesTempParams"_"("""_attr_""")="_value)
 	}
-	
 </script>
+
 <script language="CACHE" runat="SERVER">
    Do pageController.renderHTMLControlFromTag(.efRulesTempParams)
    kill efRulesTempParams
@@ -14684,17 +14673,17 @@ FRRE RULE
 <Class name="layout.cssDefaultMethods">
 <Description><![CDATA[
 <!-- ;vc;-
-;vc;    Object: layout.cssDefaultMethods.CLS/EV.78
+;vc;    Object: layout.cssDefaultMethods.CLS/EV.80
 ;vc; Component: CLS.layout.cssDefaultMethods
-;vc;  Location: SmallDev
-;vc; Date/Time: 02-Sep-16 14:26
-;vc;      User: JeremyW
-;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>layout.cssDefaultMethods.CLS/EV.78</td><td>CLS.layout.cssDefaultMethods</td><td>SmallDev</td><td style='white-space: nowrap;'>02-Sep-16 14:26</td><td>JeremyW</td></tr></table>
+;vc;  Location: LargeDev
+;vc; Date/Time: 25-Oct-16 12:24
+;vc;      User: FredG
+;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>layout.cssDefaultMethods.CLS/EV.80</td><td>CLS.layout.cssDefaultMethods</td><td>LargeDev</td><td style='white-space: nowrap;'>25-Oct-16 12:24</td><td>FredG</td></tr></table>
 ]]></Description>
 <Abstract>1</Abstract>
 <ClassType/>
 <ProcedureBlock>1</ProcedureBlock>
-<TimeChanged>64212,51460.981944</TimeChanged>
+<TimeChanged>64216,44660</TimeChanged>
 <TimeCreated>63046,56232.897117</TimeCreated>
 
 <Method name="outputDefaultCSS">
@@ -14806,8 +14795,7 @@ yellow red grey etc. Used for ALL templates below gen3</Description>
 			font-style: normal; 
 			line-height: normal; 
 			font-weight: normal; 
-			text-decoration: none;
-			float: left;			
+			text-decoration: none;			
 		}
 		.select2-container .select2-selection--single .select2-selection__rendered {
 			padding-left: 5px;
@@ -14917,6 +14905,10 @@ yellow red grey etc. Used for ALL templates below gen3</Description>
 		.ef_frontend_button_proceed:hover {
 			text-decoration: none;
 		}
+		td.ef_proweb_form_prompt {
+			text-align: right;
+		}
+		/* ===========  begin new classes for Proweb2 ========= */
 		.ef_proweb_form_prompt {
 			text-align: right;
 		}
@@ -14927,7 +14919,6 @@ yellow red grey etc. Used for ALL templates below gen3</Description>
 		.ef-dependent-field::after {
 		    content: "🔗";
 		}
-		/* ===========  begin new classes for Proweb2 ========= */
 		@media (max-width: 768px) {
 		   .ef_proweb_form_prompt {
 		      text-align: left; 
@@ -15132,6 +15123,7 @@ yellow red grey etc. Used for ALL templates below gen3</Description>
 		.ef-registration-section input[type=number]:disabled,
 		.ef-registration-section input[type=url]:disabled,
 		.ef-registration-section input[type=tel]:disabled,
+		.ef-registration-section input[type=email]:disabled,
 		.ef-registration-section textarea:disabled, 
 		.ef-registration-section select:disabled {
 			background-color: #EEEEEE; 
@@ -16081,7 +16073,6 @@ The basic frontend default stuff</Description>
 			text-overflow: ellipsis;
 			padding-right: 16px;
 			line-height: inherit;
-			text-align: left;
 		}
 		
 		.ef-highlight-warning {
@@ -17171,7 +17162,7 @@ Facade class for the sc.objData</Description>
 
 <Class name="sc.facade.prowebItemStorage">
 <Super>%RegisteredObject</Super>
-<TimeChanged>64215,51431.438733</TimeChanged>
+<TimeChanged>64216,47799.649696</TimeChanged>
 <TimeCreated>64206,37017.045507</TimeCreated>
 
 <Property name="prowebID">
@@ -17279,7 +17270,7 @@ Property displayOrder As %Integer [ Required ];</Description>
 
 <Class name="sc.facade.prowebItemStorageInputElement">
 <Super>sc.facade.prowebItemStorage</Super>
-<TimeChanged>64215,51543.930957</TimeChanged>
+<TimeChanged>64216,47804.659469</TimeChanged>
 <TimeCreated>64206,40073.01042</TimeCreated>
 
 <Property name="inputType">
@@ -17338,6 +17329,11 @@ Property displayOrder As %Integer [ Required ];</Description>
 <Parameter name="MAXLEN" value="32000"/>
 </Property>
 
+<Property name="defaultValue">
+<Type>%String</Type>
+<Parameter name="MAXLEN" value="32000"/>
+</Property>
+
 <Property name="isSearchAsYouType">
 <Type>%Boolean</Type>
 <InitialExpression>0</InitialExpression>
@@ -17370,6 +17366,7 @@ Property displayOrder As %Integer [ Required ];</Description>
 	set storage.isSearchAsYouType = prowebItem.searchAsYouType
 	set storage.databaseItemName = prowebItem.objItemName.description
 	set storage.databaseItemID = prowebItem.objItemName.%Id()
+	set storage.defaultValue = prowebItem.defaultValue
 	
 	set storage.dependsOnProwebAlternativeID = prowebItem.dependsOnAlternative
 	
@@ -17550,18 +17547,18 @@ Property displayOrder As %Integer [ Required ];</Description>
 <Description><![CDATA[
 Please note that this class will be the super class of all underlying data items.
 <!-- ;vc;
-;vc;    Object: sc.objData.CLS/EV.35
+;vc;    Object: sc.objData.CLS/EV.36
 ;vc; Component: CLS.sc.objData
-;vc;  Location: SmallDev
-;vc; Date/Time: 02-Sep-16 14:27
-;vc;      User: JeremyW
-;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>sc.objData.CLS/EV.35</td><td>CLS.sc.objData</td><td>SmallDev</td><td style='white-space: nowrap;'>02-Sep-16 14:27</td><td>JeremyW</td></tr></table>
+;vc;  Location: LargeDev
+;vc; Date/Time: 25-Oct-16 12:12
+;vc;      User: FredG
+;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>sc.objData.CLS/EV.36</td><td>CLS.sc.objData</td><td>LargeDev</td><td style='white-space: nowrap;'>25-Oct-16 12:12</td><td>FredG</td></tr></table>
 ]]></Description>
 <ClassType>persistent</ClassType>
 <IncludeCode>EF.common.macros</IncludeCode>
 <ProcedureBlock>1</ProcedureBlock>
 <Super>%Library.Persistent,shared.timeStamp</Super>
-<TimeChanged>64210,53484.484346</TimeChanged>
+<TimeChanged>64216,43931</TimeChanged>
 <TimeCreated>59148,67793</TimeCreated>
 <Inheritance>right</Inheritance>
 
@@ -18582,7 +18579,7 @@ this method replaces and consolidates the onPreHttp scripts on textDetails.csp, 
 	if className="objCODitem" {
 		set obj=##class(sc.objData).%OpenId(context.viewID)
 		// display coditemname rather than desc because html formatted desc upsets JS 
-		set title="----- "_$S(obj.isGuest:"GUEST_",1:"")_##class(shared.pCSP).EscapeHTML(obj.objItemName.description)
+		set title="----- "_$S(obj.isGuest:"GUEST_",1:"")_##class(shared.pCSP).EscapeHTML(obj.objItemName.description)_" -----"
 		kill obj
 	}
 
@@ -18657,10 +18654,9 @@ this method replaces and consolidates the onPreHttp scripts on textDetails.csp, 
 
 	set up="up",down="down"
 	set top="top",bottom="bottom"
-	;set editMenuStr($I(idx)) = "['Move Up',""javasc"_"ript: moveItem("_dataID_",'"_up_"');"",1,0,0],['Move Down',""javasc"_"ript: moveItem("_dataID_",'"_down_"');"",1,0,0]"
-	set editMenuStr($I(idx)) = "['Add item here',""javasc"_"ript: HM_f_PopUp('HM_Menu101',event);"",1,0,0]"
-	;set editMenuStr($I(idx)) = ",['Move to Top',""javasc"_"ript: moveItem("_dataID_",'"_top_"');"",1,0,0],['Move to Bottom',""javasc"_"ript: moveItem("_dataID_",'"_bottom_"');"",1,0,0],['Move to Position',""javasc"_"ript: moveItemToPosition("_dataID_");"",1,0,0]"
-	set editMenuStr($I(idx)) = "];</sc"_"ript>"
+	set editMenuStr($I(idx)) = "['Move Up',""javasc"_"ript: moveItem("_dataID_",'"_up_"');"",1,0,0],['Move Down',""javasc"_"ript: moveItem("_dataID_",'"_down_"');"",1,0,0]"
+	set editMenuStr($I(idx)) = ",['Move to Top',""javasc"_"ript: moveItem("_dataID_",'"_top_"');"",1,0,0],['Move to Bottom',""javasc"_"ript: moveItem("_dataID_",'"_bottom_"');"",1,0,0],['Move to Position',""javasc"_"ript: moveItemToPosition("_dataID_");"",1,0,0]];"
+	set editMenuStr($I(idx)) = "</sc"_"ript>"
 ]]></Implementation>
 </Method>
 

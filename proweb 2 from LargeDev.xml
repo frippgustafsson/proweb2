@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2015.2 (Build 664_3_16032U)" ts="2016-10-25 14:49:23">
+<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2015.2 (Build 664_3_16032U)" ts="2016-10-25 15:41:38">
 <Class name="EF.contextDataRegistration">
 <Description><![CDATA[
 <!-- ;vc;-
@@ -1681,7 +1681,7 @@ Should be run if any of the sub-classes are deleted</Description>
 
 <Class name="EF.pageController.proweb.page">
 <Super>EF.pageController.page</Super>
-<TimeChanged>64216,48043.418528</TimeChanged>
+<TimeChanged>64216,55351.017397</TimeChanged>
 <TimeCreated>64189,51696.559047</TimeCreated>
 
 <Property name="contextData">
@@ -2334,8 +2334,21 @@ Should be run if any of the sub-classes are deleted</Description>
 				try {
 					if $Data(prowebItems(element.prowebItem.storage.prowebID)) {
 						set prowebElement = ##class(sc.objData).%OpenId(element.prowebID)
+						set oldDisplayOrder = prowebElement.displayOrder
+						set newDisplayOrder = prowebItems(element.prowebID)
 						set prowebElement.displayOrder = prowebItems(element.prowebID)
 						do prowebElement.%Save()
+						
+						if (oldDisplayOrder '= newDisplayOrder) {
+							set xUserID = $Get(%session.Data("eventsforce","backend","xPersonID"))
+							set eventID = prowebElement.objEvent.%Id()
+							set pageID = ##class(sc.xModules.objCODitem).getPageIDforQuestion(prowebElement.%Id())
+							set pageName = ##class(sc.xModules.objPage).getDescription(pageID)
+							set prowebItemDescription = ##class(sc.xModules.objCODitem).getCODItemName(prowebElement.%Id())
+							if (prowebElement.%Id() && pageID) {
+								do ##class(setup.objEventAudit).add(xUserID, eventID, "Reg Page '"_pageName_"' ("_pageID_"), Changed '"_prowebItemDescription_"' Registration Question Order: "_newDisplayOrder_" (New Value) - "_oldDisplayOrder_" (Old Value)")
+							}
+						}
 					}
 				} catch error {
 					throw ##class(shared.exceptions.generalException).%New("Failed to get the prowebID of element: "_element)	
@@ -3930,7 +3943,7 @@ this is for version 1 of proweb</Description>
 <Class name="EF.pages.frontend.baseProweb">
 <ProcedureBlock>0</ProcedureBlock>
 <Super>EF.pages.frontend.base</Super>
-<TimeChanged>64211,41675.350905</TimeChanged>
+<TimeChanged>64216,53666.682547</TimeChanged>
 <TimeCreated>64191,31442.531402</TimeCreated>
 
 <Parameter name="ENCODED">
@@ -4102,7 +4115,7 @@ this is for version 1 of proweb</Description>
 <ClassMethod>1</ClassMethod>
 <Implementation><![CDATA[
 	&html<
-		<form id="#(..#efFormID)#" name="#(..getFormName())#" method="POST" action="#(..Link(..getFormAction()))#">
+		<form id="#(..#efFormID)#" name="#(..getFormName())#" method="POST" action="#(..Link(..getFormAction()))#" class="form-horizontal">
 			<input type="hidden" name="pageControllerID" value="#(pageControllerID)#">
 			<input type="hidden" name="pageID" value="#(contextData.pageID)#">
 			
@@ -5190,7 +5203,7 @@ we need to refactor the frontend buttons to make them callable from class method
 
 <Class name="EF.ui.components.frontend.floatingMenu">
 <Super>shared.pCSPmanage</Super>
-<TimeChanged>64216,51192.828215</TimeChanged>
+<TimeChanged>64216,55277.967496</TimeChanged>
 <TimeCreated>64203,40625.329831</TimeCreated>
 
 <Method name="outputFloatingMenuHTML">
@@ -5206,12 +5219,12 @@ we need to refactor the frontend buttons to make them callable from class method
 	              <li><a id="efProwebEditLink" href="#">Edit</a></li>
 	              <li><a id="efProwebDeleteLink" href="#">Delete</a></li>
 	              
-
+                  <div class="ef-proweb-floating-menu-divider">-- Add --</div>
                   <li><a id="efProwebInsertQuestionBelowLink" tabindex="-1" href="#">Question</a></li>
                   <li><a id="efProwebInsertABIBelowLink" tabindex="-1" href="#">ABI</a></li>
                   <li><a id="efProwebInsertQBIBelowLink" tabindex="-1" href="#">QBI</a></li>
-                  <li><a id="efProwebInsertDividerBelowLink" href="#">Divider</a></li>
                   <li><a id="efProwebInsertTextBlockBelowLink" href="#">Text</a></li>
+                  <li><a id="efProwebInsertDividerBelowLink" href="#">Divider</a></li>
                   <li><a id="efProwebInsertFileUploadBelowLink" href="#">File upload</a></li>
                   <li><a id="efProwebInsertYouTubeVideoBelowLink" href="#">YouTube video</a></li>
 
@@ -5567,7 +5580,7 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 
 <Class name="EF.ui.components.frontend.prowebBase">
 <Super>EF.ui.components.base</Super>
-<TimeChanged>64216,34088.738301</TimeChanged>
+<TimeChanged>64216,54053.50127</TimeChanged>
 <TimeCreated>64183,41819.123112</TimeCreated>
 
 <Property name="isProwebEditMode">
@@ -5608,30 +5621,7 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 
 <Method name="getFloatingMenuHeader">
 <ReturnType>%String</ReturnType>
-<Implementation><![CDATA[
-	return "✎"
-	/*
-	if ..%IsA("EF.ui.components.frontend.divider") {
-		return "Divider"	
-		
-	} elseif ..%IsA("EF.ui.components.frontend.textBlock") {
-		return "Text Block"
-		
-	} elseif ..%IsA("EF.ui.components.frontend.youTubeVideo") {
-		return "YouTube video"
-				
-	} elseif ..%Extends("EF.ui.components.frontend.inputElement") {
-		if $Length(..prowebItem.storage.labelText) {
-			return ##class(shared.stringFunctions).removeHTML(..prowebItem.storage.labelText)
-		
-		} else {
-			return ..prowebItem.storage.databaseItemName
-		}
-		
-	} else {
-		throw ##class(shared.exceptions.generalException).%New("Proweb uiComponent type not implemented: "_$this)	
-	}
-	*/
+<Implementation><![CDATA[	return "✎"
 ]]></Implementation>
 </Method>
 
@@ -14679,7 +14669,7 @@ FRRE RULE
 <Abstract>1</Abstract>
 <ClassType/>
 <ProcedureBlock>1</ProcedureBlock>
-<TimeChanged>64216,44660</TimeChanged>
+<TimeChanged>64216,55127.190698</TimeChanged>
 <TimeCreated>63046,56232.897117</TimeCreated>
 
 <Method name="outputDefaultCSS">
@@ -15044,6 +15034,11 @@ yellow red grey etc. Used for ALL templates below gen3</Description>
 		.ef_frontend_file_uploader.k-content {
 			min-height: 0px;
 			text-alignment: left;	
+		}
+		.ef-proweb-floating-menu-divider {
+			color: #AAAAAA; 
+			padding-left: 10px; 
+			font-style: italic;	
 		}
 		/* =========== end new classes for Proweb2 ============ */
 		

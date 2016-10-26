@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2015.2 (Build 664_3_16032U)" ts="2016-10-26 08:04:53">
+<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2015.2 (Build 664_3_16032U)" ts="2016-10-26 10:28:31">
 <Class name="EF.contextDataRegistration">
 <Description><![CDATA[
 <!-- ;vc;-
-;vc;    Object: EF.contextDataRegistration.CLS/EV.6
+;vc;    Object: EF.contextDataRegistration.CLS/EV.7
 ;vc; Component: CLS.EF.contextDataRegistration
 ;vc;  Location: LargeDev
-;vc; Date/Time: 25-Oct-16 17:09
-;vc;      User: AdrianM2
-;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>EF.contextDataRegistration.CLS/EV.6</td><td>CLS.EF.contextDataRegistration</td><td>LargeDev</td><td style='white-space: nowrap;'>25-Oct-16 17:09</td><td>AdrianM2</td></tr></table>
+;vc; Date/Time: 26-Oct-16 09:12
+;vc;      User: FredG
+;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>EF.contextDataRegistration.CLS/EV.7</td><td>CLS.EF.contextDataRegistration</td><td>LargeDev</td><td style='white-space: nowrap;'>26-Oct-16 09:12</td><td>FredG</td></tr></table>
 ]]></Description>
 <Super>EF.contextDataFrontend</Super>
-<TimeChanged>64216,61987.563983</TimeChanged>
+<TimeChanged>64217,34491.091372</TimeChanged>
 <TimeCreated>63755,56082.660879</TimeCreated>
 
 <Property name="tempPurchaseID">
@@ -32,6 +32,12 @@
 </Property>
 
 <Property name="tempPersonID">
+<Type>%Integer</Type>
+</Property>
+
+<Property name="tempBookerID">
+<Description>
+only used in group bookings</Description>
 <Type>%Integer</Type>
 </Property>
 
@@ -87,6 +93,7 @@ if website is private, this will be set to the cod.objPerson.ID of that logged i
 <ReturnType>EF.contextDataRegistration</ReturnType>
 <Implementation><![CDATA[
 	#dim sessionID as %String = %session.SessionId
+	#dim contextData as EF.contextDataRegistration
 	
 	set contextData = ##super()
 	
@@ -103,11 +110,13 @@ if website is private, this will be set to the cod.objPerson.ID of that logged i
 	}
 	set contextData.currencyID=+##class(eCom.tempPurchase).getCurrencyID(sessionID)
 	set contextData.isAmendment=+$G(%session.Data("eventsforce","frontend","amend"))
-	set contextData.tempPurchaseID=##class(eCom.tempPerson).getTempPurchaseID(contextData.tempPersonID)
+	
+	set contextData.tempPurchaseID = ##class(eCom.tempPurchase).getTempPurchaseFromSessionID(sessionID)
+	
 	set contextData.isBackendBooking=##class(eCom.tempPurchase).isBackendBooking(sessionID)
 	set contextData.pricingHorologUTC=##class(eCom.tempPurchase).getPriceHorologUTC(contextData.tempPurchaseID)	
 	set contextData.pageID=%session.Get("pageID")
-	
+	set contextData.tempBookerID = ##class(eCom.tempPerson).getBookerIDfromTempPurchaseID(contextData.tempPurchaseID)
 	set contextData.isBackendSuperUser=##class(eCom.tempPurchase).isBackendSuperUser(sessionID)
 	
 	return contextData
@@ -1689,7 +1698,7 @@ Should be run if any of the sub-classes are deleted</Description>
 
 <Class name="EF.pageController.proweb.page">
 <Super>EF.pageController.page</Super>
-<TimeChanged>64216,58223.255993</TimeChanged>
+<TimeChanged>64217,37384.502235</TimeChanged>
 <TimeCreated>64189,51696.559047</TimeCreated>
 
 <Property name="contextData">
@@ -1992,6 +2001,10 @@ Should be run if any of the sub-classes are deleted</Description>
 	}
 	set value = ##class(eCom.tempCodData).get(tempPersonID, itemName, ,getRawData)
 	
+	if (value = "") && (..contextData.tempBookerID) {
+		set value = ##class(eCom.tempCodData).getValueToCopyFromBooker(tempPersonID, ..contextData.tempBookerID, prowebItem.storage.prowebID)	
+	}
+		
 	if (value = "") && (prowebItem.storage.defaultValue '= "") {
 		set value = prowebItem.storage.defaultValue	
 	}

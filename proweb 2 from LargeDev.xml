@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2015.2 (Build 664_3_16032U)" ts="2016-10-25 16:29:09">
+<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2015.2 (Build 664_3_16032U)" ts="2016-10-26 08:04:53">
 <Class name="EF.contextDataRegistration">
 <Description><![CDATA[
 <!-- ;vc;-
-;vc;    Object: EF.contextDataRegistration.CLS/EV.4
+;vc;    Object: EF.contextDataRegistration.CLS/EV.6
 ;vc; Component: CLS.EF.contextDataRegistration
-;vc;  Location: SmallDev
-;vc; Date/Time: 02-Sep-16 14:23
-;vc;      User: JeremyW
-;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>EF.contextDataRegistration.CLS/EV.4</td><td>CLS.EF.contextDataRegistration</td><td>SmallDev</td><td style='white-space: nowrap;'>02-Sep-16 14:23</td><td>JeremyW</td></tr></table>
+;vc;  Location: LargeDev
+;vc; Date/Time: 25-Oct-16 17:09
+;vc;      User: AdrianM2
+;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>EF.contextDataRegistration.CLS/EV.6</td><td>CLS.EF.contextDataRegistration</td><td>LargeDev</td><td style='white-space: nowrap;'>25-Oct-16 17:09</td><td>AdrianM2</td></tr></table>
 ]]></Description>
 <Super>EF.contextDataFrontend</Super>
-<TimeChanged>64215,53239.7725</TimeChanged>
+<TimeChanged>64216,61987.563983</TimeChanged>
 <TimeCreated>63755,56082.660879</TimeCreated>
 
 <Property name="tempPurchaseID">
@@ -65,6 +65,10 @@ if website is private, this will be set to the cod.objPerson.ID of that logged i
 </Property>
 
 <Property name="pageID">
+<Type>%Integer</Type>
+</Property>
+
+<Property name="listID">
 <Type>%Integer</Type>
 </Property>
 
@@ -2929,7 +2933,7 @@ Should be run if any of the sub-classes are deleted</Description>
 
 <Class name="EF.pageController.proweb.testCases.pageTestCase">
 <Super>EF.ISC.UnitTest.TestCase</Super>
-<TimeChanged>64215,51987.456644</TimeChanged>
+<TimeChanged>64216,60270.598417</TimeChanged>
 <TimeCreated>64189,44993.632692</TimeCreated>
 
 <Method name="TestEditModeHTML">
@@ -2937,7 +2941,7 @@ Should be run if any of the sub-classes are deleted</Description>
 	set floatingMenu = ##class(EF.ui.components.frontend.floatingMenu).%New()
 	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(floatingMenu,"outputFloatingMenuHTML")
 	set returnedHTML = $ZStrip(returnedHTML,"*WC")
-	set expectedHTML = "<divid=""myFloater""class=""containeref-proweb-menu-handlerow""style=""display:none;""><divclass=""dropdownef-proweb-dropdown""><aid=""efProwebHeader""role=""button""data-toggle=""dropdown""class=""btnbtn-primaryef-proweb-dropdown-button""data-target=""#""href=""/page.html"">[Emptylistsnotimplementedyet]<spanclass=""caret""></span></a><ulclass=""dropdown-menumulti-levelef-proweb-dropdown-sub""role=""menu""aria-labelledby=""dropdownMenu""><li><aid=""efProwebEditLink""href=""#"">Edit</a></li><li><aid=""efProwebDeleteLink""href=""#"">Delete</a></li><liclass=""dropdown-submenu""><atabindex=""-1""href=""#"">Add</a><ulclass=""dropdown-menu""><li><aid=""efProwebInsertQuestionBelowLink""tabindex=""-1""href=""#"">Question</a></li><li><aid=""efProwebInsertDividerBelowLink""href=""#"">Divider</a></li><li><aid=""efProwebInsertTextBlockBelowLink""href=""#"">Text</a></li><li><aid=""efProwebInsertFileUploadBelowLink""href=""#"">Fileupload</a></li><li><aid=""efProwebInsertYouTubeVideoBelowLink""href=""#"">YouTubevideo</a></li></ul></li></ul></div></div>"
+	set expectedHTML = "<divid=""myFloater""class=""containeref-proweb-menu-handlerow""style=""display:none;""><divclass=""dropdownef-proweb-dropdown""><aid=""efProwebHeader""role=""button""data-toggle=""dropdown""class=""btnbtn-primaryef-proweb-dropdown-button""data-target=""#""href=""/page.html"">[Emptylistsnotimplementedyet]<spanclass=""caret""></span></a><ulclass=""dropdown-menumulti-levelef-proweb-dropdown-sub""role=""menu""aria-labelledby=""dropdownMenu""><li><aid=""efProwebEditLink""href=""#"">Edit</a></li><li><aid=""efProwebDeleteLink""href=""#"">Delete</a></li><divclass=""ef-proweb-floating-menu-divider"">--Add--</div><li><aid=""efProwebInsertQuestionBelowLink""tabindex=""-1""href=""#"">Question</a></li><li><aid=""efProwebInsertABIBelowLink""tabindex=""-1""href=""#"">ABI</a></li><li><aid=""efProwebInsertQBIBelowLink""tabindex=""-1""href=""#"">QBI</a></li><li><aid=""efProwebInsertTextBlockBelowLink""href=""#"">Text</a></li><li><aid=""efProwebInsertDividerBelowLink""href=""#"">Divider</a></li><li><aid=""efProwebInsertFileUploadBelowLink""href=""#"">Fileupload</a></li><li><aid=""efProwebInsertYouTubeVideoBelowLink""href=""#"">YouTubevideo</a></li></ul></div></div>"
 	do $$$AssertEquals(returnedHTML,expectedHTML)
 ]]></Implementation>
 </Method>
@@ -2999,7 +3003,7 @@ Should be run if any of the sub-classes are deleted</Description>
 	
 	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(pageController,"renderElements")
 	set returnedHTML = $ZStrip(returnedHTML,"*WC")
-	set expectedHTML = "<divclass=""rowef-proweb-form-row""><divclass=""col-sm-4ef_proweb_form_promptef-required-field""><labelclass=""control-label""for=""proweb-1""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;AttendeeFirstName\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""><divclass=""ef-label-text""id=""ef-display-label-proweb-1"">AttendeeFirstName</div><divclass=""ef-proweb-direct-label-edit""style=""display:none;""id=""ef-edit-label-input-proweb-1""data-proweb-id=""1""><inputtype=""text""value=""AttendeeFirstName""></div></label></div><divclass=""col-sm-8ef_proweb_form_prompt""><inputtype=""text""class=""form-controlef-proweb-input-element""title=""""id=""proweb-1""name=""proweb-1""value=""Fred""placeholder=""""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;AttendeeFirstName\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""></div></div><divclass=""rowef-proweb-form-row""><divclass=""col-sm-4ef_proweb_form_promptef-required-field""><labelclass=""control-label""for=""proweb-2""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;AttendeeLastName\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""><divclass=""ef-label-text""id=""ef-display-label-proweb-2"">AttendeeLastName</div><divclass=""ef-proweb-direct-label-edit""style=""display:none;""id=""ef-edit-label-input-proweb-2""data-proweb-id=""2""><inputtype=""text""value=""AttendeeLastName""></div></label></div><divclass=""col-sm-8ef_proweb_form_prompt""><inputtype=""text""class=""form-controlef-proweb-input-element""title=""""id=""proweb-2""name=""proweb-2""value=""Fred""placeholder=""""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;AttendeeLastName\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""></div></div><divclass=""ef-proweb-guest-panelef-draggable-div""><divclass=""panel-heading"">Guest</div><divclass=""panel-body""><divclass=""rowef-proweb-form-row""><divclass=""col-sm-4ef_proweb_form_prompt""><labelclass=""control-label""for=""proweb-1-1""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;GuestFirstName\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""><divclass=""ef-label-text""id=""ef-display-label-proweb-1-1"">GuestFirstName</div><divclass=""ef-proweb-direct-label-edit""style=""display:none;""id=""ef-edit-label-input-proweb-1-1""data-proweb-id=""1""><inputtype=""text""value=""GuestFirstName""></div></label></div><divclass=""col-sm-8ef_proweb_form_prompt""><inputtype=""text""class=""form-controlef-proweb-input-element""title=""""id=""proweb-1-1""name=""proweb-1-1""value=""Dfgdf""placeholder=""""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;GuestFirstName\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""></div></div><divclass=""rowef-proweb-form-row""><divclass=""col-sm-4ef_proweb_form_prompt""><labelclass=""control-label""for=""proweb-2-1""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;GuestLastName\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""><divclass=""ef-label-text""id=""ef-display-label-proweb-2-1"">GuestLastName</div><divclass=""ef-proweb-direct-label-edit""style=""display:none;""id=""ef-edit-label-input-proweb-2-1""data-proweb-id=""2""><inputtype=""text""value=""GuestLastName""></div></label></div><divclass=""col-sm-8ef_proweb_form_prompt""><inputtype=""text""class=""form-controlef-proweb-input-element""title=""""id=""proweb-2-1""name=""proweb-2-1""value=""Gdfg""placeholder=""""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;GuestLastName\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""></div></div></div></div><divclass=""ef-proweb-guest-panelef-draggable-div""><divclass=""panel-heading"">Guest</div><divclass=""panel-body""><divclass=""rowef-proweb-form-row""><divclass=""col-sm-4ef_proweb_form_prompt""><labelclass=""control-label""for=""proweb-1-2""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;GuestFirstName\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""><divclass=""ef-label-text""id=""ef-display-label-proweb-1-2"">GuestFirstName</div><divclass=""ef-proweb-direct-label-edit""style=""display:none;""id=""ef-edit-label-input-proweb-1-2""data-proweb-id=""1""><inputtype=""text""value=""GuestFirstName""></div></label></div><divclass=""col-sm-8ef_proweb_form_prompt""><inputtype=""text""class=""form-controlef-proweb-input-element""title=""""id=""proweb-1-2""name=""proweb-1-2""value=""Dfgdf""placeholder=""""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;GuestFirstName\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""></div></div><divclass=""rowef-proweb-form-row""><divclass=""col-sm-4ef_proweb_form_prompt""><labelclass=""control-label""for=""proweb-2-2""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;GuestLastName\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""><divclass=""ef-label-text""id=""ef-display-label-proweb-2-2"">GuestLastName</div><divclass=""ef-proweb-direct-label-edit""style=""display:none;""id=""ef-edit-label-input-proweb-2-2""data-proweb-id=""2""><inputtype=""text""value=""GuestLastName""></div></label></div><divclass=""col-sm-8ef_proweb_form_prompt""><inputtype=""text""class=""form-controlef-proweb-input-element""title=""""id=""proweb-2-2""name=""proweb-2-2""value=""Gdfg""placeholder=""""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;GuestLastName\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""></div></div></div></div>"
+	set expectedHTML = "<divclass=""rowef-proweb-form-row""><divclass=""col-sm-4ef_proweb_form_promptef-required-field""><labelclass=""control-label""for=""proweb-1""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;AttendeeFirstName\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""autofocus><divclass=""ef-label-text""id=""ef-display-label-proweb-1"">AttendeeFirstName</div><divclass=""ef-proweb-direct-label-edit""style=""display:none;""id=""ef-edit-label-input-proweb-1""data-proweb-id=""1""><inputtype=""text""value=""AttendeeFirstName""></div></label></div><divclass=""col-sm-8ef_proweb_form_prompt""><inputtype=""text""class=""form-controlef-proweb-input-element""title=""""id=""proweb-1""name=""proweb-1""value=""Fred""placeholder=""""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;AttendeeFirstName\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""autofocus></div></div><divclass=""rowef-proweb-form-row""><divclass=""col-sm-4ef_proweb_form_promptef-required-field""><labelclass=""control-label""for=""proweb-2""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;AttendeeLastName\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""><divclass=""ef-label-text""id=""ef-display-label-proweb-2"">AttendeeLastName</div><divclass=""ef-proweb-direct-label-edit""style=""display:none;""id=""ef-edit-label-input-proweb-2""data-proweb-id=""2""><inputtype=""text""value=""AttendeeLastName""></div></label></div><divclass=""col-sm-8ef_proweb_form_prompt""><inputtype=""text""class=""form-controlef-proweb-input-element""title=""""id=""proweb-2""name=""proweb-2""value=""Fred""placeholder=""""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;AttendeeLastName\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""></div></div><divclass=""ef-proweb-guest-panelef-draggable-div""><divclass=""panel-heading"">Guest</div><divclass=""panel-body""><divclass=""rowef-proweb-form-row""><divclass=""col-sm-4ef_proweb_form_prompt""><labelclass=""control-label""for=""proweb-1-1""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;GuestFirstName\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""><divclass=""ef-label-text""id=""ef-display-label-proweb-1-1"">GuestFirstName</div><divclass=""ef-proweb-direct-label-edit""style=""display:none;""id=""ef-edit-label-input-proweb-1-1""data-proweb-id=""1""><inputtype=""text""value=""GuestFirstName""></div></label></div><divclass=""col-sm-8ef_proweb_form_prompt""><inputtype=""text""class=""form-controlef-proweb-input-element""title=""""id=""proweb-1-1""name=""proweb-1-1""value=""Dfgdf""placeholder=""""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;GuestFirstName\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""></div></div><divclass=""rowef-proweb-form-row""><divclass=""col-sm-4ef_proweb_form_prompt""><labelclass=""control-label""for=""proweb-2-1""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;GuestLastName\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""><divclass=""ef-label-text""id=""ef-display-label-proweb-2-1"">GuestLastName</div><divclass=""ef-proweb-direct-label-edit""style=""display:none;""id=""ef-edit-label-input-proweb-2-1""data-proweb-id=""2""><inputtype=""text""value=""GuestLastName""></div></label></div><divclass=""col-sm-8ef_proweb_form_prompt""><inputtype=""text""class=""form-controlef-proweb-input-element""title=""""id=""proweb-2-1""name=""proweb-2-1""value=""Gdfg""placeholder=""""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;GuestLastName\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""></div></div></div></div><divclass=""ef-proweb-guest-panelef-draggable-div""><divclass=""panel-heading"">Guest</div><divclass=""panel-body""><divclass=""rowef-proweb-form-row""><divclass=""col-sm-4ef_proweb_form_prompt""><labelclass=""control-label""for=""proweb-1-2""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;GuestFirstName\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""><divclass=""ef-label-text""id=""ef-display-label-proweb-1-2"">GuestFirstName</div><divclass=""ef-proweb-direct-label-edit""style=""display:none;""id=""ef-edit-label-input-proweb-1-2""data-proweb-id=""1""><inputtype=""text""value=""GuestFirstName""></div></label></div><divclass=""col-sm-8ef_proweb_form_prompt""><inputtype=""text""class=""form-controlef-proweb-input-element""title=""""id=""proweb-1-2""name=""proweb-1-2""value=""Dfgdf""placeholder=""""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;GuestFirstName\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""></div></div><divclass=""rowef-proweb-form-row""><divclass=""col-sm-4ef_proweb_form_prompt""><labelclass=""control-label""for=""proweb-2-2""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;GuestLastName\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""><divclass=""ef-label-text""id=""ef-display-label-proweb-2-2"">GuestLastName</div><divclass=""ef-proweb-direct-label-edit""style=""display:none;""id=""ef-edit-label-input-proweb-2-2""data-proweb-id=""2""><inputtype=""text""value=""GuestLastName""></div></label></div><divclass=""col-sm-8ef_proweb_form_prompt""><inputtype=""text""class=""form-controlef-proweb-input-element""title=""""id=""proweb-2-2""name=""proweb-2-2""value=""Gdfg""placeholder=""""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;GuestLastName\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""></div></div></div></div>"
 	do $$$AssertEquals(returnedHTML,expectedHTML)
 ]]></Implementation>
 </Method>
@@ -3068,7 +3072,7 @@ Should be run if any of the sub-classes are deleted</Description>
 	
 	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(pageController,"renderElements")
 	set returnedHTML = $ZStrip(returnedHTML,"*WC")
-	set expectedHTML = "<divclass=""rowef-proweb-form-row""><divclass=""col-sm-4ef_proweb_form_promptef-required-field""><labelclass=""control-label""for=""proweb-1""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;AttendeeFirstName\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""><divclass=""ef-label-text""id=""ef-display-label-proweb-1"">AttendeeFirstName</div><divclass=""ef-proweb-direct-label-edit""style=""display:none;""id=""ef-edit-label-input-proweb-1""data-proweb-id=""1""><inputtype=""text""value=""AttendeeFirstName""></div></label></div><divclass=""col-sm-8ef_proweb_form_prompt""><inputtype=""text""class=""form-controlef-proweb-input-element""title=""""id=""proweb-1""name=""proweb-1""value=""Fred""placeholder=""""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;AttendeeFirstName\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""></div></div><divclass=""rowef-proweb-form-row""><divclass=""col-sm-4ef_proweb_form_promptef-required-field""><labelclass=""control-label""for=""proweb-2""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;AttendeeLastName\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""><divclass=""ef-label-text""id=""ef-display-label-proweb-2"">AttendeeLastName</div><divclass=""ef-proweb-direct-label-edit""style=""display:none;""id=""ef-edit-label-input-proweb-2""data-proweb-id=""2""><inputtype=""text""value=""AttendeeLastName""></div></label></div><divclass=""col-sm-8ef_proweb_form_prompt""><inputtype=""text""class=""form-controlef-proweb-input-element""title=""""id=""proweb-2""name=""proweb-2""value=""Fred""placeholder=""""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;AttendeeLastName\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""></div></div><divclass=""ef-proweb-guest-panelef-draggable-div""><divclass=""panel-heading"">Guest</div><divclass=""panel-body""><divclass=""rowef-proweb-form-row""><divclass=""col-sm-4ef_proweb_form_prompt""><labelclass=""control-label""for=""proweb-1-1""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;GuestFirstName\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""><divclass=""ef-label-text""id=""ef-display-label-proweb-1-1"">GuestFirstName</div><divclass=""ef-proweb-direct-label-edit""style=""display:none;""id=""ef-edit-label-input-proweb-1-1""data-proweb-id=""1""><inputtype=""text""value=""GuestFirstName""></div></label></div><divclass=""col-sm-8ef_proweb_form_prompt""><inputtype=""text""class=""form-controlef-proweb-input-element""title=""""id=""proweb-1-1""name=""proweb-1-1""value=""Dfgdf""placeholder=""""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;GuestFirstName\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""></div></div><divclass=""rowef-proweb-form-row""><divclass=""col-sm-4ef_proweb_form_prompt""><labelclass=""control-label""for=""proweb-2-1""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;GuestLastName\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""><divclass=""ef-label-text""id=""ef-display-label-proweb-2-1"">GuestLastName</div><divclass=""ef-proweb-direct-label-edit""style=""display:none;""id=""ef-edit-label-input-proweb-2-1""data-proweb-id=""2""><inputtype=""text""value=""GuestLastName""></div></label></div><divclass=""col-sm-8ef_proweb_form_prompt""><inputtype=""text""class=""form-controlef-proweb-input-element""title=""""id=""proweb-2-1""name=""proweb-2-1""value=""Gdfg""placeholder=""""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;GuestLastName\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""></div></div></div></div><divclass=""ef-proweb-guest-panelef-draggable-div""><divclass=""panel-heading"">Guest</div><divclass=""panel-body""><divclass=""rowef-proweb-form-row""><divclass=""col-sm-4ef_proweb_form_prompt""><labelclass=""control-label""for=""proweb-1-2""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;GuestFirstName\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""><divclass=""ef-label-text""id=""ef-display-label-proweb-1-2"">GuestFirstName</div><divclass=""ef-proweb-direct-label-edit""style=""display:none;""id=""ef-edit-label-input-proweb-1-2""data-proweb-id=""1""><inputtype=""text""value=""GuestFirstName""></div></label></div><divclass=""col-sm-8ef_proweb_form_prompt""><inputtype=""text""class=""form-controlef-proweb-input-element""title=""""id=""proweb-1-2""name=""proweb-1-2""value=""Dfgdf""placeholder=""""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;GuestFirstName\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""></div></div><divclass=""rowef-proweb-form-row""><divclass=""col-sm-4ef_proweb_form_prompt""><labelclass=""control-label""for=""proweb-2-2""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;GuestLastName\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""><divclass=""ef-label-text""id=""ef-display-label-proweb-2-2"">GuestLastName</div><divclass=""ef-proweb-direct-label-edit""style=""display:none;""id=""ef-edit-label-input-proweb-2-2""data-proweb-id=""2""><inputtype=""text""value=""GuestLastName""></div></label></div><divclass=""col-sm-8ef_proweb_form_prompt""><inputtype=""text""class=""form-controlef-proweb-input-element""title=""""id=""proweb-2-2""name=""proweb-2-2""value=""Gdfg""placeholder=""""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;GuestLastName\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""></div></div></div></div><divclass=""rowef-proweb-form-row""><divclass=""col-sm-4ef_proweb_form_prompt""><labelclass=""control-label""for=""proweb-3""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;AttendeeCompany\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""><divclass=""ef-label-text""id=""ef-display-label-proweb-3"">AttendeeCompany</div><divclass=""ef-proweb-direct-label-edit""style=""display:none;""id=""ef-edit-label-input-proweb-3""data-proweb-id=""3""><inputtype=""text""value=""AttendeeCompany""></div></label></div><divclass=""col-sm-8ef_proweb_form_prompt""><inputtype=""text""class=""form-controlef-proweb-input-element""title=""""id=""proweb-3""name=""proweb-3""value=""ikea""placeholder=""""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;AttendeeCompany\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""></div></div>"
+	set expectedHTML = "<divclass=""rowef-proweb-form-row""><divclass=""col-sm-4ef_proweb_form_promptef-required-field""><labelclass=""control-label""for=""proweb-1""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;AttendeeFirstName\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""autofocus><divclass=""ef-label-text""id=""ef-display-label-proweb-1"">AttendeeFirstName</div><divclass=""ef-proweb-direct-label-edit""style=""display:none;""id=""ef-edit-label-input-proweb-1""data-proweb-id=""1""><inputtype=""text""value=""AttendeeFirstName""></div></label></div><divclass=""col-sm-8ef_proweb_form_prompt""><inputtype=""text""class=""form-controlef-proweb-input-element""title=""""id=""proweb-1""name=""proweb-1""value=""Fred""placeholder=""""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;AttendeeFirstName\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""autofocus></div></div><divclass=""rowef-proweb-form-row""><divclass=""col-sm-4ef_proweb_form_promptef-required-field""><labelclass=""control-label""for=""proweb-2""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;AttendeeLastName\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""><divclass=""ef-label-text""id=""ef-display-label-proweb-2"">AttendeeLastName</div><divclass=""ef-proweb-direct-label-edit""style=""display:none;""id=""ef-edit-label-input-proweb-2""data-proweb-id=""2""><inputtype=""text""value=""AttendeeLastName""></div></label></div><divclass=""col-sm-8ef_proweb_form_prompt""><inputtype=""text""class=""form-controlef-proweb-input-element""title=""""id=""proweb-2""name=""proweb-2""value=""Fred""placeholder=""""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;AttendeeLastName\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""></div></div><divclass=""ef-proweb-guest-panelef-draggable-div""><divclass=""panel-heading"">Guest</div><divclass=""panel-body""><divclass=""rowef-proweb-form-row""><divclass=""col-sm-4ef_proweb_form_prompt""><labelclass=""control-label""for=""proweb-1-1""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;GuestFirstName\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""><divclass=""ef-label-text""id=""ef-display-label-proweb-1-1"">GuestFirstName</div><divclass=""ef-proweb-direct-label-edit""style=""display:none;""id=""ef-edit-label-input-proweb-1-1""data-proweb-id=""1""><inputtype=""text""value=""GuestFirstName""></div></label></div><divclass=""col-sm-8ef_proweb_form_prompt""><inputtype=""text""class=""form-controlef-proweb-input-element""title=""""id=""proweb-1-1""name=""proweb-1-1""value=""Dfgdf""placeholder=""""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;GuestFirstName\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""></div></div><divclass=""rowef-proweb-form-row""><divclass=""col-sm-4ef_proweb_form_prompt""><labelclass=""control-label""for=""proweb-2-1""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;GuestLastName\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""><divclass=""ef-label-text""id=""ef-display-label-proweb-2-1"">GuestLastName</div><divclass=""ef-proweb-direct-label-edit""style=""display:none;""id=""ef-edit-label-input-proweb-2-1""data-proweb-id=""2""><inputtype=""text""value=""GuestLastName""></div></label></div><divclass=""col-sm-8ef_proweb_form_prompt""><inputtype=""text""class=""form-controlef-proweb-input-element""title=""""id=""proweb-2-1""name=""proweb-2-1""value=""Gdfg""placeholder=""""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;GuestLastName\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""></div></div></div></div><divclass=""ef-proweb-guest-panelef-draggable-div""><divclass=""panel-heading"">Guest</div><divclass=""panel-body""><divclass=""rowef-proweb-form-row""><divclass=""col-sm-4ef_proweb_form_prompt""><labelclass=""control-label""for=""proweb-1-2""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;GuestFirstName\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""><divclass=""ef-label-text""id=""ef-display-label-proweb-1-2"">GuestFirstName</div><divclass=""ef-proweb-direct-label-edit""style=""display:none;""id=""ef-edit-label-input-proweb-1-2""data-proweb-id=""1""><inputtype=""text""value=""GuestFirstName""></div></label></div><divclass=""col-sm-8ef_proweb_form_prompt""><inputtype=""text""class=""form-controlef-proweb-input-element""title=""""id=""proweb-1-2""name=""proweb-1-2""value=""Dfgdf""placeholder=""""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;GuestFirstName\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""></div></div><divclass=""rowef-proweb-form-row""><divclass=""col-sm-4ef_proweb_form_prompt""><labelclass=""control-label""for=""proweb-2-2""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;GuestLastName\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""><divclass=""ef-label-text""id=""ef-display-label-proweb-2-2"">GuestLastName</div><divclass=""ef-proweb-direct-label-edit""style=""display:none;""id=""ef-edit-label-input-proweb-2-2""data-proweb-id=""2""><inputtype=""text""value=""GuestLastName""></div></label></div><divclass=""col-sm-8ef_proweb_form_prompt""><inputtype=""text""class=""form-controlef-proweb-input-element""title=""""id=""proweb-2-2""name=""proweb-2-2""value=""Gdfg""placeholder=""""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;GuestLastName\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""></div></div></div></div><divclass=""rowef-proweb-form-row""><divclass=""col-sm-4ef_proweb_form_prompt""><labelclass=""control-label""for=""proweb-3""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;AttendeeCompany\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""><divclass=""ef-label-text""id=""ef-display-label-proweb-3"">AttendeeCompany</div><divclass=""ef-proweb-direct-label-edit""style=""display:none;""id=""ef-edit-label-input-proweb-3""data-proweb-id=""3""><inputtype=""text""value=""AttendeeCompany""></div></label></div><divclass=""col-sm-8ef_proweb_form_prompt""><inputtype=""text""class=""form-controlef-proweb-input-element""title=""""id=""proweb-3""name=""proweb-3""value=""ikea""placeholder=""""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;AttendeeCompany\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""></div></div>"
 	do $$$AssertEquals(returnedHTML,expectedHTML)
 ]]></Implementation>
 </Method>
@@ -3077,7 +3081,7 @@ Should be run if any of the sub-classes are deleted</Description>
 
 <Class name="EF.pageController.proweb.testCases.passwordInputTestCase">
 <Super>EF.ISC.UnitTest.TestCase</Super>
-<TimeChanged>64211,43100.5715</TimeChanged>
+<TimeChanged>64216,60311.963424</TimeChanged>
 <TimeCreated>64208,51641.871984</TimeCreated>
 
 <Method name="TestPasswordInput">
@@ -3108,7 +3112,7 @@ Should be run if any of the sub-classes are deleted</Description>
 	
 	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(pageController,"renderElements")
 	set returnedHTML = $ZStrip(returnedHTML,"*WC")
-	set expectedHTML = "<divclass=""rowef-proweb-form-row""><divclass=""col-sm-4ef_proweb_form_prompt""><labelclass=""control-label""for=""proweb-1""><divclass=""ef-label-text""id=""ef-display-label-proweb-1"">Pleaseenteryourpassword</div><divclass=""ef-proweb-direct-label-edit""style=""display:none;""id=""ef-edit-label-input-proweb-1""data-proweb-id=""1""><inputtype=""text""value=""Pleaseenteryourpassword""></div></label></div><divclass=""col-sm-8ef_proweb_form_prompt""><inputtype=""password""class=""form-controlef-proweb-input-element""title=""""id=""proweb-1""name=""proweb-1""value=""********""placeholder=""""></div></div>"
+	set expectedHTML = "<divclass=""rowef-proweb-form-row""><divclass=""col-sm-4ef_proweb_form_prompt""><labelclass=""control-label""for=""proweb-1""autofocus><divclass=""ef-label-text""id=""ef-display-label-proweb-1"">Pleaseenteryourpassword</div><divclass=""ef-proweb-direct-label-edit""style=""display:none;""id=""ef-edit-label-input-proweb-1""data-proweb-id=""1""><inputtype=""text""value=""Pleaseenteryourpassword""></div></label></div><divclass=""col-sm-8ef_proweb_form_prompt""><inputtype=""password""class=""form-controlef-proweb-input-element""title=""""id=""proweb-1""name=""proweb-1""value=""""placeholder=""""autofocus></div></div>"
 	do $$$AssertEquals(returnedHTML,expectedHTML)
 ]]></Implementation>
 </Method>
@@ -3146,7 +3150,7 @@ Should be run if any of the sub-classes are deleted</Description>
 
 <Class name="EF.pageController.proweb.testCases.radioButtonsTestCase">
 <Super>EF.ISC.UnitTest.TestCase</Super>
-<TimeChanged>64209,54684.976341</TimeChanged>
+<TimeChanged>64216,60367.561308</TimeChanged>
 <TimeCreated>64204,52760.35415</TimeCreated>
 
 <Method name="TestWithRadioButtons">
@@ -3168,7 +3172,7 @@ Should be run if any of the sub-classes are deleted</Description>
 	
 	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(page,"render")
 	set returnedHTML = $ZStrip(returnedHTML,"*WC")
-	set expectedHTML = "<divclass=""rowef-proweb-form-row""><divclass=""col-sm-4ef_proweb_form_prompt""><labelclass=""control-label""for=""proweb-1""><divclass=""ef-label-text""id=""ef-display-label-proweb-1"">diet</div><divclass=""ef-proweb-direct-label-edit""style=""display:none;""id=""ef-edit-label-input-proweb-1""data-proweb-id=""""><inputtype=""text""value=""diet""></div></label></div><divclass='col-sm-8ef_proweb_form_promptef-proweb-radio-group'><divclass=""btn-group""id=""proweb-1""title=""""><divclass='col-sm-12ef-proweb-radio-button'><labelclass=""btnef-btn-defaultef-proweb-radio-button""id=""proweb-1_1-label""><inputtype=""radio""value=""meat""name=""proweb-1""id=""proweb-1_1"">&nbsp;meat</label></div><divclass='col-sm-12ef-proweb-radio-button'><labelclass=""btnef-btn-defaultef-proweb-radio-button""id=""proweb-1_2-label""><inputtype=""radio""value=""vegetarian""name=""proweb-1""id=""proweb-1_2"">&nbsp;vegetarian</label></div><divclass='col-sm-12ef-proweb-radio-button'><labelclass=""btnef-btn-defaultef-proweb-radio-buttonactive""id=""proweb-1_3-label""><inputtype=""radio""checkedvalue=""vegan""name=""proweb-1""id=""proweb-1_3"">&nbsp;vegan</label></div></div></div></div>"
+	set expectedHTML = "<divclass=""rowef-proweb-form-row""><divclass=""col-sm-4ef_proweb_form_prompt""><labelclass=""control-label""for=""proweb-1""><divclass=""ef-label-text""id=""ef-display-label-proweb-1"">diet</div><divclass=""ef-proweb-direct-label-edit""style=""display:none;""id=""ef-edit-label-input-proweb-1""data-proweb-id=""""><inputtype=""text""value=""diet""></div></label></div><divclass='col-sm-8ef_proweb_form_promptef-proweb-radio-group'><divclass=""btn-group""id=""proweb-1""title=""""><divclass='col-sm-12ef-proweb-radio-button'><labelclass=""ef-btn-defaultef-proweb-radio-button""id=""proweb-1_1-label""><inputtype=""radio""value=""meat""name=""proweb-1""id=""proweb-1_1"">&nbsp;meat</label></div><divclass='col-sm-12ef-proweb-radio-button'><labelclass=""ef-btn-defaultef-proweb-radio-button""id=""proweb-1_2-label""><inputtype=""radio""value=""vegetarian""name=""proweb-1""id=""proweb-1_2"">&nbsp;vegetarian</label></div><divclass='col-sm-12ef-proweb-radio-button'><labelclass=""ef-btn-defaultef-proweb-radio-buttonactive""id=""proweb-1_3-label""><inputtype=""radio""checkedvalue=""vegan""name=""proweb-1""id=""proweb-1_3"">&nbsp;vegan</label></div></div></div></div>"
 	do $$$AssertEquals(returnedHTML,expectedHTML)
 ]]></Implementation>
 </Method>
@@ -3230,7 +3234,7 @@ Should be run if any of the sub-classes are deleted</Description>
 
 <Class name="EF.pageController.proweb.testCases.textInputTestCase">
 <Super>EF.ISC.UnitTest.TestCase</Super>
-<TimeChanged>64215,53310.048206</TimeChanged>
+<TimeChanged>64217,28631.766565</TimeChanged>
 <TimeCreated>64204,52795.592181</TimeCreated>
 
 <Method name="TestbasicInputField">
@@ -3282,7 +3286,38 @@ Should be run if any of the sub-classes are deleted</Description>
 	
 	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(pageController,"renderElements")
 	set returnedHTML = $ZStrip(returnedHTML,"*WC")
-	set expectedHTML = "<divclass=""rowef-proweb-form-row""><divclass=""col-sm-4ef_proweb_form_prompt""><labelclass=""control-label""for=""proweb-1""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;Firstname\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""><divclass=""ef-label-text""id=""ef-display-label-proweb-1"">Firstname</div><divclass=""ef-proweb-direct-label-edit""style=""display:none;""id=""ef-edit-label-input-proweb-1""data-proweb-id=""1""><inputtype=""text""value=""Firstname""></div></label></div><divclass=""col-sm-8ef_proweb_form_prompt""><inputtype=""text""class=""form-controlef-proweb-input-element""title=""""id=""proweb-1""name=""proweb-1""value=""""placeholder=""""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;Firstname\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""><divid=""helpTextIcon_Mock-1""class=""ef_frontend_help_text_icon"">?</div><divid=""helpTextIcon_Mock-1_content""class=""ef_frontend_help_text_content""style=""display:none;""><pre>Helpme!</pre></div><scriptlanguage=""javascript"">$(document).ready(function(){ef_create_help_text_qtip('helpTextIcon_Mock-1');});</script></div></div>"
+	set expectedHTML = "<divclass=""rowef-proweb-form-row""><divclass=""col-sm-4ef_proweb_form_prompt""><labelclass=""control-label""for=""proweb-1""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;Firstname\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""autofocus><divclass=""ef-label-text""id=""ef-display-label-proweb-1"">Firstname</div><divclass=""ef-proweb-direct-label-edit""style=""display:none;""id=""ef-edit-label-input-proweb-1""data-proweb-id=""1""><inputtype=""text""value=""Firstname""></div></label></div><divclass=""col-sm-8ef_proweb_form_prompt""><inputtype=""text""class=""form-controlef-proweb-input-element""title=""""id=""proweb-1""name=""proweb-1""value=""""placeholder=""""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;Firstname\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""autofocus><divid=""helpTextIcon_Mock-1""class=""ef_frontend_help_text_icon"">?</div><divid=""helpTextIcon_Mock-1_content""class=""ef_frontend_help_text_content""style=""display:none;""><pre>Helpme!</pre></div><scriptlanguage=""javascript"">$(document).ready(function(){ef_create_help_text_qtip('helpTextIcon_Mock-1');});</script></div></div>"
+	do $$$AssertEquals(returnedHTML,expectedHTML)
+]]></Implementation>
+</Method>
+
+<Method name="TestAriaLabel">
+<Implementation><![CDATA[
+	#dim page as EF.pageController.proweb.page
+	#dim element as EF.pageController.proweb.textInput
+	#dim storage as sc.facade.prowebItemStorageInputElementMock
+	#dim contextData as EF.contextDataRegistrationMock
+	#dim pageController as EF.pageController.pagesFrontend.t4Registration
+	
+	set eventConfiguration = ##class(setup.eventConfiguration.storageMock).createEventConfiguration()
+	
+	set contextData = ##class(EF.contextDataRegistrationMock).createMock()
+	set contextData.prowebMode = "preview"
+	
+	set storage = ##class(sc.facade.prowebItemStorageInputElementMock).createNew()
+	set storage.databaseItemName = "THIS IS MY ARIA LABEL"
+	set storage.inputType = "text"
+	set storage.labelText = ""	
+	set storage.prowebID = "1"
+	
+	set prowebItem = ##class(sc.facade.prowebItem).createNew(storage)
+	do contextData.listOfProwebItemsToAdd.Insert(prowebItem)
+
+	set pageController = ##class(EF.pageController.pagesFrontend.t4Registration).createNew(contextData,,,eventConfiguration)
+	
+	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(pageController,"renderElements")
+	set returnedHTML = $ZStrip(returnedHTML,"*WC")
+	set expectedHTML = "<divclass=""rowef-proweb-form-row""><divclass=""col-sm-4ef_proweb_form_prompt""></div><divclass=""col-sm-8ef_proweb_form_prompt""><inputtype=""text""class=""form-controlef-proweb-input-element""title=""""id=""proweb-1""name=""proweb-1""value=""""placeholder=""""aria-label=""THISISMYARIALABEL""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""autofocus></div></div>"
 	do $$$AssertEquals(returnedHTML,expectedHTML)
 ]]></Implementation>
 </Method>
@@ -3336,7 +3371,7 @@ Should be run if any of the sub-classes are deleted</Description>
 	
 	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(pageController,"renderElements")
 	set returnedHTML = $ZStrip(returnedHTML,"*WC")
-	set expectedHTML = "<divclass=""rowef-proweb-form-row""><divclass=""col-sm-4ef_proweb_form_prompt""><labelclass=""control-label""for=""proweb-1""><divclass=""ef-label-text""id=""ef-display-label-proweb-1"">Pleaseenterdietaryrequirement</div><divclass=""ef-proweb-direct-label-edit""style=""display:none;""id=""ef-edit-label-input-proweb-1""data-proweb-id=""1""><inputtype=""text""value=""Pleaseenterdietaryrequirement""></div></label></div><divclass='col-sm-8ef_proweb_form_promptef-proweb-radio-group'><divclass=""btn-group""id=""proweb-1""title=""""><divclass='col-sm-12ef-proweb-radio-button'><labelclass=""btnef-btn-defaultef-proweb-radio-buttonactive""id=""proweb-1_1-label""><inputtype=""radio""checkedvalue=""meat""name=""proweb-1""id=""proweb-1_1"">&nbsp;Meat</label></div><divclass='col-sm-12ef-proweb-radio-button'><labelclass=""btnef-btn-defaultef-proweb-radio-button""id=""proweb-1_2-label""><inputtype=""radio""value=""fish""name=""proweb-1""id=""proweb-1_2"">&nbsp;Fish</label></div><divclass='col-sm-12ef-proweb-radio-button'><labelclass=""btnef-btn-defaultef-proweb-radio-button""id=""proweb-1_3-label""><inputtype=""radio""value=""vegan""name=""proweb-1""id=""proweb-1_3"">&nbsp;Vegan</label></div></div></div></div><divclass=""rowef-proweb-form-row""><divclass=""col-sm-4ef_proweb_form_prompt""title='ShowwhenDIET=Meat'><labelclass=""control-label""for=""proweb-2""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;Whattypeofmeatdoyouprefer?\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""><divclass=""ef-label-text""id=""ef-display-label-proweb-2"">Whattypeofmeatdoyouprefer?</div><divclass=""ef-proweb-direct-label-edit""style=""display:none;""id=""ef-edit-label-input-proweb-2""data-proweb-id=""2""><inputtype=""text""value=""Whattypeofmeatdoyouprefer?""></div></label></div><divclass=""col-sm-8ef_proweb_form_prompt""><inputtype=""text""class=""form-controlef-proweb-input-element""title=""""id=""proweb-2""name=""proweb-2""value=""""placeholder=""""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;Whattypeofmeatdoyouprefer?\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""></div></div>"
+	set expectedHTML = "<divclass=""rowef-proweb-form-row""><divclass=""col-sm-4ef_proweb_form_prompt""><labelclass=""control-label""for=""proweb-1""><divclass=""ef-label-text""id=""ef-display-label-proweb-1"">Pleaseenterdietaryrequirement</div><divclass=""ef-proweb-direct-label-edit""style=""display:none;""id=""ef-edit-label-input-proweb-1""data-proweb-id=""1""><inputtype=""text""value=""Pleaseenterdietaryrequirement""></div></label></div><divclass='col-sm-8ef_proweb_form_promptef-proweb-radio-group'><divclass=""btn-group""id=""proweb-1""title=""""><divclass='col-sm-12ef-proweb-radio-button'><labelclass=""ef-btn-defaultef-proweb-radio-buttonactive""id=""proweb-1_1-label""><inputtype=""radio""checkedvalue=""meat""name=""proweb-1""id=""proweb-1_1"">&nbsp;Meat</label></div><divclass='col-sm-12ef-proweb-radio-button'><labelclass=""ef-btn-defaultef-proweb-radio-button""id=""proweb-1_2-label""><inputtype=""radio""value=""fish""name=""proweb-1""id=""proweb-1_2"">&nbsp;Fish</label></div><divclass='col-sm-12ef-proweb-radio-button'><labelclass=""ef-btn-defaultef-proweb-radio-button""id=""proweb-1_3-label""><inputtype=""radio""value=""vegan""name=""proweb-1""id=""proweb-1_3"">&nbsp;Vegan</label></div></div></div></div><divclass=""rowef-proweb-form-row""><divclass=""col-sm-4ef_proweb_form_prompt""title='ShowwhenDIET=Meat'><labelclass=""control-label""for=""proweb-2""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;Whattypeofmeatdoyouprefer?\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""><divclass=""ef-label-text""id=""ef-display-label-proweb-2"">Whattypeofmeatdoyouprefer?</div><divclass=""ef-proweb-direct-label-edit""style=""display:none;""id=""ef-edit-label-input-proweb-2""data-proweb-id=""2""><inputtype=""text""value=""Whattypeofmeatdoyouprefer?""></div></label></div><divclass=""col-sm-8ef_proweb_form_prompt""><inputtype=""text""class=""form-controlef-proweb-input-element""title=""""id=""proweb-2""name=""proweb-2""value=""""placeholder=""""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;Whattypeofmeatdoyouprefer?\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""></div></div>"
 	do $$$AssertEquals(returnedHTML,expectedHTML)
 ]]></Implementation>
 </Method>
@@ -3368,7 +3403,7 @@ Should be run if any of the sub-classes are deleted</Description>
 	
 	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(pageController,"renderElements")
 	set returnedHTML = $ZStrip(returnedHTML,"*WC")
-	set expectedHTML = "<divclass=""rowef-proweb-form-row""><divclass=""col-sm-4ef_proweb_form_promptef-required-field""><labelclass=""control-label""for=""proweb-1""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;Firstname\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""><divclass=""ef-label-text""id=""ef-display-label-proweb-1"">Firstname</div><divclass=""ef-proweb-direct-label-edit""style=""display:none;""id=""ef-edit-label-input-proweb-1""data-proweb-id=""1""><inputtype=""text""value=""Firstname""></div></label></div><divclass=""col-sm-8ef_proweb_form_prompt""><inputtype=""text""class=""form-controlef-proweb-input-element""title=""""id=""proweb-1""name=""proweb-1""value=""""placeholder=""""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;Firstname\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""></div></div>"
+	set expectedHTML = "<divclass=""rowef-proweb-form-row""><divclass=""col-sm-4ef_proweb_form_promptef-required-field""><labelclass=""control-label""for=""proweb-1""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;Firstname\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""autofocus><divclass=""ef-label-text""id=""ef-display-label-proweb-1"">Firstname</div><divclass=""ef-proweb-direct-label-edit""style=""display:none;""id=""ef-edit-label-input-proweb-1""data-proweb-id=""1""><inputtype=""text""value=""Firstname""></div></label></div><divclass=""col-sm-8ef_proweb_form_prompt""><inputtype=""text""class=""form-controlef-proweb-input-element""title=""""id=""proweb-1""name=""proweb-1""value=""""placeholder=""""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;Firstname\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""autofocus></div></div>"
 	do $$$AssertEquals(returnedHTML,expectedHTML)
 ]]></Implementation>
 </Method>
@@ -3401,7 +3436,7 @@ Should be run if any of the sub-classes are deleted</Description>
 	
 	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(pageController,"renderElements")
 	set returnedHTML = $ZStrip(returnedHTML,"*WC")
-	set expectedHTML = "<divclass=""rowef-proweb-form-row""><divclass=""col-sm-4ef_proweb_form_prompt""><labelclass=""control-label""for=""proweb-1""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;AttendeeFirstName\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""><divclass=""ef-label-text""id=""ef-display-label-proweb-1"">AttendeeFirstName</div><divclass=""ef-proweb-direct-label-edit""style=""display:none;""id=""ef-edit-label-input-proweb-1""data-proweb-id=""1""><inputtype=""text""value=""AttendeeFirstName""></div></label></div><divclass=""col-sm-8ef_proweb_form_prompt""><inputtype=""text""class=""form-controlef-proweb-input-elementef-proweb-input-element-backendOnly""title=""""id=""proweb-1""name=""proweb-1""value=""Fred""placeholder=""(Adminportalonly)""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;AttendeeFirstName\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""></div></div>"
+	set expectedHTML = "<divclass=""rowef-proweb-form-row""><divclass=""col-sm-4ef_proweb_form_prompt""><labelclass=""control-label""for=""proweb-1""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;AttendeeFirstName\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""autofocus><divclass=""ef-label-text""id=""ef-display-label-proweb-1"">AttendeeFirstName</div><divclass=""ef-proweb-direct-label-edit""style=""display:none;""id=""ef-edit-label-input-proweb-1""data-proweb-id=""1""><inputtype=""text""value=""AttendeeFirstName""></div></label></div><divclass=""col-sm-8ef_proweb_form_prompt""><inputtype=""text""class=""form-controlef-proweb-input-elementef-proweb-input-element-backendOnly""title=""""id=""proweb-1""name=""proweb-1""value=""Fred""placeholder=""(Adminportalonly)""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;AttendeeFirstName\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""autofocus></div></div>"
 	do $$$AssertEquals(returnedHTML,expectedHTML)
 ]]></Implementation>
 </Method>
@@ -3441,7 +3476,7 @@ Should be run if any of the sub-classes are deleted</Description>
 	
 	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(pageController,"renderElements")
 	set returnedHTML = $ZStrip(returnedHTML,"*WC")
-	set expectedHTML = "<divclass=""rowef-proweb-form-row""><divclass=""col-sm-4ef_proweb_form_prompt""><labelclass=""control-label""for=""proweb-2""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;AttendeeLastName(SHOULDBEDISPLAYED)\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""><divclass=""ef-label-text""id=""ef-display-label-proweb-2"">AttendeeLastName(SHOULDBEDISPLAYED)</div><divclass=""ef-proweb-direct-label-edit""style=""display:none;""id=""ef-edit-label-input-proweb-2""data-proweb-id=""2""><inputtype=""text""value=""AttendeeLastName(SHOULDBEDISPLAYED)""></div></label></div><divclass=""col-sm-8ef_proweb_form_prompt""><inputtype=""text""class=""form-controlef-proweb-input-element""title=""""id=""proweb-2""name=""proweb-2""value=""Fred""placeholder=""""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;AttendeeLastName(SHOULDBEDISPLAYED)\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""></div></div>"
+	set expectedHTML = "<divclass=""rowef-proweb-form-row""><divclass=""col-sm-4ef_proweb_form_prompt""><labelclass=""control-label""for=""proweb-2""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;AttendeeLastName(SHOULDBEDISPLAYED)\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""autofocus><divclass=""ef-label-text""id=""ef-display-label-proweb-2"">AttendeeLastName(SHOULDBEDISPLAYED)</div><divclass=""ef-proweb-direct-label-edit""style=""display:none;""id=""ef-edit-label-input-proweb-2""data-proweb-id=""2""><inputtype=""text""value=""AttendeeLastName(SHOULDBEDISPLAYED)""></div></label></div><divclass=""col-sm-8ef_proweb_form_prompt""><inputtype=""text""class=""form-controlef-proweb-input-element""title=""""id=""proweb-2""name=""proweb-2""value=""Fred""placeholder=""""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;AttendeeLastName(SHOULDBEDISPLAYED)\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""autofocus></div></div>"
 	do $$$AssertEquals(returnedHTML,expectedHTML)
 ]]></Implementation>
 </Method>
@@ -3506,7 +3541,39 @@ Should be run if any of the sub-classes are deleted</Description>
 	
 	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(pageController,"renderElements")
 	set returnedHTML = $ZStrip(returnedHTML,"*WC")
-	set expectedHTML = "<divclass=""rowef-proweb-form-row""><divclass=""col-sm-4ef_proweb_form_prompt""><labelclass=""control-label""for=""proweb-1""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;AttendeeFirstName\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""><divclass=""ef-label-text""id=""ef-display-label-proweb-1"">AttendeeFirstName</div><divclass=""ef-proweb-direct-label-edit""style=""display:none;""id=""ef-edit-label-input-proweb-1""data-proweb-id=""1""><inputtype=""text""value=""AttendeeFirstName""></div></label></div><divclass=""col-sm-8ef_proweb_form_prompt""><inputtype=""text""class=""form-controlef-proweb-input-element""disabled='disabled'title=""""id=""proweb-1""name=""proweb-1""value=""Fred""placeholder=""""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;AttendeeFirstName\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""></div></div>"
+	set expectedHTML = "<divclass=""rowef-proweb-form-row""><divclass=""col-sm-4ef_proweb_form_prompt""><labelclass=""control-label""for=""proweb-1""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;AttendeeFirstName\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""autofocus><divclass=""ef-label-text""id=""ef-display-label-proweb-1"">AttendeeFirstName</div><divclass=""ef-proweb-direct-label-edit""style=""display:none;""id=""ef-edit-label-input-proweb-1""data-proweb-id=""1""><inputtype=""text""value=""AttendeeFirstName""></div></label></div><divclass=""col-sm-8ef_proweb_form_prompt""><inputtype=""text""class=""form-controlef-proweb-input-element""disabled='disabled'title=""""id=""proweb-1""name=""proweb-1""value=""Fred""placeholder=""""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;AttendeeFirstName\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""autofocus></div></div>"
+	do $$$AssertEquals(returnedHTML,expectedHTML)
+]]></Implementation>
+</Method>
+
+<Method name="TestDefaultvalue">
+<Implementation><![CDATA[
+	#dim page as EF.pageController.proweb.page
+	#dim element as EF.pageController.proweb.textInput
+	#dim storage as sc.facade.prowebItemStorageInputElementMock
+	#dim contextData as EF.contextDataRegistrationMock
+	#dim pageController as EF.pageController.pagesFrontend.t4Registration
+	
+	set eventConfiguration = ##class(setup.eventConfiguration.storageMock).createEventConfiguration()
+	
+	set contextData = ##class(EF.contextDataRegistrationMock).createMock()
+	set contextData.prowebMode = "preview"
+	
+	set storage = ##class(sc.facade.prowebItemStorageInputElementMock).createNew()
+	set storage.databaseItemName = "First Name"
+	set storage.inputType = "text"
+	set storage.labelText = "First name"	
+	set storage.prowebID = "1"
+	set storage.defaultValue = "Elvis, of course!"
+	
+	set prowebItem = ##class(sc.facade.prowebItem).createNew(storage)
+	do contextData.listOfProwebItemsToAdd.Insert(prowebItem)
+
+	set pageController = ##class(EF.pageController.pagesFrontend.t4Registration).createNew(contextData,,,eventConfiguration)
+	
+	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(pageController,"renderElements")
+	set returnedHTML = $ZStrip(returnedHTML,"*WC")
+	set expectedHTML = "<divclass=""rowef-proweb-form-row""><divclass=""col-sm-4ef_proweb_form_prompt""><labelclass=""control-label""for=""proweb-1""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;Firstname\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""autofocus><divclass=""ef-label-text""id=""ef-display-label-proweb-1"">Firstname</div><divclass=""ef-proweb-direct-label-edit""style=""display:none;""id=""ef-edit-label-input-proweb-1""data-proweb-id=""1""><inputtype=""text""value=""Firstname""></div></label></div><divclass=""col-sm-8ef_proweb_form_prompt""><inputtype=""text""class=""form-controlef-proweb-input-element""title=""""id=""proweb-1""name=""proweb-1""value=""Elvis,ofcourse!""placeholder=""""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;Firstname\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""autofocus></div></div>"
 	do $$$AssertEquals(returnedHTML,expectedHTML)
 ]]></Implementation>
 </Method>
@@ -4833,7 +4900,7 @@ we need to refactor the frontend buttons to make them callable from class method
 
 <Class name="EF.ui.components.frontend.dropdown">
 <Super>EF.ui.components.listInput,EF.ui.components.frontend.inputElement</Super>
-<TimeChanged>64212,46177.616976</TimeChanged>
+<TimeChanged>64217,28813.793781</TimeChanged>
 <TimeCreated>63355,56609.363142</TimeCreated>
 
 <Property name="isPersistent">
@@ -4870,10 +4937,15 @@ we need to refactor the frontend buttons to make them callable from class method
 	
 	do ..renderRowOpeningAndLabel()
 	&html<		
-		<select class="#(..encodeForHTMLAttribute(..classes_" "_selectClass))#" name="#(..encodeHTMLAttribute(..htmlName))#" 
-			id="#(..encodeHTMLAttribute(..htmlID))#" title="#(..encodeHTMLAttribute(..title))#" 
-			#(..rawHTML(disabledString))# #(..rawHTML(..getExtraAttributes()))# #(..rawHTML(searchableDataAttributes))#>
-			
+		<select class="#(..encodeForHTMLAttribute(..classes_" "_selectClass))#" 
+		name="#(..encodeHTMLAttribute(..htmlName))#" 
+			id="#(..encodeHTMLAttribute(..htmlID))#" 
+			title="#(..encodeHTMLAttribute(..title))#" 
+			#(..rawHTML(disabledString))# 
+			#(..rawHTML(..getExtraAttributes()))# 
+			#(..rawHTML(searchableDataAttributes))#
+			#(..rawHTML(..getAriaLabelForInputElement() ))# 
+		>
     		#[do ..renderPlaceholder()]#
     		#[do ..renderAlternatives()]#
         </select>
@@ -5244,7 +5316,7 @@ we need to refactor the frontend buttons to make them callable from class method
 
 <Class name="EF.ui.components.frontend.inputElement">
 <Super>EF.ui.components.frontend.prowebBase,EF.ui.components.inputBase</Super>
-<TimeChanged>64215,51878.419412</TimeChanged>
+<TimeChanged>64217,28589.324025</TimeChanged>
 <TimeCreated>64183,40678.260093</TimeCreated>
 
 <Property name="alternatives">
@@ -5361,6 +5433,16 @@ we need to refactor the frontend buttons to make them callable from class method
 		set disabledString="disabled='disabled'"
 	}
 	return disabledString
+]]></Implementation>
+</Method>
+
+<Method name="getAriaLabelForInputElement">
+<Implementation><![CDATA[
+	if $Length(..label) {
+		return ""
+	} else {
+		return "aria-label="""_..encodeForHTMLAttribute(..prowebItem.storage.databaseItemName)_""""
+	}
 ]]></Implementation>
 </Method>
 
@@ -5813,7 +5895,7 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 
 <Class name="EF.ui.components.frontend.textArea">
 <Super>EF.ui.components.textInput,EF.ui.components.frontend.inputElement</Super>
-<TimeChanged>64208,41483.005611</TimeChanged>
+<TimeChanged>64217,28951.01067</TimeChanged>
 <TimeCreated>63357,57620.613738</TimeCreated>
 
 <Parameter name="html5Validation">
@@ -5835,9 +5917,19 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 	}	
 	do ..renderRowOpeningAndLabel()
 	&html<
-    	    <textarea type="text" class="#(..encodeHTMLAttribute(..classes))#" #(..rawHTML(..getDisabledString()))# title="#(..encodeHTMLAttribute(..title))#" 
-    	    id="#(..encodeHTMLAttribute(..htmlID))#" name="#(..encodeHTMLAttribute(..htmlName))#" placeholder="#(..encodeHTMLAttribute(..placeHolder))#" 
-    	    #(..rawHTML(..getExtraAttributes()))#>#(..encodeHTMLContentForTextarea(..value))#</textArea>
+    	    <textarea 
+    	    	type="text" 
+	    	    class="#(..encodeHTMLAttribute(..classes))#" 
+	    	    #(..rawHTML(..getDisabledString()))# 
+	    	    title="#(..encodeHTMLAttribute(..title))#" 
+	    	    id="#(..encodeHTMLAttribute(..htmlID))#" 
+	    	    name="#(..encodeHTMLAttribute(..htmlName))#" 
+	    	    placeholder="#(..encodeHTMLAttribute(..placeHolder))#" 
+	    	    #(..rawHTML(..getExtraAttributes()))#
+	    	    #(..rawHTML(..getAriaLabelForInputElement() ))# 
+    	   >
+    	    #(..encodeHTMLContentForTextarea(..value))#
+    	   </textArea>
     	
 	>
 	do ..renderHelpAndRowClosing()
@@ -5922,7 +6014,7 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 
 <Class name="EF.ui.components.frontend.textInput">
 <Super>EF.ui.components.textInput,EF.ui.components.frontend.inputElement</Super>
-<TimeChanged>64216,37307.403029</TimeChanged>
+<TimeChanged>64217,28291.965206</TimeChanged>
 <TimeCreated>63357,57620.613738</TimeCreated>
 
 <Parameter name="typeAttribute">
@@ -5966,9 +6058,16 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 
 	do ..renderRowOpeningAndLabel()
 	&html<
-    	    <input type="#(..encodeHTMLAttribute(..#typeAttribute))#" class="#(..encodeHTMLAttribute(..classes))#" #(..rawHTML(..getDisabledString()))# 
-    	    title="#(..encodeHTMLAttribute(..title))#" id="#(..encodeHTMLAttribute(..htmlID))#" name="#(..encodeHTMLAttribute(..htmlName))#" 
-    	    value="#(..encodeHTMLAttribute(..value))#" placeholder="#(..encodeHTMLAttribute(..placeHolder))#"  #(..rawHTML(..getProwebExtraAttributes()))#>
+    	    <input type="#(..encodeHTMLAttribute(..#typeAttribute))#" 
+    	    class="#(..encodeHTMLAttribute(..classes))#" 
+    	    #(..rawHTML(..getDisabledString()))# 
+    	    title="#(..encodeHTMLAttribute(..title))#" 
+    	    id="#(..encodeHTMLAttribute(..htmlID))#" 
+    	    name="#(..encodeHTMLAttribute(..htmlName))#" 
+    	    value="#(..encodeHTMLAttribute(..value))#" 
+    	    placeholder="#(..encodeHTMLAttribute(..placeHolder))#"
+    	    #(..rawHTML(..getAriaLabelForInputElement() ))#  
+    	    #(..rawHTML(..getProwebExtraAttributes()))#>
     	
 	>
 	do ..renderHelpAndRowClosing()

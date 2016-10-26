@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2015.2 (Build 664_3_16032U)" ts="2016-10-26 10:28:31">
+<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2015.2 (Build 664_3_16032U)" ts="2016-10-26 14:48:24">
 <Class name="EF.contextDataRegistration">
 <Description><![CDATA[
 <!-- ;vc;-
@@ -1698,7 +1698,7 @@ Should be run if any of the sub-classes are deleted</Description>
 
 <Class name="EF.pageController.proweb.page">
 <Super>EF.pageController.page</Super>
-<TimeChanged>64217,37384.502235</TimeChanged>
+<TimeChanged>64217,51655.074862</TimeChanged>
 <TimeCreated>64189,51696.559047</TimeCreated>
 
 <Property name="contextData">
@@ -1727,16 +1727,13 @@ Should be run if any of the sub-classes are deleted</Description>
 <Method name="load">
 <Implementation><![CDATA[
 	do ..loadData()
-	
 	if ..contextData.isTestMode {
 		do ..insertMockProwebItems()	
-	} else {	
+	} else {
 		do ..findAllProwebItemsFromDatabase() 
 	}
-	
 	do ..repeatAnyGuestQuestions()
 	do ..insertPanelElementsAroundGuestQuestions()
-	
 	do ..updateUIComponents()
 ]]></Implementation>
 </Method>
@@ -1810,19 +1807,15 @@ Should be run if any of the sub-classes are deleted</Description>
 	} else {
 		set pageID = ..contextData.pageID	
 	}
-
 	set rsLists = ##class(%ResultSet).%New("sc.objData:qGetChildren")
 	do rsLists.Execute(pageID)
-	
 	while rsLists.Next() {
 		set listID = rsLists.Get("ID")
-		
 		set rsProwebItems = ##class(%ResultSet).%New("sc.xModules.objList:qGetChildren")
 		do rsProwebItems.Execute(listID)
 		while rsProwebItems.Next() {	
 			set prowebID = rsProwebItems.Get("ID")
 			set typeOfElement = rsProwebItems.Get("dataType")
-			
 			if typeOfElement = "objCODitem" {
 				set storage = ##class(sc.facade.prowebItemStorageInputElement).createNew(prowebID, ..contextData)
 			
@@ -1841,7 +1834,6 @@ Should be run if any of the sub-classes are deleted</Description>
 			} else {
 				throw ##class(shared.exceptions.generalException).%New("Proweb type not implemented: "_typeOfElement)	
 			}
-			
 			if storage.isOkToUse(..contextData) {			
 				set prowebItem = ##class(sc.facade.prowebItem).createNew(storage)
 				do ..addControllerForProwebItem(prowebItem)
@@ -1949,6 +1941,11 @@ Should be run if any of the sub-classes are deleted</Description>
 											"fileUpload":"fileUpload",
 											:"exception"
 										)
+	
+	if prowebItem.storage.isHiddenToBooker(..contextData) {
+		set pageControllerClassName = "privateData" 
+	}
+	
 	if pageControllerClassName '= "exception" {		
 		set element = $ClassMethod("EF.pageController.proweb."_pageControllerClassName, "addElementToParent", $this, elementIdentifier, labelText, value, prowebItem.storage.isReadOnly)
 		
@@ -2016,10 +2013,12 @@ Should be run if any of the sub-classes are deleted</Description>
 <FormalSpec>optionalGuestNumber:%Integer</FormalSpec>
 <ReturnType>%Integer</ReturnType>
 <Implementation><![CDATA[
-	if ..contextData.isTestMode {
-		return 666	
-	}
 	#dim counter as %Integer = 0
+	#define fakeTempPersonID 666
+
+	if ..contextData.isTestMode {
+		return $$$fakeTempPersonID
+	}
 	
 	set rsTemps = ##class(%ResultSet).%New()
 	do rsTemps.Prepare("SELECT ID FROM eCom.tempPerson WHERE (tempPurchase = ?) AND (isGuest = 1) AND (active = 1) ORDER BY ID")
@@ -2512,12 +2511,21 @@ Should be run if any of the sub-classes are deleted</Description>
 
 <Class name="EF.pageController.proweb.passwordInput">
 <Super>EF.pageController.proweb.textInput</Super>
-<TimeChanged>64208,51186.846746</TimeChanged>
+<TimeChanged>64217,39528.320164</TimeChanged>
 <TimeCreated>64189,53629.035726</TimeCreated>
 
 <Method name="getDefaultUIComponent">
 <ReturnType>EF.ui.components.inputBase</ReturnType>
 <Implementation><![CDATA[	quit ##class(EF.ui.components.frontend.passwordInput).%New(..identifier)
+]]></Implementation>
+</Method>
+
+<Method name="render">
+<Implementation><![CDATA[
+	if $Length(..value) {
+		set ..value = "********"
+	}
+	do ##super()
 ]]></Implementation>
 </Method>
 
@@ -2535,6 +2543,23 @@ Should be run if any of the sub-classes are deleted</Description>
 <Method name="getDefaultUIComponent">
 <ReturnType>EF.ui.components.inputBase</ReturnType>
 <Implementation><![CDATA[	quit ##class(EF.ui.components.frontend.phoneNumber).%New(..identifier)
+]]></Implementation>
+</Method>
+
+<Storage name="Default">
+<Type>%Library.CacheStorage</Type>
+</Storage>
+</Class>
+
+
+<Class name="EF.pageController.proweb.privateData">
+<Super>EF.pageController.proweb.textInput</Super>
+<TimeChanged>64217,38879.722364</TimeChanged>
+<TimeCreated>64189,53629.035726</TimeCreated>
+
+<Method name="getDefaultUIComponent">
+<ReturnType>EF.ui.components.inputBase</ReturnType>
+<Implementation><![CDATA[	quit ##class(EF.ui.components.frontend.privateData).%New(..identifier)
 ]]></Implementation>
 </Method>
 
@@ -4028,7 +4053,7 @@ this is for version 1 of proweb</Description>
 <Class name="EF.pages.frontend.baseProweb">
 <ProcedureBlock>0</ProcedureBlock>
 <Super>EF.pages.frontend.base</Super>
-<TimeChanged>64216,53666.682547</TimeChanged>
+<TimeChanged>64217,52421.956438</TimeChanged>
 <TimeCreated>64191,31442.531402</TimeCreated>
 
 <Parameter name="ENCODED">
@@ -4110,7 +4135,6 @@ this is for version 1 of proweb</Description>
 		set pageControllerID=%request.Get("pageControllerID")
 		
 		merge requestData=%request.Data
-		
 		if pageControllerID { // when reloading the page after an validation error
 			do ..beforePageControllerReload(pageControllerID)
 			set pageController=##class(EF.pageController.page).open(pageControllerID,contextData)
@@ -5669,6 +5693,34 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 <Method name="getDefaultValidator">
 <ReturnType>EF.validator.base</ReturnType>
 <Implementation><![CDATA[	return ##class(EF.validator.phoneNumber).%New()
+]]></Implementation>
+</Method>
+
+<Storage name="Default">
+<Type>%Library.CacheStorage</Type>
+</Storage>
+</Class>
+
+
+<Class name="EF.ui.components.frontend.privateData">
+<Super>EF.ui.components.frontend.textInput</Super>
+<TimeChanged>64217,40266.78793</TimeChanged>
+<TimeCreated>63357,57620.613738</TimeCreated>
+
+<Parameter name="typeAttribute">
+<Default>textInput</Default>
+</Parameter>
+
+<Parameter name="html5Validation">
+<Default>0</Default>
+</Parameter>
+
+<Method name="render">
+<Implementation><![CDATA[
+	set ..value = ##class(shared.pCSP).out("Private field")
+	set ..isDisabled = 1
+	set ..title = ##class(shared.pCSP).out("This field can only be viewed and amended by the person in question")
+	do ##super()
 ]]></Implementation>
 </Method>
 
@@ -13454,6 +13506,9 @@ function updateAlts(codPromptID) {
     content: "\e119";
     float: right;
 }
+.ef_frontend_help_text_icon {
+	float: left;
+}
 </style>]]></CSP>
 
 
@@ -14786,7 +14841,7 @@ FRRE RULE
 <Abstract>1</Abstract>
 <ClassType/>
 <ProcedureBlock>1</ProcedureBlock>
-<TimeChanged>64216,55127.190698</TimeChanged>
+<TimeChanged>64217,41523.809581</TimeChanged>
 <TimeCreated>63046,56232.897117</TimeCreated>
 
 <Method name="outputDefaultCSS">
@@ -15274,7 +15329,6 @@ yellow red grey etc. Used for ALL templates below gen3</Description>
 			background-color: #17b3c4;
 			color: #FFFFFF;
 			border-color: #128996;
-			float: left;
 		}
 		.ef_frontend_help_text_popover {
 			background-color: #17b3c4;
@@ -17119,7 +17173,7 @@ The basic frontend default stuff</Description>
 </Class>
 
 
-<Project name="proweb 2" LastModified="2016-10-21 10:02:48.399405" Target="dev.efsys.net/LARGEDEVSRC/backend/home/efSupportLogin.htm" TargetType="3">
+<Project name="proweb 2" LastModified="2016-10-26 10:50:09.799932" Target="dev.efsys.net/LARGEDEVSRC/backend/home/efSupportLogin.htm" TargetType="3">
   <Items>
     <ProjectItem name="EF.contextDataRegistration" type="CLS"></ProjectItem>
     <ProjectItem name="EF.contextDataRegistrationMock" type="CLS"></ProjectItem>
@@ -17237,6 +17291,8 @@ The basic frontend default stuff</Description>
     <ProjectItem name="sc.objData" type="CLS"></ProjectItem>
     <ProjectItem name="sc.xModules.objList" type="CLS"></ProjectItem>
     <ProjectItem name="shared.pageMethods" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.pageController.proweb.privateData" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.ui.components.frontend.privateData" type="CLS"></ProjectItem>
   </Items>
   <BreakPoints>
     <BreakPoint Routine="cspRealEV.frontend.reg.pagecontrollerstandardsave.CLS" Offset="OnPreHTTPafter+28"></BreakPoint>
@@ -17398,7 +17454,7 @@ Property displayOrder As %Integer [ Required ];</Description>
 
 <Class name="sc.facade.prowebItemStorageInputElement">
 <Super>sc.facade.prowebItemStorage</Super>
-<TimeChanged>64216,47804.659469</TimeChanged>
+<TimeChanged>64217,52929.141281</TimeChanged>
 <TimeCreated>64206,40073.01042</TimeCreated>
 
 <Property name="inputType">
@@ -17520,6 +17576,39 @@ Property displayOrder As %Integer [ Required ];</Description>
 	}
 	set storage.dependencyHoverText = prowebItem.getDependencyHoverText()
 	return storage
+]]></Implementation>
+</Method>
+
+<Method name="isHiddenToBooker">
+<Description>
+to make sure group bookers can't see already existing data of attendees</Description>
+<FormalSpec>contextData:EF.contextDataRegistration</FormalSpec>
+<ReturnType>%Boolean</ReturnType>
+<Implementation><![CDATA[
+	#dim realAttendeeID as %Integer = ##class(eCom.tempPerson).getPersonID(contextData.tempPersonID)
+	#dim realBookerID as %Integer  
+	#dim editableBy as %Integer = ##class(cod.objItemData).get(realAttendeeID, "editableBy")
+	#dim storedValue as %String = ##class(cod.objItemData).get(realAttendeeID,..databaseItemName)
+	
+	#define isGroupBooking contextData.tempBookerID > 0
+	#define isPreExistingAttendee realAttendeeID > 0
+	#define isEventSpanning ##class(cod.objItemName).isEventSpanningAnswer(..databaseItemName) = 1
+	#define isRegisteringForSomeoneElse contextData.tempBookerID '= contextData.tempPersonID
+	#define isFrontEndRegistration +contextData.isBackendBooking = 0
+	#define isOwnedBySomeoneElse editableBy '= realBookerID
+	#define isAnythingButName ($ZCVT(..databaseItemName,"L") '= "firstname") && ($ZCVT(..databaseItemName,"L") '= "lastname")
+	
+	try {
+		set realBookerID = ##class(eCom.tempPerson).getTempBookerIDFromTempPersonID(contextData.tempPersonID)	
+	} catch {
+		set realBookerID = ""	
+	}
+	
+	if ($$$isGroupBooking) && ($$$isPreExistingAttendee) && ($$$isRegisteringForSomeoneElse) && ($$$isFrontEndRegistration) && ($$$isOwnedBySomeoneElse) && ($$$isEventSpanning) && ($$$isAnythingButName){
+		return 1
+	} else {
+		return 0
+	}
 ]]></Implementation>
 </Method>
 </Class>

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2015.2 (Build 664_3_16032U)" ts="2016-10-27 10:32:30">
+<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2015.2 (Build 664_3_16032U)" ts="2016-10-27 14:36:59">
 <Class name="EF.contextDataRegistration">
 <Description><![CDATA[
 <!-- ;vc;-
@@ -3998,7 +3998,7 @@ this is for version 1 of proweb</Description>
 <Class name="EF.pages.frontend.baseProweb">
 <ProcedureBlock>0</ProcedureBlock>
 <Super>EF.pages.frontend.base</Super>
-<TimeChanged>64217,59706.287795</TimeChanged>
+<TimeChanged>64218,51441.155051</TimeChanged>
 <TimeCreated>64191,31442.531402</TimeCreated>
 
 <Parameter name="ENCODED">
@@ -4062,6 +4062,8 @@ this is for version 1 of proweb</Description>
 	do ..OnPagePageBottom()
 
 	if ##class(shared.pageMethods).getEditMode() = "edit" {
+		set %session.Data("inSitePageEditing") = 1 // force the menu and banner to be displayed
+		do ##class(eCom.tempPurchase).clearBackendBooking()
 		kill %session.Data("insertBeforeProwebID") 
 		kill %session.Data("insertAfterProwebID")
 		set floatingMenu = ##class(EF.ui.components.frontend.floatingMenu).%New()
@@ -5520,7 +5522,7 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 
 <Class name="EF.ui.components.frontend.panel">
 <Super>EF.ui.components.frontend.prowebBase,EF.ui.components.panel</Super>
-<TimeChanged>64218,37751.328826</TimeChanged>
+<TimeChanged>64218,38166.112677</TimeChanged>
 <TimeCreated>64204,36543.176151</TimeCreated>
 
 <Property name="isOpeningOrClosing">
@@ -5534,9 +5536,6 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 		&html<
 			<div class="ef-proweb-guest-panel ef-draggable-div" >
 	            <div class="panel-heading">#(..encodeForHTML(##class(shared.pCSP).out("Guest")))#</div>
-	            <button class="ef-add-guest-button btn ef-btn-primary" type="button">
-					<span class="glyphicon glyphicon-plus"></span>#(..encodeForHTML(##class(shared.pCSP).out("Add")))#</button>
-				</button>
 				<div class="panel-body ef-proweb-reorderable-guest">
 		>
 	} else {
@@ -5870,7 +5869,7 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 
 <Class name="EF.ui.components.frontend.textArea">
 <Super>EF.ui.components.textInput,EF.ui.components.frontend.inputElement</Super>
-<TimeChanged>64217,28951.01067</TimeChanged>
+<TimeChanged>64218,51835.123951</TimeChanged>
 <TimeCreated>63357,57620.613738</TimeCreated>
 
 <Parameter name="html5Validation">
@@ -5902,9 +5901,7 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 	    	    placeholder="#(..encodeHTMLAttribute(..placeHolder))#" 
 	    	    #(..rawHTML(..getExtraAttributes()))#
 	    	    #(..rawHTML(..getAriaLabelForInputElement() ))# 
-    	   >
-    	    #(..encodeHTMLContentForTextarea(..value))#
-    	   </textArea>
+    	   >#(..encodeHTMLContentForTextarea(..value))#</textArea>
     	
 	>
 	do ..renderHelpAndRowClosing()
@@ -6584,8 +6581,9 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 	
 	do ##class(sc.methods).updateBackendVariablesFromPageID(pageID)
 	
-	do ##class(sc.objData).savePassedInDesiredPositionToSession()
-
+	if ##class(sc.methods).isUsingProweb2() {
+		do ##class(sc.proweb2methods).savePassedInDesiredPositionToSession()
+	}
 	set groupID=##class(sc.objData).getParentID(pageID)
 	
 	// switch to the org data to enable edit when having multi-stage workflow
@@ -10092,7 +10090,9 @@ function saveSameAs(categoryID) {
 				&SQL(UPDATE sc_xModules.objCODitem SET displayOrder = :lastPos + 1 WHERE ID = :dataID)
 			}
 		} else {
-			do ##class(sc.objData).moveNewElementToDesiredPosition(dataID)				
+			if ##class(sc.methods).isUsingProweb2() {
+				do ##class(sc.proweb2methods).moveNewElementToDesiredPosition(dataID)				
+			}
 		}
 		
 
@@ -10634,7 +10634,9 @@ function saveSameAs(categoryID) {
 	}
 	set %session.Data("dataID")=dataID
 	
-	do ##class(sc.objData).savePassedInDesiredPositionToSession()
+	if ##class(sc.methods).isUsingProweb2() {
+		do ##class(sc.proweb2methods).savePassedInDesiredPositionToSession()
+	}
 	
 	set templateURL=%request.Get("templateURL")	
 	if templateURL="" set templateURL=%session.Get("templateURL")
@@ -11695,7 +11697,9 @@ function popup(type) {
 				&SQL(UPDATE sc_xModules.objFileUpload SET displayOrder = :lastPos + 1 WHERE ID = :dataID)
 			}
 		} else {
-			do ##class(sc.objData).moveNewElementToDesiredPosition(dataID)	
+			if ##class(sc.methods).isUsingProweb2() {
+				do ##class(sc.proweb2methods).moveNewElementToDesiredPosition(dataID)	
+			}
 		}
 	} else {  
 		// existing objData
@@ -11794,7 +11798,9 @@ function popup(type) {
 	if dataID="" set dataID=%session.Get("dataID")
 	set %session.Data("dataID")=dataID
 	
-	do ##class(sc.objData).savePassedInDesiredPositionToSession()
+	if ##class(sc.methods).isUsingProweb2() {
+		do ##class(sc.proweb2methods).savePassedInDesiredPositionToSession()
+	}
 	
 	set orgDataID=%request.Get("orgDataID") // used when creating a new version of a data item
 	if orgDataID="" set orgDataID=%session.Get("orgDataID")
@@ -12342,8 +12348,9 @@ function cancelUpdate() {
 		 set comments="created"
 		 &SQL(INSERT INTO sc.objAuditTrail (description,objData,objUser) VALUES (:comments,:dataID,:userID))
 			
-    	 do ##class(sc.objData).moveNewElementToDesiredPosition(dataID)	
-
+		if ##class(sc.methods).isUsingProweb2() {
+	    	 do ##class(sc.proweb2methods).moveNewElementToDesiredPosition(dataID)	
+		}
 		 
 	} else {
 		// open existing
@@ -12460,10 +12467,11 @@ function cancelUpdate() {
 <CSP name="backEnd/proweb/formDivider.csp" application="/largedevsrc/" default="1"><![CDATA[
 <csp:class encoded="1" private="1">
 <script language="CACHE" method="OnPreHTTPafter" arguments="" returntype="%Boolean">
-
-	do ##class(sc.objData).savePassedInDesiredPositionToSession()
+	if ##class(sc.methods).isUsingProweb2() {
+		do ##class(sc.proweb2methods).savePassedInDesiredPositionToSession()
+	}
 	set dataID = ##class(sc.xModules.objFormDivider).add(%request.Get("parent"),%request.Get("position"))
-	do ##class(sc.objData).moveNewElementToDesiredPosition(dataID)				
+	do ##class(sc.proweb2methods).moveNewElementToDesiredPosition(dataID)
 	set %response.Redirect="../../proweb/frontend/start.csp?mode=edit&version=current&pageID="_$G(%session.Data("pageID"))			
 				
 	quit 0
@@ -12485,8 +12493,9 @@ function cancelUpdate() {
 	kill %session.Data("moxieDataID")
 	kill %session.Data("isCOD")
 	
-	do ##class(sc.objData).savePassedInDesiredPositionToSession()
-	
+	if ##class(sc.methods).isUsingProweb2() {
+		do ##class(sc.proweb2methods).savePassedInDesiredPositionToSession()
+	}
 	&SQL(SELECT layoutObjTemplate->styleSource INTO :styleSource FROM setup.objEvent WHERE ID = :xEventID)
 	
 	set dataID=%request.Get("dataID")
@@ -13180,8 +13189,9 @@ function updateAlts(codPromptID) {
 	}
 
 	do objData.%Close()	
-	do ##class(sc.objData).moveNewElementToDesiredPosition(dataID)
-		
+	if ##class(sc.methods).isUsingProweb2() {
+		do ##class(sc.proweb2methods).moveNewElementToDesiredPosition(dataID)
+	}	
 	// kill all category links and save
 	// - do this in method so it can compile without class
 	do ##class(links.lnkEventCategoryData).deleteAllForOne(dataID)
@@ -13339,7 +13349,8 @@ function updateAlts(codPromptID) {
 		
 		// save the temp structure to database
 		if pageController.hasError {
-			set redirectURL = ##class(shared.pageMethods).addParamsToURL("t4registration.csp", "pageControllerID="_pageControllerID) 
+			set redirectURL = ##class(EF.htmlGenerator).addParameterToURL("t4registration.csp", "pageControllerID",pageControllerID) 
+			set redirectURL = ##class(EF.htmlGenerator).addParameterToURL(redirectURL, "pageID", %request.Get("pageID")) 
 
 		} else {
 			// save temp structure to database
@@ -13362,6 +13373,7 @@ function updateAlts(codPromptID) {
 		do pageController.%Save()
 	}
 	do pageController.copyAllDataToEComTemp()
+	s ^xfg("zredirect")=redirectURL
 	set %response.Redirect=redirectURL
 	quit 0
 </script>
@@ -13401,7 +13413,24 @@ function updateAlts(codPromptID) {
 	
 </csp:section>
 
+<script language="javascript">
+// Temporary should be moved into a static javascript file along with ef.frontend.create_searchable_dropdown
 
+ef.frontend.create_searchable_dropdown_temp = ef.frontend.create_searchable_dropdown;
+
+ef.frontend.create_searchable_dropdown = function (ele) {
+	
+	ef.frontend.create_searchable_dropdown_temp(ele);
+
+	$(ele).closest('.ef_proweb_form_prompt').find('.select2-container').each(function() {
+		$(this).addClass('EF_dropdown_searchable_container');
+	});
+	$(ele).closest('.ef_proweb_form_prompt').find('.select2-selection').each(function() {
+		$(this).addClass('EF_dropdown_searchable_selection');
+	});
+};
+
+</script>
 
 <!-- ########### MOVE THIS TO EXTERNAL FILE ######## -->
 <style>
@@ -13510,6 +13539,13 @@ function updateAlts(codPromptID) {
 .ef-proweb-direct-label-edit input {
 	width: 70%;
 }
+.ef-proweb-form-row-editable.ef-showing-floater {
+    background-color: #EEEEEE;
+    border-color: GRAY;
+    border-style: dashed;
+    border-width: 1px;
+    border-radius: 5px;
+}
 </style>]]></CSP>
 
 
@@ -13522,7 +13558,7 @@ function updateAlts(codPromptID) {
 </head>
 <body class="bodyBackground">
 <script language="CACHE" method="OnPreHTTPafter" arguments="" returntype="%Boolean">
-	if $G(%session.Data("useExperimentalCMS")) {
+	if ##class(sc.methods).isUsingProweb2() {
 		set %response.ServerSideRedirect="t4Registration.csp?pageID="_$G(%session.Data("pageID")) quit 0
 	}
 	set sessionID=%session.SessionId
@@ -14842,7 +14878,7 @@ FRRE RULE
 <Abstract>1</Abstract>
 <ClassType/>
 <ProcedureBlock>1</ProcedureBlock>
-<TimeChanged>64217,54175.238133</TimeChanged>
+<TimeChanged>64218,42150.398444</TimeChanged>
 <TimeCreated>63046,56232.897117</TimeCreated>
 
 <Method name="outputDefaultCSS">
@@ -14868,7 +14904,7 @@ FRRE RULE
 	if ##class(layout.objTemplate).isTemplateGen3(layoutTemplateID)	{
 		do ..outputGen2and3Defaults()
 		do ..outputGen3Defaults()
-		if %session.Get("useExperimentalCMS") {
+		if ##class(sc.methods).isUsingProweb2() {
 			do ..outputProweb2CSS()	
 		}
 		do ##class(layout.cssOverrideMethods).outputDynamicCSS(xEventID)
@@ -17184,7 +17220,7 @@ The basic frontend default stuff</Description>
 </Class>
 
 
-<Project name="proweb 2" LastModified="2016-10-27 10:18:43.3019" Target="dev.efsys.net/LARGEDEVSRC/backend/home/efSupportLogin.htm" TargetType="3">
+<Project name="proweb 2" LastModified="2016-10-27 11:39:45.375934" Target="dev.efsys.net/LARGEDEVSRC/backend/home/efSupportLogin.htm" TargetType="3">
   <Items>
     <ProjectItem name="EF.contextDataRegistration" type="CLS"></ProjectItem>
     <ProjectItem name="EF.contextDataRegistrationMock" type="CLS"></ProjectItem>
@@ -17307,6 +17343,7 @@ The basic frontend default stuff</Description>
     <ProjectItem name="EF.validator.patternMatchValidation" type="CLS"></ProjectItem>
     <ProjectItem name="EF.validator.bespokeValidationMethod" type="CLS"></ProjectItem>
     <ProjectItem name="EF.validator.personRegisteredWithSameAnswer" type="CLS"></ProjectItem>
+    <ProjectItem name="sc.proweb2methods" type="CLS"></ProjectItem>
   </Items>
   <BreakPoints>
     <BreakPoint Routine="cspRealEV.frontend.reg.pagecontrollerstandardsave.CLS" Offset="OnPreHTTPafter+28"></BreakPoint>
@@ -17816,15 +17853,15 @@ Please note that this class will be the super class of all underlying data items
 ;vc;    Object: sc.objData.CLS/EV.36
 ;vc; Component: CLS.sc.objData
 ;vc;  Location: LargeDev
-;vc; Date/Time: 25-Oct-16 12:12
+;vc; Date/Time: 27-Oct-16 11:33
 ;vc;      User: FredG
-;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>sc.objData.CLS/EV.36</td><td>CLS.sc.objData</td><td>LargeDev</td><td style='white-space: nowrap;'>25-Oct-16 12:12</td><td>FredG</td></tr></table>
+;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>sc.objData.CLS/EV.36</td><td>CLS.sc.objData</td><td>LargeDev</td><td style='white-space: nowrap;'>27-Oct-16 11:33</td><td>FredG</td></tr></table>
 ]]></Description>
 <ClassType>persistent</ClassType>
 <IncludeCode>EF.common.macros</IncludeCode>
 <ProcedureBlock>1</ProcedureBlock>
 <Super>%Library.Persistent,shared.timeStamp</Super>
-<TimeChanged>64218,37862.81674</TimeChanged>
+<TimeChanged>64218,41814.093411</TimeChanged>
 <TimeCreated>59148,67793</TimeCreated>
 <Inheritance>right</Inheritance>
 
@@ -18004,11 +18041,12 @@ Index for property publishAt</Description>
 <FormalSpec>dataID</FormalSpec>
 <ReturnType>%String</ReturnType>
 <Implementation><![CDATA[
-	set objData = ..%OpenId(dataID)
-	if '$IsObject(objData) {
-		return ""
+	set eventID=""
+	&SQL(SELECT objEvent,parent->objEvent,parent->parent->objEvent INTO :thisEvent,:parentEvent,:grandParentEvent FROM sc.objData WHERE ID = :dataID)
+	if +SQLCODE=0 {
+		set eventID=$Select(thisEvent:thisEvent,parentEvent:parentEvent,grandParentEvent:grandParentEvent,1:"")	
 	}
-	return objData.objEvent.%Id()
+	return eventID
 ]]></Implementation>
 </Method>
 
@@ -19003,44 +19041,6 @@ note that this must be a classmethod or you will a compile error as the property
 ]]></Implementation>
 </Method>
 
-<Method name="moveNewElementToDesiredPosition">
-<ClassMethod>1</ClassMethod>
-<FormalSpec>dataID:%Integer</FormalSpec>
-<Implementation><![CDATA[
-	#dim targetPosition as %Integer = ""
-	#dim insertBeforeProwebID as %Integer = %session.Get("insertBeforeProwebID")
-	#dim insertAfterProwebID as %Integer = %session.Get("insertAfterProwebID")
-	#dim basePosition as %Integer
-
-	if insertBeforeProwebID {
-		set basePosition = ##class(sc.objData).getDisplayOrder(insertBeforeProwebID)
-		set targetPosition  = (basePosition - 1)
-	} elseif insertAfterProwebID {
-		set basePosition = ##class(sc.objData).getDisplayOrder(insertAfterProwebID)
-		set targetPosition  = (basePosition + 1)
-	}
-	
-	if targetPosition {
-		do ##class(sc.xModules.objList).moveChildToPosition(dataID, targetPosition)
-	}
-	
-	kill %session.Data("insertAfterProwebID")
-	kill %session.Data("insertBeforeProwebID")
-]]></Implementation>
-</Method>
-
-<Method name="savePassedInDesiredPositionToSession">
-<ClassMethod>1</ClassMethod>
-<Implementation><![CDATA[
-	if %request.Get("insertBeforeProwebID") {
-		set %session.Data("insertBeforeProwebID") = %request.Get("insertBeforeProwebID")
-	}
-	if %request.Get("insertAfterProwebID") {
-		set %session.Data("insertAfterProwebID") = %request.Get("insertAfterProwebID")
-	}
-]]></Implementation>
-</Method>
-
 <Query name="qGetChildren">
 <Type>%SQLQuery</Type>
 <FormalSpec>parentID:%String=""</FormalSpec>
@@ -19174,6 +19174,84 @@ note that this must be a classmethod or you will a compile error as the property
 </Class>
 
 
+<Class name="sc.proweb2methods">
+<Super>%RegisteredObject</Super>
+<TimeChanged>64218,48667.263601</TimeChanged>
+<TimeCreated>64218,41830.065131</TimeCreated>
+
+<Method name="moveNewElementToDesiredPosition">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>dataID:%Integer</FormalSpec>
+<Implementation><![CDATA[
+	#dim targetPosition as %Integer = ""
+	#dim insertBeforeProwebID as %Integer = %session.Get("insertBeforeProwebID")
+	#dim insertAfterProwebID as %Integer = %session.Get("insertAfterProwebID")
+	#dim basePosition as %Integer
+
+	if insertBeforeProwebID {
+		set basePosition = ##class(sc.objData).getDisplayOrder(insertBeforeProwebID)
+		set targetPosition  = (basePosition - 1)
+	} elseif insertAfterProwebID {
+		set basePosition = ##class(sc.objData).getDisplayOrder(insertAfterProwebID)
+		set targetPosition  = (basePosition)
+	}
+	
+	if targetPosition {
+		do ..moveChildToPosition(dataID, targetPosition)
+	}
+	
+	kill %session.Data("insertAfterProwebID")
+	kill %session.Data("insertBeforeProwebID")
+]]></Implementation>
+</Method>
+
+<Method name="savePassedInDesiredPositionToSession">
+<ClassMethod>1</ClassMethod>
+<Implementation><![CDATA[
+	if %request.Get("insertBeforeProwebID") {
+		set %session.Data("insertBeforeProwebID") = %request.Get("insertBeforeProwebID")
+	}
+	if %request.Get("insertAfterProwebID") {
+		set %session.Data("insertAfterProwebID") = %request.Get("insertAfterProwebID")
+	}
+]]></Implementation>
+</Method>
+
+<Method name="moveChildToPosition">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>childProwebID:%Integer,targetPosition:%Integer</FormalSpec>
+<Implementation><![CDATA[
+	set child = ##class(sc.objData).%OpenId(childProwebID)
+	
+	if '$IsObject(child)   {
+		throw ##class(shared.exceptions.generalException).%New("Could not open child object ID: "_childProwebID)
+	}
+	if 'child.parent.%IsA("sc.xModules.objList") {
+		throw ##class(shared.exceptions.generalException).%New("Passsed in childID is not a a child of an objList")
+	}
+
+	set currentDisplayOrder = child.displayOrder
+	set listID = child.parent.%Id()
+	
+	set difference = $Select(targetPosition <= currentDisplayOrder:+1, 1:-1)
+
+	&SQL(UPDATE sc.objData 
+		 SET displayOrder = (displayOrder + :difference) 
+		 WHERE (parent = :listID) 
+		 AND (displayOrder >= :targetPosition) 
+		 AND (ID <> :childProwebID)
+	 )
+	
+	set child.displayOrder = targetPosition
+	set status = child.%Save()
+	if 'status {
+		throw ##class(shared.exceptions.generalStatusException).CreateFromStatus(status)
+	}
+]]></Implementation>
+</Method>
+</Class>
+
+
 <Class name="sc.xModules.objList">
 <Description><![CDATA[
 Holds a list of other objects as children.
@@ -19188,7 +19266,7 @@ Holds a list of other objects as children.
 <ClassType>persistent</ClassType>
 <ProcedureBlock>1</ProcedureBlock>
 <Super>sc.objData</Super>
-<TimeChanged>64203,55727.052985</TimeChanged>
+<TimeChanged>64218,43868.929788</TimeChanged>
 <TimeCreated>58926,57261</TimeCreated>
 
 <Parameter name="EXTENTSIZE">
@@ -19239,39 +19317,6 @@ Creates new list object. Should be done the first time the page is loaded</Descr
 		}
 	}
 	return ""
-]]></Implementation>
-</Method>
-
-<Method name="moveChildToPosition">
-<ClassMethod>1</ClassMethod>
-<FormalSpec>childProwebID:%Integer,targetPosition:%Integer</FormalSpec>
-<Implementation><![CDATA[
-	set child = ##class(sc.objData).%OpenId(childProwebID)
-	
-	if '$IsObject(child)   {
-		throw ##class(shared.exceptions.generalException).%New("Could not open child object ID: "_childProwebID)
-	}
-	if 'child.parent.%IsA("sc.xModules.objList") {
-		throw ##class(shared.exceptions.generalException).%New("Passsed in childID is not a a child of an objList")
-	}
-
-	set currentDisplayOrder = child.displayOrder
-	set listID = child.parent.%Id()
-	
-	set difference = $Select(targetPosition < currentDisplayOrder:+1, 1:-1)
-
-	&SQL(UPDATE sc.objData 
-		 SET displayOrder = (displayOrder + :difference) 
-		 WHERE (parent = :listID) 
-		 AND (displayOrder >= :targetPosition) 
-		 AND (ID <> :childProwebID)
-	 )
-	
-	set child.displayOrder = targetPosition
-	set status = child.%Save()
-	if 'status {
-		throw ##class(shared.exceptions.generalStatusException).CreateFromStatus(status)
-	}
 ]]></Implementation>
 </Method>
 
@@ -19355,17 +19400,17 @@ Creates new list object. Should be done the first time the page is loaded</Descr
 <Class name="shared.pageMethods">
 <Description><![CDATA[
 <!-- ;vc;-
-;vc;    Object: shared.pageMethods.CLS/EV.177
+;vc;    Object: shared.pageMethods.CLS/EV.180
 ;vc; Component: CLS.shared.pageMethods
 ;vc;  Location: LargeDev
-;vc; Date/Time: 19-Oct-16 17:04
+;vc; Date/Time: 27-Oct-16 12:05
 ;vc;      User: FredG
-;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>shared.pageMethods.CLS/EV.177</td><td>CLS.shared.pageMethods</td><td>LargeDev</td><td style='white-space: nowrap;'>19-Oct-16 17:04</td><td>FredG</td></tr></table>
+;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>shared.pageMethods.CLS/EV.180</td><td>CLS.shared.pageMethods</td><td>LargeDev</td><td style='white-space: nowrap;'>27-Oct-16 12:05</td><td>FredG</td></tr></table>
 ]]></Description>
 <Abstract>1</Abstract>
 <ClassType/>
 <ProcedureBlock>1</ProcedureBlock>
-<TimeChanged>64216,53316.580869</TimeChanged>
+<TimeChanged>64218,50480.21709</TimeChanged>
 <TimeCreated>60747,44410.590792</TimeCreated>
 
 <Method name="prePartOne">
@@ -19893,15 +19938,6 @@ clean the passed in URL to make sure only allow an internal redirection</Descrip
 	if ..doesPageHaveAProwebPageID(%request.PageName) {
 		if fromRequest set pageID=+%request.Get("pageID")
 		if 'pageID set pageID=%session.Get("pageID") 
-	}
-	if 'pageID {
-		set pageID = %request.Get("pageID")
-	}
-	if 'pageID {
-		set pageController = ##class(EF.pageController.page).%OpenId( %request.Get("pageControllerID") )
-		if $IsObject(pageController) && (pageController.%IsA("EF.pageController.proweb.page")) {
-			set pageID = pageController.prowebPageID
-		}
 	}
 	quit pageID
 ]]></Implementation>
@@ -20463,6 +20499,7 @@ get displayable descriptions for certain words</Description>
 	if (pagename["passwordreset") return 0
 	if (pagename["backendmenuredirect.csp") return 0
 	if (pagename["serverstoragesetjson.csp") return 0
+	if (pagename["listapperrors.csp") return 0
 	
 	return 1
 ]]></Implementation>
@@ -20475,6 +20512,7 @@ get displayable descriptions for certain words</Description>
 <Implementation><![CDATA[
 	set pagename=$ZCVT(pagename,"L")
 	if pagename="sessiondump.csp" return 0
+	if pagename="listapperrors.csp" return 0
 	if pagename="sysgettotallogins.csp" return 0
 	if pagename="homepage.csp" return 0
 	if pagename="initsession.csp" return 0
@@ -21025,6 +21063,10 @@ sets up the session variables based on the xWorkLangID. If that is not found, we
 <ClassMethod>1</ClassMethod>
 <FormalSpec>pageName</FormalSpec>
 <Implementation><![CDATA[
+	if ##class(sc.methods).isUsingProweb2() {
+		return 1
+	}
+	
 	set pageName=$ZCVT(pageName,"L")
 	if pageName="start.csp" {
 		return 1

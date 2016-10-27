@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2015.2 (Build 664_3_16032U)" ts="2016-10-26 14:48:24">
+<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2015.2 (Build 664_3_16032U)" ts="2016-10-27 08:32:56">
 <Class name="EF.contextDataRegistration">
 <Description><![CDATA[
 <!-- ;vc;-
-;vc;    Object: EF.contextDataRegistration.CLS/EV.7
+;vc;    Object: EF.contextDataRegistration.CLS/EV.8
 ;vc; Component: CLS.EF.contextDataRegistration
 ;vc;  Location: LargeDev
-;vc; Date/Time: 26-Oct-16 09:12
-;vc;      User: FredG
-;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>EF.contextDataRegistration.CLS/EV.7</td><td>CLS.EF.contextDataRegistration</td><td>LargeDev</td><td style='white-space: nowrap;'>26-Oct-16 09:12</td><td>FredG</td></tr></table>
+;vc; Date/Time: 26-Oct-16 16:26
+;vc;      User: AdrianM2
+;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>EF.contextDataRegistration.CLS/EV.8</td><td>CLS.EF.contextDataRegistration</td><td>LargeDev</td><td style='white-space: nowrap;'>26-Oct-16 16:26</td><td>AdrianM2</td></tr></table>
 ]]></Description>
 <Super>EF.contextDataFrontend</Super>
-<TimeChanged>64217,34491.091372</TimeChanged>
+<TimeChanged>64217,59259.687993</TimeChanged>
 <TimeCreated>63755,56082.660879</TimeCreated>
 
 <Property name="tempPurchaseID">
@@ -211,76 +211,12 @@ if website is private, this will be set to the cod.objPerson.ID of that logged i
 ;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>EF.contextDataRegistration.CLS/EV.4</td><td>CLS.EF.contextDataRegistration</td><td>SmallDev</td><td style='white-space: nowrap;'>02-Sep-16 14:23</td><td>JeremyW</td></tr></table>
 ]]></Description>
 <Super>EF.contextDataRegistration</Super>
-<TimeChanged>64206,61441.600998</TimeChanged>
+<TimeChanged>64217,62744.214459</TimeChanged>
 <TimeCreated>63755,56082.660879</TimeCreated>
-
-<Property name="tempPurchaseID">
-<Type>%Integer</Type>
-</Property>
-
-<Property name="isAmendment">
-<Type>%Boolean</Type>
-<InitialExpression>"0"</InitialExpression>
-</Property>
-
-<Property name="attendeeCategoryID">
-<Type>%Integer</Type>
-</Property>
-
-<Property name="currencyID">
-<Type>%Integer</Type>
-</Property>
-
-<Property name="tempPersonID">
-<Type>%Integer</Type>
-</Property>
-
-<Property name="loggedInPersonID">
-<Description>
-if website is private, this will be set to the cod.objPerson.ID of that logged in person</Description>
-<Type>%Integer</Type>
-</Property>
-
-<Property name="isBackendBooking">
-<Type>%Boolean</Type>
-<InitialExpression>"0"</InitialExpression>
-</Property>
-
-<Property name="pricingHorologUTC">
-<Type>%Integer</Type>
-</Property>
 
 <Property name="isTestMode">
 <Type>%Boolean</Type>
 <InitialExpression>1</InitialExpression>
-</Property>
-
-<Property name="prowebMode">
-<Type>%String</Type>
-<Cardinality>one</Cardinality>
-<Parameter name="VALUELIST" value=",&quot;edit&quot;,&quot;preview&quot;"/>
-</Property>
-
-<Property name="context">
-<Type>%String</Type>
-<InitialExpression>"registration"</InitialExpression>
-</Property>
-
-<Property name="backendPersonID">
-<Type>%Integer</Type>
-</Property>
-
-<Property name="pageID">
-<Type>%Integer</Type>
-</Property>
-
-<Property name="listID">
-<Type>%Integer</Type>
-</Property>
-
-<Property name="isBackendSuperUser">
-<Type>%Boolean</Type>
-<InitialExpression>0</InitialExpression>
 </Property>
 
 <Property name="listOfProwebItemsToAdd">
@@ -875,13 +811,13 @@ Adds a translation button with warning icon which opens an in-form modal</Descri
 ;vc;    Object: EF.pageController.element.CLS/EV.9
 ;vc; Component: CLS.EF.pageController.element
 ;vc;  Location: LargeDev
-;vc; Date/Time: 25-Oct-16 12:32
-;vc;      User: FredG
-;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>EF.pageController.element.CLS/EV.9</td><td>CLS.EF.pageController.element</td><td>LargeDev</td><td style='white-space: nowrap;'>25-Oct-16 12:32</td><td>FredG</td></tr></table>
+;vc; Date/Time: 26-Oct-16 17:16
+;vc;      User: AdrianM2
+;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>EF.pageController.element.CLS/EV.9</td><td>CLS.EF.pageController.element</td><td>LargeDev</td><td style='white-space: nowrap;'>26-Oct-16 17:16</td><td>AdrianM2</td></tr></table>
 ]]></Description>
 <IncludeCode>EF.common.macros</IncludeCode>
 <Super>%Library.Persistent,shared.timeStamp</Super>
-<TimeChanged>64216,45146</TimeChanged>
+<TimeChanged>64217,62208</TimeChanged>
 <TimeCreated>63350,63749.535929</TimeCreated>
 
 <Property name="elementParent">
@@ -947,10 +883,6 @@ The description of the property. Should be unique for each pageInstance</Descrip
 Anything marked with isModalTempData set will be cleared down when a modal is re-opened</Description>
 <Type>%Boolean</Type>
 <InitialExpression>0</InitialExpression>
-</Property>
-
-<Property name="prowebListID">
-<Type>%Integer</Type>
 </Property>
 
 <Index name="identifierIndex">
@@ -1294,15 +1226,6 @@ Should be run if any of the sub-classes are deleted</Description>
 </Value>
 <Value name="22">
 <Value>isModalTempData</Value>
-</Value>
-<Value name="23">
-<Value>displayOrder</Value>
-</Value>
-<Value name="24">
-<Value>prowebComponentName</Value>
-</Value>
-<Value name="25">
-<Value>prowebListID</Value>
 </Value>
 </Data>
 </Storage>
@@ -1698,7 +1621,7 @@ Should be run if any of the sub-classes are deleted</Description>
 
 <Class name="EF.pageController.proweb.page">
 <Super>EF.pageController.page</Super>
-<TimeChanged>64217,51655.074862</TimeChanged>
+<TimeChanged>64218,30650.846022</TimeChanged>
 <TimeCreated>64189,51696.559047</TimeCreated>
 
 <Property name="contextData">
@@ -1968,6 +1891,14 @@ Should be run if any of the sub-classes are deleted</Description>
 		set element.uiComponent.validator.isMandatory = +prowebItem.storage.isMandatory
 	}
 	
+	if $Length(prowebItem.storage.customValidation) {
+		set element.uiComponent.validator = ##class(EF.validator.patternMatchValidation).%New()
+		set element.uiComponent.validator.pattern = prowebItem.storage.customValidation
+	}
+	if $Length(prowebItem.storage.validationErrorMessage) {
+		set element.uiComponent.validator.errorMessage = prowebItem.storage.validationErrorMessage	
+	}
+		
 	set element.uiComponent.isGuest = prowebItem.storage.isGuest
 	if prowebItem.storage.isGuest {
 		set element.guestNumber = optionalGuestNumber	
@@ -2225,7 +2156,6 @@ Should be run if any of the sub-classes are deleted</Description>
 			set newController.uiComponent.isProwebEditMode = (..contextData.prowebMode = "edit")
 			set newController.uiComponent.prowebItem = element.uiComponent.prowebItem
 			set newController.uiComponent.contextData = ..contextData
-			set newController.prowebListID = element.prowebListID
 						
 			do ..listOfControllerIDsSorted.InsertAt(newController.identifier, ..positionOfNextNonGuestQuestion) 
 			
@@ -4053,7 +3983,7 @@ this is for version 1 of proweb</Description>
 <Class name="EF.pages.frontend.baseProweb">
 <ProcedureBlock>0</ProcedureBlock>
 <Super>EF.pages.frontend.base</Super>
-<TimeChanged>64217,52421.956438</TimeChanged>
+<TimeChanged>64217,59706.287795</TimeChanged>
 <TimeCreated>64191,31442.531402</TimeCreated>
 
 <Parameter name="ENCODED">
@@ -4305,43 +4235,6 @@ we need to refactor the frontend buttons to make them callable from class method
 <Private>1</Private>
 <ReturnType>%String</ReturnType>
 <Implementation><![CDATA[	return ..#efFormAction
-]]></Implementation>
-</Method>
-
-<Method name="savePassedInDesiredPositionToSession">
-<ClassMethod>1</ClassMethod>
-<Implementation><![CDATA[
-	if %request.Get("insertBeforeProwebID") {
-		set %session.Data("insertBeforeProwebID") = %request.Get("insertBeforeProwebID")
-	}
-	if %request.Get("insertAfterProwebID") {
-		set %session.Data("insertAfterProwebID") = %request.Get("insertAfterProwebID")
-	}
-]]></Implementation>
-</Method>
-
-<Method name="moveNewElementToDesiredPosition">
-<ClassMethod>1</ClassMethod>
-<Implementation><![CDATA[
-	#dim targetPosition as %Integer = ""
-	#dim insertBeforeProwebID as %Integer = %session.Get("insertBeforeProwebID")
-	#dim insertAfterProwebID as %Integer = %session.Get("insertAfterProwebID")
-	#dim basePosition as %Integer
-
-	if insertBeforeProwebID {
-		set basePosition = ##class(sc.objData).getDisplayOrder(insertBeforeProwebID)
-		set targetPosition  = (basePosition - 1)
-	} elseif insertAfterProwebID {
-		set basePosition = ##class(sc.objData).getDisplayOrder(insertAfterProwebID)
-		set targetPosition  = (basePosition + 1)
-	}
-	
-	if targetPosition {
-		do ##class(sc.xModules.objList).moveChildToPosition(dataID, targetPosition)
-	}
-	
-	kill %session.Data("insertAfterProwebID")
-	kill %session.Data("insertBeforeProwebID")
 ]]></Implementation>
 </Method>
 </Class>
@@ -5612,7 +5505,7 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 
 <Class name="EF.ui.components.frontend.panel">
 <Super>EF.ui.components.frontend.prowebBase,EF.ui.components.panel</Super>
-<TimeChanged>64205,53554.843175</TimeChanged>
+<TimeChanged>64217,63738.974623</TimeChanged>
 <TimeCreated>64204,36543.176151</TimeCreated>
 
 <Property name="isOpeningOrClosing">
@@ -5626,7 +5519,7 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 		&html<
 			<div class="ef-proweb-guest-panel ef-draggable-div" >
 	            <div class="panel-heading">#(##class(shared.pCSP).out("Guest"))#</div>
-				<div class="panel-body">
+				<div class="panel-body ef-proweb-reorderable-guest">
 		>
 	} else {
 		&html<
@@ -5642,7 +5535,6 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 <Type>%Library.CacheStorage</Type>
 <DefaultData>panelDefaultData</DefaultData>
 <Data name="panelDefaultData">
-<Structure>listnode</Structure>
 <Subscript>"panel"</Subscript>
 <Value name="1">
 <Value>heading</Value>
@@ -6079,7 +5971,7 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 
 <Class name="EF.ui.components.frontend.textInput">
 <Super>EF.ui.components.textInput,EF.ui.components.frontend.inputElement</Super>
-<TimeChanged>64217,28291.965206</TimeChanged>
+<TimeChanged>64218,30462.942741</TimeChanged>
 <TimeCreated>63357,57620.613738</TimeCreated>
 
 <Parameter name="typeAttribute">
@@ -6124,15 +6016,16 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 	do ..renderRowOpeningAndLabel()
 	&html<
     	    <input type="#(..encodeHTMLAttribute(..#typeAttribute))#" 
-    	    class="#(..encodeHTMLAttribute(..classes))#" 
-    	    #(..rawHTML(..getDisabledString()))# 
-    	    title="#(..encodeHTMLAttribute(..title))#" 
-    	    id="#(..encodeHTMLAttribute(..htmlID))#" 
-    	    name="#(..encodeHTMLAttribute(..htmlName))#" 
-    	    value="#(..encodeHTMLAttribute(..value))#" 
-    	    placeholder="#(..encodeHTMLAttribute(..placeHolder))#"
-    	    #(..rawHTML(..getAriaLabelForInputElement() ))#  
-    	    #(..rawHTML(..getProwebExtraAttributes()))#>
+	    	    class="#(..encodeHTMLAttribute(..classes))#" 
+	    	    #(..rawHTML(..getDisabledString()))# 
+	    	    title="#(..encodeHTMLAttribute(..title))#" 
+	    	    id="#(..encodeHTMLAttribute(..htmlID))#" 
+	    	    name="#(..encodeHTMLAttribute(..htmlName))#" 
+	    	    value="#(..encodeHTMLAttribute(..value))#" 
+	    	    placeholder="#(..encodeHTMLAttribute(..placeHolder))#"
+	    	    #(..rawHTML(..getAriaLabelForInputElement() ))#  
+	    	    #(..rawHTML(..getProwebExtraAttributes()))#
+    	   >
     	
 	>
 	do ..renderHelpAndRowClosing()
@@ -6397,6 +6290,25 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 </Class>
 
 
+<Class name="EF.validator.patternMatchValidation">
+<Super>EF.validator.base</Super>
+<TimeChanged>64218,30662.805666</TimeChanged>
+<TimeCreated>64217,58029.013584</TimeCreated>
+
+<Property name="pattern">
+<Type>%String</Type>
+<Parameter name="MAXLEN" value="32000"/>
+</Property>
+
+<Method name="isInputValid">
+<FormalSpec>input</FormalSpec>
+<ReturnType>%Boolean</ReturnType>
+<Implementation><![CDATA[	return ##class(cod.objItemName).patternMatch(input, ..pattern)
+]]></Implementation>
+</Method>
+</Class>
+
+
 <Class name="EF.validator.phoneNumber">
 <Description><![CDATA[
 <!-- ;vc;-
@@ -6590,7 +6502,7 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 	
 	do ##class(sc.methods).updateBackendVariablesFromPageID(pageID)
 	
-	do ##class(EF.pages.frontend.baseProweb).savePassedInDesiredPositionToSession()
+	do ##class(sc.objData).savePassedInDesiredPositionToSession()
 
 	set groupID=##class(sc.objData).getParentID(pageID)
 	
@@ -10098,7 +10010,7 @@ function saveSameAs(categoryID) {
 				&SQL(UPDATE sc_xModules.objCODitem SET displayOrder = :lastPos + 1 WHERE ID = :dataID)
 			}
 		} else {
-			do ##class(EF.pages.frontend.baseProweb).moveNewElementToDesiredPosition()				
+			do ##class(sc.objData).moveNewElementToDesiredPosition(dataID)				
 		}
 		
 
@@ -10640,7 +10552,7 @@ function saveSameAs(categoryID) {
 	}
 	set %session.Data("dataID")=dataID
 	
-	do ##class(EF.pages.frontend.baseProweb).savePassedInDesiredPositionToSession()
+	do ##class(sc.objData).savePassedInDesiredPositionToSession()
 	
 	set templateURL=%request.Get("templateURL")	
 	if templateURL="" set templateURL=%session.Get("templateURL")
@@ -11701,7 +11613,7 @@ function popup(type) {
 				&SQL(UPDATE sc_xModules.objFileUpload SET displayOrder = :lastPos + 1 WHERE ID = :dataID)
 			}
 		} else {
-			do ##class(EF.pages.frontend.baseProweb).moveNewElementToDesiredPosition()	
+			do ##class(sc.objData).moveNewElementToDesiredPosition(dataID)	
 		}
 	} else {  
 		// existing objData
@@ -11800,7 +11712,7 @@ function popup(type) {
 	if dataID="" set dataID=%session.Get("dataID")
 	set %session.Data("dataID")=dataID
 	
-	do ##class(EF.pages.frontend.baseProweb).savePassedInDesiredPositionToSession()
+	do ##class(sc.objData).savePassedInDesiredPositionToSession()
 	
 	set orgDataID=%request.Get("orgDataID") // used when creating a new version of a data item
 	if orgDataID="" set orgDataID=%session.Get("orgDataID")
@@ -12348,7 +12260,7 @@ function cancelUpdate() {
 		 set comments="created"
 		 &SQL(INSERT INTO sc.objAuditTrail (description,objData,objUser) VALUES (:comments,:dataID,:userID))
 			
-    	 do ##class(EF.pages.frontend.baseProweb).moveNewElementToDesiredPosition()	
+    	 do ##class(sc.objData).moveNewElementToDesiredPosition(dataID)	
 
 		 
 	} else {
@@ -12468,7 +12380,7 @@ function cancelUpdate() {
 <script language="CACHE" method="OnPreHTTPafter" arguments="" returntype="%Boolean">
 	
 	do ##class(sc.xModules.objFormDivider).add(%request.Get("parent"),%request.Get("position"))
-	do ##class(EF.pages.frontend.baseProweb).moveNewElementToDesiredPosition()				
+	do ##class(sc.objData).moveNewElementToDesiredPosition()				
 	set %response.Redirect="../../proweb/frontend/start.csp?mode=edit&version=current&pageID="_$G(%session.Data("pageID"))			
 				
 	quit 0
@@ -12490,7 +12402,7 @@ function cancelUpdate() {
 	kill %session.Data("moxieDataID")
 	kill %session.Data("isCOD")
 	
-	do ##class(EF.pages.frontend.baseProweb).savePassedInDesiredPositionToSession()
+	do ##class(sc.objData).savePassedInDesiredPositionToSession()
 	
 	&SQL(SELECT layoutObjTemplate->styleSource INTO :styleSource FROM setup.objEvent WHERE ID = :xEventID)
 	
@@ -13185,7 +13097,7 @@ function updateAlts(codPromptID) {
 	}
 
 	do objData.%Close()	
-	do ##class(EF.pages.frontend.baseProweb).moveNewElementToDesiredPosition()
+	do ##class(sc.objData).moveNewElementToDesiredPosition(dataID)
 		
 	// kill all category links and save
 	// - do this in method so it can compile without class
@@ -13508,6 +13420,12 @@ function updateAlts(codPromptID) {
 }
 .ef_frontend_help_text_icon {
 	float: left;
+}
+.col-sm-4.ef_proweb_form_prompt .control-label {
+	width: 85%;
+}
+.ef-proweb-direct-label-edit input {
+	width: 70%;
 }
 </style>]]></CSP>
 
@@ -14841,7 +14759,7 @@ FRRE RULE
 <Abstract>1</Abstract>
 <ClassType/>
 <ProcedureBlock>1</ProcedureBlock>
-<TimeChanged>64217,41523.809581</TimeChanged>
+<TimeChanged>64217,54175.238133</TimeChanged>
 <TimeCreated>63046,56232.897117</TimeCreated>
 
 <Method name="outputDefaultCSS">
@@ -14867,6 +14785,9 @@ FRRE RULE
 	if ##class(layout.objTemplate).isTemplateGen3(layoutTemplateID)	{
 		do ..outputGen2and3Defaults()
 		do ..outputGen3Defaults()
+		if %session.Get("useExperimentalCMS") {
+			do ..outputProweb2CSS()	
+		}
 		do ##class(layout.cssOverrideMethods).outputDynamicCSS(xEventID)
 	}
 	w !,"</style>",!
@@ -15066,154 +14987,6 @@ yellow red grey etc. Used for ALL templates below gen3</Description>
 		td.ef_proweb_form_prompt {
 			text-align: right;
 		}
-		/* ===========  begin new classes for Proweb2 ========= */
-		.ef_proweb_form_prompt {
-			text-align: right;
-		}
-		.ef-required-field::after {
-		    content: " *";
-		    color: red;			
-		}
-		.ef-dependent-field::after {
-		    content: "🔗";
-		}
-		@media (max-width: 768px) {
-		   .ef_proweb_form_prompt {
-		      text-align: left; 
-		  }
-		}
-		.EF_dropdown_searchable_container {
-			float: left;
-			max-width: 90%!important;
-		}
-		.EF_dropdown_searchable_selection {
-		    width: 100%;
-		    height: 34px!important;
-		    padding: 3px 10px;
-		    font-size: 14px;
-		    line-height: 1.42857143;
-		    color: #555;
-		    background-color: #fff;
-		    background-image: none;
-		    border: 1px solid #ccc!important;
-		    border-radius: 4px!important;
-		    -webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,.075)!important;
-		    box-shadow: inset 0 1px 1px rgba(0,0,0,.075);
-		    -webkit-transition: border-color ease-in-out .15s,-webkit-box-shadow ease-in-out .15s;
-		    -o-transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s;
-		    transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s;
-		}
-		.select2-selection__rendered {
-			background-color: inherit!important;
-			color: inherit!important;
-		}
-		.ef-proweb-form-row-editable, .ef-proweb-form-row {
-			padding-top: 4px;
-			padding-bottom:4px;	
-			margin: 10px !important;
-			border-width: 1px;
-			border-color: transparent;
-			border-style: solid;
-		}
-		.ef-proweb-form-row-editable:hover {
-			background-color: #EEEEEE;	
-			border-color: GRAY;
-			border-style: dashed;
-			border-width: 1px;
-			border-radius: 5px;
-			
-		}
-		.ui-sortable-handle {
-			cursor: grab;
- 			cursor: -webkit-grab; cursor:-moz-grab; 
-		}
-		.ui-sortable-handle:active {
-			cursor: grabbing;
-			cursor: -webkit-grabbing; cursor:-moz-grabbing;
-		}		
-		.ef-proweb-input-element-short {
-			width: 40%;
-			float: left; 	
-		}
-
-		.ef-proweb-radio-group {
-			text-align: left;
-			padding-bottom: 0px;
-			padding-top: 0px;	
-		}
-		.ef-proweb-radio-button {
-			padding-left: 0px;	
-			padding-top: 0px;
-			padding-bottom: 0px;
-			font-weight: 700;
-		}
-		.ef-proweb-input-element {
-			width: 80%;
-			float: left;
-		}
-		.ef-proweb-checkboxGroup {
-			text-align: left;	
-		}
-		.ef-proweb-menu-handle {
-			width: 1%;	
-		}
-		.ef-proweb-error-panel { 
-			margin-left: 10%;
-			margin-right: 10%;
-			padding: 0px;
-			background-color: RED;
-			color: WHITE;	
-		}
-		.panel, .ef-proweb-guest-panel {
-			  border: 1px solid #c8c8c8;
-  			  margin-bottom: 18px;
-			  background-color: #eeeeee;
-			  border: 1px solid transparent;
-			  border-radius: 4px;
-			  -webkit-box-shadow: 0 1px 1px rgba(0, 0, 0, 0.05);
-			  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.05);
-		}
-		 
-		.ef-proweb-guest-panel .panel-heading {
-		  font-family: MuseoSlab500Regular, Verdana, Geneva, Arial, Helvetica, sans-serif;
-		  font-size: 14px;
-		  font-weight: normal;
-		  color: white;
-		  background: #0091aa;
-		  padding: 5px;
-		}
-		.ef-proweb-guest-panel .panel-body {
-			padding: 0px;	
-		}
-		.ef-proweb-input-element-backendOnly {
-			background-color: rgb(245, 222, 179);
-		}
-		.ef-proweb-input-element-backendOnly::-webkit-input-placeholder { /* Chrome/Opera/Safari */
- 			color: #CCCCCC;
-		}
-		.ef-proweb-input-element-backendOnly::-moz-placeholder { /* Firefox 19+ */
- 			color: #CCCCCC;
-		}
-		.ef-proweb-input-element-backendOnly:-ms-input-placeholder { /* IE 10+ */
- 			color: #CCCCCC;
-		}
-		.ef-proweb-direct-label-edit input {
-			text-align: right;	
-		}	
-		.k-upload-button {
-			margin: 0px !important;	
-		}	
-		.ef_frontend_file_uploader.k-content {
-			min-height: 0px;
-			text-alignment: left;	
-		}
-		.ef-proweb-floating-menu-divider {
-			color: #AAAAAA; 
-			padding-left: 10px; 
-			font-style: italic;	
-		}
-		/* =========== end new classes for Proweb2 ============ */
-		
 		.ef-registration-section td label {
 			display: inline-block;
 		    font-weight: normal;
@@ -17170,10 +16943,165 @@ The basic frontend default stuff</Description>
 	>
 ]]></Implementation>
 </Method>
+
+<Method name="outputProweb2CSS">
+<ClassMethod>1</ClassMethod>
+<Implementation><![CDATA[
+	&html<
+		/* ===========  begin classes for Proweb2 ========= */
+		.ef_proweb_form_prompt {
+			text-align: right;
+		}
+		.ef-required-field::after {
+		    content: " *";
+		    color: red;			
+		}
+		.ef-dependent-field::after {
+		    content: "🔗";
+		}
+		@media (max-width: 768px) {
+		   .ef_proweb_form_prompt {
+		      text-align: left; 
+		  }
+		}
+		.EF_dropdown_searchable_container {
+			float: left;
+			max-width: 90%!important;
+		}
+		.EF_dropdown_searchable_selection {
+		    width: 100%;
+		    height: 34px!important;
+		    padding: 3px 10px;
+		    font-size: 14px;
+		    line-height: 1.42857143;
+		    color: #555;
+		    background-color: #fff;
+		    background-image: none;
+		    border: 1px solid #ccc!important;
+		    border-radius: 4px!important;
+		    -webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,.075)!important;
+		    box-shadow: inset 0 1px 1px rgba(0,0,0,.075);
+		    -webkit-transition: border-color ease-in-out .15s,-webkit-box-shadow ease-in-out .15s;
+		    -o-transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s;
+		    transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s;
+		}
+		.select2-selection__rendered {
+			background-color: inherit!important;
+			color: inherit!important;
+		}
+		.ef-proweb-form-row-editable, .ef-proweb-form-row {
+			padding-top: 4px;
+			padding-bottom:4px;	
+			margin: 10px !important;
+			border-width: 1px;
+			border-color: transparent;
+			border-style: solid;
+		}
+		.ef-proweb-form-row-editable:hover {
+			background-color: #EEEEEE;	
+			border-color: GRAY;
+			border-style: dashed;
+			border-width: 1px;
+			border-radius: 5px;
+			
+		}
+		.ui-sortable-handle {
+			cursor: grab;
+			cursor: -webkit-grab; cursor:-moz-grab; 
+		}
+		.ui-sortable-handle:active {
+			cursor: grabbing;
+			cursor: -webkit-grabbing; cursor:-moz-grabbing;
+		}		
+		.ef-proweb-input-element-short {
+			width: 40%;
+			float: left; 	
+		}
+
+		.ef-proweb-radio-group {
+			text-align: left;
+			padding-bottom: 0px;
+			padding-top: 0px;	
+		}
+		.ef-proweb-radio-button {
+			padding-left: 0px;	
+			padding-top: 0px;
+			padding-bottom: 0px;
+			font-weight: 700;
+		}
+		.ef-proweb-input-element {
+			width: 80%;
+			float: left;
+		}
+		.ef-proweb-checkboxGroup {
+			text-align: left;	
+		}
+		.ef-proweb-menu-handle {
+			width: 1%;	
+		}
+		.ef-proweb-error-panel { 
+			margin-left: 10%;
+			margin-right: 10%;
+			padding: 0px;
+			background-color: RED;
+			color: WHITE;	
+		}
+		.panel, .ef-proweb-guest-panel {
+			  border: 1px solid #c8c8c8;
+			  margin-bottom: 18px;
+			  background-color: #eeeeee;
+			  border: 1px solid transparent;
+			  border-radius: 4px;
+			  -webkit-box-shadow: 0 1px 1px rgba(0, 0, 0, 0.05);
+			  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.05);
+		}
+		 
+		.ef-proweb-guest-panel .panel-heading {
+		  font-family: MuseoSlab500Regular, Verdana, Geneva, Arial, Helvetica, sans-serif;
+		  font-size: 14px;
+		  font-weight: normal;
+		  color: white;
+		  background: #0091aa;
+		  padding: 5px;
+		}
+		.ef-proweb-guest-panel .panel-body {
+			padding: 0px;	
+		}
+		.ef-proweb-input-element-backendOnly {
+			background-color: rgb(245, 222, 179);
+		}
+		.ef-proweb-input-element-backendOnly::-webkit-input-placeholder { /* Chrome/Opera/Safari */
+			color: #CCCCCC;
+		}
+		.ef-proweb-input-element-backendOnly::-moz-placeholder { /* Firefox 19+ */
+			color: #CCCCCC;
+		}
+		.ef-proweb-input-element-backendOnly:-ms-input-placeholder { /* IE 10+ */
+			color: #CCCCCC;
+		}
+		.ef-proweb-direct-label-edit input {
+			text-align: right;	
+		}	
+		.k-upload-button {
+			margin: 0px !important;	
+		}	
+		.ef_frontend_file_uploader.k-content {
+			min-height: 0px;
+			text-alignment: left;	
+		}
+		.ef-proweb-floating-menu-divider {
+			color: #AAAAAA; 
+			padding-left: 10px; 
+			font-style: italic;	
+		}
+		/* =========== end new classes for Proweb2 ============ */
+	>
+]]></Implementation>
+</Method>
 </Class>
 
 
-<Project name="proweb 2" LastModified="2016-10-26 10:50:09.799932" Target="dev.efsys.net/LARGEDEVSRC/backend/home/efSupportLogin.htm" TargetType="3">
+<Project name="proweb 2" LastModified="2016-10-26 16:05:05.595564" Target="dev.efsys.net/LARGEDEVSRC/backend/home/efSupportLogin.htm" TargetType="3">
   <Items>
     <ProjectItem name="EF.contextDataRegistration" type="CLS"></ProjectItem>
     <ProjectItem name="EF.contextDataRegistrationMock" type="CLS"></ProjectItem>
@@ -17293,6 +17221,7 @@ The basic frontend default stuff</Description>
     <ProjectItem name="shared.pageMethods" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.proweb.privateData" type="CLS"></ProjectItem>
     <ProjectItem name="EF.ui.components.frontend.privateData" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.validator.patternMatchValidation" type="CLS"></ProjectItem>
   </Items>
   <BreakPoints>
     <BreakPoint Routine="cspRealEV.frontend.reg.pagecontrollerstandardsave.CLS" Offset="OnPreHTTPafter+28"></BreakPoint>
@@ -17454,7 +17383,7 @@ Property displayOrder As %Integer [ Required ];</Description>
 
 <Class name="sc.facade.prowebItemStorageInputElement">
 <Super>sc.facade.prowebItemStorage</Super>
-<TimeChanged>64217,52929.141281</TimeChanged>
+<TimeChanged>64217,58647.239788</TimeChanged>
 <TimeCreated>64206,40073.01042</TimeCreated>
 
 <Property name="inputType">
@@ -17523,6 +17452,16 @@ Property displayOrder As %Integer [ Required ];</Description>
 <InitialExpression>0</InitialExpression>
 </Property>
 
+<Property name="customValidation">
+<Type>%String</Type>
+<Parameter name="MAXLEN" value="32000"/>
+</Property>
+
+<Property name="validationErrorMessage">
+<Type>%String</Type>
+<Parameter name="MAXLEN" value="32000"/>
+</Property>
+
 <Method name="createNew">
 <ClassMethod>1</ClassMethod>
 <FormalSpec>prowebItemID:%Integer,contextData:EF.contextDataRegistration</FormalSpec>
@@ -17551,6 +17490,10 @@ Property displayOrder As %Integer [ Required ];</Description>
 	set storage.databaseItemName = prowebItem.objItemName.description
 	set storage.databaseItemID = prowebItem.objItemName.%Id()
 	set storage.defaultValue = prowebItem.defaultValue
+	if prowebItem.requiredAnswer ? 1"?".E {
+		set storage.customValidation = prowebItem.requiredAnswer 
+	}
+	set storage.validationErrorMessage = prowebItem.validationErrorMessage
 	
 	set storage.dependsOnProwebAlternativeID = prowebItem.dependsOnAlternative
 	
@@ -17775,7 +17718,7 @@ Please note that this class will be the super class of all underlying data items
 <IncludeCode>EF.common.macros</IncludeCode>
 <ProcedureBlock>1</ProcedureBlock>
 <Super>%Library.Persistent,shared.timeStamp</Super>
-<TimeChanged>64216,43931</TimeChanged>
+<TimeChanged>64217,60159.620332</TimeChanged>
 <TimeCreated>59148,67793</TimeCreated>
 <Inheritance>right</Inheritance>
 
@@ -18952,6 +18895,44 @@ note that this must be a classmethod or you will a compile error as the property
 		set hoverText = hoverText_"'"
 	}	
 	return hoverText
+]]></Implementation>
+</Method>
+
+<Method name="moveNewElementToDesiredPosition">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>dataID:%Integer</FormalSpec>
+<Implementation><![CDATA[
+	#dim targetPosition as %Integer = ""
+	#dim insertBeforeProwebID as %Integer = %session.Get("insertBeforeProwebID")
+	#dim insertAfterProwebID as %Integer = %session.Get("insertAfterProwebID")
+	#dim basePosition as %Integer
+
+	if insertBeforeProwebID {
+		set basePosition = ##class(sc.objData).getDisplayOrder(insertBeforeProwebID)
+		set targetPosition  = (basePosition - 1)
+	} elseif insertAfterProwebID {
+		set basePosition = ##class(sc.objData).getDisplayOrder(insertAfterProwebID)
+		set targetPosition  = (basePosition + 1)
+	}
+	
+	if targetPosition {
+		do ##class(sc.xModules.objList).moveChildToPosition(dataID, targetPosition)
+	}
+	
+	kill %session.Data("insertAfterProwebID")
+	kill %session.Data("insertBeforeProwebID")
+]]></Implementation>
+</Method>
+
+<Method name="savePassedInDesiredPositionToSession">
+<ClassMethod>1</ClassMethod>
+<Implementation><![CDATA[
+	if %request.Get("insertBeforeProwebID") {
+		set %session.Data("insertBeforeProwebID") = %request.Get("insertBeforeProwebID")
+	}
+	if %request.Get("insertAfterProwebID") {
+		set %session.Data("insertAfterProwebID") = %request.Get("insertAfterProwebID")
+	}
 ]]></Implementation>
 </Method>
 

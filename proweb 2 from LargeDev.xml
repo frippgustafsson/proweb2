@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2015.2 (Build 664_3_16032U)" ts="2016-11-01 17:37:44">
+<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2015.2 (Build 664_3_16032U)" ts="2016-11-01 20:36:07">
 <Class name="EF.contextDataRegistration">
 <Description><![CDATA[
 <!-- ;vc;-
@@ -3340,7 +3340,7 @@ Should be run if any of the sub-classes are deleted</Description>
 
 <Class name="EF.pageController.proweb.testCases.textBlockTestCase">
 <Super>EF.ISC.UnitTest.TestCase</Super>
-<TimeChanged>64223,62083.886952</TimeChanged>
+<TimeChanged>64223,74134.691171</TimeChanged>
 <TimeCreated>64204,52784.358512</TimeCreated>
 
 <Method name="TestBasicPageWithTextBlock">
@@ -3363,7 +3363,7 @@ Should be run if any of the sub-classes are deleted</Description>
 	
 	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(pageController,"renderElements",pageController)
 	set returnedHTML = $ZStrip(returnedHTML,"*WC")
-	set expectedHTML = "<divclass=""rowef-proweb-form-row""><divclass=""col-sm-4ef_proweb_form_prompt""><labelclass=""control-label""for=""proweb-1""><divclass=""ef-label-text""id=""ef-display-label-proweb-1"">Pleaseenteryouremailaddress</div></label></div><divclass=""col-sm-8ef_proweb_form_prompt""><inputtype=""email""class=""form-controlef-proweb-input-element""title=""""id=""proweb-1""name=""proweb-1""value=""""placeholder=""""pattern=""^(([a-zA-Z0-9_\-\.&#39;]+)(\+[a-zA-Z0-9_\-\.&#39;]+){0,1}@(([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([a-zA-Z0-9\-]+\.)+))([a-zA-Z]{2,63}|[0-9]{1,3}))$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;Pleaseenteryouremailaddress\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""autofocus=""autofocus""></div></div>"
+	set expectedHTML = "<divclass=""rowef-proweb-form-row""><divclass=""col-sm-12""><div>LOREMIPSUM</div></div></div>"
 	do $$$AssertEquals(returnedHTML,expectedHTML)
 ]]></Implementation>
 </Method>
@@ -3372,7 +3372,7 @@ Should be run if any of the sub-classes are deleted</Description>
 
 <Class name="EF.pageController.proweb.testCases.textInputTestCase">
 <Super>EF.ISC.UnitTest.TestCase</Super>
-<TimeChanged>64223,63061.758055</TimeChanged>
+<TimeChanged>64223,73899.811211</TimeChanged>
 <TimeCreated>64204,52795.592181</TimeCreated>
 
 <Method name="TestbasicInputField">
@@ -3450,60 +3450,6 @@ Should be run if any of the sub-classes are deleted</Description>
 	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(pageController,"renderElements",pageController)
 	set returnedHTML = $ZStrip(returnedHTML,"*WC")
 	set expectedHTML = "<divclass=""rowef-proweb-form-row""><divclass=""col-sm-4ef_proweb_form_prompt""></div><divclass=""col-sm-8ef_proweb_form_prompt""><inputtype=""text""class=""form-controlef-proweb-input-element""title=""""id=""proweb-1""name=""proweb-1""value=""""placeholder=""""aria-label=""name""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""autofocus=""autofocus""></div></div>"
-	do $$$AssertEquals(returnedHTML,expectedHTML)
-]]></Implementation>
-</Method>
-
-<Method name="TestDependentInput">
-<Implementation><![CDATA[
-	// This test is a bit naff as it doesn't test the page controller depenendency, it ot only tests the generated markup.
-	#dim page as EF.pageController.proweb.page
-	#dim element as EF.pageController.proweb.textInput
-	#dim storage as sc.facade.prowebItemStorageInputElementMock
-	#dim contextData as EF.contextDataRegistrationMock
-	#dim pageController as EF.pageController.pagesFrontend.t4Registration
-	
-	set eventConfiguration = ##class(setup.eventConfiguration.storageMock).createEventConfiguration()
-	
-	set contextData = ##class(EF.contextDataRegistrationMock).createMock()
-	
-	set storage = ##class(sc.facade.prowebItemStorageInputElementMock).createNew()
-	set storage.prowebID = "1"
-	set storage.databaseItemName = "DIET"
-	set storage.inputType = "radiobutton"
-	set storage.labelText = "Please enter dietary requirement"
-	
-	set alternative = ##class(sc.facade.prowebItemStorageInputElementAlternative).createNew("meat","Meat",10)
-	do storage.listOfAlternatives.Insert( alternative ) 
-
-	set alternative = ##class(sc.facade.prowebItemStorageInputElementAlternative).createNew("fish","Fish",11)
-	do storage.listOfAlternatives.Insert( alternative ) 
-
-	set alternative = ##class(sc.facade.prowebItemStorageInputElementAlternative).createNew("vegan","Vegan",12)
-	do storage.listOfAlternatives.Insert( alternative ) 
-
-	set prowebItem = ##class(sc.facade.prowebItem).createNew(storage)
-	do contextData.listOfProwebItemsToAdd.Insert(prowebItem)
-
-
-	set storage = ##class(sc.facade.prowebItemStorageInputElementMock).createNew()
-	set storage.prowebID = "2"
-	set storage.databaseItemName = "MEAT TYPE"
-	set storage.inputType = "text"
-	set storage.labelText = "What type of meat do you prefer?"
-	set storage.dependencyHoverText = "title='Show when DIET = Meat'"
-	set storage.dependsOnProwebAlternativeID = 10
-
-	set prowebItem = ##class(sc.facade.prowebItem).createNew(storage)
-	do contextData.listOfProwebItemsToAdd.Insert(prowebItem)
-
-
-
-	set pageController = ##class(EF.pageController.pagesFrontend.t4Registration).createNew(contextData,,,eventConfiguration)
-	
-	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(pageController,"renderElements")
-	set returnedHTML = $ZStrip(returnedHTML,"*WC")
-	set expectedHTML = "<divclass=""rowef-proweb-form-row""><divclass=""col-sm-4ef_proweb_form_prompt""><labelclass=""control-label""for=""proweb-1""><divclass=""ef-label-text""id=""ef-display-label-proweb-1"">Pleaseenterdietaryrequirement</div></label></div><divclass='col-sm-8ef_proweb_form_promptef-proweb-radio-group'><divclass=""btn-group""id=""proweb-1""title=""""><divclass='col-sm-12ef-proweb-radio-button'><labelclass=""ef-btn-defaultef-proweb-radio-buttonactive""id=""proweb-1_1-label""><inputtype=""radio""checkedvalue=""meat""name=""proweb-1""id=""proweb-1_1"">&nbsp;Meat</label></div><divclass='col-sm-12ef-proweb-radio-button'><labelclass=""ef-btn-defaultef-proweb-radio-button""id=""proweb-1_2-label""><inputtype=""radio""value=""fish""name=""proweb-1""id=""proweb-1_2"">&nbsp;Fish</label></div><divclass='col-sm-12ef-proweb-radio-button'><labelclass=""ef-btn-defaultef-proweb-radio-button""id=""proweb-1_3-label""><inputtype=""radio""value=""vegan""name=""proweb-1""id=""proweb-1_3"">&nbsp;Vegan</label></div></div></div></div><divclass=""rowef-proweb-form-row""><divclass=""col-sm-4ef_proweb_form_prompt""title='ShowwhenDIET=Meat'><labelclass=""control-label""for=""proweb-2""><divclass=""ef-label-text""id=""ef-display-label-proweb-2"">Whattypeofmeatdoyouprefer?</div></label></div><divclass=""col-sm-8ef_proweb_form_prompt""><inputtype=""text""class=""form-controlef-proweb-input-element""title=""""id=""proweb-2""name=""proweb-2""value=""""placeholder=""""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;Whattypeofmeatdoyouprefer?\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""></div></div>"
 	do $$$AssertEquals(returnedHTML,expectedHTML)
 ]]></Implementation>
 </Method>
@@ -18045,8 +17991,20 @@ to make sure group bookers can't see already existing data of attendees</Descrip
 
 <Class name="sc.facade.prowebItemStorageTextBlockMock">
 <Super>sc.facade.prowebItemStorageTextBlock</Super>
-<TimeChanged>64223,62062.865015</TimeChanged>
+<TimeChanged>64223,74073.587616</TimeChanged>
 <TimeCreated>64223,62062.865015</TimeCreated>
+
+<Method name="createNew">
+<ClassMethod>1</ClassMethod>
+<ReturnType>sc.facade.prowebItemStorage</ReturnType>
+<Implementation><![CDATA[
+	set storage = ..%New()
+
+
+	
+	return storage
+]]></Implementation>
+</Method>
 </Class>
 
 

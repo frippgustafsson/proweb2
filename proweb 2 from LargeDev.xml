@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2015.2 (Build 664_3_16032U)" ts="2016-11-01 20:36:07">
+<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2015.2 (Build 664_3_16032U)" ts="2016-11-01 21:13:33">
 <Class name="EF.contextDataRegistration">
 <Description><![CDATA[
 <!-- ;vc;-
@@ -1642,7 +1642,7 @@ Should be run if any of the sub-classes are deleted</Description>
 
 <Class name="EF.pageController.proweb.page">
 <Super>EF.pageController.page</Super>
-<TimeChanged>64223,60431.440981</TimeChanged>
+<TimeChanged>64223,75979.767928</TimeChanged>
 <TimeCreated>64189,51696.559047</TimeCreated>
 
 <Property name="contextData">
@@ -1679,7 +1679,9 @@ Should be run if any of the sub-classes are deleted</Description>
 	} else {
 		do ..loadBannerElements()
 		do ..loadNavigationBarElements()
-		do ..loadAllProwebListsForPage() 
+		do ..loadAllProwebListsForPage()
+		do ..loadSponsorElements() 
+		do ..loadFooterElements()
 	}
 	do ..repeatAnyGuestQuestions()
 	do ..insertPanelElementsAroundGuestQuestions()
@@ -1771,6 +1773,42 @@ Should be run if any of the sub-classes are deleted</Description>
 	set ..parentListElement = navigationBarList
 	set eventdetails = ##class(setup.objEventDetails).getObjEventDetails(..contextData.eventID, ..contextData.languageID)
 	set prowebListID = ##class(sc.xModules.objList).getListIDFromPageIDAndComponentName(eventdetails.menuPageID, "INDEXLIST")
+	do ..loadProwebListElementsFromDatabase(prowebListID)
+]]></Implementation>
+</Method>
+
+<Method name="loadSponsorElements">
+<Private>1</Private>
+<Implementation><![CDATA[
+	#dim eventdetails as setup.objEventDetails
+	set desciptionModifier="" // ####### replace with call to eventConfiguration ######
+	if ..contextData.languageID '= 1 {
+		set desciptionModifier=" - "_##class(shared.objLanguage).getLanguageDesc(..contextData.languageID)	
+	}
+	set sponsorPageID = ##class(setup.objEventSetting).getParameter("mainpages", "rightPageID"_desciptionModifier, ..contextData.eventID)
+	
+	set sponsorList = ##class(EF.pageController.containerElements.list).addElementToParent($this, "sponsor list", "")
+	set ..parentListElement = sponsorList
+	set eventdetails = ##class(setup.objEventDetails).getObjEventDetails(..contextData.eventID, ..contextData.languageID)
+	set prowebListID = ##class(sc.xModules.objList).getListIDFromPageIDAndComponentName(sponsorPageID, "INDEXLIST")
+	do ..loadProwebListElementsFromDatabase(prowebListID)
+]]></Implementation>
+</Method>
+
+<Method name="loadFooterElements">
+<Private>1</Private>
+<Implementation><![CDATA[
+	#dim eventdetails as setup.objEventDetails
+	set desciptionModifier="" // ####### replace with call to eventConfiguration ######
+	if ..contextData.languageID '= 1 {
+		set desciptionModifier=" - "_##class(shared.objLanguage).getLanguageDesc(..contextData.languageID)	
+	}
+	set footerPageID=##class(setup.objEventSetting).getParameter("mainpages", "footerPageID"_desciptionModifier, ..contextData.eventID)
+	
+	set footerList = ##class(EF.pageController.containerElements.list).addElementToParent($this, "footer list", "")
+	set ..parentListElement = footerList
+	set eventdetails = ##class(setup.objEventDetails).getObjEventDetails(..contextData.eventID, ..contextData.languageID)
+	set prowebListID = ##class(sc.xModules.objList).getListIDFromPageIDAndComponentName(footerPageID, "INDEXLIST")
 	do ..loadProwebListElementsFromDatabase(prowebListID)
 ]]></Implementation>
 </Method>
@@ -17326,7 +17364,1451 @@ The basic frontend default stuff</Description>
 </Class>
 
 
-<Project name="proweb 2" LastModified="2016-11-01 17:37:44.450073" Target="dev.efsys.net/LARGEDEVSRC/backend/home/efSupportLogin.htm" TargetType="3">
+<Class name="layout.objTemplate">
+<Description><![CDATA[
+<!-- ;vc;-
+;vc;    Object: layout.objTemplate.CLS/EV.51
+;vc; Component: CLS.layout.objTemplate
+;vc;  Location: LargeDev
+;vc; Date/Time: 27-Oct-16 16:07
+;vc;      User: FredG
+;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>layout.objTemplate.CLS/EV.51</td><td>CLS.layout.objTemplate</td><td>LargeDev</td><td style='white-space: nowrap;'>27-Oct-16 16:07</td><td>FredG</td></tr></table>
+]]></Description>
+<ClassType>persistent</ClassType>
+<ProcedureBlock>1</ProcedureBlock>
+<Super>%Library.Persistent,shared.timeStamp</Super>
+<TimeChanged>64223,76029.965823</TimeChanged>
+<TimeCreated>60782,60196.270659</TimeCreated>
+<Inheritance>right</Inheritance>
+
+<Property name="accessibilityLevel">
+<Type>%String</Type>
+<Parameter name="TRUNCATE" value="1"/>
+<Parameter name="VALUELIST" value=",none,A,AA,AAA"/>
+</Property>
+
+<Property name="description">
+<Description>
+shown in drop down menu - also used as lookup so has to be unique</Description>
+<Type>%String</Type>
+<Required>1</Required>
+<Parameter name="MAXLEN" value="200"/>
+<Parameter name="TRUNCATE" value="1"/>
+</Property>
+
+<Property name="internalDescription">
+<Description>
+used for reference in code</Description>
+<Type>%String</Type>
+<Parameter name="MAXLEN" value="200"/>
+<Parameter name="TRUNCATE" value="1"/>
+</Property>
+
+<Index name="descriptionIndex">
+<Properties>description</Properties>
+<Unique>1</Unique>
+</Index>
+
+<Property name="originalFilename">
+<Type>%String</Type>
+<Parameter name="MAXLEN" value="200"/>
+<Parameter name="TRUNCATE" value="1"/>
+</Property>
+
+<Property name="active">
+<Type>%String</Type>
+<Parameter name="TRUNCATE" value="1"/>
+</Property>
+
+<Property name="displayOrder">
+<Description>
+make numeric so ordered correctly and not int so can insert stuff between items</Description>
+<Type>%Numeric</Type>
+<Parameter name="SCALE" value="1"/>
+</Property>
+
+<Property name="popup">
+<Description>
+for each template we need two templates - one for the normal layout and one for the layout when popups are used
+so this indicates that this is the popup template</Description>
+<Type>%Boolean</Type>
+</Property>
+
+<Property name="linkedTemplateID">
+<Description>
+this will be the real template</Description>
+<Type>%String</Type>
+<Parameter name="TRUNCATE" value="1"/>
+</Property>
+
+<Property name="exampleImage">
+<Description>
+link to actual image file for example of layout</Description>
+<Type>%String</Type>
+<Parameter name="TRUNCATE" value="1"/>
+</Property>
+
+<Property name="styleSource">
+<Description>
+Indicates whether the style is coming from the event (streamed) or from a file that is pulled in from the layout.</Description>
+<Type>%String</Type>
+<Parameter name="TRUNCATE" value="1"/>
+<Parameter name="VALUELIST" value=",event,template"/>
+</Property>
+
+<Property name="templateDirectory">
+<Type>%String</Type>
+<Parameter name="MAXLEN" value="250"/>
+<Parameter name="TRUNCATE" value="1"/>
+</Property>
+
+<Property name="objStandardDesign">
+<Type>layout.objStandardDesign</Type>
+<Cardinality>one</Cardinality>
+<Inverse>objTemplates</Inverse>
+<Relationship>1</Relationship>
+</Property>
+
+<Property name="layoutStructure">
+<Type>%String</Type>
+<Parameter name="MAXLEN" value="200"/>
+<Parameter name="TRUNCATE" value="1"/>
+</Property>
+
+<Property name="efLogoInTemplate">
+<Type>%Boolean</Type>
+</Property>
+
+<Property name="isIframe">
+<Type>%Boolean</Type>
+<InitialExpression>0</InitialExpression>
+</Property>
+
+<Property name="hasBootstrap">
+<Type>%Boolean</Type>
+<InitialExpression>0</InitialExpression>
+</Property>
+
+<Property name="customTemplate">
+<Description>
+is this a template uploaded by a customer and therefore available in the templates page to select</Description>
+<Type>%Boolean</Type>
+<InitialExpression>0</InitialExpression>
+</Property>
+
+<Property name="templateSourceFile">
+<Description>
+the template.zip file that contains all the images/css/index.html and any other files that the template allows</Description>
+<Type>%Stream.GblBinCompress</Type>
+</Property>
+
+<Property name="templateCSSFile">
+<Description>
+to store the style.css stream in order to avoid having to get it via FTP from a web server</Description>
+<Type>%Stream.GblChrCompress</Type>
+</Property>
+
+<Index name="objStandardDesignIndex">
+<Properties>objStandardDesign</Properties>
+</Index>
+
+<Method name="getStandardDesignName">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>templateID</FormalSpec>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	&SQL(SELECT objStandardDesign->description INTO :designName FROM layout.objTemplate WHERE ID = :templateID)	
+	if +SQLCODE=0 {
+		if designName="Default Design" set designName="Non-responsive Standard Design" //renamed July 2016
+		return designName
+	} else {
+		throw ##class(shared.exceptions.generalException).%New("no such template found") 	
+	}
+]]></Implementation>
+</Method>
+
+<Method name="getCreationTimestamp">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>templateID</FormalSpec>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	&SQL(SELECT xCRstamp INTO :timestamp FROM layout.objTemplate WHERE ID = :templateID)	
+	if +SQLCODE=0 {
+		return timestamp // e.g. "2009-07-07 10:23:48"
+	} else {
+		throw ##class(shared.exceptions.generalException).%New("no such template found") 	
+	}
+]]></Implementation>
+</Method>
+
+<Method name="getLayoutForEvent">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>eventID:%String,popup:%Boolean=0</FormalSpec>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	// if popup get the popup layout instead
+	set templateID=""
+	&SQL(SELECT layoutObjTemplate INTO :tmp FROM setup.objEvent WHERE ID=:eventID)
+	if +SQLCODE=0 set templateID=tmp
+	if popup	{
+		&SQL(SELECT ID INTO :tmp FROM layout.objTemplate WHERE linkedTemplateID=:templateID)
+		if +SQLCODE=0 set templateID=tmp
+	}
+	quit templateID
+]]></Implementation>
+</Method>
+
+<Method name="isThisAPopupTemplate">
+<Description>
+gets the templateID for the popup - if there is one</Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec>templateID</FormalSpec>
+<ReturnType>%Boolean</ReturnType>
+<Implementation><![CDATA[
+	set linkedTemplateID=""
+	&SQL(SELECT linkedTemplateID INTO :tmp FROM layout.objTemplate WHERE ID=:templateID)
+	if +SQLCODE=0 set linkedTemplateID=tmp
+	if (linkedTemplateID) {
+		return 1
+	} else {
+		return 0
+	}
+]]></Implementation>
+</Method>
+
+<Method name="getPopupTemplate">
+<Description>
+gets the templateID for the popup - if there is one</Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec>templateID</FormalSpec>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	set popupTemplateID=""
+	&SQL(SELECT ID INTO :tmp FROM layout.objTemplate WHERE linkedTemplateID=:templateID)
+	if +SQLCODE=0 set popupTemplateID=tmp
+	return popupTemplateID
+]]></Implementation>
+</Method>
+
+<Method name="getLayoutForSurvey">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>surveyID:%String,popup:%Boolean=0</FormalSpec>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	// if popup get the popup layout instead
+	set templateID=""
+	&SQL(SELECT layoutObjTemplate INTO :tmp FROM sc_xModules.objForm WHERE ID=:surveyID)
+	if +SQLCODE=0 set templateID=tmp
+	if popup	{
+		&SQL(SELECT ID INTO :tmp FROM layout.objTemplate WHERE linkedTemplateID=:templateID)
+		if +SQLCODE=0 set templateID=tmp
+	}
+	quit templateID
+]]></Implementation>
+</Method>
+
+<Method name="getIDfromDesc">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>description:%String</FormalSpec>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	set templateID=""
+	&SQL(SELECT ID INTO :tmp FROM layout.objTemplate WHERE (%SQLUPPER(description) = %SQLUPPER(:description)) AND (active=1))
+	if +SQLCODE=0 set templateID=tmp
+	quit templateID
+]]></Implementation>
+</Method>
+
+<Method name="getIDfromIntDesc">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>internalDescription:%String</FormalSpec>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	set templateID=""
+	&SQL(SELECT ID INTO :tmp FROM layout.objTemplate WHERE (%SQLUPPER(internalDescription) = %SQLUPPER(:internalDescription)) AND (active=1))
+	if +SQLCODE=0 set templateID=tmp
+	quit templateID
+]]></Implementation>
+</Method>
+
+<Method name="getStyleSource">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>templateID:%String</FormalSpec>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	set data=""
+	&SQL(SELECT styleSource INTO :tmp FROM layout.objTemplate WHERE ID=:templateID)
+	if +SQLCODE=0 set data=tmp
+	quit data
+]]></Implementation>
+</Method>
+
+<Method name="getPath">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>templateID:%String</FormalSpec>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	#define tPath As %String
+	set tPath=""
+	&SQL(SELECT  templateDirectory INTO :tmp FROM layout.objTemplate WHERE ID=:templateID)
+	if +SQLCODE=0 {
+		set tPath = tmp
+	}
+	quit tPath
+]]></Implementation>
+</Method>
+
+<Method name="getAccessibility">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>templateID:%String</FormalSpec>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	set data=""
+	&SQL(SELECT accessibilityLevel INTO :tmp FROM layout.objTemplate WHERE ID=:templateID)
+	if +SQLCODE=0 set data=tmp
+	quit data
+]]></Implementation>
+</Method>
+
+<Method name="isEFLogoInTemplate">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>templateID:%String</FormalSpec>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	set data=""
+	&SQL(SELECT efLogoInTemplate INTO :tmp FROM layout.objTemplate WHERE ID=:templateID)
+	if +SQLCODE=0 set data=tmp
+	quit +data
+]]></Implementation>
+</Method>
+
+<Method name="getIntDesc">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>templateID:%String</FormalSpec>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	set desc=""
+	&SQL(SELECT internalDescription INTO :tmp FROM layout.objTemplate WHERE ID=:templateID)
+	if +SQLCODE=0 set desc=tmp
+	quit desc
+]]></Implementation>
+</Method>
+
+<Method name="getDesc">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>templateID:%String</FormalSpec>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	set desc=""
+	&SQL(SELECT description INTO :tmp FROM layout.objTemplate WHERE ID=:templateID)
+	if +SQLCODE=0 set desc=tmp
+	quit desc
+]]></Implementation>
+</Method>
+
+<Method name="deleteTemplate">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>description:%String,templateID:%String</FormalSpec>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	// ** CAREFUL - THIS DOES NOT CHECK IF THIS TEMPLATE IS IN USE BY AN EVENT
+	
+	if $G(description)'="" set templateID=..getIDfromDesc(description)
+	// find the popup template if there is one
+	set linkedTemplateID=""
+	&SQL(SELECT ID INTO :tmp FROM layout.objTemplate WHERE linkedTemplateID=:templateID )
+	if +SQLCODE=0 set linkedTemplateID=tmp
+	if linkedTemplateID	{
+		&SQL(DELETE FROM layout.objSection WHERE objTemplate=:linkedTemplateID)
+		&SQL(DELETE FROM layout.objTemplate WHERE ID=:linkedTemplateID)
+	}	
+	&SQL(DELETE FROM layout.objSection WHERE objTemplate=:templateID)
+	&SQL(DELETE FROM layout.objTemplate WHERE ID=:templateID)
+	quit 1
+]]></Implementation>
+</Method>
+
+<Method name="loadTemplateUsingProxy">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>t:%ZEN.proxyObject</FormalSpec>
+<Implementation><![CDATA[
+	#define active 1			
+	#define replace 1
+	#define notPopup 0
+	write " result=",##class(layout.objTemplate).loadTemplate(t.description,t.internalName,$$$active,,t.indexFilename,$$$replace,$$$notPopup,t.imageFile,t.accessibilityLevel,t.styleSource,t.templateDirectory,t.isLogoIncudedInTemplate,t.layoutStructure,t.designName,t.isIframe,t.isUsingBootstrap)
+]]></Implementation>
+</Method>
+
+<Method name="loadTemplate">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>description:%String,internalDescription:%String,active:%String,displayOrder:%String,filename:%String,replace:%Boolean=0,popup:%Boolean=0,imgFile:%String,level,source,directory,efLogoInTemplate=0,layoutStructure="",standardDesign="",isIframe=0,hasBootstrap=0,customTemplate=0</FormalSpec>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	set replace=+$G(replace)
+	set popup=+$G(popup)
+	set customTemplate=+customTemplate
+	set inFile=##class(%FileCharacterStream).%New()
+	if $G(filename)="" quit 0
+	set inFile.Filename=filename
+	if inFile.Size<10 quit "0~Could not find file or too small, check there is an index.html file in the zip file (if this is a new template)."
+	if $G(imgFile)="" set imgFile=""
+		
+	set linkedTemplateID=""
+	if popup {
+		// get the original
+		set origIntDesc=$P(internalDescription,"_popup",1)
+		set linkedTemplateID=..getIDfromIntDesc(origIntDesc)
+	}
+	set templateID=""
+	if replace set templateID=..getIDfromIntDesc(internalDescription)
+	if replace,templateID	{
+		// get the id of the template
+		set templateID=..getIDfromIntDesc(internalDescription)
+		if templateID {
+			&SQL(DELETE FROM layout.objSection WHERE objTemplate=:templateID)
+			set objTemplate=..%OpenId(templateID)
+		} else {
+			quit "0~Template not found"
+		}
+	} else {
+		set objTemplate=..%New()
+		set objTemplate.originalFilename=filename
+		set objTemplate.description=description
+		set objTemplate.isIframe=+isIframe
+		set objTemplate.hasBootstrap=+hasBootstrap	
+		set ok=objTemplate.%Save()
+		if 'ok quit "0~Error creating template - "_ok_" - description='"_description_"'"
+		set templateID=objTemplate.%Id()
+	}
+	set displayOrder=$G(displayOrder)
+	if displayOrder="" {
+		// get last displayorder if we didn't pass one in  
+		set displayOrder=1
+		&SQL(SELECT displayOrder INTO :tmp FROM layout.objTemplate ORDER BY displayOrder DESC)
+		if +SQLCODE=0 set displayOrder=tmp+1
+	}
+	
+	// get the standardDesignID from the description
+	set standardDesignID=""
+	if standardDesign'="" {
+		// passed in
+		&SQL(SELECT ID INTO :tmp FROM layout.objStandardDesign WHERE description=:standardDesign)
+		if +SQLCODE=0 set standardDesignID=tmp	
+	} else {
+		// get it from existing template	
+		&SQL(SELECT objStandardDesign INTO :standardDesignID FROM layout.objTemplate WHERE ID = :templateID)
+	}
+	
+	// get the exsting layoutstructure if not passed in
+	if layoutStructure="" {
+		&SQL(SELECT layoutStructure INTO :layoutStructure FROM layout.objTemplate WHERE ID = :templateID)
+	}
+	
+	&SQL(
+		UPDATE layout.objTemplate 
+		SET description=:description, internalDescription=:internalDescription, active=:active, displayOrder=:displayOrder, linkedTemplateID=:linkedTemplateID, popup=:popup,exampleImage=:imgFile, accessibilityLevel=:level,
+		styleSource=:source, templateDirectory=:directory,efLogoInTemplate=:efLogoInTemplate,layoutStructure=:layoutStructure,objStandardDesign=:standardDesignID, originalFilename=:filename,isIframe=:isIframe,hasBootstrap=:hasBootstrap,customTemplate=:customTemplate
+		WHERE ID=:templateID
+		)
+	
+	do parseBlock(inFile,.positionAr)
+	// now we have an array like this:
+	// positionAr(43)="[[ef_banner]]"
+	// positionAr(44)="[[ef_secondary_banner]]"
+	// positionAr(115)="[[ef_menu]]"
+	// positionAr(157)="[[ef_main_header]]" 
+	// positionAr(179)="[[ef_main_content]]"
+	// positionAr(202)="[[ef_main_buttons]]"
+	// positionAr(254)="[[ef_footer]]"
+	// have to catch the last section after the last tag so add one entry
+	set positionAr(inFile.Size)=""
+	
+	// now I want to extract each block between the bits and store in order that it gets written
+	set pos="",lastPos=0,displayOrder=100,lastTag=""
+	for  {
+		set pos=$O(positionAr(pos))
+		if pos="" quit
+		
+		//set ^xJAW("layout",$I(^xJAW("layout")))=lastPos_"|"_pos_"|"_lastTag
+		// have to do object insert as streams involved
+		set objSection=##class(layout.objSection).%New()
+		set objSection.objTemplate=objTemplate
+		set objSection.before=lastTag
+		set objSection.after=positionAr(pos)
+		set objSection.displayOrder=displayOrder
+		set objSection.type="BODY"
+		
+		// copy the stream section
+		do inFile.Rewind()
+		for curPos=0:1:pos	{
+			set byte=inFile.Read(1)
+			if (curPos>=lastPos)&(curPos<pos) do objSection.htmlStream.Write(byte)
+		}
+		set ok=objSection.%Save()
+		kill objSection
+		// set vars ready for next loop
+		set displayOrder=displayOrder+100
+		set lastPos=pos+$L(positionAr(pos))  // we don't want to include the [[tags]]
+		set lastTag=positionAr(pos)
+		
+	}
+	
+	quit templateID
+	
+parseBlock(htmlStream,positionAr)	; receives the method code and parses
+	;
+	set secondBits=0  // assume there are none - as soon as we get one, set this to 1
+	set bits("[[ef_header]]")=""
+	set bits("[[ef_banner]]")=""
+	set bits("[[ef_secondary_banner]]")=""
+	set bits("[[ef_menu]]")=""
+	set bits("[[ef_main_progress]]")=""
+	set bits("[[ef_main_header]]")=""
+	set bits("[[ef_main_content]]")=""
+	set bits("[[ef_main_buttons]]")=""
+	set bits("[[ef_right]]")=""
+	set bits("[[ef_footer]]")=""
+	set bits("[[ef_func_menuwidth]]")=""    // left hand page/menu width
+	set bits("[[ef_func_rightwidth]]")=""   // right hand page width
+	set bits("[[ef_func_bannerheight]]")=""   // prob. not used in future
+	set bits("[[ef_func_maintotal]]")=""    // do not use - will be replaced in the future
+	set bits("[[ef_func_mainwidth]]")=""    // the centre main content area
+	set bits("[[ef_func_totalwidth]]")=""   // the sum of left + centre + right + (mainpadding x 2)
+	set bits("[[ef_func_mainpadding]]")=""  // the value entered for "padding:npx; " for the centre content area - so it applies on left and right
+	set bits("[[ef_logo]]")=""  // gets replaced with the ef logo html code
+	
+	set bit=""
+	for  {
+		set bit=$O(bits(bit))
+		if bit="" quit
+		// store the places for this delimiter
+		do ##class(shared.streamFunctions).getDelimPositions(.htmlStream,bit,.positionAr)
+	}
+	quit
+]]></Implementation>
+</Method>
+
+<Method name="writeContents">
+<Description>
+writes out the htmlStream to current device</Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec>sectionID:%String</FormalSpec>
+<Implementation><![CDATA[
+	set objSection=##class(layout.objSection).%OpenId(sectionID)
+	while 'objSection.htmlStream.AtEnd	{
+		write objSection.htmlStream.Read(30000)
+	}
+]]></Implementation>
+</Method>
+
+<Method name="outputTemplate">
+<Description>
+used to output contents to terminal</Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec>description:%String</FormalSpec>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	// get the id of the template
+	set templateID=..getIDfromDesc(description)
+	set rs=##class(%ResultSet).%New("%Library.DynamicQuery:SQL")
+	set sqltext="SELECT * FROM layout.objSection WHERE (objTemplate=?) ORDER BY displayOrder "
+	do rs.Prepare(sqltext)
+	do rs.Execute(templateID)
+	while rs.Next() {
+		set sectionID=rs.Data("ID")
+		do ..writeContents(sectionID)
+	}
+]]></Implementation>
+</Method>
+
+<Method name="writeBit">
+<Description>
+outputs each section of code doing the banner, menu and footer when needed</Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec>from:%String,to:%String</FormalSpec>
+<ProcedureBlock>0</ProcedureBlock>
+<Implementation><![CDATA[
+	// 	 set bits("[[ef_banner]]")=""
+	// 	 set bits("[[ef_secondary_banner]]")=""
+	// 	 set bits("[[ef_menu]]")=""
+	// 	 set bits("[[ef_main_header]]")=""
+	// 	 set bits("[[ef_main_header_logo]]")=""
+	// 	 set bits("[[ef_main_content]]")=""
+	// 	 set bits("[[ef_main_buttons]]")=""
+	// 	 set bits("[[ef_footer]]")=""
+	//
+	new okToWrite,rs,sqltext,menuPageID,homePageID,bannerPageID,secondaryBannerPageID,layoutTemplateID,sectionID,before,after,curPageName,isSurvey,surveyID,curPageID,externalLoginPage,standardDesingID
+	if from["{{" set from=$TR(from,"{","[")
+	if from["}}" set from=$TR(from,"}","]")
+	if to["{{" set to=$TR(to,"{","[")
+	if to["}}" set to=$TR(to,"}","]")
+	
+	// don't write out the bits when in edit mode
+	set backendEdit=0
+	if %session.Get("mode")="edit" set backendEdit=1
+	set backendPreview=0
+	if %request.Get("hideButtons") set backendPreview=1
+	
+	// use parameters to stop showing menu and banner in some places (pop ups)
+	set layoutReq=$ZCVT(%request.Get("layout"),"U")  // = "nomenunobanner" or just one
+	set doNotShowMenu=+(layoutReq["NOMENU")
+	set doNotShowBanner=+(layoutReq["NOBANNER")
+	set doNotShowSecondaryBanner=+(layoutReq["NOSECONDARYBANNER")
+	set isPopup=+%request.Get("popup")
+	// Set up common variables
+	if backendEdit!backendPreview	{
+		// force use of popup layout
+		set isPopup=1
+		set frontBack="backend"
+		set xLangID=$G(%session.Data("eventsforce","backend","xLangID"))
+		set xLanguage=$G(%session.Data("eventsforce","backend","xLanguage"))
+		set xEventID=$G(%session.Data("eventsforce","backend","xEventID"))
+		set xEventDescription=$G(%session.Data("eventsforce","backend","xEventDescription"))
+	
+		set xDateFormat=$G(%session.Data("eventsforce","backend","xDateFormat"))
+		set xTimeFormat=##class(setup.objEventSetting).getParameter("system","time format",xEventID)
+		if xDateFormat="" set xDateFormat=##class(setup.objSetting).getParameter("system","defaultDateFormat")
+		set xControllerID=""
+		if xEventID	{
+			set xControllerID=##class(setup.objEvent).getControllerID(xEventID)
+			set xDateFormat=##class(setup.objEvent).getDateFormat(xEventID)
+		}
+	} else {
+		set frontBack="frontend"
+		set xLangID=$G(%session.Data("eventsforce","frontend","xLangID"))
+		set xLanguage=$G(%session.Data("eventsforce","frontend","xLanguage"))
+		set xEventID=$G(%session.Data("eventsforce","frontend","xEventID")) 
+		set xEventDescription=$G(%session.Data("eventsforce","frontend","xEventDescription"))
+	
+		set xDateFormat=$G(%session.Data("eventsforce","frontend","xDateFormat"))
+		set xTimeFormat=##class(setup.objEventSetting).getParameter("system","time format",xEventID)
+		if xDateFormat="" set xDateFormat=##class(setup.objSetting).getParameter("system","defaultDateFormat")
+		set xControllerID=""
+		if xEventID	{
+			set xControllerID=##class(setup.objEvent).getControllerID(xEventID)
+			set xDateFormat=##class(setup.objEvent).getDateFormat(xEventID)
+		}
+		set %session.Data("eventsforce","frontend","xDateFormat")=xDateFormat
+	}
+	
+	set isSurvey=0
+	if '$g(%session.Data("eventsforce","frontend","xEventID")) {
+		set surveyID=##class(shared.pageMethods).getSurveyID()
+		if surveyID {
+			set isSurvey=1
+			set xEventID=""
+		}
+	}
+	set externalLoginPage=0
+	set curPageID=##class(shared.pageMethods).getPageID()
+	if xEventID {
+		if ##class(setup.objEventSetting).getParameter("website","externalEventLoginPageID",xEventID)=curPageID {
+			set doNotShowMenu=1
+			set externalLoginPage=1
+		}
+	}
+	
+	// determine which layout is in use
+	// inpage editing of pagees
+	if $g(isSurvey) {
+		if %session.Get("mode")="edit",$G(%session.Data("inSitePageEditing")) {
+			set layoutTemplateID=..getLayoutForSurvey(surveyID,0) // make editing see all parts of the page
+		} else {
+			set layoutTemplateID=..getLayoutForSurvey(surveyID,isPopup)	
+		}
+	} else {
+		if %session.Get("mode")="edit",$G(%session.Data("inSitePageEditing")) {
+			set layoutTemplateID=..getLayoutForEvent(xEventID,0) // make editing see all parts of the page
+		} else {
+			set layoutTemplateID=..getLayoutForEvent(xEventID,isPopup)	
+		}
+	}
+
+	// switch to use a different template layout if backend booking as the menu and banner will not be shown so we want to try and show one that doesn't have big gaps
+	if ((##class(eCom.tempPurchase).isBackendBooking(%session.SessionId))&('isSurvey)) {
+		set layoutTemplateID=##class(layout.methods).getTemplateToUseForBackendBookings(xEventID)
+	}
+	
+	if %request.Get("supressBannerAndMenu") {
+		set layoutTemplateID=##class(layout.methods).getTemplateToUseForPopups(xEventID)
+	}
+	
+	if ..isUsingEFStandardTemplate(xEventID)&&externalLoginPage {
+		// Switch the layout to the horizontal menu version
+		&SQL(SELECT layoutStructure,objStandardDesign INTO :tmp,:tmp2 FROM layout.objTemplate WHERE ID = :layoutTemplateID)
+		if +SQLCODE=0 {
+			set layoutStructure=tmp
+			set standardDesignID=tmp2
+			if $p(layoutStructure,",",1)="Vertical Menu" {
+				set $p(layoutStructure,",",1)="Horizontal Menu"
+				&SQL(SELECT ID INTO :tmp
+					FROM layout.objTemplate
+					WHERE objStandardDesign = :standardDesignID
+					AND layoutStructure = :layoutStructure
+				)
+				if +SQLCODE=0 {
+					set layoutTemplateID=tmp
+				}
+			}
+		}
+	}
+
+	// check the to and from values to see if they are in the template
+	// use previous value stored if we have one
+	if $L($G(layoutLastFrom)) set from=layoutLastFrom
+	set fromIsInTemplate=0
+	if from=""	{
+		&SQL(SELECT ID FROM layout.objSection WHERE (objTemplate=:layoutTemplateID) AND (after IS NULL) )
+	} else {
+		&SQL(SELECT ID FROM layout.objSection WHERE (objTemplate=:layoutTemplateID) AND (%SQLUPPER(after)=%SQLUPPER(:from)) )
+	}
+	if +SQLCODE=0 set fromIsInTemplate=1
+	set toIsInTemplate=0
+	if to=""	{
+		&SQL(SELECT ID FROM layout.objSection WHERE (objTemplate=:layoutTemplateID) AND (after IS NULL) )
+	} else {
+		&SQL(SELECT ID FROM layout.objSection WHERE (objTemplate=:layoutTemplateID) AND (%SQLUPPER(after)=%SQLUPPER(:to)) )
+	}
+	if +SQLCODE=0 set toIsInTemplate=1
+	if 'fromIsInTemplate {
+		// do I need to do anything here? no because the $G(layoutLastFrom) above will use the correct one.
+	}
+	
+	set quitNow=0
+	if toIsInTemplate {
+		// reset the last from var
+		set layoutLastFrom=""
+	} else {
+		// don't know when to stop so store the "from" and quit to be used in next call
+		set layoutLastFrom=from
+		set quitNow=1
+	}
+	if quitNow quit	
+	
+	// pick up the preferred language if they have clicked on a flag or we are coming in edit mode
+	if $G(%session.Data("eventsforce","frontend","xPrefLangID")) set xLangID=%session.Data("eventsforce","frontend","xPrefLangID")
+	// get the banner and menu
+	set (menuPageID,homePageID,bannerPageID)=""
+	&SQL(SELECT menuPageID,homePageID,bannerPageID INTO :tmp,:tmp2,:tmp3 FROM setup.objEventDetails WHERE (objEvent = :xEventID) AND (objLanguage = :xLangID) )	
+	if +SQLCODE=0 set menuPageID=tmp,homePageID=tmp2,bannerPageID=tmp3
+	set desciptionModifier=""
+	if xLangID'=1 set desciptionModifier=" - "_##class(shared.objLanguage).getLanguageDesc(xLangID)	
+	set footerPageID=##class(setup.objEventSetting).getParameter("mainpages","footerPageID"_desciptionModifier,xEventID)
+	set rightPageID=##class(setup.objEventSetting).getParameter("mainpages","rightPageID"_desciptionModifier,xEventID)
+	set secondaryBannerPageID=##class(setup.objEventSetting).getParameter("mainpages","secondary banner pageID"_desciptionModifier,xEventID)
+	set rsLT=##class(%ResultSet).%New("%Library.DynamicQuery:SQL")
+	set sqltext="SELECT * FROM layout.objSection WHERE (objTemplate=?) ORDER BY displayOrder "
+	do rsLT.Prepare(sqltext)
+	do rsLT.Execute(layoutTemplateID)
+	set okToWrite=0
+	
+	set %session.Data("eventsforce","frontend","layoutTemplateID")=layoutTemplateID   // set so we can pick up from frontendStyles.csp to be consistent with the template override code in this page
+	
+	while rsLT.Next() {
+		set sectionID=rsLT.Data("ID")
+		set before=rsLT.Data("before"),after=rsLT.Data("after")
+		if from=before set okToWrite=1   // start writing
+		if to=before set okToWrite=0   // stop writing if the item we've got to is the one we want to stop at
+		if okToWrite	{
+			if before="" {
+				do ##class(layout.cssDefaultMethods).outputDefaultCSS(xEventID,layoutTemplateID)
+			}
+			if before="[[ef_logo]]" {
+				do ##class(EF.ui.templateComponents.efLogo).outputLogoHTMLfromTemplateTag(xEventID)
+			}
+			if before="[[ef_func_menuwidth]]" {
+				set EFcols=##class(setup.objEventSetting).getParameter("frameset","side menu cols",xEventID)
+				if EFcols="" set EFcols=##class(setup.objSetting).getParameter("frameset","side menu cols")
+				if EFcols="" set EFcols=170 
+				if ##class(eCom.tempPurchase).isBackendBooking(%session.SessionId) set EFcols=0
+				if isSurvey set EFcols=0
+				if doNotShowMenu set EFcols=0
+				w +EFcols
+			}
+			if before="[[ef_func_rightwidth]]" {
+				set EFcols=##class(setup.objEventSetting).getParameter("frameset","right width",xEventID)
+				if EFcols="" set EFcols=##class(setup.objSetting).getParameter("frameset","right width")
+				if EFcols="" set EFcols=210
+				if isSurvey set EFcols=0
+				if ##class(eCom.tempPurchase).isBackendBooking(%session.SessionId) set EFcols=0
+				w +EFcols
+			}
+			if before="[[ef_func_bannerheight]]" {
+				set EFrows=##class(setup.objEventSetting).getParameter("frameset","side menu rows",xEventID)
+				if EFrows="" set EFrows=##class(setup.objSetting).getParameter("frameset","side menu rows")
+				if EFrows="" set EFrows=100
+				if ##class(eCom.tempPurchase).isBackendBooking(%session.SessionId) set EFrows=0
+				if isSurvey set EFrows=0
+				w +EFrows
+			}
+			if before="[[ef_func_mainwidth]]" {
+				set EFmainwidth=##class(setup.objEventSetting).getParameter("frameset","main width",xEventID)
+				if EFmainwidth="" set EFmainwidth=##class(setup.objSetting).getParameter("frameset","main width")
+				if EFmainwidth="" set EFmainwidth=615
+				w +EFmainwidth
+			}
+			if before="[[ef_func_mainpadding]]" {
+				set EFmainpadding=##class(setup.objEventSetting).getParameter("frameset","main padding",xEventID)
+				if EFmainpadding="" set EFmainpadding=##class(setup.objSetting).getParameter("frameset","main padding")
+				if EFmainpadding="" set EFmainpadding=10
+				w +EFmainpadding
+			}
+			if before="[[ef_func_maintotal]]" {  // older
+				set EFcols=##class(setup.objEventSetting).getParameter("frameset","side menu cols",xEventID)
+				if EFcols="" set EFcols=##class(setup.objSetting).getParameter("frameset","side menu cols")
+				if EFcols="" set EFcols=170 
+				if ##class(eCom.tempPurchase).isBackendBooking(%session.SessionId) set EFcols=0
+				if isSurvey set EFcols=0
+				if doNotShowMenu set EFcols=0
+				
+				set EFmainwidth=##class(setup.objEventSetting).getParameter("frameset","main width",xEventID)
+				if EFmainwidth="" set EFmainwidth=##class(setup.objSetting).getParameter("frameset","main width")
+				if EFmainwidth="" set EFmainwidth=615
+				
+				set EFmenumainspacing=##class(setup.objEventSetting).getParameter("frameset","menu main spacing",xEventID)
+				if EFmenumainspacing="" set EFmenumainspacing=##class(setup.objSetting).getParameter("frameset","main margin")
+				if EFmenumainspacing="" set EFmenumainspacing=35
+				if ##class(eCom.tempPurchase).isBackendBooking(%session.SessionId) set EFmenumainspacing=0
+				if isSurvey set EFmenumainspacing=0
+				if doNotShowMenu set EFmenumainspacing=0
+				w EFcols+EFmainwidth+EFmenumainspacing
+			}
+			if before="[[ef_func_totalwidth]]" {  // newer
+				set EFleft=##class(setup.objEventSetting).getParameter("frameset","side menu cols",xEventID)
+				if EFleft="" set EFleft=##class(setup.objSetting).getParameter("frameset","side menu cols")
+				if EFleft="" set EFleft=170 
+				if ##class(eCom.tempPurchase).isBackendBooking(%session.SessionId) set EFleft=0
+				if isSurvey set EFleft=0
+				if doNotShowMenu set EFleft=0
+				
+				set EFmainwidth=##class(setup.objEventSetting).getParameter("frameset","main width",xEventID)
+				if EFmainwidth="" set EFmainwidth=##class(setup.objSetting).getParameter("frameset","main width")
+				if EFmainwidth="" set EFmainwidth=615
+				
+				set EFright=##class(setup.objEventSetting).getParameter("frameset","right width",xEventID)
+				if EFright="" set EFright=##class(setup.objSetting).getParameter("frameset","right width")
+				if EFright="" set EFright=210
+				if ##class(eCom.tempPurchase).isBackendBooking(%session.SessionId) set EFright=0
+				//if EFright set EFleft=0   // JAW causes incorrect total in frontend, spoke to Adrian, not sure why added yet. Will fix now. PIV33413453
+				set EFmainpadding=##class(setup.objEventSetting).getParameter("frameset","main padding",xEventID)
+				if EFmainpadding="" set EFmainpadding=##class(setup.objSetting).getParameter("frameset","main padding")
+				if EFmainpadding="" set EFmainpadding=10
+				if ##class(eCom.tempPurchase).isBackendBooking(%session.SessionId) set EFmainpadding=0
+				w EFleft+EFmainwidth+EFright+(EFmainpadding*2)+15 // allow a little extra (the +4) for weird padding and borders
+			}
+			if before="[[ef_banner]]",'##class(eCom.tempPurchase).isBackendBooking(%session.SessionId),'isSurvey {
+				//do banner
+				if ##class(sc.methods).isUsingProweb2() {
+					set parentListElement = pageController.getElementByIdentifier("banner list")
+					do pageController.renderElements(parentListElement)
+						
+				} else {
+					// store current pageid before we insert another one
+					set curPageID=##class(shared.pageMethods).getPageID()
+					set currentIsCOD=$G(isCOD) kill isCOD // 'new' the isCOD variable that controls if we can add questions or not
+					set currentIsAward=$G(isAward) kill isAward
+					set currentIsAbstract=$G(isAbstract) kill isAbstract
+					set currentIsAbsPerson=$G(isAbsPerson) kill isAbsPerson
+					set currentIsHotel=$G(isHotel) kill isHotel
+					set currentIsForm=$G(isForm) kill isForm
+					set currentIsxtSurvey=$G(isxtSurvey) kill isxtSurvey
+					
+					set pageID=bannerPageID
+					set %session.Data("pageID")=pageID
+					//  inpage editing of pages
+					if backendEdit,'$G(%session.Data("inSitePageEditing"))	{
+						write !,"<p>banner area</p>"
+					} else {
+						if doNotShowBanner {
+							// do nothing
+						} else {
+							do ##class(cspRealEV.frontend.reg.tbanner).OnPageProwebSection()
+						}
+					}
+					set %session.Data("pageID")=curPageID
+					set pageID=curPageID
+					set isCOD=currentIsCOD
+					set isAward=currentIsAward
+					set isAbstract=currentIsAbstract
+					set isAbsPerson=currentIsAbsPerson
+					set isHotel=currentIsHotel
+					set isForm=currentIsForm
+					set isxtSurvey=currentIsxtSurvey
+				}
+			}
+			if before="[[ef_secondary_banner]]",'##class(eCom.tempPurchase).isBackendBooking(%session.SessionId),'isSurvey {
+				// do secondary banner
+				// store current pageid before we insert another one
+				set curPageID=##class(shared.pageMethods).getPageID()
+				set currentIsCOD=$G(isCOD) kill isCOD // 'new' the isCOD variable that controls if we can add questions or not
+				set currentIsAward=$G(isAward) kill isAward
+				set currentIsAbstract=$G(isAbstract) kill isAbstract
+				set currentIsAbsPerson=$G(isAbsPerson) kill isAbsPerson
+				set currentIsHotel=$G(isHotel) kill isHotel
+				set currentIsForm=$G(isForm) kill isForm
+				set currentIsxtSurvey=$G(isxtSurvey) kill isxtSurvey
+				
+				set pageID=secondaryBannerPageID
+				set %session.Data("pageID")=pageID
+				//  inpage editing of pages
+				if backendEdit,'$G(%session.Data("inSitePageEditing"))	{
+					write !,"<p>secondary banner area</p>"
+				} else {
+					if doNotShowSecondaryBanner {
+						// do nothing
+					} else {
+						do ##class(cspRealEV.frontend.reg.tsecondarybanner).OnPageProwebSection()
+					}
+				}
+				set %session.Data("pageID")=curPageID
+				set pageID=curPageID
+				set isCOD=currentIsCOD
+				set isAward=currentIsAward
+				set isAbstract=currentIsAbstract
+				set isAbsPerson=currentIsAbsPerson
+				set isHotel=currentIsHotel
+				set isForm=currentIsForm
+				set isxtSurvey=currentIsxtSurvey
+			}
+			
+			if before="[[ef_menu]]",'##class(eCom.tempPurchase).isBackendBooking(%session.SessionId),'isSurvey {
+				//do menu
+				if ##class(sc.methods).isUsingProweb2() {
+					set parentListElement = pageController.getElementByIdentifier("navigation bar list")
+					do pageController.renderElements(parentListElement)
+						
+				} else {
+					// store current pageid before we insert another one
+					set curPageID=##class(shared.pageMethods).getPageID()
+					set currentIsCOD=$G(isCOD) kill isCOD // 'new' the isCOD variable that controls if we can add questions or not
+					set currentIsAward=$G(isAward) kill isAward
+					set currentIsAbstract=$G(isAbstract) kill isAbstract
+					set currentIsAbsPerson=$G(isAbsPerson) kill isAbsPerson
+					set currentIsHotel=$G(isHotel) kill isHotel
+					set currentIsForm=$G(isForm) kill isForm
+					set currentIsxtSurvey=$G(isxtSurvey) kill isxtSurvey
+
+					// load the menu page
+					set pageID=menuPageID
+					set %session.Data("pageID")=pageID
+					// inpage editing of pages
+					if backendEdit,'$G(%session.Data("inSitePageEditing"))	{
+						write !,"<p>menu area</p>"
+					} else {
+						if doNotShowMenu {
+							// do nothing
+						} else {
+							do ##class(cspRealEV.frontend.reg.tmenu).OnPageProwebSection()
+						}
+					}
+					set %session.Data("pageID")=curPageID
+					set pageID=curPageID
+					set isCOD=currentIsCOD
+					set isAward=currentIsAward
+					set isAbstract=currentIsAbstract
+					set isAbsPerson=currentIsAbsPerson
+					set isHotel=currentIsHotel
+					set isForm=currentIsForm
+					set isxtSurvey=currentIsxtSurvey
+				}
+			}
+			if before="[[ef_right]]",'##class(eCom.tempPurchase).isBackendBooking(%session.SessionId),'isSurvey {
+				if ##class(sc.methods).isUsingProweb2() {
+					set parentListElement = pageController.getElementByIdentifier("sponsor list")
+					do pageController.renderElements(parentListElement)
+						
+				} else {
+					// store current pageid before we insert another one
+					set curPageID=##class(shared.pageMethods).getPageID()
+					set currentIsCOD=$G(isCOD) kill isCOD // 'new' the isCOD variable that controls if we can add questions or not
+					set currentIsAward=$G(isAward) kill isAward
+					set currentIsAbstract=$G(isAbstract) kill isAbstract
+					set currentIsAbsPerson=$G(isAbsPerson) kill isAbsPerson
+					set currentIsHotel=$G(isHotel) kill isHotel
+					set currentIsForm=$G(isForm) kill isForm
+					set currentIsxtSurvey=$G(isxtSurvey) kill isxtSurvey
+					// load the menu page
+					set pageID=rightPageID
+					set %session.Data("pageID")=pageID
+					// inpage editing of pages
+					if backendEdit,'$G(%session.Data("inSitePageEditing"))	{
+						write !,"<p>right hand area</p>"
+					} else {
+						do ##class(cspRealEV.frontend.reg.tblank).OnPageProwebSection()
+					}
+					set %session.Data("pageID")=curPageID
+					set pageID=curPageID
+					set isCOD=currentIsCOD
+					set isAward=currentIsAward
+					set isAbstract=currentIsAbstract
+					set isAbsPerson=currentIsAbsPerson
+					set isHotel=currentIsHotel
+					set isForm=currentIsForm
+					set isxtSurvey=currentIsxtSurvey
+				}
+			}
+			if before="[[ef_footer]]",'##class(eCom.tempPurchase).isBackendBooking(%session.SessionId),'isSurvey {
+				//do footer
+				if ##class(sc.methods).isUsingProweb2() {
+					set parentListElement = pageController.getElementByIdentifier("footer list")
+					do pageController.renderElements(parentListElement)
+						
+				} else {
+					// store current pageid before we insert another one
+					set curPageID=##class(shared.pageMethods).getPageID()
+					set currentIsCOD=$G(isCOD) kill isCOD // 'new' the isCOD variable that controls if we can add questions or not
+					set currentIsAward=$G(isAward) kill isAward
+					set currentIsAbstract=$G(isAbstract) kill isAbstract
+					set currentIsAbsPerson=$G(isAbsPerson) kill isAbsPerson
+					set currentIsHotel=$G(isHotel) kill isHotel
+					set currentIsForm=$G(isForm) kill isForm
+					set currentIsxtSurvey=$G(isxtSurvey) kill isxtSurvey
+					// load the footer page
+					set pageID=footerPageID
+					set %session.Data("pageID")=pageID
+					// Fred april 2010 - inpage editing of pages
+					if backendEdit,'$G(%session.Data("inSitePageEditing"))	{
+						write !,"<p>footer area</p>"
+					} else {
+						do ##class(cspRealEV.frontend.reg.tfooter).OnPageProwebSection()
+					}
+					set %session.Data("pageID")=curPageID
+					set pageID=curPageID
+					set isCOD=currentIsCOD
+					set isAward=currentIsAward
+					set isAbstract=currentIsAbstract
+					set isAbsPerson=currentIsAbsPerson
+					set isHotel=currentIsHotel
+					set isForm=currentIsForm
+					set isxtSurvey=currentIsxtSurvey
+				}
+			}
+			
+			do ..writeContents(sectionID)
+			
+			// do eventsforce powered by - add this with a parameter
+			if after=""	{
+				Do ##class(shared.pCSP).Include("../../frontend/reg/frontendBottom.csp")
+			}
+		}
+	}
+	quit
+]]></Implementation>
+</Method>
+
+<Method name="reloadAll">
+<ClassMethod>1</ClassMethod>
+<Implementation><![CDATA[
+	do ##class(layout.methods).reloadAll()	
+	quit
+]]></Implementation>
+</Method>
+
+<Method name="reloadSingle">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>page:%String</FormalSpec>
+<Implementation><![CDATA[
+	do ##class(layout.methods).reloadSingle(page)	
+	quit
+]]></Implementation>
+</Method>
+
+<Method name="isUsingEFStandardTemplate">
+<Description>
+returns true if they are using  any of the eventsforce designs (MTLs) but NOT "Blank Design" (aka Leagacy template)</Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec>xEventID</FormalSpec>
+<Implementation><![CDATA[
+	set out="0|nothing found"
+	&SQL(SELECT layoutObjTemplate INTO :tmp FROM setup.objEvent WHERE ID =:xEventID)
+	if +SQLCODE=0 {
+		set activeTemplate=tmp
+		&SQL(SELECT objStandardDesign INTO :tmp FROM layout.objTemplate WHERE (ID = :activeTemplate) AND (objStandardDesign->description <> 'Blank Design'))
+		if +SQLCODE=0 {
+			if tmp'="" {
+				set out=1
+			} else {
+				set out=0	
+			}
+		}
+	} else {
+		set out="0|no template found"				
+	}
+	quit out
+]]></Implementation>
+</Method>
+
+<Method name="isUsingLegacyTemplate">
+<Description>
+returns true if it is using any of the "Blank Design" variations, aka 'Legacy'</Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec>xEventID</FormalSpec>
+<Implementation><![CDATA[
+	set out="0|nothing found"
+	&SQL(SELECT layoutObjTemplate INTO :tmp FROM setup.objEvent WHERE ID =:xEventID)
+	if +SQLCODE=0 {
+		set activeTemplate=tmp
+		&SQL(SELECT styleSource INTO :tmp FROM layout.objTemplate WHERE ID = :activeTemplate)
+		if +SQLCODE=0 {
+			if tmp="event" {
+				set out=1
+			} else {
+				set out=0	
+			}
+		}
+	} else {
+		set out="0|no template found"				
+	}
+	quit out
+]]></Implementation>
+</Method>
+
+<Method name="isEventIFrame">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>xEventID</FormalSpec>
+<Implementation><![CDATA[
+	set out=0
+	set templateID=..getLayoutForEvent(xEventID)
+	set out=..isTemplateIFrame(templateID)
+	if out="err" set out=0
+	quit out
+]]></Implementation>
+</Method>
+
+<Method name="isPageOrEventIframe">
+<Description>
+This method takes two parameters namely a pageID and an eventID and finds out if the template in use is an iframe template.
+PageID is required for survey module where eventID does not exist. PageID will get priority over eventID.
+Returns 0 if the template in use is not an Iframe template and 1 otherwise.</Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec>pageID="",eventID=""</FormalSpec>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	set out=0, surveyID=0
+	if pageID {
+		set surveyID= ##class(shared.pageMethods).getSurveyID(pageID)
+		if surveyID {
+			//Find the template and its properties from the Survey pageID.
+			set templateID=..getLayoutForSurvey(surveyID,0)
+			if ..isTemplateIFrame(templateID) {
+				set out=1
+			}
+		}
+	}
+	if out quit out
+	if ('surveyID) && (eventID) {
+		//Check template and its properties based on the xEventID.
+		if ..isEventIFrame(eventID) set out=1
+		if ($D(%session)) && (+$G(%session.Data("inSitePageEditing"))) set out=1
+		if ($D(%request)) && (+%request.Get("efPreviewInIframe")) set out=1			
+	}
+	quit out
+]]></Implementation>
+</Method>
+
+<Method name="isTemplateIFrame">
+<Description>
+Checks if the template is designed to be inside an Iframe. Takes in a templateID and returns 1 or 0. 
+Returns 'err' if templateID is not valid, does not exist or not supplied.</Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec>templateID</FormalSpec>
+<Implementation><![CDATA[
+	set out=0
+	if '$L(templateID) set out="err" quit out
+	if templateID'=+templateID set out="err" quit out
+	
+	&SQL(SELECT isIframe INTO :tmp FROM layout.objTemplate WHERE ID = :templateID)
+	if +SQLCODE=0 {
+		set out=+tmp
+	} else {
+		set out="err"
+	}
+	quit out
+]]></Implementation>
+</Method>
+
+<Method name="isTemplateNewStyle">
+<Description>
+Returns true if the template is using the unified style (auto-ban) uploaded by themeUpload.csp
+determined by the name of the original file being index.csp</Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec>templateID</FormalSpec>
+<Implementation><![CDATA[
+	set out=0
+	&SQL(SELECT originalFilename INTO :tmp FROM layout.objTemplate WHERE ID = :templateID)
+	if +SQLCODE=0 {
+		if $ZCVT(tmp,"L")["index.csp" set out=1
+		if $ZCVT(tmp,"L")["\media\templates\" set out=1
+	}
+	quit out
+]]></Implementation>
+</Method>
+
+<Method name="isTemplateCustomMade">
+<Description>
+Returns true if the template is custom made</Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec>templateID</FormalSpec>
+<Implementation><![CDATA[
+	// NOTE: we should be able to use the new property: customTemplate after the first release and the conversion is run
+	set out=0
+	&SQL(SELECT * FROM layout.objTemplate WHERE ID = :templateID AND active=1 AND (objStandardDesign='' OR objStandardDesign IS NULL) AND styleSource='template')
+	if +SQLCODE=0 {
+		set out=1
+	}
+	quit out
+]]></Implementation>
+</Method>
+
+<Method name="hasBootstrapMenu">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>layoutTemplateID</FormalSpec>
+<ReturnType>%Boolean</ReturnType>
+<Implementation><![CDATA[
+	&SQL(SELECT hasBootstrap INTO :result FROM layout.objTemplate WHERE ID  = :layoutTemplateID)
+	if +SQLCODE=0 {
+		return +result
+	} elseif +SQLCODE=100 {
+		throw ##class(shared.exceptions.generalException).%New("Invalid layoutTemplateID")	
+	} else {
+		throw ##class(shared.exceptions.generalSQLException).CreateFromSQLCODE(SQLCODE,%msg)	
+	}
+]]></Implementation>
+</Method>
+
+<Method name="isTemplateUsingBootstrap">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>layoutTemplateID</FormalSpec>
+<ReturnType>%Boolean</ReturnType>
+<Implementation><![CDATA[	return ..hasBootstrapMenu(layoutTemplateID)
+]]></Implementation>
+</Method>
+
+<Method name="isTemplateHTML5Compatible">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>layoutTemplateID</FormalSpec>
+<ReturnType>%Boolean</ReturnType>
+<Implementation><![CDATA[	return ..hasBootstrapMenu(layoutTemplateID)
+]]></Implementation>
+</Method>
+
+<Method name="isTemplateGen3">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>layoutTemplateID</FormalSpec>
+<ReturnType>%Boolean</ReturnType>
+<Implementation><![CDATA[	return ..hasBootstrapMenu(layoutTemplateID)
+]]></Implementation>
+</Method>
+
+<Method name="isTemplateGen2">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>layoutTemplateID</FormalSpec>
+<ReturnType>%Boolean</ReturnType>
+<Implementation><![CDATA[
+	if ..isTemplateGen3(layoutTemplateID) return 0
+	if ##class(layout.methods).isThisDefaultDesign(layoutTemplateID) return 1
+	return 0
+]]></Implementation>
+</Method>
+
+<Method name="rebuildAndOutputToFile">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>templateID,dir,filename</FormalSpec>
+<Implementation><![CDATA[
+	if 'templateID {
+		Throw ##class(shared.exceptions.generalException).%New("TemplateID is required.")
+	}
+	set stream=..rebuildFromSections(templateID)
+	do ##class(shared.fileMethods).createFileFromStream(stream,dir,filename)
+	return
+]]></Implementation>
+</Method>
+
+<Method name="rebuildFromSections">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>templateID</FormalSpec>
+<ReturnType>%Stream.GlobalCharacter</ReturnType>
+<Implementation><![CDATA[
+	if 'templateID return
+	
+	set stream=##class(%Stream.GlobalCharacter).%New()
+
+	set rs=##class(%ResultSet).%New("%Library.DynamicQuery:SQL")
+	set sqltext="SELECT * FROM layout.objSection WHERE (objTemplate=?) ORDER BY displayOrder "
+	do rs.Prepare(sqltext) 
+	do rs.Execute(templateID)
+	while rs.Next() {
+		set sectionID=rs.Data("ID")
+		set tag=rs.Data("after")
+		set objSection=##class(layout.objSection).%OpenId(sectionID)
+		while ('objSection.htmlStream.AtEnd) {
+			set tmpSection=objSection.htmlStream.ReadLine()
+			// we have to replace the path to the template files with the tag [[PATH]]
+			if tmpSection["../../media/templates/" {
+				// EXAMPLES:
+				// this:             <link href="../../media/templates/SMALLDEVSRC/SMALLDEVSRC_UCAS2015_NON_RESP/style.css" rel="stylesheet">
+				// is replaced with: <link href="[[PATH]]style.css" rel="stylesheet">
+
+				// this:             <link href=../../media/templates/SMALLDEVSRC/SMALLDEVSRC_UCAS2015_NON_RESP/blah.css rel="stylesheet">
+				// is replaced with: <link href=[[PATH]]style.css rel="stylesheet">
+
+				// this              <link href='../../media/templates/SMALLDEVSRC/SMALLDEVSRC_UCAS2015_NON_RESP/dfgdfg.css' rel="stylesheet">
+				// is replaced with: <link href='[[PATH]]style.css' rel="stylesheet">
+
+				// this:             <link href="../../media/templates/someotherplace/style.css" rel="stylesheet">
+				// is not changed as it only matches two directories below /media/templates (namespace and template name)
+
+				set tmpSection=##class(%Regex.Matcher).%New("\.\./\.\./media/templates/([^\""\'\s]*/){2}",tmpSection).ReplaceAll("[[PATH]]")
+			}
+			do stream.WriteLine(tmpSection)
+		}
+		kill objSection
+		do stream.Write(tag)
+	}
+	
+	return stream
+]]></Implementation>
+</Method>
+
+<Method name="isTemplateInUse">
+<ClassMethod>1</ClassMethod>
+<FormalSpec><![CDATA[templateID,&message]]></FormalSpec>
+<ReturnType>%Boolean</ReturnType>
+<Implementation><![CDATA[
+	set message=""
+	&SQL(SELECT ID into :IDs() FROM setup.objEvent WHERE layoutObjTemplate = :templateID)
+	if %ROWCOUNT=0 {
+		return 0
+	} else {
+		set x=""
+		set IDList=""
+		for {
+			set x=$O(IDs(x))
+			if x="" quit
+			set IDList=IDList_" "_IDs(x)
+		}
+		set message="This template is being used on event(s):"_IDList
+		return 1
+	}
+]]></Implementation>
+</Method>
+
+<Method name="isAllowed">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>templateID:%Integer</FormalSpec>
+<ReturnType>%Boolean</ReturnType>
+<Implementation><![CDATA[
+	#dim result as %Boolean = 1
+	
+	set description = ..getIntDesc(templateID)	
+		
+	&SQL(SELECT xCRstamp  FROM cod.objPerson WHERE ID=1 AND xCRstamp > '2016-08-01 00:00:01')
+	if +SQLCODE=0 {
+		if $ZCVT(description,"U")["EF_DEFAULT_" { // "blank" design should not be available to new clients
+			 set result = 0
+			
+		} elseif $ZCVT(description,"U")["EF_THEME_DEFAULT_DESIGN" { // non-responsive "standard design" should not be available to new clients
+			set result = 0	
+		}
+	}
+	
+	return result
+]]></Implementation>
+</Method>
+
+<Storage name="Default">
+<Type>%Library.CacheStorage</Type>
+<DataLocation>^layout.objTemplateD</DataLocation>
+<DefaultData>objTemplateDefaultData</DefaultData>
+<IdLocation>^layout.objTemplateD</IdLocation>
+<IndexLocation>^layout.objTemplateI</IndexLocation>
+<StreamLocation>^layout.objTemplateS</StreamLocation>
+<ExtentSize>100000</ExtentSize>
+<Data name="objTemplateDefaultData">
+<Value name="1">
+<Value>%%CLASSNAME</Value>
+</Value>
+<Value name="2">
+<Value>description</Value>
+</Value>
+<Value name="3">
+<Value>originalFilename</Value>
+</Value>
+<Value name="4">
+<Value>xCRstamp</Value>
+</Value>
+<Value name="5">
+<Value>xCRuserID</Value>
+</Value>
+<Value name="6">
+<Value>xMOstamp</Value>
+</Value>
+<Value name="7">
+<Value>xMOuserID</Value>
+</Value>
+<Value name="8">
+<Value>internalDescription</Value>
+</Value>
+<Value name="9">
+<Value>active</Value>
+</Value>
+<Value name="10">
+<Value>displayOrder</Value>
+</Value>
+<Value name="11">
+<Value>linkedTemplateID</Value>
+</Value>
+<Value name="12">
+<Value>popup</Value>
+</Value>
+<Value name="13">
+<Value>exampleImage</Value>
+</Value>
+<Value name="14">
+<Value>accessibilityLevel</Value>
+</Value>
+<Value name="15">
+<Value>styleSource</Value>
+</Value>
+<Value name="16">
+<Value>templateDirectory</Value>
+</Value>
+<Value name="17">
+<Value>hasBGcolourOnTable</Value>
+</Value>
+<Value name="18">
+<Value>isEFstandard</Value>
+</Value>
+<Value name="19">
+<Value>objStandardDesign</Value>
+</Value>
+<Value name="20">
+<Value>layoutStructure</Value>
+</Value>
+<Value name="21">
+<Value>efLogoInTemplate</Value>
+</Value>
+<Value name="22">
+<Value>isIframe</Value>
+</Value>
+<Value name="23">
+<Value>hasBootstrap</Value>
+</Value>
+<Value name="24">
+<Value>templateSourceFile</Value>
+</Value>
+<Value name="25">
+<Value>templateCSSFile</Value>
+</Value>
+<Value name="26">
+<Value>customTemplate</Value>
+</Value>
+</Data>
+</Storage>
+</Class>
+
+
+<Project name="proweb 2" LastModified="2016-11-01 20:43:45.361874" Target="dev.efsys.net/LARGEDEVSRC/backend/home/efSupportLogin.htm" TargetType="3">
   <Items>
     <ProjectItem name="EF.contextDataRegistration" type="CLS"></ProjectItem>
     <ProjectItem name="EF.contextDataRegistrationMock" type="CLS"></ProjectItem>
@@ -17456,6 +18938,7 @@ The basic frontend default stuff</Description>
     <ProjectItem name="sc.methods" type="CLS"></ProjectItem>
     <ProjectItem name="sc.facade.prowebItemStorageMenuBlockItem" type="CLS"></ProjectItem>
     <ProjectItem name="sc.facade.prowebItemStorageTextBlockMock" type="CLS"></ProjectItem>
+    <ProjectItem name="layout.objTemplate" type="CLS"></ProjectItem>
   </Items>
   <BreakPoints>
     <BreakPoint Routine="cspRealEV.frontend.reg.pagecontrollerstandardsave.CLS" Offset="OnPreHTTPafter+28"></BreakPoint>

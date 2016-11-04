@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2015.2 (Build 664_3_16032U)" ts="2016-11-01 21:13:33">
+<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2015.2 (Build 664_3_16032U)" ts="2016-11-04 14:41:13">
 <Class name="EF.contextDataRegistration">
 <Description><![CDATA[
 <!-- ;vc;-
@@ -1642,7 +1642,7 @@ Should be run if any of the sub-classes are deleted</Description>
 
 <Class name="EF.pageController.proweb.page">
 <Super>EF.pageController.page</Super>
-<TimeChanged>64223,75979.767928</TimeChanged>
+<TimeChanged>64226,38597.768093</TimeChanged>
 <TimeCreated>64189,51696.559047</TimeCreated>
 
 <Property name="contextData">
@@ -2739,7 +2739,7 @@ Should be run if any of the sub-classes are deleted</Description>
 
 <Class name="EF.pageController.proweb.testCases.datePIckerTestCase">
 <Super>EF.ISC.UnitTest.TestCase</Super>
-<TimeChanged>64223,59722.76334</TimeChanged>
+<TimeChanged>64225,49687.367927</TimeChanged>
 <TimeCreated>64204,52627.550246</TimeCreated>
 
 <Method name="TestDatePicker">
@@ -3908,7 +3908,7 @@ Common page that all frontend pages could/should inherit from.
 <Language>cache</Language>
 <ProcedureBlock>0</ProcedureBlock>
 <Super>shared.pCSPmanage</Super>
-<TimeChanged>64218,61219.954855</TimeChanged>
+<TimeChanged>64224,48769.793991</TimeChanged>
 <TimeCreated>63635,40114.778424</TimeCreated>
 
 <Parameter name="showRegistrationProgressBar">
@@ -3939,6 +3939,7 @@ Common page that all frontend pages could/should inherit from.
 <ClassMethod>1</ClassMethod>
 <ReturnType>%Boolean</ReturnType>
 <Implementation><![CDATA[
+	set sessionID = %session.SessionId
 	do ..OnPagePageTop()
 	do ..OnPagePageContent()
 	do ..OnPagePageBottom()
@@ -4086,7 +4087,7 @@ this is for version 1 of proweb</Description>
 <Class name="EF.pages.frontend.baseProweb">
 <ProcedureBlock>0</ProcedureBlock>
 <Super>EF.pages.frontend.base</Super>
-<TimeChanged>64223,49924.663265</TimeChanged>
+<TimeChanged>64226,52806.679903</TimeChanged>
 <TimeCreated>64191,31442.531402</TimeCreated>
 
 <Parameter name="ENCODED">
@@ -4142,13 +4143,20 @@ this is for version 1 of proweb</Description>
 <Implementation><![CDATA[
 	do ..initPageController()
 	do ..OnPagePageTop()
-	do ..outputFormBeginning()
+	if ##class(shared.pageMethods).getEditMode() = "preview" {
+		do ..outputFormBeginning()
+	}
+	do ..outputPageControllerTag()	
 	do ..OnPagePageContent()
-	do ..outputButtons()
-
-	do ..outputFormEnding()
+	
+	if ##class(shared.pageMethods).getEditMode() = "preview" {
+		do ..outputButtons()
+		do ..outputFormEnding()
+	}
+	do ..outputEndOfPageJS()
+	
 	do ..OnPagePageBottom()
-
+	
 	if ##class(shared.pageMethods).getEditMode() = "edit" {
 		set %session.Data("inSitePageEditing") = 1 // force the menu and banner to be displayed
 		do ##class(eCom.tempPurchase).clearBackendBooking()
@@ -4217,6 +4225,9 @@ this is for version 1 of proweb</Description>
 	    <meta name="efProwebAddFileUploadBaseURL" content="#(..encodeForHTMLAttribute(..Link("../../backend/proweb/fileUploadDetails.csp")))#">
 	    <meta name="efProwebAddYouTubeVideoBaseURL" content="#(..encodeForHTMLAttribute(..Link("../../backend/proweb/flashDetails.csp")))#">
 	    <meta name="efProwebUpdateLabelTextURL" content="#(..encodeForHTMLAttribute(..Link("../../backend/proweb/updateLabelText.csp")))#">
+	    <meta name="efProwebQuickEditURL" content="#(..encodeForHTMLAttribute(..Link("../../backend/proweb/quickEditAJAX.csp")))#">
+	    <meta name="efProwebGetAlternativesURL" content="#(..encodeForHTMLAttribute(..Link("../../frontend/reg/getCoditemAlternativesJSON.csp")))#">
+	    
 	>
 ]]></Implementation>
 </Method>
@@ -4260,9 +4271,7 @@ this is for version 1 of proweb</Description>
 <Implementation><![CDATA[
 	&html<
 		<form id="#(..#efFormID)#" name="#(..getFormName())#" method="POST" action="#(..Link(..getFormAction()))#" class="form-horizontal">
-			<input type="hidden" name="pageControllerID" value="#(pageControllerID)#">
 			<input type="hidden" name="pageID" value="#(contextData.pageID)#">
-			
 			<input type="hidden" id="efSubmitButtonIdentifier" name="efSubmitButtonIdentifier" value="">
 			<input type="hidden" id="efDeleteButtonIdentifier" name="efDeleteButtonIdentifier" value="">
 			<input type="hidden" id="efSaveAndReloadFormOnly" name="efSaveAndReloadFormOnly" value="">
@@ -4270,10 +4279,24 @@ this is for version 1 of proweb</Description>
 ]]></Implementation>
 </Method>
 
-<Method name="outputFormEnding">
+<Method name="outputPageControllerTag">
 <ClassMethod>1</ClassMethod>
 <Implementation><![CDATA[
-	write !,"</form>"
+	&html<
+		<input type="hidden" name="pageControllerID" value="#(pageControllerID)#">
+	>
+]]></Implementation>
+</Method>
+
+<Method name="outputFormEnding">
+<ClassMethod>1</ClassMethod>
+<Implementation><![CDATA[	write !,"</form>"
+]]></Implementation>
+</Method>
+
+<Method name="outputEndOfPageJS">
+<ClassMethod>1</ClassMethod>
+<Implementation><![CDATA[
 	write !,"<script language=""javascript"">"
 	do ##class(EF.pageController.javascriptMethods).renderEfGetElement(pageController)
 	write !,"</script>"
@@ -4792,7 +4815,7 @@ we need to refactor the frontend buttons to make them callable from class method
 ;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>EF.ui.components.backend.datePicker.CLS/EV.3</td><td>CLS.EF.ui.components.backend.datePicker</td><td>LargeDev</td><td style='white-space: nowrap;'>02-Feb-16 12:32</td><td>AdrianM2</td></tr></table>
 ]]></Description>
 <Super>EF.ui.components.textInput,EF.ui.components.frontend.inputElement</Super>
-<TimeChanged>64209,43238.701606</TimeChanged>
+<TimeChanged>64226,36952.500162</TimeChanged>
 <TimeCreated>63384,38215.518113</TimeCreated>
 
 <Parameter name="typeAttribute">
@@ -4858,7 +4881,7 @@ we need to refactor the frontend buttons to make them callable from class method
 </Method>
 
 <Method name="renderColumnStart">
-<Implementation><![CDATA[	write !,"<div style='float: left; text-align: left;'>"
+<Implementation><![CDATA[	write !,"<div style='float: left; text-align: left; width: 40%;'>"
 ]]></Implementation>
 </Method>
 
@@ -4871,7 +4894,6 @@ we need to refactor the frontend buttons to make them callable from class method
 <Type>%Library.CacheStorage</Type>
 <DefaultData>dateRangeDefaultData</DefaultData>
 <Data name="dateRangeDefaultData">
-<Structure>listnode</Structure>
 <Subscript>"dateRange"</Subscript>
 <Value name="1">
 <Value>alternatives</Value>
@@ -5311,7 +5333,7 @@ we need to refactor the frontend buttons to make them callable from class method
 
 <Class name="EF.ui.components.frontend.floatingMenu">
 <Super>shared.pCSPmanage</Super>
-<TimeChanged>64216,55277.967496</TimeChanged>
+<TimeChanged>64225,50311.935762</TimeChanged>
 <TimeCreated>64203,40625.329831</TimeCreated>
 
 <Method name="outputFloatingMenuHTML">
@@ -5324,7 +5346,7 @@ we need to refactor the frontend buttons to make them callable from class method
 	            	<span class="caret"></span>
 	            </a>
 	    		<ul class="dropdown-menu multi-level ef-proweb-dropdown-sub" role="menu" aria-labelledby="dropdownMenu">
-	              <li><a id="efProwebEditLink" href="#">Edit</a></li>
+	              <li><a id="efProwebEditLink">Edit</a></li>
 	              <li><a id="efProwebDeleteLink" href="#">Delete</a></li>
 	              
                   <div class="ef-proweb-floating-menu-divider">-- Add --</div>
@@ -5339,6 +5361,19 @@ we need to refactor the frontend buttons to make them callable from class method
 	            </ul>
 	        </div>
 		</div>
+	
+	<div class="ef-Proweb-Quick-Edit-Panel" style="height:300px; display: none; padding: 5px;">
+		<div id="topButtonsQuickEdit">
+			<button type="button" id="quickEditSave">&#10004;</button>
+			<button type="button" id="quickEditClose">&#10060;</button>
+			<div style="float: right;">
+				<button type="button" id="quickEditAdvanced">Advanced</button>
+			</div>
+		</div>
+		<div id="quickEditPanelMain">
+			[EDIT PANEL]
+		</div>
+	</div>
 	>
 ]]></Implementation>
 </Method>
@@ -5347,7 +5382,7 @@ we need to refactor the frontend buttons to make them callable from class method
 
 <Class name="EF.ui.components.frontend.inputElement">
 <Super>EF.ui.components.frontend.prowebBase,EF.ui.components.inputBase</Super>
-<TimeChanged>64222,53513.422772</TimeChanged>
+<TimeChanged>64226,39067.999872</TimeChanged>
 <TimeCreated>64183,40678.260093</TimeCreated>
 
 <Property name="alternatives">
@@ -5495,7 +5530,7 @@ we need to refactor the frontend buttons to make them callable from class method
 </Method>
 
 <Method name="renderLabelCellOpeningMandatory">
-<Implementation><![CDATA[	write "<div class=""col-sm-4 ef_proweb_form_prompt ef-required-field"">"
+<Implementation><![CDATA[	write "<div class=""col-sm-4 ef_proweb_form_prompt ef-required-field ",..encodeForHTMLAttribute(..getDependentClass()),""">"
 ]]></Implementation>
 </Method>
 
@@ -5788,7 +5823,7 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 
 <Class name="EF.ui.components.frontend.prowebBase">
 <Super>EF.ui.components.base</Super>
-<TimeChanged>64216,54053.50127</TimeChanged>
+<TimeChanged>64226,39546.67142</TimeChanged>
 <TimeCreated>64183,41819.123112</TimeCreated>
 
 <Property name="isProwebEditMode">
@@ -5861,7 +5896,11 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 <ReturnType>%String</ReturnType>
 <Implementation><![CDATA[
 	if (..showHideDependencyList '= "") && (..contextData.prowebMode = "edit") {	
-		return "ef-dependent-field"
+		if ..prowebItem.storage.isMandatory {
+			return "ef-dependent-and-required-field"
+		} else {
+			return "ef-dependent-field"
+		}
 	} else {
 		return ""
 	}
@@ -6950,6 +6989,9 @@ function loadItem(itemNameID) {
 <csp:object name="objItemName" classname="cod.objItemName" objid="#(itemNameID)#">
 
 <script language="cache" runat="server">
+	if xEventID {
+		set eventConfiguration=##class(setup.eventConfiguration).createForEventID(xEventID)	
+	}
 	set (description,prompt,type,fieldWidth,fieldHeight,helpText,mandatory,isDelegate,isGuest,backendOnly,carryOver,requiredAnswer,validationErrorMessage,reportDescription,layout,maxCharacters,maxWords,multiCheckboxMin,multiCheckboxMax,noAmendments,defaultValue,concealed,systemItem)=""
 	set reportOn=1
 	set readonlyFrontend=0
@@ -8142,7 +8184,7 @@ function loadItem(itemNameID) {
 								<img src="../../media/images/English/Default/backend/line.gif" width="600" height="21">
 								<script language="cache" runat="server">
 									// retrieve the existing data (if there is any)
-									set ticketID="",qCapacity="",qNoMoreBookings="",qNotification="",qNotificationLevel="",createsAttendees=""
+									set ticketID="",qCapacity="",qNotification="",qNotificationLevel="",createsAttendees="",qRegistrationStatus=""
 									set qShowBookingLevel="",qShowCapacity="",qAttendeeCategoryID="",qMin="",qMax=""
 									set (directPrice,priceDescriptorID,currencyID,basketItemID,priceByAttendeeCategory,vatCodeID)=""
 									kill arrayPrices
@@ -8150,8 +8192,8 @@ function loadItem(itemNameID) {
 									set arrayPrices(1)=""
 									if $ISOBJECT(objCODitem)	{
 										set scID=objCODitem.%Id()
-										&SQL(SELECT ID,capacity,noMoreBookings,notification,notificationLevel,createsAttendees,showCapacity,showBookingLevel,categoryToCreate,minimum,maximum,priceByAttendeeCategory INTO :tmp,:tmp2,:tmp3,:tmp4,:tmp5,:tmp6,:tmp7,:tmp8,:tmp9,:tmp10,:tmp11,:tmp12 FROM cod.objTicket WHERE scCodItemID=:scID)
-										if +SQLCODE=0 set ticketID=tmp,qCapacity=tmp2,qNoMoreBookings=tmp3,qNotification=tmp4,qNotificationLevel=tmp5,createsAttendees=tmp6,qShowCapacity=tmp7,qShowBookingLevel=tmp8,qAttendeeCategoryID=tmp9,qMin=tmp10,qMax=tmp11,priceByAttendeeCategory=tmp12
+										&SQL(SELECT ID,capacity,notification,notificationLevel,createsAttendees,showCapacity,showBookingLevel,categoryToCreate,minimum,maximum,priceByAttendeeCategory,registrationStatus INTO :tmp,:tmp2,:tmp4,:tmp5,:tmp6,:tmp7,:tmp8,:tmp9,:tmp10,:tmp11,:tmp12,:tmp13 FROM cod.objTicket WHERE scCodItemID=:scID)
+										if +SQLCODE=0 set ticketID=tmp,qCapacity=tmp2,qNotification=tmp4,qNotificationLevel=tmp5,createsAttendees=tmp6,qShowCapacity=tmp7,qShowBookingLevel=tmp8,qAttendeeCategoryID=tmp9,qMin=tmp10,qMax=tmp11,priceByAttendeeCategory=tmp12,qRegistrationStatus = tmp13
 
 										if 'priceByAttendeeCategory {
 											set basketItemID=##class(cod.objTicket).getBasketItemID(ticketID)
@@ -8310,9 +8352,19 @@ function loadItem(itemNameID) {
 											<td width="190"></td>
 										</tr>
 										<tr>
+											<td class="black10px" align="right"><tx>Registration status</tx>:&nbsp;&nbsp;</td>
+											<td class="black10px">
+												<select name="selRegistrationStatus" class="black10px">
+													<option value="unlimited" #(..rawHTML($Select(qRegistrationStatus="unlimited":"selected",1:"")))#>Unlimited</option>
+													<option value="limited" #(..rawHTML($Select(qRegistrationStatus="limited":"selected",1:"")))#>Limited</option>
+													<option value="stopped" #(..rawHTML($Select(qRegistrationStatus="stopped":"selected",1:"")))#>Stopped</option>
+												</select>
+											</td>
+										</tr>
+										<tr>
 											<td class="black10px" align="right"><tx>Capacity</tx>:&nbsp;&nbsp;</td>
 											<td class="black10px">
-											<input type="text" name="txtqCapacity" value="#(qCapacity)#" size="5" class="black10px">
+											<input type="text" name="txtqCapacity" value="#(qCapacity)#" size="5" class="black10px" data-enable-disable-dependency-list="#(..encodeForHTMLAttribute("{""logic"":""and"",""dependencies"":[{""parentName"":""selRegistrationStatus"",""operator"":""eq"",""value"":""limited""}]}"))#">
 											</td>
 											<td colspan="2" class="black10px" >&nbsp;</td>
 										</tr>
@@ -8326,20 +8378,15 @@ function loadItem(itemNameID) {
 													
 													set ticketID=##class(cod.objTicket).getTicketIDfromDataID(dataID)
 													if ticketID'="" {
-														write $P(##class(cod.objTicket).currentBookingLevel(ticketID,"",pageID),"|",1)
+														set eventBookablItemQBI = ##class(setup.eventBookableItemQBI).createNew(eventConfiguration,ticketID)
+														do eventBookablItemQBI.load()
+														write eventBookablItemQBI.bookingLevel.getCompleted()
 													} else {
 														write "0"
 													}
 												</script>
 											</td>
 											<td colspan="2" class="black10px" >&nbsp;</td>
-										</tr>
-										<tr>
-											<td class="black10px" align="right"><tx>Stop booking now</tx>:&nbsp;&nbsp;</td>
-											<td height="25">
-											<input type="checkbox" name="chkqNoMoreBookings" value="1" #($S(qNoMoreBookings=1:"checked",1:""))# class="black10px">
-											</td>
-											<td colspan="2">&nbsp;</td>
 										</tr>
 										<systemType:if module="EMAIL">
 											<tr>
@@ -8349,7 +8396,7 @@ function loadItem(itemNameID) {
 												</td>
 												<td class="black10px" align="right"><tx>Level</tx>:&nbsp;&nbsp;</td>
 												<td class="black10px">
-													<input type="text" name="txtqNotificationLevel" value="#(qNotificationLevel)#" size="4" class="black10px"> %
+													<input type="text" name="txtqNotificationLevel" value="#(qNotificationLevel)#" size="4" class="black10px" data-enable-disable-dependency-list="#(..encodeForHTMLAttribute("{""logic"":""and"",""dependencies"":[{""parentName"":""chkqNotification"",""operator"":""eq"",""value"":""1""}]}"))#"> %
 												</td>
 											</tr>
 										</systemType:if>
@@ -8716,7 +8763,6 @@ function loadItem(itemNameID) {
 					<script language="cache" runat="server">
 						set show=1
 						if $G(xEventID) {
-							set eventConfiguration=##class(setup.eventConfiguration).createForEventID(xEventID)
 							if 'eventConfiguration.areAttendeeCategoriesAllowed() {
 								set show=0
 							}
@@ -9879,6 +9925,9 @@ function saveSameAs(categoryID) {
 <CSP name="backEnd/proweb/codQuestionDetails2.csp" application="/largedevsrc/" default="1"><![CDATA[
 <script language="CACHE" method="OnPreHTTPafter" arguments="" returntype="%Boolean">
 	do ##class(shared.pageMethods).createBackendVariables()
+	if xEventID {
+		set eventConfiguration=##class(setup.eventConfiguration).createForEventID(xEventID)	
+	}
 
 	set dataID=%request.Get("dataID")
 	set itemNameID=%request.Get("itemNameID")
@@ -10288,12 +10337,13 @@ function saveSameAs(categoryID) {
 	
 	// add ticketing
 	if isQuantityItem {
+		
+		set ticketID=##class(cod.objTicket).getTicketIDfromDataID(dataID)
 		set useVatCodes=##class(eCom.objVatCode).isVatCodesEnabled()
 		set priceByAttendeeCategory=+%request.Get("chkPriceByAttendeeCategory")
 		set togglePriceByAttendeeCategory=%request.Get("togglePriceByAttendeeCategory")
 		set createsAttendees=+%request.Get("chkqCreatesAttendees"),attendeeCategoryID=%request.Get("selqAttendeeCategory")
-		set qCapacity=%request.Get("txtqCapacity"),qNoMoreBookings=+%request.Get("chkqNoMoreBookings")
-		set qNotification=+%request.Get("chkqNotification"),qNotificationLevel=%request.Get("txtqNotificationLevel")
+		
 		set directPrice=%request.Get("txtDirectPrice")
 		set directPrice=$TR(directPrice,",","")
 		set currencyID=%request.Get("selCurrency")
@@ -10301,6 +10351,7 @@ function saveSameAs(categoryID) {
 		set showBookingLevel=+%request.Get("chkqShowBookingLevel")
 		set qMin=%request.Get("txtqMin")
 		set qMax=%request.Get("txtqMax")
+		
 		
 		if (qMin'?.N) {
 			set %session.Data("proweb","backend","errMsg") = "The changes can't be saved because ""Optional booking levels - minimum"" must be a number"
@@ -10312,22 +10363,29 @@ function saveSameAs(categoryID) {
 			set %response.Redirect = errorURL
 			return 0
 		}
-		if (qCapacity'?.N) {
-			set %session.Data("proweb","backend","errMsg") = "The changes can't be saved because ""Capacity"" must be a number"
-			set %response.Redirect = errorURL
-			return 0
-		}
-		if (($Length(qNotificationLevel)) && ('$ISVALIDNUM(qNotificationLevel))) {
-			set %session.Data("proweb","backend","errMsg") = "The changes can't be saved because ""Level"" must be a number"
-			set %response.Redirect = errorURL
-			return 0
-		}
 		
-		set ticketID=##class(cod.objTicket).getTicketIDfromDataID(dataID)
+		TSTART
+		
 		if ticketID	{
-			do ##class(cod.objTicket).update(ticketID,xEventID,xControllerID,createsAttendees,attendeeCategoryID,qCapacity,qNoMoreBookings,qNotification,qNotificationLevel,showBookingLevel,qMin,qMax,priceByAttendeeCategory)
+			do ##class(cod.objTicket).update(ticketID,xEventID,xControllerID,createsAttendees,attendeeCategoryID,showBookingLevel,qMin,qMax,priceByAttendeeCategory)
 		} else {
-			set ticketID=##class(cod.objTicket).add(dataID,xEventID,xControllerID,createsAttendees,attendeeCategoryID,qCapacity,qNoMoreBookings,qNotification,qNotificationLevel,showBookingLevel,qMin,qMax,priceByAttendeeCategory)
+			set ticketID=##class(cod.objTicket).add(dataID,xEventID,xControllerID,createsAttendees,attendeeCategoryID,showBookingLevel,qMin,qMax,priceByAttendeeCategory)
+		}
+		if 'createsAttendees {
+			set bookableItemQBI = ##class(setup.eventBookableItemQBI).createNew(eventConfiguration,ticketID)
+			do bookableItemQBI.load()
+			set bookableItemQBI.registrationStatus = %request.Get("selRegistrationStatus")
+			set bookableItemQBI.storedCapacity = %request.Get("txtqCapacity")
+			set bookableItemQBI.hasCapacityNotification = +%request.Get("chkqNotification")
+			set bookableItemQBI.capacityNotificationLevel = %request.Get("txtqNotificationLevel")
+			if 'bookableItemQBI.isValid(.listOfErrorMessages) {
+				set %session.Data("proweb","backend","errMsg") = listOfErrorMessages.GetAt(1)
+				TROLLBACK
+				set %response.Redirect = errorURL
+				return 0
+			}
+			do bookableItemQBI.save()
+			TCOMMIT
 		}
 		
 		// create array of selected discounts
@@ -12627,6 +12685,247 @@ function cancelUpdate() {
 ]]></CSP>
 
 
+<CSP name="backEnd/proweb/quickEditAJAX.csp" application="/largedevsrc/" default="1"><![CDATA[
+<script language="cache" runat="server">
+	set contextData = ##class(EF.contextDataRegistration).createFromFrontendCSPSession()
+	set prowebID = %request.Get("prowebID") 
+	if 'prowebID {
+		throw ##class(shared.exceptions.generalException).%New("No prowebID passed in")
+	}
+	set prowebItem = ##class(sc.objData).%OpenId(prowebID)
+	if '$IsObject(prowebItem) {
+		throw ##class(shared.exceptions.generalException).%New("Incorrect prowebID passed in: "_prowebID)
+	}
+	set pageID = ##class(sc.objData).getPageID(prowebID)
+	set labelText = ##class(sc.xModules.objCODitem).getQuestionPrompt(prowebID,contextData.languageID)
+	
+	if "text,emailAddress,phoneNumber,webAddress,integer" [ prowebItem.type {
+		set isTextInput = 1
+	} else {
+		set isTextInput = 0
+	}
+</script>
+<input type="hidden" name="prowebID" value="#(prowebID)#">
+<div class="form-horizontal">
+	<div class='row' style="margin-top: 0px;"> 
+		<div class='col-sm-4 ef_proweb_form_prompt'>
+			<label for="isMandatory" class="control-label" >
+				<div class="ef-label-text">Label text</div>
+			</label>
+		</div>
+		<div class='col-sm-8'>
+			<input type="text" name="labelText" value="#(..encodeForHTMLAttribute(labelText))#" class="form-control ef-proweb-input-element">
+		</div> 
+	</div>
+
+	<div class='row'> 
+		<div class='col-sm-4 ef_proweb_form_prompt'>
+			<label for="isMandatory" class="control-label" >
+				Database Item
+			</label>
+		</div>	
+		<div class='col-sm-8'>
+			<input type="text" name="labelText" value="#(..encodeForHTMLAttribute(prowebItem.objItemName.description))#" disabled class="form-control ef-proweb-input-element">
+		</div> 
+	</div>
+
+	<div class='row'> 
+		<div class="col-sm-4 ef_proweb_form_prompt">
+			<label for="isMandatory" class="control-label" >The answer is</label>
+		</div>
+		<div class='col-sm-8'>
+			<div class="btn-group" id="isMandatory" data-toggle="buttons">
+				<label class="btn ef-proweb-btn-default #($Select(+prowebItem.mandatory = 0 :"active",1:""))#">
+					<input type="radio" value="0" name="isMandatory">
+					Optional
+				</label>
+
+				<label class="btn ef-proweb-btn-default #($Select(+prowebItem.mandatory = 1 :"active",1:""))#">
+					<input type="radio" value="1" name="isMandatory">
+					Required
+				</label>
+			</div>
+		</div>
+	</div>
+
+	<div class='row'> 
+		<div class='col-sm-4 ef_proweb_form_prompt'>
+			<label for="isMandatory" class="control-label" >
+				Display only when
+			</label>
+		</div>	
+		<div class='col-sm-8'>
+			<select name="dependsOnParent" id="dependsOnParent" class="form-control ef-proweb-input-element" onChange="ef_updateAlternatives(#(pageID)#, this.value)"  style="width: 45%;">
+				<option value=""></option>
+				<script language="cache" runat="server">
+					set rsQuestions = ##class(%ResultSet).%New("sc.xModules.objCODitem:qQuestionsThatCanBeDependencyParents")
+					do rsQuestions.Execute(pageID)
+					while rsQuestions.Next() {
+						set altProwebID = rsQuestions.Get("prowebID")
+						set altLabelText = rsQuestions.Get("labelText")
+						 
+						write !,"<option value=",..encodeForHTMLAttribute(altProwebID), $Select(altProwebID = prowebItem.dependsOnPrompt:" SELECTED",1:""),">",..encodeForHTML(altLabelText),"</option>"	
+					}
+				</script>
+			</select>
+			<select id="dependsOnAlternative" class="form-control ef-proweb-input-element" style="width: 45%; margin-left: 12px;">
+			</select>
+		</div> 
+	</div>
+
+	<csp:if condition="isTextInput">
+		<div class='row'> 
+			<div class="col-sm-4 ef_proweb_form_prompt">
+				<label for="type" class="control-label" >The answer is</label>
+			</div>
+			<div class='col-sm-8'>
+				<div class="btn-group" id="type" data-toggle="buttons">
+					<label class="btn ef-proweb-btn-default #($Select(prowebItem.type = "text":"active",1:""))#">
+						<input type="radio" value="text" name="type">
+						Text
+					</label>
+					
+					<label class="btn ef-proweb-btn-default #($Select(prowebItem.type = "emailAddress":"active",1:""))#">
+						<input type="radio" value="emailAddress" name="type">
+						Email
+					</label>
+					
+					<label class="btn ef-proweb-btn-default #($Select(prowebItem.type = "phoneNumber":"active",1:""))#">
+						<input type="radio" value="phoneNumber" name="type">
+						Phone
+					</label>
+					
+					<label class="btn ef-proweb-btn-default #($Select(prowebItem.type = "webAddress":"active",1:""))#">
+						<input type="radio" value="webAddress" name="type">
+						URL
+					</label>
+
+					<label class="btn ef-proweb-btn-default #($Select(prowebItem.type = "integer":"active",1:""))#">
+						<input type="radio" value="integer" name="type">
+						Number
+					</label>
+
+				</div>
+			</div>
+		</div>
+	</csp:if>
+</div>
+<script language="javascript">
+$('.ef-Proweb-Quick-Edit-Panel').find('input[type=checkbox]').each(function() {
+    $(this).change(function() {
+        anythingChanged = 1;
+    });
+});
+$('.ef-Proweb-Quick-Edit-Panel').find('input[type=radio]').each(function() {
+    $(this).change(function() {
+        anythingChanged = 1;
+    });
+});
+$('.ef-Proweb-Quick-Edit-Panel').find('select').each(function() {
+    $(this).change(function() {
+        anythingChanged = 1;
+    });
+});
+$('.ef-Proweb-Quick-Edit-Panel').find('input[type=text]').each(function() {
+    $(this).keydown(function() {
+        anythingChanged = 1;
+    });
+});
+$('.ef-Proweb-Quick-Edit-Panel').find('textarea').each(function() {
+    $(this).keydown(function() {
+        anythingChanged = 1;
+    });
+});
+</script>
+]]></CSP>
+
+
+<CSP name="backEnd/proweb/quickEditSave.csp" application="/largedevsrc/" default="1"><![CDATA[
+<csp:class encoded="1" private="0">
+<script language="cache" runat="server">
+	#dim prowebItem as sc.xModules.objCODitem
+	#dim selectedAlternativeID as %Integer = ""
+	set auditType = 0
+	set auditDepencency = 0
+	
+	set status = "error"
+	set errorMsg = "There was a problem while saving"
+	
+	set contextData = ##class(EF.contextDataRegistration).createFromFrontendCSPSession()
+	set prowebID = %request.Get("prowebID") 
+	if 'prowebID {
+		set errorMsg = "No prowebID passed in"
+	}
+	set prowebItem = ##class(sc.objData).%OpenId( prowebID )
+	
+	if '$IsObject(prowebItem) {
+		set errorMsg = "Incorrect prowebID passed in: "_prowebID
+	}	
+	
+	set oldLabelText = prowebItem.description
+	set prowebItem.description = ##class(EF.sanitiser).getSanitisedSubmittedValue("labelText")
+	set newLabelText = prowebItem.description
+	
+	set oldIsMandatory = prowebItem.mandatory
+	set prowebItem.mandatory = +%request.Get("isMandatory")
+	set newIsMandatory = prowebItem.mandatory
+	
+	if $Length( %request.Get("type") ) {
+		set oldType = prowebItem.type
+		set prowebItem.type = %request.Get("type")
+		set newType = prowebItem.type
+		set auditType = 1
+	}
+	
+	set oldDependsOnPrompt = prowebItem.dependsOnPrompt
+	set prowebItem.dependsOnPrompt = %request.Get("dependsOnParent")
+	set newDependsOnPrompt = prowebItem.dependsOnPrompt
+	
+	if prowebItem.dependsOnPrompt {
+		set auditDepencency = 1
+		set selectedAlternative = %request.Get("dependsOnAlternative")
+		set databaseItemID = ##class(sc.xModules.objCODitem).getCODItemNameID(prowebItem.dependsOnPrompt)
+		set selectedAlternativeID = ##class(cod.objItemAlternatives).getIDFromDescription(databaseItemID, selectedAlternative)
+	}
+	
+	set oldDependsOnAlternative = prowebItem.dependsOnAlternative
+	set prowebItem.dependsOnAlternative = selectedAlternativeID
+	set newDependsOnAlternative = prowebItem.dependsOnAlternative
+	
+	set sc = prowebItem.%Save()
+	if ('$$$ISERR(sc)) {
+		set status = "ok"
+		
+		set xUserID = $Get(%session.Data("eventsforce","backend","xPersonID"))
+		set eventID = prowebItem.objEvent.%Id()
+		set pageID = ##class(sc.xModules.objCODitem).getPageIDforQuestion(prowebID)
+		set pageName = ##class(sc.xModules.objPage).getDescription(pageID)
+		
+		if (oldLabelText '= newLabelText) {
+			do ##class(setup.objEventAudit).add(xUserID, eventID, "Reg Page '"_pageName_"' ("_pageID_"), Changed Registration Question Label Text: "_newLabelText_" (New Value) - "_oldLabelText_" (Old Value)")
+		}
+		if (oldIsMandatory '= newIsMandatory) {
+			do ##class(setup.objEventAudit).add(xUserID, eventID, "Reg Page '"_pageName_"' ("_pageID_"), Changed Registration Question Mandatory: "_newIsMandatory_" (New Value) - "_oldIsMandatory_" (Old Value)")
+		}
+		if (auditType) {
+			do ##class(setup.objEventAudit).add(xUserID, eventID, "Reg Page '"_pageName_"' ("_pageID_"), Changed Registration Question Type: "_newType_" (New Value) - "_oldType_" (Old Value)")
+		}
+		if (auditDepencency) {
+			do ##class(setup.objEventAudit).add(xUserID, eventID, "Reg Page '"_pageName_"' ("_pageID_"), Changed Registration Question Depends On Prompt: "_newDependsOnPrompt_" (New Value) - "_oldDependsOnPrompt_" (Old Value)")
+			do ##class(setup.objEventAudit).add(xUserID, eventID, "Reg Page '"_pageName_"' ("_pageID_"), Changed Registration Question Depends On Alternative: "_newDependsOnAlternative_" (New Value) - "_oldDependsOnAlternative_" (Old Value)")
+		}
+	}
+	
+	write "{ ""status"" : """_status_""""
+	if status = "error" {
+		write ", ""errorMsg"" : """_##class(shared.jsonFunctions).jsonEscape(errorMsg)_""""
+	}
+	write " }"
+</script>
+
+]]></CSP>
+
+
 <CSP name="backEnd/proweb/textDetailsMoxie.csp" application="/largedevsrc/" default="1"><![CDATA[
 <csp:class encoded="1" private="1">
 <csp:include page="../../backend/home/backendTop.csp?hideBackendMenu=1&useHtml5=1&kendoweb=1&useTinyMce=1">
@@ -13532,10 +13831,13 @@ function updateAlts(codPromptID) {
 <CSP name="frontEnd/reg/reorderProwebElements.csp" application="/largedevsrc/" default="1"><![CDATA[
 <csp:class encoded="1" private="1">
 <script language="cache" runat="server">
-	set contextData=##class(EF.contextDataRegistration).createFromFrontendCSPSession()
-	set pageControllerID=%request.Get("pageControllerID")
-	set orderedElementIds=%request.Get("orderedElementIds")
-	set pageController=##class(EF.pageController.proweb.page).open(pageControllerID,contextData)
+	set contextData = ##class(EF.contextDataRegistration).createFromFrontendCSPSession()
+	set pageControllerID = %request.Get("pageControllerID")
+	if 'pageControllerID {
+		throw ##class(shared.exceptions.generalException).%New("No pageController passed in to the re-ordering page")
+	}
+	set orderedElementIds = %request.Get("orderedElementIds")
+	set pageController = ##class(EF.pageController.proweb.page).open(pageControllerID,contextData)
 	
 	do pageController.reorderProwebElements(orderedElementIds)
 </script>
@@ -13659,7 +13961,7 @@ ef.frontend.create_searchable_dropdown = function (ele) {
 	border: 0px;	
 }
 .ef-proweb-menu-handle {
-	position: absolute;
+	position: fixed;
 	left: 0px;
 	top: 0px;	
 }
@@ -13687,14 +13989,27 @@ ef.frontend.create_searchable_dropdown = function (ele) {
 .ef-proweb-direct-label-edit input {
 	width: 70%;
 }
-.ef-proweb-form-row-editable.ef-showing-floater {
+.ef-proweb-form-row-editable.ef-showing-floater, .ef-Proweb-Quick-Edit-Panel {
     background-color: #EEEEEE;
     border-color: GRAY;
     border-style: dashed;
     border-width: 1px;
     border-radius: 5px;
 }
-</style>]]></CSP>
+.ef-proweb-btn-default {
+	background-color: WHITE;		
+	color: BLACK;
+	border-color: #CCCCCC;
+	border-width: 1px;
+}
+.ef-proweb-btn-default:active, .btn:active, .btn.active {
+	background-color: #ffa031;		
+	color: WHITE;
+	border-color: #CCCCCC;
+	border-width: 1px;
+}
+</style>
+]]></CSP>
 
 
 <CSP name="frontEnd/reg/tRegistration.csp" application="/largedevsrc/" default="1"><![CDATA[
@@ -14093,7 +14408,7 @@ ef.frontend.create_searchable_dropdown = function (ele) {
 					<script language="cache" runat="server">
 						//add option to add new delegate 
 						set rs=##class(%ResultSet).%New("%Library.DynamicQuery:SQL")
-						set qry="SELECT ID,categoryToCreate FROM cod.objTicket WHERE (eventID=?) AND (noMoreBookings=0) AND (scCodItemID->active=1)"
+						set qry="SELECT ID,categoryToCreate FROM cod.objTicket WHERE (eventID=?) AND (scCodItemID->active=1)"
 						if ('(##class(eCom.tempPurchase).isBackendBooking(sessionID))) {
 							set qry=qry_" AND (scCodItemID->backendOnly=0)"
 						}
@@ -15022,7 +15337,7 @@ FRRE RULE
 <Abstract>1</Abstract>
 <ClassType/>
 <ProcedureBlock>1</ProcedureBlock>
-<TimeChanged>64219,32585.053235</TimeChanged>
+<TimeChanged>64226,39885.871241</TimeChanged>
 <TimeCreated>63046,56232.897117</TimeCreated>
 
 <Method name="outputDefaultCSS">
@@ -17222,6 +17537,10 @@ The basic frontend default stuff</Description>
 		.ef-dependent-field::after {
 		    content: "🔗";
 		}
+		.ef-dependent-and-required-field::after {
+		    content: " *🔗";
+		    color: red;	
+		 }
 		@media (max-width: 768px) {
 		   .ef_proweb_form_prompt {
 		      text-align: left; 
@@ -17259,14 +17578,6 @@ The basic frontend default stuff</Description>
 			border-width: 1px;
 			border-color: transparent;
 			border-style: solid;
-		}
-		.ef-proweb-form-row-editable:hover {
-			background-color: #EEEEEE;	
-			border-color: GRAY;
-			border-style: dashed;
-			border-width: 1px;
-			border-radius: 5px;
-			
 		}
 		.ui-sortable-handle {
 			cursor: grab;
@@ -18808,12 +19119,13 @@ Returns true if the template is custom made</Description>
 </Class>
 
 
-<Project name="proweb 2" LastModified="2016-11-01 20:43:45.361874" Target="dev.efsys.net/LARGEDEVSRC/backend/home/efSupportLogin.htm" TargetType="3">
+<Project name="proweb 2" LastModified="2016-11-03 12:17:22.724949" Target="dev.efsys.net/LARGEDEVSRC/backend/home/efSupportLogin.htm" TargetType="3">
   <Items>
     <ProjectItem name="EF.contextDataRegistration" type="CLS"></ProjectItem>
     <ProjectItem name="EF.contextDataRegistrationMock" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.containerElement" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.element" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.pageController.pagesFrontend.t4Registration" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.proweb.checkbox" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.proweb.checkboxGroup" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.proweb.datePicker" type="CLS"></ProjectItem>
@@ -18825,11 +19137,13 @@ Returns true if the template is custom made</Description>
     <ProjectItem name="EF.pageController.proweb.fileUpload" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.proweb.inputElement" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.proweb.integerInput" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.pageController.proweb.menuBlock" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.proweb.numericInput" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.proweb.page" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.proweb.panel" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.proweb.passwordInput" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.proweb.phoneNumber" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.pageController.proweb.privateData" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.proweb.prowebBase" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.proweb.radioButtons" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.proweb.testCases.checkboxGroupTestCase" type="CLS"></ProjectItem>
@@ -18875,10 +19189,12 @@ Returns true if the template is custom made</Description>
     <ProjectItem name="EF.ui.components.frontend.floatingMenu" type="CLS"></ProjectItem>
     <ProjectItem name="EF.ui.components.frontend.inputElement" type="CLS"></ProjectItem>
     <ProjectItem name="EF.ui.components.frontend.integerInput" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.ui.components.frontend.menuBlock" type="CLS"></ProjectItem>
     <ProjectItem name="EF.ui.components.frontend.numericInput" type="CLS"></ProjectItem>
     <ProjectItem name="EF.ui.components.frontend.panel" type="CLS"></ProjectItem>
     <ProjectItem name="EF.ui.components.frontend.passwordInput" type="CLS"></ProjectItem>
     <ProjectItem name="EF.ui.components.frontend.phoneNumber" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.ui.components.frontend.privateData" type="CLS"></ProjectItem>
     <ProjectItem name="EF.ui.components.frontend.prowebBase" type="CLS"></ProjectItem>
     <ProjectItem name="EF.ui.components.frontend.radioButtons" type="CLS"></ProjectItem>
     <ProjectItem name="EF.ui.components.frontend.textArea" type="CLS"></ProjectItem>
@@ -18889,7 +19205,10 @@ Returns true if the template is custom made</Description>
     <ProjectItem name="EF.ui.components.frontend.wholeNumber" type="CLS"></ProjectItem>
     <ProjectItem name="EF.ui.components.frontend.youTubeVideo" type="CLS"></ProjectItem>
     <ProjectItem name="EF.ui.components.panel" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.validator.bespokeValidationMethod" type="CLS"></ProjectItem>
     <ProjectItem name="EF.validator.emailAddressMulti" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.validator.patternMatchValidation" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.validator.personRegisteredWithSameAnswer" type="CLS"></ProjectItem>
     <ProjectItem name="EF.validator.phoneNumber" type="CLS"></ProjectItem>
     <ProjectItem name="EF.validator.phoneNumberTestCase" type="CLS"></ProjectItem>
     <ProjectItem name="EF.validator.webAddress" type="CLS"></ProjectItem>
@@ -18902,6 +19221,8 @@ Returns true if the template is custom made</Description>
     <ProjectItem name="largedevsrc/backEnd/proweb/flashDetails.csp" type="CSP"></ProjectItem>
     <ProjectItem name="largedevsrc/backEnd/proweb/flashDetails2.csp" type="CSP"></ProjectItem>
     <ProjectItem name="largedevsrc/backEnd/proweb/formDivider.csp" type="CSP"></ProjectItem>
+    <ProjectItem name="largedevsrc/backEnd/proweb/quickEditAJAX.csp" type="CSP"></ProjectItem>
+    <ProjectItem name="largedevsrc/backEnd/proweb/quickEditSave.csp" type="CSP"></ProjectItem>
     <ProjectItem name="largedevsrc/backEnd/proweb/textDetailsMoxie.csp" type="CSP"></ProjectItem>
     <ProjectItem name="largedevsrc/backEnd/proweb/textDetailsMoxie2.csp" type="CSP"></ProjectItem>
     <ProjectItem name="largedevsrc/backEnd/proweb/updateLabelText.csp" type="CSP"></ProjectItem>
@@ -18911,6 +19232,7 @@ Returns true if the template is custom made</Description>
     <ProjectItem name="largedevsrc/frontEnd/reg/tRegistration.csp" type="CSP"></ProjectItem>
     <ProjectItem name="largedevsrc/system/eventsForceRules.csr" type="CSP"></ProjectItem>
     <ProjectItem name="layout.cssDefaultMethods" type="CLS"></ProjectItem>
+    <ProjectItem name="layout.objTemplate" type="CLS"></ProjectItem>
     <ProjectItem name="sc.facade.prowebItem" type="CLS"></ProjectItem>
     <ProjectItem name="sc.facade.prowebItemStorage" type="CLS"></ProjectItem>
     <ProjectItem name="sc.facade.prowebItemStorageDivider" type="CLS"></ProjectItem>
@@ -18919,26 +19241,18 @@ Returns true if the template is custom made</Description>
     <ProjectItem name="sc.facade.prowebItemStorageInputElement" type="CLS"></ProjectItem>
     <ProjectItem name="sc.facade.prowebItemStorageInputElementAlternative" type="CLS"></ProjectItem>
     <ProjectItem name="sc.facade.prowebItemStorageInputElementMock" type="CLS"></ProjectItem>
+    <ProjectItem name="sc.facade.prowebItemStorageMenuBlock" type="CLS"></ProjectItem>
+    <ProjectItem name="sc.facade.prowebItemStorageMenuBlockItem" type="CLS"></ProjectItem>
     <ProjectItem name="sc.facade.prowebItemStorageTextBlock" type="CLS"></ProjectItem>
+    <ProjectItem name="sc.facade.prowebItemStorageTextBlockMock" type="CLS"></ProjectItem>
     <ProjectItem name="sc.facade.prowebItemStorageYouTubeVideo" type="CLS"></ProjectItem>
     <ProjectItem name="sc.facade.prowebItemStorageYouTubeVideoMock" type="CLS"></ProjectItem>
+    <ProjectItem name="sc.methods" type="CLS"></ProjectItem>
     <ProjectItem name="sc.objData" type="CLS"></ProjectItem>
+    <ProjectItem name="sc.proweb2methods" type="CLS"></ProjectItem>
+    <ProjectItem name="sc.viewQuestionsByPageID" type="CLS"></ProjectItem>
     <ProjectItem name="sc.xModules.objList" type="CLS"></ProjectItem>
     <ProjectItem name="shared.pageMethods" type="CLS"></ProjectItem>
-    <ProjectItem name="EF.pageController.proweb.privateData" type="CLS"></ProjectItem>
-    <ProjectItem name="EF.ui.components.frontend.privateData" type="CLS"></ProjectItem>
-    <ProjectItem name="EF.validator.patternMatchValidation" type="CLS"></ProjectItem>
-    <ProjectItem name="EF.validator.bespokeValidationMethod" type="CLS"></ProjectItem>
-    <ProjectItem name="EF.validator.personRegisteredWithSameAnswer" type="CLS"></ProjectItem>
-    <ProjectItem name="sc.proweb2methods" type="CLS"></ProjectItem>
-    <ProjectItem name="EF.pageController.pagesFrontend.t4Registration" type="CLS"></ProjectItem>
-    <ProjectItem name="sc.facade.prowebItemStorageMenuBlock" type="CLS"></ProjectItem>
-    <ProjectItem name="EF.pageController.proweb.menuBlock" type="CLS"></ProjectItem>
-    <ProjectItem name="EF.ui.components.frontend.menuBlock" type="CLS"></ProjectItem>
-    <ProjectItem name="sc.methods" type="CLS"></ProjectItem>
-    <ProjectItem name="sc.facade.prowebItemStorageMenuBlockItem" type="CLS"></ProjectItem>
-    <ProjectItem name="sc.facade.prowebItemStorageTextBlockMock" type="CLS"></ProjectItem>
-    <ProjectItem name="layout.objTemplate" type="CLS"></ProjectItem>
   </Items>
   <BreakPoints>
     <BreakPoint Routine="cspRealEV.frontend.reg.pagecontrollerstandardsave.CLS" Offset="OnPreHTTPafter+28"></BreakPoint>
@@ -19558,16 +19872,16 @@ to make sure group bookers can't see already existing data of attendees</Descrip
 <Class name="sc.methods">
 <Description><![CDATA[
 <!-- ;vc;-
-;vc;    Object: sc.methods.CLS/EV.54
+;vc;    Object: sc.methods.CLS/EV.55
 ;vc; Component: CLS.sc.methods
 ;vc;  Location: LargeDev
-;vc; Date/Time: 27-Oct-16 11:37
+;vc; Date/Time: 04-Nov-16 11:26
 ;vc;      User: FredG
-;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>sc.methods.CLS/EV.54</td><td>CLS.sc.methods</td><td>LargeDev</td><td style='white-space: nowrap;'>27-Oct-16 11:37</td><td>FredG</td></tr></table>
+;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>sc.methods.CLS/EV.55</td><td>CLS.sc.methods</td><td>LargeDev</td><td style='white-space: nowrap;'>04-Nov-16 11:26</td><td>FredG</td></tr></table>
 ]]></Description>
 <Abstract>1</Abstract>
 <ProcedureBlock>1</ProcedureBlock>
-<TimeChanged>64223,55023.653525</TimeChanged>
+<TimeChanged>64226,42098.134887</TimeChanged>
 <TimeCreated>61845,54770.681958</TimeCreated>
 
 <Method name="isUsingProweb2">
@@ -19594,6 +19908,16 @@ to make sure group bookers can't see already existing data of attendees</Descrip
 
 	if pageName = "tregistration" return 1
 	if pageName = "t4registration" return 1
+	
+	if pageName = "formdivider" return 1
+	if pageName = "codquestiondetails" return 1
+	if pageName = "codquestiondetails2" return 1
+	if pageName = "fileuploaddetails" return 1
+	if pageName = "fileuploaddetails2" return 1
+	if pageName = "flashdetails" return 1
+	if pageName = "flashdetails2" return 1
+	if pageName = "textdetailsmoxie" return 1
+	if pageName = "textdetailsmoxie2" return 1
 
 	return 0
 ]]></Implementation>
@@ -21834,7 +22158,7 @@ note that this must be a classmethod or you will a compile error as the property
 
 <Class name="sc.proweb2methods">
 <Super>%RegisteredObject</Super>
-<TimeChanged>64218,55367.669588</TimeChanged>
+<TimeChanged>64226,35059.65999</TimeChanged>
 <TimeCreated>64218,41830.065131</TimeCreated>
 
 <Method name="moveNewElementToDesiredPosition">
@@ -21907,6 +22231,34 @@ note that this must be a classmethod or you will a compile error as the property
 	}
 ]]></Implementation>
 </Method>
+</Class>
+
+
+<Class name="sc.viewQuestionsByPageID">
+<ClassType>view</ClassType>
+<CompileAfter>sc.objData</CompileAfter>
+<DdlAllowed>1</DdlAllowed>
+<Owner>UnknownUser</Owner>
+<ProcedureBlock>0</ProcedureBlock>
+<SqlTableName>viewQuestionsByPageID</SqlTableName>
+<TimeChanged>64225,43701.484754</TimeChanged>
+<TimeCreated>64225,43364.844535</TimeCreated>
+<ViewQuery><![CDATA[ 
+	SELECT 
+		ID AS prowebID,
+		parent->parent AS pageID, 
+		description AS labelText, 
+		objItemName AS databaseNameID, 
+		objItemName->description AS databaseName,
+		type AS questionType,
+		displayOrder
+	FROM sc_xModules.objCODitem 
+	WHERE (active=1) 
+]]></ViewQuery>
+
+<Parameter name="READONLY">
+<Default>1</Default>
+</Parameter>
 </Class>
 
 

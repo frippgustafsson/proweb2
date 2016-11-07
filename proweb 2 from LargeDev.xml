@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2015.2 (Build 664_3_16032U)" ts="2016-11-04 14:41:13">
+<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2015.2 (Build 664_3_16032U)" ts="2016-11-07 08:26:13">
 <Class name="EF.contextDataRegistration">
 <Description><![CDATA[
 <!-- ;vc;-
@@ -1642,7 +1642,7 @@ Should be run if any of the sub-classes are deleted</Description>
 
 <Class name="EF.pageController.proweb.page">
 <Super>EF.pageController.page</Super>
-<TimeChanged>64226,38597.768093</TimeChanged>
+<TimeChanged>64226,59284.795503</TimeChanged>
 <TimeCreated>64189,51696.559047</TimeCreated>
 
 <Property name="contextData">
@@ -1674,17 +1674,20 @@ Should be run if any of the sub-classes are deleted</Description>
 
 <Method name="load">
 <Implementation><![CDATA[
-	if ..contextData.isTestMode {
-		do ..insertMockProwebItems()	
-	} else {
-		do ..loadBannerElements()
-		do ..loadNavigationBarElements()
+	do ..loadBannerElements()
+	do ..loadNavigationBarElements()
+
+	if ..contextData.isTestMode = 0 {
 		do ..loadAllProwebListsForPage()
-		do ..loadSponsorElements() 
-		do ..loadFooterElements()
+	} else {
+		do ..insertMockProwebItems()
 	}
+	
 	do ..repeatAnyGuestQuestions()
 	do ..insertPanelElementsAroundGuestQuestions()
+	do ..loadSponsorElements() 
+	do ..loadFooterElements()
+
 	do ..updateUIComponents()
 ]]></Implementation>
 </Method>
@@ -2344,7 +2347,7 @@ Should be run if any of the sub-classes are deleted</Description>
 <Private>1</Private>
 <Implementation><![CDATA[
 	#dim controllerForPanel as EF.pageController.proweb.panel
-	
+
 	set controllerForPanel = ##class(EF.pageController.proweb.panel).addElementToParent(..parentListElement, "GuestPanel-"_insertPosition, "")
 	if $IsObject(controllerForPanel) {
 		set controllerForPanel.isOpeningOrClosing = openOrClose
@@ -3086,7 +3089,7 @@ Should be run if any of the sub-classes are deleted</Description>
 
 <Class name="EF.pageController.proweb.testCases.pageTestCase">
 <Super>EF.ISC.UnitTest.TestCase</Super>
-<TimeChanged>64223,61655.73193</TimeChanged>
+<TimeChanged>64229,30185.885096</TimeChanged>
 <TimeCreated>64189,44993.632692</TimeCreated>
 
 <Method name="TestEditModeHTML">
@@ -3094,7 +3097,7 @@ Should be run if any of the sub-classes are deleted</Description>
 	set floatingMenu = ##class(EF.ui.components.frontend.floatingMenu).%New()
 	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(floatingMenu,"outputFloatingMenuHTML")
 	set returnedHTML = $ZStrip(returnedHTML,"*WC")
-	set expectedHTML = "<divid=""myFloater""class=""containeref-proweb-menu-handlerow""style=""display:none;""><divclass=""dropdownef-proweb-dropdown""><aid=""efProwebHeader""role=""button""data-toggle=""dropdown""class=""btnbtn-primaryef-proweb-dropdown-button""data-target=""#""href=""/page.html"">[Emptylistsnotimplementedyet]<spanclass=""caret""></span></a><ulclass=""dropdown-menumulti-levelef-proweb-dropdown-sub""role=""menu""aria-labelledby=""dropdownMenu""><li><aid=""efProwebEditLink""href=""#"">Edit</a></li><li><aid=""efProwebDeleteLink""href=""#"">Delete</a></li><divclass=""ef-proweb-floating-menu-divider"">--Add--</div><li><aid=""efProwebInsertQuestionBelowLink""tabindex=""-1""href=""#"">Question</a></li><li><aid=""efProwebInsertABIBelowLink""tabindex=""-1""href=""#"">ABI</a></li><li><aid=""efProwebInsertQBIBelowLink""tabindex=""-1""href=""#"">QBI</a></li><li><aid=""efProwebInsertTextBlockBelowLink""href=""#"">Text</a></li><li><aid=""efProwebInsertDividerBelowLink""href=""#"">Divider</a></li><li><aid=""efProwebInsertFileUploadBelowLink""href=""#"">Fileupload</a></li><li><aid=""efProwebInsertYouTubeVideoBelowLink""href=""#"">YouTubevideo</a></li></ul></div></div>"
+	set expectedHTML = "<divid=""myFloater""class=""containeref-proweb-menu-handlerow""style=""display:none;""><divclass=""dropdownef-proweb-dropdown""><aid=""efProwebHeader""role=""button""data-toggle=""dropdown""class=""btnbtn-primaryef-proweb-dropdown-button""data-target=""#""href=""/page.html"">[Emptylistsnotimplementedyet]<spanclass=""caret""></span></a><ulclass=""dropdown-menumulti-levelef-proweb-dropdown-sub""role=""menu""aria-labelledby=""dropdownMenu""><li><aid=""efProwebEditLink"">Edit</a></li><li><aid=""efProwebDeleteLink""href=""#"">Delete</a></li><divclass=""ef-proweb-floating-menu-divider"">--Add--</div><li><aid=""efProwebInsertQuestionBelowLink""tabindex=""-1""href=""#"">Question</a></li><li><aid=""efProwebInsertABIBelowLink""tabindex=""-1""href=""#"">ABI</a></li><li><aid=""efProwebInsertQBIBelowLink""tabindex=""-1""href=""#"">QBI</a></li><li><aid=""efProwebInsertTextBlockBelowLink""href=""#"">Text</a></li><li><aid=""efProwebInsertDividerBelowLink""href=""#"">Divider</a></li><li><aid=""efProwebInsertFileUploadBelowLink""href=""#"">Fileupload</a></li><li><aid=""efProwebInsertYouTubeVideoBelowLink""href=""#"">YouTubevideo</a></li></ul></div></div><divclass=""ef-Proweb-Quick-Edit-Panel""style=""display:none;padding:5px;""><divid=""topButtonsQuickEdit""><buttontype=""button""id=""quickEditSave"">&#10004;</button><buttontype=""button""id=""quickEditClose"">&#10060;</button><divstyle=""float:right;""><buttontype=""button""id=""quickEditAdvanced"">Advanced</button></div></div><divid=""quickEditPanelMain"">[EDITPANEL]</div></div>"
 	do $$$AssertEquals(returnedHTML,expectedHTML)
 ]]></Implementation>
 </Method>
@@ -4815,7 +4818,7 @@ we need to refactor the frontend buttons to make them callable from class method
 ;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>EF.ui.components.backend.datePicker.CLS/EV.3</td><td>CLS.EF.ui.components.backend.datePicker</td><td>LargeDev</td><td style='white-space: nowrap;'>02-Feb-16 12:32</td><td>AdrianM2</td></tr></table>
 ]]></Description>
 <Super>EF.ui.components.textInput,EF.ui.components.frontend.inputElement</Super>
-<TimeChanged>64226,36952.500162</TimeChanged>
+<TimeChanged>64226,60056.44723</TimeChanged>
 <TimeCreated>63384,38215.518113</TimeCreated>
 
 <Parameter name="typeAttribute">
@@ -4835,12 +4838,14 @@ we need to refactor the frontend buttons to make them callable from class method
 
 <Method name="renderJS">
 <Implementation><![CDATA[
-	&js<
+	&html<
+		<script language="javascript">
 		$(function() {
 			$('##(..encodeJS(..htmlID))#').kendoDatePicker({
 				format: getKendoDateFormat(#(..encodeJS(..validator.dateFormat))#),
 			});
 		});
+		</script>
 	>
 	do ##super()
 ]]></Implementation>
@@ -4881,7 +4886,7 @@ we need to refactor the frontend buttons to make them callable from class method
 </Method>
 
 <Method name="renderColumnStart">
-<Implementation><![CDATA[	write !,"<div style='float: left; text-align: left; width: 40%;'>"
+<Implementation><![CDATA[	write !,"<div class='ef-proweb-input-element-short' style='width: 35%;'>"
 ]]></Implementation>
 </Method>
 
@@ -5333,7 +5338,7 @@ we need to refactor the frontend buttons to make them callable from class method
 
 <Class name="EF.ui.components.frontend.floatingMenu">
 <Super>shared.pCSPmanage</Super>
-<TimeChanged>64225,50311.935762</TimeChanged>
+<TimeChanged>64226,60556.999352</TimeChanged>
 <TimeCreated>64203,40625.329831</TimeCreated>
 
 <Method name="outputFloatingMenuHTML">
@@ -5362,7 +5367,7 @@ we need to refactor the frontend buttons to make them callable from class method
 	        </div>
 		</div>
 	
-	<div class="ef-Proweb-Quick-Edit-Panel" style="height:300px; display: none; padding: 5px;">
+	<div class="ef-Proweb-Quick-Edit-Panel" style="display: none; padding: 5px;">
 		<div id="topButtonsQuickEdit">
 			<button type="button" id="quickEditSave">&#10004;</button>
 			<button type="button" id="quickEditClose">&#10060;</button>
@@ -12734,7 +12739,7 @@ function cancelUpdate() {
 			<label for="isMandatory" class="control-label" >The answer is</label>
 		</div>
 		<div class='col-sm-8'>
-			<div class="btn-group" id="isMandatory" data-toggle="buttons">
+			<div class="btn-group ef-proweb-input-element" id="isMandatory" data-toggle="buttons">
 				<label class="btn ef-proweb-btn-default #($Select(+prowebItem.mandatory = 0 :"active",1:""))#">
 					<input type="radio" value="0" name="isMandatory">
 					Optional
@@ -12750,7 +12755,7 @@ function cancelUpdate() {
 
 	<div class='row'> 
 		<div class='col-sm-4 ef_proweb_form_prompt'>
-			<label for="isMandatory" class="control-label" >
+			<label for="dependsOnParent" class="control-label" >
 				Display only when
 			</label>
 		</div>	
@@ -12769,6 +12774,15 @@ function cancelUpdate() {
 				</script>
 			</select>
 			<select id="dependsOnAlternative" class="form-control ef-proweb-input-element" style="width: 45%; margin-left: 12px;">
+				<script language="cache" runat="server">
+					if (prowebItem.dependsOnPrompt) && (prowebItem.dependsOnAlternative) {
+						set databaseItemID = ##class(sc.xModules.objCODitem).getCODItemNameID(prowebItem.dependsOnPrompt)
+						Set rsAlt=##class(cod.objItemAlternatives).getAlternativesForCodItemMatchingDescriptionAsResultSet(databaseItemID, ,contextData.languageID)
+						While rsAlt.Next() {
+							Write !,"<option value=",rsAlt.Get("ID"),$Select( prowebItem.dependsOnAlternative = rsAlt.Get("ID"):" SELECTED",1:"" ),">",..encodeForHTML(rsAlt.Get("description")),"</option>"
+						}		
+					}
+				</script>
 			</select>
 		</div> 
 	</div>
@@ -12779,7 +12793,7 @@ function cancelUpdate() {
 				<label for="type" class="control-label" >The answer is</label>
 			</div>
 			<div class='col-sm-8'>
-				<div class="btn-group" id="type" data-toggle="buttons">
+				<div class="btn-group ef-proweb-input-element" id="type" data-toggle="buttons">
 					<label class="btn ef-proweb-btn-default #($Select(prowebItem.type = "text":"active",1:""))#">
 						<input type="radio" value="text" name="type">
 						Text
@@ -12874,7 +12888,9 @@ $('.ef-Proweb-Quick-Edit-Panel').find('textarea').each(function() {
 		set oldType = prowebItem.type
 		set prowebItem.type = %request.Get("type")
 		set newType = prowebItem.type
-		set auditType = 1
+		if (oldType '= newType) {
+			set auditType = 1
+		}
 	}
 	
 	set oldDependsOnPrompt = prowebItem.dependsOnPrompt
@@ -15337,7 +15353,7 @@ FRRE RULE
 <Abstract>1</Abstract>
 <ClassType/>
 <ProcedureBlock>1</ProcedureBlock>
-<TimeChanged>64226,39885.871241</TimeChanged>
+<TimeChanged>64226,59537.770595</TimeChanged>
 <TimeCreated>63046,56232.897117</TimeCreated>
 
 <Method name="outputDefaultCSS">
@@ -17532,7 +17548,7 @@ The basic frontend default stuff</Description>
 		}
 		.ef-required-field::after {
 		    content: " *";
-		    color: red;			
+		    color: red;
 		}
 		.ef-dependent-field::after {
 		    content: "🔗";
@@ -17544,6 +17560,9 @@ The basic frontend default stuff</Description>
 		@media (max-width: 768px) {
 		   .ef_proweb_form_prompt {
 		      text-align: left; 
+		  }
+		  .ef-required-field::after {
+			float: left;  
 		  }
 		}
 		.EF_dropdown_searchable_container {

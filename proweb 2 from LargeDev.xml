@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2015.2 (Build 664_3_16032U)" ts="2016-11-07 08:26:13">
+<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2015.2 (Build 664_3_16032U)" ts="2016-11-08 10:41:51">
 <Class name="EF.contextDataRegistration">
 <Description><![CDATA[
 <!-- ;vc;-
@@ -1642,7 +1642,7 @@ Should be run if any of the sub-classes are deleted</Description>
 
 <Class name="EF.pageController.proweb.page">
 <Super>EF.pageController.page</Super>
-<TimeChanged>64226,59284.795503</TimeChanged>
+<TimeChanged>64230,37869.722701</TimeChanged>
 <TimeCreated>64189,51696.559047</TimeCreated>
 
 <Property name="contextData">
@@ -1682,7 +1682,6 @@ Should be run if any of the sub-classes are deleted</Description>
 	} else {
 		do ..insertMockProwebItems()
 	}
-	
 	do ..repeatAnyGuestQuestions()
 	do ..insertPanelElementsAroundGuestQuestions()
 	do ..loadSponsorElements() 
@@ -1715,7 +1714,7 @@ Should be run if any of the sub-classes are deleted</Description>
 		if ..hasError {
 			do ..renderErrorMessages()
 		}
-		set parentListElement = ..getElementByIdentifier("registration form list")
+		set parentListElement = ..getElementByIdentifier("Main Page")
 		do ..renderElements(parentListElement)
 	}
 	quit
@@ -1819,12 +1818,8 @@ Should be run if any of the sub-classes are deleted</Description>
 <Method name="loadAllProwebListsForPage">
 <Private>1</Private>
 <Implementation><![CDATA[
-	if ..isReload {
-		set pageID = ..prowebPageID
-	} else {
-		set pageID = ..contextData.pageID	
-	}
-	set registrationFormList = ##class(EF.pageController.containerElements.list).addElementToParent($this, "registration form list", "")
+	set pageID = ..getPageID()
+	set registrationFormList = ##class(EF.pageController.containerElements.list).addElementToParent($this, "Main Page", "")
 	set ..parentListElement = registrationFormList
 	
 	set rsLists = ##class(%ResultSet).%New("sc.objData:qGetChildren")
@@ -1840,6 +1835,9 @@ Should be run if any of the sub-classes are deleted</Description>
 <FormalSpec>prowebListID:%Integer</FormalSpec>
 <Private>1</Private>
 <Implementation><![CDATA[
+	if ..parentListElement.identifier = "Main Page" {
+		do ..addPageHeader(prowebListID)
+	}
 	set rsProwebItems = ##class(%ResultSet).%New("sc.xModules.objList:qGetChildren")
 	do rsProwebItems.Execute(prowebListID)
 	while rsProwebItems.Next() {	
@@ -1870,6 +1868,27 @@ Should be run if any of the sub-classes are deleted</Description>
 			set prowebItem = ##class(sc.facade.prowebItem).createNew(storage)
 			do ..addControllerForProwebItem(prowebItem)
 		}
+	}
+]]></Implementation>
+</Method>
+
+<Method name="addPageHeader">
+<FormalSpec>prowebListID:%Integer</FormalSpec>
+<Private>1</Private>
+<Implementation><![CDATA[
+	#define addToTopOfList 1
+	set page = ##class(sc.xModules.objPage).%OpenId( ..getPageID() )
+	
+	if $IsObject(page) && (page.hasPageHeaderEverBeenAdded = 0 ) {
+		set text =  ##class(translations.objPhraseWebsite).translatePhrase("Attendee Details", ..contextData.languageID)
+
+		set textID = ##class(sc.xModules.objText).add(prowebListID, "<H1>"_text_"</H1>", , $$$addToTopOfList)
+		if 'textID {
+			throw ##class(shared.exceptions.generalException).%New("Failed to add page header: '"_text_"' listID: ",prowebListID)	
+		}
+
+		set page.hasPageHeaderEverBeenAdded = 1
+		do page.%Save()
 	}
 ]]></Implementation>
 </Method>
@@ -2180,8 +2199,10 @@ Should be run if any of the sub-classes are deleted</Description>
 	set childControllerStart.value = $Piece(##class(eCom.tempCodData).get(..contextData.tempPersonID, itemName), "|", 1)
 	
 	set earliestAllowedStartDate = $Piece(##class(cod.lnkItemNameEventDateRange).getMinTimeStamp(..contextData.eventID, prowebItem.storage.databaseItemID), " ", 1)
-	set earliestAllowedStartDate = ##class(shared.dateFunctions).multiDate(earliestAllowedStartDate, childControllerStart.uiComponent.validator.dateFormat )
-	do childControllerStart.uiComponent.addAttribute("efdaterangestartmin", earliestAllowedStartDate )
+	set earliestAllowedStartDate = ##class(shared.dateFunctions).multiDate(earliestAllowedStartDate, 25 )
+	do childControllerStart.uiComponent.addAttribute("efdaterangestartmin", earliestAllowedStartDate)
+	do childControllerStart.uiComponent.addAttribute("efdaterangeendid", elementIdentifier_"-endDate")
+	do childControllerStart.uiComponent.addAttribute("efdaterangetargetid", elementIdentifier_"-value")
 				
 	set childControllerEnd = ##class(EF.pageController.proweb.datePicker).addElementToParent(element, elementIdentifier_"-endDate", "", isReadOnly)		
 	set childControllerEnd.uiComponent.contextData = ..contextData
@@ -2189,9 +2210,11 @@ Should be run if any of the sub-classes are deleted</Description>
 	set childControllerEnd.uiComponent.prowebItem = prowebItem
 	set childControllerEnd.value = $Piece(##class(eCom.tempCodData).get(..contextData.tempPersonID, itemName), "|", 2)
 
-	set latestAllowedEndDate = $Piece(##class(cod.lnkItemNameEventDateRange).getMinTimeStamp(..contextData.eventID, prowebItem.storage.databaseItemID), " ", 1)
-	set latestAllowedEndDate = ##class(shared.dateFunctions).multiDate(latestAllowedEndDate, childControllerStart.uiComponent.validator.dateFormat )
-	do childControllerEnd.uiComponent.addAttribute("efdaterangeendmax", latestAllowedEndDate )	
+	set latestAllowedEndDate = $Piece(##class(cod.lnkItemNameEventDateRange).getMaxTimeStamp(..contextData.eventID, prowebItem.storage.databaseItemID), " ", 1)
+	set latestAllowedEndDate = ##class(shared.dateFunctions).multiDate(latestAllowedEndDate, 25 )
+	do childControllerEnd.uiComponent.addAttribute("efdaterangeendmax", latestAllowedEndDate)
+	do childControllerEnd.uiComponent.addAttribute("efdaterangestartid", elementIdentifier_"-startDate")
+	do childControllerEnd.uiComponent.addAttribute("efdaterangetargetid", elementIdentifier_"-value")	
 
 	return element
 ]]></Implementation>
@@ -2498,6 +2521,19 @@ Should be run if any of the sub-classes are deleted</Description>
 		set value = ##class(cod.methods).formatMultiCheckBox(..contextData.eventID, prowbItemName, .tmpArray)
 		do ##class(eCom.tempCodData).set(tempPersonID, prowbItemName, value, ..contextData.pageID, ..contextData.eventID)
 	}
+]]></Implementation>
+</Method>
+
+<Method name="getPageID">
+<Private>1</Private>
+<ReturnType>%Integer</ReturnType>
+<Implementation><![CDATA[
+	if ..isReload {
+		set pageID = ..prowebPageID
+	} else {
+		set pageID = ..contextData.pageID	
+	}
+	return pageID
 ]]></Implementation>
 </Method>
 
@@ -4818,7 +4854,7 @@ we need to refactor the frontend buttons to make them callable from class method
 ;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>EF.ui.components.backend.datePicker.CLS/EV.3</td><td>CLS.EF.ui.components.backend.datePicker</td><td>LargeDev</td><td style='white-space: nowrap;'>02-Feb-16 12:32</td><td>AdrianM2</td></tr></table>
 ]]></Description>
 <Super>EF.ui.components.textInput,EF.ui.components.frontend.inputElement</Super>
-<TimeChanged>64226,60056.44723</TimeChanged>
+<TimeChanged>64230,34277.221316</TimeChanged>
 <TimeCreated>63384,38215.518113</TimeCreated>
 
 <Parameter name="typeAttribute">
@@ -4868,6 +4904,7 @@ we need to refactor the frontend buttons to make them callable from class method
 	do ..renderColumnStart()
 	set startDateComponent = ..childComponents.GetAt(1)
 	set startDateComponent.placeHolder = ##class(shared.dateFunctions).datePattern(..validator.dateFormat)
+	set startDateComponent.classes = startDateComponent.classes_" efDateRangeStart"
 	do startDateComponent.renderInputElementOnly()
 	do ..renderColumnEnd()
 
@@ -4878,10 +4915,13 @@ we need to refactor the frontend buttons to make them callable from class method
 	do ..renderColumnStart()
 	set endDateComponent = ..childComponents.GetAt(2) 
 	set endDateComponent.placeHolder = ##class(shared.dateFunctions).datePattern(..validator.dateFormat)
+	set endDateComponent.classes = endDateComponent.classes_" efDateRangeEnd"
 	do endDateComponent.renderInputElementOnly()
 	do ..renderColumnEnd()
 	
 	do ..renderHelpAndRowClosing()
+	
+	write !,"<input type='hidden' id='"_..encodeForHTMLAttribute(..htmlID)_"-value' name='"_..encodeForHTMLAttribute(..htmlID)_"-value'>"
 ]]></Implementation>
 </Method>
 
@@ -5387,7 +5427,7 @@ we need to refactor the frontend buttons to make them callable from class method
 
 <Class name="EF.ui.components.frontend.inputElement">
 <Super>EF.ui.components.frontend.prowebBase,EF.ui.components.inputBase</Super>
-<TimeChanged>64226,39067.999872</TimeChanged>
+<TimeChanged>64229,34165.057056</TimeChanged>
 <TimeCreated>64183,40678.260093</TimeCreated>
 
 <Property name="alternatives">
@@ -5481,7 +5521,7 @@ we need to refactor the frontend buttons to make them callable from class method
 <Implementation><![CDATA[
 	if $length(..label) {
 		&html<
-			<label class="control-label" for="#(..encodeForHTMLAttribute(..htmlID))#" >
+			<label class="control-label" for="#(..encodeForHTMLAttribute(..htmlID))#" #(..rawHTML(..getProwebExtraAttributes()))#>
 				<div class="ef-label-text" id="ef-display-label-#(..encodeForHTMLAttribute(..htmlID))#">
 					#(..rawHTML(..label))#
 				</div>
@@ -5828,7 +5868,7 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 
 <Class name="EF.ui.components.frontend.prowebBase">
 <Super>EF.ui.components.base</Super>
-<TimeChanged>64226,39546.67142</TimeChanged>
+<TimeChanged>64230,34340.461316</TimeChanged>
 <TimeCreated>64183,41819.123112</TimeCreated>
 
 <Property name="isProwebEditMode">
@@ -5888,7 +5928,12 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 
 <Method name="getDependsOnText">
 <ReturnType>%String</ReturnType>
-<Implementation><![CDATA[	return ..rawHTML(..prowebItem.storage.dependencyHoverText)
+<Implementation><![CDATA[
+	if ..isProwebEditMode {
+		return ..rawHTML(..prowebItem.storage.dependencyHoverText)
+	} else {
+		return ""
+	}
 ]]></Implementation>
 </Method>
 
@@ -5914,12 +5959,7 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 
 <Method name="getProwebExtraAttributes">
 <ReturnType>%String</ReturnType>
-<Implementation><![CDATA[
-	if ..contextData.prowebMode = "edit" {
-		return ""
-	} else {
-		return ..getExtraAttributes()	
-	}
+<Implementation><![CDATA[	return ..getExtraAttributes()
 ]]></Implementation>
 </Method>
 
@@ -6176,7 +6216,7 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 
 <Class name="EF.ui.components.frontend.textInput">
 <Super>EF.ui.components.textInput,EF.ui.components.frontend.inputElement</Super>
-<TimeChanged>64222,53650.394042</TimeChanged>
+<TimeChanged>64229,34092.498605</TimeChanged>
 <TimeCreated>63357,57620.613738</TimeCreated>
 
 <Parameter name="typeAttribute">
@@ -6281,7 +6321,7 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 
 <Class name="EF.ui.components.frontend.timeInput">
 <Super>EF.ui.components.frontend.textInput</Super>
-<TimeChanged>64211,56840.567717</TimeChanged>
+<TimeChanged>64229,35816.669048</TimeChanged>
 <TimeCreated>63357,57620.613738</TimeCreated>
 
 <Parameter name="typeAttribute">
@@ -6296,7 +6336,7 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 <ClassMethod>1</ClassMethod>
 <ReturnType>%String</ReturnType>
 <Implementation><![CDATA[
-	set defaultClasses = "ef-kendo-form-control ef-proweb-input-element"
+	set defaultClasses = "ef-kendo-form-control"
 	return defaultClasses
 ]]></Implementation>
 </Method>
@@ -8383,9 +8423,9 @@ function loadItem(itemNameID) {
 													
 													set ticketID=##class(cod.objTicket).getTicketIDfromDataID(dataID)
 													if ticketID'="" {
-														set eventBookablItemQBI = ##class(setup.eventBookableItemQBI).createNew(eventConfiguration,ticketID)
-														do eventBookablItemQBI.load()
-														write eventBookablItemQBI.bookingLevel.getCompleted()
+														set eventBookableItemQBI = ##class(setup.eventBookableItemQBI).createNew(eventConfiguration,ticketID)
+														do eventBookableItemQBI.load()
+														write eventBookableItemQBI.bookingLevel.getCompleted()
 													} else {
 														write "0"
 													}
@@ -10357,7 +10397,6 @@ function saveSameAs(categoryID) {
 		set qMin=%request.Get("txtqMin")
 		set qMax=%request.Get("txtqMax")
 		
-		
 		if (qMin'?.N) {
 			set %session.Data("proweb","backend","errMsg") = "The changes can't be saved because ""Optional booking levels - minimum"" must be a number"
 			set %response.Redirect = errorURL
@@ -10390,8 +10429,8 @@ function saveSameAs(categoryID) {
 				return 0
 			}
 			do bookableItemQBI.save()
-			TCOMMIT
 		}
+		TCOMMIT
 		
 		// create array of selected discounts
 		set item="chkDiscount"
@@ -12779,7 +12818,7 @@ function cancelUpdate() {
 						set databaseItemID = ##class(sc.xModules.objCODitem).getCODItemNameID(prowebItem.dependsOnPrompt)
 						Set rsAlt=##class(cod.objItemAlternatives).getAlternativesForCodItemMatchingDescriptionAsResultSet(databaseItemID, ,contextData.languageID)
 						While rsAlt.Next() {
-							Write !,"<option value=",rsAlt.Get("ID"),$Select( prowebItem.dependsOnAlternative = rsAlt.Get("ID"):" SELECTED",1:"" ),">",..encodeForHTML(rsAlt.Get("description")),"</option>"
+							Write !,"<option value='",..encodeForHTMLAttribute(rsAlt.Get("description")),"'",$Select( prowebItem.dependsOnAlternative = rsAlt.Get("ID"):" SELECTED",1:"" ),">",..encodeForHTML(rsAlt.Get("description")),"</option>"
 						}		
 					}
 				</script>
@@ -12897,11 +12936,16 @@ $('.ef-Proweb-Quick-Edit-Panel').find('textarea').each(function() {
 	set prowebItem.dependsOnPrompt = %request.Get("dependsOnParent")
 	set newDependsOnPrompt = prowebItem.dependsOnPrompt
 	
+	;w "new value=",%request.Get("dependsOnParent")
+	;w "<br>new alt=",%request.Get("dependsOnAlternative")
+	
 	if prowebItem.dependsOnPrompt {
 		set auditDepencency = 1
 		set selectedAlternative = %request.Get("dependsOnAlternative")
 		set databaseItemID = ##class(sc.xModules.objCODitem).getCODItemNameID(prowebItem.dependsOnPrompt)
 		set selectedAlternativeID = ##class(cod.objItemAlternatives).getIDFromDescription(databaseItemID, selectedAlternative)
+	;	w !,"databaseItemID=",databaseItemID
+	;	w !,"selectedAlternativeID=",selectedAlternativeID
 	}
 	
 	set oldDependsOnAlternative = prowebItem.dependsOnAlternative
@@ -19138,7 +19182,7 @@ Returns true if the template is custom made</Description>
 </Class>
 
 
-<Project name="proweb 2" LastModified="2016-11-03 12:17:22.724949" Target="dev.efsys.net/LARGEDEVSRC/backend/home/efSupportLogin.htm" TargetType="3">
+<Project name="proweb 2" LastModified="2016-11-08 10:08:56.328748" Target="largedevsrc/backEnd/proweb/quickEditAJAX.csp" TargetType="3">
   <Items>
     <ProjectItem name="EF.contextDataRegistration" type="CLS"></ProjectItem>
     <ProjectItem name="EF.contextDataRegistrationMock" type="CLS"></ProjectItem>
@@ -19272,6 +19316,7 @@ Returns true if the template is custom made</Description>
     <ProjectItem name="sc.viewQuestionsByPageID" type="CLS"></ProjectItem>
     <ProjectItem name="sc.xModules.objList" type="CLS"></ProjectItem>
     <ProjectItem name="shared.pageMethods" type="CLS"></ProjectItem>
+    <ProjectItem name="sc.xModules.objPage" type="CLS"></ProjectItem>
   </Items>
   <BreakPoints>
     <BreakPoint Routine="cspRealEV.frontend.reg.pagecontrollerstandardsave.CLS" Offset="OnPreHTTPafter+28"></BreakPoint>
@@ -22421,6 +22466,1011 @@ Creates new list object. Should be done the first time the page is loaded</Descr
 </Property>
 <Property name="xMOuserID">
 <Selectivity>6.2499%</Selectivity>
+</Property>
+</Storage>
+</Class>
+
+
+<Class name="sc.xModules.objPage">
+<Description><![CDATA[
+The data type that represents a a page level in the hierachy. 
+<!-- ;vc;
+;vc;    Object: sc.xModules.objPage.CLS/EV.36
+;vc; Component: CLS.sc.xModules.objPage
+;vc;  Location: LargeDev
+;vc; Date/Time: 08-Nov-16 08:48
+;vc;      User: FredG
+;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>sc.xModules.objPage.CLS/EV.36</td><td>CLS.sc.xModules.objPage</td><td>LargeDev</td><td style='white-space: nowrap;'>08-Nov-16 08:48</td><td>FredG</td></tr></table>
+]]></Description>
+<ClassType>persistent</ClassType>
+<ProcedureBlock>1</ProcedureBlock>
+<Super>sc.objData</Super>
+<TimeChanged>64230,36470.406618</TimeChanged>
+<TimeCreated>58926,57261</TimeCreated>
+
+<Parameter name="EXTENTSIZE">
+<Default>6869</Default>
+</Parameter>
+
+<Property name="accessLevel">
+<Type>%Library.String</Type>
+<Parameter name="TRUNCATE" value="1"/>
+</Property>
+
+<Property name="dataType">
+<Description>
+Used for identifying the class of the object without having to call
+cache mysterious APIs.</Description>
+<Type>%Library.String</Type>
+<InitialExpression>"objPage"</InitialExpression>
+<Parameter name="TRUNCATE" value="1"/>
+</Property>
+
+<Property name="description">
+<Description>
+Only used in the backend when navigation thru the tree.</Description>
+<Type>%Library.String</Type>
+<Parameter name="MAXLEN" value="250"/>
+<Parameter name="TRUNCATE" value="1"/>
+</Property>
+
+<Property name="staticPage">
+<Description>
+The filename for the static version (if applicable) of this page</Description>
+<Type>%Library.String</Type>
+<Parameter name="MAXLEN" value="500"/>
+<Parameter name="TRUNCATE" value="1"/>
+</Property>
+
+<Property name="staticURL">
+<Description>
+The URL for the static version (if applicable) of this page</Description>
+<Type>%Library.String</Type>
+<Parameter name="MAXLEN" value="500"/>
+<Parameter name="TRUNCATE" value="1"/>
+</Property>
+
+<Property name="objTemplate">
+<Type>sc.objTemplate</Type>
+<Cardinality>one</Cardinality>
+<Inverse>objPages</Inverse>
+<Relationship>1</Relationship>
+</Property>
+
+<Property name="showInMenu">
+<Description>
+This prop will be used to build up a tree structure for a dynamic
+menu system which might be in javascript or in HTML.</Description>
+<Type>%Library.Boolean</Type>
+<InitialExpression>0</InitialExpression>
+</Property>
+
+<Property name="redirect">
+<Description>
+holds trhe redirect name for direct access. Generates a static file which redirect to this page</Description>
+<Type>%String</Type>
+<Parameter name="TRUNCATE" value="1"/>
+</Property>
+
+<Property name="allowRemoteUpdating">
+<Description>
+is the page available for auto update (what's new pages)</Description>
+<Type>%Boolean</Type>
+</Property>
+
+<Property name="seoPageName">
+<Description>
+the seo friendly page name (shown in browser address bar)  JAW APR2010</Description>
+<Type>%String</Type>
+<Parameter name="MAXLEN" value="50"/>
+</Property>
+
+<Property name="titleBarText">
+<Description>
+the browser title bar text for this page (html TITLE) JAW APR2010</Description>
+<Type>%String</Type>
+<Parameter name="MAXLEN" value="100"/>
+</Property>
+
+<Property name="seoKeywords">
+<Description>
+SEO keywords output to the page (used by very few crawlers)  JAW APR2010</Description>
+<Type>%String</Type>
+<Parameter name="MAXLEN" value="200"/>
+</Property>
+
+<Property name="seoDescription">
+<Description>
+SEO description output to the page (used by some crawlers in different ways)  JAW APR2010</Description>
+<Type>%String</Type>
+<Parameter name="MAXLEN" value="400"/>
+</Property>
+
+<Property name="showInXmlSiteMap">
+<Description>
+should this page appear in the SEO site map?  JAW APR2010 (although not going to be used for now maybe never)</Description>
+<Type>%Boolean</Type>
+</Property>
+
+<Property name="promptAlign">
+<Description>
+pjc 2010-04-21
+customisable reg page form parameters
+alignment of the form prompt TD</Description>
+<Type>%String</Type>
+<Parameter name="VALUELIST" value=",left,right,center,justify"/>
+</Property>
+
+<Property name="inputAlign">
+<Description>
+alignment of the form input TD </Description>
+<Type>%String</Type>
+<Parameter name="VALUELIST" value=",left,right,center,justify"/>
+</Property>
+
+<Property name="promptWidth">
+<Description>
+width of the form prompt TD</Description>
+<Type>%Integer</Type>
+</Property>
+
+<Property name="inputWidth">
+<Description>
+width of the form input TD</Description>
+<Type>%Integer</Type>
+</Property>
+
+<Property name="promptHeight">
+<Description>
+height of the form prompt TD</Description>
+<Type>%Integer</Type>
+</Property>
+
+<Property name="inputHeight">
+<Description>
+height of the form input TD</Description>
+<Type>%Integer</Type>
+</Property>
+
+<Property name="units">
+<Description>
+unit of measurement for the numeric values</Description>
+<Type>%String</Type>
+<Parameter name="VALUELIST" value=",pixels,percentage"/>
+</Property>
+
+<Property name="objLanguage">
+<Type>shared.objLanguage</Type>
+</Property>
+
+<Property name="hasPageHeaderEverBeenAdded">
+<Description>
+Only used by proweb2</Description>
+<Type>%Boolean</Type>
+<InitialExpression>0</InitialExpression>
+</Property>
+
+<Method name="getStaticURL">
+<Description>
+return the static URL for this page if it has been compiled and it is a static page template</Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec>pageID</FormalSpec>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	set out=0
+	
+	if ##class(sc.objData).inStatic(pageID) {
+		&SQL(SELECT staticURL INTO :tmp FROM sc_xModules.objPage WHERE ID = :pageID)
+		if +SQLCODE=0 set out=tmp
+	}
+	
+	quit out
+]]></Implementation>
+</Method>
+
+<Method name="getTemplateFile">
+<Description>
+returns the template filename</Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec>pageID:%String=""</FormalSpec>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+ set out=""
+ &SQL(SELECT objTemplate->filename INTO :tmp FROM sc_xModules.objPage WHERE ID = :pageID)
+ if +SQLCODE=0 set out=tmp
+ quit out
+]]></Implementation>
+</Method>
+
+<Method name="add">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>templateDescription:%Library.String="",pageDescription:%Library.String="",parent:%Library.String="",eventID="",langID=""</FormalSpec>
+<ReturnType>%Library.String</ReturnType>
+<Implementation><![CDATA[
+	// create new proweb page and return the pageID
+	if $L(pageDescription)=0 quit "0|no description"
+	
+	//get the templateID 
+	set tmp="",templateID=""
+	&SQL(SELECT ID INTO :tmp FROM sc.objTemplate WHERE description = :templateDescription)
+	if +SQLCODE=0 set templateID=tmp
+	if 'templateID quit "0|no templateID"
+	
+	// create new
+	set objData=##class(sc.xModules.objPage).%New()
+	
+	// parent
+	set parent=$G(parent)
+	if parent="" quit "0|no parent"
+	do objData.parentSetObjectId(parent)
+	
+	if langID do objData.objLanguageSetObjectId(langID)
+	
+	// set creator
+	set objData.active=1
+	set objData.creator="system"
+	
+	// set the displayOrder to last
+	set displayOrder=""
+	&SQL(SELECT displayOrder INTO :displayOrder FROM sc.objData WHERE parent=:parent ORDER BY displayOrder DESC)
+	set objData.displayOrder=(displayOrder+1)
+	
+	// set the step
+	set finalStep=##class(sc.objStep).getFinalLevel()
+	set finalStepID=##class(sc.objStep).getFinalLevelID()
+	do objData.objStepSetObjectId(finalStepID)
+	
+	// set the template
+	do objData.objTemplateSetObjectId(templateID)
+	
+	set objData.description=pageDescription
+	if eventID do objData.objEventSetObjectId(eventID)
+	
+	set ok=objData.%Save()
+	if 'ok set ^xERROR($ZTS,"addPage method","objData.%Save()"_pageDescription)=ok
+	set pageID=objData.%Id()
+	do objData.%Close()
+	quit pageID
+]]></Implementation>
+</Method>
+
+<Method name="getBeforeItem">
+<Description>
+pjc 2010-06-01 configurable width + alignment for TDs
+Method to return the before item string to use as a parameter to the SC:FREE tag
+Includes any alignment, width etc parameters
+Includes the default CSS class for TDs
+Accepts three optional parameters - width, colspan, styleClass, noTR (no table row)
+Note that this only applies to the prompt TDs
+Input TDs are written out in coditem.csp</Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec>pageID:%Integer,notUsed1,notUsed2,notUsed3,notUsed4,notUsed5</FormalSpec>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	// pjc 2011-12-14 drag and drop on all pages
+	set beforeItem="<tr class=""draggableTR""><td"
+	
+	&SQL(SELECT promptAlign, promptHeight, promptWidth, units INTO :promptAlign, :promptHeight, :promptWidth, :units FROM sc_xModules.objPage WHERE ID = :pageID)
+	if +SQLCODE=0 {
+		
+		// CSS
+		set CSSClass=##class(setup.objSetting).getParameter("frontend","td css class") // never set anywhere as of 2010-04-28 but could well be useful in future
+		if (CSSClass=""){
+			set CSSClass="black12px ef_proweb_form_prompt"
+		}
+		
+		set beforeItem=beforeItem_" class="""_CSSClass_""""
+		
+		// HTML attributes
+		if (promptAlign '= "") {
+			set beforeItem=beforeItem_" align="""_promptAlign_""""
+		}
+		
+		if (units="percentage"){
+			set units="%"
+		}else{
+			set units="px"	
+		}
+		
+		if (promptHeight) {
+			set beforeItem=beforeItem_" height="""_promptHeight_"px""" // % makes no sense for height measurements
+		}	
+		
+		if (promptWidth) {
+			set beforeItem=beforeItem_" width="""_promptWidth_units_""""
+		}
+	}
+	
+	set beforeItem=beforeItem_">" // close the TD
+	
+	quit beforeItem
+]]></Implementation>
+</Method>
+
+<Method name="getExtraBit">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>pageID</FormalSpec>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	set langID=##class(sc.methods).getLangFromPageID(pageID)
+	set extraBit=""
+	if langID'=1 set extraBit=" - "_##class(shared.objLanguage).getLanguageDesc(langID)
+	return extraBit
+]]></Implementation>
+</Method>
+
+<Method name="getBookerPageID">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>eventID,langID</FormalSpec>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	set extraBit=##class(sc.pageMethods).getDescriptionModifier(langID)
+	
+	if ##class(setup.objEventSetting).getParameter("system","isAwardsEvent",eventID) {
+		set bookerPageID=..getAwardSubmitterPageID(eventID,langID)
+	} else {
+		set bookerPageID=##class(setup.objEventSetting).getParameter("bookings","bookerRegPageID"_extraBit,eventID)
+	}
+	return bookerPageID
+]]></Implementation>
+</Method>
+
+<Method name="getAwardSubmitterPageID">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>eventID,langID</FormalSpec>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	set pageID=##class(setup.objEventSetting).getParameter("awards","awardClientPageID",eventID)
+	return pageID
+]]></Implementation>
+</Method>
+
+<Method name="isBookerPage">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>pageID</FormalSpec>
+<ReturnType>%Boolean</ReturnType>
+<Implementation><![CDATA[
+	set out=0
+	set eventID=##class(sc.methods).getEventIDfromPageID(pageID)
+	if pageID=##class(setup.objEventSetting).getParameter("bookings","bookerRegPageID"_..getExtraBit(pageID),eventID) {
+		set out=1
+	}	
+	quit out
+]]></Implementation>
+</Method>
+
+<Method name="isAwardsEntryPage">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>pageID</FormalSpec>
+<ReturnType>%Boolean</ReturnType>
+<Implementation><![CDATA[
+	set isAwardsEntryPage=0
+	&SQL(SELECT ID INTO :tmp FROM awards.objCategory WHERE pageID=:pageID)
+	if +SQLCODE=0 {
+		set isAwardsEntryPage=1
+	}
+	return isAwardsEntryPage
+]]></Implementation>
+</Method>
+
+<Method name="isAbstractDocumentPage">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>pageID</FormalSpec>
+<ReturnType>%Boolean</ReturnType>
+<Implementation><![CDATA[
+ 	Set inAbsDocPage=0
+ 	set eventID=##class(sc.methods).getEventIDfromPageID(pageID)
+ 	if ##class(setup.objEventSetting).getParameter("event setup","has abstracts",eventID) {
+		set documentPageID=##class(setup.objEventSetting).getParameter("abstract management pages","documentPageID"_..getExtraBit(pageID),eventID)
+		if (pageID=documentPageID) {
+			Set inAbsDocPage=1
+		}
+ 	}
+ 	return inAbsDocPage
+]]></Implementation>
+</Method>
+
+<Method name="isAbstractSignUpPage">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>pageID</FormalSpec>
+<ReturnType>%Boolean</ReturnType>
+<Implementation><![CDATA[
+	
+	set eventID=##class(sc.methods).getEventIDfromPageID(pageID)
+	set signUpPageID=##class(setup.objEventSetting).getParameter("abstract management pages","signUpPageID"_..getExtraBit(pageID),eventID)
+	if pageID=signUpPageID {
+		set result=1
+	} else {
+		set result=0	
+	}
+	return result
+]]></Implementation>
+</Method>
+
+<Method name="isRegistrationPage">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>pageID</FormalSpec>
+<ReturnType>%Boolean</ReturnType>
+<Implementation><![CDATA[
+	set parentID=##class(sc.objData).getParentID(pageID)
+	set groupName=##class(sc.xModules.objGroup).getDescription(parentID)
+	set result=0
+	if $ZCVT(groupName,"L")="registration pages" set result=1
+	return result
+]]></Implementation>
+</Method>
+
+<Method name="isPaymentMethodPage">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>pageID</FormalSpec>
+<ReturnType>%Boolean</ReturnType>
+<Implementation><![CDATA[
+	set parentID=##class(sc.objData).getParentID(pageID)
+	set groupName=##class(sc.xModules.objGroup).getDescription(parentID)
+	set result=0
+	if $ZCVT(groupName,"L")="payment method instructions" set result=1
+	return result
+]]></Implementation>
+</Method>
+
+<Method name="isPageForBooker">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>pageID</FormalSpec>
+<ReturnType>%Boolean</ReturnType>
+<Implementation><![CDATA[
+	set result=0
+	if ..isBookerPage(pageID) set result=1
+	if ..isPaymentMethodPage(pageID) set result=1
+	return result
+]]></Implementation>
+</Method>
+
+<Method name="checkDependenciesRecursively">
+<Description>
+check through lists on a page to check for any parents of dependent prompts
+if these have active, non-cancelled data, return true
+check needed to prevent deletion of pages containing such items
+start with a passed-in pageID</Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec>dataID:%Integer=0,eventCategoryID:%Integer,eventID:%Integer=0</FormalSpec>
+<ReturnType>%Boolean</ReturnType>
+<Implementation><![CDATA[
+	
+	if (dataID=0!eventID=0!eventCategoryID=0) {
+		quit 0
+	}
+	
+	set ok=1
+	
+	// is dataID a page dependent on a prompt which has active data saved
+	&SQL(SELECT ID FROM sc.objData WHERE ID=:dataID AND dataType='objPage')
+	if (+SQLCODE=0){
+	 	&SQL(SELECT dependsOnObjItemName->description INTO :tmp FROM setup.lnkCategoryEvent WHERE (objEventCategory=:eventCategoryID) AND (objEvent=:eventID) AND (dependsOnPromptPageID IS NOT NULL) AND ((pageID=:dataID) OR (sameAs->pageID=:dataID)))
+	 	if (+SQLCODE=0) {
+			set promptName=tmp
+	 		set hasActiveData=##class(cod.objItemData).findActiveData(promptName,eventID)
+	 		if (hasActiveData=1) {
+				set ok=0	
+	 		}
+	 	}
+	}
+	if ok=0 quit ok
+	
+	set rs=##class(%ResultSet).%New("%Library.DynamicQuery:SQL")
+ 	do rs.Prepare("SELECT ID, dataType FROM sc.objData WHERE parent=?")
+ 	do rs.Execute(dataID)
+ 	while rs.Next() {
+ 		if (rs.Get("dataType")="objList"){
+	 		// call self to check through lists on page
+ 			set ok=##class(sc.xModules.objPage).checkDependenciesRecursively(rs.Get("ID"),eventCategoryID,eventID)		
+ 		} elseif (rs.Get("dataType")="objCODitem"){
+	 		// do we have children?
+	 		set myID = rs.Get("ID")
+	 		set hasChildren=0
+	 		&SQL(SELECT TOP 1 ID FROM sc_xModules.objCODitem WHERE dependsOnPrompt = :myID)
+	 		if (+SQLCODE = 0) { // yes we do
+	 			set hasChildren=1
+	 		}
+	 		if (hasChildren=0) { // do we have dependent text blocks
+	 			&SQL(SELECT TOP 1 ID FROM sc_xModules.objText WHERE dependsOnPrompt = :myID)
+	 			if (+SQLCODE = 0) { // yes we do
+	 				set hasChildren=1
+	 			}	
+	 		}
+	 		if (hasChildren) {
+		 		&SQL(SELECT description INTO :tmp FROM sc_xModules.objCODitem WHERE ID = :myID)
+		 		if (+SQLCODE=0) {
+			 		set promptName=tmp
+	 				set hasActiveData=##class(cod.objItemData).findActiveData(promptName,eventID)
+	 				if (hasActiveData=1) {
+		 				set ok=0	
+	 				}
+		 		}
+	 		}
+ 		}
+ 		if ok=0 quit
+ 	}
+	quit ok
+]]></Implementation>
+</Method>
+
+<Method name="getTemplateName">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>pageID</FormalSpec>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	set out=""
+	&SQL(SELECT objTemplate->description INTO :tmp
+		FROM sc_xModules.objPage
+		WHERE ID = :pageID
+	)
+	if +SQLCODE=0 {
+		set out=tmp
+	}
+	quit out
+]]></Implementation>
+</Method>
+
+<Method name="updateObjLanguage">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>dataID,langID</FormalSpec>
+<Implementation><![CDATA[
+	&SQL(UPDATE sc_xModules.objPage SET objlanguage = :langID WHERE ID = :dataID)
+	if +SQLCODE'=0 throw ##class(shared.exceptions.generalException).%New("updating sc.ObjData with objLanguage failed")
+]]></Implementation>
+</Method>
+
+<Method name="getDescription">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>dataID</FormalSpec>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	&SQL(SELECT description INTO :tmp  FROM sc_xModules.objPage WHERE id = :dataID)
+	if +SQLCODE=0 {
+		return tmp
+	} else {
+		return ""
+	}
+]]></Implementation>
+</Method>
+
+<Method name="updateDescription">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>pageID,description</FormalSpec>
+<Implementation><![CDATA[
+	&SQL(UPDATE sc_xModules.objPage SET description = :description WHERE ID = :pageID)
+	if +SQLCODE'=0 {
+		throw ##class(shared.exceptions.generalSQLException).CreateFromSQLCODE(SQLCODE,$g(%msg))
+	}
+]]></Implementation>
+</Method>
+
+<Method name="hasAnyQuestionThatAffectsPricing">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>paymentPageID</FormalSpec>
+<ReturnType>%Boolean</ReturnType>
+<Implementation><![CDATA[
+	do ..getArrayOfQuestionsThatAffectsPricing(paymentPageID,.questions)
+	return $Data(questions)>0
+]]></Implementation>
+</Method>
+
+<Method name="getArrayOfQuestionsThatAffectsPricing">
+<ClassMethod>1</ClassMethod>
+<FormalSpec><![CDATA[pageID,&array]]></FormalSpec>
+<Implementation><![CDATA[
+	kill array
+	set rsQuestions=##class(%ResultSet).%New("sc.xModules.objPage:qQuestionsByPageID")
+	do rsQuestions.Execute(pageID)
+	while rsQuestions.Next() {
+		set questionID=rsQuestions.Get("ID")
+		if (##class(sc.xModules.objCODitem).isQuestionRelatedToAnyPrice(questionID)) ! (##class(sc.xModules.objCODitem).isRelatedToAnyDiscounts(questionID)) {
+			set count=$I(array)
+			set array(count,"codID")=questionID	
+			set array(count,"questionName")=rsQuestions.Get("description")	
+		}
+	}
+]]></Implementation>
+</Method>
+
+<Method name="hasAnyQuestionThatAffectsPaymentMethods">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>paymentPageID</FormalSpec>
+<ReturnType>%Boolean</ReturnType>
+<Implementation><![CDATA[
+	do ..getArrayOfQuestionsThatAffectsPaymentMethods(paymentPageID,.questions)
+	return $Data(questions)>0
+]]></Implementation>
+</Method>
+
+<Method name="getArrayOfQuestionsThatAffectsPaymentMethods">
+<ClassMethod>1</ClassMethod>
+<FormalSpec><![CDATA[pageID,&array]]></FormalSpec>
+<Implementation><![CDATA[
+	kill array
+	set rsQuestions=##class(%ResultSet).%New("sc.xModules.objPage:qQuestionsByPageID")
+	do rsQuestions.Execute(pageID)
+	while rsQuestions.Next() {
+		set questionID=rsQuestions.Get("ID")
+		if ##class(sc.xModules.objCODitem).isRelatedToAnyPaymentMethods(questionID) {
+			set count=$I(array)
+			set array(count,"codID")=questionID	
+			set array(count,"questionName")=rsQuestions.Get("description")	
+		}
+	}
+]]></Implementation>
+</Method>
+
+<Method name="findChildPageID">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>groupID,pageName</FormalSpec>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	set result=""
+	do ##class(sc.objData).findChildrenPages(groupID,.pages)
+	set pageID=""
+	for  {
+		set pageID=$O(pages(pageID))
+		if pageID="" quit
+		
+		if $ZCVT(##class(sc.xModules.objPage).getDescription(pageID),"L")=$ZCVT(pageName,"L") {
+			set result=pageID
+			quit
+		}	
+	}
+	return result
+]]></Implementation>
+</Method>
+
+<Method name="getParentGroupName">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>pageID</FormalSpec>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	#dim parentID as %Integer
+	#dim parentName as %String
+	set parentID=##class(sc.objData).getParentID(pageID)
+	set parentName=##class(sc.xModules.objGroup).getDescription(parentID)		
+	return parentName
+]]></Implementation>
+</Method>
+
+<Method name="getEquivalentPageIDForLanguageID">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>inPageID,langID</FormalSpec>
+<Implementation><![CDATA[
+	set objPage=..%OpenId(inPageID)
+	if '$IsObject(objPage) {
+		return 0	
+	}
+	set groupID=objPage.parent.%Id()
+	set genericDescription=objPage.getGenericDescription()
+	set descriptionForLanguage=genericDescription_##class(sc.pageMethods).getDescriptionModifier(langID)
+	set pageID=..findChildPageID(groupID,descriptionForLanguage)
+	if 'pageID {
+		set pageID=..findChildPageID(groupID,genericDescription)
+	}
+	return pageID
+]]></Implementation>
+</Method>
+
+<Method name="getComponentByDesciption">
+<FormalSpec>componentName</FormalSpec>
+<ReturnType>sc.objComponent</ReturnType>
+<Implementation><![CDATA[
+	set objComponent=""
+	set pageID=..%Id()
+	set templateID=..objTemplate.%Id()
+	&SQL(SELECT ID INTO :componentID FROM sc.objComponent 
+		WHERE (%UPPER(description) = %UPPER(:componentName))
+		AND (objTemplate = :templateID) AND (objData->parent = :pageID) AND (objData->active=1)
+	) 
+	if +SQLCODE=0 {
+		set objComponent=##class(sc.objComponent).%OpenId(componentID)
+	}
+	return objComponent
+]]></Implementation>
+</Method>
+
+<Method name="getGenericDescription">
+<Description>
+Gets the description without the language modifier</Description>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	set description=..description
+	if $IsObject(..objLanguage) {
+		if ..objLanguage.%Id()'=$$$efEnglishLangID {
+			set description=$P(..description," - ",1,$l(..description," - ")-1)
+		}
+	}
+	return description
+]]></Implementation>
+</Method>
+
+<Method name="isSearchAsYouTypeAllowed">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>pageID</FormalSpec>
+<ReturnType>%Boolean</ReturnType>
+<Implementation><![CDATA[
+	#dim result as %Boolean = 0
+	#dim eventID as %Integer
+	#dim templateID as %Integer
+	#dim intDesc as %String
+	
+	set page=##class(sc.xModules.objPage).%OpenId(pageID)
+	if $IsObject(page) {
+		if $IsObject(page.objEvent) {
+			set eventID = page.objEvent.%Id()
+			if eventID {
+				set result=1
+			}
+		}
+	}
+
+	return result
+]]></Implementation>
+</Method>
+
+<Method name="getFileNameWithoutPathLowerCase">
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[	return $Piece( $ZCVT(..objTemplate.filename,"L") ,"/",*)
+]]></Implementation>
+</Method>
+
+<Method name="allowRegistrationQuestions">
+<FormalSpec>componentName:%String</FormalSpec>
+<ReturnType>%Boolean</ReturnType>
+<Implementation><![CDATA[
+	set pageName = ..getFileNameWithoutPathLowerCase()
+	
+	set result = $Case(pageName, 
+				"tabssignup.csp":1,
+				"taccomguest.csp":1,
+				"tawardsclient.csp":1,
+				"tbooker.csp":1,
+				"tcancellation.csp":1,
+				"tpaymentmethod.csp":1,
+				"tregistration.csp":1,
+	 		:0)
+	 
+	 if pageName="tawardsentry.csp" {
+		 if componentName="Main List" {
+			 set result = 1
+		 } else {
+			 set result = 0
+		 }
+	 }
+	 if pageName="ttableguests.csp" {
+		 if componentName="Main List" {
+			 set result = 1
+		 } else {
+			 set result = 0
+		 }
+	 }
+	 if pageName="tabsdocument.csp" {
+		 if "Document List|Main Author List|Co Author List" [ componentName {
+			 set result = 1
+		 } else {
+			 set result = 0
+		 }
+	 }
+	 return result
+]]></Implementation>
+</Method>
+
+<Method name="alllowPromptCollections">
+<ReturnType>%Boolean</ReturnType>
+<Implementation><![CDATA[
+	return $Case(..getFileNameWithoutPathLowerCase(), 
+				"tawardsclient.csp":1,
+				"tbooker.csp":1,
+				"tpaymentmethod.csp":1,
+				"tregistration.csp":1,
+	 		:0)
+]]></Implementation>
+</Method>
+
+<Method name="allowABIs">
+<ReturnType>%Boolean</ReturnType>
+<Implementation><![CDATA[
+	return $Case(..getFileNameWithoutPathLowerCase(),  
+				"tawardsclient.csp":1,
+				"tbooker.csp":1,
+				"tpaymentmethod.csp":1,
+				"tregistration.csp":1,
+	 		:0)
+]]></Implementation>
+</Method>
+
+<Method name="isSurvey">
+<ReturnType>%Boolean</ReturnType>
+<Implementation><![CDATA[	return $Case(..getFileNameWithoutPathLowerCase(), "xttsurveypage.csp":1, :0)
+]]></Implementation>
+</Method>
+
+<Method name="isHotel">
+<ReturnType>%Boolean</ReturnType>
+<Implementation><![CDATA[	return $Case(..getFileNameWithoutPathLowerCase(), "tHotelBooking.csp":1, :0)
+]]></Implementation>
+</Method>
+
+<Method name="allowDivider">
+<FormalSpec>componentName:%String</FormalSpec>
+<ReturnType>%Boolean</ReturnType>
+<Implementation><![CDATA[	return ..allowRegistrationQuestions(componentName)
+]]></Implementation>
+</Method>
+
+<Method name="allowMiscMedia">
+<ReturnType>%Boolean</ReturnType>
+<Implementation><![CDATA[	return '..isSurvey()
+]]></Implementation>
+</Method>
+
+<Method name="allowFrontendUpload">
+<ReturnType>%Boolean</ReturnType>
+<Implementation><![CDATA[
+	return $Case(..getFileNameWithoutPathLowerCase(), 
+				"tbooker.csp":1,
+				"tregistration.csp":1,
+	 		:0)
+]]></Implementation>
+</Method>
+
+<Query name="qQuestionsByPageID">
+<Type>%SQLQuery</Type>
+<FormalSpec>pageID</FormalSpec>
+<SqlQuery><![CDATA[	SELECT * FROM sc_xModules.objCODitem 
+	WHERE (active=1) AND (parent->parent = :pageID) 
+	ORDER BY displayorder]]></SqlQuery>
+</Query>
+
+<Storage name="Default">
+<Type>%Library.CacheStorage</Type>
+<DefaultData>objPageDefaultData</DefaultData>
+<Data name="objPageDefaultData">
+<Subscript>"objPage"</Subscript>
+<Value name="1">
+<Value>accessLevel</Value>
+</Value>
+<Value name="2">
+<Value>description</Value>
+</Value>
+<Value name="3">
+<Value>showInMenu</Value>
+</Value>
+<Value name="4">
+<Value>staticPage</Value>
+</Value>
+<Value name="5">
+<Value>staticURL</Value>
+</Value>
+<Value name="6">
+<Value>objMenuItem</Value>
+</Value>
+<Value name="7">
+<Value>redirect</Value>
+</Value>
+<Value name="8">
+<Value>allowRemoteUpdating</Value>
+</Value>
+<Value name="9">
+<Value>seoPageName</Value>
+</Value>
+<Value name="10">
+<Value>titleBarText</Value>
+</Value>
+<Value name="11">
+<Value>seoKeywords</Value>
+</Value>
+<Value name="12">
+<Value>showInXmlSiteMap</Value>
+</Value>
+<Value name="13">
+<Value>seoDescription</Value>
+</Value>
+<Value name="14">
+<Value>promptAlign</Value>
+</Value>
+<Value name="15">
+<Value>inputAlign</Value>
+</Value>
+<Value name="16">
+<Value>promptWidth</Value>
+</Value>
+<Value name="17">
+<Value>inputWidth</Value>
+</Value>
+<Value name="18">
+<Value>promptHeight</Value>
+</Value>
+<Value name="19">
+<Value>units</Value>
+</Value>
+<Value name="20">
+<Value>inputHeight</Value>
+</Value>
+<Value name="21">
+<Value>objLanguage</Value>
+</Value>
+<Value name="22">
+<Value>objEvent</Value>
+</Value>
+<Value name="23">
+<Value>pageHeader</Value>
+</Value>
+<Value name="24">
+<Value>hasPageHeaderEverBeenAdded</Value>
+</Value>
+</Data>
+<Property name="accessLevel">
+<Selectivity>99.9993%</Selectivity>
+</Property>
+<Property name="active">
+<Selectivity>49.9998%</Selectivity>
+</Property>
+<Property name="allowRemoteUpdating">
+<Selectivity>99.9993%</Selectivity>
+</Property>
+<Property name="creator">
+<Selectivity>49.9998%</Selectivity>
+</Property>
+<Property name="dataType">
+<Selectivity>99.9993%</Selectivity>
+</Property>
+<Property name="description">
+<Selectivity>1.7313%</Selectivity>
+</Property>
+<Property name="displayOrder">
+<Selectivity>2.9394%</Selectivity>
+</Property>
+<Property name="nextVersion">
+<Selectivity>99.9993%</Selectivity>
+</Property>
+<Property name="objMenuItem">
+<Selectivity>99.9993%</Selectivity>
+</Property>
+<Property name="objStep">
+<Selectivity>99.9993%</Selectivity>
+</Property>
+<Property name="objTemplate">
+<Selectivity>4.1666%</Selectivity>
+</Property>
+<Property name="parent">
+<Selectivity>0.1427%</Selectivity>
+</Property>
+<Property name="previousVersion">
+<Selectivity>99.9993%</Selectivity>
+</Property>
+<Property name="publishAt">
+<Selectivity>99.9993%</Selectivity>
+</Property>
+<Property name="redirect">
+<Selectivity>99.9993%</Selectivity>
+</Property>
+<Property name="showInMenu">
+<Selectivity>99.9993%</Selectivity>
+</Property>
+<Property name="sourceID">
+<Selectivity>99.9993%</Selectivity>
+</Property>
+<Property name="staticPage">
+<Selectivity>99.9993%</Selectivity>
+</Property>
+<Property name="staticURL">
+<Selectivity>99.9993%</Selectivity>
+</Property>
+<Property name="xCRstamp">
+<Selectivity>1.3399%</Selectivity>
+</Property>
+<Property name="xCRuserID">
+<Selectivity>8.3333%</Selectivity>
+</Property>
+<Property name="xMOstamp">
+<Selectivity>0.1940%</Selectivity>
+</Property>
+<Property name="xMOuserID">
+<Selectivity>5.5556%</Selectivity>
 </Property>
 </Storage>
 </Class>

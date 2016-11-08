@@ -108,30 +108,42 @@ swap execution order
 make initPageController load hardcoded page section contents into new branches
 adapt OnPagePageTop to output contents from the page controller
 fixeds headers, banners and menues etc
-
-===============================================================================
 do the simple edit panel
 
+===============================================================================
+
+Page Heading
+Blank lists - how do we start?
+Have separate tool button add/delete/edit floater
+Toolbar at the top of the page with preview/edit, page selector, tab description,  and attendee category selector etc
+
+Proceed buttons in edit mode
+Horizontal button groups iinstead of radios/checkboxes
+Carousel control instead of scrolling images, or just go with the old crap
+
+==== adrian ===
+ABI and QBI are not working 
+Cross page dependencies
+Marketing code
+Warning on leaving the page
+
+=== Minde ===
+Word and character count
+field Height for text areas
+Collections
 
 ----  alpha version ----
 dependencies with mandatory doesn't work
 make sure we can't add questions on components that shouldn't allow it
 re-test with multiple list on a page
 date-range boundary values are not honoured
-add placeholders?
 complete the implmentation fo the file upload
-add session to ABIs
 test more date formats
 dependency on multicheck
-output dependency hover text
-switching to preview mode and proceeding loses the edit button
-make sure it works with multiple lists
 autiding delete&add
-phone number is not validdationg in old proweb
 ABIs
 warning before leaving the page
 table bookings
-mandatory postcode for ireland?
 max and min words count
 remove proweb version 1.5 code
 time field placeholder in FF is outside the box

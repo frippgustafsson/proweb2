@@ -109,15 +109,13 @@ make initPageController load hardcoded page section contents into new branches
 adapt OnPagePageTop to output contents from the page controller
 fixeds headers, banners and menues etc
 do the simple edit panel
-
+Page Heading
+Proceed buttons in edit mode
 ===============================================================================
 
-Page Heading
 Blank lists - how do we start?
 Have separate tool button add/delete/edit floater
 Toolbar at the top of the page with preview/edit, page selector, tab description,  and attendee category selector etc
-
-Proceed buttons in edit mode
 Horizontal button groups iinstead of radios/checkboxes
 Carousel control instead of scrolling images, or just go with the old crap
 
@@ -126,6 +124,7 @@ ABI and QBI are not working
 Cross page dependencies
 Marketing code
 Warning on leaving the page
+move code
 
 === Minde ===
 Word and character count

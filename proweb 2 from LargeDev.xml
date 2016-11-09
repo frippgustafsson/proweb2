@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2015.2 (Build 664_3_16032U)" ts="2016-11-08 14:06:17">
+<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2015.2 (Build 664_3_16032U)" ts="2016-11-09 16:15:28">
 <Class name="EF.contextDataRegistration">
 <Description><![CDATA[
 <!-- ;vc;-
@@ -816,16 +816,16 @@ Adds a translation button with warning icon which opens an in-form modal</Descri
 <Class name="EF.pageController.element">
 <Description><![CDATA[
 <!-- ;vc;-
-;vc;    Object: EF.pageController.element.CLS/EV.9
+;vc;    Object: EF.pageController.element.CLS/EV.11
 ;vc; Component: CLS.EF.pageController.element
 ;vc;  Location: LargeDev
-;vc; Date/Time: 26-Oct-16 17:16
+;vc; Date/Time: 09-Nov-16 10:31
 ;vc;      User: AdrianM2
-;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>EF.pageController.element.CLS/EV.9</td><td>CLS.EF.pageController.element</td><td>LargeDev</td><td style='white-space: nowrap;'>26-Oct-16 17:16</td><td>AdrianM2</td></tr></table>
+;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>EF.pageController.element.CLS/EV.11</td><td>CLS.EF.pageController.element</td><td>LargeDev</td><td style='white-space: nowrap;'>09-Nov-16 10:31</td><td>AdrianM2</td></tr></table>
 ]]></Description>
 <IncludeCode>EF.common.macros</IncludeCode>
 <Super>%Library.Persistent,shared.timeStamp</Super>
-<TimeChanged>64217,62208</TimeChanged>
+<TimeChanged>64231,37931.328561</TimeChanged>
 <TimeCreated>63350,63749.535929</TimeCreated>
 
 <Property name="elementParent">
@@ -878,12 +878,10 @@ The description of the property. Should be unique for each pageInstance</Descrip
 
 <Property name="enableDisableDependencyList">
 <Type>EF.ui.components.dependencyList</Type>
-<Transient>1</Transient>
 </Property>
 
 <Property name="showHideDependencyList">
 <Type>EF.ui.components.dependencyList</Type>
-<Transient>1</Transient>
 </Property>
 
 <Property name="isModalTempData">
@@ -1235,6 +1233,12 @@ Should be run if any of the sub-classes are deleted</Description>
 <Value name="22">
 <Value>isModalTempData</Value>
 </Value>
+<Value name="23">
+<Value>enableDisableDependencyList</Value>
+</Value>
+<Value name="24">
+<Value>showHideDependencyList</Value>
+</Value>
 </Data>
 </Storage>
 </Class>
@@ -1521,7 +1525,7 @@ Should be run if any of the sub-classes are deleted</Description>
 
 <Class name="EF.pageController.proweb.inputElement">
 <Super>EF.pageController.inputElement,EF.pageController.proweb.prowebBase</Super>
-<TimeChanged>64216,56927.063544</TimeChanged>
+<TimeChanged>64231,40266.779341</TimeChanged>
 <TimeCreated>64189,53012.909524</TimeCreated>
 
 <Property name="isMandatory">
@@ -1545,7 +1549,12 @@ Should be run if any of the sub-classes are deleted</Description>
 		if key="" quit
 		do elementChild.validateElement() 
  	}
- 	
+ 	if $IsObject(..enableDisableDependencyList) {
+		if '..enableDisableDependencyList.isActiveFromRequest() {
+			return	
+		}
+	}
+	
 	do ..validateValue()
 ]]></Implementation>
 </Method>
@@ -1650,7 +1659,7 @@ Should be run if any of the sub-classes are deleted</Description>
 
 <Class name="EF.pageController.proweb.page">
 <Super>EF.pageController.page</Super>
-<TimeChanged>64230,47266.626803</TimeChanged>
+<TimeChanged>64231,58348.305214</TimeChanged>
 <TimeCreated>64189,51696.559047</TimeCreated>
 
 <Property name="contextData">
@@ -1682,20 +1691,21 @@ Should be run if any of the sub-classes are deleted</Description>
 
 <Method name="load">
 <Implementation><![CDATA[
-	do ..loadIncludePage(..contextData.eventWebsiteLanguage.getBannerPageID() , "banner list")
-	do ..loadIncludePage(..contextData.eventWebsiteLanguage.getMenuPageID() , "navigation bar list")
-
 	if ..contextData.isTestMode = 0 {
+		do ..loadIncludePage(..contextData.eventWebsiteLanguage.getBannerPageID() , "banner page")
+		do ..loadIncludePage(..contextData.eventWebsiteLanguage.getMenuPageID() , "navigation bar page")
 		do ..loadAllProwebListsForPage()
 	} else {
 		do ..insertMockProwebItems()
 	}
+	
 	do ..repeatAnyGuestQuestions()
 	do ..insertPanelElementsAroundGuestQuestions()
 	
-	do ..loadIncludePage(..contextData.eventWebsiteLanguage.getSponsorPageID(), "sponsor list") 
-	do ..loadIncludePage(..contextData.eventWebsiteLanguage.getFooterPageID(), "footer list")
-
+	if ..contextData.isTestMode = 0 {
+		do ..loadIncludePage(..contextData.eventWebsiteLanguage.getSponsorPageID(), "sponsor page") 
+		do ..loadIncludePage(..contextData.eventWebsiteLanguage.getFooterPageID(), "footer page")
+	}
 	do ..updateUIComponents()
 ]]></Implementation>
 </Method>
@@ -1732,15 +1742,14 @@ Should be run if any of the sub-classes are deleted</Description>
 
 <Method name="renderErrorMessages">
 <Implementation><![CDATA[
-	write !,"<div class='ef-proweb-error-panel'><div class='ef-proweb-error-header'>",##class(shared.pCSP).out("Error on page"),"</div><UL>"
-		for {
-			set element=..allPageElements.GetNext(.key)
-			if key="" quit
-			if element.uiComponent.hasError {
-				write !,"<LI>",element.uiComponent.validator.getErrorMessage(),"</LI>"
-			}
+	set elem = ##class(EF.ui.components.backend.textAlertError).%New()
+	for i = 1:1:..errorMessages.Count() {
+		if $Length(elem.text) {
+			set elem.text = elem.text_$C(13,10)	
 		}
-		write !,"</UL></div>"
+		set elem.text = elem.text_..errorMessages.GetAt(i)
+	}
+	do elem.render()
 ]]></Implementation>
 </Method>
 
@@ -1766,10 +1775,10 @@ Should be run if any of the sub-classes are deleted</Description>
 <FormalSpec>pageID:%Integer,listName:%String</FormalSpec>
 <Private>1</Private>
 <Implementation><![CDATA[
-	set list =	##class(EF.pageController.containerElements.list).addElementToParent($this, listName, "")
-	set ..parentListElement = list
-
+	set list =	##class(EF.pageController.proweb.list).addElementToParent($this, listName, "")
 	set prowebListID = ##class(sc.xModules.objList).getListIDFromPageIDAndComponentName(pageID, "INDEXLIST")
+	set list.prowebListID = prowebListID
+	set ..parentListElement = list
 	do ..loadProwebListElementsFromDatabase(prowebListID)
 ]]></Implementation>
 </Method>
@@ -1823,7 +1832,7 @@ Should be run if any of the sub-classes are deleted</Description>
 		} else {
 			throw ##class(shared.exceptions.generalException).%New("Proweb type not implemented: "_typeOfElement)	
 		}
-		if storage.isOkToUse(..contextData) {			
+		if storage.isOkToLoad(..contextData) {			
 			set prowebItem = ##class(sc.facade.prowebItem).createNew(storage)
 			do ..addControllerForProwebItem(prowebItem)
 		}
@@ -1907,7 +1916,7 @@ Should be run if any of the sub-classes are deleted</Description>
 	
 	if (element.#canBeDependent) & (..contextData.isTestMode = 0) {
 		set dependsOnAlternativeDescription = ##class(sc.dependencyMethods).getDependsOnAlternativeDescription(prowebItem.storage.prowebID)
-		if dependsOnAlternativeDescription '="" {
+		if (($Length(dependsOnAlternativeDescription)) && (prowebItem.storage.hasInPageDependency(..contextData))) {
 			set parentProwebID = ##class(sc.dependencyMethods).getDependsOnPrompt(prowebItem.storage.prowebID)
 			
 			set storage = ##class(sc.facade.prowebItemStorageInputElement).createNew(parentProwebID, ..contextData)
@@ -1916,6 +1925,7 @@ Should be run if any of the sub-classes are deleted</Description>
 			set parentElementIdentifier = ..getElementIdentifierForProwebItems(parentProwebItem)
 			set dependencyList = ##class(EF.ui.components.dependencyList).createNew(parentElementIdentifier, dependsOnAlternativeDescription)	
 			set element.showHideDependencyList = dependencyList
+			set element.enableDisableDependencyList = dependencyList
 		}
 	}
 	do ..listOfControllerIDsSorted.Insert(element.identifier)
@@ -2063,7 +2073,7 @@ Should be run if any of the sub-classes are deleted</Description>
 		} 
 	}
 	
-	if (value = "") && (prowebItem.storage.inputType = "radiobutton" ) {
+	if (value = "") && (prowebItem.storage.inputType = "radiobutton" ) &&(prowebItem.storage.listOfAlternatives.Count() > 0) {
 		set element.value = prowebItem.storage.listOfAlternatives.GetAt(1).value
 	}
 	return element
@@ -2075,7 +2085,7 @@ Should be run if any of the sub-classes are deleted</Description>
 <ReturnType>%Integer</ReturnType>
 <Implementation><![CDATA[
 	#dim counter as %Integer = 0
-	#define fakeTempPersonID 666
+	#define fakeTempPersonID -1
 
 	if ..contextData.isTestMode {
 		return $$$fakeTempPersonID
@@ -2361,15 +2371,17 @@ Should be run if any of the sub-classes are deleted</Description>
 	}
 	
 	if 'hasRenderedAtLeastOne {
-		do ..renderEmptyListHTML()	
+		do ..renderEmptyListHTML(parentListElement)	
 	}
 ]]></Implementation>
 </Method>
 
 <Method name="renderEmptyListHTML">
+<FormalSpec>parentListElement:EF.pageController.proweb.list</FormalSpec>
 <Implementation><![CDATA[
-	&html<
-		[[[EMPTY LIST ITEM]]]
+	set listID = parentListElement.prowebListID
+	&HTML<
+		<div class="row ef-draggable-div ef-proweb-form-row-editable ef-proweb-empty-list" data-ui-component-type="emptyList" data-proweb-list-id="#(##class(EF.htmlGenerator).encodeForHTMLAttribute(listID))#">Empty List</div>
 	>
 ]]></Implementation>
 </Method>
@@ -4085,7 +4097,7 @@ this is for version 1 of proweb</Description>
 <Class name="EF.pages.frontend.baseProweb">
 <ProcedureBlock>0</ProcedureBlock>
 <Super>EF.pages.frontend.base</Super>
-<TimeChanged>64230,39052.363367</TimeChanged>
+<TimeChanged>64231,43053.539314</TimeChanged>
 <TimeCreated>64191,31442.531402</TimeCreated>
 
 <Parameter name="ENCODED">
@@ -4167,7 +4179,7 @@ this is for version 1 of proweb</Description>
 	
 	set contextData = ##class(EF.contextDataRegistration).createFromFrontendCSPSession()
 	if ..usePageController() {
-		set pageControllerID=%request.Get("pageControllerID")
+		set pageControllerID=%request.Get("prowebPageControllerID")
 		
 		merge requestData=%request.Data
 		if pageControllerID { // when reloading the page after an validation error
@@ -4187,6 +4199,51 @@ this is for version 1 of proweb</Description>
 		}
 		set pageControllerID=pageController.%Id()
 	}
+]]></Implementation>
+</Method>
+
+<Method name="OnPagePageTop">
+<ClassMethod>1</ClassMethod>
+<Implementation><![CDATA[
+	write ##class(shared.pageMethods).outputFrontendHeader()
+	Write !,"<head>"
+ 	do ##class(layout.objTemplate).writeBit("","{{ef_header}}")
+	Do ..Include("frontendHTTPheader.csp")
+	Do ..Include("colourScheme.csp")
+	do ..renderCommonCSS()
+	do ..OnPagePageHeaderCSS()
+	do ..renderCommonJavascript()
+	do ..outputMetaTags()
+	Write !,"</head>"
+	Write !,"<body class=""bodyBackground"">"
+	//do ##class(cspRealEV.system.proweb.templatestart).OnPageCSPROOT()
+ 	do ##class(layout.objTemplate).writeBit("{{ef_header}}","{{ef_banner}}")
+ 	
+ 	do ##class(layout.objTemplate).writeBit("{{ef_banner}}","{{ef_main_progress}}")
+ 	if ..#showRegistrationProgressBar {
+		Do ..Include("progress.csp")
+ 	}
+ 	/* stop the <h1> header from being outputted
+ 	do ##class(layout.objTemplate).writeBit("{{ef_main_progress}}","{{ef_main_header}}")
+ 	do ##class(layout.objTemplate).writeBit("{{ef_main_header}}", "{{ef_main_content}}")
+ 	*/
+]]></Implementation>
+</Method>
+
+<Method name="OnPagePageBottom">
+<ClassMethod>1</ClassMethod>
+<Implementation><![CDATA[
+	do ##class(layout.objTemplate).writeBit("{{ef_main_buttons}}","{{ef_footer}}")
+	do ##class(layout.objTemplate).writeBit("{{ef_footer}}","")
+	
+	/* we don't want all the old proweb JS anymore
+	Do ..Include("editingFooter.csp")
+	set app=##class(sc.objData).applicationPath()
+	do ##class(cspRealEV.system.proweb.templatestop).OnPageCSPROOT()
+	*/
+	
+	Write !,!,"</body>"
+	Write !,"</html>",!
 ]]></Implementation>
 </Method>
 
@@ -4210,8 +4267,10 @@ this is for version 1 of proweb</Description>
 <ClassMethod>1</ClassMethod>
 <Implementation><![CDATA[
 	 &html<
+	 	<meta name="efProwebConfirmDeleteURL" content="#(..encodeForHTMLAttribute(..Link("../../backend/proweb/deleteListItem.csp?zz=1")))#">
 	    <meta name="efProwebEditBaseURL" content="#(..encodeForHTMLAttribute(..Link("../../backend/proweb/editItem.csp")))#">
 	    <meta name="efProwebAddQuestionBaseURL" content="#(..encodeForHTMLAttribute(..Link(..getInitialURL("../../backend/proweb/codQuestionDetails.csp"))))#">
+	    <meta name="efProwebAddRegPromptCollectionBelowLink" content="#(..encodeForHTMLAttribute(..Link("../../backend/proweb/regPromptCollectionDetails.csp")))#">
 	    <meta name="efProwebAddDividerBaseURL" content="#(..encodeForHTMLAttribute(..Link("../../backend/proweb/formDivider.csp")))#">
 	    <meta name="efProwebAddTextBlockBaseURL" content="#(..encodeForHTMLAttribute(..Link("../../backend/proweb/textDetailsMoxie.csp")))#">
 	    <meta name="efProwebAddFileUploadBaseURL" content="#(..encodeForHTMLAttribute(..Link("../../backend/proweb/fileUploadDetails.csp")))#">
@@ -4275,7 +4334,7 @@ this is for version 1 of proweb</Description>
 <ClassMethod>1</ClassMethod>
 <Implementation><![CDATA[
 	&html<
-		<input type="hidden" name="pageControllerID" value="#(pageControllerID)#">
+		<input type="hidden" name="prowebPageControllerID" value="#(pageControllerID)#">
 	>
 ]]></Implementation>
 </Method>
@@ -5334,39 +5393,41 @@ we need to refactor the frontend buttons to make them callable from class method
 
 <Class name="EF.ui.components.frontend.floatingMenu">
 <Super>shared.pCSPmanage</Super>
-<TimeChanged>64230,39242.12547</TimeChanged>
+<TimeChanged>64231,52113.869602</TimeChanged>
 <TimeCreated>64203,40625.329831</TimeCreated>
 
 <Method name="outputFloatingMenuHTML">
 <Implementation><![CDATA[
 	&html<
-		<div id="myFloater" class="container ef-proweb-menu-handle row" style="display: none;">
-	        <div class="dropdown ef-proweb-dropdown">
-	            <a id="efProwebHeader" role="button" data-toggle="dropdown" class="btn btn-primary ef-proweb-dropdown-button" data-target="#" href="/page.html">
-	            	[Empty lists not implemented yet] 
-	            	<span class="caret"></span>
-	            </a>
-	    		<ul class="dropdown-menu multi-level ef-proweb-dropdown-sub" role="menu" aria-labelledby="dropdownMenu">
-	              <li><a id="efProwebEditLink">Edit</a></li>
-	              <li><a id="efProwebDeleteLink" href="#">Delete</a></li>
-	              
-                  <div class="ef-proweb-floating-menu-divider">Add</div>
-                  <li><a id="efProwebInsertQuestionBelowLink" tabindex="-1" href="#">Question</a></li>
-                  <li><a id="efProwebInsertABIBelowLink" tabindex="-1" href="#">ABI</a></li>
-                  <li><a id="efProwebInsertQBIBelowLink" tabindex="-1" href="#">QBI</a></li>
-                  <li><a id="efProwebInsertTextBlockBelowLink" href="#">Text</a></li>
-                  <li><a id="efProwebInsertDividerBelowLink" href="#">Divider</a></li>
-                  <li><a id="efProwebInsertFileUploadBelowLink" href="#">File upload</a></li>
-                  <li><a id="efProwebInsertYouTubeVideoBelowLink" href="#">YouTube video</a></li>
-
-	            </ul>
-	        </div>
+		<div id="myFloater" class="form-inline ef-proweb-menu-handle" style="display: none;">
+	        <div class="form-group ef-proweb-floater-button-group" >
+		        <button type="button" id="efProwebEditLink" class="btn btn-default">
+		        	<span class="glyphicon glyphicon-pencil"></span>
+				</button>
+		        <button type="button" id="efProwebDeleteLink" class="btn btn-default" style="float: left;">
+		        	<span class="glyphicon glyphicon-trash"></span>
+				</button>
+		        <button type="button" id="efProwebDropdownLink" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+		        	<span class="glyphicon glyphicon-plus"></span>
+		        	<span class="caret"></span>
+		        </button>
+	        	<ul class="dropdown-menu" role="menu">
+                  <li><a class="ef-proweb-dropdown-link" id="efProwebInsertQuestionBelowLink" tabindex="-1" href="#">Question</a></li>
+                  <li><a class="ef-proweb-dropdown-link" id="efProwebInsertABIBelowLink" tabindex="-1" href="#">ABI</a></li>
+                  <li><a class="ef-proweb-dropdown-link" id="efProwebInsertQBIBelowLink" tabindex="-1" href="#">QBI</a></li>
+                  <li><a class="ef-proweb-dropdown-link" id="efProwebInsertTextBlockBelowLink" href="#">Text</a></li>
+                  <li><a class="ef-proweb-dropdown-link" id="efProwebInsertDividerBelowLink" href="#">Divider</a></li>
+                  <li><a class="ef-proweb-dropdown-link" id="efProwebInsertRegPromptCollectionBelowLink" tabindex="-1" href="#">Collection</a></li>
+                  <li><a class="ef-proweb-dropdown-link" id="efProwebInsertFileUploadBelowLink" href="#">File upload</a></li>
+                  <li><a class="ef-proweb-dropdown-link" id="efProwebInsertYouTubeVideoBelowLink" href="#">YouTube video</a></li>
+				</ul>
+			</div>			
 		</div>
 	
 	<div class="ef-Proweb-Quick-Edit-Panel" style="display: none; padding: 5px;">
 		<div id="topButtonsQuickEdit">
-			<button type="button" id="quickEditSave">&#10004;</button>
-			<button type="button" id="quickEditClose">&#10060;</button>
+			<button type="button" id="quickEditSave" class="glyphicon glyphicon-ok"></button>
+			<button type="button" id="quickEditClose" class="glyphicon glyphicon-remove"></button>
 			<div style="float: right;">
 				<button type="button" id="quickEditAdvanced">Advanced…</button>
 			</div>
@@ -5383,7 +5444,7 @@ we need to refactor the frontend buttons to make them callable from class method
 
 <Class name="EF.ui.components.frontend.inputElement">
 <Super>EF.ui.components.frontend.prowebBase,EF.ui.components.inputBase</Super>
-<TimeChanged>64230,49986.943385</TimeChanged>
+<TimeChanged>64231,55907.615888</TimeChanged>
 <TimeCreated>64183,40678.260093</TimeCreated>
 
 <Property name="alternatives">
@@ -5417,6 +5478,17 @@ we need to refactor the frontend buttons to make them callable from class method
 <Default>0</Default>
 </Parameter>
 
+<Method name="%OnNew">
+<FormalSpec>htmlID:%String</FormalSpec>
+<Private>1</Private>
+<ReturnType>%Status</ReturnType>
+<ServerOnly>1</ServerOnly>
+<Implementation><![CDATA[
+	do ##super(htmlID)
+    Quit $$$OK
+]]></Implementation>
+</Method>
+
 <Method name="getDefaultValidator">
 <ReturnType>EF.validator.base</ReturnType>
 <Implementation><![CDATA[	return ##class(EF.validator.singleLineText).%New()
@@ -5436,11 +5508,8 @@ we need to refactor the frontend buttons to make them callable from class method
 	
 	
 	do ..renderRowOpening()
-	if ..isMandatory {
-		do ..renderLabelCellOpeningMandatory()
-	} else {
-		do ..renderLabelCellOpening()
-	}
+	do ..renderLabelCellOpening()
+	
 	do ..renderLabel()
 	do ..renderCellClosing()
 	do ..renderInputElementCellOpening()
@@ -5469,69 +5538,64 @@ we need to refactor the frontend buttons to make them callable from class method
 		>
 	}
 	
-	set maxWords = ..prowebItem.storage.maxWords
-	set maxChars = ..prowebItem.storage.maxCharacters
-	if (maxWords || maxChars) {
-		&html<<span class="ef-text-length-count-message" data-proweb-id="#(..encodeHTMLAttribute(..htmlID))#">>
-		if (maxWords) {
-			&html<
-			<span id="current-word-count-#(..encodeHTMLAttribute(..htmlID))#" data-type="words">0</span> 
-			#(..encodeForHTML(##class(shared.pCSP).out("words of {{{VAR01}}}",,maxWords)))#
-			>
-		} elseif (maxChars) {
-	    	&html<
-	    	<span id="current-word-count-#(..encodeHTMLAttribute(..htmlID))#" data-type="chars">0</span> 
-	    	#(..encodeForHTML(##class(shared.pCSP).out("characters of {{{VAR01}}}",,maxChars)))#
-	    	>
-		}
-		&html<</span>>
-	}
+	do ..renderInputLengthCounter()
 	
 	do ..renderCellClosing()
 	do ..renderRowClosing()
 ]]></Implementation>
 </Method>
 
-<Method name="getKeyUpStringForAnswerLength">
+<Method name="renderInputLengthCounter">
 <Implementation><![CDATA[
-	set keyUpStr = ""
 	set maxWords = ..prowebItem.storage.maxWords
 	set maxChars = ..prowebItem.storage.maxCharacters
-	
-	if maxWords {
-		set keyUpStr = "onKeyUp=""ef.textUtils.countWordsAndUpdateCounter('"_..htmlID_"','current-word-count-"_..htmlID_"',"_maxWords_");"""
-	} elseif maxChars {
-		set keyUpStr = "onKeyUp=""ef.textUtils.countCharactersAndUpdateCounter('"_..htmlID_"','current-word-count-"_..htmlID_"',"_maxChars_");"""
+	if (maxWords || maxChars) {
+		&html<<span class="ef-text-length-count-message" data-input-id="#(..encodeHTMLAttribute(..htmlID))#">>
+		if (maxWords) {
+			&html<
+				<span id="current-length-count-#(..encodeHTMLAttribute(..htmlID))#" data-type="words" data-max-length="#(..encodeHTMLAttribute(maxWords))#">0</span> 
+				#(..encodeForHTML(##class(shared.pCSP).out("words of {{{VAR01}}}",,maxWords)))#
+			>
+		} elseif (maxChars) {
+	    	&html<
+	    		<span id="current-length-count-#(..encodeHTMLAttribute(..htmlID))#" data-type="chars" data-max-length="#(..encodeHTMLAttribute(maxChars))#">0</span> 
+	    		#(..encodeForHTML(##class(shared.pCSP).out("characters of {{{VAR01}}}",,maxChars)))#
+	    	>
+		}
+		&html<</span>>
 	}
-	return keyUpStr
 ]]></Implementation>
 </Method>
 
 <Method name="renderLabel">
 <Implementation><![CDATA[
 	if $length(..label) {
-		&html<
-			<label class="control-label" for="#(..encodeForHTMLAttribute(..htmlID))#" #(..rawHTML(..getProwebExtraAttributes()))#>
-				<div class="ef-label-text" id="ef-display-label-#(..encodeForHTMLAttribute(..htmlID))#">
-					#(..rawHTML(..label))#
-				</div>
-			>
+		
+		set labelElement = ##class(EF.ui.components.frontend.inputLabel).%New("ef-display-label-"_..htmlID)
+		set labelElement.isMandatory =  ..isMandatory
+		set labelElement.for = ..htmlID
+		set labelElement.text = ..label
+		set labelElement.showHideDependencyList = ..showHideDependencyList
+		do labelElement.render()
+				
+					
+				
 			if ..contextData.prowebMode = "edit" {
+				set directEditClasses = "ef-proweb-direct-label-edit"
+				if ..isMandatory {
+					set directEditClasses = directEditClasses_" ef-required-field"
+				}
 				&html<
-					<div class="ef-proweb-direct-label-edit" 
+					<div class="#(..encodeForHTMLAttribute(directEditClasses))#" 
 						style="display: none;" 
 						id="ef-edit-label-input-#(..encodeForHTMLAttribute(..htmlID))#" 
 						data-proweb-id="#(..prowebItem.storage.prowebID)#"
 					>
-						<input id="quick-edit-#(..htmlID)#" type="text" value="#(..encodeForHTMLAttribute(..label))#">
+					<input class="ef-label-text" id="quick-edit-#(..htmlID)#" type="text" value="#(..encodeForHTMLAttribute(..label))#">
+						
 					</div>
 				>
 			}
-				&html<	
-					
-				
-			</label>
-		>
 	}
 ]]></Implementation>
 </Method>
@@ -5561,11 +5625,6 @@ we need to refactor the frontend buttons to make them callable from class method
 	} else {
 		return "aria-label="""_..encodeForHTMLAttribute(..prowebItem.storage.databaseItemName)_""""
 	}
-]]></Implementation>
-</Method>
-
-<Method name="renderLabelCellOpeningMandatory">
-<Implementation><![CDATA[	write "<div class=""col-sm-4 ef_proweb_form_prompt ef-required-field ",..encodeForHTMLAttribute(..getDependentClass()),""">"
 ]]></Implementation>
 </Method>
 
@@ -5858,7 +5917,7 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 
 <Class name="EF.ui.components.frontend.prowebBase">
 <Super>EF.ui.components.base</Super>
-<TimeChanged>64230,39648.811534</TimeChanged>
+<TimeChanged>64231,52420.277069</TimeChanged>
 <TimeCreated>64183,41819.123112</TimeCreated>
 
 <Property name="isProwebEditMode">
@@ -5882,24 +5941,18 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 <Method name="renderRowOpening">
 <Implementation><![CDATA[
 	if ..isProwebEditMode {
-		set floaterTitle = ..getFloatingMenuHeader() 
+		set uiComponentType = $Piece($CLASSNAME(), ".", *)
 		&HTML<
 			<div class="row ef-draggable-div ef-proweb-form-row-editable" 
 			id="ef-field-proweb-#(..prowebItem.storage.prowebID)#" 
-			data-proweb-title="#(..encodeForHTMLAttribute(floaterTitle))#" 
 			data-proweb-id="#(..prowebItem.storage.prowebID)#" 
-			data-proweb-list-id="#(..prowebItem.storage.getListID())#">
+			data-proweb-list-id="#(..prowebItem.storage.getListID())#" 
+			data-ui-component-type="#(..encodeForHTMLAttribute(uiComponentType))#">
 		>
 		
 	} else {
 		write !,"<div class=""row ef-proweb-form-row"">"	
 	}
-]]></Implementation>
-</Method>
-
-<Method name="getFloatingMenuHeader">
-<ReturnType>%String</ReturnType>
-<Implementation><![CDATA[	return "✎"
 ]]></Implementation>
 </Method>
 
@@ -5936,11 +5989,7 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 <ReturnType>%String</ReturnType>
 <Implementation><![CDATA[
 	if (..showHideDependencyList '= "") && (..contextData.prowebMode = "edit") {	
-		if ..prowebItem.storage.isMandatory {
-			return "ef-dependent-and-required-field"
-		} else {
-			return "ef-dependent-field"
-		}
+		return "ef-dependent-field"
 	} else {
 		return ""
 	}
@@ -5985,7 +6034,7 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 
 <Class name="EF.ui.components.frontend.radioButtons">
 <Super>EF.ui.components.listInput,EF.ui.components.frontend.inputElement</Super>
-<TimeChanged>64216,36901.575523</TimeChanged>
+<TimeChanged>64231,58505.713816</TimeChanged>
 <TimeCreated>63356,39686.205586</TimeCreated>
 
 <Method name="getDefaultClasses">
@@ -6004,12 +6053,14 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 <Method name="render">
 <Implementation><![CDATA[
 	do ..renderRowOpeningAndLabel()
-	&html<
+	/*&html<
             <div class="#(..encodeHTMLAttribute(..classes))#" id="#(..encodeHTMLAttribute(..htmlID))#"  title="#(..encodeHTMLAttribute(..title))#" #(..rawHTML(..getExtraAttributes()))#>
 	    		#[do ..renderAlternatives()]#
 	        </div>
 	        
 	>
+	*/
+	do ..renderAlternatives()
 	do ..renderHelpAndRowClosing()
 ]]></Implementation>
 </Method>
@@ -6020,7 +6071,7 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 </Method>
 
 <Method name="renderCellOpening">
-<Implementation><![CDATA[	write "<div class='col-sm-12  ",..encodeForHTMLAttribute(..getDependentClass())," ef-proweb-radio-button'>"
+<Implementation><![CDATA[	write "<div class='radio ef-proweb-radio-button'>"
 ]]></Implementation>
 </Method>
 
@@ -6095,7 +6146,7 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 
 <Class name="EF.ui.components.frontend.textArea">
 <Super>EF.ui.components.textInput,EF.ui.components.frontend.inputElement</Super>
-<TimeChanged>64230,49574.346022</TimeChanged>
+<TimeChanged>64230,61887.981</TimeChanged>
 <TimeCreated>63357,57620.613738</TimeCreated>
 
 <Parameter name="html5Validation">
@@ -6125,6 +6176,7 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 	    	    title="#(..encodeHTMLAttribute(..title))#" 
 	    	    id="#(..encodeHTMLAttribute(..htmlID))#" 
 	    	    name="#(..encodeHTMLAttribute(..htmlName))#" 
+	    	    rows="#(..encodeHTMLAttribute(..prowebItem.storage.fieldHeight))#" 
 	    	    placeholder="#(..encodeHTMLAttribute(..placeHolder))#" 
 	    	    #(..rawHTML(..getExtraAttributes()))#
 	    	    #(..rawHTML(..getAriaLabelForInputElement() ))#
@@ -6762,6 +6814,791 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 ]]></Implementation>
 </Method>
 </Class>
+
+
+<CSP name="backEnd/Home/inSiteEditingFrame.csp" application="/largedevsrc/" default="1"><![CDATA[
+<csp:include page="../../backend/home/backendTop.csp?hideBackendMenu=1&forceIE9mode=1">
+<script type="text/javascript" src="../../backend/home/inSiteEditingFrame.js?v=0"></script>
+<script language="CACHE" method="OnPreHTTPafter" arguments="" returntype="%Boolean"> 
+	do ##class(shared.pageMethods).createBackendVariables()
+	
+	set frontback=..frontBack()   // method is in shared.pCSP
+
+	// clear the entire frontend session as we do not want any leftovers from when testing the event.
+	kill %session.Data("eventsforce","frontend")
+	kill %session.Data("pageID")
+	
+	Quit 1
+</script>
+<style>
+	html, body {
+		width: 100%;
+		height: 100%;
+		overflow: hidden;
+		padding: 0;
+		margin: 0;
+	}
+</style>
+<script language="cache" runat="server">
+	set xWorkLangID=##class(shared.pageMethods).getBackendWorkLangID(xLangID)
+	if %request.Get("pageID") {
+		set pageID = %request.Get("pageID")	
+	} else {
+		set pageID=##class(setup.pageIDmethods).getEventHomePage(xEventID,xWorkLangID)
+	}
+	set %session.Data("pageID")=pageID	
+	// we need the frontend session set up so that it doesn't try to redirect to the homepage and then use the frontend domain that has been specified 
+	// (which could be different to backend domain in the case of eventsforce users).
+	do ##class(shared.pageMethods).buildFrontendSessionVariablesFromEventID(xEventID)
+	set initialURL=..Link("../../system/proweb/start.csp?mode=edit&inSitePageEditing=1&hideButtons=0&eventID="_..encodeForURL(xEventID))
+</script>
+<div id="ef_backend_insite_page_editing_top_container"><iframe id="ef_backend_insite_page_editing_top" name=topBit src="../../backend/home/inSitePageEditing.csp?mode=edit&doNotReload=1&selectedMenuID=#(%request.Get("selectedMenuID"))#" scrolling="no"></iframe></div>
+<div id="ef_backend_insite_page_editing_spacer"></div>
+<div id="ef_backend_insite_page_editing_main_container"><iframe id="ef_backend_insite_page_editing_main" name=mainBit src="#(..encodeForHTMLAttribute(initialURL))#"></iframe></div>
+<csp:include page="../../backend/home/backendBottom.csp">
+]]></CSP>
+
+
+<CSP name="backEnd/Home/regPages.csp" application="/largedevsrc/" default="1"><![CDATA[
+<csp:class encoded="1" private="1">
+<csp:include page="../../backend/home/backendTop.csp">
+<script language="cache" runat="server">
+	set xWorkLangID=##class(shared.pageMethods).getWorkLangID()
+	
+	if ##class(setup.objSystemTypes).isModuleAllowed("Multi Reg Pages Per Category"),%request.Get("addPage")=1	{
+		set eventCategoryID=%request.Get("eventCategoryID")
+		if eventCategoryID	{
+			set description=##class(setup.objEventCategory).getDescription(eventCategoryID)
+			// get the translated version
+			set newDescription=##class(setup.objEventCategory).getDescription(eventCategoryID,xWorkLangID)
+			// Temporarily change xLangID so we can transalate 
+			set tmpLangID=xLangID
+			set xLangID=xWorkLangID
+			set newDescription=##class(setup.objEventCategory).getDescription(eventCategoryID,xWorkLangID)_" "_..out("details")
+			set xLangID=tmpLangID
+			#define doNotAddRegistrationQuestions 0
+			set lnk=##class(setup.lnkCategoryEvent).add(xEventID,description,"","","",xWorkLangID,newDescription,$$$doNotAddRegistrationQuestions)
+			&SQL(SELECT pageID,objEventCategory->description,langID INTO :pageID,:catDesc,:langID FROM setup.lnkCategoryEvent WHERE ID = :lnk)
+			if +SQLCODE=0 {
+				&SQL(UPDATE setup.lnkCategoryEvent SET description=:description WHERE ID=:linkID)
+				do ##class(setup.objEventAudit).add(xUserID,xEventID,"Reg Page Setup '"_newDescription_"' ("_pageID_"), Category "_catDesc_", "_$S(langID'=1:"Lang "_##class(shared.objLanguage).getLanguageDesc(langID)_", ",1:"")_" Page Added")
+			}
+		}
+	}
+	if ##class(setup.objSystemTypes).isModuleAllowed("Multi Reg Pages Per Category"),%request.Get("deletePage")=1	{
+		set linkID=%request.Get("linkID")
+		if linkID	{
+			&SQL(SELECT description,pageID,objEventCategory->description,langID INTO :tmp,:tmp2,:tmp3,:tmp4 FROM setup.lnkCategoryEvent WHERE ID=:linkID)
+			if +SQLCODE=0 {
+				set description=tmp,pageID=tmp2,catDesc=tmp3,langID=tmp4
+				//Shahadat: We do not need to delete recursively. Deleting the page will do.
+				//set ok=##class(sc.objData).deleteRecursively(pageID)
+				&SQL(UPDATE sc.objData SET active=0 WHERE ID=:pageID)
+				//The following situation should not arise, because a page cannot be deleted if it is linked to. 
+				//&SQL(UPDATE setup.lnkCategoryEvent SET pageID=NULL, sameAs=NULL WHERE (pageID=:pageID))
+				&SQL(DELETE FROM setup.lnkCategoryEvent WHERE ID=:linkID)
+				do ##class(setup.objEventAudit).add(xUserID,xEventID,"Reg Page Setup '"_description_"' ("_pageID_"), Category "_catDesc_", "_$S(langID'=1:"Lang "_##class(shared.objLanguage).getLanguageDesc(langID)_", ",1:"")_" Page Deleted")
+			}		
+		}
+	}
+
+	if %request.Get("move") {
+		set linkID=%request.Get("linkID")
+		set direction=%request.Get("direction")
+		set ok=##class(setup.lnkCategoryEvent).move(linkID,direction)
+	}
+
+	// setup parameters needed for frontend use so it pulls in the correct style sheet and images
+	set %session.Data("eventsforce","frontend","xEventID")=xEventID
+
+	// v2.7 setup the other parameters esp. the clientDir so that the edit mode does not show the eventsforce logo and gets the correct stylesheets
+	set %session.Data("eventsforce","frontend","xLanguage")=##class(shared.objLanguage).getLanguageDesc(xLangID)
+	set %session.Data("eventsforce","frontend","xLangID")=xLangID
+	set %session.Data("eventsforce","frontend","xPrefLangID")=xWorkLangID
+	set %session.Data("eventsforce","frontend","xClientDir")=##class(setup.objSetting).getParameter("paths","clientDirectory")
+	set %session.Data("eventsforce","frontend","xClientStyleDir")=##class(setup.objSetting).getParameter("paths","clientStyleDirectory")
+	set %session.Data("eventsforce","frontend","xDateFormat")=##class(setup.objEvent).getDateFormat(xEventID)
+	
+	set showAll=%request.Get("showAll")
+	if showAll="true" set showAll=1
+</script>
+<form method="post" action="regPages2.csp" name="frmONE">
+<div class="topsave">
+	<input type="image" src="../../media/images/English/Default/backend/save.gif" border="0" alt="Save" title="Save changes" name="butSave" width="65" height="17">
+</div>
+
+<script language="cache" runat="server">
+	// disable this page if it is an awards event
+	set isAwards=##class(setup.objEventSetting).getParameter("system","isAwardsEvent",xEventID)
+	set tmp=##class(links.lnkPersonEvent).countAttended(xEventID)
+	set numberRegistered=0
+	set index=$LENGTH(tmp,"|")
+	for i=1:1:index {
+		set numberRegistered=numberRegistered+$P(tmp,"|",i)
+	}
+
+	set showLangs=0
+	if ##class(setup.objSystemTypes).isModuleAllowed("Multi Lingual Frontend")	{
+		set count=##class(shared.objLanguage).getOrderedArrayOfLanguagesForEvent(xEventID,.languages)
+		if count>1 {
+			set showLangs=1
+		}
+	}
+</script>
+<style>
+.contentarea {width:976px;}
+table {margin-left:0px;margin-right:0px;}
+</style>
+
+<div class="contentarea">
+	<div class="contentbox" style="padding-bottom:0px;">
+		<h2 style="margin-bottom:0px;"><tx>Available Registration Pages</tx></h2>
+				<div class="gen1_panel_subheader">
+					<tx>This page shows you the registration pages that are set up for your event.</tx>
+					<br>
+					<tx>To edit the page contents, click on Edit. To change the heading for the page, click the hyperlink over the description.</tx>
+					<br><br>
+				</div>
+			<csp:if condition=(showLangs)>
+						<table width="100%" cellspacing="0" cellpadding="0" border="0">
+							<tr style="background-color:whiteSmoke;">
+								<td class="black10px" width="175" style="padding-left:24px;" valign="top"><tx>Select Language</tx>:</td>
+								<td>
+									<table cellspacing="0" cellpadding="0" border="0">
+									<script language="cache" runat="server">
+										set noOfEmptyCols = count # 3
+										if (noOfEmptyCols '= 0) {
+											set noOfEmptyCols = 3 - noOfEmptyCols
+										}
+									</script>
+									<csp:loop counter="x" FROM=1 TO=#(count)#>
+										<csp:if condition="(x # 3)=1">
+											<tr>
+										</csp:if>
+										<td width=20><input type="radio" value="#(+languages(x))#" name="radLanguage" #($S(+languages(x)=xWorkLangID:"CHECKED",1:""))# onClick="changeLang(this.value);"></td>
+										<td class="black10px" width=100>#($p(languages(x),"|",2))#</td>
+										<csp:if condition="(x # 3)=0">
+											</tr>
+										</csp:if>
+									</csp:loop>
+									<csp:if condition="noOfEmptyCols '= 0">
+										<csp:loop counter="x" FROM=1 TO=#(noOfEmptyCols)#>
+											<td>&nbsp;</td><td>&nbsp;</td>
+										</csp:loop>
+										</tr>
+									</csp:if>
+									</table>
+								</td>
+							</tr>
+						</table>
+			</csp:if>
+				<table width="100%" cellspacing="0" cellpadding="0" border="0">
+					<tr style="background-color:whiteSmoke;">
+						<td class="black10px" width="175" style="padding-left:24px;" height="30">
+							<tx>Show Inactive Pages</tx>:
+						</td>
+						<td>
+							<input type="checkbox" name="showAll" #($S(showAll:"checked",1:""))#  value="1" onClick="javascript: document.location='#(..Link(%request.PageName_"?zzz=999"))#&showAll=' + this.checked;">
+						</td>
+					</tr>
+				</table>
+	</div>
+
+	<script language="cache" runat="server">
+		set eventAllowsGroupBookings=##class(setup.objEventSetting).getParameter("bookings","allow group bookings",xEventID)
+		set extraBit=""
+		if xWorkLangID'=xLangID set extraBit=" - "_##class(shared.objLanguage).getLanguageDesc(xWorkLangID)
+		if eventAllowsGroupBookings set bookerPageID=##class(setup.objEventSetting).getParameter("bookings","bookerRegPageID"_extraBit,xEventID)
+		
+		if 'isAwards {
+			
+			// Populate the prompts and alternatives listboxes when loading the page
+			write !!,"<scri"_"pt language='jav"_"ascri"_"pt'>"
+			write !,"var alts = new Array();"
+			
+			if eventAllowsGroupBookings {
+				set pages(bookerPageID)=""
+			}
+			
+			set rsPages=##class(%ResultSet).%New("%Library.DynamicQuery:SQL")
+			set ok=rsPages.Prepare("SELECT pageID,sameAs,sameAs->pageID as linkedToPage FROM setup.lnkCategoryEvent WHERE (objEvent=?) AND (langID=?) AND (active=1)")
+			do rsPages.Execute(xEventID,xWorkLangID)
+			while rsPages.Next() { 
+				if 'rsPages.Get("sameAs") {
+					set tmpPageID=rsPages.Get("pageID")
+				} else {
+					set tmpPageID=rsPages.Get("linkedToPage")
+				}
+				set pages(tmpPageID)=""
+			}
+			set tmpPageID=""
+			for {
+				set tmpPageID=$O(pages(tmpPageID))
+				if tmpPageID="" quit
+				// now find all the alts for this prompt
+				set rsCodItems=##class(%ResultSet).%New("%Library.DynamicQuery:SQL")
+				set ok2=rsCodItems.Prepare("SELECT ID,objItemName,objItemName->description As codItem,displayOrder FROM sc_xModules.objCODitem WHERE (parent->parent=?) AND (active=1) AND (type IN ('dropdown','radiobutton')) ORDER BY displayOrder")
+				do rsCodItems.Execute(tmpPageID)
+				while rsCodItems.Next() {
+					set tmpItemNameID=rsCodItems.Get("objItemName")
+					set prompts(tmpItemNameID)=""
+				}
+			}
+			set tmpItemNameID=""
+			for {
+				set tmpItemNameID=$o(prompts(tmpItemNameID))
+				if tmpItemNameID="" quit
+				set altCounter=0
+				write !,"alts[",tmpItemNameID,"] = new Array();"
+				// now find all the alts for this prompt
+				set rs2=##class(cod.objItemAlternatives).getAlternativesForCodItemAsResultSet(tmpItemNameID)
+				set altCounter=0
+				while rs2.Next() {
+					set itemAltID=rs2.Get("ID")
+					write !,"  alts[",tmpItemNameID,"][",altCounter,"] = ",..QuoteJS(itemAltID_"|"_rs2.Get("description")),";"
+					set altCounter=altCounter+1
+				}
+			}
+			write !!,"</scr"_"ipt>"
+		}
+		// show warning if the event is live
+		&SQL(SELECT status INTO :tmp FROM setup.objEvent WHERE ID = :xEventID)
+		if +SQLCODE=0,tmp="live",'$l($G(%session.Data("eventsforce","backend","errmsg"))) {
+			write "<scr"_"ipt language='javascri"_"pt'>alert('"_..out("WARNING!")_"\n"_..out("Amending any registration prompt, additional booking item, price or discount after an event has gone live will dramatically affect any currently existing registrations.")_"\n"_..out("It is strongly recommended that you never alter such items after registrations have been made.")_"')</sc"_"ript>"
+		}
+	
+		
+		// check for error messages
+		if $G(%session.Data("eventsforce","backend","regPages","errMsg"))'="" {
+			write !,"<scri"_"pt language='javas"_"cript'>alert('"_%session.Data("eventsforce","backend","regPages","errMsg")_"');</scr"_"ipt>"
+			kill %session.Data("eventsforce","backend","regPages","errMsg")
+		}
+		
+		set show=0
+		if eventAllowsGroupBookings,'isAwards set show=1
+	</script>
+	<csp:if condition=(show)>
+		<div class="contentbox">
+			<systemType:if module="Table Booking">
+				<h2><tx>Registration Contact and Table Guests</tx></h2>
+			<systemType:else>
+				<h2><tx>Registration Contact</tx></h2>
+			</systemType:if>
+	   		<table width="100%" border="0" cellpadding="0" cellspacing="0">
+		   		<tr>
+					<td class="black10px" width="24">
+						&nbsp;
+					</td>
+					<td class="black10px" height="40" width="150">
+						<tx>Registration Contact Details</tx>
+					</td>
+					<td class="black10px" height="20">
+						<a target="frameEdit" href="../../system/proweb/start.csp?pageID=#(bookerPageID)#&mode=edit&hideButtons=1&version=current&eventID=#(xEventID)#"><img src="../../media/images/English/Default/backend/edit.gif" width="45" height="17" alt="" border="0" /></a>
+					</td>
+				</tr>
+			   	<systemType:if module="Table Booking">
+					<script language="cache" runat="server">
+						set show=##class(setup.objEventSetting).getParameter("table bookings","enable frontend",xEventID)
+					</script>
+					<csp:if condition=(show)>
+					   <tr>
+							<td class="black10px">&nbsp;</td>
+							<td class="black10px"><tx>Table Guests Page</tx></td>
+							<td>
+								<script language="cache" runat="server">
+									set pageID=##class(setup.objEventSetting).getParameter("bookings","Table Guests PageID"_extraBit,xEventID)
+								</script>
+								<a target="frameEdit" href="../../system/proweb/start.csp?pageID=#(pageID)#&mode=edit&hideButtons=1&version=current&eventID=#(xEventID)#"><img 	src="../../media/images/English/Default/backend/edit.gif" width="45" height="17" alt="" border="0" /></a>
+							</td>
+					   </tr>
+				   </csp:if>
+				</systemType:if>
+	   		</table>
+		</div>
+	</csp:if>
+	<systemType:if module="Awards">
+		<script language="cache" runat="server">
+			set show=##class(setup.objEventSetting).getParameter("system","isAwardsEvent",xEventID)
+		</script>
+		<csp:if condition=(show)>
+			<div class="contentbox">
+				<script language="cache" runat="server">
+					set pageID=##class(setup.objEventSetting).getParameter("awards","awardClientPageID",xEventID)
+				</script>
+				<h2><tx>Awards</tx></h2>
+				<table width="100%" border="0" cellpadding="0" cellspacing="0">
+			   		<tr>
+						<td class="black10px" width="24">
+							&nbsp;
+						</td>
+						<td class="black10px" height="40" width="150">
+							<tx>Submitter Details Page</tx>
+						</td>
+						<td class="black10px" height="20">
+							<a target="frameEdit" href="../../system/proweb/start.csp?pageID=#(pageID)#&mode=edit&hideButtons=1&version=current&eventID=#(xEventID)#"><img src="../../media/images/English/Default/backend/edit.gif" width="45" height="17" alt="" border="0" /></a>
+						</td>
+					</tr>
+		   		</table>
+			</div>
+		</csp:if>
+	</systemType:if>
+	<systemType:if module="Accommodation">
+		<script language="cache" runat="server">
+			set show=0
+			if ##class(setup.objEventSetting).getParameter("bookings","allow accommodation bookings",xEventID) {
+				if ##class(setup.objEventSetting).getParameter("bookings","use new accommodation page flow",xEventID) {
+					if ##class(setup.objEventSetting).getParameter("accommodation","get guest names",xEventID) {
+						set show=1
+					}
+				}
+			}
+		</script>
+		<csp:if condition=(show)>
+			<div class="contentbox">
+				<script language="cache" runat="server">
+					set pageID=##class(sc.pageMethods).getAccomGuestPageID(xEventID,xWorkLangID)
+				</script>
+				<h2><tx>Accommodation</tx></h2>
+				<table width="100%" border="0" cellpadding="0" cellspacing="0">
+			   		<tr>
+						<td class="black10px" width="24">
+							&nbsp;
+						</td>
+						<td class="black10px" height="40" width="150">
+							<tx>Room Guest Details Page</tx>
+						</td>
+						<td class="black10px" height="20">
+							<a target="frameEdit" href="../../system/proweb/start.csp?pageID=#(pageID)#&mode=edit&hideButtons=1&version=current&eventID=#(xEventID)#"><img src="../../media/images/English/Default/backend/edit.gif" width="45" height="17" alt="" border="0" /></a>
+						</td>
+					</tr>
+		   		</table>
+			</div>
+		</csp:if>
+	</systemType:if>
+		
+	<csp:comment><!--
+		first run the query to find just the unique categories that have at least one active page
+	--></csp:comment>
+	
+	<csp:if condition=('isAwards)>
+		<script language="cache" runat="server">
+			set totalCategories=##class(setup.lnkCategoryEvent).numCategories(xEventID,xWorkLangID,1)
+			set moreThanOneCategory=(totalCategories>1)
+		</script>
+		<csp:query name="rs" classname="setup.lnkAttendeeCategoryDetailsEvent" queryname="qAllActiveCategories" P1=#(xEventID)#>
+		<csp:while condition="rs.Next()">
+			<script language="cache" runat="server">
+				set eventCategoryID=rs.Data("objEventCategory")
+			</script>
+			<div class="contentbox">
+				<h2 style="margin-bottom:0px;">Registration Page(s) for Attendee Category: #(rs.Data("description"))#</h2>
+				<systemType:if module="Multi Reg Pages Per Category">
+					<div class="gen1_panel_subheader" style="text-align:right;height:26px">
+						<a href="regPages.csp?addPage=1&eventCategoryID=#(eventCategoryID)#">
+							<img height="17px" width="85px" style="margin-top: 4px" src="../../media/images/English/Default/backend/addpage.gif"  alt="" border="0" />
+						</a>
+					</div>
+				</systemType:if>
+				<csp:comment><!--
+					then run the query to find all the pages for the current category   class="tableWithBorder"
+				--></csp:comment>
+				<csp:if condition=(showAll)>
+					<csp:query name="rs2" classname="setup.lnkCategoryEvent" queryname="qAllPagesCategory" P1=#(xEventID)# P2="#(xWorkLangID)#" P3="1" P4="#(eventCategoryID)#">
+		   		<csp:else>
+					<csp:query name="rs2" classname="setup.lnkCategoryEvent" queryname="qAllActivePagesCategory" P1=#(xEventID)# P2="#(xWorkLangID)#" P3="1" P4="#(eventCategoryID)#">
+				</csp:if>
+				<table width="100%" border="0" cellpadding="2" cellspacing="0">
+			   		<tr class="red">
+						<td class="whitebold10px" width="5">
+							&nbsp;
+						</td>
+						<td class="whitebold10px" height="20" width="150">
+							<tx>Page Heading</tx>
+						</td>
+						<td class="whitebold10px" width="10">
+							&nbsp;
+						</td>
+						<systemType:if module="Multi Reg Pages Per Category">
+							<td class="whitebold10px" width="100" align="center">
+								<tx>Page Order</tx>
+							</td>
+						</systemType:if>
+						<systemType:if module="Backend Only Reg Pages">
+							<td class="whitebold10px" width="70" align="center">
+								<tx>Backend Only</tx>
+							</td>
+						</systemType:if>
+						<script language="cache" runat="server">
+							set show=##class(setup.objEventSetting).getParameter("event setup","allow meeting manager",xEventID)
+						</script>
+						<csp:if condition=(show)>
+							<td class="whitebold10px" width="100" align="center">
+								<tx>Meeting Manager Page</tx>
+							</td>
+						</csp:if>
+						<td class="whitebold10px" width="70">
+							&nbsp;
+						</td>
+						<td class="whitebold10px" width="70" align="center">
+							<tx>Active</tx>
+						</td>
+						<systemType:if module="Multi Reg Pages Per Category">
+							<td class="whitebold10px" width="70">
+								&nbsp;
+							</td>
+						</systemType:if>
+						<systemType:if module="Attendee Categories">
+							<csp:if condition=(moreThanOneCategory)>
+								<td class="whitebold10px" width="160">
+									<tx>Use same as page...</tx>
+								</td>
+							</csp:if>
+						</systemType:if>
+					</tr>
+					<script language="cache" runat="server">
+						set row=0,pageCount=0
+					</script>
+					<csp:while condition="rs2.Next()">
+						<script language="cache" runat="server">
+							set row=row=0
+							set linkID=rs2.Data("ID")
+							if 'rs2.Get("sameAs") {
+								set pageID=rs2.Data("pageID")
+							} else {
+								set pageID=rs2.Data("linkedToPage")	
+							}
+							set description=rs2.Data("description")
+							set total=rs2.Data("total")
+							set displayOrder=rs2.Data("displayOrder")
+							set backendOnly=rs2.Data("backendOnly")
+							set active=rs2.Data("active")
+							set sameAs=rs2.Data("sameAs")
+							set isMeetingMan=rs2.Get("isMeetingMan")
+							set dependsOnPromptPageID=rs2.Get("dependsOnPromptPageID")
+							set dependsOnPrompt=rs2.Get("dependsOnPrompt")
+							set dependsOnPromptID=##class(cod.objItemName).getIDFromDescriptionAndEvent(dependsOnPrompt,xEventID)
+							set dependsOnAlternative=rs2.Get("dependsOnAlternative")
+							// check if this page is being used by another cateogry (to stop deletions)
+							set usedByAnother=0
+							if 'sameAs	{
+								&SQL(SELECT ID INTO :tmp FROM setup.lnkCategoryEvent WHERE (objEvent=:xEventID) AND (langID=:xWorkLangID) AND (sameAs=:linkID) AND (objEventCategory->active=1) )
+								if +SQLCODE=0,tmp set usedByAnother=1
+							}
+							// if only one page in this category, don't allow deactivate or delete
+							set noActiveDelete=0
+							if total=1 set noActiveDelete=1
+							if active set pageCount=pageCount+1
+						</script>
+						<tr class='#($S(row=1:"yellow",1:"grey"))#'>
+							<td>
+								&nbsp;
+							</td>
+							<td class="black10px" height="20">
+								<input type="hidden" name="chkEventCategoryHidden_#(linkID)#" value="1">
+								<a href="javascript:changeDesc('#(linkID)#',#(..QuoteJS(description))#);" class="ef_hyperlink">#($S(description'?1." ":description,1:"(no page header)"))#</a>
+							</td>
+							<td >
+								&nbsp;
+							</td>
+							<systemType:if module="Multi Reg Pages Per Category">
+								<td class="black10px" align="center">
+									<a href="javascript: move(#(linkID)#,'up');"><img src="../../media/images/English/Default/backend/up.gif" alt="Move Up" title="Move Up" width="15" height="12" border="0"></a><a href="javascript: move(#(linkID)#,'down');"><img src="../../media/images/English/Default/backend/down.gif" alt="Move Down" title="Move Down" border=0></a>
+								</td>
+							</systemType:if>
+							<systemType:if module="Backend Only Reg Pages">
+								<td class="black10px" align="center">
+									<input type="checkbox" name="chkEventCategoryBackend_#(linkID)#" class="black10px" #($S(backendOnly:"CHECKED",1:""))# value="1">
+								</td>
+							</systemType:if>
+							<script language="cache" runat="server">
+								set show=##class(setup.objEventSetting).getParameter("event setup","allow meeting manager",xEventID)
+							</script>
+							<csp:if condition=(show)>
+								<td class="black10px" align="center">
+								<input type="checkbox" name="chkIsMeetMan_#(linkID)#" class="black10px" value="1" #($S(isMeetingMan:"CHECKED",1:""))# onClick="updateMeetMan(#(linkID)#);">
+							</td>
+							</csp:if>
+							<td class="black10px">
+									<csp:if condition=(sameAs)>
+									<csp:else>
+										<csp:if condition=(+$get(%session.Data("useExperimentalCMS")))>
+											<a target="_self" href="../../backend/home/inSiteEditingFrame.csp?pageID=#(..encodeForHTMLAttribute(pageID))#"><img src="../../media/images/English/Default/backend/edit.gif" width="45" height="17" alt="" border="0" /></a>
+										<csp:else>
+											<a target="frameEdit" href="../../system/proweb/start.csp?pageID=#(pageID)#&mode=edit&hideButtons=1&version=current&eventID=#(xEventID)#&eventCategoryID=#(eventCategoryID)#"><img src="../../media/images/English/Default/backend/edit.gif" width="45" height="17" alt="" border="0" /></a>
+										</csp:if>
+									</csp:if>
+							</td>
+							<td class="black10px" align="center">
+								<csp:if condition=(noActiveDelete)>
+								  	<img src="../../media/images/English/Default/backend/tick.gif" width="14" height="12" alt="" />
+									<input type="hidden" name="chkEventCategoryActive_#(linkID)#" value="1">
+								<csp:else>
+									<input type="checkbox" name="chkEventCategoryActive_#(linkID)#" class="black10px" #($S(active:"CHECKED",1:""))# value="1">
+								</csp:if>
+							</td>
+							<systemType:if module="Multi Reg Pages Per Category">
+								<script language="cache" runat="server">
+									set allowDelete=1
+									if sameAs set allowDelete=0
+									if usedByAnother set allowDelete=0
+									if noActiveDelete set allowDelete=0
+									if allowDelete {
+										&SQL(SELECT pageID INTO :tmp FROM setup.lnkCategoryEvent WHERE ID=:linkID)
+										if (+SQLCODE=0) {
+											set myPageID=tmp
+											// Check if there are deleting it would create any orphans
+											// 1. Are there any pages dependent on this?
+											&SQL(SELECT ID FROM setup.lnkCategoryEvent WHERE (dependsOnPromptPageID = :myPageID) AND (active=1))
+											if +SQLCODE=0 {
+												set allowDelete=0
+											}
+											// 2. Are there any prompts/text blocks dependent on this?
+											set query="SELECT ID FROM sc_xModules.objCodItem WHERE (parent->parent=?) AND type IN ('dropdown','radiobutton')"
+											set rsPrompts=##class(%ResultSet).%New("%Library.DynamicQuery:SQL")
+											do rsPrompts.Prepare(query)
+											do rsPrompts.Execute(myPageID)
+											while rsPrompts.Next(),allowDelete {
+												set promptID=rsPrompts.Get("ID")
+												&SQL(SELECT ID FROM sc_xModules.objCodItem WHERE dependsOnPrompt = :promptID)
+												if +SQLCODE=0 {
+													set allowDelete=0
+												}
+												&SQL(SELECT ID FROM sc_xModules.objText WHERE dependsOnPrompt = :promptID)
+									 			if +SQLCODE = 0 { // yes we do
+									 				set allowDelete=0
+									 			}
+											}
+											//check recursive dependencies. 											
+											if (##class(sc.xModules.objPage).checkDependenciesRecursively(myPageID,eventCategoryID,xEventID)=0){
+												set allowDelete=0
+											}
+																			
+										}
+									}
+								</script>
+								<td class="black10px">
+								</td>
+							</systemType:if>
+							<systemType:if module="Attendee Categories">
+								<csp:if condition=(moreThanOneCategory)>
+									<script language="cache" runat="server">
+										set allowReLink=1
+										if usedByAnother set allowReLink=0
+									</script>
+									<csp:if condition=(allowReLink)>
+										<td class="black10px">
+											<select name="selEventCategoryUseSameAs_#(linkID)#" class="black10px" style="width:150px;">
+												<csp:if condition=(sameAs)>
+													<option value="CREATE"> - <tx>Unlink Page</tx> - </option>
+												<csp:else>
+													<option value=""> - <tx>not linked</tx> - </option>
+												</csp:if>
+												<script name="rs3" language="SQL" P1="#(xEventID)#" P2="#(xWorkLangID)#" P3="#(eventCategoryID)#" P4="#(sameAs)#">
+													SELECT COUNT(ID) As total,ID,pageID,description,displayOrder,backendOnly,active,sameAs,sameAs->pageID as linkedToPage,objEventCategory
+													FROM setup.lnkCategoryEvent
+													WHERE (objEvent=?) AND (langID=?) AND (objEventCategory<>?) AND ((active=1) OR (ID=?)) AND ((sameAs='') OR (sameAs IS NULL))
+													ORDER BY displayOrder
+												</script>
+												<csp:while condition="rs3.Next()">
+													<script language="cache" runat="server">
+														set show=##class(setup.lnkAttendeeCategoryDetailsEvent).isCategoryActive(xEventID,rs3.Data("objEventCategory"))
+													</script>
+													<csp:if condition=(show)>
+														<option value="#(rs3.Data("ID"))#" #($S(rs3.Data("ID")=sameAs:"SELECTED",1:""))#>#(rs3.Data("description"))#</option>
+													</csp:if>
+												</csp:while>
+											</select>
+										</td>
+									</csp:if>
+								</csp:if>
+							</systemType:if>
+						</tr>
+						<systemType:if module="Dependent Registration Pages">
+							<script language="cache" runat="server">
+								set show=active
+								if pageCount=0 set show=0
+								if ##class(setup.objEventSetting).getParameter("basket","basket links to registration pages",xEventID) set show=0
+							</script>
+							<csp:if condition=(show)>
+								<tr class='#($S(row=1:"yellow",1:"grey"))#'>
+									<td></td>
+									<script language="cache" runat="server">
+										set disabled="",title=""
+										if 'dependsOnPromptPageID {
+											set disabled="DISABLED"
+										}
+										if numberRegistered {
+											set disabled="DISABLED"
+											set title=..out("You cannot change page dependencies once people have registered for the event")
+										}
+									</script>
+									<td colspan=6 align="left" class="black10px" title='#(title)#'>
+										<csp:if condition=(numberRegistered)>
+											<csp:if condition=(dependsOnPromptPageID)>
+												<img src="../../media/images/English/Default/backend/tick.gif" width="14" height="12" alt="" />
+											<csp:else>
+												<img src="../../media/images/English/Default/backend/cross.gif" width="14" height="12" alt="" />
+											</csp:if>
+										<csp:else>
+											<input type="checkbox" name="chkIsDependent_#(linkID)#" class="black10px" #($S(dependsOnPromptPageID:"CHECKED",1:""))# value="1" onClick="toggleDependsSel(#(linkID)#,this.checked);">
+										</csp:if>
+										<tx>Activate Only if</tx>...&nbsp;
+										<select name="selDependsOnQuestion_#(linkID)#" id="selDependsOnQuestion_#(linkID)#" class="black10px" style="width:200px;" #(disabled)# title='#(title)#' onChange="updateAlts(#(linkID)#,this.value);">
+											<option></option>
+											<csp:if condition=(eventAllowsGroupBookings)>
+												<script name="rsCodItems" language="SQL" P1="#(bookerPageID)#">
+													SELECT objItemName,objItemName->description As codItem FROM sc_xModules.objCODitem 
+													WHERE (parent->parent = ?) AND (active=1) AND (type IN ('dropdown','radiobutton')) 
+													ORDER BY displayOrder
+												</script>
+												<csp:while condition="rsCodItems.Next()" counter="i">
+													<script language="cache" runat="server">
+														set codItemID=rsCodItems.Get("objItemName")
+														set codItem=rsCodItems.Get("codItem")
+														set selected="" 
+														if dependsOnPromptPageID=bookerPageID,$ZCVT(dependsOnPrompt,"L")=$ZCVT(codItem,"L") set selected="SELECTED"
+													</script>
+													<csp:if condition=(i=1)>
+														<option value="" class="whitebold10px" style="background-color: #CC0033;"><tx>Registration Contact Details</tx></option>
+													</csp:if>
+													<option value="#(bookerPageID_"|"_codItemID)#" #(selected)#>#(codItem)#</option>
+												</csp:while>
+											</csp:if>
+											<script name="rsPages" language="SQL" P1="#(xEventID)#" P2="#(xWorkLangID)#" P3="#(eventCategoryID)#" P4="#(pageID)#" P5="#(pageID)#">
+												SELECT pageID,sameAs,sameAs->pageID as linkedToPage,description
+												FROM setup.lnkCategoryEvent 
+												WHERE (objEvent= ? ) AND (langID=?) AND (objEventCategory = ?) AND (active=1) AND (pageID <> ?) AND ((sameAs->pageID <> ?) OR (sameAs IS NULL))
+												ORDER BY displayOrder
+											</script>
+											<csp:while condition="rsPages.Next()">
+												<script language="cache" runat="server">
+													set description=rsPages.Get("description")
+													if 'rsPages.Get("sameAs") { 
+														set tmpPageID=rsPages.Get("pageID")
+													} else {
+														set tmpPageID=rsPages.Get("linkedToPage")	
+													}
+												</script>
+												<script name="rsCodItems" language="SQL" P1="#(tmpPageID)#">
+													SELECT objItemName,objItemName->description As codItem FROM sc_xModules.objCODitem 
+													WHERE (parent->parent = ?) AND (active=1) AND (type IN ('dropdown','radiobutton')) 
+													ORDER BY displayOrder
+												</script>
+												<csp:while condition="rsCodItems.Next()" counter="i">
+													<script language="cache" runat="server">
+														set codItemID=rsCodItems.Get("objItemName")
+														set codItem=rsCodItems.Get("codItem")
+														set selected="" 
+														if dependsOnPromptPageID=tmpPageID,$ZCVT(dependsOnPrompt,"L")=$ZCVT(codItem,"L") set selected="SELECTED"
+													</script>
+													<csp:if condition=(i=1)>
+														<option value="" class="whitebold10px" style="background-color: #CC0033;">#(description)#</option>
+													</csp:if>
+													<option value="#(tmpPageID_"|"_codItemID)#" #(selected)#>#(codItem)#</option>
+												</csp:while>
+											</csp:while>
+											
+										</select>
+										&nbsp;<font size="4"><strong>=</strong></font>&nbsp;
+										<select name="selDependsOnAnswer_#(linkID)#" id="selDependsOnAnswer_#(linkID)#" class="black10px" #(disabled)# style="width: 200px;">
+											<csp:if condition=($l(dependsOnPrompt))>
+												<script language="cache" runat="server">
+													set rsAlts=##class(cod.objItemAlternatives).getAlternativesForCodItemAsResultSet(dependsOnPromptID)
+												</script>
+												<csp:while condition="rsAlts.Next()">
+													<option value="#(rsAlts.Get("ID"))#" #($S(rsAlts.Get("description")=dependsOnAlternative:"SELECTED",1:""))#>#(rsAlts.Get("description"))#</option>
+												</csp:while>
+											<csp:else><csp:comment><!-- Only write empty option tag out if no dependent prompt--></csp:comment>
+												<option value=""></option>
+											</csp:if>
+											<csp:comment><!-- Populated from javascript when doing new--></csp:comment>
+										</select>
+										&nbsp;
+									</td>
+								</tr>
+							</csp:if>
+						</systemType:if>
+					</csp:while>
+		   		</table>
+			</div>
+		</csp:while>
+	</csp:if>	
+</div>
+
+	<input type="hidden" name="MeetManLinkID" value="">
+	<input type="hidden" name="newDesc" value="">
+	<input type="hidden" name="changeDesc" value="">
+	<input type="hidden" name="linkID" value="">
+	<systemType:if module="Dependent Registration Pages">
+		<csp:if condition=('numberRegistered)>
+			<input type="hidden" name="updateDependencies" value="1">
+		</csp:if>
+	</systemType:if>
+</form>
+<script language="javascript">
+function confirmDelete(linkID) {
+	if (confirm('#(..out("Are you absolutely sure that you want to delete this registration page? There is no undo and it could lead to data loss if the event is live."))#') == true) {
+		showAll=document.forms[0].showAll.checked
+		document.location='#(..Link("regPages.csp?zz=1"))#&deletePage=1&linkID=' + linkID + '&showAll=' + showAll;
+	}
+}
+
+function changeDesc(linkID,oldName) {
+	var description = prompt('Please enter the new page heading',oldName)
+	if ((description != null) && (description !=''))  {
+		// ficks up foreign chars //escape(description);
+		//document.location.href = '#(%request.PageName)#?changeDesc=1&linkID=' + linkID + '&newDesc=' + description;
+		document.forms[0].newDesc.value=description;
+		document.forms[0].changeDesc.value=1;
+		document.forms[0].linkID.value=linkID;
+		document.forms[0].submit();
+	}
+}
+function updateMeetMan(linkID) {
+	document.forms[0].MeetManLinkID.value=linkID;
+	document.forms[0].submit();
+
+}
+function toggleDependsSel(linkID,isChecked) {
+	selDependsOnAnswer=document.getElementById('selDependsOnAnswer_' + linkID);
+	selDependsOnQuestion=document.getElementById('selDependsOnQuestion_' + linkID);
+	if (isChecked == true) {
+		selDependsOnQuestion.disabled = false;
+		selDependsOnAnswer.disabled = false;
+	} else {
+		selDependsOnQuestion.disabled = true;
+		selDependsOnAnswer.disabled = true;
+	}
+}
+
+function updateAlts(linkID,pagePrompt) {
+	var tmp = pagePrompt.split('|');
+	var codPromptID=tmp[1];
+	selDependsOnAnswer=document.getElementById('selDependsOnAnswer_' + linkID);
+	selDependsOnAnswer.options.length=0;
+	if (codPromptID != '') {
+		// populate the alternatives list box from the javascript array
+		
+		for (var i = 0; i < (alts[codPromptID].length); i++) {
+			var tmp = alts[codPromptID][i].split('|');
+			selDependsOnAnswer.options[i] = new Option(tmp[1],tmp[0])
+		}	
+	}
+}
+
+function move(linkID,dir) {
+	showAll=document.forms[0].showAll.checked
+	document.location = '#(..Link("regPages.csp?zz=1"))#&move=1&direction=' + dir + '&linkID=' + linkID + '&showAll=' + showAll;
+}
+
+function changeLang(newLangID) {
+	showAll=document.forms[0].showAll.checked
+	document.location = '#(..Link(%request.PageName_"?zz=1"))#&xWorkLangID=' + newLangID + '&showAll=' + showAll;
+}
+
+</script>
+<csp:include page="../../backend/home/backendBottom.csp">
+]]></CSP>
 
 
 <CSP name="backEnd/proweb/codQuestionDetails.csp" application="/largedevsrc/" default="1"><![CDATA[
@@ -9978,10 +10815,13 @@ function saveSameAs(categoryID) {
 	set isQuantityItem=%request.Get("quantityItem")
 	set isAdditionalItem=%request.Get("additional")
 	
+	set errMsg = ""
+	
 	do ##class(sc.methods).updateBackendVariablesFromPageID(pageID)
 	
-	set newCodQuestionDetailsURL="codQuestionDetails.csp?pageID="_..encodeForURL(pageID)_"&dataID="_..encodeForURL(dataID)_"&quantityItem="_..encodeForURL(isQuantityItem)_"&additional="_..encodeForURL(isAdditionalItem)
-	set codQuestionDetailsURL=newCodQuestionDetailsURL_"&itemNameID="_..encodeForURL(itemNameID)
+	set baseCodQuestionDetailsURL="codQuestionDetails.csp?pageID="_..encodeForURL(pageID)_"&dataID="_..encodeForURL(dataID)_"&quantityItem="_..encodeForURL(isQuantityItem)_"&additional="_..encodeForURL(isAdditionalItem)
+	set codQuestionDetailsURL = ..addParameterToURL(baseCodQuestionDetailsURL, "itemNameID", itemNameID)
+	set newCodQuestionDetailsURL = ..addParameterToURL(baseCodQuestionDetailsURL, "itemNameID", "NEW")
 	set errorURL=codQuestionDetailsURL
 
 	// get the current values, used to compare against for audit trail purposes
@@ -10202,13 +11042,19 @@ function saveSameAs(categoryID) {
 			if ok {
 				do ##class(cod.methods).loadUsedQuestions(pageID,,, .alreadyUsedQuestions, .allRegPageIDs)
 				if $Data(alreadyUsedQuestions(itemNameID)) {
-					set %session.Data("proweb", "backend", "errMsg") = "The changes can't be saved because the additional bookable item already exists on this registration page."
-					kill %session.Data("itemNameID")
-		 			set %response.Redirect = newCodQuestionDetailsURL
-		 			return 0
+					set errMsg = "The changes can't be saved because the additional bookable item already exists on this registration page."
 				}
 			}
 	 	}
+	 	if (itemNameID '= "CREATE") && ('##class(cod.objItemName).%ExistsId(itemNameID)) {
+			set errMsg = "The changes can't be saved because the database item is not valid."
+		}
+		if $Length(errMsg) {
+			set %session.Data("proweb", "backend", "errMsg") = errMsg
+			kill %session.Data("itemNameID")
+ 			set %response.Redirect = newCodQuestionDetailsURL
+ 			return 0	
+		}
 		if itemNameID="CREATE" {
 			// new data and new cod
 			// create new cod item
@@ -10300,7 +11146,7 @@ function saveSameAs(categoryID) {
 		} else {	
 			if xEventID do ##class(setup.objEventAudit).add(xUserID,xEventID,"Reg Page '"_pageName_"' ("_pageID_"), Added new Registration Question: "_questionText_" ("_codItemNameDescription_"), "_%request.Get("selType")_", "_$S(mandatory:"Mandatory",1:"Not Mandatory"))
 		}
-
+		
 		// Add new, dependend children right underneath their parent
 		set dependsOnAlternative=%request.Get("selDependsOnCodAltID")
 		if (dependsOnPrompt&&dependsOnAlternative) { //  only save as dependent if we have both a dependent question and a required answer
@@ -10814,6 +11660,39 @@ function saveSameAs(categoryID) {
 	
 	set %response.Redirect=%response.Redirect_$S(%response.Redirect["?":"&",1:"?")_"mode=edit"
 	
+	quit 0
+</script>
+]]></CSP>
+
+
+<CSP name="backEnd/proweb/deleteListItem.csp" application="/largedevsrc/" default="1"><![CDATA[
+<script language="CACHE" method="OnPreHTTPafter" arguments="" returntype="%Boolean">
+	set xEventID=$G(%session.Data("eventsforce","backend","xEventID"))
+	set xUserID=$G(%session.Data("eventsforce","backend","xPersonID"))
+
+	set dataID=%request.Get("dataID")	
+	if dataID'="" {
+		set description=""
+		&SQL(SELECT description INTO :tmp FROM sc_xModules.objCODitem WHERE ID = :dataID)
+		if +SQLCODE=0 set description=tmp
+		
+		if description="" { //This is a non-cod item. Store object type and dataID in Audit trail.
+			set description=", Deleted "_##class(sc.objData).getDataType(dataID)_" ("_dataID_")"
+		} else {
+			set description=", Deleted Registration Question: "_description_" ("_dataID_")"
+		}
+		
+		set pageID=##class(sc.objData).getPageID(dataID)
+		set pageName=""
+		&SQL(SELECT description INTO :tmp FROM sc_xModules.objPage WHERE ID = :pageID)
+		if +SQLCODE=0 set pageName=tmp
+		
+		set ok=##class(sc.objData).deleteItem(dataID)
+		
+		// log to the event audit trail
+		if (xEventID && ok) do ##class(setup.objEventAudit).add(xUserID,xEventID,"Reg Page '"_pageName_"' ("_pageID_")"_description)		
+	}
+	set %response.Redirect="../../proweb/frontend/start.csp?mode=edit&version=current&pageID="_$G(%session.Data("pageID"))
 	quit 0
 </script>
 ]]></CSP>
@@ -13818,7 +14697,7 @@ function updateAlts(codPromptID) {
 
 <script language="cache" method="OnPreHTTPafter" arguments="" returntype="%Library.Boolean"> 
 	set contextData = ##class(EF.contextDataRegistration).createFromFrontendCSPSession()
-	set pageControllerID=%request.Get("pageControllerID")
+	set pageControllerID=%request.Get("prowebPageControllerID")
 	
 	set ok=1
 	try {
@@ -13850,11 +14729,7 @@ function updateAlts(codPromptID) {
 		}
 		
 		// save the temp structure to database
-		if pageController.hasError {
-			set redirectURL = ##class(EF.htmlGenerator).addParameterToURL("t4registration.csp", "pageControllerID",pageControllerID) 
-			set redirectURL = ##class(EF.htmlGenerator).addParameterToURL(redirectURL, "pageID", %request.Get("pageID")) 
-
-		} else {
+		if 'pageController.hasError {
 			// save temp structure to database
 			Try {
 				// the save has the validation and THROWS exceptions if any validations fail
@@ -13870,11 +14745,16 @@ function updateAlts(codPromptID) {
 					throw exObj
 				}
 				do pageController.setErrorMessage(error)
+				set pageController.hasError=1
 			}
 		}
 		do pageController.%Save()
 	}
 	do pageController.copyAllDataToEComTemp()
+	if pageController.hasError {
+		set redirectURL = ##class(EF.htmlGenerator).addParameterToURL("t4registration.csp", "prowebPageControllerID",pageControllerID) 
+		set redirectURL = ##class(EF.htmlGenerator).addParameterToURL(redirectURL, "pageID", %request.Get("pageID"))
+	}
 	s ^xfg("zredirect")=redirectURL
 	set %response.Redirect=redirectURL
 	quit 0
@@ -13887,7 +14767,7 @@ function updateAlts(codPromptID) {
 <csp:class encoded="1" private="1">
 <script language="cache" runat="server">
 	set contextData = ##class(EF.contextDataRegistration).createFromFrontendCSPSession()
-	set pageControllerID = %request.Get("pageControllerID")
+	set pageControllerID = %request.Get("prowebPageControllerID")
 	if 'pageControllerID {
 		throw ##class(shared.exceptions.generalException).%New("No pageController passed in to the re-ordering page")
 	}
@@ -13918,76 +14798,10 @@ function updateAlts(codPromptID) {
 	
 </csp:section>
 
-<script language="javascript">
-// Temporary should be moved into a static javascript file along with ef.frontend.create_searchable_dropdown
-
-ef.frontend.create_searchable_dropdown_temp = ef.frontend.create_searchable_dropdown;
-
-ef.frontend.create_searchable_dropdown = function (ele) {
-	
-	ef.frontend.create_searchable_dropdown_temp(ele);
-
-	$(ele).closest('.ef_proweb_form_prompt').find('.select2-container').each(function() {
-		$(this).addClass('EF_dropdown_searchable_container');
-	});
-	$(ele).closest('.ef_proweb_form_prompt').find('.select2-selection').each(function() {
-		$(this).addClass('EF_dropdown_searchable_selection');
-	});
-};
-
-</script>
-
 <!-- ########### MOVE THIS TO EXTERNAL FILE ######## -->
 <style>
 .row {
 	margin: 20px;	
-}
-.dropdown-submenu {
-    position: relative;
-}
-
-.dropdown-submenu>.dropdown-menu {
-    top: 0;
-    left: 100%;
-    margin-top: -6px;
-    margin-left: -1px;
-    -webkit-border-radius: 0 6px 6px 6px;
-    -moz-border-radius: 0 6px 6px;
-    border-radius: 0 6px 6px 6px;
-}
-
-.dropdown-submenu:hover>.dropdown-menu {
-    display: block;
-}
-
-.dropdown-submenu>a:after {
-    display: block;
-    content: " ";
-    float: right;
-    width: 0;
-    height: 0;
-    border-color: transparent;
-    border-style: solid;
-    border-width: 5px 0 5px 5px;
-    border-left-color: #ccc;
-    margin-top: 5px;
-    margin-right: -10px;
-}
-
-.dropdown-submenu:hover>a:after {
-    border-left-color: #fff;
-}
-
-.dropdown-submenu.pull-left {
-    float: none;
-}
-
-.dropdown-submenu.pull-left>.dropdown-menu {
-    left: -100%;
-    margin-left: 10px;
-    -webkit-border-radius: 6px 0 6px 6px;
-    -moz-border-radius: 6px 0 6px 6px;
-    border-radius: 6px 0 6px 6px;
 }
 .ef-proweb-dropdown-button {
 	background-color: #3e3e3e !important;
@@ -13998,23 +14812,10 @@ ef.frontend.create_searchable_dropdown = function (ele) {
 	background-color: rgb(255,160,49) !important;
 	color: WHITE !important;	
 }
-.ef-proweb-dropdown a {
-	text-decoration: none;
-	background-color: #3e3e3e !important;
-	color: rgb(220, 220, 220) !important;	
+.ef-proweb-dropdown-link {
+	text-decoration: none !important;
 }
-.ef-proweb-dropdown a:hover {
-	text-decoration: none;
-	background-color: rgb(255,160,49) !important;
-	color: WHITE !important;	
-}
-.dropdown-menu {
-	background-color: #3e3e3e ;
-}
-.ef-proweb-dropdown-sub {
-	margin-top: 0px;
-	border: 0px;	
-}
+
 .ef-proweb-menu-handle {
 	position: fixed;
 	left: 0px;
@@ -14035,6 +14836,9 @@ ef.frontend.create_searchable_dropdown = function (ele) {
     content: "\e119";
     float: right;
 }
+.ef-proweb-floater-button-group {
+	display: inline-flex !important;
+}
 .ef_frontend_help_text_icon {
 	float: left;
 }
@@ -14044,7 +14848,7 @@ ef.frontend.create_searchable_dropdown = function (ele) {
 .ef-proweb-direct-label-edit input {
 	width: 70%;
 }
-.ef-proweb-form-row-editable.ef-showing-floater, .ef-Proweb-Quick-Edit-Panel {
+.ef-proweb-form-row-editable.ef-showing-floater, .ef-Proweb-Quick-Edit-Panel, .ef-proweb-empty-list {
     background-color: #EEEEEE;
     border-color: GRAY;
     border-style: dashed;
@@ -14065,6 +14869,19 @@ ef.frontend.create_searchable_dropdown = function (ele) {
 }
 .ef-text-length-count-message {
 	float: left;
+}
+.ef-proweb-empty-list {
+	width: 100%;
+	height: 100%;	
+}
+textarea.form-control {
+	resize: vertical;
+}
+.dropdown-menu {
+	margin: 0;
+}
+.ef-label-text {
+    font-weight: 700;
 }
 </style>
 ]]></CSP>
@@ -15395,7 +16212,7 @@ FRRE RULE
 <Abstract>1</Abstract>
 <ClassType/>
 <ProcedureBlock>1</ProcedureBlock>
-<TimeChanged>64226,59537.770595</TimeChanged>
+<TimeChanged>64230,59746.05376</TimeChanged>
 <TimeCreated>63046,56232.897117</TimeCreated>
 
 <Method name="outputDefaultCSS">
@@ -17595,10 +18412,6 @@ The basic frontend default stuff</Description>
 		.ef-dependent-field::after {
 		    content: "🔗";
 		}
-		.ef-dependent-and-required-field::after {
-		    content: " *🔗";
-		    color: red;	
-		 }
 		@media (max-width: 768px) {
 		   .ef_proweb_form_prompt {
 		      text-align: left; 
@@ -17749,7 +18562,7 @@ The basic frontend default stuff</Description>
 <ClassType>persistent</ClassType>
 <ProcedureBlock>1</ProcedureBlock>
 <Super>%Library.Persistent,shared.timeStamp</Super>
-<TimeChanged>64223,76029.965823</TimeChanged>
+<TimeChanged>64231,57019.647676</TimeChanged>
 <TimeCreated>60782,60196.270659</TimeCreated>
 <Inheritance>right</Inheritance>
 
@@ -18481,7 +19294,16 @@ outputs each section of code doing the banner, menu and footer when needed</Desc
 		set before=rsLT.Data("before"),after=rsLT.Data("after")
 		if from=before set okToWrite=1   // start writing
 		if to=before set okToWrite=0   // stop writing if the item we've got to is the one we want to stop at
+		/*
+		if (##class(sc.methods).isUsingProweb2()) && (before = "[[ef_main_progress]]") && (after = "[[ef_main_header]]")  {
+			set okToWrite = 0 // page header is part of the contents in proweb2. Templates that have the header in a different position will have to be changed.	
+		}
+		if (##class(sc.methods).isUsingProweb2()) && (before = "[[ef_main_header]]") && (after = "[[ef_main_content]]")  {
+			set okToWrite = 0 // page header is part of the contents in proweb2. Templates that have the header in a different position will have to be changed.	
+		}
+		*/
 		if okToWrite	{
+			;w "before=",before," after=",after
 			if before="" {
 				do ##class(layout.cssDefaultMethods).outputDefaultCSS(xEventID,layoutTemplateID)
 			}
@@ -18571,7 +19393,7 @@ outputs each section of code doing the banner, menu and footer when needed</Desc
 			if before="[[ef_banner]]",'##class(eCom.tempPurchase).isBackendBooking(%session.SessionId),'isSurvey {
 				//do banner
 				if ##class(sc.methods).isUsingProweb2() {
-					set parentListElement = pageController.getElementByIdentifier("banner list")
+					set parentListElement = pageController.getElementByIdentifier("banner page")
 					do pageController.renderElements(parentListElement)
 						
 				} else {
@@ -18646,7 +19468,7 @@ outputs each section of code doing the banner, menu and footer when needed</Desc
 			if before="[[ef_menu]]",'##class(eCom.tempPurchase).isBackendBooking(%session.SessionId),'isSurvey {
 				//do menu
 				if ##class(sc.methods).isUsingProweb2() {
-					set parentListElement = pageController.getElementByIdentifier("navigation bar list")
+					set parentListElement = pageController.getElementByIdentifier("navigation bar page")
 					do pageController.renderElements(parentListElement)
 						
 				} else {
@@ -18686,7 +19508,7 @@ outputs each section of code doing the banner, menu and footer when needed</Desc
 			}
 			if before="[[ef_right]]",'##class(eCom.tempPurchase).isBackendBooking(%session.SessionId),'isSurvey {
 				if ##class(sc.methods).isUsingProweb2() {
-					set parentListElement = pageController.getElementByIdentifier("sponsor list")
+					set parentListElement = pageController.getElementByIdentifier("sponsor page")
 					do pageController.renderElements(parentListElement)
 						
 				} else {
@@ -18722,7 +19544,7 @@ outputs each section of code doing the banner, menu and footer when needed</Desc
 			if before="[[ef_footer]]",'##class(eCom.tempPurchase).isBackendBooking(%session.SessionId),'isSurvey {
 				//do footer
 				if ##class(sc.methods).isUsingProweb2() {
-					set parentListElement = pageController.getElementByIdentifier("footer list")
+					set parentListElement = pageController.getElementByIdentifier("footer page")
 					do pageController.renderElements(parentListElement)
 						
 				} else {
@@ -18755,6 +19577,7 @@ outputs each section of code doing the banner, menu and footer when needed</Desc
 					set isxtSurvey=currentIsxtSurvey
 				}
 			}
+			
 			
 			do ..writeContents(sectionID)
 			
@@ -19180,7 +20003,7 @@ Returns true if the template is custom made</Description>
 </Class>
 
 
-<Project name="proweb 2" LastModified="2016-11-08 10:08:56.328748" Target="largedevsrc/backEnd/proweb/quickEditAJAX.csp" TargetType="3">
+<Project name="proweb 2" LastModified="2016-11-09 13:27:41.315241" Target="largedevsrc/backEnd/proweb/quickEditAJAX.csp" TargetType="3">
   <Items>
     <ProjectItem name="EF.contextDataRegistration" type="CLS"></ProjectItem>
     <ProjectItem name="EF.contextDataRegistrationMock" type="CLS"></ProjectItem>
@@ -19315,6 +20138,9 @@ Returns true if the template is custom made</Description>
     <ProjectItem name="sc.xModules.objList" type="CLS"></ProjectItem>
     <ProjectItem name="shared.pageMethods" type="CLS"></ProjectItem>
     <ProjectItem name="sc.xModules.objPage" type="CLS"></ProjectItem>
+    <ProjectItem name="largedevsrc/backEnd/Home/regPages.csp" type="CSP"></ProjectItem>
+    <ProjectItem name="largedevsrc/backEnd/Home/inSiteEditingFrame.csp" type="CSP"></ProjectItem>
+    <ProjectItem name="largedevsrc/backEnd/proweb/deleteListItem.csp" type="CSP"></ProjectItem>
   </Items>
   <BreakPoints>
     <BreakPoint Routine="cspRealEV.frontend.reg.pagecontrollerstandardsave.CLS" Offset="OnPreHTTPafter+28"></BreakPoint>
@@ -19348,7 +20174,7 @@ Facade class for the sc.objData</Description>
 
 <Class name="sc.facade.prowebItemStorage">
 <Super>%RegisteredObject</Super>
-<TimeChanged>64216,59141.4142</TimeChanged>
+<TimeChanged>64231,56617.005132</TimeChanged>
 <TimeCreated>64206,37017.045507</TimeCreated>
 
 <Property name="prowebID">
@@ -19357,8 +20183,20 @@ Property displayOrder As %Integer [ Required ];</Description>
 <Type>%Integer</Type>
 </Property>
 
+<Property name="pageID">
+<Type>%Integer</Type>
+</Property>
+
 <Property name="dependsOnProwebAlternativeID">
 <Type>%Integer</Type>
+</Property>
+
+<Property name="dependsOnProwebID">
+<Type>%Integer</Type>
+</Property>
+
+<Property name="dependsOnProwebItem">
+<Type>sc.facade.prowebItemStorage</Type>
 </Property>
 
 <Property name="dependencyHoverText">
@@ -19385,23 +20223,72 @@ Property displayOrder As %Integer [ Required ];</Description>
 ]]></Implementation>
 </Method>
 
-<Method name="isOkToUse">
+<Method name="isOkToLoad">
 <FormalSpec>contextData:EF.contextDataRegistration</FormalSpec>
 <ReturnType>%Boolean</ReturnType>
 <Implementation><![CDATA[
 	if 'contextData.%Extends("EF.contextDataRegistration") {
 		throw ##class(shared.exceptions.generalException).%New("Proweb2 has not been implemented for this type of contextData yet: "_contextData)
 	}
-	
 	if contextData.prowebMode = "edit" {
 		return 1
 	}
 	
 	if (contextData.attendeeCategoryID) {
-		return ##class(links.lnkEventCategoryData).allow(contextData.attendeeCategoryID, ..prowebID)	
+		if '##class(links.lnkEventCategoryData).allow(contextData.attendeeCategoryID, ..prowebID) {
+			return 0	
+		}
+	}
+	if (contextData.tempPersonID) && (..dependsOnProwebID) {
+		if '..hasInPageDependency(contextData) {
+			if '..isElementActiveForDependency(contextData) {
+				return 0	
+			}
+		}	
 	}
 	
 	return 1
+]]></Implementation>
+</Method>
+
+<Method name="hasInPageDependency">
+<FormalSpec>contextData:EF.contextDataRegistration</FormalSpec>
+<ReturnType>%Boolean</ReturnType>
+<Implementation><![CDATA[
+	set parentInputElement = ..getDependsOnProwebItem(contextData)
+	if ..pageID = parentInputElement.pageID {
+		return 1	
+	}
+	return 0
+]]></Implementation>
+</Method>
+
+<Method name="isElementActiveForDependency">
+<FormalSpec>contextData:EF.contextDataRegistration</FormalSpec>
+<Private>1</Private>
+<Implementation><![CDATA[
+	#Dim parentInputElement As sc.facade.prowebItemStorageInputElement = ..getDependsOnProwebItem(contextData)
+	set tempPersonToCheckID = contextData.tempPersonID
+	if contextData.eventWebsiteLanguage.eventConfiguration.getAllowGroupBookings() {
+		if parentInputElement.pageID = contextData.eventWebsiteLanguage.getBookerPageID() {
+			set personToCheck = ##class(eCom.tempPerson).getBookerIDfromTempPurchaseID(contextData.tempPersonID)
+		}
+	}
+	if ##class(eCom.tempCodData).get(tempPersonToCheckID,parentInputElement.databaseItemName) '= ##class(cod.objItemAlternatives).getDescriptionByID(..dependsOnProwebAlternativeID) {
+		return 0
+	}
+	return 1
+]]></Implementation>
+</Method>
+
+<Method name="getDependsOnProwebItem">
+<FormalSpec>contextData:EF.contextDataRegistration</FormalSpec>
+<ReturnType>sc.facade.prowebItemStorageInputElement</ReturnType>
+<Implementation><![CDATA[
+	if '$IsObject(..dependsOnProwebItem) {
+		set ..dependsOnProwebItem = ##class(sc.facade.prowebItemStorageInputElement).createNew(..dependsOnProwebID,contextData)	
+	}
+	return ..dependsOnProwebItem
 ]]></Implementation>
 </Method>
 </Class>
@@ -19481,7 +20368,7 @@ Property displayOrder As %Integer [ Required ];</Description>
 
 <Class name="sc.facade.prowebItemStorageInputElement">
 <Super>sc.facade.prowebItemStorage</Super>
-<TimeChanged>64230,45829.595033</TimeChanged>
+<TimeChanged>64231,58092.884495</TimeChanged>
 <TimeCreated>64206,40073.01042</TimeCreated>
 
 <Property name="inputType">
@@ -19567,12 +20454,22 @@ Property displayOrder As %Integer [ Required ];</Description>
 
 <Property name="maxWords">
 <Type>%Integer</Type>
-<InitialExpression>0</InitialExpression>
 </Property>
 
 <Property name="maxCharacters">
 <Type>%Integer</Type>
-<InitialExpression>0</InitialExpression>
+</Property>
+
+<Property name="fieldHeight">
+<Type>%Integer</Type>
+</Property>
+
+<Property name="minAltsChecked">
+<Type>%Integer</Type>
+</Property>
+
+<Property name="maxAltsChecked">
+<Type>%Integer</Type>
 </Property>
 
 <Method name="createNew">
@@ -19604,6 +20501,9 @@ Property displayOrder As %Integer [ Required ];</Description>
 	set storage.defaultValue = prowebItem.defaultValue
 	set storage.maxWords = prowebItem.maxWords
 	set storage.maxCharacters = prowebItem.maxCharacters
+	set storage.fieldHeight = prowebItem.fieldHeight
+	set storage.minAltsChecked = prowebItem.minAltsChecked
+	set storage.maxAltsChecked = prowebItem.maxAltsChecked
 	
 	if (prowebItem.requiredAnswer ? 1"?".E) ! (prowebItem.requiredAnswer ? 1"?".E) !(prowebItem.requiredAnswer ? 1"#".AN) {
 		set storage.customValidation = prowebItem.requiredAnswer 
@@ -19618,6 +20518,8 @@ Property displayOrder As %Integer [ Required ];</Description>
 	
 	set storage.validationErrorMessage = prowebItem.validationErrorMessage
 	set storage.dependsOnProwebAlternativeID = prowebItem.dependsOnAlternative
+	set storage.dependsOnProwebID = prowebItem.dependsOnPrompt
+	set storage.pageID = prowebItem.parent.parent.%Id()
 	
 	do ..populateAlternatives(storage, prowebItem,contextData)
 	
@@ -19955,7 +20857,7 @@ to make sure group bookers can't see already existing data of attendees</Descrip
 ]]></Description>
 <Abstract>1</Abstract>
 <ProcedureBlock>1</ProcedureBlock>
-<TimeChanged>64226,42098.134887</TimeChanged>
+<TimeChanged>64231,38923.327494</TimeChanged>
 <TimeCreated>61845,54770.681958</TimeCreated>
 
 <Method name="isUsingProweb2">
@@ -19992,6 +20894,8 @@ to make sure group bookers can't see already existing data of attendees</Descrip
 	if pageName = "flashdetails2" return 1
 	if pageName = "textdetailsmoxie" return 1
 	if pageName = "textdetailsmoxie2" return 1
+	if pageName = "regpromptcollectiondetails" return 1
+	if pageName = "regpromptcollectiondetails2" return 1
 
 	return 0
 ]]></Implementation>
@@ -22232,7 +23136,7 @@ note that this must be a classmethod or you will a compile error as the property
 
 <Class name="sc.proweb2methods">
 <Super>%RegisteredObject</Super>
-<TimeChanged>64226,35059.65999</TimeChanged>
+<TimeChanged>64231,38473.152379</TimeChanged>
 <TimeCreated>64218,41830.065131</TimeCreated>
 
 <Method name="moveNewElementToDesiredPosition">

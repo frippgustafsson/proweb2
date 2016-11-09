@@ -111,38 +111,46 @@ fixeds headers, banners and menues etc
 do the simple edit panel
 Page Heading
 Proceed buttons in edit mode
-===============================================================================
-
+Word and character count
+date-range boundary values are not honoured
+max and min words count
+dependencies with mandatory doesn't work
+replace icon characters with glyphicons
+Toolbar at the top of the page with preview/edit, page selector, tab description
+Collections
+disable edit on dividers
+disable edit and delte on empty lists
+bold qiock edit label
 Blank lists - how do we start?
-Have separate tool button add/delete/edit floater
-Toolbar at the top of the page with preview/edit, page selector, tab description,  and attendee category selector etc
+===============================================================================
+unit tests
+attendee category selector etc
 Horizontal button groups iinstead of radios/checkboxes
 Carousel control instead of scrolling images, or just go with the old crap
+rename "row ef-proweb-form-row" to something that fits non form pages too
+get Jeremy to help with right hand columns
 
 ==== adrian ===
 ABI and QBI are not working 
 Cross page dependencies
 Marketing code
 Warning on leaving the page
-move code
+move CSS
 
 === Minde ===
-Word and character count
-field Height for text areas
-Collections
 
-----  alpha version ----
-dependencies with mandatory doesn't work
-make sure we can't add questions on components that shouldn't allow it
-re-test with multiple list on a page
-date-range boundary values are not honoured
 complete the implmentation fo the file upload
+
+
+
+make sure we can't add questions on components that shouldn't allow it
+multiple list on a page
 test more date formats
 dependency on multicheck
 autiding delete&add
 ABIs
 warning before leaving the page
 table bookings
-max and min words count
+
 remove proweb version 1.5 code
 time field placeholder in FF is outside the box

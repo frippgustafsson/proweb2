@@ -109,7 +109,7 @@ make initPageController load hardcoded page section contents into new branches
 adapt OnPagePageTop to output contents from the page controller
 fixeds headers, banners and menues etc
 do the simple edit panel
-Page Heading
+
 Proceed buttons in edit mode
 Word and character count
 date-range boundary values are not honoured
@@ -122,13 +122,18 @@ disable edit on dividers
 disable edit and delte on empty lists
 bold qiock edit label
 Blank lists - how do we start?
+single text block tags
+Page Heading is being outputted outside the <H1> tags
 ===============================================================================
+
 unit tests
-attendee category selector etc
-Horizontal button groups iinstead of radios/checkboxes
-Carousel control instead of scrolling images, or just go with the old crap
+supress questions on lists that shouldn't have it
 rename "row ef-proweb-form-row" to something that fits non form pages too
-get Jeremy to help with right hand columns
+review the way we integrate the new CSP page with the old one
+Discuss the <H1> in the templates
+Discuss label styles
+XML dump tool
+menu doesn't get populated on first load
 
 ==== adrian ===
 ABI and QBI are not working 
@@ -139,11 +144,8 @@ move CSS
 
 === Minde ===
 
-complete the implmentation fo the file upload
 
-
-
-make sure we can't add questions on components that shouldn't allow it
+make sure we can't add questions on components that shouldn't allow it (use new attrib on tag + new prop on objComponenet)
 multiple list on a page
 test more date formats
 dependency on multicheck

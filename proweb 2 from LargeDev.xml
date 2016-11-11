@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2015.2 (Build 664_3_16032U)" ts="2016-11-09 16:15:28">
+<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2015.2 (Build 664_3_16032U)" ts="2016-11-11 10:33:38">
 <Class name="EF.contextDataRegistration">
 <Description><![CDATA[
 <!-- ;vc;-
@@ -1293,7 +1293,7 @@ Should be run if any of the sub-classes are deleted</Description>
 
 <Class name="EF.pageController.proweb.checkboxGroup">
 <Super>EF.pageController.proweb.inputElement</Super>
-<TimeChanged>64202,50428.439222</TimeChanged>
+<TimeChanged>64232,54990.403042</TimeChanged>
 <TimeCreated>64189,53206.554402</TimeCreated>
 
 <Method name="getDefaultUIComponent">
@@ -1360,6 +1360,16 @@ Should be run if any of the sub-classes are deleted</Description>
 
 <Method name="setNameForValidationError">
 <FormalSpec>name</FormalSpec>
+</Method>
+
+<Method name="updateUIComponent">
+<Implementation><![CDATA[
+	do ##super()
+	
+	set ..uiComponent.validator.minAltsChecked = ..prowebItem.storage.minAltsChecked
+	set ..uiComponent.validator.maxAltsChecked = ..prowebItem.storage.maxAltsChecked
+	set ..uiComponent.validator.fieldName = """"_..prowebItem.storage.databaseItemName_""""
+]]></Implementation>
 </Method>
 
 <Storage name="Default">
@@ -1525,12 +1535,8 @@ Should be run if any of the sub-classes are deleted</Description>
 
 <Class name="EF.pageController.proweb.inputElement">
 <Super>EF.pageController.inputElement,EF.pageController.proweb.prowebBase</Super>
-<TimeChanged>64231,40266.779341</TimeChanged>
+<TimeChanged>64232,49007.803798</TimeChanged>
 <TimeCreated>64189,53012.909524</TimeCreated>
-
-<Property name="isMandatory">
-<Type>%Boolean</Type>
-</Property>
 
 <Property name="guestNumber">
 <Type>%Integer</Type>
@@ -1571,6 +1577,35 @@ Should be run if any of the sub-classes are deleted</Description>
 	}
 		
 	return isOkToRender
+]]></Implementation>
+</Method>
+
+<Method name="updateUIComponent">
+<Implementation><![CDATA[
+	do ##super()
+	set contextData = ..page.contextData
+	
+	set ..uiComponent.validator.isMandatory = +..prowebItem.storage.isMandatory
+	
+	if $Length(..prowebItem.storage.customValidation) {
+		if ..prowebItem.storage.customValidation = "#personRegisteredWithSameAnswer" {
+			set ..uiComponent.validator = ##class(EF.validator.personRegisteredWithSameAnswer).%New()
+			set ..uiComponent.validator.prowebID = ..prowebItem.storage.prowebID
+			
+		} else {
+			set ..uiComponent.validator = ##class(EF.validator.patternMatchValidation).%New()
+			set ..uiComponent.validator.pattern = ..prowebItem.storage.customValidation
+		}
+		
+	} elseif $Length(..prowebItem.storage.bespokeValidationMethod) {
+		set ..uiComponent.validator = ##class(EF.validator.bespokeValidationMethod).%New()
+		set ..uiComponent.validator.bespokeValidationMethod = ..prowebItem.storage.bespokeValidationMethod
+		set ..uiComponent.validator.databaseItemName = ..prowebItem.storage.databaseItemName
+		set ..uiComponent.validator.tempPersonID = contextData.tempPersonID
+	}
+	if $Length(..prowebItem.storage.validationErrorMessage) {
+		set ..uiComponent.validator.errorMessage = ..prowebItem.storage.validationErrorMessage	
+	}
 ]]></Implementation>
 </Method>
 
@@ -1659,7 +1694,7 @@ Should be run if any of the sub-classes are deleted</Description>
 
 <Class name="EF.pageController.proweb.page">
 <Super>EF.pageController.page</Super>
-<TimeChanged>64231,58348.305214</TimeChanged>
+<TimeChanged>64233,37839.14963</TimeChanged>
 <TimeCreated>64189,51696.559047</TimeCreated>
 
 <Property name="contextData">
@@ -1682,7 +1717,6 @@ Should be run if any of the sub-classes are deleted</Description>
 
 <Property name="positionOfNextNonGuestQuestion">
 <Type>%Integer</Type>
-<Private>1</Private>
 </Property>
 
 <Property name="parentListElement">
@@ -1698,45 +1732,11 @@ Should be run if any of the sub-classes are deleted</Description>
 	} else {
 		do ..insertMockProwebItems()
 	}
-	
-	do ..repeatAnyGuestQuestions()
-	do ..insertPanelElementsAroundGuestQuestions()
-	
 	if ..contextData.isTestMode = 0 {
 		do ..loadIncludePage(..contextData.eventWebsiteLanguage.getSponsorPageID(), "sponsor page") 
 		do ..loadIncludePage(..contextData.eventWebsiteLanguage.getFooterPageID(), "footer page")
 	}
 	do ..updateUIComponents()
-]]></Implementation>
-</Method>
-
-<Method name="renderHTMLControlFromTag">
-<FormalSpec><![CDATA[&attrs]]></FormalSpec>
-<Implementation><![CDATA[
-	
-	set identifier = $G(attrs("identifier"))
-	set element = ..getElementByIdentifier(identifier)
-	if $IsObject(element) {
-		do element.render()
-		
-	} elseif $Get(attrs("prowebcomponentname"))'="" {
-		
-		if '..contextData.pageID {
-			throw ##class(shared.exceptions.generalException).%New("PageID was missing from contextData when attempting to render Proweb tag")
-		}
-		
-		set ..objEvent = ##class(setup.objEvent).%OpenId(..contextData.eventID)
-		set ..contextData.prowebComponentName = attrs("prowebcomponentname")
-				
-		do ..initialiseComponent()
-		
-		if ..hasError {
-			do ..renderErrorMessages()
-		}
-		set parentListElement = ..getElementByIdentifier("Main Page")
-		do ..renderElements(parentListElement)
-	}
-	quit
 ]]></Implementation>
 </Method>
 
@@ -1753,24 +1753,6 @@ Should be run if any of the sub-classes are deleted</Description>
 ]]></Implementation>
 </Method>
 
-<Method name="initialiseComponent">
-<Private>1</Private>
-<Implementation><![CDATA[
-	
-	if '##class(sc.xModules.objList).getListIDFromPageIDAndComponentName(..contextData.pageID, ..contextData.prowebComponentName) {
-		set listID = ##class(sc.xModules.objList).add(..contextData.pageID)
-		if 'listID {
-			throw ##class(shared.exceptions.generalException).%New("Failed to create new objList")	
-		}
-		set templateID = ##class(sc.pageMethods).getTemplateIDfromPageID(..contextData.pageID)
-		set componentID = ##class(sc.objComponent).add(..contextData.prowebComponentName, templateID, listID)
-		if 'componentID {
-			throw ##class(shared.exceptions.generalException).%New("Failed to cerate new objComponent")
-		}
-	}
-]]></Implementation>
-</Method>
-
 <Method name="loadIncludePage">
 <FormalSpec>pageID:%Integer,listName:%String</FormalSpec>
 <Private>1</Private>
@@ -1779,84 +1761,36 @@ Should be run if any of the sub-classes are deleted</Description>
 	set prowebListID = ##class(sc.xModules.objList).getListIDFromPageIDAndComponentName(pageID, "INDEXLIST")
 	set list.prowebListID = prowebListID
 	set ..parentListElement = list
-	do ..loadProwebListElementsFromDatabase(prowebListID)
+	do list.loadProwebListElementsFromDatabase()
 ]]></Implementation>
 </Method>
 
 <Method name="loadAllProwebListsForPage">
 <Private>1</Private>
 <Implementation><![CDATA[
-	set pageID = ..getPageID()
-	set registrationFormList = ##class(EF.pageController.containerElements.list).addElementToParent($this, "Main Page", "")
-	set ..parentListElement = registrationFormList
-	
-	set rsLists = ##class(%ResultSet).%New("sc.objData:qGetChildren")
-	do rsLists.Execute(pageID)
-	while rsLists.Next() {
-		set prowebListID = rsLists.Get("ID")
-		do ..loadProwebListElementsFromDatabase( prowebListID)
-	}
-]]></Implementation>
-</Method>
-
-<Method name="loadProwebListElementsFromDatabase">
-<FormalSpec>prowebListID:%Integer</FormalSpec>
-<Private>1</Private>
-<Implementation><![CDATA[
-	if ..parentListElement.identifier = "Main Page" {
-		do ..addPageHeader(prowebListID)
-	}
-	set rsProwebItems = ##class(%ResultSet).%New("sc.xModules.objList:qGetChildren")
-	do rsProwebItems.Execute(prowebListID)
-	while rsProwebItems.Next() {	
-		set prowebID = rsProwebItems.Get("ID")
-		set typeOfElement = rsProwebItems.Get("dataType")
-		if typeOfElement = "objCODitem" {
-			set storage = ##class(sc.facade.prowebItemStorageInputElement).createNew(prowebID, ..contextData)
+	set rsComponents = ##class(%ResultSet).%New("sc.objComponent:qComponentsByPageID")
+	do rsComponents.Execute( ..getPageID() )
+	while rsComponents.Next() {
+		set componentName = rsComponents.Get("description")
+		set prowebID = rsComponents.Get("listID")
+		set dataType = rsComponents.Get("dataType")
 		
-		} elseif typeOfElement = "objText" {
-			set storage = ##class(sc.facade.prowebItemStorageTextBlock).createNew(prowebID, ..contextData)
+		if dataType = "objList" {	
+			set listElement = ##class(EF.pageController.proweb.list).addElementToParent($this, componentName, "")
+			set listElement.prowebListID = prowebID
+			set ..parentListElement = listElement 
+			do listElement.loadProwebListElementsFromDatabase()
 
-		} elseif typeOfElement = "objMenuBlock" {
-			set storage = ##class(sc.facade.prowebItemStorageMenuBlock).createNew(prowebID, ..contextData)
-
-		} elseif typeOfElement = "objFormDivider" {
-			set storage = ##class(sc.facade.prowebItemStorageDivider).createNew(prowebID, ..contextData)
-		
-		} elseif typeOfElement = "objFileUpload" {
-			set storage = ##class(sc.facade.prowebItemStorageFileUpload).createNew(prowebID, ..contextData)
-		
-		} elseif typeOfElement = "objFlash" {
-			set storage = ##class(sc.facade.prowebItemStorageYouTubeVideo).createNew(prowebID, ..contextData)
-			
-		} else {
-			throw ##class(shared.exceptions.generalException).%New("Proweb type not implemented: "_typeOfElement)	
+		} elseif dataType = "objText" {
+			set listElement = ##class(EF.pageController.proweb.listOfSingleElement).addElementToParent($this, componentName, "")
+			set listElement.componentName = componentName
+			set ..parentListElement = listElement 
+			set storage = ##class(sc.facade.prowebItemStorageTextBlock).createNew(prowebID, ..page.contextData)
+			if storage.isOkToLoad(..page.contextData) {			
+				set prowebItem = ##class(sc.facade.prowebItem).createNew(storage)
+				do listElement.addElementForProwebItem(prowebItem)
+			}
 		}
-		if storage.isOkToLoad(..contextData) {			
-			set prowebItem = ##class(sc.facade.prowebItem).createNew(storage)
-			do ..addControllerForProwebItem(prowebItem)
-		}
-	}
-]]></Implementation>
-</Method>
-
-<Method name="addPageHeader">
-<FormalSpec>prowebListID:%Integer</FormalSpec>
-<Private>1</Private>
-<Implementation><![CDATA[
-	#define addToTopOfList 1
-	set page = ##class(sc.xModules.objPage).%OpenId( ..getPageID() )
-	
-	if $IsObject(page) && (page.hasPageHeaderEverBeenAdded = 0 ) {
-		set text =  ##class(translations.objPhraseWebsite).translatePhrase("Attendee Details", ..contextData.languageID)
-
-		set textID = ##class(sc.xModules.objText).add(prowebListID, "<H1>"_text_"</H1>", , $$$addToTopOfList)
-		if 'textID {
-			throw ##class(shared.exceptions.generalException).%New("Failed to add page header: '"_text_"' listID: ",prowebListID)	
-		}
-
-		set page.hasPageHeaderEverBeenAdded = 1
-		do page.%Save()
 	}
 ]]></Implementation>
 </Method>
@@ -1869,214 +1803,29 @@ Should be run if any of the sub-classes are deleted</Description>
 		set prowebItem = ..contextData.listOfProwebItemsToAdd.GetNext(.key)	
 		if key = "" quit
 		set ..parentListElement = $this
-		do ..addControllerForProwebItem(prowebItem)
+		//do ..addElementForProwebItem(prowebItem)
 	}
 ]]></Implementation>
 </Method>
 
-<Method name="addControllerForProwebItem">
-<FormalSpec>prowebItem:sc.facade.prowebItem</FormalSpec>
-<Private>1</Private>
+<Method name="addDependencyToElement">
+<FormalSpec>childElement:EF.pageController.proweb.prowebBase,prowebItem:sc.facade.prowebItem,optionalGuestNumber:%Integer=""</FormalSpec>
 <Implementation><![CDATA[
-	#define isInputElement prowebItem.storage.%Extends("sc.facade.prowebItemStorageInputElement")
-	#define isTextBlock prowebItem.storage.%Extends("sc.facade.prowebItemStorageTextBlock")
-	#define isMenuBlock prowebItem.storage.%Extends("sc.facade.prowebItemStorageMenuBlock")
-	#define isDivider prowebItem.storage.%Extends("sc.facade.prowebItemStorageDivider")
-	#define isYouTubeVideo prowebItem.storage.%Extends("sc.facade.prowebItemStorageYouTubeVideo")
-	 
-	#dim elementIdentifier as %String = ..getElementIdentifierForProwebItems(prowebItem)
-	#dim element as EF.pageController.proweb.prowebBase
-	
-	if $$$isInputElement { 
-		set element = ..getNewElementForQuestion(prowebItem)
-	
-	} elseif $$$isTextBlock {
-		set element = ##class(EF.pageController.proweb.textBlock).addElementToParent(..parentListElement, elementIdentifier, prowebItem.storage.text)
-	
-	} elseif $$$isMenuBlock {
-		set element = ##class(EF.pageController.proweb.menuBlock).addElementToParent(..parentListElement, elementIdentifier, prowebItem.storage.listOfMenuItems)
-	
-	} elseif $$$isDivider {
-		set element = ##class(EF.pageController.proweb.divider).addElementToParent(..parentListElement, elementIdentifier, "")
-	
-	} elseif $$$isYouTubeVideo {
-		set element = ##class(EF.pageController.proweb.youTubeVideo).addElementToParent(..parentListElement, elementIdentifier, "")
-	
-	} else {
-		throw ##class(shared.exceptions.generalException).%New("proweb item type not implemented yet: "_prowebItem.storage)	
-	}
-
-	set element.uiComponent.isProwebEditMode = (..contextData.prowebMode = "edit")
-	
-	set element.uiComponent.prowebItem = prowebItem
-	set element.prowebItem = prowebItem
-	set element.prowebID = prowebItem.storage.prowebID
-	set element.uiComponent.prowebItemID = prowebItem.storage.prowebID
-	set element.uiComponent.contextData = ..contextData
-	
-	if (element.#canBeDependent) & (..contextData.isTestMode = 0) {
-		set dependsOnAlternativeDescription = ##class(sc.dependencyMethods).getDependsOnAlternativeDescription(prowebItem.storage.prowebID)
-		if (($Length(dependsOnAlternativeDescription)) && (prowebItem.storage.hasInPageDependency(..contextData))) {
-			set parentProwebID = ##class(sc.dependencyMethods).getDependsOnPrompt(prowebItem.storage.prowebID)
-			
-			set storage = ##class(sc.facade.prowebItemStorageInputElement).createNew(parentProwebID, ..contextData)
-			set parentProwebItem = ##class(sc.facade.prowebItem).createNew(storage)
-			
-			set parentElementIdentifier = ..getElementIdentifierForProwebItems(parentProwebItem)
-			set dependencyList = ##class(EF.ui.components.dependencyList).createNew(parentElementIdentifier, dependsOnAlternativeDescription)	
-			set element.showHideDependencyList = dependencyList
-			set element.enableDisableDependencyList = dependencyList
+	set requiredAnswer = ##class(sc.dependencyMethods).getDependsOnAlternativeDescription(prowebItem.storage.prowebID)
+	if (($Length(requiredAnswer)) && (prowebItem.storage.hasInPageDependency(..contextData))) {
+		set parentProwebID = ##class(sc.dependencyMethods).getDependsOnPrompt(prowebItem.storage.prowebID)
+		
+		set storage = ##class(sc.facade.prowebItemStorageInputElement).createNew(parentProwebID, ..contextData)
+		set parentProwebItem = ##class(sc.facade.prowebItem).createNew(storage)
+		set guestNumber = ""
+		if parentProwebItem.storage.isGuest {
+			set guestNumber = optionalGuestNumber	
 		}
+		set parentElementIdentifier = ..getElementIdentifierForProwebItems(parentProwebItem, guestNumber)
+		set dependencyList = ##class(EF.ui.components.dependencyList).createNew(parentElementIdentifier, requiredAnswer)	
+		set childElement.showHideDependencyList = dependencyList
+		set childElement.enableDisableDependencyList = dependencyList
 	}
-	do ..listOfControllerIDsSorted.Insert(element.identifier)
-]]></Implementation>
-</Method>
-
-<Method name="getNewElementForQuestion">
-<FormalSpec>prowebItem:sc.facade.prowebItem,optionalGuestNumber:%Integer=""</FormalSpec>
-<Private>1</Private>
-<ReturnType>EF.pageController.proweb.inputElement</ReturnType>
-<Implementation><![CDATA[
-	#dim value as %String
-	#dim elementIdentifier as %String 
-	#dim labelText as %String = prowebItem.storage.labelText
-
-	if (prowebItem.storage.isGuest) && (optionalGuestNumber = "") {
-		set optionalGuestNumber = 1
-	}
-	set elementIdentifier = ..getElementIdentifierForProwebItems(prowebItem, optionalGuestNumber)
-	set value = ..getValueFromEComTemp(prowebItem, optionalGuestNumber)
-	
-	set pageControllerClassName = $Case(prowebItem.storage.inputType,
-											"text":"textInput",
-											"emailAddress":"emailInput",
-											"time":"timeInput",
-											"date":"datePicker",
-											"textarea":"textArea",
-											"phoneNumber":"phoneNumber",
-											"integer":"integerInput",
-											"floatingPointNumber":"numericInput",
-											"webAddress":"webAddress",
-											"multiEmailAddress":"emailInputMulti",
-											"checkbox":"checkboxGroup",
-											"dateRange":"dateRange",
-											"password":"passwordInput",
-											"fileUpload":"fileUpload",
-											:"exception"
-										)
-	
-	if prowebItem.storage.isHiddenToBooker(..contextData) {
-		set pageControllerClassName = "privateData" 
-	}
-	
-	if pageControllerClassName '= "exception" {		
-		set element = $ClassMethod("EF.pageController.proweb."_pageControllerClassName, "addElementToParent", ..parentListElement, elementIdentifier, labelText, value, prowebItem.storage.isReadOnly)
-		
-	} elseif (prowebItem.storage.inputType = "dropdown") ! (prowebItem.storage.inputType = "radiobutton") ! (prowebItem.storage.inputType = "multibox") {
-		set element = ..addProwebSelectionElement(prowebItem, optionalGuestNumber)
-				
-	} else {
-		throw ##class(shared.exceptions.generalException).%New("proweb question type is not implemented yet: "_prowebItem.storage.inputType)	
-	}
-
-	if prowebItem.storage.inputType = "checkbox" {
-		set childController = element.addProwebCheckbox(element, elementIdentifier_"-"_1, labelText, value)
-	}		
-	if prowebItem.storage.inputType = "dateRange" {
-		do ..addSecondDatePickerForDateRange(prowebItem, element)
-	}
-	if (element.%IsA("EF.pageController.proweb.checkboxGroup") = 0) && (+optionalGuestNumber = 0) {
-		set element.isMandatory = +prowebItem.storage.isMandatory
-		set element.uiComponent.isMandatory = +prowebItem.storage.isMandatory
-		set element.uiComponent.validator.isMandatory = +prowebItem.storage.isMandatory
-	}
-	
-	if $Length(prowebItem.storage.customValidation) {
-		if prowebItem.storage.customValidation = "#personRegisteredWithSameAnswer" {
-			set element.uiComponent.validator = ##class(EF.validator.personRegisteredWithSameAnswer).%New()
-			set element.uiComponent.validator.prowebID = prowebItem.storage.prowebID
-			
-		} else {
-			set element.uiComponent.validator = ##class(EF.validator.patternMatchValidation).%New()
-			set element.uiComponent.validator.pattern = prowebItem.storage.customValidation
-		}
-		
-	} elseif $Length(prowebItem.storage.bespokeValidationMethod) {
-		set element.uiComponent.validator = ##class(EF.validator.bespokeValidationMethod).%New()
-		set element.uiComponent.validator.bespokeValidationMethod = prowebItem.storage.bespokeValidationMethod
-		set element.uiComponent.validator.databaseItemName = prowebItem.storage.databaseItemName
-		set element.uiComponent.validator.tempPersonID = ..contextData.tempPersonID
-	}
-	if $Length(prowebItem.storage.validationErrorMessage) {
-		set element.uiComponent.validator.errorMessage = prowebItem.storage.validationErrorMessage	
-	}
-		
-	set element.uiComponent.isGuest = prowebItem.storage.isGuest
-	if prowebItem.storage.isGuest {
-		set element.guestNumber = optionalGuestNumber	
-		set element.isGuest = 1
-		set element.uiComponent.guestNumber = optionalGuestNumber	
-	}
-	set element.uiComponent.helpText = prowebItem.storage.helpText	
-
-	return element
-]]></Implementation>
-</Method>
-
-<Method name="addProwebSelectionElement">
-<FormalSpec>prowebItem:sc.facade.prowebItem,optionalGuestNumber:%Integer</FormalSpec>
-<Private>1</Private>
-<ReturnType>EF.pageController.element</ReturnType>
-<Implementation><![CDATA[
-	#define getRawData 1
-	#dim element as EF.pageController.element
-	#dim value as %String
-	#dim elementIdentifier as %String = ..getElementIdentifierForProwebItems(prowebItem)
-	#dim labelText as %String = prowebItem.storage.labelText
-	#dim itemName as %String = prowebItem.storage.databaseItemName
-	#dim isReadOnly as %Boolean = prowebItem.storage.isReadOnly
-	#dim counter as %Integer = 0
-	#dim getRawData as %Boolean = 1
-	#dim key as %Integer = ""
-	
-	if prowebItem.storage.inputType = "dropdown" {
-		set value = ..getValueFromEComTemp(prowebItem, optionalGuestNumber)
-		set element = ##class(EF.pageController.proweb.dropdown).addElementToParent(..parentListElement, elementIdentifier, labelText, value, isReadOnly)
-		set element.uiComponent.isSearchAsYouType = prowebItem.storage.isSearchAsYouType
-		
-	} elseif prowebItem.storage.inputType = "radiobutton" {
-		set value = ..getValueFromEComTemp(prowebItem, optionalGuestNumber)
-		set element = ##class(EF.pageController.proweb.radioButtons).addElementToParent(..parentListElement, elementIdentifier, labelText, value, isReadOnly)
-		
-	} elseif prowebItem.storage.inputType = "multibox" {
-		set value = ..getValueFromEComTemp(prowebItem, optionalGuestNumber, $$$getRawData)
-		set element = ##class(EF.pageController.proweb.checkboxGroup).addElementToParent(..parentListElement, elementIdentifier, labelText, value)
-		set element.uiComponent.columns=1
-			
-	} else {
-		throw ##class(shared.exceptions.generalException).%New("Proweb selection type not implemented")
-	}
-	
-	set element.prowebID = prowebItem.storage.prowebID	
-	
-	for  {
-		set alternative = prowebItem.storage.listOfAlternatives.GetNext(.key)
-		if key ="" quit
-
-		if prowebItem.storage.inputType = "multibox" {
-			set counter = counter+1
-			set isChecked = ##class(EF.pageController.proweb.checkboxGroup).isAlternativeInValueString(alternative.displayText, value)
-			set childController = element.addProwebCheckbox(element, elementIdentifier_"-"_counter, alternative.displayText, isChecked)
-			
-		} else {
-			set childController = element.addAlternative(alternative.value, alternative.displayText)	
-		} 
-	}
-	
-	if (value = "") && (prowebItem.storage.inputType = "radiobutton" ) &&(prowebItem.storage.listOfAlternatives.Count() > 0) {
-		set element.value = prowebItem.storage.listOfAlternatives.GetAt(1).value
-	}
-	return element
 ]]></Implementation>
 </Method>
 
@@ -2189,7 +1938,6 @@ Should be run if any of the sub-classes are deleted</Description>
 
 <Method name="getElementIdentifierForProwebItems">
 <FormalSpec>prowebItem:sc.facade.prowebItem,optionalGuestNumber:%Integer=""</FormalSpec>
-<Private>1</Private>
 <ReturnType>%String</ReturnType>
 <Implementation><![CDATA[
 	set identifier = "proweb-"_prowebItem.storage.prowebID
@@ -2201,177 +1949,25 @@ Should be run if any of the sub-classes are deleted</Description>
 ]]></Implementation>
 </Method>
 
-<Method name="repeatAnyGuestQuestions">
+<Method name="renderHTMLControlFromTag">
+<FormalSpec><![CDATA[&attrs]]></FormalSpec>
 <Implementation><![CDATA[
-	do ..findAllGuestQuestions()
-	do ..insertOneSetOfQuestionsPerGuest()
-]]></Implementation>
-</Method>
-
-<Method name="findAllGuestQuestions">
-<Private>1</Private>
-<Implementation><![CDATA[
-	#dim key as %Integer = ""
-	#dim lastUsedKey as %String = ""
-	#dim element as EF.pageController.element
-	#dim hasFoundGuestUiComponent as %Boolean = 0
-	#define isGuestElement (element.uiComponent.isGuest = 1)
-	#define isNotGuestElement (+element.uiComponent.isGuest = 0)
+	#dim componentName as %String = attrs("prowebcomponentname")
+	#dim componentType as %String = attrs("componenttype")
 	
-	for  {
-		set elementID = ..listOfControllerIDsSorted.GetNext(.key)
-		if key="" quit
-
-		set lastUsedKey = key
-		set element = ..getElementByIdentifier(elementID)
-		if '$IsObject(element) {
-			throw ##class(shared.exceptions.generalException).%New("Could not find elementID: "_elementID)	
-		}
-		if element.%Extends("EF.pageController.proweb.inputElement") {
-			if $$$isGuestElement  {
-				do ..listOfGuestControllerIDs.Insert(elementID)
-				set hasFoundGuestUiComponent = 1
-			} 
-			
-			if $$$isNotGuestElement && (hasFoundGuestUiComponent = 1) {
-				set hasFoundGuestUiComponent = 0
-				set ..positionOfNextNonGuestQuestion = key
-			}			
-
-		} else { // non-questions
-			if hasFoundGuestUiComponent = 1 {
-				set hasFoundGuestUiComponent = 0
-				set ..positionOfNextNonGuestQuestion = lastUsedKey
-			}
-		}
+	if '..contextData.pageID {
+		throw ##class(shared.exceptions.generalException).%New("contextData.pageID was missing from contextData when attempting to render Proweb tag")
 	}
-	if '..positionOfNextNonGuestQuestion {
-		set ..positionOfNextNonGuestQuestion = lastUsedKey+1 // end of page
-	}
-]]></Implementation>
-</Method>
-
-<Method name="insertOneSetOfQuestionsPerGuest">
-<Private>1</Private>
-<Implementation><![CDATA[
-	#dim key as %Integer = ""
-	#dim element as EF.pageController.element
-	#dim eventConfiguration as setup.eventConfiguration = ##class(setup.eventConfiguration).createForEventID(..contextData.eventID)
-	#dim maxGuests as %Integer = eventConfiguration.getMaxGuestsPerAttendee()
+	set ..contextData.prowebComponentName = componentName 
 	
-	if ..contextData.isTestMode {
-		set maxGuests = ..contextData.maxGuests
+	if ..hasError {
+		do ..renderErrorMessages()
 	}
-	if (maxGuests)&&(..contextData.prowebMode = "edit") {
-		set maxGuests = 1	
-	}
-	for guestNumber = 2:1:maxGuests {
-		for  {
-			set elementID = ..listOfGuestControllerIDs.GetNext(.key)
-			if key="" quit
-			set element = ..getElementByIdentifier(elementID)
-			
-			set newController = ..getNewElementForQuestion(element.uiComponent.prowebItem, guestNumber)
-			
-			set newController.uiComponent.isProwebEditMode = (..contextData.prowebMode = "edit")
-			set newController.uiComponent.prowebItem = element.uiComponent.prowebItem
-			set newController.uiComponent.contextData = ..contextData
-						
-			do ..listOfControllerIDsSorted.InsertAt(newController.identifier, ..positionOfNextNonGuestQuestion) 
-			
-			set ..positionOfNextNonGuestQuestion = ..positionOfNextNonGuestQuestion + 1
-			kill newController
-		}
-	}
-]]></Implementation>
-</Method>
-
-<Method name="insertPanelElementsAroundGuestQuestions">
-<Implementation><![CDATA[
-	#dim key as %Integer = ""
-	#dim lastUsedKey as %String = ""
-	#dim element as EF.pageController.element
-	#dim currentGuestNumber as %Integer = 0
-	#define isGuestElement (element.uiComponent.isGuest = 1)
-	#define isNotGuestElement (+element.uiComponent.isGuest = 0)
-	
-	for  {
-		set elementID = ..listOfControllerIDsSorted.GetNext(.key)
-		if key="" quit
-		set element = ..getElementByIdentifier(elementID)
-		set lastUsedKey = key
-		
-		if element.%Extends("EF.pageController.proweb.inputElement") {
-
-			if $$$isGuestElement && (currentGuestNumber = 0) {
-				set currentGuestNumber = element.guestNumber
-				do ..insertControllerForGuestPanel(key, "opening")
-			}
-
-			if $$$isNotGuestElement && (currentGuestNumber) {
-				set currentGuestNumber = 0
-				do ..insertControllerForGuestPanel(key, "closing") 
-			}
-			
-			if $$$isGuestElement && (+element.guestNumber '= +currentGuestNumber) {
-				set currentGuestNumber = 0
-				do ..insertControllerForGuestPanel(key, "closing") 
-			}
-			
-		} else { // non-questions
-			if currentGuestNumber {
-				set currentGuestNumber = 0
-				do ..insertControllerForGuestPanel(key, "closing") 
-			}			
-		}
-	}
-	
-	if currentGuestNumber {
-		do ..insertControllerForGuestPanel(lastUsedKey+1, "closing") 
-	}
-]]></Implementation>
-</Method>
-
-<Method name="insertControllerForGuestPanel">
-<FormalSpec>insertPosition:%Integer,openOrClose:%String</FormalSpec>
-<Private>1</Private>
-<Implementation><![CDATA[
-	#dim controllerForPanel as EF.pageController.proweb.panel
-
-	set controllerForPanel = ##class(EF.pageController.proweb.panel).addElementToParent(..parentListElement, "GuestPanel-"_insertPosition, "")
-	if $IsObject(controllerForPanel) {
-		set controllerForPanel.isOpeningOrClosing = openOrClose
-		set controllerForPanel.uiComponent.isOpeningOrClosing = openOrClose
-		set controllerForPanel.uiComponent.contextData = ..contextData
-			
-		do ..listOfControllerIDsSorted.InsertAt(controllerForPanel.identifier, insertPosition)
-	}
-]]></Implementation>
-</Method>
-
-<Method name="renderElements">
-<FormalSpec>parentListElement:EF.pageController.containerElements.list</FormalSpec>
-<Implementation><![CDATA[
-	#dim element as EF.pageController.element
-	#dim hasRenderedAtLeastOne as %Boolean = 0
-	
-	for position = 1:1:..listOfControllerIDsSorted.Count() {
-		set elementID = ..listOfControllerIDsSorted.GetAt(position)
-		
-		set element = ..getElementByIdentifier(elementID)
-		if element.elementParent = parentListElement {
-			if element.isOkToRender() {
-				if (hasRenderedAtLeastOne = 0) && (element.uiComponent.%Extends("EF.ui.components.frontend.textInput")) && (..contextData.prowebMode '= "edit"){
-					set element.uiComponent.hasAutoFocus = 1 	
-				}
-				do element.uiComponent.render()		
-				set hasRenderedAtLeastOne =1
-			}
-		}
-	}
-	
-	if 'hasRenderedAtLeastOne {
-		do ..renderEmptyListHTML(parentListElement)	
+	set parentListElement = ..getElementByIdentifier(componentName) 
+	if $IsObject(parentListElement) {
+		do parentListElement.renderElements()
+	} else {
+		do ..initialiseComponent(componentType)	
 	}
 ]]></Implementation>
 </Method>
@@ -2379,9 +1975,39 @@ Should be run if any of the sub-classes are deleted</Description>
 <Method name="renderEmptyListHTML">
 <FormalSpec>parentListElement:EF.pageController.proweb.list</FormalSpec>
 <Implementation><![CDATA[
-	set listID = parentListElement.prowebListID
-	&HTML<
-		<div class="row ef-draggable-div ef-proweb-form-row-editable ef-proweb-empty-list" data-ui-component-type="emptyList" data-proweb-list-id="#(##class(EF.htmlGenerator).encodeForHTMLAttribute(listID))#">Empty List</div>
+	try {
+		set listID = parentListElement.prowebListID
+		&HTML<
+			<div class="row ef-draggable-div ef-proweb-form-row-editable ef-proweb-empty-list" data-ui-component-type="emptyList" data-proweb-list-id="#(##class(EF.htmlGenerator).encodeForHTMLAttribute(listID))#">Empty List</div>
+		>
+	} catch {
+		throw ##class(shared.exceptions.generalException).%New("No listID found for "_parentListElement.identifier)
+	}
+]]></Implementation>
+</Method>
+
+<Method name="initialiseComponent">
+<FormalSpec>componentType:%String</FormalSpec>
+<Private>1</Private>
+<Implementation><![CDATA[
+	if componentType = "list" {
+		set prowebID = ##class(sc.xModules.objList).add(..contextData.pageID)
+		
+	} elseif componentType = "text" {
+		set prowebID = ##class(sc.xModules.objText).add(..contextData.pageID, ..contextData.prowebComponentName)
+	}
+	if 'prowebID {
+		throw ##class(shared.exceptions.generalException).%New("Failed to create new proweb object of type: "_componentType)	
+	}
+	set templateID = ##class(sc.pageMethods).getTemplateIDfromPageID(..contextData.pageID)
+	set componentID = ##class(sc.objComponent).add(..contextData.prowebComponentName, templateID, prowebID)
+	if 'componentID {
+		throw ##class(shared.exceptions.generalException).%New("Failed to create new objComponent")
+	}
+	&html<
+		<script language="javascript">
+			location.reload(true);
+		</script>
 	>
 ]]></Implementation>
 </Method>
@@ -2459,9 +2085,14 @@ Should be run if any of the sub-classes are deleted</Description>
 				set tempPersonID = ..contextData.tempPersonID	
 			}
 			
-			if ( element.%IsA("EF.pageController.proweb.checkbox") ) && ( element.elementParent.elementChildren.Count() > 1 ) { // multi checkboxes only
-				if element.value = 1 {
-					set multiCheckboxData(prowbItemName, $I(multiCheckboxData(prowbItemName))) = element.description
+			if ( element.%IsA("EF.pageController.proweb.checkbox") ) && ( element.elementParent.elementChildren.Count() > 1 ) { 
+				// multi checkboxes only. skip individual checkboxes. they are saved as multi checkboxes rather than individual.
+				continue
+			} elseif ( element.%IsA("EF.pageController.proweb.checkboxGroup") ) && ( element.elementChildren.Count() > 1 ) {
+				for i = 1:1:element.elementChildren.Count() {
+					if element.elementChildren.GetAt(i).value = 1 {
+						set multiCheckboxData(prowbItemName, $I(multiCheckboxData(prowbItemName))) = element.elementChildren.GetAt(i).description
+					}
 				}
 			} elseif ( element.%IsA("EF.pageController.proweb.dateRange") )  { // date range
 				set startDate = element.elementChildren.GetAt(1).value
@@ -2609,8 +2240,8 @@ Should be run if any of the sub-classes are deleted</Description>
 
 
 <Class name="EF.pageController.proweb.phoneNumber">
-<Super>EF.pageController.proweb.textInput</Super>
-<TimeChanged>64197,58652.450875</TimeChanged>
+<Super>EF.pageController.proweb.inputElement</Super>
+<TimeChanged>64232,41994.153962</TimeChanged>
 <TimeCreated>64189,53629.035726</TimeCreated>
 
 <Method name="getDefaultUIComponent">
@@ -3757,7 +3388,7 @@ Should be run if any of the sub-classes are deleted</Description>
 
 <Class name="EF.pageController.proweb.textArea">
 <Super>EF.pageController.proweb.inputElement</Super>
-<TimeChanged>64201,42310.34868</TimeChanged>
+<TimeChanged>64232,42435.73754</TimeChanged>
 <TimeCreated>63403,57168.063256</TimeCreated>
 
 <Method name="getDefaultUIComponent">
@@ -3769,6 +3400,23 @@ Should be run if any of the sub-classes are deleted</Description>
 <Method name="updateValue">
 <FormalSpec>value</FormalSpec>
 <Implementation><![CDATA[	set ..value=$ZSTRIP(value,"<>W")
+]]></Implementation>
+</Method>
+
+<Method name="updateUIComponent">
+<Implementation><![CDATA[
+	do ##super()
+	
+	set maxChars = ..prowebItem.storage.maxCharacters
+	set maxWords = ..prowebItem.storage.maxWords
+	
+	if (maxWords) {
+		set ..uiComponent.validator.maxLength = maxWords
+		set ..uiComponent.validator.countType = "words"
+	} elseif (maxChars) {
+		set ..uiComponent.validator.maxLength = maxChars
+		set ..uiComponent.validator.countType = "characters"
+	}
 ]]></Implementation>
 </Method>
 
@@ -3805,7 +3453,7 @@ Should be run if any of the sub-classes are deleted</Description>
 
 <Class name="EF.pageController.proweb.textInput">
 <Super>EF.pageController.proweb.inputElement</Super>
-<TimeChanged>64197,58681.00979</TimeChanged>
+<TimeChanged>64232,42377.018545</TimeChanged>
 <TimeCreated>64189,53629.035726</TimeCreated>
 
 <Method name="getDefaultUIComponent">
@@ -3817,6 +3465,23 @@ Should be run if any of the sub-classes are deleted</Description>
 <Method name="updateValue">
 <FormalSpec>value</FormalSpec>
 <Implementation><![CDATA[	set ..value=$ZSTRIP(value,"<>W")
+]]></Implementation>
+</Method>
+
+<Method name="updateUIComponent">
+<Implementation><![CDATA[
+	do ##super()
+	
+	set maxChars = ..prowebItem.storage.maxCharacters
+	set maxWords = ..prowebItem.storage.maxWords
+	
+	if (maxWords) {
+		set ..uiComponent.validator.maxLength = maxWords
+		set ..uiComponent.validator.countType = "words"
+	} elseif (maxChars) {
+		set ..uiComponent.validator.maxLength = maxChars
+		set ..uiComponent.validator.countType = "characters"
+	}
 ]]></Implementation>
 </Method>
 
@@ -4097,7 +3762,7 @@ this is for version 1 of proweb</Description>
 <Class name="EF.pages.frontend.baseProweb">
 <ProcedureBlock>0</ProcedureBlock>
 <Super>EF.pages.frontend.base</Super>
-<TimeChanged>64231,43053.539314</TimeChanged>
+<TimeChanged>64233,34093.019482</TimeChanged>
 <TimeCreated>64191,31442.531402</TimeCreated>
 
 <Parameter name="ENCODED">
@@ -4216,17 +3881,25 @@ this is for version 1 of proweb</Description>
 	do ..outputMetaTags()
 	Write !,"</head>"
 	Write !,"<body class=""bodyBackground"">"
-	//do ##class(cspRealEV.system.proweb.templatestart).OnPageCSPROOT()
+	
  	do ##class(layout.objTemplate).writeBit("{{ef_header}}","{{ef_banner}}")
  	
  	do ##class(layout.objTemplate).writeBit("{{ef_banner}}","{{ef_main_progress}}")
  	if ..#showRegistrationProgressBar {
 		Do ..Include("progress.csp")
  	}
- 	/* stop the <h1> header from being outputted
  	do ##class(layout.objTemplate).writeBit("{{ef_main_progress}}","{{ef_main_header}}")
+ 	do ..outputPageHeader()
  	do ##class(layout.objTemplate).writeBit("{{ef_main_header}}", "{{ef_main_content}}")
- 	*/
+]]></Implementation>
+</Method>
+
+<Method name="outputPageHeader">
+<ClassMethod>1</ClassMethod>
+<Implementation><![CDATA[
+	set efRulesTempParams("prowebcomponentname")="header"
+ 	set efRulesTempParams("componenttype")="text"
+	do pageController.renderHTMLControlFromTag(.efRulesTempParams)
 ]]></Implementation>
 </Method>
 
@@ -4558,7 +4231,7 @@ we need to refactor the frontend buttons to make them callable from class method
 
 <Class name="EF.ui.components.frontend.checkbox">
 <Super>EF.ui.components.checkbox,EF.ui.components.frontend.inputElement</Super>
-<TimeChanged>64209,43238.667295</TimeChanged>
+<TimeChanged>64232,38986.346004</TimeChanged>
 <TimeCreated>63355,62572.097775</TimeCreated>
 
 <Method name="render">
@@ -4637,15 +4310,36 @@ we need to refactor the frontend buttons to make them callable from class method
 <Value name="10">
 <Value>isBackendOnly</Value>
 </Value>
+<Value name="11">
+<Value>maxWords</Value>
+</Value>
+<Value name="12">
+<Value>maxCharacters</Value>
+</Value>
 </Data>
 </Storage>
 </Class>
 
 
 <Class name="EF.ui.components.frontend.checkboxGroup">
-<Super>EF.ui.components.checkboxGroup,EF.ui.components.frontend.inputElement</Super>
-<TimeChanged>64210,52087.931845</TimeChanged>
+<Super>EF.ui.components.frontend.inputElement</Super>
+<TimeChanged>64232,45699.848154</TimeChanged>
 <TimeCreated>63356,56848.077942</TimeCreated>
+
+<Property name="label">
+<Type>%String</Type>
+<Parameter name="MAXLEN" value="3641144"/>
+</Property>
+
+<Property name="checkboxes">
+<Type>EF.ui.components.checkbox</Type>
+<Collection>list</Collection>
+</Property>
+
+<Property name="columns">
+<Type>%Integer</Type>
+<InitialExpression>1</InitialExpression>
+</Property>
 
 <Method name="render">
 <Implementation><![CDATA[
@@ -4668,6 +4362,9 @@ we need to refactor the frontend buttons to make them callable from class method
 		for row=1:1:..childComponents.Count() {
 			set checkbox=..childComponents.GetAt($I(ind))
 			if $IsObject(checkbox) {
+				if $IsObject(..enableDisableDependencyList) {
+					set checkbox.enableDisableDependencyList = ..enableDisableDependencyList
+				}
 				do ..renderCheckbox(checkbox)
 			}
 		}
@@ -4699,52 +4396,22 @@ we need to refactor the frontend buttons to make them callable from class method
 ]]></Implementation>
 </Method>
 
+<Method name="getDefaultValidator">
+<ReturnType>EF.validator.base</ReturnType>
+<Implementation><![CDATA[	return ##class(EF.validator.checkboxGroup).%New()
+]]></Implementation>
+</Method>
+
 <Storage name="Default">
 <Type>%Library.CacheStorage</Type>
-<DefaultData>checkboxGroupDefaultData1</DefaultData>
-<Data name="checkboxGroupDefaultData1">
-<Subscript>"checkboxGroup1"</Subscript>
+<DefaultData>checkboxGroupDefaultData</DefaultData>
+<Data name="checkboxGroupDefaultData">
+<Subscript>"checkboxGroup"</Subscript>
 <Value name="1">
-<Value>alternatives</Value>
+<Value>checkboxes</Value>
 </Value>
 <Value name="2">
-<Value>isMandatory</Value>
-</Value>
-<Value name="3">
-<Value>contextData</Value>
-</Value>
-<Value name="4">
-<Value>htmlName</Value>
-</Value>
-<Value name="5">
-<Value>helpText</Value>
-</Value>
-<Value name="6">
-<Value>title</Value>
-</Value>
-<Value name="7">
-<Value>guestNumber</Value>
-</Value>
-<Value name="8">
-<Value>isGuest</Value>
-</Value>
-<Value name="9">
-<Value>isProwebEditMode</Value>
-</Value>
-<Value name="10">
-<Value>prowebItem</Value>
-</Value>
-<Value name="11">
-<Value>validator</Value>
-</Value>
-<Value name="12">
-<Value>value</Value>
-</Value>
-<Value name="13">
-<Value>prowebItemID</Value>
-</Value>
-<Value name="14">
-<Value>isBackendOnly</Value>
+<Value>columns</Value>
 </Value>
 </Data>
 </Storage>
@@ -4762,7 +4429,7 @@ we need to refactor the frontend buttons to make them callable from class method
 ;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>EF.ui.components.backend.datePicker.CLS/EV.3</td><td>CLS.EF.ui.components.backend.datePicker</td><td>LargeDev</td><td style='white-space: nowrap;'>02-Feb-16 12:32</td><td>AdrianM2</td></tr></table>
 ]]></Description>
 <Super>EF.ui.components.textInput,EF.ui.components.frontend.inputElement</Super>
-<TimeChanged>64230,44519.9419</TimeChanged>
+<TimeChanged>64232,38986.442297</TimeChanged>
 <TimeCreated>63384,38215.518113</TimeCreated>
 
 <Parameter name="typeAttribute">
@@ -4855,6 +4522,12 @@ we need to refactor the frontend buttons to make them callable from class method
 <Value name="10">
 <Value>isBackendOnly</Value>
 </Value>
+<Value name="11">
+<Value>maxWords</Value>
+</Value>
+<Value name="12">
+<Value>maxCharacters</Value>
+</Value>
 </Data>
 </Storage>
 </Class>
@@ -4871,7 +4544,7 @@ we need to refactor the frontend buttons to make them callable from class method
 ;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>EF.ui.components.backend.datePicker.CLS/EV.3</td><td>CLS.EF.ui.components.backend.datePicker</td><td>LargeDev</td><td style='white-space: nowrap;'>02-Feb-16 12:32</td><td>AdrianM2</td></tr></table>
 ]]></Description>
 <Super>EF.ui.components.textInput,EF.ui.components.frontend.inputElement</Super>
-<TimeChanged>64230,44512.95647</TimeChanged>
+<TimeChanged>64232,38986.479131</TimeChanged>
 <TimeCreated>63384,38215.518113</TimeCreated>
 
 <Parameter name="typeAttribute">
@@ -4985,6 +4658,12 @@ we need to refactor the frontend buttons to make them callable from class method
 <Value name="10">
 <Value>isBackendOnly</Value>
 </Value>
+<Value name="11">
+<Value>maxWords</Value>
+</Value>
+<Value name="12">
+<Value>maxCharacters</Value>
+</Value>
 </Data>
 </Storage>
 </Class>
@@ -5013,7 +4692,7 @@ we need to refactor the frontend buttons to make them callable from class method
 
 <Class name="EF.ui.components.frontend.dropdown">
 <Super>EF.ui.components.listInput,EF.ui.components.frontend.inputElement</Super>
-<TimeChanged>64217,28813.793781</TimeChanged>
+<TimeChanged>64232,48060.712808</TimeChanged>
 <TimeCreated>63355,56609.363142</TimeCreated>
 
 <Property name="isPersistent">
@@ -5034,7 +4713,7 @@ we need to refactor the frontend buttons to make them callable from class method
 	set searchableDataAttributes = ""
 	if ..isSearchAsYouType {
 		set selectClass = selectClass_" ef_element_dropdown_searchable select2-hidden-accessible "
-		if ..isMandatory {
+		if ..validator.isMandatory {
 			set searchableDataAttributes = searchableDataAttributes_" data-placeholder=""Choose one..."""
 		} else {
 			set searchableDataAttributes = searchableDataAttributes_" data-placeholder="" """
@@ -5096,7 +4775,7 @@ we need to refactor the frontend buttons to make them callable from class method
 <Method name="renderPlaceholder">
 <Private>1</Private>
 <Implementation><![CDATA[
-	if ..isMandatory  {
+	if ..validator.isMandatory  {
 		if ..isAnyAlternativeSelected() {
 			set selectString = ""
 		} else {
@@ -5159,6 +4838,12 @@ we need to refactor the frontend buttons to make them callable from class method
 </Value>
 <Value name="11">
 <Value>isSearchAsYouType</Value>
+</Value>
+<Value name="12">
+<Value>maxWords</Value>
+</Value>
+<Value name="13">
+<Value>maxCharacters</Value>
 </Value>
 </Data>
 </Storage>
@@ -5225,7 +4910,7 @@ we need to refactor the frontend buttons to make them callable from class method
 
 <Class name="EF.ui.components.frontend.fileUpload">
 <Super>EF.ui.components.textInput,EF.ui.components.frontend.inputElement</Super>
-<TimeChanged>64209,49383.692031</TimeChanged>
+<TimeChanged>64232,38986.675695</TimeChanged>
 <TimeCreated>63357,57620.613738</TimeCreated>
 
 <Method name="getDefaultClasses">
@@ -5283,6 +4968,12 @@ we need to refactor the frontend buttons to make them callable from class method
 </Value>
 <Value name="10">
 <Value>prowebItemID</Value>
+</Value>
+<Value name="11">
+<Value>maxWords</Value>
+</Value>
+<Value name="12">
+<Value>maxCharacters</Value>
 </Value>
 </Data>
 </Storage>
@@ -5444,16 +5135,12 @@ we need to refactor the frontend buttons to make them callable from class method
 
 <Class name="EF.ui.components.frontend.inputElement">
 <Super>EF.ui.components.frontend.prowebBase,EF.ui.components.inputBase</Super>
-<TimeChanged>64231,55907.615888</TimeChanged>
+<TimeChanged>64232,47850.414023</TimeChanged>
 <TimeCreated>64183,40678.260093</TimeCreated>
 
 <Property name="alternatives">
 <Type>EF.ui.components.alternative</Type>
 <Collection>list</Collection>
-</Property>
-
-<Property name="isMandatory">
-<Type>%Boolean</Type>
 </Property>
 
 <Property name="isBackendOnly">
@@ -5485,6 +5172,9 @@ we need to refactor the frontend buttons to make them callable from class method
 <ServerOnly>1</ServerOnly>
 <Implementation><![CDATA[
 	do ##super(htmlID)
+	set ..htmlName=..htmlID
+	set ..validator=..getDefaultValidator()
+	
     Quit $$$OK
 ]]></Implementation>
 </Method>
@@ -5572,30 +5262,27 @@ we need to refactor the frontend buttons to make them callable from class method
 	if $length(..label) {
 		
 		set labelElement = ##class(EF.ui.components.frontend.inputLabel).%New("ef-display-label-"_..htmlID)
-		set labelElement.isMandatory =  ..isMandatory
+		set labelElement.isMandatory =  ..validator.isMandatory
 		set labelElement.for = ..htmlID
 		set labelElement.text = ..label
-		set labelElement.showHideDependencyList = ..showHideDependencyList
 		do labelElement.render()
-				
 					
-				
-			if ..contextData.prowebMode = "edit" {
-				set directEditClasses = "ef-proweb-direct-label-edit"
-				if ..isMandatory {
-					set directEditClasses = directEditClasses_" ef-required-field"
-				}
-				&html<
-					<div class="#(..encodeForHTMLAttribute(directEditClasses))#" 
-						style="display: none;" 
-						id="ef-edit-label-input-#(..encodeForHTMLAttribute(..htmlID))#" 
-						data-proweb-id="#(..prowebItem.storage.prowebID)#"
-					>
-					<input class="ef-label-text" id="quick-edit-#(..htmlID)#" type="text" value="#(..encodeForHTMLAttribute(..label))#">
-						
-					</div>
-				>
+		if ..contextData.prowebMode = "edit" {
+			set directEditClasses = "ef-proweb-direct-label-edit"
+			if ..validator.isMandatory {
+				set directEditClasses = directEditClasses_" ef-required-field"
 			}
+			&html<
+				<div class="#(..encodeForHTMLAttribute(directEditClasses))#" 
+					style="display: none;" 
+					id="ef-edit-label-input-#(..encodeForHTMLAttribute(..htmlID))#" 
+					data-proweb-id="#(..prowebItem.storage.prowebID)#"
+				>
+				<input class="ef-label-text" id="quick-edit-#(..htmlID)#" type="text" value="#(..encodeForHTMLAttribute(..label))#">
+					
+				</div>
+			>
+		}
 	}
 ]]></Implementation>
 </Method>
@@ -5675,6 +5362,12 @@ we need to refactor the frontend buttons to make them callable from class method
 </Value>
 <Value name="11">
 <Value>isBackendOnly</Value>
+</Value>
+<Value name="12">
+<Value>maxWords</Value>
+</Value>
+<Value name="13">
+<Value>maxCharacters</Value>
 </Value>
 </Data>
 </Storage>
@@ -5917,7 +5610,7 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 
 <Class name="EF.ui.components.frontend.prowebBase">
 <Super>EF.ui.components.base</Super>
-<TimeChanged>64231,52420.277069</TimeChanged>
+<TimeChanged>64231,61962.947443</TimeChanged>
 <TimeCreated>64183,41819.123112</TimeCreated>
 
 <Property name="isProwebEditMode">
@@ -5951,7 +5644,12 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 		>
 		
 	} else {
-		write !,"<div class=""row ef-proweb-form-row"">"	
+		set dataAttributes = ""
+		if (..contextData.prowebMode '= "edit") && ($IsObject(..showHideDependencyList)) {
+			set dependencyListJSON = ##class(shared.jsonFunctions).getObjectAsJSONString(..showHideDependencyList)
+			set dataAttributes = "data-show-hide-dependency-list="""_..encodeForHTMLAttribute(dependencyListJSON)_""" "
+		}
+		write !,"<div class=""row ef-proweb-form-row"" "_..rawHTML(dataAttributes)_">"
 	}
 ]]></Implementation>
 </Method>
@@ -5999,11 +5697,14 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 <Method name="getProwebExtraAttributes">
 <ReturnType>%String</ReturnType>
 <Implementation><![CDATA[
-	if ..contextData.prowebMode = "edit" {		
-		return "" // ### required to make dependent items show in edit mode - could be improved ###		
-	} else {		
-		return ..getExtraAttributes()			
+	set attributes=""
+	
+	if ($IsObject(..enableDisableDependencyList)) {
+		set dependencyListJSON=##class(shared.jsonFunctions).getObjectAsJSONString(..enableDisableDependencyList)
+		set attributes="data-enable-disable-dependency-list="""_..encodeForHTMLAttribute(dependencyListJSON)_""" "	
 	}
+	
+	return attributes_##class(EF.ui.components.attribute).getAttributesAsHTML(..extraAttributes)
 ]]></Implementation>
 </Method>
 
@@ -6034,7 +5735,7 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 
 <Class name="EF.ui.components.frontend.radioButtons">
 <Super>EF.ui.components.listInput,EF.ui.components.frontend.inputElement</Super>
-<TimeChanged>64231,58505.713816</TimeChanged>
+<TimeChanged>64232,38986.900293</TimeChanged>
 <TimeCreated>63356,39686.205586</TimeCreated>
 
 <Method name="getDefaultClasses">
@@ -6053,13 +5754,6 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 <Method name="render">
 <Implementation><![CDATA[
 	do ..renderRowOpeningAndLabel()
-	/*&html<
-            <div class="#(..encodeHTMLAttribute(..classes))#" id="#(..encodeHTMLAttribute(..htmlID))#"  title="#(..encodeHTMLAttribute(..title))#" #(..rawHTML(..getExtraAttributes()))#>
-	    		#[do ..renderAlternatives()]#
-	        </div>
-	        
-	>
-	*/
 	do ..renderAlternatives()
 	do ..renderHelpAndRowClosing()
 ]]></Implementation>
@@ -6071,7 +5765,7 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 </Method>
 
 <Method name="renderCellOpening">
-<Implementation><![CDATA[	write "<div class='radio ef-proweb-radio-button'>"
+<Implementation><![CDATA[	write "<div class='ef-proweb-radio-button'>"
 ]]></Implementation>
 </Method>
 
@@ -6079,7 +5773,7 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 <FormalSpec>alternative:EF.ui.components.alternative</FormalSpec>
 <Implementation><![CDATA[
 	if $IsObject(..enableDisableDependencyList) {
-		set alternative.enableDisableDependencyList=..enableDisableDependencyList	
+		set alternative.enableDisableDependencyList = ..enableDisableDependencyList
 	}
 	do ..renderCellOpening()
 	do alternative.addClass("ef-proweb-radio-button")
@@ -6139,6 +5833,12 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 <Value name="9">
 <Value>isBackendOnly</Value>
 </Value>
+<Value name="10">
+<Value>maxWords</Value>
+</Value>
+<Value name="11">
+<Value>maxCharacters</Value>
+</Value>
 </Data>
 </Storage>
 </Class>
@@ -6146,7 +5846,7 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 
 <Class name="EF.ui.components.frontend.textArea">
 <Super>EF.ui.components.textInput,EF.ui.components.frontend.inputElement</Super>
-<TimeChanged>64230,61887.981</TimeChanged>
+<TimeChanged>64232,41007.202291</TimeChanged>
 <TimeCreated>63357,57620.613738</TimeCreated>
 
 <Parameter name="html5Validation">
@@ -6187,6 +5887,12 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 ]]></Implementation>
 </Method>
 
+<Method name="getDefaultValidator">
+<ReturnType>EF.validator.base</ReturnType>
+<Implementation><![CDATA[	return ##class(EF.validator.multiLineText).%New()
+]]></Implementation>
+</Method>
+
 <Storage name="Default">
 <Type>%Library.CacheStorage</Type>
 <DefaultData>textAreaDefaultData</DefaultData>
@@ -6221,6 +5927,12 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 </Value>
 <Value name="10">
 <Value>isBackendOnly</Value>
+</Value>
+<Value name="11">
+<Value>maxWords</Value>
+</Value>
+<Value name="12">
+<Value>maxCharacters</Value>
 </Value>
 </Data>
 </Storage>
@@ -6264,7 +5976,7 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 
 <Class name="EF.ui.components.frontend.textInput">
 <Super>EF.ui.components.textInput,EF.ui.components.frontend.inputElement</Super>
-<TimeChanged>64230,49567.539549</TimeChanged>
+<TimeChanged>64232,41017.461621</TimeChanged>
 <TimeCreated>63357,57620.613738</TimeCreated>
 
 <Parameter name="typeAttribute">
@@ -6323,6 +6035,12 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 ]]></Implementation>
 </Method>
 
+<Method name="getDefaultValidator">
+<ReturnType>EF.validator.base</ReturnType>
+<Implementation><![CDATA[	return ##class(EF.validator.singleLineText).%New()
+]]></Implementation>
+</Method>
+
 <Storage name="Default">
 <Type>%Library.CacheStorage</Type>
 <DefaultData>textInputDefaultData1</DefaultData>
@@ -6360,6 +6078,12 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 </Value>
 <Value name="11">
 <Value>hasAutoFocus</Value>
+</Value>
+<Value name="12">
+<Value>maxWords</Value>
+</Value>
+<Value name="13">
+<Value>maxCharacters</Value>
 </Value>
 </Data>
 </Storage>
@@ -7922,10 +7646,8 @@ function loadItem(itemNameID) {
 	}
 	set showGuest=0
 	set notShowGuestExplanation=""
-	if ##class(setup.objSetting).getParameter("bookings","use guests") {
-		if ##class(sc.xModules.objPage).isRegistrationPage(pageID) {
-			set showGuest=1
-		}
+	if ##class(sc.xModules.objPage).isRegistrationPage(pageID) {
+		set showGuest=1
 	}
 	// if other pages (within same category) have guest prompts, don't allow a guest prompt to be added to this page
 	// (unless the item being edited is a guest prompt already
@@ -11844,8 +11566,6 @@ function saveSameAs(categoryID) {
 		set isHardcoded=1
 		set allowedFileTypes="JPG,JPEG"
 	}
-	set showGuest=0
-	if ##class(setup.objSetting).getParameter("bookings","use guests") set showGuest=1
 
 	kill allRegPages,allRegPageIDs,allReg
 	set ok=##class(setup.lnkCategoryEvent).getAllRegPages(xEventID,xWorkLangID,1,.allRegPages,.allRegPageIDs,.allReg)
@@ -12020,19 +11740,16 @@ table table {padding-left:0px;padding-right:0px;}
 														</td>
 													</tr>
 												</systemType:if>
-												<csp:if condition=(showGuest)>
-													<tr>
-														<td width="13">&nbsp;</td>
-														<td class="black10px" align="right"><tx>Applies to</tx>:&nbsp;</td>
-														<td class="black10px">
-															<input type="radio" name="radDelegateOrGuest" value="delegate" #($S((isDelegate)!(('isDelegate)&('isGuest)):"checked",1:0))#><tx>Attendees</tx>&nbsp;&nbsp;
-															<input type="radio" name="radDelegateOrGuest" value="guest" #($S(isGuest:"checked",1:0))#><tx>Guests</tx>&nbsp;&nbsp;
-															<csp:comment><!--<input type="radio" name="radDelegateOrGuest" value="both" #($S((isGuest)&(isDelegate):"checked",1:0))#>Both--></csp:comment>
-														</td>								
-													</tr>
-												<csp:else>
-													<input type="hidden" name="radDelegateOrGuest" value="delegate">
-												</csp:if>	
+
+												<tr>
+													<td width="13">&nbsp;</td>
+													<td class="black10px" align="right"><tx>Applies to</tx>:&nbsp;</td>
+													<td class="black10px">
+														<input type="radio" name="radDelegateOrGuest" value="delegate" #($S((isDelegate)!(('isDelegate)&('isGuest)):"checked",1:0))#><tx>Attendees</tx>&nbsp;&nbsp;
+														<input type="radio" name="radDelegateOrGuest" value="guest" #($S(isGuest:"checked",1:0))#><tx>Guests</tx>&nbsp;&nbsp;
+														<csp:comment><!--<input type="radio" name="radDelegateOrGuest" value="both" #($S((isGuest)&(isDelegate):"checked",1:0))#>Both--></csp:comment>
+													</td>								
+												</tr>
 												<tr>
 													<td width="13" height="30">&nbsp;</td>
 													<td class="black10px" width="184" align="right">
@@ -14789,9 +14506,10 @@ function updateAlts(codPromptID) {
 
 
 <csp:section name="PageContent">
+	
 	<ef-pc-container type="panel-body">
 	   	<div class="row ef-proweb-reorderable" data-ef-reorderable-save-url="#(..encodeForHTMLAttribute(..Link("../../frontend/reg/reorderProwebElements.csp")))#" >
-			<ef-pc-element prowebcomponentname="Main List">
+			<ef-pc-element prowebcomponentname="Main List" componenttype="list" canhavequestions=1>
 		</div>
 			
 	</ef-pc-container>			
@@ -14869,6 +14587,7 @@ function updateAlts(codPromptID) {
 }
 .ef-text-length-count-message {
 	float: left;
+	clear: both;
 }
 .ef-proweb-empty-list {
 	width: 100%;
@@ -14897,7 +14616,11 @@ textarea.form-control {
 <body class="bodyBackground">
 <script language="CACHE" method="OnPreHTTPafter" arguments="" returntype="%Boolean">
 	if ##class(sc.methods).isUsingProweb2() {
-		set %response.ServerSideRedirect="t4Registration.csp?pageID="_$G(%session.Data("pageID")) 
+		set pageID = $G(%session.Data("pageID")) 
+		if 'pageID {
+			throw ##class(shared.exceptions.generalException).%New("No pageID passed in to tRegsitration.csp")
+		}
+		set %response.ServerSideRedirect="t4Registration.csp?pageID="_pageID
 		return 0
 	}
 
@@ -16212,7 +15935,7 @@ FRRE RULE
 <Abstract>1</Abstract>
 <ClassType/>
 <ProcedureBlock>1</ProcedureBlock>
-<TimeChanged>64230,59746.05376</TimeChanged>
+<TimeChanged>64232,36955.873674</TimeChanged>
 <TimeCreated>63046,56232.897117</TimeCreated>
 
 <Method name="outputDefaultCSS">
@@ -18410,7 +18133,8 @@ The basic frontend default stuff</Description>
 		    color: red;
 		}
 		.ef-dependent-field::after {
-		    content: "🔗";
+		    font-family: "Glyphicons Halflings";
+  			content:"\e144";
 		}
 		@media (max-width: 768px) {
 		   .ef_proweb_form_prompt {
@@ -18562,7 +18286,7 @@ The basic frontend default stuff</Description>
 <ClassType>persistent</ClassType>
 <ProcedureBlock>1</ProcedureBlock>
 <Super>%Library.Persistent,shared.timeStamp</Super>
-<TimeChanged>64231,57019.647676</TimeChanged>
+<TimeChanged>64233,36475.649792</TimeChanged>
 <TimeCreated>60782,60196.270659</TimeCreated>
 <Inheritance>right</Inheritance>
 
@@ -19394,7 +19118,7 @@ outputs each section of code doing the banner, menu and footer when needed</Desc
 				//do banner
 				if ##class(sc.methods).isUsingProweb2() {
 					set parentListElement = pageController.getElementByIdentifier("banner page")
-					do pageController.renderElements(parentListElement)
+					do parentListElement.renderElements()
 						
 				} else {
 					// store current pageid before we insert another one
@@ -19469,7 +19193,7 @@ outputs each section of code doing the banner, menu and footer when needed</Desc
 				//do menu
 				if ##class(sc.methods).isUsingProweb2() {
 					set parentListElement = pageController.getElementByIdentifier("navigation bar page")
-					do pageController.renderElements(parentListElement)
+					do parentListElement.renderElements()
 						
 				} else {
 					// store current pageid before we insert another one
@@ -19509,7 +19233,7 @@ outputs each section of code doing the banner, menu and footer when needed</Desc
 			if before="[[ef_right]]",'##class(eCom.tempPurchase).isBackendBooking(%session.SessionId),'isSurvey {
 				if ##class(sc.methods).isUsingProweb2() {
 					set parentListElement = pageController.getElementByIdentifier("sponsor page")
-					do pageController.renderElements(parentListElement)
+					do parentListElement.renderElements()
 						
 				} else {
 					// store current pageid before we insert another one
@@ -19545,7 +19269,7 @@ outputs each section of code doing the banner, menu and footer when needed</Desc
 				//do footer
 				if ##class(sc.methods).isUsingProweb2() {
 					set parentListElement = pageController.getElementByIdentifier("footer page")
-					do pageController.renderElements(parentListElement)
+					do parentListElement.renderElements()
 						
 				} else {
 					// store current pageid before we insert another one
@@ -23399,7 +23123,7 @@ The data type that represents a a page level in the hierachy.
 <ClassType>persistent</ClassType>
 <ProcedureBlock>1</ProcedureBlock>
 <Super>sc.objData</Super>
-<TimeChanged>64230,36470.406618</TimeChanged>
+<TimeChanged>64232,40994.710189</TimeChanged>
 <TimeCreated>58926,57261</TimeCreated>
 
 <Parameter name="EXTENTSIZE">
@@ -23555,13 +23279,6 @@ unit of measurement for the numeric values</Description>
 
 <Property name="objLanguage">
 <Type>shared.objLanguage</Type>
-</Property>
-
-<Property name="hasPageHeaderEverBeenAdded">
-<Description>
-Only used by proweb2</Description>
-<Type>%Boolean</Type>
-<InitialExpression>0</InitialExpression>
 </Property>
 
 <Method name="getStaticURL">

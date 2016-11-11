@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2015.2 (Build 664_3_16032U)" ts="2016-11-11 10:33:38">
+<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2015.2 (Build 664_3_16032U)" ts="2016-11-11 14:17:22">
 <Class name="EF.contextDataRegistration">
 <Description><![CDATA[
 <!-- ;vc;-
@@ -816,16 +816,16 @@ Adds a translation button with warning icon which opens an in-form modal</Descri
 <Class name="EF.pageController.element">
 <Description><![CDATA[
 <!-- ;vc;-
-;vc;    Object: EF.pageController.element.CLS/EV.11
+;vc;    Object: EF.pageController.element.CLS/EV.12
 ;vc; Component: CLS.EF.pageController.element
 ;vc;  Location: LargeDev
-;vc; Date/Time: 09-Nov-16 10:31
-;vc;      User: AdrianM2
-;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>EF.pageController.element.CLS/EV.11</td><td>CLS.EF.pageController.element</td><td>LargeDev</td><td style='white-space: nowrap;'>09-Nov-16 10:31</td><td>AdrianM2</td></tr></table>
+;vc; Date/Time: 11-Nov-16 11:15
+;vc;      User: FredG
+;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>EF.pageController.element.CLS/EV.12</td><td>CLS.EF.pageController.element</td><td>LargeDev</td><td style='white-space: nowrap;'>11-Nov-16 11:15</td><td>FredG</td></tr></table>
 ]]></Description>
 <IncludeCode>EF.common.macros</IncludeCode>
 <Super>%Library.Persistent,shared.timeStamp</Super>
-<TimeChanged>64231,37931.328561</TimeChanged>
+<TimeChanged>64233,42738.277418</TimeChanged>
 <TimeCreated>63350,63749.535929</TimeCreated>
 
 <Property name="elementParent">
@@ -878,10 +878,12 @@ The description of the property. Should be unique for each pageInstance</Descrip
 
 <Property name="enableDisableDependencyList">
 <Type>EF.ui.components.dependencyList</Type>
+<Transient>1</Transient>
 </Property>
 
 <Property name="showHideDependencyList">
 <Type>EF.ui.components.dependencyList</Type>
+<Transient>1</Transient>
 </Property>
 
 <Property name="isModalTempData">
@@ -1233,12 +1235,6 @@ Should be run if any of the sub-classes are deleted</Description>
 <Value name="22">
 <Value>isModalTempData</Value>
 </Value>
-<Value name="23">
-<Value>enableDisableDependencyList</Value>
-</Value>
-<Value name="24">
-<Value>showHideDependencyList</Value>
-</Value>
 </Data>
 </Storage>
 </Class>
@@ -1260,6 +1256,42 @@ Should be run if any of the sub-classes are deleted</Description>
 
 <Storage name="Default">
 <Type>%Library.CacheStorage</Type>
+</Storage>
+</Class>
+
+
+<Class name="EF.pageController.proweb.buttonAddGuest">
+<Description><![CDATA[
+<!-- ;vc;-
+;vc;    Object: EF.pageController.buttons.button.CLS/EV.1
+;vc; Component: CLS.EF.pageController.buttons.button
+;vc;  Location: LargeDev
+;vc; Date/Time: 05-Feb-16 15:28
+;vc;      User: AdrianM2
+;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>EF.pageController.buttons.button.CLS/EV.1</td><td>CLS.EF.pageController.buttons.button</td><td>LargeDev</td><td style='white-space: nowrap;'>05-Feb-16 15:28</td><td>AdrianM2</td></tr></table>
+]]></Description>
+<Super>EF.pageController.buttonElement,EF.pageController.proweb.prowebBase</Super>
+<TimeChanged>64232,38855.957185</TimeChanged>
+<TimeCreated>63404,34415.706614</TimeCreated>
+
+<Method name="getDefaultUIComponent">
+<ReturnType>EF.ui.components.backend.button</ReturnType>
+<Implementation><![CDATA[	return ##class(EF.ui.components.frontend.buttonAddGuest).%New(..identifier)
+]]></Implementation>
+</Method>
+
+<Storage name="Default">
+<Type>%Library.CacheStorage</Type>
+<DefaultData>buttonAddGuestDefaultData</DefaultData>
+<Data name="buttonAddGuestDefaultData">
+<Subscript>"buttonAddGuest"</Subscript>
+<Value name="1">
+<Value>prowebItem</Value>
+</Value>
+<Value name="2">
+<Value>prowebID</Value>
+</Value>
+</Data>
 </Storage>
 </Class>
 
@@ -1533,6 +1565,27 @@ Should be run if any of the sub-classes are deleted</Description>
 </Class>
 
 
+<Class name="EF.pageController.proweb.guestPanel">
+<Super>EF.pageController.proweb.panel</Super>
+<TimeChanged>64233,51345.90465</TimeChanged>
+<TimeCreated>63372,47064.603748</TimeCreated>
+
+<Property name="isOpeningOrClosing">
+<Type>%String</Type>
+</Property>
+
+<Method name="getDefaultUIComponent">
+<ReturnType>EF.ui.components.container</ReturnType>
+<Implementation><![CDATA[	quit ##class(EF.ui.components.frontend.panel).%New(..identifier)
+]]></Implementation>
+</Method>
+
+<Storage name="Default">
+<Type>%Library.CacheStorage</Type>
+</Storage>
+</Class>
+
+
 <Class name="EF.pageController.proweb.inputElement">
 <Super>EF.pageController.inputElement,EF.pageController.proweb.prowebBase</Super>
 <TimeChanged>64232,49007.803798</TimeChanged>
@@ -1654,6 +1707,514 @@ Should be run if any of the sub-classes are deleted</Description>
 </Class>
 
 
+<Class name="EF.pageController.proweb.list">
+<Description>
+Should have a one-to-one relationship with sc.objList</Description>
+<Super>EF.pageController.containerElements.list</Super>
+<TimeChanged>64233,50252.41167</TimeChanged>
+<TimeCreated>64231,55587.036042</TimeCreated>
+
+<Property name="prowebListID">
+<Description>
+refers to sc.xModules.objList</Description>
+<Type>%Integer</Type>
+</Property>
+
+<Property name="listOfGuestControllerIDs">
+<Type>%ListOfDataTypes</Type>
+<Transient>1</Transient>
+</Property>
+
+<Property name="listOfControllerIDsSorted">
+<Type>%ListOfDataTypes</Type>
+<Transient>1</Transient>
+</Property>
+
+<Property name="positionOfNextNonGuestQuestion">
+<Type>%Integer</Type>
+</Property>
+
+<Method name="loadProwebListElementsFromDatabase">
+<Implementation><![CDATA[
+	set rsProwebItems = ##class(%ResultSet).%New("sc.xModules.objList:qGetChildren")
+	do rsProwebItems.Execute(..prowebListID)
+	while rsProwebItems.Next() {
+		set prowebID = rsProwebItems.Get("ID")
+		set typeOfElement = rsProwebItems.Get("dataType")
+		
+		if typeOfElement = "objCODitem" {
+			set storage = ##class(sc.facade.prowebItemStorageInputElement).createNew(prowebID, ..page.contextData)
+		
+		} elseif typeOfElement = "objText" {
+			set storage = ##class(sc.facade.prowebItemStorageTextBlock).createNew(prowebID, ..page.contextData)
+
+		} elseif typeOfElement = "objMenuBlock" {
+			set storage = ##class(sc.facade.prowebItemStorageMenuBlock).createNew(prowebID, ..page.contextData)
+
+		} elseif typeOfElement = "objFormDivider" {
+			set storage = ##class(sc.facade.prowebItemStorageDivider).createNew(prowebID, ..page.contextData)
+		
+		} elseif typeOfElement = "objFileUpload" {
+			set storage = ##class(sc.facade.prowebItemStorageFileUpload).createNew(prowebID, ..page.contextData)
+		
+		} elseif typeOfElement = "objFlash" {
+			set storage = ##class(sc.facade.prowebItemStorageYouTubeVideo).createNew(prowebID, ..page.contextData)
+			
+		} else {
+			throw ##class(shared.exceptions.generalException).%New("Proweb type not implemented: "_typeOfElement)	
+		}
+		if storage.isOkToLoad(..page.contextData) {			
+			set prowebItem = ##class(sc.facade.prowebItem).createNew(storage)
+			do ..addElementForProwebItem(prowebItem)
+		}
+	}
+	do ..repeatAnyGuestQuestions()
+	do ..insertPanelElementsAroundGuestQuestions()
+]]></Implementation>
+</Method>
+
+<Method name="addElementForProwebItem">
+<FormalSpec>prowebItem:sc.facade.prowebItem</FormalSpec>
+<Implementation><![CDATA[
+	#define isInputElement prowebItem.storage.%Extends("sc.facade.prowebItemStorageInputElement")
+	#define isTextBlock prowebItem.storage.%Extends("sc.facade.prowebItemStorageTextBlock")
+	#define isMenuBlock prowebItem.storage.%Extends("sc.facade.prowebItemStorageMenuBlock")
+	#define isDivider prowebItem.storage.%Extends("sc.facade.prowebItemStorageDivider")
+	#define isYouTubeVideo prowebItem.storage.%Extends("sc.facade.prowebItemStorageYouTubeVideo")
+	 
+	#dim elementIdentifier as %String = ..page.getElementIdentifierForProwebItems(prowebItem)
+	#dim element as EF.pageController.proweb.prowebBase
+	set guestNumber = ""
+	if $$$isInputElement { 
+		set element = ..getNewElementForQuestion(prowebItem)
+		if element.uiComponent.isGuest {
+			set guestNumber = 1	
+		}	
+	} elseif $$$isTextBlock {
+		set element = ##class(EF.pageController.proweb.textBlock).addElementToParent($this, elementIdentifier, prowebItem.storage.text)
+	
+	} elseif $$$isMenuBlock {
+		set element = ##class(EF.pageController.proweb.menuBlock).addElementToParent($this, elementIdentifier, prowebItem.storage.listOfMenuItems)
+	
+	} elseif $$$isDivider {
+		set element = ##class(EF.pageController.proweb.divider).addElementToParent($this, elementIdentifier, "")
+	
+	} elseif $$$isYouTubeVideo {
+		set element = ##class(EF.pageController.proweb.youTubeVideo).addElementToParent($this, elementIdentifier, "")
+	
+	} else {
+		throw ##class(shared.exceptions.generalException).%New("proweb item type not implemented yet: "_prowebItem.storage)	
+	}
+
+	set element.uiComponent.isProwebEditMode = (..page.contextData.prowebMode = "edit")
+	
+	set element.uiComponent.prowebItem = prowebItem
+	set element.prowebItem = prowebItem
+	set element.prowebID = prowebItem.storage.prowebID
+	set element.uiComponent.prowebItemID = prowebItem.storage.prowebID
+	set element.uiComponent.contextData = ..page.contextData
+	
+	if (element.#canBeDependent) {
+		do ..page.addDependencyToElement(element, prowebItem, guestNumber)
+	}
+	do ..listOfControllerIDsSorted.Insert(element.identifier)
+]]></Implementation>
+</Method>
+
+<Method name="repeatAnyGuestQuestions">
+<Implementation><![CDATA[
+	do ..findAllGuestQuestions()
+	do ..insertOneSetOfQuestionsPerGuest()
+]]></Implementation>
+</Method>
+
+<Method name="findAllGuestQuestions">
+<Private>1</Private>
+<Implementation><![CDATA[
+	#dim key as %Integer = ""
+	#dim lastUsedKey as %String = ""
+	#dim element as EF.pageController.element
+	#dim hasFoundGuestUiComponent as %Boolean = 0
+	#define isGuestElement (element.uiComponent.isGuest = 1)
+	#define isNotGuestElement (+element.uiComponent.isGuest = 0)
+	
+	for  {
+		set elementID = ..listOfControllerIDsSorted.GetNext(.key)
+		if key="" quit
+
+		set lastUsedKey = key
+		set element = ..page.getElementByIdentifier(elementID)
+		if '$IsObject(element) {
+			throw ##class(shared.exceptions.generalException).%New("Could not find elementID: "_elementID)	
+		}
+		if element.%Extends("EF.pageController.proweb.inputElement") {
+			if $$$isGuestElement  {
+				do ..listOfGuestControllerIDs.Insert(elementID)
+				set hasFoundGuestUiComponent = 1
+			} 
+			
+			if $$$isNotGuestElement && (hasFoundGuestUiComponent = 1) {
+				set hasFoundGuestUiComponent = 0
+				set ..positionOfNextNonGuestQuestion = key
+			}			
+
+		} else { // non-questions
+			if hasFoundGuestUiComponent = 1 {
+				set hasFoundGuestUiComponent = 0
+				set ..positionOfNextNonGuestQuestion = lastUsedKey
+			}
+		}
+	}
+	if '..positionOfNextNonGuestQuestion {
+		set ..positionOfNextNonGuestQuestion = lastUsedKey+1 // end of page
+	}
+]]></Implementation>
+</Method>
+
+<Method name="insertOneSetOfQuestionsPerGuest">
+<Private>1</Private>
+<Implementation><![CDATA[
+	#dim key as %Integer = ""
+	#dim element as EF.pageController.element
+	#dim maxGuests as %Integer = ..page.getEventConfiguration().getMaxGuestsPerAttendee()
+	
+	if ..page.contextData.isTestMode {
+		set maxGuests = ..page.contextData.maxGuests
+	}
+	for guestNumber = 2:1:maxGuests {
+		for  {
+			set elementID = ..listOfGuestControllerIDs.GetNext(.key)
+			if key="" quit
+			set element = ..page.getElementByIdentifier(elementID)
+			set newController = ..getNewElementForQuestion(element.uiComponent.prowebItem, guestNumber)
+				
+			set newController.uiComponent.isProwebEditMode = (..page.contextData.prowebMode = "edit")
+			set newController.uiComponent.prowebItem = element.uiComponent.prowebItem
+			set newController.uiComponent.contextData = ..page.contextData
+			
+			do ..page.addDependencyToElement(newController, element.uiComponent.prowebItem, guestNumber)
+						
+			do ..listOfControllerIDsSorted.InsertAt(newController.identifier, ..positionOfNextNonGuestQuestion) 
+			
+			set ..positionOfNextNonGuestQuestion = ..positionOfNextNonGuestQuestion + 1
+			kill newController
+			
+		}
+	}
+]]></Implementation>
+</Method>
+
+<Method name="insertPanelElementsAroundGuestQuestions">
+<Implementation><![CDATA[
+	#dim key as %Integer = ""
+	#dim lastGuestKey as %String = ""
+	#dim element as EF.pageController.element
+	#dim currentGuestNumber as %Integer = 0
+	#define isGuestElement (element.uiComponent.isGuest = 1)
+	#define isNotGuestElement (+element.uiComponent.isGuest = 0)
+	
+	for  {
+		set elementID = ..listOfControllerIDsSorted.GetNext(.key)
+		if key="" quit
+		set element = ..page.getElementByIdentifier(elementID)
+		set openPanel = 0
+		set closePanel = 0
+		if element.%Extends("EF.pageController.proweb.inputElement") {
+			if $$$isGuestElement {
+				set lastGuestKey = key
+				if (currentGuestNumber = 0) {
+					set openPanel = 1
+				} elseif (+element.guestNumber '= +currentGuestNumber) {
+					set closePanel = 1
+				}
+			} elseif currentGuestNumber {
+				 set closePanel = 1
+			}
+			
+		} else { // non-questions
+			if currentGuestNumber {
+				set closePanel = 1
+			}			
+		}
+		
+		if openPanel {
+			set currentGuestNumber = element.guestNumber
+			do ..insertControllerForGuestPanel(key, "opening")	
+		}
+		if closePanel {
+			set currentGuestNumber = 0
+			do ..insertControllerForGuestPanel(key, "closing")	
+		}
+	}
+	
+	if lastGuestKey {
+		set lastGuestKey = lastGuestKey + 1
+		if currentGuestNumber {
+			do ..insertControllerForGuestPanel(lastGuestKey, "closing")
+		}
+		do ..addGuestTool($Increment(lastGuestKey))
+	}
+]]></Implementation>
+</Method>
+
+<Method name="insertControllerForGuestPanel">
+<FormalSpec>insertPosition:%Integer,openOrClose:%String</FormalSpec>
+<Private>1</Private>
+<Implementation><![CDATA[
+	#dim controllerForPanel as EF.pageController.proweb.panel
+
+	set controllerForPanel = ##class(EF.pageController.proweb.panel).addElementToParent($this, "GuestPanel-"_insertPosition_"-"_openOrClose, "")
+	if $IsObject(controllerForPanel) {
+		set controllerForPanel.isOpeningOrClosing = openOrClose
+		set controllerForPanel.uiComponent.isOpeningOrClosing = openOrClose
+		set controllerForPanel.uiComponent.contextData = ..page.contextData
+			
+		do ..listOfControllerIDsSorted.InsertAt(controllerForPanel.identifier, insertPosition)
+	}
+]]></Implementation>
+</Method>
+
+<Method name="addGuestTool">
+<FormalSpec>insertPosition:%Integer</FormalSpec>
+<Implementation><![CDATA[
+	set button = ##class(EF.pageController.proweb.buttonAddGuest).addElementToParent($this,"ef-guest-tool","Add Guest")
+	do ..listOfControllerIDsSorted.InsertAt(button.identifier,insertPosition)
+]]></Implementation>
+</Method>
+
+<Method name="renderElements">
+<FormalSpec>parentListElement:EF.pageController.containerElements.list=""</FormalSpec>
+<Implementation><![CDATA[
+	#dim element as EF.pageController.element
+	#dim hasRenderedAtLeastOne as %Boolean = 0
+	
+	for position = 1:1:..listOfControllerIDsSorted.Count() {
+		set elementID = ..listOfControllerIDsSorted.GetAt(position)
+		
+		set element = ..page.getElementByIdentifier(elementID)
+		
+		if element.isOkToRender() {
+			if (hasRenderedAtLeastOne = 0) && (element.uiComponent.%Extends("EF.ui.components.frontend.textInput")) && (..page.contextData.prowebMode '= "edit"){
+				set element.uiComponent.hasAutoFocus = 1 	
+			}
+			do element.uiComponent.render()		
+			set hasRenderedAtLeastOne =1
+		}
+	}
+	
+	if 'hasRenderedAtLeastOne {
+		do ..renderEmptyListHTML()	
+	}
+]]></Implementation>
+</Method>
+
+<Method name="getNewElementForQuestion">
+<FormalSpec>prowebItem:sc.facade.prowebItem,optionalGuestNumber:%Integer=""</FormalSpec>
+<ReturnType>EF.pageController.proweb.inputElement</ReturnType>
+<Implementation><![CDATA[
+	#dim value as %String
+	#dim elementIdentifier as %String 
+	#dim labelText as %String = prowebItem.storage.labelText
+
+	if (prowebItem.storage.isGuest) && (optionalGuestNumber = "") {
+		set optionalGuestNumber = 1
+	}
+	set elementIdentifier = ..page.getElementIdentifierForProwebItems(prowebItem, optionalGuestNumber)
+	set value = ..getValueFromEComTemp(prowebItem, optionalGuestNumber)
+	
+	set pageControllerClassName = $Case(prowebItem.storage.inputType,
+											"text":"textInput",
+											"emailAddress":"emailInput",
+											"time":"timeInput",
+											"date":"datePicker",
+											"textarea":"textArea",
+											"phoneNumber":"phoneNumber",
+											"integer":"integerInput",
+											"floatingPointNumber":"numericInput",
+											"webAddress":"webAddress",
+											"multiEmailAddress":"emailInputMulti",
+											"checkbox":"checkboxGroup",
+											"dateRange":"dateRange",
+											"password":"passwordInput",
+											"fileUpload":"fileUpload",
+											:"exception"
+										)
+	
+	if prowebItem.storage.isHiddenToBooker(..page.contextData) {
+		set pageControllerClassName = "privateData" 
+	}
+	
+	if pageControllerClassName '= "exception" {		
+		set element = $ClassMethod("EF.pageController.proweb."_pageControllerClassName, "addElementToParent", $this, elementIdentifier, labelText, value, prowebItem.storage.isReadOnly)
+		
+	} elseif (prowebItem.storage.inputType = "dropdown") ! (prowebItem.storage.inputType = "radiobutton") ! (prowebItem.storage.inputType = "multibox") {
+		set element = ..addProwebSelectionElement(prowebItem, optionalGuestNumber)
+				
+	} else {
+		throw ##class(shared.exceptions.generalException).%New("proweb question type is not implemented yet: "_prowebItem.storage.inputType)	
+	}
+
+	if prowebItem.storage.inputType = "checkbox" {
+		set childController = element.addProwebCheckbox(element, elementIdentifier_"-"_1, labelText, value)
+	}		
+	if prowebItem.storage.inputType = "dateRange" {
+		do ..page.addSecondDatePickerForDateRange(prowebItem, element)
+	}
+		
+	set element.uiComponent.isGuest = prowebItem.storage.isGuest
+	if prowebItem.storage.isGuest {
+		set element.guestNumber = optionalGuestNumber	
+		set element.isGuest = 1
+		set element.uiComponent.guestNumber = optionalGuestNumber	
+	}
+	set element.uiComponent.helpText = prowebItem.storage.helpText	
+
+	return element
+]]></Implementation>
+</Method>
+
+<Method name="getValueFromEComTemp">
+<FormalSpec>prowebItem:sc.facade.prowebItem,optionalGuestNumber:%Integer,getRawData=0</FormalSpec>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	#dim itemName as %String = prowebItem.storage.databaseItemName
+	if ..page.contextData.isTestMode {
+		return prowebItem.storage.testValue
+	}
+	
+	if optionalGuestNumber  {
+		if ..page.contextData.prowebMode = "edit" {
+			set tempPersonID = "n/a"
+		} else {
+			set tempPersonID = ..page.getTempPersonIdForGuestNumber(optionalGuestNumber)	
+		}
+	} else {
+		set tempPersonID = ..page.contextData.tempPersonID
+	}
+	set value = ##class(eCom.tempCodData).get(tempPersonID, itemName, ,getRawData)
+	
+	if (value = "") && (..page.contextData.tempBookerID) {
+		set value = ##class(eCom.tempCodData).getValueToCopyFromBooker(tempPersonID, ..page.contextData.tempBookerID, prowebItem.storage.prowebID)	
+	}
+		
+	if (value = "") && (prowebItem.storage.defaultValue '= "") {
+		set value = prowebItem.storage.defaultValue	
+	}
+	return value
+]]></Implementation>
+</Method>
+
+<Method name="addProwebSelectionElement">
+<FormalSpec>prowebItem:sc.facade.prowebItem,optionalGuestNumber:%Integer=""</FormalSpec>
+<Private>1</Private>
+<ReturnType>EF.pageController.element</ReturnType>
+<Implementation><![CDATA[
+	#define getRawData 1
+	#dim element as EF.pageController.element
+	#dim value as %String
+	#dim elementIdentifier as %String = ..page.getElementIdentifierForProwebItems(prowebItem, optionalGuestNumber)
+	#dim labelText as %String = prowebItem.storage.labelText
+	#dim itemName as %String = prowebItem.storage.databaseItemName
+	#dim isReadOnly as %Boolean = prowebItem.storage.isReadOnly
+	#dim counter as %Integer = 0
+	#dim getRawData as %Boolean = 1
+	#dim key as %Integer = ""
+	
+	if prowebItem.storage.inputType = "dropdown" {
+		set value = ..getValueFromEComTemp(prowebItem, optionalGuestNumber)
+		set element = ##class(EF.pageController.proweb.dropdown).addElementToParent($this, elementIdentifier, labelText, value, isReadOnly)
+		set element.uiComponent.isSearchAsYouType = prowebItem.storage.isSearchAsYouType
+		
+	} elseif prowebItem.storage.inputType = "radiobutton" {
+		set value = ..getValueFromEComTemp(prowebItem, optionalGuestNumber)
+		set element = ##class(EF.pageController.proweb.radioButtons).addElementToParent($this, elementIdentifier, labelText, value, isReadOnly)
+		
+	} elseif prowebItem.storage.inputType = "multibox" {
+		set value = ..getValueFromEComTemp(prowebItem, optionalGuestNumber, $$$getRawData)
+		set element = ##class(EF.pageController.proweb.checkboxGroup).addElementToParent($this, elementIdentifier, labelText, value)
+		set element.uiComponent.columns=1
+			
+	} else {
+		throw ##class(shared.exceptions.generalException).%New("Proweb selection type not implemented"_prowebItem.storage.inputType)
+	}
+	
+	set element.prowebID = prowebItem.storage.prowebID	
+	
+	for  {
+		set alternative = prowebItem.storage.listOfAlternatives.GetNext(.key)
+		if key ="" quit
+
+		if prowebItem.storage.inputType = "multibox" {
+			set counter = counter+1
+			set isChecked = ##class(EF.pageController.proweb.checkboxGroup).isAlternativeInValueString(alternative.displayText, value)
+			set childController = element.addProwebCheckbox(element, elementIdentifier_"-"_counter, alternative.displayText, isChecked)
+			
+		} else {
+			set childController = element.addAlternative(alternative.value, alternative.displayText)	
+		} 
+	}
+	
+	if (value = "") && (prowebItem.storage.inputType = "radiobutton" ) &&(prowebItem.storage.listOfAlternatives.Count() > 0) {
+		set element.value = prowebItem.storage.listOfAlternatives.GetAt(1).value
+	}
+	return element
+]]></Implementation>
+</Method>
+
+<Method name="renderEmptyListHTML">
+<Implementation><![CDATA[
+	try {
+		set listID = ..prowebListID
+		&HTML<
+			<div class="row ef-draggable-div ef-proweb-form-row-editable ef-proweb-empty-list" data-ui-component-type="emptyList" data-proweb-list-id="#(##class(EF.htmlGenerator).encodeForHTMLAttribute(listID))#">Empty List</div>
+		>
+	} catch {
+		throw ##class(shared.exceptions.generalException).%New("No listID found for "_..identifier)
+	}
+]]></Implementation>
+</Method>
+
+<Storage name="Default">
+<Type>%Library.CacheStorage</Type>
+<DefaultData>listDefaultData</DefaultData>
+<Data name="listDefaultData">
+<Subscript>"list"</Subscript>
+<Value name="1">
+<Value>scTagName</Value>
+</Value>
+<Value name="2">
+<Value>componentName</Value>
+</Value>
+<Value name="3">
+<Value>scListID</Value>
+</Value>
+<Value name="4">
+<Value>prowebListID</Value>
+</Value>
+<Value name="5">
+<Value>positionOfNextNonGuestQuestion</Value>
+</Value>
+</Data>
+</Storage>
+</Class>
+
+
+<Class name="EF.pageController.proweb.listOfSingleElement">
+<Super>EF.pageController.proweb.list</Super>
+<TimeChanged>64233,28880.382469</TimeChanged>
+<TimeCreated>64233,28684.712587</TimeCreated>
+
+<Property name="componentName">
+<Type>%String</Type>
+<Parameter name="MAXLEN" value="255"/>
+</Property>
+
+<Storage name="Default">
+<Type>%Library.CacheStorage</Type>
+</Storage>
+</Class>
+
+
 <Class name="EF.pageController.proweb.menuBlock">
 <Super>EF.pageController.proweb.prowebBase</Super>
 <TimeChanged>64223,57337.284006</TimeChanged>
@@ -1694,7 +2255,7 @@ Should be run if any of the sub-classes are deleted</Description>
 
 <Class name="EF.pageController.proweb.page">
 <Super>EF.pageController.page</Super>
-<TimeChanged>64233,37839.14963</TimeChanged>
+<TimeChanged>64233,50775.551108</TimeChanged>
 <TimeCreated>64189,51696.559047</TimeCreated>
 
 <Property name="contextData">
@@ -1703,24 +2264,6 @@ Should be run if any of the sub-classes are deleted</Description>
 
 <Property name="prowebPageID">
 <Type>%Integer</Type>
-</Property>
-
-<Property name="listOfControllerIDsSorted">
-<Type>%ListOfDataTypes</Type>
-<Transient>1</Transient>
-</Property>
-
-<Property name="listOfGuestControllerIDs">
-<Type>%ListOfDataTypes</Type>
-<Transient>1</Transient>
-</Property>
-
-<Property name="positionOfNextNonGuestQuestion">
-<Type>%Integer</Type>
-</Property>
-
-<Property name="parentListElement">
-<Type>EF.pageController.containerElements.list</Type>
 </Property>
 
 <Method name="load">
@@ -1760,7 +2303,6 @@ Should be run if any of the sub-classes are deleted</Description>
 	set list =	##class(EF.pageController.proweb.list).addElementToParent($this, listName, "")
 	set prowebListID = ##class(sc.xModules.objList).getListIDFromPageIDAndComponentName(pageID, "INDEXLIST")
 	set list.prowebListID = prowebListID
-	set ..parentListElement = list
 	do list.loadProwebListElementsFromDatabase()
 ]]></Implementation>
 </Method>
@@ -1777,16 +2319,14 @@ Should be run if any of the sub-classes are deleted</Description>
 		
 		if dataType = "objList" {	
 			set listElement = ##class(EF.pageController.proweb.list).addElementToParent($this, componentName, "")
-			set listElement.prowebListID = prowebID
-			set ..parentListElement = listElement 
+			set listElement.prowebListID = prowebID 
 			do listElement.loadProwebListElementsFromDatabase()
 
 		} elseif dataType = "objText" {
 			set listElement = ##class(EF.pageController.proweb.listOfSingleElement).addElementToParent($this, componentName, "")
-			set listElement.componentName = componentName
-			set ..parentListElement = listElement 
-			set storage = ##class(sc.facade.prowebItemStorageTextBlock).createNew(prowebID, ..page.contextData)
-			if storage.isOkToLoad(..page.contextData) {			
+			set listElement.componentName = componentName 
+			set storage = ##class(sc.facade.prowebItemStorageTextBlock).createNew(prowebID, ..contextData)
+			if storage.isOkToLoad(..contextData) {			
 				set prowebItem = ##class(sc.facade.prowebItem).createNew(storage)
 				do listElement.addElementForProwebItem(prowebItem)
 			}
@@ -1798,12 +2338,15 @@ Should be run if any of the sub-classes are deleted</Description>
 <Method name="insertMockProwebItems">
 <Implementation><![CDATA[
 	#dim key as %Integer = ""
+	#dim componentName as %String = "unit test"
+	
+	set listElement = ##class(EF.pageController.proweb.list).addElementToParent($this, componentName , "")
+	set listElement.prowebListID = -1
 	
 	for  {
 		set prowebItem = ..contextData.listOfProwebItemsToAdd.GetNext(.key)	
 		if key = "" quit
-		set ..parentListElement = $this
-		//do ..addElementForProwebItem(prowebItem)
+		do listElement.addElementForProwebItem(prowebItem)
 	}
 ]]></Implementation>
 </Method>
@@ -1849,7 +2392,7 @@ Should be run if any of the sub-classes are deleted</Description>
 			return rsTemps.Get("ID")
 		}
 	}
-	return ..createNewTempPersonForGuest()
+	return ""
 ]]></Implementation>
 </Method>
 
@@ -1865,38 +2408,6 @@ Should be run if any of the sub-classes are deleted</Description>
 		throw ##class(shared.exceptions.generalException).%New("Failed to create a new tempPerson for guest")
 	}
 	return tempPersonGuestID
-]]></Implementation>
-</Method>
-
-<Method name="getValueFromEComTemp">
-<FormalSpec>prowebItem:sc.facade.prowebItem,optionalGuestNumber:%Integer,getRawData=0</FormalSpec>
-<Private>1</Private>
-<ReturnType>%String</ReturnType>
-<Implementation><![CDATA[
-	#dim itemName as %String = prowebItem.storage.databaseItemName
-	if ..contextData.isTestMode {
-		return prowebItem.storage.testValue
-	}
-	
-	if optionalGuestNumber  {
-		if ..contextData.prowebMode = "edit" {
-			set tempPersonID = "n/a"
-		} else {
-			set tempPersonID = ..getTempPersonIdForGuestNumber(optionalGuestNumber)	
-		}
-	} else {
-		set tempPersonID = ..contextData.tempPersonID
-	}
-	set value = ##class(eCom.tempCodData).get(tempPersonID, itemName, ,getRawData)
-	
-	if (value = "") && (..contextData.tempBookerID) {
-		set value = ##class(eCom.tempCodData).getValueToCopyFromBooker(tempPersonID, ..contextData.tempBookerID, prowebItem.storage.prowebID)	
-	}
-		
-	if (value = "") && (prowebItem.storage.defaultValue '= "") {
-		set value = prowebItem.storage.defaultValue	
-	}
-	return value
 ]]></Implementation>
 </Method>
 
@@ -1963,25 +2474,20 @@ Should be run if any of the sub-classes are deleted</Description>
 	if ..hasError {
 		do ..renderErrorMessages()
 	}
+	do ..renderComponent(componentName,componentType)
+]]></Implementation>
+</Method>
+
+<Method name="renderComponent">
+<Description>
+also an entry point from unit tests</Description>
+<FormalSpec>componentName:%String,componentType:%String=""</FormalSpec>
+<Implementation><![CDATA[
 	set parentListElement = ..getElementByIdentifier(componentName) 
 	if $IsObject(parentListElement) {
 		do parentListElement.renderElements()
 	} else {
 		do ..initialiseComponent(componentType)	
-	}
-]]></Implementation>
-</Method>
-
-<Method name="renderEmptyListHTML">
-<FormalSpec>parentListElement:EF.pageController.proweb.list</FormalSpec>
-<Implementation><![CDATA[
-	try {
-		set listID = parentListElement.prowebListID
-		&HTML<
-			<div class="row ef-draggable-div ef-proweb-form-row-editable ef-proweb-empty-list" data-ui-component-type="emptyList" data-proweb-list-id="#(##class(EF.htmlGenerator).encodeForHTMLAttribute(listID))#">Empty List</div>
-		>
-	} catch {
-		throw ##class(shared.exceptions.generalException).%New("No listID found for "_parentListElement.identifier)
 	}
 ]]></Implementation>
 </Method>
@@ -2081,6 +2587,9 @@ Should be run if any of the sub-classes are deleted</Description>
 			
 			if element.isGuest {
 				set tempPersonID = ..getTempPersonIdForGuestNumber(element.guestNumber)
+				if 'tempPersonID {
+					set tempPerson=..createNewTempPersonForGuest()	
+				}
 			} else {
 				set tempPersonID = ..contextData.tempPersonID	
 			}
@@ -2155,21 +2664,6 @@ Should be run if any of the sub-classes are deleted</Description>
 </Value>
 <Value name="4">
 <Value>prowebPageID</Value>
-</Value>
-<Value name="5">
-<Value>listOfControllerIDsSorted</Value>
-</Value>
-<Value name="6">
-<Value>listOfGuestControllerIDs</Value>
-</Value>
-<Value name="7">
-<Value>..positionOfNextNonGuestQuestion</Value>
-</Value>
-<Value name="8">
-<Value>positionOfNextNonGuestQuestion</Value>
-</Value>
-<Value name="9">
-<Value>parentListElement</Value>
 </Value>
 </Data>
 </Storage>
@@ -2659,7 +3153,7 @@ Should be run if any of the sub-classes are deleted</Description>
 
 <Class name="EF.pageController.proweb.testCases.integerInputTestCase">
 <Super>EF.ISC.UnitTest.TestCase</Super>
-<TimeChanged>64223,61389.619838</TimeChanged>
+<TimeChanged>64233,44544.707796</TimeChanged>
 <TimeCreated>64204,52712.809439</TimeCreated>
 
 <Method name="TestInteger">
@@ -2682,7 +3176,7 @@ Should be run if any of the sub-classes are deleted</Description>
 
 	set pageController = ##class(EF.pageController.pagesFrontend.t4Registration).createNew(contextData,,,eventConfiguration)
 	
-	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(pageController,"renderElements",pageController)
+	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(pageController, "renderComponent", "-1")
 	set returnedHTML = $ZStrip(returnedHTML,"*WC")
 	set expectedHTML = "<divclass=""rowef-proweb-form-row""><divclass=""col-sm-4ef_proweb_form_prompt""><labelclass=""control-label""for=""proweb-1""><divclass=""ef-label-text""id=""ef-display-label-proweb-1"">Pleaseenteryourheightincm</div></label></div><divclass=""col-sm-8ef_proweb_form_prompt""><inputtype=""number""class=""form-controlef-proweb-input-element-short""title=""""id=""proweb-1""name=""proweb-1""value=""""placeholder=""""pattern=""^([\+\-]){0,1}\d+$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;Pleaseenteryourheightincm\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""autofocus=""autofocus""></div></div>"
 	do $$$AssertEquals(returnedHTML,expectedHTML)
@@ -4229,6 +4723,71 @@ we need to refactor the frontend buttons to make them callable from class method
 </Class>
 
 
+<Class name="EF.ui.components.frontend.buttonAddGuest">
+<Super>EF.ui.components.buttonBase,EF.ui.components.frontend.prowebBase</Super>
+<TimeChanged>64232,57216.389522</TimeChanged>
+<TimeCreated>64183,40678.260093</TimeCreated>
+
+<Property name="maximumNumberOfGuests">
+<Type>%Integer</Type>
+</Property>
+
+<Method name="getDefaultClasses">
+<ClassMethod>1</ClassMethod>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[	return "ef_frontend_button ef-add-guest-button"
+]]></Implementation>
+</Method>
+
+<Method name="render">
+<Implementation><![CDATA[
+	set outerDiv = ##class(EF.ui.components.div).%New()
+	set outerDiv.classes = "row"
+	do outerDiv.renderStart()
+	set labelDiv = ##class(EF.ui.components.div).%New()
+	set labelDiv.classes = "col-sm-4 ef_proweb_form_prompt"
+	do labelDiv.render()
+	set buttonDiv = ##class(EF.ui.components.div).%New()
+	set buttonDiv.classes = "col-sm-8"
+	do buttonDiv.renderStart()
+	do ##super()
+	
+	do buttonDiv.renderEnd()
+	do outerDiv.renderEnd()
+]]></Implementation>
+</Method>
+
+<Storage name="Default">
+<Type>%Library.CacheStorage</Type>
+<DefaultData>buttonAddGuestDefaultData</DefaultData>
+<Data name="buttonAddGuestDefaultData">
+<Subscript>"buttonAddGuest"</Subscript>
+<Value name="1">
+<Value>label</Value>
+</Value>
+<Value name="2">
+<Value>title</Value>
+</Value>
+<Value name="3">
+<Value>isProwebEditMode</Value>
+</Value>
+<Value name="4">
+<Value>prowebItemID</Value>
+</Value>
+<Value name="5">
+<Value>prowebItem</Value>
+</Value>
+<Value name="6">
+<Value>contextData</Value>
+</Value>
+<Value name="7">
+<Value>maximumNumberOfGuests</Value>
+</Value>
+</Data>
+</Storage>
+</Class>
+
+
 <Class name="EF.ui.components.frontend.checkbox">
 <Super>EF.ui.components.checkbox,EF.ui.components.frontend.inputElement</Super>
 <TimeChanged>64232,38986.346004</TimeChanged>
@@ -5370,6 +5929,41 @@ we need to refactor the frontend buttons to make them callable from class method
 <Value>maxCharacters</Value>
 </Value>
 </Data>
+</Storage>
+</Class>
+
+
+<Class name="EF.ui.components.frontend.inputLabel">
+<Super>EF.ui.components.label</Super>
+<TimeChanged>64231,55737.500484</TimeChanged>
+<TimeCreated>64231,55311.604253</TimeCreated>
+
+<Method name="renderContents">
+<Implementation><![CDATA[	write ..rawHTML(..text)
+]]></Implementation>
+</Method>
+
+<Method name="getDefaultClasses">
+<ClassMethod>1</ClassMethod>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[	return "control-label ef-label-text"
+]]></Implementation>
+</Method>
+
+<Method name="getClasses">
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	set classes = ##super()
+	if ..isMandatory {
+		set classes = classes_" ef-required-field"
+	}
+	
+	return classes
+]]></Implementation>
+</Method>
+
+<Storage name="Default">
+<Type>%Library.CacheStorage</Type>
 </Storage>
 </Class>
 
@@ -10869,6 +11463,863 @@ function saveSameAs(categoryID) {
 			if xEventID do ##class(setup.objEventAudit).add(xUserID,xEventID,"Reg Page '"_pageName_"' ("_pageID_"), Added new Registration Question: "_questionText_" ("_codItemNameDescription_"), "_%request.Get("selType")_", "_$S(mandatory:"Mandatory",1:"Not Mandatory"))
 		}
 		
+		// Add new, dependend children right underneath their parent
+		set dependsOnAlternative=%request.Get("selDependsOnCodAltID")
+		if (dependsOnPrompt&&dependsOnAlternative) { //  only save as dependent if we have both a dependent question and a required answer
+			&SQL(SELECT displayOrder,parent INTO :parentDisplayOrder,:depParentID FROM sc_xModules.objCODitem WHERE ID = :dependsOnPrompt)
+			if +SQLCODE=0,dataID,depParentID'=parent { // Don't update display order if the dependent question list is different from this one.
+				set lastPos=parentDisplayOrder
+				
+				// find the last dependend child
+				&SQL(SELECT displayorder INTO :lastChild FROM sc_xModules.objCODitem WHERE (dependsOnPrompt = :dependsOnPrompt) AND (parent=:parent) ORDER BY displayOrder DESC)
+				if +SQLCODE=0,lastChild set lastPos=lastChild
+				// Also check text blocks
+				&SQL(SELECT displayorder INTO :lastChild FROM sc_xModules.objText WHERE (dependsOnPrompt = :dependsOnPrompt) AND (parent=:parent) ORDER BY displayOrder DESC)
+				if +SQLCODE=0,lastChild>lastPos {
+					set lastPos=lastChild
+				}
+				
+				// move all the subsequent items one step down
+				&SQL(UPDATE sc.objData SET displayOrder = displayOrder+1 WHERE (parent = :parent) AND (displayOrder > :lastPos))
+				
+				// move the new item to right after the parent	
+				&SQL(UPDATE sc_xModules.objCODitem SET displayOrder = :lastPos + 1 WHERE ID = :dataID)
+			}
+		} else {
+			if ##class(sc.methods).isUsingProweb2() {
+				do ##class(sc.proweb2methods).moveNewElementToDesiredPosition(dataID)				
+			}
+		}
+		
+
+
+	} else {  
+		// existing objData
+		if itemNameID="NEW" {
+			// don't allow this
+					
+		} else {
+			// existing cod item
+			set layout=%request.Get("radLayout")
+			if layout="" set layout="horizontal"
+			set mandatory=%request.Get("chkMandatory")
+			// make multiple checkboxes that have a minimum number of checks mandatory
+			if %request.Get("multiCheckboxMin") set mandatory=1	
+
+			do ##class(sc.xModules.objCODitem).update(dataID,questionText,email,%request.Get("txtHelpText"),%request.Get("selType"),mandatory,layout,%request.Get("txtFieldWidth"),%request.Get("txtFieldHeight"),isDelegate,isGuest,"",reportDescription)
+			// log to event audit trail
+			if xEventID do ##class(setup.objEventAudit).add(xUserID,xEventID,"Reg Page '"_pageName_"' ("_pageID_"), Saved Registration Question: "_questionText_", "_%request.Get("selType")_", "_$S(mandatory:"Mandatory",1:"Not Mandatory"))
+		}
+	
+	}
+	
+	set question=##class(sc.xModules.objCODitem).%OpenId(dataID)
+	if $IsObject(question) {
+		do question.%Reload()
+		set question.searchAsYouType = %request.Get("chkSearchAsYouType")
+		do question.%Save()
+		kill question
+	}
+	
+	set codItemNameDescription=##class(cod.objItemName).getDescFromID(itemNameID)
+	&SQL(UPDATE cod.objItemName SET concealed = :concealed WHERE ID = :itemNameID)
+	
+	set itemNameType=##class(cod.objItemName).getTypeById(itemNameID)
+	if itemNameType="dateRange" {
+		set lnkItemNameEvent=##class(cod.lnkItemNameEventDateRange).getLnkItemNameEvent(itemNameID,xEventID)
+		if '$ISOBJECT(lnkItemNameEvent) {
+			set lnkItemNameEvent=##class(cod.lnkItemNameEventDateRange).%New()
+			do lnkItemNameEvent.objEventSetObjectId(xEventID)
+			do lnkItemNameEvent.objItemNameSetObjectId(itemNameID)
+		}
+		set lnkItemNameEvent.minTimeStamp=minDateRange
+		set lnkItemNameEvent.maxTimeStamp=maxDateRange
+		do lnkItemNameEvent.%Save()
+	}
+	
+	// add ticketing
+	if isQuantityItem {
+		
+		set ticketID=##class(cod.objTicket).getTicketIDfromDataID(dataID)
+		set useVatCodes=##class(eCom.objVatCode).isVatCodesEnabled()
+		set priceByAttendeeCategory=+%request.Get("chkPriceByAttendeeCategory")
+		set togglePriceByAttendeeCategory=%request.Get("togglePriceByAttendeeCategory")
+		set createsAttendees=+%request.Get("chkqCreatesAttendees"),attendeeCategoryID=%request.Get("selqAttendeeCategory")
+		
+		set directPrice=%request.Get("txtDirectPrice")
+		set directPrice=$TR(directPrice,",","")
+		set currencyID=%request.Get("selCurrency")
+		set priceDescriptorID=%request.Get("selPriceDescriptor")
+		set showBookingLevel=+%request.Get("chkqShowBookingLevel")
+		set qMin=%request.Get("txtqMin")
+		set qMax=%request.Get("txtqMax")
+		
+		if (qMin'?.N) {
+			set %session.Data("proweb","backend","errMsg") = "The changes can't be saved because ""Optional booking levels - minimum"" must be a number"
+			set %response.Redirect = errorURL
+			return 0
+		}
+		if (qMax'?.N) {
+			set %session.Data("proweb","backend","errMsg") = "The changes can't be saved because ""Optional booking levels - maximum"" must be a number"
+			set %response.Redirect = errorURL
+			return 0
+		}
+		
+		TSTART
+		
+		if ticketID	{
+			do ##class(cod.objTicket).update(ticketID,xEventID,xControllerID,createsAttendees,attendeeCategoryID,showBookingLevel,qMin,qMax,priceByAttendeeCategory)
+		} else {
+			set ticketID=##class(cod.objTicket).add(dataID,xEventID,xControllerID,createsAttendees,attendeeCategoryID,showBookingLevel,qMin,qMax,priceByAttendeeCategory)
+		}
+		if 'createsAttendees {
+			set bookableItemQBI = ##class(setup.eventBookableItemQBI).createNew(eventConfiguration,ticketID)
+			do bookableItemQBI.load()
+			set bookableItemQBI.registrationStatus = %request.Get("selRegistrationStatus")
+			set bookableItemQBI.storedCapacity = %request.Get("txtqCapacity")
+			set bookableItemQBI.hasCapacityNotification = +%request.Get("chkqNotification")
+			set bookableItemQBI.capacityNotificationLevel = %request.Get("txtqNotificationLevel")
+			if 'bookableItemQBI.isValid(.listOfErrorMessages) {
+				set %session.Data("proweb","backend","errMsg") = listOfErrorMessages.GetAt(1)
+				TROLLBACK
+				set %response.Redirect = errorURL
+				return 0
+			}
+			do bookableItemQBI.save()
+		}
+		TCOMMIT
+		
+		// create array of selected discounts
+		set item="chkDiscount"
+		kill checked
+		// get all the checked ones
+		for  {
+			set item=$o(%request.Data(item)) q:item=""!(item'["chkDiscount")
+			set checked($P(item,"_",2),+$P(item,"_",3))=""
+		}
+		
+		// update the price
+		set count=0
+		if priceByAttendeeCategory {
+			set rs=##class(%ResultSet).%New("%Library.DynamicQuery:SQL")
+			do rs.Prepare("SELECT objEventCategory->description,objEventCategory FROM setup.lnkCategoryEvent WHERE (objEvent=?) AND (active=1) AND (langID=?) GROUP BY objEventCategory ORDER BY isDefault DESC,objEventCategory->description")
+			do rs.Execute(xEventID,xLangID)
+			while rs.Next() {
+				set count=count+1
+				set eventCategoryID=rs.Get("objEventCategory")
+				if count=1 set defaultID=eventCategoryID
+				set directPrice=%request.Get("txtDirectPrice_"_eventCategoryID)
+				set directPrice=$TR(directPrice,",","")
+				set currencyID=%request.Get("selCurrency_"_eventCategoryID)
+				set priceDescriptorID=%request.Get("selPriceDescriptor_"_eventCategoryID)
+				set sameAs=%request.Get("selSameAs_"_eventCategoryID)
+				set vatCodeID=%request.Get("selVatCode_"_eventCategoryID)				
+				set basketItemID=##class(links.lnkCategoryItemBasketItem).getTicketLinkedBasketItem(ticketID,eventCategoryID)
+				if basketItemID="",eventCategoryID'=defaultID set sameAs=defaultID
+				// use any existing basketItem if we had one from before or create new one
+				if basketItemID="" {
+					// create new
+					//  Add Property to link objBasketItem to the related object
+					set basketItemID=##class(eCom.objBasketItem).add(priceDescriptorID,xControllerID,"quantityitem",,,ticketID)
+					do ##class(cod.objTicket).updateBasketItem(ticketID,basketItemID,eventCategoryID)
+					set ok=##class(links.lnkCategoryItemBasketItem).updateTicketLink(ticketID,eventCategoryID,sameAs)
+				}
+				if 'togglePriceByAttendeeCategory {
+					set ok=##class(links.lnkCategoryItemBasketItem).updateTicketLink(ticketID,eventCategoryID,sameAs)
+					if eventCategoryID'=%request.Get("updateSameAs") {
+						do ##class(eCom.objBasketItem).updatePrices(.basketItemID,directPrice,priceDescriptorID,currencyID)
+	
+						set rs1=##class(%ResultSet).%New("eCom.objDiscount:qAllDiscounts")
+						do rs1.Execute(xLangID,xControllerID)
+						while rs1.Next() {
+							set discID=rs1.Get("objDiscount")
+							
+							if $D(checked(discID,+eventCategoryID)) { //it's checked
+								if '##class(eCom.lnkItemDiscount).exists(basketItemID,discID) { // it doesn't exist, create it
+									set objLink=##class(eCom.lnkItemDiscount).%New()
+									do objLink.objBasketItemSetObjectId(basketItemID)
+									do objLink.objDiscountSetObjectId(discID)
+									set ok=objLink.%Save()
+								}
+								
+							} else { // it's not checked 
+								if ##class(eCom.lnkItemDiscount).exists(basketItemID,discID) { // it exists, remove it
+									set linkID=##class(eCom.lnkItemDiscount).returnLinkID(basketItemID,discID)
+									do ##class(eCom.lnkItemDiscount).%DeleteId(linkID)
+								}
+							}
+						}
+					}
+					if useVatCodes {
+						&SQL(UPDATE eCom.objBasketItem set objVatCode=:vatCodeID WHERE ID=:basketItemID)
+					}
+				}
+				// update costs
+				set initialCost=%request.Get("initialCost_"_eventCategoryID)
+				set unitCost=%request.Get("unitCost_"_eventCategoryID)
+				&SQL(UPDATE eCom.objBasketItem set unitCost=:unitCost,initialCost=:initialCost WHERE ID=:basketItemID)			
+			}
+		} else {
+			set basketItemID=##class(cod.objTicket).getBasketItemID(ticketID)
+			set directPrice=%request.Get("txtDirectPrice_")
+			set directPrice=$TR(directPrice,",","")
+			set currencyID=%request.Get("selCurrency_")
+			set priceDescriptorID=%request.Get("selPriceDescriptor_")
+			set vatCodeID=%request.Get("selVatCode_")
+			if basketItemID="" {
+				// create new
+				//  Add Property to link objBasketItem to the related object
+				set basketItemID=##class(eCom.objBasketItem).add(priceDescriptorID,xControllerID,"quantityitem",,,ticketID)
+				do ##class(cod.objTicket).updateBasketItem(ticketID,basketItemID,"")
+			}
+			if 'togglePriceByAttendeeCategory {
+				do ##class(eCom.objBasketItem).updatePrices(basketItemID,directPrice,priceDescriptorID,currencyID)
+				set rs1=##class(%ResultSet).%New("eCom.objDiscount:qAllDiscounts")
+				do rs1.Execute(xLangID,xControllerID)
+				while rs1.Next() {
+					set discID=rs1.Get("objDiscount")
+					
+					if $D(checked(discID,0)) { //it's checked
+						if '##class(eCom.lnkItemDiscount).exists(basketItemID,discID) { // it doesn't exist, create it
+							set objLink=##class(eCom.lnkItemDiscount).%New()
+							do objLink.objBasketItemSetObjectId(basketItemID)
+							do objLink.objDiscountSetObjectId(discID)
+							set ok=objLink.%Save()
+						}
+						
+					} else { // it's not checked 
+						if ##class(eCom.lnkItemDiscount).exists(basketItemID,discID) { // it exists, remove it
+							set linkID=##class(eCom.lnkItemDiscount).returnLinkID(basketItemID,discID)
+							do ##class(eCom.lnkItemDiscount).%DeleteId(linkID)
+						}
+					}
+				}
+				// update VAT Code
+				if useVatCodes {
+					&SQL(UPDATE eCom.objBasketItem set objVatCode=:vatCodeID WHERE ID=:basketItemID)
+				}
+			}
+			// update costs
+			set initialCost=%request.Get("initialCost_")
+			set unitCost=%request.Get("unitCost_")
+			&SQL(UPDATE eCom.objBasketItem set unitCost=:unitCost,initialCost=:initialCost WHERE ID=:basketItemID)		
+		}
+		
+		// save the ecternal item codes
+		if ##class(setup.objSystemTypes).isModuleAllowed("External Item Codes") {
+			// save the account codes in all basketItems
+			set extItemCode=%request.Get("txtExtItemCode")
+			set extItemCode2=%request.Get("txtExtItemCode2")
+	
+			// update the main delegate basketItem
+			set basketItemID=""
+			&SQL(SELECT basketItemID INTO :tmp FROM cod.objTicket WHERE ID=:ticketID)
+			if +SQLCODE=0 set basketItemID=tmp
+			&SQL(UPDATE eCom.objBasketItem SET extItemCode=:extItemCode,extItemCode2=:extItemCode2
+				WHERE ID=:basketItemID
+			)
+			// update for attendee categories
+			set rs=##class(%ResultSet).%New("%Library.DynamicQuery:SQL")
+			do rs.Prepare("SELECT * FROM links.lnkCategoryItemBasketItem WHERE (objTicket=?)")
+			do rs.Execute(ticketID)
+			while rs.Next() {
+				set basketItemID=rs.Get("objBasketItem")
+				&SQL(UPDATE eCom.objBasketItem
+					SET extItemCode=:extItemCode,extItemCode2=:extItemCode2
+					WHERE ID=:basketItemID
+				)
+			}
+		}
+		
+		// save the ecternal item codes
+		if ##class(setup.objSystemTypes).isModuleAllowed("Profit & Loss") {
+			// save the account codes in all basketItems
+			set initialCost=%request.Get("initialCost")
+			set unitCost=%request.Get("unitCost")
+	
+			// update the main delegate basketItem
+			set basketItemID=""
+			&SQL(SELECT basketItemID INTO :tmp FROM cod.objTicket WHERE ID=:ticketID)
+			if +SQLCODE=0 set basketItemID=tmp
+			&SQL(UPDATE eCom.objBasketItem SET initialCost=:initialCost,unitCost=:unitCost
+				WHERE ID=:basketItemID
+			)
+			// update for attendee categories
+			set rs=##class(%ResultSet).%New("%Library.DynamicQuery:SQL")
+			do rs.Prepare("SELECT * FROM links.lnkCategoryItemBasketItem WHERE (objTicket=?)")
+			do rs.Execute(ticketID)
+			while rs.Next() {
+				set basketItemID=rs.Get("objBasketItem")
+				&SQL(UPDATE eCom.objBasketItem
+					SET initialCost=:initialCost,unitCost=:unitCost
+					WHERE ID=:basketItemID
+				)
+			}
+		}
+	}
+
+	// store the depencies
+	set dependsOnPrompt=%request.Get("selDependsOnDataID")
+	set dependsOnAlternative=%request.Get("selDependsOnCodAltID")
+	
+	//  only save as dependent if we have both a dependent question and a required answer
+	if ('dependsOnAlternative || 'dependsOnPrompt) {
+		set (dependsOnAlternative,dependsOnPrompt)=""
+	}
+	&SQL(UPDATE sc_xModules.objCODitem SET dependsOnPrompt = :dependsOnPrompt,dependsOnAlternative = :dependsOnAlternative WHERE ID = :dataID)
+	if ((xEventID)&&((dependsOnPrompt'=dependsOnPromptExisting)!(dependsOnAlternative'=dependsOnAlternativeExisting))) {
+		set auditText="Reg Page '"_pageName_"' ("_pageID_"). Dependency changed for question: "_questionText_" ("_codItemNameDescription_"),"
+		if dependsOnAlternative	{
+			set auditText=auditText_" now depends on:"_##class(sc.xModules.objCODitem).getCODItemName(dependsOnPrompt)_" ("_dependsOnPrompt_")"_", alternative:"_##class(cod.objItemAlternatives).getDescriptionByID(dependsOnAlternative)_" ("_dependsOnAlternative_")"
+		} else {
+			set auditText=auditText_" dependency cleared."
+		}
+		do ##class(setup.objEventAudit).add(xUserID,xEventID,auditText)
+	}
+
+	// store the suppressNewLine
+	set suppressNewLine=%request.Get("suppressNewLine")
+	set promptWidth=+%request.Get("promptWidth")
+	&SQL(UPDATE sc_xModules.objCODitem SET promptWidth = :promptWidth,supressNewLine = :suppressNewLine WHERE ID = :dataID)
+	
+	//store the backendOnly flag
+	set backendOnly=+%request.Get("chkBackendOnly")
+	set reportOn=%request.Get("chkReportOn")
+	set readonlyFrontend=+%request.Get("chkReadonlyFrontend")
+	&SQL(UPDATE sc_xModules.objCODitem SET backendOnly = :backendOnly,reportOn = :reportOn,readonlyFrontend = :readonlyFrontend WHERE ID = :dataID)
+	if ((xEventID)&&(backendOnly'=+backendOnlyExisting)) {
+		set auditText="Reg Page '"_pageName_"' ("_pageID_"). Backend only flag changed for question: "_questionText_" ("_codItemNameDescription_"),"
+		set auditText=auditText_" from:"_$S(backendOnlyExisting:"on",1:"off")_" to:"_$S(backendOnly:"on",1:"off")
+		do ##class(setup.objEventAudit).add(xUserID,xEventID,auditText)
+	}
+	if ((xEventID)&&(readonlyFrontend'=+readonlyFrontendExisting)) {
+		set auditText="Reg Page '"_pageName_"' ("_pageID_"). Read only flag changed for question: "_questionText_" ("_codItemNameDescription_"),"
+		set auditText=auditText_" from:"_$S(readonlyFrontendExisting:"on",1:"off")_" to:"_$S(readonlyFrontend:"on",1:"off")
+		do ##class(setup.objEventAudit).add(xUserID,xEventID,auditText)
+	}
+	
+	if ##class(setup.objSystemTypes).isModuleAllowed("Attendee Categories")	{
+		// kill all category links and save
+		// - do this in method so it can compile without class
+		do ##class(links.lnkEventCategoryData).deleteAllForOne(dataID)
+		set item=""
+		set errorOnCategories=""
+		for  {
+			set item=$o(%request.Data(item))
+			if item="" quit
+			if item["chkEventCategory" {
+				set eventCategoryID=$P(item,"_",2)
+				set okToUpdate=1
+				if ((dependsOnPrompt)&&(dependsOnAlternative)) {
+					if '(##class(links.lnkEventCategoryData).allow(eventCategoryID,dependsOnPrompt)) {
+						set errorOnCategories=errorOnCategories_$LISTBUILD(##class(setup.objEventCategory).getDescription(eventCategoryID))
+						set okToUpdate=0
+					}
+				}
+				if okToUpdate {
+					do ##class(links.lnkEventCategoryData).updateAttendeeCategoryRestrictionsRecursive(eventCategoryID,dataID)
+				}
+			}
+		}
+		if ($LISTLENGTH(errorOnCategories)>1) {
+			set tempListStr=$LISTTOSTRING($LIST(errorOnCategories,1,*-1),"', '")_"' and '"_$LIST(errorOnCategories,*)
+			set %session.Data("proweb","backend","errMsg")="The question cannot be restricted to the categories '"_tempListStr_"' because it is linked to another question where it is not allowed"
+		} elseif($LISTLENGTH(errorOnCategories)>0) {
+			set %session.Data("proweb","backend","errMsg")="The question cannot be restricted to the category '"_$LISTTOSTRING(errorOnCategories,",")_"' because it is linked to another question where it is not allowed"
+		}
+		if $G(%session.Data("proweb","backend","errMsg"))'="" {
+			set %response.Redirect=errorURL
+			quit 0
+		}
+	}
+	
+	// store the required answer and maxCharacters
+	if (%request.Get("maxCharacters")'?.N) {
+		set %session.Data("proweb","backend","errMsg") = "The changes can't be saved because ""Max length of answer"" must be a number"
+		set %response.Redirect = errorURL
+		return 0
+	}
+	set maxCharacters=%request.Get("maxCharacters")
+	set maxWords=""
+	if %request.Get("radCharsOrWords")="words" {
+		set maxWords=maxCharacters
+		set maxCharacters=""
+	}
+	set noAmendments=+%request.Get("chkNoAmendments")
+
+	do ##class(sc.xModules.objCODitem).updateRequiredAnswer(dataID,requiredAnswer)
+	do ##class(sc.xModules.objCODitem).updateValidationErrorMessage(dataID,validationErrorMessage)
+	do ##class(sc.xModules.objCODitem).updateMaxCharacters(dataID,maxCharacters)
+	do ##class(sc.xModules.objCODitem).updateMaxWords(dataID,maxWords)
+	do ##class(sc.xModules.objCODitem).updateMultiCheckboxMin(dataID,%request.Get("multiCheckboxMin"))
+	do ##class(sc.xModules.objCODitem).updateMultiCheckboxMax(dataID,%request.Get("multiCheckboxMax"))
+	do ##class(sc.xModules.objCODitem).updateDefaultValue(dataID,defaultValue)
+	do ##class(sc.xModules.objCODitem).updateCopyValueFromBooker(dataID,copyValueFromBooker)
+	do ##class(sc.xModules.objCODitem).updateNoAmendments(dataID,+%request.Get("chkNoAmendments"))
+	
+	if ((xEventID)&&(requiredAnswer'=requiredAnswerExisting)) {
+		set auditText="Reg Page '"_pageName_"' ("_pageID_"). Custom validation changed for question: "_questionText_" ("_codItemNameDescription_"),"
+		set auditText=auditText_" from:"_requiredAnswerExisting_" to:"_requiredAnswer
+		do ##class(setup.objEventAudit).add(xUserID,xEventID,auditText)
+	}
+	if validationErrorMessage'=validationErrorMessageExisting {
+		set auditText="Reg Page '"_pageName_"' ("_pageID_"). Validation error message changed for question: "_questionText_" ("_codItemNameDescription_"),"
+		set auditText=auditText_" from:"_validationErrorMessageExisting_" to:"_validationErrorMessage
+		do ##class(setup.objEventAudit).add(xUserID,xEventID,auditText)
+	}
+	if ((xEventID)&&(noAmendments'=+noAmendmentsExisting)) {
+		set auditText="Reg Page '"_pageName_"' ("_pageID_"). No amendments changed for question: "_questionText_" ("_codItemNameDescription_"),"
+		set auditText=auditText_" from:"_$S(noAmendmentsExisting:"on",1:"off")_" to:"_$S(noAmendments:"on",1:"off")
+		do ##class(setup.objEventAudit).add(xUserID,xEventID,auditText)
+	}
+	
+	// always make it published if we are doing document manamenmt
+	if %session.Data("proweb","isDOC") {
+		set step=##class(sc.objStep).getFinalLevel()
+		do ##class(sc.objData).approve(dataID,step)
+	}
+	
+	// count the list of alternatives
+	set alts=%request.Get("txtAlternatives")
+	if $IsObject(alts) {
+		set alts=%request.Get("txtAlternatives").Read($$$maxStringLength)	
+	}
+	
+	set oldCount=##class(cod.objItemAlternatives).getAlternativesCountForCodItem(itemNameID)
+	set oldString=""
+	if oldCount<15 {
+		set oldString=""
+		set rsOC=##class(cod.objItemAlternatives).getAlternativesForCodItemAsResultSet(itemNameID)
+		while rsOC.Next() {
+			set oldString=oldString_$S($L(oldString):" | ",1:"")_rsOC.Get("description")
+		}
+	}
+	// update the list of alternatives
+	kill questArr
+	for altCount=1:1:($L(alts,"|")-1) {
+		set itemAlternativeID=$p($p(alts,"|",altCount),"~",1)
+		set desc=##class(cod.objItemAlternatives).sanitiseDescription($p($p(alts,"|",altCount),"~",2))
+		set code=$p($p(alts,"|",altCount),"~",3)
+		if itemAlternativeID["NEW" {
+			set itemAlternativeID=##class(cod.objItemAlternatives).create(itemNameID,desc,code,altCount)
+			if (defaultValue="NEW|") {
+				do ##class(sc.xModules.objCODitem).updateDefaultValue(dataID,desc)
+			}
+		} else {
+			do ##class(cod.objItemAlternatives).update(itemAlternativeID,desc,code,altCount)
+		}
+		if %request.Get("additional") {
+			//  Setup the ABI
+			set extrasID=##class(cod.objAlternativeExtras).findExtra(itemAlternativeID,dataID)
+			if 'extrasID {
+				set extrasID=##class(cod.objAlternativeExtras).add(itemAlternativeID,dataID)
+				//  Add Property to link objBasketItem to the related object
+				set basketItemID=##class(eCom.objBasketItem).add(,xControllerID,"additional",extrasID)
+				// And assign the basket Item
+				do ##class(cod.objAlternativeExtras).updateBasketItem(extrasID,basketItemID,"")
+			}
+		}
+		// Update any for any other events which may be using this as an ABI (even if this event is not uising it as an ABI, others might)
+		do ##class(cod.objAlternativeExtras).updateAlternatives(itemAlternativeID, .questArr)
+	}
+	// log to event audit trail
+	if xEventID {
+		if altCount<15 {
+			set newString=""			
+			for altCount=1:1:($L(alts,"|")-1) {
+				set desc=$p($p(alts,"|",altCount),"~",2)
+				set newString=newString_$S($L(newString):" | ",1:"")_desc
+			}
+			if newString'=oldString,$L(newString) {
+				do ##class(setup.objEventAudit).add(xUserID,xEventID,"Reg Page '"_pageName_"' ("_pageID_"), Changed List of Alternatives from: "_oldString_"  to:  "_newString)
+			}
+		} else {
+			if oldCount'=altCount {
+				do ##class(setup.objEventAudit).add(xUserID,xEventID,"Reg Page '"_pageName_"' ("_pageID_"), Changed Number of Alternatives from: "_oldCount_"  to:  "_altCount)
+			}
+		}
+	}
+	
+	if (##class(sc.xModules.objPage).isAbstractDocumentPage(pageID)) && (##class(sc.objComponent).getComponentName(parent) = "Document List") {
+		set value =  +%request.Get("chkAbsShowToReviewers")
+		
+		if ##class(cod.lnkItemNameEvent).getShowToReviewers(itemNameID,xEventID) '= value {
+			do ##class(setup.objEventAudit).add(xUserID,xEventID,"updated 'showToReviewers' for '"_##class(cod.objItemName).getDescFromID(itemNameID)_"' - new value: "_value)	
+		}
+		do ##class(cod.lnkItemNameEvent).setShowToReviewers(itemNameID,value,xEventID)	
+	}
+	
+	
+	// delete alternatives
+	set delAlts=%request.Get("txtDeletedAlternatives")
+	for i=1:1:$L(delAlts,"|") {
+		set id=$p(delAlts,"|",i)
+		do ##class(cod.objItemAlternatives).deleteAlternative(id,xUserID)
+	}
+	
+	set %response.Redirect=%request.Get("templateURL")
+	 set %response.Redirect="../../proweb/frontend/start.csp?mode=edit&version=current&pageID="_$G(%session.Data("pageID"))
+	
+	if %request.Get("gotoCodQuestionCSV") {
+		set %response.Redirect=codQuestionDetailsURL_"&gotoCodQuestionCSV=1"
+		quit 0
+	}
+	
+	if %request.Get("gotoPage")'="" {
+		set %response.Redirect=%request.Get("gotoPage") // used from codQuestionDetails.csp
+	}
+	if %request.Get("backPage")'="" set %response.Redirect=%request.Get("backPage") // used from eventsForce/registraionDetails.csp
+	
+	if %request.Get("updateSameAs")!%request.Get("togglePriceByAttendeeCategory") {
+		set %response.Redirect=codQuestionDetailsURL
+	}
+	
+	set %response.Redirect=%response.Redirect_$S(%response.Redirect["?":"&",1:"?")_"mode=edit"
+	
+	quit 0
+</script>
+]]></CSP>
+
+
+<CSP name="backEnd/proweb/codQuestionDetails2AJM.csp" application="/largedevsrc/" default="1"><![CDATA[
+<script language="CACHE" method="OnPreHTTPafter" arguments="" returntype="%Boolean">
+	do ##class(shared.pageMethods).createBackendVariables()
+	if xEventID {
+		set eventConfiguration=##class(setup.eventConfiguration).createForEventID(xEventID)	
+	}
+
+	set dataID=%request.Get("dataID")
+	set itemNameID=%request.Get("itemNameID")
+	set parent=%request.Get("parent")
+	set xWorkLangID = $Get(%session.Data("eventsforce","backend","xWorkLangID"))
+	set pageID=%request.Get("pageID")
+	
+	set isQuantityItem=%request.Get("quantityItem")
+	set isAdditionalItem=%request.Get("additional")
+	
+	do ##class(sc.methods).updateBackendVariablesFromPageID(pageID)
+	
+	set newCodQuestionDetailsURL="codQuestionDetails.csp?pageID="_..encodeForURL(pageID)_"&dataID="_..encodeForURL(dataID)_"&quantityItem="_..encodeForURL(isQuantityItem)_"&additional="_..encodeForURL(isAdditionalItem)
+	set codQuestionDetailsURL=newCodQuestionDetailsURL_"&itemNameID="_..encodeForURL(itemNameID)
+	set errorURL=codQuestionDetailsURL
+
+	// get the current values, used to compare against for audit trail purposes
+	set (dependsOnPromptExisting,dependsOnAlternativeExisting,backendOnlyExisting,requiredAnswerExisting,validationErrorMessageExisting,noAmendmentsExisting,readonlyFrontendExisting)=""
+	if dataID	{
+		&SQL(SELECT 
+			dependsOnPrompt,
+			dependsOnAlternative,
+			backendOnly,
+			requiredAnswer,
+			validationErrorMessage,
+			noAmendments,
+			readonlyFrontend
+			INTO 
+			:dependsOnPromptExisting,
+			:dependsOnAlternativeExisting,
+			:backendOnlyExisting,
+			:requiredAnswerExisting,
+			:validationErrorMessageExisting,
+			:noAmendmentsExisting,
+			:readonlyFrontendExisting
+			FROM sc_xModules.objCODitem WHERE ID = :dataID)
+	}
+	set mandatory=%request.Get("chkMandatory")
+	set concealed=+%request.Get("chkConcealed")	
+	
+	set questionText=%request.Get("txtPrompt")
+
+
+	// make any custom created firstname & lastname prompts mandatory, fix the twisted workflow of Organizers (SF CASE #00020967)
+	set alwaysMandatory=0
+	if $ZCVT(%request.Get("txtDescription"),"L")="firstname" set alwaysMandatory=1
+	if $ZCVT(%request.Get("txtDescription"),"L")="lastname" set alwaysMandatory=1
+	if (alwaysMandatory) {
+		set mandatory=1
+	}
+								
+	set (pageName,languageID)=""
+	&SQL(SELECT description,objLanguage INTO :tmp,:tmp2 FROM sc_xModules.objPage WHERE ID = :pageID)
+	if +SQLCODE=0 set pageName=tmp,languageID=tmp2
+
+	if isQuantityItem {
+		set createsAttendees=+%request.Get("chkqCreatesAttendees"),attendeeCategoryID=%request.Get("selqAttendeeCategory")
+		if createsAttendees {
+			//check if accommodation is ON, then, do not allow real attendees to be created.
+			if (##class(setup.objEventSetting).getParameter("bookings","allow accommodation bookings",xEventID)) {
+				set %session.Data("proweb","backend","errMsg")=..out("Real attendees in QBIs cannot be created if the Accommodation module has been activated.")
+				set %response.Redirect=errorURL_"&isCOD="_..encodeForURL(%request.Get("isCOD"))_"&quantityItem=1"
+				quit 0
+			}			
+
+			if ##class(cod.objTicket).anyOtherCreateAttendeeQuestions(xEventID,attendeeCategoryID,dataID,languageID) {
+				set %session.Data("proweb","backend","errMsg")="There is already a question that creates attendees for this attendee category."
+				set %response.Redirect=errorURL_"&isCOD="_..encodeForURL(%request.Get("isCOD"))_"&quantityItem=1"
+				quit 0
+			}
+			if ##class(setup.objEventSetting).getParameter("table bookings","enable frontend",xEventID) {
+				set %session.Data("proweb","backend","errMsg")="Attendees cannot be created for an event with table bookings."
+				set %response.Redirect=errorURL_"&isCOD="_..encodeForURL(%request.Get("isCOD"))_"&quantityItem=1"
+				quit 0
+			}
+		}
+	}
+	
+	set addToTop=%request.Get("addToTop")
+	set addToTop=$S(addToTop="true":1,1:0)
+	set codGroup=%request.Get("codGroup")   
+	set eventHotelID=%request.Get("eventHotelID")     
+	set (isDelegate,isGuest)=""
+	if %request.Get("radDelegateOrGuest")="delegate" set isDelegate=1
+	if %request.Get("radDelegateOrGuest")="guest" set isGuest=1
+	if %request.Get("radDelegateOrGuest")="both" set isDelegate=1,isGuest=1
+	if 'isDelegate,'isGuest {
+		// This should never happen, but has. Set isDelegate=1 and log the details
+		set isDelegate=1
+	}
+
+	// stop them entering only one alternative, can never be right but only if radio (as sometimes needed for drop downs)
+	 if %request.Get("selType")="radiobutton",$L(%request.Get("txtAlternatives"),"|")=2 { 
+		set %session.Data("proweb","backend","errMsg")=..out("You have only entered one alternative, please add more or consider a different question type")
+		set %response.Redirect=errorURL
+		quit 0
+	}
+	
+	// check that any deleted alternatives have not been purchased in this event or any other
+	set hasBeenPurchased=0
+	set delAlts=%request.Get("txtDeletedAlternatives")
+	for i=1:1:$L(delAlts,"|") {
+		set id=$p(delAlts,"|",i)
+		if '##class(cod.objItemAlternatives).canAlternativeBeDeleted(id,.reason) {
+			set %session.Data("proweb","backend","errMsg")=reason
+			set %response.Redirect=errorURL
+			return 0	
+		}
+	}
+	
+	// verify the min and max number of checkboxes
+	if %request.Get("multiCheckboxMax"),%request.Get("multiCheckboxMin"),%request.Get("multiCheckboxMax")<%request.Get("multiCheckboxMin") {
+		set %session.Data("proweb","backend","errMsg")=..out("Maximum number of checked alternatives must be more or the same as the minimum number.")
+		set %response.Redirect=errorURL
+		quit 0
+	}
+	
+	// if dateRange type, make sure we have both end of Range and the range is no longer than 30 days.
+	set minDateRange=""
+	set maxDateRange=""
+	if (%request.Get("selType")="dateRange") {
+		set minDateRange=##class(shared.dateFunctions).multiDate(%request.Get("dateRangeStart"),25,,xUserInputDateFormat)
+		set maxDateRange=##class(shared.dateFunctions).multiDate(%request.Get("dateRangeEnd"),25,,xUserInputDateFormat)
+		if ('$L(minDateRange)) {
+			set %session.Data("proweb","backend","errMsg")=..out("Date range start date is not valid.")
+			set %response.Redirect=errorURL
+			quit 0			
+		} elseif ('$L(maxDateRange)) {
+			set %session.Data("proweb","backend","errMsg")=..out("Date range end date is not valid.")
+			set %response.Redirect=errorURL
+			quit 0				
+		} elseif ($SYSTEM.SQL.DATEDIFF("day",minDateRange,maxDateRange)<0) {
+			set %session.Data("proweb","backend","errMsg")=..out("Date range end date must be after the start date.")
+			set %response.Redirect=errorURL
+			quit 0
+		} elseif ($SYSTEM.SQL.DATEDIFF("day",minDateRange,maxDateRange)>##class(cod.objItemName).#maxDateRangeLength) {
+			set %session.Data("proweb","backend","errMsg")=..out("Date range must be between 1 and {{{VAR01}}} days.",,##class(cod.objItemName).#maxDateRangeLength)
+			set %response.Redirect=errorURL
+			quit 0
+	
+		}
+	}
+	
+	
+	set requiredAnswer=##class(EF.sanitiser).removeRepeatedWhiteSpace(%request.Get("requiredAnswer"))
+	set validationErrorMessage=%request.Get("validationErrorMessage")
+	set okToSave=1
+	if $e(requiredAnswer,1,2)="##" {
+		set okToSave=0
+		// Validate bespoke callouts
+		set callOutMethod=$e(requiredAnswer,3,$l(requiredAnswer))
+		if callOutMethod?1A.AN {
+			set callOutMethod="customCode.codAnswerValidation."_##class(shared.callOuts).classNameForBespokeCode()_"."_callOutMethod
+			if ##class(%MethodDefinition).%OpenId(callOutMethod).ClassMethod {
+				set okToSave=1
+			}
+		}
+		if 'okToSave {
+			set %session.Data("proweb","backend","errMsg")=..out("The custom validation specifies an invalid call out method.")
+		}	
+	}
+	if requiredAnswer?1"#"1.AN {
+		if requiredAnswer="#personRegisteredWithSameAnswer" {
+			if (%request.Get("selType")="multibox") ! (%request.Get("selType")="dateRange") ! (%request.Get("selType")="checkbox") ! (%request.Get("selType")="radiobutton") {
+				set %session.Data("proweb","backend","errMsg")="Custom validation #personRegisteredWithSameAnswer has been removed as it cannot be used with this question type"
+				set okToSave=0	
+			}
+		} else {
+			set %session.Data("proweb","backend","errMsg")=..out("Invalid custom validation, please enter an answer or pattern that must be matched, or a valid custom validation method starting with '#'")
+			set okToSave=0	
+		}
+	}
+	if 'okToSave {
+		set %response.Redirect=errorURL
+		quit 0
+	}	
+	set dependsOnPrompt=%request.Get("selDependsOnDataID")
+	if dependsOnPrompt {
+		if isDelegate {
+			set isDependentParentForGuests=##class(sc.methods).isGuestItem(dependsOnPrompt)
+			if isDependentParentForGuests {
+				set %session.Data("proweb","backend","errMsg")=..out("You cannot make an attendee prompt dependent on a guest prompt")
+				set %response.Redirect=errorURL
+				quit 0
+			}
+		}
+	}
+	set defaultValue=""
+	if $Length(%request.Get("txtAlternatives")) {
+		set defaultValue=%request.Get("defaultValueAlt")	
+	} else {
+		set defaultValue=%request.Get("defaultValueText")
+	}
+	set copyValueFromBooker=%request.Get("chkCopyFromBooker")
+	if copyValueFromBooker set defaultValue=""
+	
+	if $l(defaultValue) {
+		set isDefaultValid=$CASE($ZCVT(%request.Get("selType"),"L"),
+			"emailaddress":##class(EF.utils.dataValidation).isValidEmailAddress(defaultValue),
+			"multiemailaddress":##class(EF.utils.dataValidation).isValidMultiEmailAddress(defaultValue),
+			:1
+		)
+		if 'isDefaultValid {
+			set %session.Data("proweb","backend","errMsg")=..out("Please enter a valid default value.")
+			set %response.Redirect=errorURL
+			quit 0
+		}
+	}
+		
+	// create new proweb item
+	set carryOver=$S(%request.Get("radAnswerAppliesTo")="allEvents":1,1:0)
+			
+	set isQuestionForSingleEvent=$S(%request.Get("radQuestionAvailability")="singleEvent":1,1:0)
+	
+	if carryOver&&isQuestionForSingleEvent {
+		set %session.Data("proweb","backend","errMsg")=..out("You cannot have a single event question with answers that apply to all events")
+		set %response.Redirect=errorURL
+		quit 0
+	}
+	
+	// if %session.Data("proweb","isSurvey") is set, we are entering a survey question. So, just change the codGroup to 'Survey';
+	if $G(%session.Data("proweb","isSurvey"))=1 set codGroup = "Survey"
+	
+	set reportDescription=%request.Get("reportDescription")		
+	
+	set email=##class(cod.objItemData).get($G(%session.Data("eventsforce","backend","xPersonID")),"email")
+	if dataID="NEW" {
+		if isAdditionalItem {
+			kill allRegPageIDs
+			kill alreadyUsedQuestions
+			set ok = ##class(setup.lnkCategoryEvent).getAllRegPages(xEventID, xWorkLangID, 1,, .allRegPageIDs)
+			if ok {
+				do ##class(cod.methods).loadUsedQuestions(pageID,,, .alreadyUsedQuestions, .allRegPageIDs)
+				if $Data(alreadyUsedQuestions(itemNameID)) {
+					set %session.Data("proweb", "backend", "errMsg") = "The changes can't be saved because the additional bookable item already exists on this registration page."
+					kill %session.Data("itemNameID")
+		 			set %response.Redirect = newCodQuestionDetailsURL
+		 			return 0
+				}
+			}
+	 	}
+		if itemNameID="CREATE" {
+			// new data and new cod
+			// create new cod item
+			if codGroup="" set codGroup="Additional"   // optional pass in value now. 
+			set description=%request.Get("txtDescription")
+			
+			if $G(%session.Data("templateURL"))["tAdditionalRegistration.csp"  {
+				// add the page name to the cod prompt if we are doing additional registration pages
+				 &SQL(SELECT description INTO :pageName FROM sc_xModules.objPage WHERE ID = :pageID)				
+				 set description=pageName_"|"_description
+			}
+			if codGroup'="Hotel" set eventHotelID=""  //  only allow the eventHotel link to be created if we're creating a hotel prompt
+			if eventHotelID set description="HOTEL_"_eventHotelID_"_"_description
+			
+			// password field should be stored as a text field in the COD, it's only a display issue. 
+			set tmpType=%request.Get("selType")
+			if tmpType="password" set tmpType="text"
+			if tmpType="1-5 scale" set tmpType="radiobutton"
+			
+			set errMsg=""
+			// ensure that the database name is free from invalid characters.
+			if ##class(cod.objItemName).anyInvalidCharactersInName(description) {
+				set errMsg="Only letters, numbers, underscores and spaces are allowed for the database name. Please try again."
+			}
+			if '$L(errMsg) {
+				// make sure it doesn't exist already
+				if isQuestionForSingleEvent {
+					if '##class(cod.objItemName).isNameValidForNewSingleEventQuestion(description,xEventID,.tmpMsg) {
+						set errMsg=tmpMsg
+					}
+				} else {
+					if '##class(cod.objItemName).isNameValidForNewCrossEventQuestion(description,.tmpMsg) {
+						set errMsg=tmpMsg
+					}	
+				}
+			}
+			
+			if '$L(errMsg) && (tmpType="dateRange")&&('isQuestionForSingleEvent) {
+				set errMsg="Date range questions must only apply to a single event."
+			}
+			if $l(errMsg) {
+				set %session.Data("proweb","backend","errMsg")=errMsg
+				set %response.Redirect=errorURL
+				quit 0		
+			}
+			
+			try {
+				if isQuestionForSingleEvent {
+					set itemNameID=##class(cod.objItemName).addSingleEventQuestion(description,tmpType,codGroup,xEventID)
+				} else {
+					set itemNameID=##class(cod.objItemName).add(description,mandatory,tmpType,codGroup,,,carryOver,eventHotelID)
+				}
+			} catch error {
+				set %session.Data("proweb","backend","errMsg")=error.DisplayString()	
+				set %response.Redirect=errorURL
+				return 0
+			}
+			
+			// log it to the event audit trail
+			if xEventID do ##class(setup.objEventAudit).add(xUserID,xEventID,"Reg Page '"_pageName_"' ("_pageID_"), Added new database item: "_description_", "_tmpType)
+		}	
+			
+		// new data and existing cod item
+		set layout=%request.Get("radLayout")
+		if layout="" set layout="horizontal"
+		
+		
+		// make multiple checkboxes that have a minimum number of checks mandatory
+		if %request.Get("multiCheckboxMin") set mandatory=1
+		
+		if (%request.Get("txtFieldWidth")'?.N) {
+			set %session.Data("proweb","backend","errMsg") = "The changes can't be saved because ""Field width"" must be a number"
+			set %response.Redirect = errorURL
+			return 0
+		}
+		
+		if (%request.Get("txtFieldHeight")'?.N) {
+			set %session.Data("proweb","backend","errMsg") = "The changes can't be saved because ""Height"" must be a number"
+			set %response.Redirect = errorURL
+			return 0
+		}
+
+		set dataID=##class(sc.xModules.objCODitem).add(itemNameID,questionText,parent,email,addToTop,%request.Get("txtHelpText"),%request.Get("selType"),mandatory,layout,%request.Get("txtFieldWidth"),%request.Get("txtFieldHeight"),isDelegate,isGuest,"",isAdditionalItem,,isQuantityItem,reportDescription)
+
+		// log it to the event audit trail
+		set codItemNameDescription=##class(cod.objItemName).getDescFromID(itemNameID)
+		if isAdditionalItem {
+			if xEventID do ##class(setup.objEventAudit).add(xUserID,xEventID,"Reg Page '"_pageName_"' ("_pageID_"), Added new Additional Booking Item: "_questionText_" ("_codItemNameDescription_"), "_%request.Get("selType")_", "_$S(mandatory:"Mandatory",1:"Not Mandatory"))
+		} else {	
+			if xEventID do ##class(setup.objEventAudit).add(xUserID,xEventID,"Reg Page '"_pageName_"' ("_pageID_"), Added new Registration Question: "_questionText_" ("_codItemNameDescription_"), "_%request.Get("selType")_", "_$S(mandatory:"Mandatory",1:"Not Mandatory"))
+		}
+
 		// Add new, dependend children right underneath their parent
 		set dependsOnAlternative=%request.Get("selDependsOnCodAltID")
 		if (dependsOnPrompt&&dependsOnAlternative) { //  only save as dependent if we have both a dependent question and a required answer
@@ -19727,13 +21178,14 @@ Returns true if the template is custom made</Description>
 </Class>
 
 
-<Project name="proweb 2" LastModified="2016-11-09 13:27:41.315241" Target="largedevsrc/backEnd/proweb/quickEditAJAX.csp" TargetType="3">
+<Project name="proweb 2" LastModified="2016-11-11 14:16:30.744083" Target="largedevsrc/backEnd/proweb/quickEditAJAX.csp" TargetType="3">
   <Items>
     <ProjectItem name="EF.contextDataRegistration" type="CLS"></ProjectItem>
     <ProjectItem name="EF.contextDataRegistrationMock" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.containerElement" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.element" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.pagesFrontend.t4Registration" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.pageController.proweb.buttonAddGuest" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.proweb.checkbox" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.proweb.checkboxGroup" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.proweb.datePicker" type="CLS"></ProjectItem>
@@ -19743,6 +21195,7 @@ Returns true if the template is custom made</Description>
     <ProjectItem name="EF.pageController.proweb.emailInput" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.proweb.emailInputMulti" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.proweb.fileUpload" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.pageController.proweb.guestPanel" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.proweb.inputElement" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.proweb.integerInput" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.proweb.menuBlock" type="CLS"></ProjectItem>
@@ -19783,6 +21236,7 @@ Returns true if the template is custom made</Description>
     <ProjectItem name="EF.pages.frontend.baseProweb" type="CLS"></ProjectItem>
     <ProjectItem name="EF.ui.components.attribute" type="CLS"></ProjectItem>
     <ProjectItem name="EF.ui.components.backend.panel" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.ui.components.frontend.buttonAddGuest" type="CLS"></ProjectItem>
     <ProjectItem name="EF.ui.components.frontend.buttonSubmit" type="CLS"></ProjectItem>
     <ProjectItem name="EF.ui.components.frontend.checkbox" type="CLS"></ProjectItem>
     <ProjectItem name="EF.ui.components.frontend.checkboxGroup" type="CLS"></ProjectItem>
@@ -19796,6 +21250,7 @@ Returns true if the template is custom made</Description>
     <ProjectItem name="EF.ui.components.frontend.fileUploadFacade" type="CLS"></ProjectItem>
     <ProjectItem name="EF.ui.components.frontend.floatingMenu" type="CLS"></ProjectItem>
     <ProjectItem name="EF.ui.components.frontend.inputElement" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.ui.components.frontend.inputLabel" type="CLS"></ProjectItem>
     <ProjectItem name="EF.ui.components.frontend.integerInput" type="CLS"></ProjectItem>
     <ProjectItem name="EF.ui.components.frontend.menuBlock" type="CLS"></ProjectItem>
     <ProjectItem name="EF.ui.components.frontend.numericInput" type="CLS"></ProjectItem>
@@ -19821,8 +21276,12 @@ Returns true if the template is custom made</Description>
     <ProjectItem name="EF.validator.phoneNumberTestCase" type="CLS"></ProjectItem>
     <ProjectItem name="EF.validator.webAddress" type="CLS"></ProjectItem>
     <ProjectItem name="EF.validator.webAddressTestCase" type="CLS"></ProjectItem>
+    <ProjectItem name="largedevsrc/backEnd/Home/inSiteEditingFrame.csp" type="CSP"></ProjectItem>
+    <ProjectItem name="largedevsrc/backEnd/Home/regPages.csp" type="CSP"></ProjectItem>
     <ProjectItem name="largedevsrc/backEnd/proweb/codQuestionDetails.csp" type="CSP"></ProjectItem>
     <ProjectItem name="largedevsrc/backEnd/proweb/codQuestionDetails2.csp" type="CSP"></ProjectItem>
+    <ProjectItem name="largedevsrc/backEnd/proweb/codQuestionDetails2AJM.csp" type="CSP"></ProjectItem>
+    <ProjectItem name="largedevsrc/backEnd/proweb/deleteListItem.csp" type="CSP"></ProjectItem>
     <ProjectItem name="largedevsrc/backEnd/proweb/editItem.csp" type="CSP"></ProjectItem>
     <ProjectItem name="largedevsrc/backEnd/proweb/fileUploadDetails.csp" type="CSP"></ProjectItem>
     <ProjectItem name="largedevsrc/backEnd/proweb/fileUploadDetails2.csp" type="CSP"></ProjectItem>
@@ -19860,11 +21319,10 @@ Returns true if the template is custom made</Description>
     <ProjectItem name="sc.proweb2methods" type="CLS"></ProjectItem>
     <ProjectItem name="sc.viewQuestionsByPageID" type="CLS"></ProjectItem>
     <ProjectItem name="sc.xModules.objList" type="CLS"></ProjectItem>
-    <ProjectItem name="shared.pageMethods" type="CLS"></ProjectItem>
     <ProjectItem name="sc.xModules.objPage" type="CLS"></ProjectItem>
-    <ProjectItem name="largedevsrc/backEnd/Home/regPages.csp" type="CSP"></ProjectItem>
-    <ProjectItem name="largedevsrc/backEnd/Home/inSiteEditingFrame.csp" type="CSP"></ProjectItem>
-    <ProjectItem name="largedevsrc/backEnd/proweb/deleteListItem.csp" type="CSP"></ProjectItem>
+    <ProjectItem name="shared.pageMethods" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.pageController.proweb.list" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.pageController.proweb.listOfSingleElement" type="CLS"></ProjectItem>
   </Items>
   <BreakPoints>
     <BreakPoint Routine="cspRealEV.frontend.reg.pagecontrollerstandardsave.CLS" Offset="OnPreHTTPafter+28"></BreakPoint>

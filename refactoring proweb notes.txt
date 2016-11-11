@@ -127,7 +127,6 @@ Page Heading is being outputted outside the <H1> tags
 ===============================================================================
 
 unit tests
-supress questions on lists that shouldn't have it
 rename "row ef-proweb-form-row" to something that fits non form pages too
 review the way we integrate the new CSP page with the old one
 Discuss the <H1> in the templates
@@ -137,7 +136,6 @@ menu doesn't get populated on first load
 
 ==== adrian ===
 ABI and QBI are not working 
-Cross page dependencies
 Marketing code
 Warning on leaving the page
 move CSS
@@ -146,13 +144,13 @@ move CSS
 
 
 make sure we can't add questions on components that shouldn't allow it (use new attrib on tag + new prop on objComponenet)
-multiple list on a page
+test multiple list on a page
 test more date formats
 dependency on multicheck
 autiding delete&add
 ABIs
 warning before leaving the page
 table bookings
-
+add integration test where we create the whole shebang
 remove proweb version 1.5 code
 time field placeholder in FF is outside the box

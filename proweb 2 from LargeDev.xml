@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.2 (Build 736U)" ts="2016-11-14 09:28:49">
+<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.2 (Build 736U)" ts="2016-11-15 08:20:52">
 <Class name="EF.contextDataRegistration">
 <Description><![CDATA[
 <!-- ;vc;-
@@ -1478,7 +1478,7 @@ Should be run if any of the sub-classes are deleted</Description>
 
 <Class name="EF.pageController.proweb.dropdown">
 <Super>EF.pageController.proweb.inputElement</Super>
-<TimeChanged>64189,54711.498322</TimeChanged>
+<TimeChanged>64236,67955.477584</TimeChanged>
 <TimeCreated>64189,53206.554402</TimeCreated>
 
 <Method name="getDefaultUIComponent">
@@ -1488,9 +1488,9 @@ Should be run if any of the sub-classes are deleted</Description>
 </Method>
 
 <Method name="addAlternative">
-<FormalSpec>value,description,isDefault=0</FormalSpec>
+<FormalSpec>alternative</FormalSpec>
 <ReturnType>EF.ui.components.alternative</ReturnType>
-<Implementation><![CDATA[	return ..uiComponent.addAlternative(value,description,isDefault)
+<Implementation><![CDATA[	return ..uiComponent.addDropdownAlternative(alternative, ..page.contextData)
 ]]></Implementation>
 </Method>
 
@@ -1567,11 +1567,11 @@ Should be run if any of the sub-classes are deleted</Description>
 
 <Class name="EF.pageController.proweb.guestPanel">
 <Super>EF.pageController.proweb.panel</Super>
-<TimeChanged>64233,61027.509332</TimeChanged>
+<TimeChanged>64236,39221.288162</TimeChanged>
 <TimeCreated>63372,47064.603748</TimeCreated>
 
-<Property name="isOpeningOrClosing">
-<Type>%String</Type>
+<Property name="guestNumber">
+<Type>%Integer</Type>
 </Property>
 
 <Method name="getDefaultUIComponent">
@@ -1594,6 +1594,37 @@ Should be run if any of the sub-classes are deleted</Description>
 	do ..uiComponent.renderStart()
 	do ##super()
 	do ..uiComponent.renderEnd()
+]]></Implementation>
+</Method>
+
+<Storage name="Default">
+<Type>%Library.CacheStorage</Type>
+<DefaultData>guestPanelDefaultData</DefaultData>
+<Data name="guestPanelDefaultData">
+<Structure>listnode</Structure>
+<Subscript>"guestPanel"</Subscript>
+<Value name="1">
+<Value>guestNumber</Value>
+</Value>
+</Data>
+</Storage>
+</Class>
+
+
+<Class name="EF.pageController.proweb.hiddenInput">
+<Super>EF.pageController.proweb.inputElement</Super>
+<TimeChanged>64236,39032.625056</TimeChanged>
+<TimeCreated>64236,39000.847923</TimeCreated>
+
+<Method name="getDefaultUIComponent">
+<ReturnType>EF.ui.components.hiddenInput</ReturnType>
+<Implementation><![CDATA[	quit ##class(EF.ui.components.hiddenInput).%New(..identifier)
+]]></Implementation>
+</Method>
+
+<Method name="isOkToRender">
+<ReturnType>%Boolean</ReturnType>
+<Implementation><![CDATA[	return 1
 ]]></Implementation>
 </Method>
 
@@ -1728,7 +1759,7 @@ Should be run if any of the sub-classes are deleted</Description>
 <Description>
 Should have a one-to-one relationship with sc.objList</Description>
 <Super>EF.pageController.containerElement</Super>
-<TimeChanged>64233,64122.554321</TimeChanged>
+<TimeChanged>64236,63339.039683</TimeChanged>
 <TimeCreated>64231,55587.036042</TimeCreated>
 
 <Property name="prowebListID">
@@ -1787,6 +1818,8 @@ refers to sc.xModules.objList</Description>
 			if (prowebItem.storage.%Extends("sc.facade.prowebItemStorageInputElement")) && (prowebItem.storage.isGuest) {
 				if '$IsObject(guestPanel) {
 					set guestPanel = ##class(EF.pageController.proweb.guestPanel).addElementToParent($this, "GuestPanel-"_prowebItem.storage.prowebID, "Guest")	
+					set guestPanel.guestNumber = 1
+					set guestPanel.showHideDependencyList = ##class(EF.ui.components.dependencyList).createNew("ef-is-guest-active-"_guestPanel.guestNumber,1)
 					do ..listOfControllerIDsSorted.Insert(guestPanel.identifier)
 				}
 				set element = guestPanel.addElementForProwebItem(prowebItem,1)
@@ -1869,6 +1902,8 @@ refers to sc.xModules.objList</Description>
 	}
 	for guestNumber = 2:1:maxGuests {
 		set newGuestPanel = ##class(EF.pageController.proweb.guestPanel).addElementToParent($this, "GuestPanel-"_identifier_"-"_guestNumber, "Guest")	
+		set newGuestPanel.guestNumber = guestNumber
+		set newGuestPanel.showHideDependencyList = ##class(EF.ui.components.dependencyList).createNew("ef-is-guest-active-"_guestNumber,1)
 		set key = ""
 		for  {
 			set elementID = guestPanel.listOfControllerIDsSorted.GetNext(.key)
@@ -1880,7 +1915,7 @@ refers to sc.xModules.objList</Description>
 			
 			kill newController	
 		}
-		do ..listOfControllerIDsSorted.Insert(guestPanel.identifier)
+		do ..listOfControllerIDsSorted.Insert(newGuestPanel.identifier)
 		
 	}
 	
@@ -2065,7 +2100,7 @@ refers to sc.xModules.objList</Description>
 			set childController = element.addProwebCheckbox(element, elementIdentifier_"-"_counter, alternative.displayText, isChecked)
 			
 		} else {
-			set childController = element.addAlternative(alternative.value, alternative.displayText)	
+			set childController = element.addAlternative(alternative)	
 		} 
 	}
 	
@@ -2168,8 +2203,24 @@ Should have a one-to-one relationship with sc.objList</Description>
 
 <Class name="EF.pageController.proweb.listWithQuestionsRegistration">
 <Super>EF.pageController.proweb.listWithQuestions</Super>
-<TimeChanged>64233,52209.692466</TimeChanged>
+<TimeChanged>64236,42851.487768</TimeChanged>
 <TimeCreated>64233,52209.241492</TimeCreated>
+
+<Method name="loadProwebListElementsFromDatabase">
+<Implementation><![CDATA[
+	for guestNumber = 1:1:..page.getEventConfiguration().getMaxGuestsPerAttendee() {
+		if ..page.getTempPersonIdForGuestNumber(guestNumber) {
+			set isActive = 1	
+		} else {
+			set isActive = 0	
+		}
+		set isGuestActiveElem = ##class(EF.pageController.proweb.hiddenInput).addElementToParent($this,"ef-is-guest-active-"_guestNumber, "",isActive)
+		do isGuestActiveElem.uiComponent.addClass("ef-is-guest-active")
+		do ..listOfControllerIDsSorted.Insert(isGuestActiveElem.identifier)
+	}
+	do ##super()
+]]></Implementation>
+</Method>
 
 <Storage name="Default">
 <Type>%Library.CacheStorage</Type>
@@ -2217,7 +2268,7 @@ Should have a one-to-one relationship with sc.objList</Description>
 
 <Class name="EF.pageController.proweb.page">
 <Super>EF.pageController.page</Super>
-<TimeChanged>64233,56622.987778</TimeChanged>
+<TimeChanged>64236,40779.285955</TimeChanged>
 <TimeCreated>64189,51696.559047</TimeCreated>
 
 <Property name="contextData">
@@ -2280,7 +2331,7 @@ Should have a one-to-one relationship with sc.objList</Description>
 		set dataType = rsComponents.Get("dataType")
 		set className = rsComponents.Get("listType")
 		if '$Length(className) {
-			set className = "list"	
+			set className = "listWithQuestionsRegistration"	
 		}
 		if dataType = "objList" {	
 			set listElement = $ClassMethod("EF.pageController.proweb."_className, "addElementToParent", $this, componentName, "")
@@ -2760,7 +2811,7 @@ also an entry point from unit tests</Description>
 
 <Class name="EF.pageController.proweb.radioButtons">
 <Super>EF.pageController.proweb.inputElement</Super>
-<TimeChanged>64202,37012.627519</TimeChanged>
+<TimeChanged>64236,63900.617765</TimeChanged>
 <TimeCreated>64189,53206.554402</TimeCreated>
 
 <Method name="getDefaultUIComponent">
@@ -2770,9 +2821,9 @@ also an entry point from unit tests</Description>
 </Method>
 
 <Method name="addAlternative">
-<FormalSpec>value,description,isDefault=0</FormalSpec>
+<FormalSpec>alternative:sc.facade.prowebItemStorageInputElementAlternative</FormalSpec>
 <ReturnType>EF.ui.components.alternative</ReturnType>
-<Implementation><![CDATA[	return ..uiComponent.addAlternative(value,description,isDefault)
+<Implementation><![CDATA[	return ..uiComponent.addRadioAlternative(alternative, ..page.contextData)
 ]]></Implementation>
 </Method>
 
@@ -2893,7 +2944,7 @@ also an entry point from unit tests</Description>
 
 <Class name="EF.pageController.proweb.testCases.dropdownTestCase">
 <Super>EF.ISC.UnitTest.TestCase</Super>
-<TimeChanged>64233,56842.078521</TimeChanged>
+<TimeChanged>64236,66780.964494</TimeChanged>
 <TimeCreated>64204,52666.398429</TimeCreated>
 
 <Method name="TestPageWithDropdown">
@@ -2911,11 +2962,11 @@ also an entry point from unit tests</Description>
 	set storage.inputType = "dropdown"
 	set storage.labelText = "Please choose your weapon"
 	
-	set alternative = ##class(sc.facade.prowebItemStorageInputElementAlternative).createNew("option 1", "option 1")
+	set alternative = ##class(sc.facade.prowebItemStorageInputElementAlternativeMock).createMock("option 1", "option 1")
 	do storage.listOfAlternatives.Insert( alternative)
-	set alternative = ##class(sc.facade.prowebItemStorageInputElementAlternative).createNew("option 2", "option 2")
+	set alternative = ##class(sc.facade.prowebItemStorageInputElementAlternativeMock).createMock("option 2", "option 2")
 	do storage.listOfAlternatives.Insert( alternative)
-	set alternative = ##class(sc.facade.prowebItemStorageInputElementAlternative).createNew("option 3", "option 3")
+	set alternative = ##class(sc.facade.prowebItemStorageInputElementAlternativeMock).createMock("option 3", "option 3")
 	do storage.listOfAlternatives.Insert( alternative)	
 	
 	set prowebItem = ##class(sc.facade.prowebItem).createNew(storage)
@@ -2945,11 +2996,11 @@ also an entry point from unit tests</Description>
 	set storage.labelText = "Please choose your weapon"
 	set storage.testValue = "option 1"
 	
-	set alternative = ##class(sc.facade.prowebItemStorageInputElementAlternative).createNew("option 1", "option 1")
+	set alternative = ##class(sc.facade.prowebItemStorageInputElementAlternativeMock).createMock("option 1", "option 1")
 	do storage.listOfAlternatives.Insert( alternative)
-	set alternative = ##class(sc.facade.prowebItemStorageInputElementAlternative).createNew("option 2", "option 2")
+	set alternative = ##class(sc.facade.prowebItemStorageInputElementAlternativeMock).createMock("option 2", "option 2")
 	do storage.listOfAlternatives.Insert( alternative)
-	set alternative = ##class(sc.facade.prowebItemStorageInputElementAlternative).createNew("option 3", "option 3")
+	set alternative = ##class(sc.facade.prowebItemStorageInputElementAlternativeMock).createMock("option 3", "option 3")
 	do storage.listOfAlternatives.Insert( alternative)	
 	
 	set prowebItem = ##class(sc.facade.prowebItem).createNew(storage)
@@ -2979,11 +3030,11 @@ also an entry point from unit tests</Description>
 	set storage.labelText = "Please choose your weapon"
 	set storage.isMandatory = 1
 	
-	set alternative = ##class(sc.facade.prowebItemStorageInputElementAlternative).createNew("option 1", "option 1")
+	set alternative = ##class(sc.facade.prowebItemStorageInputElementAlternativeMock).createMock("option 1", "option 1")
 	do storage.listOfAlternatives.Insert( alternative)
-	set alternative = ##class(sc.facade.prowebItemStorageInputElementAlternative).createNew("option 2", "option 2")
+	set alternative = ##class(sc.facade.prowebItemStorageInputElementAlternativeMock).createMock("option 2", "option 2")
 	do storage.listOfAlternatives.Insert( alternative)
-	set alternative = ##class(sc.facade.prowebItemStorageInputElementAlternative).createNew("option 3", "option 3")
+	set alternative = ##class(sc.facade.prowebItemStorageInputElementAlternativeMock).createMock("option 3", "option 3")
 	do storage.listOfAlternatives.Insert( alternative)	
 	
 	set prowebItem = ##class(sc.facade.prowebItem).createNew(storage)
@@ -3389,7 +3440,7 @@ also an entry point from unit tests</Description>
 
 <Class name="EF.pageController.proweb.testCases.radioButtonsTestCase">
 <Super>EF.ISC.UnitTest.TestCase</Super>
-<TimeChanged>64233,57113.670796</TimeChanged>
+<TimeChanged>64236,66193.530789</TimeChanged>
 <TimeCreated>64204,52760.35415</TimeCreated>
 
 <Method name="TestWithRadioButtons">
@@ -3405,11 +3456,11 @@ also an entry point from unit tests</Description>
 	set storage.inputType = "radiobutton"
 	set storage.labelText = "Please select your option"
 	
-	set alternative = ##class(sc.facade.prowebItemStorageInputElementAlternative).createNew("option 1", "option 1")
+	set alternative = ##class(sc.facade.prowebItemStorageInputElementAlternativeMock).createMock("option 1", "option 1")
 	do storage.listOfAlternatives.Insert( alternative)
-	set alternative = ##class(sc.facade.prowebItemStorageInputElementAlternative).createNew("option 2", "option 2")
+	set alternative = ##class(sc.facade.prowebItemStorageInputElementAlternativeMock).createMock("option 2", "option 2")
 	do storage.listOfAlternatives.Insert( alternative)
-	set alternative = ##class(sc.facade.prowebItemStorageInputElementAlternative).createNew("option 3", "option 3")
+	set alternative = ##class(sc.facade.prowebItemStorageInputElementAlternativeMock).createMock("option 3", "option 3")
 	do storage.listOfAlternatives.Insert( alternative)
 	
 
@@ -3421,6 +3472,42 @@ also an entry point from unit tests</Description>
 	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(pageController,"renderComponent", "unit test")
 	set returnedHTML = $ZStrip(returnedHTML,"*WC")
 	set expectedHTML = "<divclass=""rowef-proweb-form-row""><divclass=""col-sm-4ef_proweb_form_prompt""><labelid=""ef-display-label-proweb-1""class=""control-labelef-label-text""for=""proweb-1"">Pleaseselectyouroption</label></div><divclass='col-sm-8ef_proweb_form_promptef-proweb-radio-group'><divclass='ef-proweb-radio-button'><labelclass=""ef-btn-defaultef-proweb-radio-buttonactive""id=""proweb-1_1-label""><inputtype=""radio""checkedvalue=""option1""name=""proweb-1""id=""proweb-1_1"">&nbsp;option1</label></div><divclass='ef-proweb-radio-button'><labelclass=""ef-btn-defaultef-proweb-radio-button""id=""proweb-1_2-label""><inputtype=""radio""value=""option2""name=""proweb-1""id=""proweb-1_2"">&nbsp;option2</label></div><divclass='ef-proweb-radio-button'><labelclass=""ef-btn-defaultef-proweb-radio-button""id=""proweb-1_3-label""><inputtype=""radio""value=""option3""name=""proweb-1""id=""proweb-1_3"">&nbsp;option3</label></div></div></div>"
+	do $$$AssertEquals(returnedHTML,expectedHTML)
+]]></Implementation>
+</Method>
+
+<Method name="TestRadioButtonsABI">
+<Implementation><![CDATA[
+	#dim eventConfiguration as setup.eventConfiguration.storageDatabase
+	#dim contextData as EF.contextDataRegistrationMock
+	
+	set eventConfiguration = ##class(setup.eventConfiguration.storageMock).createEventConfiguration()
+	
+	set contextData = ##class(EF.contextDataRegistrationMock).createMock()
+	set contextData.currencyID = 1
+	set elementIdentifier = "proweb-1"
+	
+	set storage = ##class(sc.facade.prowebItemStorageInputElementMock).createNew()
+	set storage.prowebID = "1"
+	set storage.databaseItemName = "MYRADIO"
+	set storage.inputType = "radiobutton"
+	set storage.labelText = "Please select your option"
+	
+	set alternative = ##class(sc.facade.prowebItemStorageInputElementAlternativeMock).createMock("option 1", "option 1",1,666)
+	do storage.listOfAlternatives.Insert( alternative)
+	set alternative = ##class(sc.facade.prowebItemStorageInputElementAlternativeMock).createMock("option 2", "option 2")
+	do storage.listOfAlternatives.Insert( alternative)
+	set alternative = ##class(sc.facade.prowebItemStorageInputElementAlternativeMock).createMock("option 3", "option 3")
+	do storage.listOfAlternatives.Insert( alternative)
+	
+	set prowebItem = ##class(sc.facade.prowebItem).createNew(storage)
+	do contextData.listOfProwebItemsToAdd.Insert(prowebItem)
+
+	set pageController = ##class(EF.pageController.pagesFrontend.t4Registration).createNew(contextData,,,eventConfiguration)
+		
+	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(pageController,"renderComponent", "unit test")
+	set returnedHTML = $ZStrip(returnedHTML,"*WC")
+	set expectedHTML = "<divclass=""rowef-proweb-form-row""><divclass=""col-sm-4ef_proweb_form_prompt""><labelid=""ef-display-label-proweb-1""class=""control-labelef-label-text""for=""proweb-1"">Pleaseselectyouroption</label></div><divclass='col-sm-8ef_proweb_form_promptef-proweb-radio-group'><divclass='ef-proweb-radio-button'><labelclass=""ef-btn-defaultef-proweb-radio-buttonactive""id=""proweb-1_1-label""><inputtype=""radio""checkedvalue=""option1""name=""proweb-1""id=""proweb-1_1"">&nbsp;option1&nbsp;<spanclass=""ef-proweb-ABI-price"">£666.00</span&nbsp;</label></div><divclass='ef-proweb-radio-button'><labelclass=""ef-btn-defaultef-proweb-radio-button""id=""proweb-1_2-label""><inputtype=""radio""value=""option2""name=""proweb-1""id=""proweb-1_2"">&nbsp;option2</label></div><divclass='ef-proweb-radio-button'><labelclass=""ef-btn-defaultef-proweb-radio-button""id=""proweb-1_3-label""><inputtype=""radio""value=""option3""name=""proweb-1""id=""proweb-1_3"">&nbsp;option3</label></div></div></div>"
 	do $$$AssertEquals(returnedHTML,expectedHTML)
 ]]></Implementation>
 </Method>
@@ -5202,7 +5289,7 @@ we need to refactor the frontend buttons to make them callable from class method
 
 <Class name="EF.ui.components.frontend.dropdown">
 <Super>EF.ui.components.listInput,EF.ui.components.frontend.inputElement</Super>
-<TimeChanged>64232,48060.712808</TimeChanged>
+<TimeChanged>64236,68125.823866</TimeChanged>
 <TimeCreated>63355,56609.363142</TimeCreated>
 
 <Property name="isPersistent">
@@ -5214,6 +5301,33 @@ we need to refactor the frontend buttons to make them callable from class method
 <Type>%Boolean</Type>
 <InitialExpression>0</InitialExpression>
 </Property>
+
+<Method name="addDropdownAlternative">
+<FormalSpec>storageAlternative:sc.facade.prowebItemStorageInputElementAlternative,contextData:EF.contextDataRegistration</FormalSpec>
+<ReturnType>EF.ui.components.alternative</ReturnType>
+<Implementation><![CDATA[
+	set htmlID=..htmlID_"_"_(..alternatives.Count()+1)
+
+	if storageAlternative.isABI {
+		set alternative = ##class(EF.ui.components.frontend.alternativeABI).%New(htmlID) // ###### CREATE THIS, PERHAPS REPLACE RADIO #####
+		set alternative.price = alternative.ABIPrice
+		set alternative.capacity = alternative.ABICapacity
+		set alternative.currentBookingLevel = alternative.ABICurrentBookingLevel
+		set alternative.contextData = contextData
+		
+	
+	} else {
+		set alternative = ##class(EF.ui.components.alternative).%New(htmlID)		
+	}
+	set alternative.label = storageAlternative.displayText
+	set alternative.value = storageAlternative.value
+	
+	do ..alternatives.Insert(alternative)
+	// Also add to the validator
+	do ..validator.addAllowedValue(alternative.value)
+	return alternative
+]]></Implementation>
+</Method>
 
 <Method name="render">
 <Implementation><![CDATA[
@@ -5951,6 +6065,112 @@ we need to refactor the frontend buttons to make them callable from class method
 </Class>
 
 
+<Class name="EF.ui.components.frontend.label">
+<Description><![CDATA[
+<!-- ;vc;-
+;vc;    Object: EF.ui.components.frontend.label.CLS/EV.3
+;vc; Component: CLS.EF.ui.components.frontend.label
+;vc;  Location: LargeDev
+;vc; Date/Time: 07-Jul-16 10:45
+;vc;      User: FredG
+;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>EF.ui.components.frontend.label.CLS/EV.3</td><td>CLS.EF.ui.components.frontend.label</td><td>LargeDev</td><td style='white-space: nowrap;'>07-Jul-16 10:45</td><td>FredG</td></tr></table>
+]]></Description>
+<Super>EF.ui.components.label</Super>
+<TimeChanged>64205,53554.717519</TimeChanged>
+<TimeCreated>63489,37931.767392</TimeCreated>
+
+<Property name="isMandatoryMarkerOnLeft">
+<Type>%Boolean</Type>
+<InitialExpression>1</InitialExpression>
+</Property>
+
+<Property name="allowRawHTML">
+<Description>
+Required because we allow user defined raw html in the question text</Description>
+<Type>%Boolean</Type>
+<InitialExpression>0</InitialExpression>
+</Property>
+
+<Method name="createAndRender">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>htmlID="",text,for="",isMandatory=0,eventID=""</FormalSpec>
+<Implementation><![CDATA[
+	set label=..%New(htmlID)
+	set label.text=text
+	set label.for=for
+	set label.isMandatory=isMandatory
+	if eventID {
+		set label.isMandatoryMarkerOnLeft=##class(layout.methods).areMandatoryMarkersOnTheLeftForEventID(eventID)	
+	}
+	do label.render()
+]]></Implementation>
+</Method>
+
+<Method name="renderFromEfLabelRule">
+<Description>
+Expected parameters
+text - mandatory
+for
+ismandatory
+eventid</Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec><![CDATA[&params]]></FormalSpec>
+<Implementation><![CDATA[	do ..createAndRender(,params("text"),$g(params("for")),+$g(params("ismandatory")),$g(params("eventid")))
+]]></Implementation>
+</Method>
+
+<Method name="renderContents">
+<Implementation><![CDATA[
+	if ..isMandatory {
+		if ..isMandatoryMarkerOnLeft {
+			do ..renderMandatoryMarker()
+			w "&nbsp;"
+		}
+	}
+	if ..allowRawHTML {
+		write ..rawHTML(..text)
+	} else {
+		do ##super()
+	}
+	if ..isMandatory {
+		if '..isMandatoryMarkerOnLeft {
+			w "&nbsp;"
+			do ..renderMandatoryMarker()
+		}
+	}
+]]></Implementation>
+</Method>
+
+<Method name="renderMandatoryMarker">
+<Implementation><![CDATA[	&html<<span id="#(..encodeHTMLAttribute(..getMandatoryMarkerForHtmlID(..for)))#" class="mandatory">*</span>>
+]]></Implementation>
+</Method>
+
+<Method name="getMandatoryMarkerForHtmlID">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>htmlID</FormalSpec>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[	return "efManMarker-"_htmlID
+]]></Implementation>
+</Method>
+
+<Storage name="Default">
+<Type>%Library.CacheStorage</Type>
+<DefaultData>labelDefaultData1</DefaultData>
+<Data name="labelDefaultData1">
+<Structure>listnode</Structure>
+<Subscript>"label1"</Subscript>
+<Value name="1">
+<Value>isMandatoryMarkerOnLeft</Value>
+</Value>
+<Value name="2">
+<Value>allowRawHTML</Value>
+</Value>
+</Data>
+</Storage>
+</Class>
+
+
 <Class name="EF.ui.components.frontend.menuBlock">
 <Super>EF.ui.components.frontend.prowebBase</Super>
 <TimeChanged>64223,57685.796936</TimeChanged>
@@ -6036,14 +6256,19 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 
 <Class name="EF.ui.components.frontend.panel">
 <Super>EF.ui.components.frontend.prowebBase,EF.ui.components.panel</Super>
-<TimeChanged>64233,61172.179775</TimeChanged>
+<TimeChanged>64236,44172.720064</TimeChanged>
 <TimeCreated>64204,36543.176151</TimeCreated>
 
 <Method name="renderStart">
 <Implementation><![CDATA[
 	&html<
-			<div class="ef-proweb-guest-panel ef-draggable-div" >
-	            <div class="panel-heading">#(..encodeForHTML(##class(shared.pCSP).out("Guest")))#</div>
+			<div class="ef-proweb-guest-panel ef-draggable-div"   #(..rawHTML(..getExtraAttributes()))#>
+	            <div class="panel-heading">#(..encodeForHTML(##class(shared.pCSP).out("Guest")))#
+	            	<button type="button" id="efProwebDeleteLink" class="btn btn-default">
+		        		<span class="glyphicon glyphicon-trash"></span>
+					</button>
+	            	
+	            </div>
 				<div class="panel-body ef-proweb-reorderable-guest">
 	>
 ]]></Implementation>
@@ -6276,7 +6501,7 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 
 <Class name="EF.ui.components.frontend.radioButtons">
 <Super>EF.ui.components.listInput,EF.ui.components.frontend.inputElement</Super>
-<TimeChanged>64232,38986.900293</TimeChanged>
+<TimeChanged>64237,29957.188661</TimeChanged>
 <TimeCreated>63356,39686.205586</TimeCreated>
 
 <Method name="getDefaultClasses">
@@ -6323,21 +6548,32 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 ]]></Implementation>
 </Method>
 
-<Method name="addAlternative">
-<FormalSpec>value,label,isDefault=0</FormalSpec>
+<Method name="addRadioAlternative">
+<FormalSpec>storageAlternative:sc.facade.prowebItemStorageInputElementAlternative,contextData:EF.contextDataRegistration</FormalSpec>
 <ReturnType>EF.ui.components.alternative</ReturnType>
 <Implementation><![CDATA[
-	set htmlID=..htmlID_"_"_(..alternatives.Count()+1)
+	set htmlID = ..htmlID_"_"_(..alternatives.Count()+1)
 	
-	set radio=##class(EF.ui.components.radio).%New(htmlID)
-	set radio.label=label
-	set radio.value=value
-	set radio.isDefault=isDefault
-	set radio.htmlName=..htmlName
+	if storageAlternative.isABI {
+		set radio = ##class(EF.ui.components.frontend.alternativeABIRadio).%New(htmlID)
+		set radio.price = storageAlternative.ABIPrice
+		set radio.capacity = storageAlternative.ABICapacity
+		set radio.currentBookingLevel = storageAlternative.ABICurrentBookingLevel
+		set radio.contextData = contextData
+		
+	} else {
+		set radio = ##class(EF.ui.components.radio).%New(htmlID)
+	} 
+	set radio.label = storageAlternative.displayText
+
+	set radio.value = storageAlternative.value
+	
+	set radio.htmlName = ..htmlName
 	do radio.addClass("ef-btn-default")
 	do ..alternatives.Insert(radio)
+	
 	// Also add to the validator
-	do ..validator.addAllowedValue(value)
+	do ..validator.addAllowedValue(storageAlternative.value)
 	return radio
 ]]></Implementation>
 </Method>
@@ -9501,10 +9737,10 @@ function loadItem(itemNameID) {
 												</select>
 											</td>
 										</tr>
-										<tr>
+										<tr data-show-hide-dependency-list="#(..encodeForHTMLAttribute("{""logic"":""and"",""dependencies"":[{""parentName"":""selRegistrationStatus"",""operator"":""eq"",""value"":""limited""}]}"))#">
 											<td class="black10px" align="right"><tx>Capacity</tx>:&nbsp;&nbsp;</td>
 											<td class="black10px">
-											<input type="text" name="txtqCapacity" value="#(qCapacity)#" size="5" class="black10px" data-enable-disable-dependency-list="#(..encodeForHTMLAttribute("{""logic"":""and"",""dependencies"":[{""parentName"":""selRegistrationStatus"",""operator"":""eq"",""value"":""limited""}]}"))#">
+											<input type="text" name="txtqCapacity" value="#(qCapacity)#" size="5" class="black10px">
 											</td>
 											<td colspan="2" class="black10px" >&nbsp;</td>
 										</tr>
@@ -9534,9 +9770,9 @@ function loadItem(itemNameID) {
 												<td class="black10px">
 													<input type="checkbox" name="chkqNotification" value="1" #($S(qNotification=1:"checked",1:""))# class="black10px">
 												</td>
-												<td class="black10px" align="right"><tx>Level</tx>:&nbsp;&nbsp;</td>
-												<td class="black10px">
-													<input type="text" name="txtqNotificationLevel" value="#(qNotificationLevel)#" size="4" class="black10px" data-enable-disable-dependency-list="#(..encodeForHTMLAttribute("{""logic"":""and"",""dependencies"":[{""parentName"":""chkqNotification"",""operator"":""eq"",""value"":""1""}]}"))#"> %
+												<td class="black10px" align="right" data-show-hide-dependency-list="#(..encodeForHTMLAttribute("{""logic"":""and"",""dependencies"":[{""parentName"":""chkqNotification"",""operator"":""eq"",""value"":""1""}]}"))#"><tx>Level</tx>:&nbsp;&nbsp;</td>
+												<td class="black10px" data-show-hide-dependency-list="#(..encodeForHTMLAttribute("{""logic"":""and"",""dependencies"":[{""parentName"":""chkqNotification"",""operator"":""eq"",""value"":""1""}]}"))#">
+													<input type="text" name="txtqNotificationLevel" value="#(qNotificationLevel)#" size="4" class="black10px"> %
 												</td>
 											</tr>
 										</systemType:if>
@@ -15916,6 +16152,153 @@ function updateAlts(codPromptID) {
 
 <!-- ########### MOVE THIS TO EXTERNAL FILE ######## -->
 <style>
+	.ef-proweb-ABI-price::before, .ef-proweb-ABI-capacity::before {
+		content: "(";
+	}	.ef-proweb-ABI-price::after, .ef-proweb-ABI-capacity::after {
+		content: ")";
+	}
+	.ef_proweb_form_prompt {
+		text-align: right;
+	}
+	.ef-required-field::after {
+	    content: " *";
+	    color: red;
+	}
+	.ef-dependent-field::after {
+	    font-family: "Glyphicons Halflings";
+		content:"\e144";
+	}
+	@media (max-width: 768px) {
+	   .ef_proweb_form_prompt {
+	      text-align: left; 
+	  }
+	  .ef-required-field::after {
+		float: left;  
+	  }
+	}
+	.EF_dropdown_searchable_container {
+		float: left;
+		max-width: 90%!important;
+	}
+	.EF_dropdown_searchable_selection {
+	    width: 100%;
+	    height: 34px!important;
+	    padding: 3px 10px;
+	    font-size: 14px;
+	    line-height: 1.42857143;
+	    color: #555;
+	    background-color: #fff;
+	    background-image: none;
+	    border: 1px solid #ccc!important;
+	    border-radius: 4px!important;
+	    -webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,.075)!important;
+	    box-shadow: inset 0 1px 1px rgba(0,0,0,.075);
+	    -webkit-transition: border-color ease-in-out .15s,-webkit-box-shadow ease-in-out .15s;
+	    -o-transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s;
+	    transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s;
+	}
+	.select2-selection__rendered {
+		background-color: inherit!important;
+		color: inherit!important;
+	}
+	.ef-proweb-form-row-editable, .ef-proweb-form-row {
+		padding-top: 4px;
+		padding-bottom:4px;	
+		margin: 10px !important;
+		border-width: 1px;
+		border-color: transparent;
+		border-style: solid;
+	}
+	.ui-sortable-handle {
+		cursor: grab;
+		cursor: -webkit-grab; cursor:-moz-grab; 
+	}
+	.ui-sortable-handle:active {
+		cursor: grabbing;
+		cursor: -webkit-grabbing; cursor:-moz-grabbing;
+	}		
+	.ef-proweb-input-element-short {
+		width: 40%;
+		float: left; 	
+	}
+
+	.ef-proweb-radio-group {
+		text-align: left;
+		padding-bottom: 0px;
+		padding-top: 0px;	
+	}
+	.ef-proweb-radio-button {
+		padding-left: 0px;	
+		padding-top: 0px;
+		padding-bottom: 0px;
+		font-weight: 700;
+	}
+	.ef-proweb-input-element {
+		width: 80%;
+		float: left;
+	}
+	.ef-proweb-checkboxGroup {
+		text-align: left;	
+	}
+	.ef-proweb-menu-handle {
+		width: 1%;	
+	}
+	.ef-proweb-error-panel { 
+		margin-left: 10%;
+		margin-right: 10%;
+		padding: 0px;
+		background-color: RED;
+		color: WHITE;	
+	}
+	.panel, .ef-proweb-guest-panel {
+		  border: 1px solid #c8c8c8;
+		  margin-bottom: 18px;
+		  background-color: #eeeeee;
+		  border: 1px solid transparent;
+		  border-radius: 4px;
+		  -webkit-box-shadow: 0 1px 1px rgba(0, 0, 0, 0.05);
+		  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.05);
+	}
+	 
+	.ef-proweb-guest-panel .panel-heading {
+	  font-family: MuseoSlab500Regular, Verdana, Geneva, Arial, Helvetica, sans-serif;
+	  font-size: 14px;
+	  font-weight: normal;
+	  color: white;
+	  background: #0091aa;
+	  padding: 5px;
+	}
+	.ef-proweb-guest-panel .panel-body {
+		padding: 0px;	
+	}
+	.ef-proweb-input-element-backendOnly {
+		background-color: rgb(245, 222, 179);
+	}
+	.ef-proweb-input-element-backendOnly::-webkit-input-placeholder { /* Chrome/Opera/Safari */
+		color: #CCCCCC;
+	}
+	.ef-proweb-input-element-backendOnly::-moz-placeholder { /* Firefox 19+ */
+		color: #CCCCCC;
+	}
+	.ef-proweb-input-element-backendOnly:-ms-input-placeholder { /* IE 10+ */
+		color: #CCCCCC;
+	}
+	.ef-proweb-direct-label-edit input {
+		text-align: right;	
+	}	
+	.k-upload-button {
+		margin: 0px !important;	
+	}	
+	.ef_frontend_file_uploader.k-content {
+		min-height: 0px;
+		text-alignment: left;	
+	}
+	.ef-proweb-floating-menu-divider {
+		color: #AAAAAA; 
+		padding-left: 10px; 
+		font-style: italic;	
+	}
+
 .row {
 	margin: 20px;	
 }
@@ -16379,14 +16762,6 @@ textarea.form-control {
 			</td>
 			<td width="33%" align="center" style="vertical-align: bottom;">
 				<script language="cache" runat="server">
-					set show=##class(setup.objEventSetting).getParameter("bookings","Temp Save Max Hours",xEventID)
-					if ##class(eCom.tempPurchase).isBackendBooking(sessionID) set show=0
-				</script>
-				<csp:if condition=(show)>
-					<csp:include page="frontEndButton.csp?buttonText=#(..EscapeURL("Save & Return"))#&hoverText=Save your registration for later completion&isSubmit=0&isJS=1&URL=#(..EscapeURL("tempSaveFunc()"))#">
-				&nbsp;&nbsp;&nbsp;
-				</csp:if>
-				<script language="cache" runat="server">
 					set ticketingPersonMode=0
 					if (%session.Get("mode")="preview")&(##class(cod.objTicket).isTicketingPersonMode(xEventID)),'%request.Get("hideButtons") set ticketingPersonMode=1
 					
@@ -16454,7 +16829,6 @@ textarea.form-control {
 			</td>
 			<td width="34%" align="right">
 				<csp:if condition=((%session.Get("mode")="preview")!($G(%session.Data("inSitePageEditing"))))>
-					<input type="hidden" name="tempSave" value=0>
 					<input type="hidden" name="pageID" value="#($G(pageID))#">
 					<input type="hidden" name="uploadMeetManFile" value=0>
 					<input type="hidden" name="mergeWithBooker" value=0>
@@ -16475,13 +16849,6 @@ textarea.form-control {
 	</table>
 </csp:if>
 <layout:section from="{{ef_main_buttons}}" to="{{ef_footer}}">
-
-<script language="javascript">
-function tempSaveFunc() {
-	document.forms[0].tempSave.value=#(pageID)#;
-	document.forms[0].submit();
-}
-</script>
 
 <csp:if condition=(checkMerge)>
 	<script language="javascript">
@@ -17333,7 +17700,7 @@ FRRE RULE
 <Abstract>1</Abstract>
 <ClassType/>
 <ProcedureBlock>1</ProcedureBlock>
-<TimeChanged>64232,36955.873674</TimeChanged>
+<TimeChanged>64236,36499.899361</TimeChanged>
 <TimeCreated>63046,56232.897117</TimeCreated>
 
 <Method name="outputDefaultCSS">
@@ -17359,9 +17726,6 @@ FRRE RULE
 	if ##class(layout.objTemplate).isTemplateGen3(layoutTemplateID)	{
 		do ..outputGen2and3Defaults()
 		do ..outputGen3Defaults()
-		if ##class(sc.methods).isUsingProweb2() {
-			do ..outputProweb2CSS()	
-		}
 		do ##class(layout.cssOverrideMethods).outputDynamicCSS(xEventID)
 	}
 	w !,"</style>",!
@@ -19522,149 +19886,6 @@ The basic frontend default stuff</Description>
 <ClassMethod>1</ClassMethod>
 <Implementation><![CDATA[
 	&html<
-		/* ===========  begin classes for Proweb2 ========= */
-		.ef_proweb_form_prompt {
-			text-align: right;
-		}
-		.ef-required-field::after {
-		    content: " *";
-		    color: red;
-		}
-		.ef-dependent-field::after {
-		    font-family: "Glyphicons Halflings";
-  			content:"\e144";
-		}
-		@media (max-width: 768px) {
-		   .ef_proweb_form_prompt {
-		      text-align: left; 
-		  }
-		  .ef-required-field::after {
-			float: left;  
-		  }
-		}
-		.EF_dropdown_searchable_container {
-			float: left;
-			max-width: 90%!important;
-		}
-		.EF_dropdown_searchable_selection {
-		    width: 100%;
-		    height: 34px!important;
-		    padding: 3px 10px;
-		    font-size: 14px;
-		    line-height: 1.42857143;
-		    color: #555;
-		    background-color: #fff;
-		    background-image: none;
-		    border: 1px solid #ccc!important;
-		    border-radius: 4px!important;
-		    -webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,.075)!important;
-		    box-shadow: inset 0 1px 1px rgba(0,0,0,.075);
-		    -webkit-transition: border-color ease-in-out .15s,-webkit-box-shadow ease-in-out .15s;
-		    -o-transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s;
-		    transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s;
-		}
-		.select2-selection__rendered {
-			background-color: inherit!important;
-			color: inherit!important;
-		}
-		.ef-proweb-form-row-editable, .ef-proweb-form-row {
-			padding-top: 4px;
-			padding-bottom:4px;	
-			margin: 10px !important;
-			border-width: 1px;
-			border-color: transparent;
-			border-style: solid;
-		}
-		.ui-sortable-handle {
-			cursor: grab;
-			cursor: -webkit-grab; cursor:-moz-grab; 
-		}
-		.ui-sortable-handle:active {
-			cursor: grabbing;
-			cursor: -webkit-grabbing; cursor:-moz-grabbing;
-		}		
-		.ef-proweb-input-element-short {
-			width: 40%;
-			float: left; 	
-		}
-
-		.ef-proweb-radio-group {
-			text-align: left;
-			padding-bottom: 0px;
-			padding-top: 0px;	
-		}
-		.ef-proweb-radio-button {
-			padding-left: 0px;	
-			padding-top: 0px;
-			padding-bottom: 0px;
-			font-weight: 700;
-		}
-		.ef-proweb-input-element {
-			width: 80%;
-			float: left;
-		}
-		.ef-proweb-checkboxGroup {
-			text-align: left;	
-		}
-		.ef-proweb-menu-handle {
-			width: 1%;	
-		}
-		.ef-proweb-error-panel { 
-			margin-left: 10%;
-			margin-right: 10%;
-			padding: 0px;
-			background-color: RED;
-			color: WHITE;	
-		}
-		.panel, .ef-proweb-guest-panel {
-			  border: 1px solid #c8c8c8;
-			  margin-bottom: 18px;
-			  background-color: #eeeeee;
-			  border: 1px solid transparent;
-			  border-radius: 4px;
-			  -webkit-box-shadow: 0 1px 1px rgba(0, 0, 0, 0.05);
-			  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.05);
-		}
-		 
-		.ef-proweb-guest-panel .panel-heading {
-		  font-family: MuseoSlab500Regular, Verdana, Geneva, Arial, Helvetica, sans-serif;
-		  font-size: 14px;
-		  font-weight: normal;
-		  color: white;
-		  background: #0091aa;
-		  padding: 5px;
-		}
-		.ef-proweb-guest-panel .panel-body {
-			padding: 0px;	
-		}
-		.ef-proweb-input-element-backendOnly {
-			background-color: rgb(245, 222, 179);
-		}
-		.ef-proweb-input-element-backendOnly::-webkit-input-placeholder { /* Chrome/Opera/Safari */
-			color: #CCCCCC;
-		}
-		.ef-proweb-input-element-backendOnly::-moz-placeholder { /* Firefox 19+ */
-			color: #CCCCCC;
-		}
-		.ef-proweb-input-element-backendOnly:-ms-input-placeholder { /* IE 10+ */
-			color: #CCCCCC;
-		}
-		.ef-proweb-direct-label-edit input {
-			text-align: right;	
-		}	
-		.k-upload-button {
-			margin: 0px !important;	
-		}	
-		.ef_frontend_file_uploader.k-content {
-			min-height: 0px;
-			text-alignment: left;	
-		}
-		.ef-proweb-floating-menu-divider {
-			color: #AAAAAA; 
-			padding-left: 10px; 
-			font-style: italic;	
-		}
-		/* =========== end new classes for Proweb2 ============ */
 	>
 ]]></Implementation>
 </Method>
@@ -21125,7 +21346,7 @@ Returns true if the template is custom made</Description>
 </Class>
 
 
-<Project name="proweb 2" LastModified="2016-11-11 14:34:42.313527" Target="largedevsrc/backEnd/proweb/quickEditAJAX.csp" TargetType="3">
+<Project name="proweb 2" LastModified="2016-11-14 16:07:39.961222" Target="largedevsrc/backEnd/proweb/quickEditAJAX.csp" TargetType="3">
   <Items>
     <ProjectItem name="EF.contextDataRegistration" type="CLS"></ProjectItem>
     <ProjectItem name="EF.contextDataRegistrationMock" type="CLS"></ProjectItem>
@@ -21143,6 +21364,7 @@ Returns true if the template is custom made</Description>
     <ProjectItem name="EF.pageController.proweb.emailInputMulti" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.proweb.fileUpload" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.proweb.guestPanel" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.pageController.proweb.hiddenInput" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.proweb.inputElement" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.proweb.integerInput" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.proweb.list" type="CLS"></ProjectItem>
@@ -21272,7 +21494,11 @@ Returns true if the template is custom made</Description>
     <ProjectItem name="sc.viewQuestionsByPageID" type="CLS"></ProjectItem>
     <ProjectItem name="sc.xModules.objList" type="CLS"></ProjectItem>
     <ProjectItem name="sc.xModules.objPage" type="CLS"></ProjectItem>
+    <ProjectItem name="setup.availabilityCheckerSession" type="CLS"></ProjectItem>
+    <ProjectItem name="setup.bookingLevelCounterFrontendSession" type="CLS"></ProjectItem>
     <ProjectItem name="shared.pageMethods" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.ui.components.frontend.label" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.ui.components.frontend.radioABI" type="CLS"></ProjectItem>
   </Items>
   <BreakPoints>
     <BreakPoint Routine="cspRealEV.frontend.reg.pagecontrollerstandardsave.CLS" Offset="OnPreHTTPafter+28"></BreakPoint>
@@ -21500,7 +21726,7 @@ Property displayOrder As %Integer [ Required ];</Description>
 
 <Class name="sc.facade.prowebItemStorageInputElement">
 <Super>sc.facade.prowebItemStorage</Super>
-<TimeChanged>64231,58092.884495</TimeChanged>
+<TimeChanged>64236,67891.480266</TimeChanged>
 <TimeCreated>64206,40073.01042</TimeCreated>
 
 <Property name="inputType">
@@ -21610,7 +21836,6 @@ Property displayOrder As %Integer [ Required ];</Description>
 <ReturnType>sc.facade.prowebItemStorage</ReturnType>
 <Implementation><![CDATA[
 	#dim prowebItem as sc.xModules.objCODitem
-	#dim alternative as sc.facade.prowebItemStorageInputElementAlternative
 	
 	set storage = ..%New()
 	set prowebItem = ##class(sc.objData).%OpenId(prowebItemID)
@@ -21636,6 +21861,7 @@ Property displayOrder As %Integer [ Required ];</Description>
 	set storage.fieldHeight = prowebItem.fieldHeight
 	set storage.minAltsChecked = prowebItem.minAltsChecked
 	set storage.maxAltsChecked = prowebItem.maxAltsChecked
+
 	
 	if (prowebItem.requiredAnswer ? 1"?".E) ! (prowebItem.requiredAnswer ? 1"?".E) !(prowebItem.requiredAnswer ? 1"#".AN) {
 		set storage.customValidation = prowebItem.requiredAnswer 
@@ -21668,21 +21894,18 @@ Property displayOrder As %Integer [ Required ];</Description>
 <FormalSpec>storage:sc.facade.prowebItemStorageInputElement,prowebItem:sc.objData,contextData:EF.contextDataRegistration</FormalSpec>
 <Private>1</Private>
 <Implementation><![CDATA[
-	if (storage.inputType = "dropdown") !(storage.inputType = "multibox") !(storage.inputType = "radiobutton") {
+	#dim alternative as sc.facade.prowebItemStorageInputElementAlternative
+
+	if (storage.inputType = "dropdown") !(storage.inputType = "multibox") ! (storage.inputType = "radiobutton") {
 		if (prowebItem.type = "dropdown") && (+prowebItem.mandatory = 0) {
-			set alternative = ##class(sc.facade.prowebItemStorageInputElementAlternative).createNew("", "")
+			set alternative = ##class(sc.facade.prowebItemStorageInputElementAlternative).createEmpty()
 			do storage.listOfAlternatives.Insert( alternative ) 
 		}
 		
 		set rsAlternative = ##class(cod.objItemAlternatives).getAlternativesForCodItemAsResultSet( storage.databaseItemID )
 		while rsAlternative.Next()	{
-			set alternativeValue = rsAlternative.Get("description") 
-			set alternativeDescription = ##class(cod.objItemAlternativeDetails).getDescription(rsAlternative.Get("ID"), contextData.languageID)
-			set alternativeDescription = ##class(EF.htmlGenerator).unescapeXSSFix(alternativeDescription)
-			
-			set alternative = ##class(sc.facade.prowebItemStorageInputElementAlternative).createNew(alternativeValue, alternativeDescription, rsAlternative.Get("ID") )
+			set alternative = ##class(sc.facade.prowebItemStorageInputElementAlternative).createNew(prowebItem.%Id(), rsAlternative.Get("ID"), contextData)
 			do storage.listOfAlternatives.Insert( alternative)
-			
 		}
 	}
 ]]></Implementation>
@@ -21725,7 +21948,7 @@ to make sure group bookers can't see already existing data of attendees</Descrip
 
 <Class name="sc.facade.prowebItemStorageInputElementAlternative">
 <Super>%RegisteredObject</Super>
-<TimeChanged>64211,62339.914293</TimeChanged>
+<TimeChanged>64236,67866.960804</TimeChanged>
 <TimeCreated>64211,61761.805017</TimeCreated>
 
 <Property name="value">
@@ -21740,17 +21963,66 @@ to make sure group bookers can't see already existing data of attendees</Descrip
 <Type>%Integer</Type>
 </Property>
 
-<Method name="createNew">
+<Property name="isABI">
+<Type>%Boolean</Type>
+</Property>
+
+<Property name="ABIPrice">
+<Type>%Numeric</Type>
+</Property>
+
+<Property name="ABICapacity">
+<Type>%Integer</Type>
+</Property>
+
+<Property name="ABICurrentBookingLevel">
+<Type>%Integer</Type>
+</Property>
+
+<Property name="ABIIsFullyBooked">
+<Type>%Boolean</Type>
+</Property>
+
+<Method name="createEmpty">
 <ClassMethod>1</ClassMethod>
-<FormalSpec>alternativeValue,alternativeDescription,alternativeID:%Integer=""</FormalSpec>
 <ReturnType>sc.facade.prowebItemStorageInputElementAlternative</ReturnType>
 <Implementation><![CDATA[
 	set alternative = ..%New()
+	return alternative
+]]></Implementation>
+</Method>
+
+<Method name="createNew">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>prowebID:%Integer,alternativeID:%Integer,contextData:EF.contextDataRegistration=""</FormalSpec>
+<ReturnType>sc.facade.prowebItemStorageInputElementAlternative</ReturnType>
+<Implementation><![CDATA[
+	#dim prowebAlternative AS cod.objItemAlternatives = ##class(cod.objItemAlternatives).%OpenId(alternativeID)
+	#dim controllerID as %Integer = ##class(setup.objEvent).getControllerID(contextData.eventID)
+	#define returnBookingLevel 1
 	
-	set alternative.value = alternativeValue
-	set alternative.displayText = alternativeDescription
+	if '$IsObject(prowebAlternative) {
+		throw ##class(shared.exceptions.generalException).%New("Failed to open alternative")
+	}
+	
+	set alternative = ..%New()
+
+	set alternative.displayText = ##class(cod.objItemAlternativeDetails).getDescription(alternativeID, contextData.languageID)
+	set alternative.displayText = ##class(EF.htmlGenerator).unescapeXSSFix(alternative.displayText)
+	set alternative.value = alternative.displayText		
+
+	set alternativeExtraID=##class(cod.objAlternativeExtras).getExtrasIDFromItemAltID(alternativeID, prowebID )
+	if alternativeExtraID {			
+		set alternative.isABI = 1
+		set alternative.ABIPrice = ##class(sc.xModules.objCODitem).getPrice(alternativeID, prowebID , contextData.eventID, contextData.currencyID)
+
+		set tmp = ##class(cod.objAlternativeExtras).isItemFull(controllerID, alternativeExtraID, $$$returnBookingLevel)
+		set currentAndMaxLevel = $Piece(tmp,"|",2)
+		set alternative.ABICurrentBookingLevel = $Piece(currentAndMaxLevel,"/",1)
+		set alternative.ABICapacity = $Piece(currentAndMaxLevel,"/",2) 
+	}
+
 	set alternative.alternativeID = alternativeID
-	
 	return alternative
 ]]></Implementation>
 </Method>
@@ -25712,6 +25984,149 @@ Gets the description without the language modifier</Description>
 <Selectivity>5.5556%</Selectivity>
 </Property>
 </Storage>
+</Class>
+
+
+<Class name="setup.availabilityCheckerSession">
+<Description><![CDATA[
+<!-- ;vc;-
+;vc;    Object: setup.availabilityCheckerDay.CLS/EV.1
+;vc; Component: CLS.setup.availabilityCheckerDay
+;vc;  Location: LargeDev
+;vc; Date/Time: 28-Sep-16 11:59
+;vc;      User: MindaugasL
+;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>setup.availabilityCheckerDay.CLS/EV.1</td><td>CLS.setup.availabilityCheckerDay</td><td>LargeDev</td><td style='white-space: nowrap;'>28-Sep-16 11:59</td><td>MindaugasL</td></tr></table>
+]]></Description>
+<Super>setup.availabilityChecker</Super>
+<TimeChanged>64236,52890.497672</TimeChanged>
+<TimeCreated>64127,37806.646747</TimeCreated>
+
+<Property name="eventSession">
+<Type>setup.eventSession</Type>
+</Property>
+
+<Property name="bookingLevelCounter">
+<Type>setup.bookingLevelCounterFrontendSession</Type>
+</Property>
+
+<Method name="createNew">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>eventSession:setup.eventSession</FormalSpec>
+<ReturnType>setup.availabilityCheckerDay</ReturnType>
+<Implementation><![CDATA[
+	set availabilityCheckerSession = ##super(eventSession)
+	set availabilityCheckerSession.eventSession = eventSession
+	return availabilityCheckerSession
+]]></Implementation>
+</Method>
+
+<Method name="createForSessionID">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>eventConfiguration,sessionItemID</FormalSpec>
+<Implementation><![CDATA[
+	set eventSession = ##class(setup.eventSession).createNew(eventConfiguration, sessionItemID)
+	do eventSession.load()
+	return ..createNew(eventSession)
+]]></Implementation>
+</Method>
+
+<Method name="createBookingLevelCounter">
+<FormalSpec>eventSession:setup.eventSession</FormalSpec>
+<Implementation><![CDATA[	set ..bookingLevelCounter=##class(setup.bookingLevelCounterFrontendSession).createNew(eventSession)
+]]></Implementation>
+</Method>
+
+<Method name="getCapacity">
+<ReturnType>%Integer</ReturnType>
+<Implementation><![CDATA[	return ..eventSession.getCapacity()
+]]></Implementation>
+</Method>
+
+<Method name="isStopped">
+<ReturnType>%Boolean</ReturnType>
+<Implementation><![CDATA[	return ..eventSession.registrationStatus="stopped"
+]]></Implementation>
+</Method>
+
+<Method name="isLimited">
+<ReturnType>%Boolean</ReturnType>
+<Implementation><![CDATA[	return ..eventSession.registrationStatus="limited"
+]]></Implementation>
+</Method>
+</Class>
+
+
+<Class name="setup.bookingLevelCounterFrontendSession">
+<Super>setup.bookingLevelCounterFrontend</Super>
+<TimeChanged>64236,54059.786335</TimeChanged>
+<TimeCreated>64120,58159.969979</TimeCreated>
+
+<Property name="bookingLevelCounter">
+<Type>bookingLevelCounterSession</Type>
+</Property>
+
+<Method name="createNew">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>eventSession:setup.eventSession=""</FormalSpec>
+<ReturnType>setup.bookingLevelCounterFrontendSession</ReturnType>
+<Implementation><![CDATA[
+	set bookingLevel=##super(eventSession)
+
+	return bookingLevel
+]]></Implementation>
+</Method>
+
+<Method name="createBookingLevelCounter">
+<FormalSpec>eventSession:setup.eventSession=""</FormalSpec>
+<Implementation><![CDATA[	set ..bookingLevelCounter=##class(bookingLevelCounterSession).createNew(eventSession)
+]]></Implementation>
+</Method>
+
+<Method name="getCountOfTemporaryForCurrentBookingFromStorage">
+<Private>1</Private>
+<ReturnType>%Integer</ReturnType>
+<Implementation><![CDATA[
+	set count=0
+	set delegateBasketItemID = ..bookingLevelCounter.delegateBasketItemID
+	set guestBasketItemID = ..bookingLevelCounter.delegateBasketItemID
+	set tempPurchaseID=..currentTempPurchaseID
+	&SQL(SELECT COUNT(*) INTO :tmp FROM eCom.tempBasketItem 
+ 		WHERE (basketItemID = :delegateBasketItemID OR basketItemID = :guestBasketItemID)
+ 		AND (isCancelled = 0)
+ 		AND (tempPerson->active=1) 
+ 		AND (tempPerson->tempPurchase = :tempPurchaseID)
+	)
+	if +SQLCODE=0 {
+		set count=tmp
+	} elseif +SQLCODE'=100 {
+		throw ##class(shared.exceptions.generalSQLException).CreateFromSQLCODE(SQLCODE)
+	}
+	return count
+]]></Implementation>
+</Method>
+
+<Method name="getCountOfTemporaryForCurrentPersonFromStorage">
+<Private>1</Private>
+<ReturnType>%Integer</ReturnType>
+<Implementation><![CDATA[
+	set count=0
+	set delegateBasketItemID = ..bookingLevelCounter.delegateBasketItemID
+	set guestBasketItemID = ..bookingLevelCounter.delegateBasketItemID
+	set currentTempPersonID=..currentTempPersonID
+	&SQL(SELECT COUNT(*) INTO :tmp FROM eCom.tempBasketItem 
+ 		WHERE (basketItemID = :delegateBasketItemID OR basketItemID = :guestBasketItemID)
+ 		AND (isCancelled = 0)
+ 		AND (tempPerson = :currentTempPersonID)
+	)
+	if +SQLCODE=0 {
+		set count=tmp
+	} elseif +SQLCODE'=100 {
+		throw ##class(shared.exceptions.generalSQLException).CreateFromSQLCODE(SQLCODE)
+	}
+	
+	return count
+]]></Implementation>
+</Method>
 </Class>
 
 

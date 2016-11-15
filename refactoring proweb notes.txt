@@ -125,14 +125,15 @@ Blank lists - how do we start?
 single text block tags
 Page Heading is being outputted outside the <H1> tags
 ===============================================================================
-
-unit tests
+add logic for showing/hiding prices and capacity
+rename EF.pageController.proweb.radioButtons to '...radioGroup'
 move CSS
 rename "row ef-proweb-form-row" to something that fits non form pages too
 review the way we integrate the new CSP page with the old one, wrapper around pageNav?
 Discuss the <H1> in the templates
 Discuss label styles
 menu doesn't get populated on first load
+unit test doesn't pass in the currencyID
 
 ==== adrian ===
 ABI and QBI are not working 
@@ -142,7 +143,7 @@ move CSS
 
 === Minde ===
 
-
+add question name or labeltext property on objCODitem
 make sure we can't add questions on components that shouldn't allow it (use new attrib on tag + new prop on objComponenet)
 test multiple list on a page
 test more date formats

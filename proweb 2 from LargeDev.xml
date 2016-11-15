@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.2 (Build 736U)" ts="2016-11-15 08:20:52">
+<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.2 (Build 736U)" ts="2016-11-15 12:23:47">
 <Class name="EF.contextDataRegistration">
 <Description><![CDATA[
 <!-- ;vc;-
@@ -1759,7 +1759,7 @@ Should be run if any of the sub-classes are deleted</Description>
 <Description>
 Should have a one-to-one relationship with sc.objList</Description>
 <Super>EF.pageController.containerElement</Super>
-<TimeChanged>64236,63339.039683</TimeChanged>
+<TimeChanged>64237,30246.147852</TimeChanged>
 <TimeCreated>64231,55587.036042</TimeCreated>
 
 <Property name="prowebListID">
@@ -2077,7 +2077,7 @@ refers to sc.xModules.objList</Description>
 		
 	} elseif prowebItem.storage.inputType = "radiobutton" {
 		set value = ..getValueFromEComTemp(prowebItem, optionalGuestNumber)
-		set element = ##class(EF.pageController.proweb.radioButtons).addElementToParent($this, elementIdentifier, labelText, value, isReadOnly)
+		set element = ##class(EF.pageController.proweb.radioGroup).addElementToParent($this, elementIdentifier, labelText, value, isReadOnly)
 		
 	} elseif prowebItem.storage.inputType = "multibox" {
 		set value = ..getValueFromEComTemp(prowebItem, optionalGuestNumber, $$$getRawData)
@@ -2809,14 +2809,14 @@ also an entry point from unit tests</Description>
 </Class>
 
 
-<Class name="EF.pageController.proweb.radioButtons">
+<Class name="EF.pageController.proweb.radioGroup">
 <Super>EF.pageController.proweb.inputElement</Super>
-<TimeChanged>64236,63900.617765</TimeChanged>
+<TimeChanged>64237,30566.584584</TimeChanged>
 <TimeCreated>64189,53206.554402</TimeCreated>
 
 <Method name="getDefaultUIComponent">
 <ReturnType>EF.ui.components.backend.checkbox</ReturnType>
-<Implementation><![CDATA[	quit ##class(EF.ui.components.frontend.radioButtons).%New(..identifier)
+<Implementation><![CDATA[	quit ##class(EF.ui.components.frontend.radioGroup).%New(..identifier)
 ]]></Implementation>
 </Method>
 
@@ -4761,6 +4761,130 @@ we need to refactor the frontend buttons to make them callable from class method
 </Class>
 
 
+<Class name="EF.ui.components.frontend.alternativeABI">
+<Super>EF.ui.components.alternative</Super>
+<TimeChanged>64237,44443.938476</TimeChanged>
+<TimeCreated>64237,29515.209186</TimeCreated>
+
+<Property name="price">
+<Type>%Numeric</Type>
+</Property>
+
+<Property name="capacity">
+<Type>%Integer</Type>
+</Property>
+
+<Property name="currentBookingLevel">
+<Type>%Integer</Type>
+</Property>
+
+<Property name="contextData">
+<Type>EF.contextDataRegistration</Type>
+</Property>
+
+<Method name="getFormattedPriceString">
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	#dim priceString as %String = ""
+	
+	if '##class(setup.objEventSetting).getParameter("bookingings","suppress prices in reg pages", ..contextData.eventID) {  // ## don't fix the typo without running upgrade code! ###
+		if ..price {
+			set priceString = "<span class=""ef-proweb-ABI-price"">"_..encodeHTMLContent(##class(eCom.objPrice).formatAmount(..price, ..contextData.currencyID))_"</span>"
+		}
+	}
+	
+	return priceString
+]]></Implementation>
+</Method>
+
+<Method name="getFormattedCapacityString">
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	#dim capacityString as %String = ""
+	
+	if (..contextData.isBackendBooking) && (..capacity) {
+		set capacityString = "<span class=""ef-proweb-ABI-capacity"">"_..encodeHTMLContent(..currentBookingLevel_"/"_..capacity)_"</span>"
+	}
+	
+	return capacityString
+]]></Implementation>
+</Method>
+
+<Storage name="Default">
+<Type>%Library.CacheStorage</Type>
+<DefaultData>alternativeABIDefaultData</DefaultData>
+<Data name="alternativeABIDefaultData">
+<Subscript>"alternativeABI"</Subscript>
+<Value name="1">
+<Value>price</Value>
+</Value>
+<Value name="2">
+<Value>capacity</Value>
+</Value>
+<Value name="3">
+<Value>currentBookingLevel</Value>
+</Value>
+<Value name="4">
+<Value>contextData</Value>
+</Value>
+</Data>
+</Storage>
+</Class>
+
+
+<Class name="EF.ui.components.frontend.alternativeABIDropdown">
+<Super>EF.ui.components.frontend.alternativeABI</Super>
+<TimeChanged>64237,32425.955818</TimeChanged>
+<TimeCreated>64237,30883.269244</TimeCreated>
+
+<Storage name="Default">
+<Type>%Library.CacheStorage</Type>
+</Storage>
+</Class>
+
+
+<Class name="EF.ui.components.frontend.alternativeABIRadio">
+<Super>EF.ui.components.radio,EF.ui.components.frontend.alternativeABI</Super>
+<TimeChanged>64237,29938.614142</TimeChanged>
+<TimeCreated>64236,41273.459766</TimeCreated>
+
+<Method name="getOptionLabel">
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+    &html<
+    	&nbsp;#(..encodeHTMLContent(..label))#
+    	&nbsp;
+    	#(..getFormattedPriceString() )#
+    	&nbsp;
+    	#(..getFormattedCapacityString() )#
+    	</label>
+    >
+]]></Implementation>
+</Method>
+
+<Storage name="Default">
+<Type>%Library.CacheStorage</Type>
+<DefaultData>alternativeABIRadioDefaultData</DefaultData>
+<Data name="alternativeABIRadioDefaultData">
+<Structure>listnode</Structure>
+<Subscript>"alternativeABIRadio"</Subscript>
+<Value name="1">
+<Value>price</Value>
+</Value>
+<Value name="2">
+<Value>capacity</Value>
+</Value>
+<Value name="3">
+<Value>currentBookingLevel</Value>
+</Value>
+<Value name="4">
+<Value>contextData</Value>
+</Value>
+</Data>
+</Storage>
+</Class>
+
+
 <Class name="EF.ui.components.frontend.buttonAddGuest">
 <Super>EF.ui.components.buttonBase,EF.ui.components.frontend.prowebBase</Super>
 <TimeChanged>64232,57216.389522</TimeChanged>
@@ -5289,7 +5413,7 @@ we need to refactor the frontend buttons to make them callable from class method
 
 <Class name="EF.ui.components.frontend.dropdown">
 <Super>EF.ui.components.listInput,EF.ui.components.frontend.inputElement</Super>
-<TimeChanged>64236,68125.823866</TimeChanged>
+<TimeChanged>64237,44494.703441</TimeChanged>
 <TimeCreated>63355,56609.363142</TimeCreated>
 
 <Property name="isPersistent">
@@ -5309,10 +5433,10 @@ we need to refactor the frontend buttons to make them callable from class method
 	set htmlID=..htmlID_"_"_(..alternatives.Count()+1)
 
 	if storageAlternative.isABI {
-		set alternative = ##class(EF.ui.components.frontend.alternativeABI).%New(htmlID) // ###### CREATE THIS, PERHAPS REPLACE RADIO #####
-		set alternative.price = alternative.ABIPrice
-		set alternative.capacity = alternative.ABICapacity
-		set alternative.currentBookingLevel = alternative.ABICurrentBookingLevel
+		set alternative = ##class(EF.ui.components.frontend.alternativeABIDropdown).%New(htmlID) 
+		set alternative.price = storageAlternative.ABIPrice
+		set alternative.capacity = storageAlternative.ABICapacity
+		set alternative.currentBookingLevel = storageAlternative.ABICurrentBookingLevel
 		set alternative.contextData = contextData
 		
 	
@@ -5387,12 +5511,33 @@ we need to refactor the frontend buttons to make them callable from class method
 	// The html bit
 	&html<
         <option #(..rawHTML(selectedString))# #(..rawHTML(disabledString))# 
-        		value="#(..encodeHTMLAttribute(alternative.value))#" 
-        		#(..rawHTML(alternative.getExtraAttributes()))#>
-        		
+        	value="#(..encodeHTMLAttribute(alternative.value))#" 
+        	#(..rawHTML(alternative.getExtraAttributes()))#
+        	>
         	#(..encodeHTMLContent(alternative.label))#
+			#(..getABIInfoEncoded(alternative))#
         </option>
 	>
+]]></Implementation>
+</Method>
+
+<Method name="getABIInfoEncoded">
+<FormalSpec>alternative:EF.ui.components.alternative</FormalSpec>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	#dim ABIString as %String = ""
+	
+	if alternative.%Extends("EF.ui.components.frontend.alternativeABIDropdown") {
+		if $Length(alternative.getFormattedPriceString() ) {
+			set ABIString = "("_alternative.getFormattedPriceString()_")"
+		}
+		set ABIString = ABIString_" "
+		if $Length(alternative.getFormattedCapacityString() ) {
+			set ABIString = ABIString_"(Capacity: "_alternative.getFormattedCapacityString()_")"
+		}
+		return ABIString
+	}
+	return ""
 ]]></Implementation>
 </Method>
 
@@ -6493,128 +6638,6 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 </Value>
 <Value name="5">
 <Value>prowebItemID</Value>
-</Value>
-</Data>
-</Storage>
-</Class>
-
-
-<Class name="EF.ui.components.frontend.radioButtons">
-<Super>EF.ui.components.listInput,EF.ui.components.frontend.inputElement</Super>
-<TimeChanged>64237,29957.188661</TimeChanged>
-<TimeCreated>63356,39686.205586</TimeCreated>
-
-<Method name="getDefaultClasses">
-<ClassMethod>1</ClassMethod>
-<ReturnType>%String</ReturnType>
-<Implementation><![CDATA[	Return ##super()_" btn-group "
-]]></Implementation>
-</Method>
-
-<Method name="getDefaultValidator">
-<ReturnType>EF.validator.singleLineText</ReturnType>
-<Implementation><![CDATA[	quit ##class(EF.validator.inList).%New()
-]]></Implementation>
-</Method>
-
-<Method name="render">
-<Implementation><![CDATA[
-	do ..renderRowOpeningAndLabel()
-	do ..renderAlternatives()
-	do ..renderHelpAndRowClosing()
-]]></Implementation>
-</Method>
-
-<Method name="renderInputElementCellOpening">
-<Implementation><![CDATA[	write "<div class=' col-sm-8 ef_proweb_form_prompt ef-proweb-radio-group'>"
-]]></Implementation>
-</Method>
-
-<Method name="renderCellOpening">
-<Implementation><![CDATA[	write "<div class='ef-proweb-radio-button'>"
-]]></Implementation>
-</Method>
-
-<Method name="renderAlternative">
-<FormalSpec>alternative:EF.ui.components.alternative</FormalSpec>
-<Implementation><![CDATA[
-	if $IsObject(..enableDisableDependencyList) {
-		set alternative.enableDisableDependencyList = ..enableDisableDependencyList
-	}
-	do ..renderCellOpening()
-	do alternative.addClass("ef-proweb-radio-button")
-	do alternative.render()
-	do ..renderCellClosing()
-]]></Implementation>
-</Method>
-
-<Method name="addRadioAlternative">
-<FormalSpec>storageAlternative:sc.facade.prowebItemStorageInputElementAlternative,contextData:EF.contextDataRegistration</FormalSpec>
-<ReturnType>EF.ui.components.alternative</ReturnType>
-<Implementation><![CDATA[
-	set htmlID = ..htmlID_"_"_(..alternatives.Count()+1)
-	
-	if storageAlternative.isABI {
-		set radio = ##class(EF.ui.components.frontend.alternativeABIRadio).%New(htmlID)
-		set radio.price = storageAlternative.ABIPrice
-		set radio.capacity = storageAlternative.ABICapacity
-		set radio.currentBookingLevel = storageAlternative.ABICurrentBookingLevel
-		set radio.contextData = contextData
-		
-	} else {
-		set radio = ##class(EF.ui.components.radio).%New(htmlID)
-	} 
-	set radio.label = storageAlternative.displayText
-
-	set radio.value = storageAlternative.value
-	
-	set radio.htmlName = ..htmlName
-	do radio.addClass("ef-btn-default")
-	do ..alternatives.Insert(radio)
-	
-	// Also add to the validator
-	do ..validator.addAllowedValue(storageAlternative.value)
-	return radio
-]]></Implementation>
-</Method>
-
-<Storage name="Default">
-<Type>%Library.CacheStorage</Type>
-<DefaultData>radioButtonsDefaultData</DefaultData>
-<Data name="radioButtonsDefaultData">
-<Subscript>"radioButtons"</Subscript>
-<Value name="1">
-<Value>isProwebEditMode</Value>
-</Value>
-<Value name="2">
-<Value>isMandatory</Value>
-</Value>
-<Value name="3">
-<Value>contextData</Value>
-</Value>
-<Value name="4">
-<Value>isGuest</Value>
-</Value>
-<Value name="5">
-<Value>helpText</Value>
-</Value>
-<Value name="6">
-<Value>guestNumber</Value>
-</Value>
-<Value name="7">
-<Value>prowebItem</Value>
-</Value>
-<Value name="8">
-<Value>prowebItemID</Value>
-</Value>
-<Value name="9">
-<Value>isBackendOnly</Value>
-</Value>
-<Value name="10">
-<Value>maxWords</Value>
-</Value>
-<Value name="11">
-<Value>maxCharacters</Value>
 </Value>
 </Data>
 </Storage>
@@ -8737,7 +8760,7 @@ function loadItem(itemNameID) {
                                 	<script language="cache" runat="server">
 										set show=0
 										if ##class(setup.objSystemTypes).isModuleAllowed("Registration prompt collections") set show=1
-										set codCollectionDetailsURL="codQuestionCollectionDetails.csp?codID="_..encodeForURL(itemNameID)_"&returnURL="_..encodeForURL(baseURL)
+										set codCollectionDetailsURL="codQuestionCollectionDetails.csp?codID="_..encodeForURL(itemNameID)_"&returnURL="_..encodeForURL(baseURL)_"&gotoPage="_..encodeForURL(gotoPage)
 									</script>
 									 <csp:if condition=(show)>
 										<csp:if condition=(dataID)>
@@ -10422,10 +10445,6 @@ function checkName() {
 }
 
 function popup(type) {
-	// save first
-	document.forms[0].gotoPage.value = '#(..encodeForJavaScript(linkedBaseURL))#';
-	document.forms[0].submit();
-
 	var theURL="#(..Link("codQuestionHTML.csp?dataID="_dataID))#"
 
 	// calculate where to open popup window
@@ -10640,7 +10659,7 @@ function editAlt() {
 	if (document.forms[0].selAlternative.selectedIndex != -1 ) {
 		var tmpValue = 	document.forms[0].selAlternative.options[document.forms[0].selAlternative.selectedIndex].value.split('|')[0];
 		if (parseInt(tmpValue)>0) {
-			document.forms[0].gotoPage.value="codAlternativeDetails.csp?dataID=#(dataID)#&itemAlternativeID=" + tmpValue;
+			document.forms[0].gotoPage.value="codAlternativeDetails.csp?dataID=#(dataID)#&itemAlternativeID=" + tmpValue + "&returnURL=#(gotoPage)#";
 			document.forms[0].submit();
 		} else {
 			alert('#(..out("This alternative is not saved yet. Please save all alternatives before modifying prices"))#');
@@ -12144,7 +12163,8 @@ function saveSameAs(categoryID) {
 	 set %response.Redirect="../../proweb/frontend/start.csp?mode=edit&version=current&pageID="_$G(%session.Data("pageID"))
 	
 	if %request.Get("gotoCodQuestionCSV") {
-		set %response.Redirect=codQuestionDetailsURL_"&gotoCodQuestionCSV=1"
+		set gotoPage = %request.Get("gotoPage")
+		set %response.Redirect=codQuestionDetailsURL_"&gotoCodQuestionCSV=1&gotoPage="_gotoPage
 		quit 0
 	}
 	
@@ -21346,7 +21366,7 @@ Returns true if the template is custom made</Description>
 </Class>
 
 
-<Project name="proweb 2" LastModified="2016-11-14 16:07:39.961222" Target="largedevsrc/backEnd/proweb/quickEditAJAX.csp" TargetType="3">
+<Project name="proweb 2" LastModified="2016-11-15 09:17:43.696954" Target="largedevsrc/backEnd/proweb/quickEditAJAX.csp" TargetType="3">
   <Items>
     <ProjectItem name="EF.contextDataRegistration" type="CLS"></ProjectItem>
     <ProjectItem name="EF.contextDataRegistrationMock" type="CLS"></ProjectItem>
@@ -21499,6 +21519,10 @@ Returns true if the template is custom made</Description>
     <ProjectItem name="shared.pageMethods" type="CLS"></ProjectItem>
     <ProjectItem name="EF.ui.components.frontend.label" type="CLS"></ProjectItem>
     <ProjectItem name="EF.ui.components.frontend.radioABI" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.ui.components.frontend.alternativeABI" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.ui.components.frontend.alternativeABIDropdown" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.ui.components.frontend.alternativeABIRadio" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.pageController.proweb.radioGroup" type="CLS"></ProjectItem>
   </Items>
   <BreakPoints>
     <BreakPoint Routine="cspRealEV.frontend.reg.pagecontrollerstandardsave.CLS" Offset="OnPreHTTPafter+28"></BreakPoint>

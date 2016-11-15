@@ -126,23 +126,29 @@ single text block tags
 Page Heading is being outputted outside the <H1> tags
 add logic for showing/hiding prices and capacity
 unit test doesn't pass in the currencyID
-===============================================================================
+ABI and QBI are not working 
 add ABIs on checkboxes
+move the pricing loading away from the facade and into the list
+===============================================================================
+
+
 move CSS
 rename "row ef-proweb-form-row" to something that fits non form pages too
 review the way we integrate the new CSP page with the old one, wrapper around pageNav?
 Discuss the <H1> in the templates
 Discuss label styles
 menu doesn't get populated on first load
-
-
-==== adrian ===
-ABI and QBI are not working 
 Marketing code
 Warning on leaving the page
-move CSS
+
+==== adrian ===
+move the  capacity loading away from the facade and into the list
+
 
 === Minde ===
+the radios are jumping on mouseOver
+
+
 
 add question name or labeltext property on objCODitem
 make sure we can't add questions on components that shouldn't allow it (use new attrib on tag + new prop on objComponenet)

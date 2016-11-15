@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.2 (Build 736U)" ts="2016-11-15 12:23:47">
+<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.2 (Build 736U)" ts="2016-11-15 16:18:43">
 <Class name="EF.contextDataRegistration">
 <Description><![CDATA[
 <!-- ;vc;-
@@ -1298,12 +1298,26 @@ Should be run if any of the sub-classes are deleted</Description>
 
 <Class name="EF.pageController.proweb.checkbox">
 <Super>EF.pageController.proweb.inputElement</Super>
-<TimeChanged>64194,61822.238449</TimeChanged>
+<TimeChanged>64237,57574.868765</TimeChanged>
 <TimeCreated>63372,44893.197087</TimeCreated>
+
+<Property name="price">
+<Type>%Numeric</Type>
+</Property>
 
 <Method name="getDefaultUIComponent">
 <ReturnType>EF.ui.components.backend.checkbox</ReturnType>
-<Implementation><![CDATA[	quit ##class(EF.ui.components.frontend.checkbox).%New(..identifier)
+<Implementation><![CDATA[
+	set uiComponent = ##class(EF.ui.components.frontend.checkbox).%New(..identifier)
+	return uiComponent
+]]></Implementation>
+</Method>
+
+<Method name="updateUIComponent">
+<Implementation><![CDATA[
+	do ##super()
+	set ..uiComponent.price = ..price
+	set ..uiComponent.contextData = ..page.contextData
 ]]></Implementation>
 </Method>
 
@@ -1311,21 +1325,28 @@ Should be run if any of the sub-classes are deleted</Description>
 <FormalSpec>identifier:%String</FormalSpec>
 <ReturnType>EF.pageController.containerElements.list</ReturnType>
 <Implementation><![CDATA[
-	set element=##class(EF.pageController.containerElements.list).addElementToParent($this,identifier,"")
-	set element.enableDisableDependencyList=##class(EF.ui.components.dependencyList).createNew(..identifier,1)
+	set element = ##class(EF.pageController.containerElements.list).addElementToParent($this, identifier, "")
+	set element.enableDisableDependencyList=##class(EF.ui.components.dependencyList).createNew(..identifier, 1)
 	quit element
 ]]></Implementation>
 </Method>
 
 <Storage name="Default">
 <Type>%Library.CacheStorage</Type>
+<DefaultData>checkboxDefaultData</DefaultData>
+<Data name="checkboxDefaultData">
+<Subscript>"checkbox"</Subscript>
+<Value name="1">
+<Value>price</Value>
+</Value>
+</Data>
 </Storage>
 </Class>
 
 
 <Class name="EF.pageController.proweb.checkboxGroup">
 <Super>EF.pageController.proweb.inputElement</Super>
-<TimeChanged>64232,54990.403042</TimeChanged>
+<TimeChanged>64237,55597.480624</TimeChanged>
 <TimeCreated>64189,53206.554402</TimeCreated>
 
 <Method name="getDefaultUIComponent">
@@ -1334,19 +1355,12 @@ Should be run if any of the sub-classes are deleted</Description>
 ]]></Implementation>
 </Method>
 
-<Method name="addAlternative">
-<FormalSpec>value,description,isDefault=0</FormalSpec>
-<ReturnType>EF.ui.components.alternative</ReturnType>
-<Implementation><![CDATA[	return ..uiComponent.addAlternative(value,description,isDefault)
-]]></Implementation>
-</Method>
-
 <Method name="isAlternativeInValueString">
 <ClassMethod>1</ClassMethod>
 <FormalSpec>alternative:%String,valueString:%String</FormalSpec>
 <ReturnType>%Boolean</ReturnType>
 <Implementation><![CDATA[
-	for i=1:1:$Length(valueString,"|") {
+	for i = 1:1:$Length(valueString,"|") {
 		if $ZCVT($ZSTRIP($Piece(valueString,"|",i),"<>W"),"U") = $ZCVT($ZSTRIP(alternative,"<>W"),"U") {
 			return 1	
 		}	
@@ -1359,8 +1373,8 @@ Should be run if any of the sub-classes are deleted</Description>
 <FormalSpec>parent:EF.pageController.proweb.checkboxGroup,identifier:%String,description:%String,value:%String,isReadOnly=0</FormalSpec>
 <ReturnType>EF.pageController.inputElements.checkbox</ReturnType>
 <Implementation><![CDATA[
-	set element=##class(EF.pageController.proweb.checkbox).addElementToParent(parent, identifier,description,value,isReadOnly)
-
+	set element = ##class(EF.pageController.proweb.checkbox).addElementToParent(parent, identifier,description,value,isReadOnly)
+	;set element.price =99
 	quit element
 ]]></Implementation>
 </Method>
@@ -1478,7 +1492,7 @@ Should be run if any of the sub-classes are deleted</Description>
 
 <Class name="EF.pageController.proweb.dropdown">
 <Super>EF.pageController.proweb.inputElement</Super>
-<TimeChanged>64236,67955.477584</TimeChanged>
+<TimeChanged>64237,58616.153112</TimeChanged>
 <TimeCreated>64189,53206.554402</TimeCreated>
 
 <Method name="getDefaultUIComponent">
@@ -1488,9 +1502,9 @@ Should be run if any of the sub-classes are deleted</Description>
 </Method>
 
 <Method name="addAlternative">
-<FormalSpec>alternative</FormalSpec>
+<FormalSpec>alternative,price:%Numeric</FormalSpec>
 <ReturnType>EF.ui.components.alternative</ReturnType>
-<Implementation><![CDATA[	return ..uiComponent.addDropdownAlternative(alternative, ..page.contextData)
+<Implementation><![CDATA[	return ..uiComponent.addDropdownAlternative(alternative, ..page.contextData, price)
 ]]></Implementation>
 </Method>
 
@@ -1759,7 +1773,7 @@ Should be run if any of the sub-classes are deleted</Description>
 <Description>
 Should have a one-to-one relationship with sc.objList</Description>
 <Super>EF.pageController.containerElement</Super>
-<TimeChanged>64237,30246.147852</TimeChanged>
+<TimeChanged>64237,58404.919175</TimeChanged>
 <TimeCreated>64231,55587.036042</TimeCreated>
 
 <Property name="prowebListID">
@@ -2095,19 +2109,30 @@ refers to sc.xModules.objList</Description>
 		if key ="" quit
 
 		if prowebItem.storage.inputType = "multibox" {
-			set counter = counter+1
+			set counter = counter + 1
 			set isChecked = ##class(EF.pageController.proweb.checkboxGroup).isAlternativeInValueString(alternative.displayText, value)
 			set childController = element.addProwebCheckbox(element, elementIdentifier_"-"_counter, alternative.displayText, isChecked)
-			
+			set childController.price = ..getPrice(alternative, prowebItem) 
 		} else {
-			set childController = element.addAlternative(alternative)	
+			set childController = element.addAlternative(alternative, ..getPrice(alternative, prowebItem))	
 		} 
+		
 	}
 	
-	if (value = "") && (prowebItem.storage.inputType = "radiobutton" ) &&(prowebItem.storage.listOfAlternatives.Count() > 0) {
+	if (value = "") && (prowebItem.storage.inputType = "radiobutton" ) && (prowebItem.storage.listOfAlternatives.Count() > 0) {
 		set element.value = prowebItem.storage.listOfAlternatives.GetAt(1).value
 	}
 	return element
+]]></Implementation>
+</Method>
+
+<Method name="getPrice">
+<FormalSpec>alternative:sc.facade.prowebItemStorageInputElementAlternative,prowebItem:sc.facade.prowebItem</FormalSpec>
+<ReturnType>%Numeric</ReturnType>
+<Implementation><![CDATA[
+	#dim price as %Numeric
+	set price = ##class(sc.xModules.objCODitem).getPrice(alternative.alternativeID, prowebItem.storage.prowebID , ..page.contextData.eventID, ..page.contextData.currencyID)
+	return price
 ]]></Implementation>
 </Method>
 
@@ -2811,7 +2836,7 @@ also an entry point from unit tests</Description>
 
 <Class name="EF.pageController.proweb.radioGroup">
 <Super>EF.pageController.proweb.inputElement</Super>
-<TimeChanged>64237,30566.584584</TimeChanged>
+<TimeChanged>64237,58441.085418</TimeChanged>
 <TimeCreated>64189,53206.554402</TimeCreated>
 
 <Method name="getDefaultUIComponent">
@@ -2821,9 +2846,9 @@ also an entry point from unit tests</Description>
 </Method>
 
 <Method name="addAlternative">
-<FormalSpec>alternative:sc.facade.prowebItemStorageInputElementAlternative</FormalSpec>
+<FormalSpec>alternative:sc.facade.prowebItemStorageInputElementAlternative,price:%Numeric</FormalSpec>
 <ReturnType>EF.ui.components.alternative</ReturnType>
-<Implementation><![CDATA[	return ..uiComponent.addRadioAlternative(alternative, ..page.contextData)
+<Implementation><![CDATA[	return ..uiComponent.addRadioAlternative(alternative, ..page.contextData, price)
 ]]></Implementation>
 </Method>
 
@@ -4294,7 +4319,7 @@ this is for version 1 of proweb</Description>
 <Class name="EF.pages.frontend.baseProweb">
 <ProcedureBlock>0</ProcedureBlock>
 <Super>EF.pages.frontend.base</Super>
-<TimeChanged>64233,34093.019482</TimeChanged>
+<TimeChanged>64237,49973.04602</TimeChanged>
 <TimeCreated>64191,31442.531402</TimeCreated>
 
 <Parameter name="ENCODED">
@@ -4405,7 +4430,7 @@ this is for version 1 of proweb</Description>
 	write ##class(shared.pageMethods).outputFrontendHeader()
 	Write !,"<head>"
  	do ##class(layout.objTemplate).writeBit("","{{ef_header}}")
-	Do ..Include("frontendHTTPheader.csp")
+	;Do ..Include("frontendHTTPheader.csp")
 	Do ..Include("colourScheme.csp")
 	do ..renderCommonCSS()
 	do ..OnPagePageHeaderCSS()
@@ -4951,9 +4976,13 @@ we need to refactor the frontend buttons to make them callable from class method
 
 
 <Class name="EF.ui.components.frontend.checkbox">
-<Super>EF.ui.components.checkbox,EF.ui.components.frontend.inputElement</Super>
-<TimeChanged>64232,38986.346004</TimeChanged>
+<Super>EF.ui.components.checkbox,EF.ui.components.frontend.inputElement,EF.ui.components.frontend.alternativeABI</Super>
+<TimeChanged>64237,57363.65403</TimeChanged>
 <TimeCreated>63355,62572.097775</TimeCreated>
+
+<Property name="price">
+<Type>%Numeric</Type>
+</Property>
 
 <Method name="render">
 <Implementation><![CDATA[
@@ -4963,6 +4992,9 @@ we need to refactor the frontend buttons to make them callable from class method
 	        <label>
 		        #[do ..renderCheckbox()]#
 		        #(..encodeHTMLContent(..label))#
+		        #(..getFormattedPriceString() )#
+    			&nbsp;
+    			#(..getFormattedCapacityString() )#
 		    </label>
 		    <br/>
 		>
@@ -4991,6 +5023,7 @@ we need to refactor the frontend buttons to make them callable from class method
 	}
 	&html<
 		<input type="checkbox" value="1" id="#(..encodeHTMLAttribute(..htmlID))#" class="#(..encodeForHTMLAttribute(..classes))#" name="#(..encodeHTMLAttribute(..htmlName))#" title="#(..encodeHTMLAttribute(..title))#" #(..rawHTML(isCheckedString))# #(..rawHTML(disabledString))# #(..rawHTML(..getExtraAttributes()))#>
+
 	>
 ]]></Implementation>
 </Method>
@@ -4999,7 +5032,6 @@ we need to refactor the frontend buttons to make them callable from class method
 <Type>%Library.CacheStorage</Type>
 <DefaultData>checkboxDefaultData</DefaultData>
 <Data name="checkboxDefaultData">
-<Structure>listnode</Structure>
 <Subscript>"checkbox"</Subscript>
 <Value name="1">
 <Value>alternatives</Value>
@@ -5036,6 +5068,21 @@ we need to refactor the frontend buttons to make them callable from class method
 </Value>
 <Value name="12">
 <Value>maxCharacters</Value>
+</Value>
+<Value name="13">
+<Value>price</Value>
+</Value>
+<Value name="14">
+<Value>capacity</Value>
+</Value>
+<Value name="15">
+<Value>currentBookingLevel</Value>
+</Value>
+<Value name="16">
+<Value>isDefault</Value>
+</Value>
+<Value name="17">
+<Value>isSelected</Value>
 </Value>
 </Data>
 </Storage>
@@ -5413,7 +5460,7 @@ we need to refactor the frontend buttons to make them callable from class method
 
 <Class name="EF.ui.components.frontend.dropdown">
 <Super>EF.ui.components.listInput,EF.ui.components.frontend.inputElement</Super>
-<TimeChanged>64237,44494.703441</TimeChanged>
+<TimeChanged>64237,58638.31736</TimeChanged>
 <TimeCreated>63355,56609.363142</TimeCreated>
 
 <Property name="isPersistent">
@@ -5427,14 +5474,14 @@ we need to refactor the frontend buttons to make them callable from class method
 </Property>
 
 <Method name="addDropdownAlternative">
-<FormalSpec>storageAlternative:sc.facade.prowebItemStorageInputElementAlternative,contextData:EF.contextDataRegistration</FormalSpec>
+<FormalSpec>storageAlternative:sc.facade.prowebItemStorageInputElementAlternative,contextData:EF.contextDataRegistration,price:%Numeric</FormalSpec>
 <ReturnType>EF.ui.components.alternative</ReturnType>
 <Implementation><![CDATA[
 	set htmlID=..htmlID_"_"_(..alternatives.Count()+1)
 
 	if storageAlternative.isABI {
 		set alternative = ##class(EF.ui.components.frontend.alternativeABIDropdown).%New(htmlID) 
-		set alternative.price = storageAlternative.ABIPrice
+		set alternative.price = price
 		set alternative.capacity = storageAlternative.ABICapacity
 		set alternative.currentBookingLevel = storageAlternative.ABICurrentBookingLevel
 		set alternative.contextData = contextData
@@ -5497,7 +5544,6 @@ we need to refactor the frontend buttons to make them callable from class method
 <Method name="renderAlternative">
 <FormalSpec>alternative:EF.ui.components.alternative</FormalSpec>
 <Implementation><![CDATA[
-	
 	set selectedString=""
 	if alternative.isSelected {
 		set selectedString="selected="""""	
@@ -6637,6 +6683,119 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 <Value>prowebItemStorage</Value>
 </Value>
 <Value name="5">
+<Value>prowebItemID</Value>
+</Value>
+</Data>
+</Storage>
+</Class>
+
+
+<Class name="EF.ui.components.frontend.radioGroup">
+<Super>EF.ui.components.listInput,EF.ui.components.frontend.inputElement</Super>
+<TimeChanged>64237,58535.424597</TimeChanged>
+<TimeCreated>63356,39686.205586</TimeCreated>
+
+<Method name="getDefaultClasses">
+<ClassMethod>1</ClassMethod>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[	Return ##super()_" btn-group "
+]]></Implementation>
+</Method>
+
+<Method name="getDefaultValidator">
+<ReturnType>EF.validator.singleLineText</ReturnType>
+<Implementation><![CDATA[	quit ##class(EF.validator.inList).%New()
+]]></Implementation>
+</Method>
+
+<Method name="render">
+<Implementation><![CDATA[
+	do ..renderRowOpeningAndLabel()
+	do ..renderAlternatives()
+	do ..renderHelpAndRowClosing()
+]]></Implementation>
+</Method>
+
+<Method name="renderInputElementCellOpening">
+<Implementation><![CDATA[	write "<div class=' col-sm-8 ef_proweb_form_prompt ef-proweb-radio-group'>"
+]]></Implementation>
+</Method>
+
+<Method name="renderCellOpening">
+<Implementation><![CDATA[	write "<div class='ef-proweb-radio-button'>"
+]]></Implementation>
+</Method>
+
+<Method name="renderAlternative">
+<FormalSpec>alternative:EF.ui.components.alternative</FormalSpec>
+<Implementation><![CDATA[
+	if $IsObject(..enableDisableDependencyList) {
+		set alternative.enableDisableDependencyList = ..enableDisableDependencyList
+	}
+	do ..renderCellOpening()
+	do alternative.addClass("ef-proweb-radio-button")
+	do alternative.render()
+	do ..renderCellClosing()
+]]></Implementation>
+</Method>
+
+<Method name="addRadioAlternative">
+<FormalSpec>storageAlternative:sc.facade.prowebItemStorageInputElementAlternative,contextData:EF.contextDataRegistration,price:%Numeric</FormalSpec>
+<ReturnType>EF.ui.components.alternative</ReturnType>
+<Implementation><![CDATA[
+	set htmlID = ..htmlID_"_"_(..alternatives.Count()+1)
+	
+	if storageAlternative.isABI {
+		set radio = ##class(EF.ui.components.frontend.alternativeABIRadio).%New(htmlID)
+		set radio.price = price
+		set radio.capacity = storageAlternative.ABICapacity
+		set radio.currentBookingLevel = storageAlternative.ABICurrentBookingLevel
+		set radio.contextData = contextData
+		
+	} else {
+		set radio = ##class(EF.ui.components.radio).%New(htmlID)
+	} 
+	set radio.label = storageAlternative.displayText
+
+	set radio.value = storageAlternative.value
+	
+	set radio.htmlName = ..htmlName
+	do radio.addClass("ef-btn-default")
+	do ..alternatives.Insert(radio)
+	
+	// Also add to the validator
+	do ..validator.addAllowedValue(storageAlternative.value)
+	return radio
+]]></Implementation>
+</Method>
+
+<Storage name="Default">
+<Type>%Library.CacheStorage</Type>
+<DefaultData>radioGroupDefaultData</DefaultData>
+<Data name="radioGroupDefaultData">
+<Subscript>"radioGroup"</Subscript>
+<Value name="1">
+<Value>isProwebEditMode</Value>
+</Value>
+<Value name="2">
+<Value>isBackendOnly</Value>
+</Value>
+<Value name="3">
+<Value>guestNumber</Value>
+</Value>
+<Value name="4">
+<Value>contextData</Value>
+</Value>
+<Value name="5">
+<Value>helpText</Value>
+</Value>
+<Value name="6">
+<Value>isGuest</Value>
+</Value>
+<Value name="7">
+<Value>prowebItem</Value>
+</Value>
+<Value name="8">
 <Value>prowebItemID</Value>
 </Value>
 </Data>
@@ -21366,7 +21525,7 @@ Returns true if the template is custom made</Description>
 </Class>
 
 
-<Project name="proweb 2" LastModified="2016-11-15 09:17:43.696954" Target="largedevsrc/backEnd/proweb/quickEditAJAX.csp" TargetType="3">
+<Project name="proweb 2" LastModified="2016-11-15 16:15:11.216533" Target="largedevsrc/backEnd/proweb/quickEditAJAX.csp" TargetType="3">
   <Items>
     <ProjectItem name="EF.contextDataRegistration" type="CLS"></ProjectItem>
     <ProjectItem name="EF.contextDataRegistrationMock" type="CLS"></ProjectItem>
@@ -21399,7 +21558,6 @@ Returns true if the template is custom made</Description>
     <ProjectItem name="EF.pageController.proweb.phoneNumber" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.proweb.privateData" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.proweb.prowebBase" type="CLS"></ProjectItem>
-    <ProjectItem name="EF.pageController.proweb.radioButtons" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.proweb.testCases.checkboxGroupTestCase" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.proweb.testCases.datePIckerTestCase" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.proweb.testCases.dateRangeTestCase" type="CLS"></ProjectItem>
@@ -21452,7 +21610,6 @@ Returns true if the template is custom made</Description>
     <ProjectItem name="EF.ui.components.frontend.phoneNumber" type="CLS"></ProjectItem>
     <ProjectItem name="EF.ui.components.frontend.privateData" type="CLS"></ProjectItem>
     <ProjectItem name="EF.ui.components.frontend.prowebBase" type="CLS"></ProjectItem>
-    <ProjectItem name="EF.ui.components.frontend.radioButtons" type="CLS"></ProjectItem>
     <ProjectItem name="EF.ui.components.frontend.textArea" type="CLS"></ProjectItem>
     <ProjectItem name="EF.ui.components.frontend.textBlock" type="CLS"></ProjectItem>
     <ProjectItem name="EF.ui.components.frontend.textInput" type="CLS"></ProjectItem>
@@ -21518,11 +21675,11 @@ Returns true if the template is custom made</Description>
     <ProjectItem name="setup.bookingLevelCounterFrontendSession" type="CLS"></ProjectItem>
     <ProjectItem name="shared.pageMethods" type="CLS"></ProjectItem>
     <ProjectItem name="EF.ui.components.frontend.label" type="CLS"></ProjectItem>
-    <ProjectItem name="EF.ui.components.frontend.radioABI" type="CLS"></ProjectItem>
     <ProjectItem name="EF.ui.components.frontend.alternativeABI" type="CLS"></ProjectItem>
     <ProjectItem name="EF.ui.components.frontend.alternativeABIDropdown" type="CLS"></ProjectItem>
     <ProjectItem name="EF.ui.components.frontend.alternativeABIRadio" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.proweb.radioGroup" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.ui.components.frontend.radioGroup" type="CLS"></ProjectItem>
   </Items>
   <BreakPoints>
     <BreakPoint Routine="cspRealEV.frontend.reg.pagecontrollerstandardsave.CLS" Offset="OnPreHTTPafter+28"></BreakPoint>
@@ -21972,7 +22129,7 @@ to make sure group bookers can't see already existing data of attendees</Descrip
 
 <Class name="sc.facade.prowebItemStorageInputElementAlternative">
 <Super>%RegisteredObject</Super>
-<TimeChanged>64236,67866.960804</TimeChanged>
+<TimeChanged>64237,57927.37175</TimeChanged>
 <TimeCreated>64211,61761.805017</TimeCreated>
 
 <Property name="value">
@@ -22038,12 +22195,12 @@ to make sure group bookers can't see already existing data of attendees</Descrip
 	set alternativeExtraID=##class(cod.objAlternativeExtras).getExtrasIDFromItemAltID(alternativeID, prowebID )
 	if alternativeExtraID {			
 		set alternative.isABI = 1
-		set alternative.ABIPrice = ##class(sc.xModules.objCODitem).getPrice(alternativeID, prowebID , contextData.eventID, contextData.currencyID)
-
-		set tmp = ##class(cod.objAlternativeExtras).isItemFull(controllerID, alternativeExtraID, $$$returnBookingLevel)
-		set currentAndMaxLevel = $Piece(tmp,"|",2)
-		set alternative.ABICurrentBookingLevel = $Piece(currentAndMaxLevel,"/",1)
-		set alternative.ABICapacity = $Piece(currentAndMaxLevel,"/",2) 
+		; moved to the list class //set alternative.ABIPrice = ##class(sc.xModules.objCODitem).getPrice(alternativeID, prowebID , contextData.eventID, contextData.currencyID)
+		
+		set availabilityChecker = ##class(setup.availabilityCheckerABI).createForABIIDAndTempPersonID(alternativeExtraID,contextData.tempPersonID)
+		
+		set alternative.ABICurrentBookingLevel = availabilityChecker.getBookingLevel()
+		set alternative.ABICapacity = availabilityChecker.getCapacity()
 	}
 
 	set alternative.alternativeID = alternativeID

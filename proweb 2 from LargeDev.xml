@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.2 (Build 736U)" ts="2016-11-15 16:18:43">
+<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.2 (Build 736U)" ts="2016-11-16 16:09:32">
 <Class name="EF.contextDataRegistration">
 <Description><![CDATA[
 <!-- ;vc;-
@@ -816,16 +816,16 @@ Adds a translation button with warning icon which opens an in-form modal</Descri
 <Class name="EF.pageController.element">
 <Description><![CDATA[
 <!-- ;vc;-
-;vc;    Object: EF.pageController.element.CLS/EV.12
+;vc;    Object: EF.pageController.element.CLS/EV.9
 ;vc; Component: CLS.EF.pageController.element
 ;vc;  Location: LargeDev
-;vc; Date/Time: 11-Nov-16 11:15
+;vc; Date/Time: 16-Nov-16 09:21
 ;vc;      User: FredG
-;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>EF.pageController.element.CLS/EV.12</td><td>CLS.EF.pageController.element</td><td>LargeDev</td><td style='white-space: nowrap;'>11-Nov-16 11:15</td><td>FredG</td></tr></table>
+;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>EF.pageController.element.CLS/EV.9</td><td>CLS.EF.pageController.element</td><td>LargeDev</td><td style='white-space: nowrap;'>16-Nov-16 09:21</td><td>FredG</td></tr></table>
 ]]></Description>
 <IncludeCode>EF.common.macros</IncludeCode>
 <Super>%Library.Persistent,shared.timeStamp</Super>
-<TimeChanged>64233,42738.277418</TimeChanged>
+<TimeChanged>64217,62208</TimeChanged>
 <TimeCreated>63350,63749.535929</TimeCreated>
 
 <Property name="elementParent">
@@ -4319,7 +4319,7 @@ this is for version 1 of proweb</Description>
 <Class name="EF.pages.frontend.baseProweb">
 <ProcedureBlock>0</ProcedureBlock>
 <Super>EF.pages.frontend.base</Super>
-<TimeChanged>64237,49973.04602</TimeChanged>
+<TimeChanged>64237,59237.782338</TimeChanged>
 <TimeCreated>64191,31442.531402</TimeCreated>
 
 <Parameter name="ENCODED">
@@ -4430,7 +4430,7 @@ this is for version 1 of proweb</Description>
 	write ##class(shared.pageMethods).outputFrontendHeader()
 	Write !,"<head>"
  	do ##class(layout.objTemplate).writeBit("","{{ef_header}}")
-	;Do ..Include("frontendHTTPheader.csp")
+	Do ..Include("frontendHTTPheader.csp")
 	Do ..Include("colourScheme.csp")
 	do ..renderCommonCSS()
 	do ..OnPagePageHeaderCSS()
@@ -5091,7 +5091,7 @@ we need to refactor the frontend buttons to make them callable from class method
 
 <Class name="EF.ui.components.frontend.checkboxGroup">
 <Super>EF.ui.components.frontend.inputElement</Super>
-<TimeChanged>64232,45699.848154</TimeChanged>
+<TimeChanged>64237,61592.519538</TimeChanged>
 <TimeCreated>63356,56848.077942</TimeCreated>
 
 <Property name="label">
@@ -5114,7 +5114,7 @@ we need to refactor the frontend buttons to make them callable from class method
 	do ..renderRowOpeningAndLabel()
 	&html<
 		
-		<div class="form-group">
+		<div >
         	#[do ..renderCheckboxes()]#
         </div>
     >
@@ -5899,14 +5899,14 @@ we need to refactor the frontend buttons to make them callable from class method
 
 <Class name="EF.ui.components.frontend.floatingMenu">
 <Super>shared.pCSPmanage</Super>
-<TimeChanged>64231,52113.869602</TimeChanged>
+<TimeChanged>64237,61863.067276</TimeChanged>
 <TimeCreated>64203,40625.329831</TimeCreated>
 
 <Method name="outputFloatingMenuHTML">
 <Implementation><![CDATA[
 	&html<
 		<div id="myFloater" class="form-inline ef-proweb-menu-handle" style="display: none;">
-	        <div class="form-group ef-proweb-floater-button-group" >
+	        <div class="ef-proweb-floater-button-group" >
 		        <button type="button" id="efProwebEditLink" class="btn btn-default">
 		        	<span class="glyphicon glyphicon-pencil"></span>
 				</button>
@@ -6692,7 +6692,7 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 
 <Class name="EF.ui.components.frontend.radioGroup">
 <Super>EF.ui.components.listInput,EF.ui.components.frontend.inputElement</Super>
-<TimeChanged>64237,58535.424597</TimeChanged>
+<TimeChanged>64237,63125.775955</TimeChanged>
 <TimeCreated>63356,39686.205586</TimeCreated>
 
 <Method name="getDefaultClasses">
@@ -6711,7 +6711,9 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 <Method name="render">
 <Implementation><![CDATA[
 	do ..renderRowOpeningAndLabel()
+	w "<div class=""ef-proweb-input-element"">"
 	do ..renderAlternatives()
+	w "</div>"
 	do ..renderHelpAndRowClosing()
 ]]></Implementation>
 </Method>
@@ -8919,7 +8921,10 @@ function loadItem(itemNameID) {
                                 	<script language="cache" runat="server">
 										set show=0
 										if ##class(setup.objSystemTypes).isModuleAllowed("Registration prompt collections") set show=1
-										set codCollectionDetailsURL="codQuestionCollectionDetails.csp?codID="_..encodeForURL(itemNameID)_"&returnURL="_..encodeForURL(baseURL)_"&gotoPage="_..encodeForURL(gotoPage)
+										set codCollectionDetailsURL = "codQuestionCollectionDetails.csp"
+										set codCollectionDetailsURL = ..addParameterToURL(codCollectionDetailsURL, "codID", itemNameID)
+										set codCollectionDetailsURL = ..addParameterToURL(codCollectionDetailsURL, "returnURL", baseURL)
+										set codCollectionDetailsURL = ..addParameterToURL(codCollectionDetailsURL, "gotoPage", gotoPage)
 									</script>
 									 <csp:if condition=(show)>
 										<csp:if condition=(dataID)>
@@ -10818,7 +10823,7 @@ function editAlt() {
 	if (document.forms[0].selAlternative.selectedIndex != -1 ) {
 		var tmpValue = 	document.forms[0].selAlternative.options[document.forms[0].selAlternative.selectedIndex].value.split('|')[0];
 		if (parseInt(tmpValue)>0) {
-			document.forms[0].gotoPage.value="codAlternativeDetails.csp?dataID=#(dataID)#&itemAlternativeID=" + tmpValue + "&returnURL=#(gotoPage)#";
+			document.forms[0].gotoPage.value="codAlternativeDetails.csp?dataID=#(..encodeForJavaScript(..encodeForURL(dataID)))#&itemAlternativeID=" + encodeURIComponent(tmpValue) + "&returnURL=#(..encodeForJavaScript(..encodeForURL(gotoPage)))#";
 			document.forms[0].submit();
 		} else {
 			alert('#(..out("This alternative is not saved yet. Please save all alternatives before modifying prices"))#');
@@ -12322,8 +12327,9 @@ function saveSameAs(categoryID) {
 	 set %response.Redirect="../../proweb/frontend/start.csp?mode=edit&version=current&pageID="_$G(%session.Data("pageID"))
 	
 	if %request.Get("gotoCodQuestionCSV") {
-		set gotoPage = %request.Get("gotoPage")
-		set %response.Redirect=codQuestionDetailsURL_"&gotoCodQuestionCSV=1&gotoPage="_gotoPage
+		set codQuestionDetailsURL = ..addParameterToURL(codQuestionDetailsURL, "gotoCodQuestionCSV", 1)
+		set codQuestionDetailsURL = ..addParameterToURL(codQuestionDetailsURL, "gotoPage", %request.Get("gotoPage"))
+		set %response.Redirect=codQuestionDetailsURL
 		quit 0
 	}
 	
@@ -16329,240 +16335,6 @@ function updateAlts(codPromptID) {
 	
 </csp:section>
 
-<!-- ########### MOVE THIS TO EXTERNAL FILE ######## -->
-<style>
-	.ef-proweb-ABI-price::before, .ef-proweb-ABI-capacity::before {
-		content: "(";
-	}	.ef-proweb-ABI-price::after, .ef-proweb-ABI-capacity::after {
-		content: ")";
-	}
-	.ef_proweb_form_prompt {
-		text-align: right;
-	}
-	.ef-required-field::after {
-	    content: " *";
-	    color: red;
-	}
-	.ef-dependent-field::after {
-	    font-family: "Glyphicons Halflings";
-		content:"\e144";
-	}
-	@media (max-width: 768px) {
-	   .ef_proweb_form_prompt {
-	      text-align: left; 
-	  }
-	  .ef-required-field::after {
-		float: left;  
-	  }
-	}
-	.EF_dropdown_searchable_container {
-		float: left;
-		max-width: 90%!important;
-	}
-	.EF_dropdown_searchable_selection {
-	    width: 100%;
-	    height: 34px!important;
-	    padding: 3px 10px;
-	    font-size: 14px;
-	    line-height: 1.42857143;
-	    color: #555;
-	    background-color: #fff;
-	    background-image: none;
-	    border: 1px solid #ccc!important;
-	    border-radius: 4px!important;
-	    -webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,.075)!important;
-	    box-shadow: inset 0 1px 1px rgba(0,0,0,.075);
-	    -webkit-transition: border-color ease-in-out .15s,-webkit-box-shadow ease-in-out .15s;
-	    -o-transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s;
-	    transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s;
-	}
-	.select2-selection__rendered {
-		background-color: inherit!important;
-		color: inherit!important;
-	}
-	.ef-proweb-form-row-editable, .ef-proweb-form-row {
-		padding-top: 4px;
-		padding-bottom:4px;	
-		margin: 10px !important;
-		border-width: 1px;
-		border-color: transparent;
-		border-style: solid;
-	}
-	.ui-sortable-handle {
-		cursor: grab;
-		cursor: -webkit-grab; cursor:-moz-grab; 
-	}
-	.ui-sortable-handle:active {
-		cursor: grabbing;
-		cursor: -webkit-grabbing; cursor:-moz-grabbing;
-	}		
-	.ef-proweb-input-element-short {
-		width: 40%;
-		float: left; 	
-	}
-
-	.ef-proweb-radio-group {
-		text-align: left;
-		padding-bottom: 0px;
-		padding-top: 0px;	
-	}
-	.ef-proweb-radio-button {
-		padding-left: 0px;	
-		padding-top: 0px;
-		padding-bottom: 0px;
-		font-weight: 700;
-	}
-	.ef-proweb-input-element {
-		width: 80%;
-		float: left;
-	}
-	.ef-proweb-checkboxGroup {
-		text-align: left;	
-	}
-	.ef-proweb-menu-handle {
-		width: 1%;	
-	}
-	.ef-proweb-error-panel { 
-		margin-left: 10%;
-		margin-right: 10%;
-		padding: 0px;
-		background-color: RED;
-		color: WHITE;	
-	}
-	.panel, .ef-proweb-guest-panel {
-		  border: 1px solid #c8c8c8;
-		  margin-bottom: 18px;
-		  background-color: #eeeeee;
-		  border: 1px solid transparent;
-		  border-radius: 4px;
-		  -webkit-box-shadow: 0 1px 1px rgba(0, 0, 0, 0.05);
-		  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.05);
-	}
-	 
-	.ef-proweb-guest-panel .panel-heading {
-	  font-family: MuseoSlab500Regular, Verdana, Geneva, Arial, Helvetica, sans-serif;
-	  font-size: 14px;
-	  font-weight: normal;
-	  color: white;
-	  background: #0091aa;
-	  padding: 5px;
-	}
-	.ef-proweb-guest-panel .panel-body {
-		padding: 0px;	
-	}
-	.ef-proweb-input-element-backendOnly {
-		background-color: rgb(245, 222, 179);
-	}
-	.ef-proweb-input-element-backendOnly::-webkit-input-placeholder { /* Chrome/Opera/Safari */
-		color: #CCCCCC;
-	}
-	.ef-proweb-input-element-backendOnly::-moz-placeholder { /* Firefox 19+ */
-		color: #CCCCCC;
-	}
-	.ef-proweb-input-element-backendOnly:-ms-input-placeholder { /* IE 10+ */
-		color: #CCCCCC;
-	}
-	.ef-proweb-direct-label-edit input {
-		text-align: right;	
-	}	
-	.k-upload-button {
-		margin: 0px !important;	
-	}	
-	.ef_frontend_file_uploader.k-content {
-		min-height: 0px;
-		text-alignment: left;	
-	}
-	.ef-proweb-floating-menu-divider {
-		color: #AAAAAA; 
-		padding-left: 10px; 
-		font-style: italic;	
-	}
-
-.row {
-	margin: 20px;	
-}
-.ef-proweb-dropdown-button {
-	background-color: #3e3e3e !important;
-	color: rgb(220, 220, 220) !important;
-	border: 0px;	
-}
-.ef-proweb-dropdown-button:hover{
-	background-color: rgb(255,160,49) !important;
-	color: WHITE !important;	
-}
-.ef-proweb-dropdown-link {
-	text-decoration: none !important;
-}
-
-.ef-proweb-menu-handle {
-	position: fixed;
-	left: 0px;
-	top: 0px;	
-}
-.efDatePicker, .efTimePicker {
-	border-width: 0px;
-	width: 100%;
-}
-.EF_dropdown_searchable_selection {
-	text-align: left;
-}
-[class*="col-"] .select2-container {
-    width:80%!important;
-}
-.ef-showing-floater .col-sm-8.ef_proweb_form_prompt::after {
-	font-family: "Glyphicons Halflings";
-    content: "\e119";
-    float: right;
-}
-.ef-proweb-floater-button-group {
-	display: inline-flex !important;
-}
-.ef_frontend_help_text_icon {
-	float: left;
-}
-.col-sm-4.ef_proweb_form_prompt .control-label {
-	width: 85%;
-}
-.ef-proweb-direct-label-edit input {
-	width: 70%;
-}
-.ef-proweb-form-row-editable.ef-showing-floater, .ef-Proweb-Quick-Edit-Panel, .ef-proweb-empty-list {
-    background-color: #EEEEEE;
-    border-color: GRAY;
-    border-style: dashed;
-    border-width: 1px;
-    border-radius: 5px;
-}
-.ef-proweb-btn-default {
-	background-color: WHITE;		
-	color: BLACK;
-	border-color: #CCCCCC;
-	border-width: 1px;
-}
-.ef-proweb-btn-default:active, .btn:active, .btn.active {
-	background-color: #ffa031;		
-	color: WHITE;
-	border-color: #CCCCCC;
-	border-width: 1px;
-}
-.ef-text-length-count-message {
-	float: left;
-	clear: both;
-}
-.ef-proweb-empty-list {
-	width: 100%;
-	height: 100%;	
-}
-textarea.form-control {
-	resize: vertical;
-}
-.dropdown-menu {
-	margin: 0;
-}
-.ef-label-text {
-    font-weight: 700;
-}
-</style>
 ]]></CSP>
 
 
@@ -17869,17 +17641,17 @@ FRRE RULE
 <Class name="layout.cssDefaultMethods">
 <Description><![CDATA[
 <!-- ;vc;-
-;vc;    Object: layout.cssDefaultMethods.CLS/EV.80
+;vc;    Object: layout.cssDefaultMethods.CLS/EV.79
 ;vc; Component: CLS.layout.cssDefaultMethods
 ;vc;  Location: LargeDev
-;vc; Date/Time: 25-Oct-16 12:24
+;vc; Date/Time: 16-Nov-16 09:14
 ;vc;      User: FredG
-;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>layout.cssDefaultMethods.CLS/EV.80</td><td>CLS.layout.cssDefaultMethods</td><td>LargeDev</td><td style='white-space: nowrap;'>25-Oct-16 12:24</td><td>FredG</td></tr></table>
+;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>layout.cssDefaultMethods.CLS/EV.79</td><td>CLS.layout.cssDefaultMethods</td><td>LargeDev</td><td style='white-space: nowrap;'>16-Nov-16 09:14</td><td>FredG</td></tr></table>
 ]]></Description>
 <Abstract>1</Abstract>
 <ClassType/>
 <ProcedureBlock>1</ProcedureBlock>
-<TimeChanged>64236,36499.899361</TimeChanged>
+<TimeChanged>64183,34581</TimeChanged>
 <TimeCreated>63046,56232.897117</TimeCreated>
 
 <Method name="outputDefaultCSS">
@@ -18009,7 +17781,7 @@ yellow red grey etc. Used for ALL templates below gen3</Description>
 			margin-top: 2px;
 			margin-bottom: 2px;
 			border-width: 1px;
-			border-style: solid;
+			border-style: solid; 
 		}
 
 		.ef-registration-section .select2-container {
@@ -18104,6 +17876,7 @@ yellow red grey etc. Used for ALL templates below gen3</Description>
 		td.ef_proweb_form_prompt {
 			text-align: right;
 		}
+
 		.ef-registration-section td label {
 			display: inline-block;
 		    font-weight: normal;
@@ -18114,6 +17887,7 @@ yellow red grey etc. Used for ALL templates below gen3</Description>
 		.ef-registration-section td.ef_proweb_form_prompt label {
 		    text-align: right;
 		}
+
 		.ef-registration-section label.ef-radio {
 			display: inline;
 		   
@@ -20060,14 +19834,6 @@ The basic frontend default stuff</Description>
 	>
 ]]></Implementation>
 </Method>
-
-<Method name="outputProweb2CSS">
-<ClassMethod>1</ClassMethod>
-<Implementation><![CDATA[
-	&html<
-	>
-]]></Implementation>
-</Method>
 </Class>
 
 
@@ -20077,14 +19843,14 @@ The basic frontend default stuff</Description>
 ;vc;    Object: layout.objTemplate.CLS/EV.51
 ;vc; Component: CLS.layout.objTemplate
 ;vc;  Location: LargeDev
-;vc; Date/Time: 27-Oct-16 16:07
+;vc; Date/Time: 16-Nov-16 09:12
 ;vc;      User: FredG
-;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>layout.objTemplate.CLS/EV.51</td><td>CLS.layout.objTemplate</td><td>LargeDev</td><td style='white-space: nowrap;'>27-Oct-16 16:07</td><td>FredG</td></tr></table>
+;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>layout.objTemplate.CLS/EV.51</td><td>CLS.layout.objTemplate</td><td>LargeDev</td><td style='white-space: nowrap;'>16-Nov-16 09:12</td><td>FredG</td></tr></table>
 ]]></Description>
 <ClassType>persistent</ClassType>
 <ProcedureBlock>1</ProcedureBlock>
 <Super>%Library.Persistent,shared.timeStamp</Super>
-<TimeChanged>64233,36475.649792</TimeChanged>
+<TimeChanged>64238,57969.643522</TimeChanged>
 <TimeCreated>60782,60196.270659</TimeCreated>
 <Inheritance>right</Inheritance>
 
@@ -20816,18 +20582,19 @@ outputs each section of code doing the banner, menu and footer when needed</Desc
 		set before=rsLT.Data("before"),after=rsLT.Data("after")
 		if from=before set okToWrite=1   // start writing
 		if to=before set okToWrite=0   // stop writing if the item we've got to is the one we want to stop at
-		/*
-		if (##class(sc.methods).isUsingProweb2()) && (before = "[[ef_main_progress]]") && (after = "[[ef_main_header]]")  {
-			set okToWrite = 0 // page header is part of the contents in proweb2. Templates that have the header in a different position will have to be changed.	
-		}
-		if (##class(sc.methods).isUsingProweb2()) && (before = "[[ef_main_header]]") && (after = "[[ef_main_content]]")  {
-			set okToWrite = 0 // page header is part of the contents in proweb2. Templates that have the header in a different position will have to be changed.	
-		}
-		*/
 		if okToWrite	{
-			;w "before=",before," after=",after
 			if before="" {
-				do ##class(layout.cssDefaultMethods).outputDefaultCSS(xEventID,layoutTemplateID)
+				if ##class(sc.methods).isUsingProweb2() {
+					// only output the CSS files of external libraries for proweb2 pages
+					do ##class(layout.cssDefaultMethods).outputComponentCSS()
+					&html<
+						<!-- generation 4 frontend styles -->
+						<link rel="stylesheet" href="../../media/stylesheets/default/ef-styles-website-gen4.css" type="text/css" />
+
+					>
+				} else {
+					do ##class(layout.cssDefaultMethods).outputDefaultCSS(xEventID,layoutTemplateID)
+				}
 			}
 			if before="[[ef_logo]]" {
 				do ##class(EF.ui.templateComponents.efLogo).outputLogoHTMLfromTemplateTag(xEventID)
@@ -21525,7 +21292,7 @@ Returns true if the template is custom made</Description>
 </Class>
 
 
-<Project name="proweb 2" LastModified="2016-11-15 16:15:11.216533" Target="largedevsrc/backEnd/proweb/quickEditAJAX.csp" TargetType="3">
+<Project name="proweb 2" LastModified="2016-11-16 16:09:32.013928" Target="largedevsrc/EF.pages.frontend.baseProweb.cls" TargetType="3">
   <Items>
     <ProjectItem name="EF.contextDataRegistration" type="CLS"></ProjectItem>
     <ProjectItem name="EF.contextDataRegistrationMock" type="CLS"></ProjectItem>
@@ -24997,34 +24764,6 @@ note that this must be a classmethod or you will a compile error as the property
 </Class>
 
 
-<Class name="sc.viewQuestionsByPageID">
-<ClassType>view</ClassType>
-<CompileAfter>sc.objData</CompileAfter>
-<DdlAllowed>1</DdlAllowed>
-<Owner>UnknownUser</Owner>
-<ProcedureBlock>0</ProcedureBlock>
-<SqlTableName>viewQuestionsByPageID</SqlTableName>
-<TimeChanged>64225,43701.484754</TimeChanged>
-<TimeCreated>64225,43364.844535</TimeCreated>
-<ViewQuery><![CDATA[ 
-	SELECT 
-		ID AS prowebID,
-		parent->parent AS pageID, 
-		description AS labelText, 
-		objItemName AS databaseNameID, 
-		objItemName->description AS databaseName,
-		type AS questionType,
-		displayOrder
-	FROM sc_xModules.objCODitem 
-	WHERE (active=1) 
-]]></ViewQuery>
-
-<Parameter name="READONLY">
-<Default>1</Default>
-</Parameter>
-</Class>
-
-
 <Class name="sc.xModules.objList">
 <Description><![CDATA[
 Holds a list of other objects as children.
@@ -25174,17 +24913,17 @@ Creates new list object. Should be done the first time the page is loaded</Descr
 <Description><![CDATA[
 The data type that represents a a page level in the hierachy. 
 <!-- ;vc;
-;vc;    Object: sc.xModules.objPage.CLS/EV.36
+;vc;    Object: sc.xModules.objPage.CLS/EV.35
 ;vc; Component: CLS.sc.xModules.objPage
 ;vc;  Location: LargeDev
-;vc; Date/Time: 08-Nov-16 08:48
+;vc; Date/Time: 16-Nov-16 09:07
 ;vc;      User: FredG
-;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>sc.xModules.objPage.CLS/EV.36</td><td>CLS.sc.xModules.objPage</td><td>LargeDev</td><td style='white-space: nowrap;'>08-Nov-16 08:48</td><td>FredG</td></tr></table>
+;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>sc.xModules.objPage.CLS/EV.35</td><td>CLS.sc.xModules.objPage</td><td>LargeDev</td><td style='white-space: nowrap;'>16-Nov-16 09:07</td><td>FredG</td></tr></table>
 ]]></Description>
 <ClassType>persistent</ClassType>
 <ProcedureBlock>1</ProcedureBlock>
 <Super>sc.objData</Super>
-<TimeChanged>64232,40994.710189</TimeChanged>
+<TimeChanged>64194,48199</TimeChanged>
 <TimeCreated>58926,57261</TimeCreated>
 
 <Parameter name="EXTENTSIZE">
@@ -26087,12 +25826,6 @@ Gets the description without the language modifier</Description>
 </Value>
 <Value name="22">
 <Value>objEvent</Value>
-</Value>
-<Value name="23">
-<Value>pageHeader</Value>
-</Value>
-<Value name="24">
-<Value>hasPageHeaderEverBeenAdded</Value>
 </Value>
 </Data>
 <Property name="accessLevel">

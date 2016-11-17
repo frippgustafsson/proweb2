@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.2 (Build 736U)" ts="2016-11-16 16:09:32">
+<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.2 (Build 736U)" ts="2016-11-17 16:40:28">
 <Class name="EF.contextDataRegistration">
 <Description><![CDATA[
 <!-- ;vc;-
@@ -1773,7 +1773,7 @@ Should be run if any of the sub-classes are deleted</Description>
 <Description>
 Should have a one-to-one relationship with sc.objList</Description>
 <Super>EF.pageController.containerElement</Super>
-<TimeChanged>64237,58404.919175</TimeChanged>
+<TimeChanged>64239,37728.99282</TimeChanged>
 <TimeCreated>64231,55587.036042</TimeCreated>
 
 <Property name="prowebListID">
@@ -2131,7 +2131,14 @@ refers to sc.xModules.objList</Description>
 <ReturnType>%Numeric</ReturnType>
 <Implementation><![CDATA[
 	#dim price as %Numeric
-	set price = ##class(sc.xModules.objCODitem).getPrice(alternative.alternativeID, prowebItem.storage.prowebID , ..page.contextData.eventID, ..page.contextData.currencyID)
+	#dim currencyID as %Integer = ..page.contextData.currencyID
+	#dim eventID as %Integer = ..page.contextData.eventID
+	
+	if ..page.contextData.prowebMode = "edit" {
+		set currencyID = ##class(setup.objEvent).getBaseCurrency(eventID)
+	}
+	set price = ##class(sc.xModules.objCODitem).getPrice(alternative.alternativeID, prowebItem.storage.prowebID , eventID, currencyID)
+	
 	return price
 ]]></Implementation>
 </Method>
@@ -4319,7 +4326,7 @@ this is for version 1 of proweb</Description>
 <Class name="EF.pages.frontend.baseProweb">
 <ProcedureBlock>0</ProcedureBlock>
 <Super>EF.pages.frontend.base</Super>
-<TimeChanged>64237,59237.782338</TimeChanged>
+<TimeChanged>64239,55059.268604</TimeChanged>
 <TimeCreated>64191,31442.531402</TimeCreated>
 
 <Parameter name="ENCODED">
@@ -4591,18 +4598,37 @@ this is for version 1 of proweb</Description>
 we need to refactor the frontend buttons to make them callable from class methods</Description>
 <ClassMethod>1</ClassMethod>
 <Implementation><![CDATA[
+	&html< 
+		<div class="row">
+			<div class="col-sm-6 ef-button-container-left">
+	 >
+	set cancelButton = ##class(EF.ui.components.frontend.buttonLink).createNew("Back", ..Link(..getBackButtonURL()) )
+	do cancelButton.render()
+	
+	&html< 
+		</div>
+		<div class="col-sm-6 ef-button-container-right">
+	>
+	set proceedButton = ##class(EF.ui.components.frontend.buttonSubmit).createNew("Proceed","submit")
+	do proceedButton.render()
+	&html< </div></div> >
+	/*
+	// =======
 	set %request.Data("isSubmit",1) = 1
 	set %request.Data("name",1) = "butProceed"
 	set %request.Data("buttonText",1) = "Proceed"
 	set %request.Data("hoverText",1) = "Submit and proceed"
 	&html<
-			<button id="ef_frontend_button_back" type="button" class="noPrint standardButton ef_frontend_button ef_frontend_button_back on-click-redirect" data-link-url="#(..encodeForHTMLAttribute(..Link(..getBackButtonURL())))#">
+			<button id="ef_frontend_button_back" type="button" class="noPrint btn" 
+			data-link-url="#(..encodeForHTMLAttribute(..Link(..getBackButtonURL())))#">
             	Back
         	</button>
 			<div style="float: right;">
+			
 		>
 	do ##class(cspRealEV.frontend.reg.frontendbutton).OnPage()
 	write !,"</div>"
+	*/
 ]]></Implementation>
 </Method>
 
@@ -4912,7 +4938,7 @@ we need to refactor the frontend buttons to make them callable from class method
 
 <Class name="EF.ui.components.frontend.buttonAddGuest">
 <Super>EF.ui.components.buttonBase,EF.ui.components.frontend.prowebBase</Super>
-<TimeChanged>64232,57216.389522</TimeChanged>
+<TimeChanged>64239,43427.15275</TimeChanged>
 <TimeCreated>64183,40678.260093</TimeCreated>
 
 <Property name="maximumNumberOfGuests">
@@ -4932,7 +4958,7 @@ we need to refactor the frontend buttons to make them callable from class method
 	set outerDiv.classes = "row"
 	do outerDiv.renderStart()
 	set labelDiv = ##class(EF.ui.components.div).%New()
-	set labelDiv.classes = "col-sm-4 ef_proweb_form_prompt"
+	set labelDiv.classes = "col-sm-4 ef-proweb-label-container"
 	do labelDiv.render()
 	set buttonDiv = ##class(EF.ui.components.div).%New()
 	set buttonDiv.classes = "col-sm-8"
@@ -4971,6 +4997,94 @@ we need to refactor the frontend buttons to make them callable from class method
 <Value>maximumNumberOfGuests</Value>
 </Value>
 </Data>
+</Storage>
+</Class>
+
+
+<Class name="EF.ui.components.frontend.buttonLink">
+<Super>EF.ui.components.buttonBase</Super>
+<TimeChanged>64239,55322.908562</TimeChanged>
+<TimeCreated>64239,51952.661539</TimeCreated>
+
+<Property name="href">
+<Type>%String</Type>
+<Parameter name="MAXLEN" value="1000000"/>
+</Property>
+
+<Method name="createNew">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>label:%String,href:%String,title:%String="",isDisabled:%Boolean=0</FormalSpec>
+<ReturnType>EF.ui.components.frontend.buttonLink</ReturnType>
+<Implementation><![CDATA[
+	if $Length(label) = 0 {
+		throw ##class(shared.exceptions.generalException).%New("No label text passed in to createNewButton")	
+	}
+	if $Length(href) = 0 {
+		throw ##class(shared.exceptions.generalException).%New("No HREF passed in to createNewButton")	
+	}
+	set button = ..%New("ef-button-"_label)
+	set button.label = label
+	set button.type = "button"
+	set button.href = href
+	set button.title = title
+	set button.isDisabled = isDisabled
+	set button.classes = "btn on-click-redirect"	
+
+	return button
+]]></Implementation>
+</Method>
+
+<Method name="renderStart">
+<Implementation><![CDATA[
+	&html<
+		<button type="button" id="#(..encodeForHTMLAttribute(..htmlID))#" class="#(..encodeForHTMLAttribute(..classes))#" data-link-url="#(..encodeForHTMLAttribute(..href))#" #(..rawHTML(..getExtraAttributes()))#>
+    >
+]]></Implementation>
+</Method>
+
+<Storage name="Default">
+<Type>%Library.CacheStorage</Type>
+<DefaultData>buttonLinkDefaultData</DefaultData>
+<Data name="buttonLinkDefaultData">
+<Subscript>"buttonLink"</Subscript>
+<Value name="1">
+<Value>URL</Value>
+</Value>
+<Value name="2">
+<Value>href</Value>
+</Value>
+</Data>
+</Storage>
+</Class>
+
+
+<Class name="EF.ui.components.frontend.buttonSubmit">
+<Super>EF.ui.components.buttonBase</Super>
+<TimeChanged>64239,54669.558475</TimeChanged>
+<TimeCreated>64239,51952.661539</TimeCreated>
+
+<Method name="createNew">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>label:%String,title:%String="",isDisabled:%Boolean=0</FormalSpec>
+<ReturnType>EF.ui.components.frontend.buttonSubmit</ReturnType>
+<Implementation><![CDATA[
+	if $Length(label) = 0 {
+		throw ##class(shared.exceptions.generalException).%New("No label textpassed in to createNewButton")	
+	}
+	
+	set button = ..%New("ef-button-"_label)
+	set button.label = label
+	set button.type = "submit"
+	set button.title = title
+	set button.isDisabled = isDisabled
+	set button.classes = "btn-lg btn-primary "
+	
+	return button
+]]></Implementation>
+</Method>
+
+<Storage name="Default">
+<Type>%Library.CacheStorage</Type>
 </Storage>
 </Class>
 
@@ -5950,7 +6064,7 @@ we need to refactor the frontend buttons to make them callable from class method
 
 <Class name="EF.ui.components.frontend.inputElement">
 <Super>EF.ui.components.frontend.prowebBase,EF.ui.components.inputBase</Super>
-<TimeChanged>64232,47850.414023</TimeChanged>
+<TimeChanged>64239,59544.496318</TimeChanged>
 <TimeCreated>64183,40678.260093</TimeCreated>
 
 <Property name="alternatives">
@@ -6024,22 +6138,8 @@ we need to refactor the frontend buttons to make them callable from class method
 <Method name="renderHelpAndRowClosing">
 <Implementation><![CDATA[
 	if $Length(..helpText) > 0 {
-		if ..contextData.isTestMode {
-			Set helpTextID = "helpTextIcon_Mock-1"	
-		} else {
-			Set helpTextID = "helpTextIcon_"_$TR(##class(%SYSTEM.Util).CreateGUID(),"-","")
-		}
-			
 		&html<
-			<div id="#(helpTextID)#" class="ef_frontend_help_text_icon">?</div>
-			<div id="#(helpTextID)#_content" class="ef_frontend_help_text_content" style="display: none;">
-				<pre>#(##class(%CSP.Page).EscapeHTML(..helpText))#</pre>
-			</div>
-			<script language="javascript">
-				$(document).ready(function(){
-					ef_create_help_text_qtip('#(helpTextID)#');
-				});
-			</script>
+			<span class="glyphicon glyphicon-question-sign ef-proweb-help-icon" title="#(..encodeForHTMLAttribute(..helpText))#"></span>
 		>
 	}
 	
@@ -6085,7 +6185,7 @@ we need to refactor the frontend buttons to make them callable from class method
 		if ..contextData.prowebMode = "edit" {
 			set directEditClasses = "ef-proweb-direct-label-edit"
 			if ..validator.isMandatory {
-				set directEditClasses = directEditClasses_" ef-required-field"
+				set directEditClasses = directEditClasses_" ef-proweb-required-field"
 			}
 			&html<
 				<div class="#(..encodeForHTMLAttribute(directEditClasses))#" 
@@ -6131,12 +6231,12 @@ we need to refactor the frontend buttons to make them callable from class method
 </Method>
 
 <Method name="renderLabelCellOpening">
-<Implementation><![CDATA[	write "<div class=""col-sm-4 ef_proweb_form_prompt ",..encodeForHTMLAttribute(..getDependentClass()),""" ",..rawHTML(..getDependsOnText()),">"
+<Implementation><![CDATA[	write "<div class=""col-sm-4 ef-proweb-label-container ",..encodeForHTMLAttribute(..getDependentClass()),""" ",..rawHTML(..getDependsOnText()),">"
 ]]></Implementation>
 </Method>
 
 <Method name="renderInputElementCellOpening">
-<Implementation><![CDATA[	write "<div class=""col-sm-8 ef_proweb_form_prompt"">"
+<Implementation><![CDATA[	write "<div class=""col-sm-8"">"
 ]]></Implementation>
 </Method>
 
@@ -6191,7 +6291,7 @@ we need to refactor the frontend buttons to make them callable from class method
 
 <Class name="EF.ui.components.frontend.inputLabel">
 <Super>EF.ui.components.label</Super>
-<TimeChanged>64231,55737.500484</TimeChanged>
+<TimeChanged>64239,50590.074514</TimeChanged>
 <TimeCreated>64231,55311.604253</TimeCreated>
 
 <Method name="renderContents">
@@ -6211,7 +6311,7 @@ we need to refactor the frontend buttons to make them callable from class method
 <Implementation><![CDATA[
 	set classes = ##super()
 	if ..isMandatory {
-		set classes = classes_" ef-required-field"
+		set classes = classes_" ef-proweb-required-field"
 	}
 	
 	return classes
@@ -6567,7 +6667,7 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 
 <Class name="EF.ui.components.frontend.prowebBase">
 <Super>EF.ui.components.base</Super>
-<TimeChanged>64231,61962.947443</TimeChanged>
+<TimeChanged>64239,50499.748372</TimeChanged>
 <TimeCreated>64183,41819.123112</TimeCreated>
 
 <Property name="isProwebEditMode">
@@ -6644,7 +6744,7 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 <ReturnType>%String</ReturnType>
 <Implementation><![CDATA[
 	if (..showHideDependencyList '= "") && (..contextData.prowebMode = "edit") {	
-		return "ef-dependent-field"
+		return "ef-proweb-dependent-field"
 	} else {
 		return ""
 	}
@@ -6692,7 +6792,7 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 
 <Class name="EF.ui.components.frontend.radioGroup">
 <Super>EF.ui.components.listInput,EF.ui.components.frontend.inputElement</Super>
-<TimeChanged>64237,63125.775955</TimeChanged>
+<TimeChanged>64239,43533.368039</TimeChanged>
 <TimeCreated>63356,39686.205586</TimeCreated>
 
 <Method name="getDefaultClasses">
@@ -6719,7 +6819,7 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 </Method>
 
 <Method name="renderInputElementCellOpening">
-<Implementation><![CDATA[	write "<div class=' col-sm-8 ef_proweb_form_prompt ef-proweb-radio-group'>"
+<Implementation><![CDATA[	write "<div class=' col-sm-8 ef-proweb-radio-group'>"
 ]]></Implementation>
 </Method>
 
@@ -11504,6 +11604,7 @@ function saveSameAs(categoryID) {
 	set baseCodQuestionDetailsURL="codQuestionDetails.csp?pageID="_..encodeForURL(pageID)_"&dataID="_..encodeForURL(dataID)_"&quantityItem="_..encodeForURL(isQuantityItem)_"&additional="_..encodeForURL(isAdditionalItem)
 	set codQuestionDetailsURL = ..addParameterToURL(baseCodQuestionDetailsURL, "itemNameID", itemNameID)
 	set newCodQuestionDetailsURL = ..addParameterToURL(baseCodQuestionDetailsURL, "itemNameID", "NEW")
+	set codQuestionDetailsURL = ..addParameterToURL(codQuestionDetailsURL, "gotoPage", %request.Get("gotoPage"))
 	set errorURL=codQuestionDetailsURL
 
 	// get the current values, used to compare against for audit trail purposes
@@ -11668,6 +11769,12 @@ function saveSameAs(categoryID) {
 	}	
 	set dependsOnPrompt=%request.Get("selDependsOnDataID")
 	if dependsOnPrompt {
+		set dependencyItem = ##class(sc.dependency).createNew(dependsOnPrompt)
+		if (dependencyItem.existsInDependencyChain(dataID)) {
+			set %session.Data("proweb","backend","errMsg") = "The changes can't be saved because they would create an endless dependency loop."
+			set %response.Redirect = errorURL
+			quit 0
+		}
 		if isDelegate {
 			set isDependentParentForGuests=##class(sc.methods).isGuestItem(dependsOnPrompt)
 			if isDependentParentForGuests {
@@ -11946,7 +12053,7 @@ function saveSameAs(categoryID) {
 			set bookableItemQBI.hasCapacityNotification = +%request.Get("chkqNotification")
 			set bookableItemQBI.capacityNotificationLevel = %request.Get("txtqNotificationLevel")
 			if 'bookableItemQBI.isValid(.listOfErrorMessages) {
-				set %session.Data("proweb","backend","errMsg") = listOfErrorMessages.GetAt(1)
+				set %session.Data("proweb","backend","errMsg") = "The changes can't be saved because "_listOfErrorMessages.GetAt(1)_"."
 				TROLLBACK
 				set %response.Redirect = errorURL
 				return 0
@@ -12328,7 +12435,6 @@ function saveSameAs(categoryID) {
 	
 	if %request.Get("gotoCodQuestionCSV") {
 		set codQuestionDetailsURL = ..addParameterToURL(codQuestionDetailsURL, "gotoCodQuestionCSV", 1)
-		set codQuestionDetailsURL = ..addParameterToURL(codQuestionDetailsURL, "gotoPage", %request.Get("gotoPage"))
 		set %response.Redirect=codQuestionDetailsURL
 		quit 0
 	}
@@ -19850,7 +19956,7 @@ The basic frontend default stuff</Description>
 <ClassType>persistent</ClassType>
 <ProcedureBlock>1</ProcedureBlock>
 <Super>%Library.Persistent,shared.timeStamp</Super>
-<TimeChanged>64238,57969.643522</TimeChanged>
+<TimeChanged>64239,43001.591871</TimeChanged>
 <TimeCreated>60782,60196.270659</TimeCreated>
 <Inheritance>right</Inheritance>
 
@@ -20589,7 +20695,7 @@ outputs each section of code doing the banner, menu and footer when needed</Desc
 					do ##class(layout.cssDefaultMethods).outputComponentCSS()
 					&html<
 						<!-- generation 4 frontend styles -->
-						<link rel="stylesheet" href="../../media/stylesheets/default/ef-styles-website-gen4.css" type="text/css" />
+						<link rel="stylesheet" href="../../media/stylesheets/frontend/gen4/ef-website-gen4.css" type="text/css" />
 
 					>
 				} else {
@@ -21292,7 +21398,7 @@ Returns true if the template is custom made</Description>
 </Class>
 
 
-<Project name="proweb 2" LastModified="2016-11-16 16:09:32.013928" Target="largedevsrc/EF.pages.frontend.baseProweb.cls" TargetType="3">
+<Project name="proweb 2" LastModified="2016-11-17 16:40:28.334589" Target="largedevsrc/EF.pages.frontend.baseProweb.cls" TargetType="3">
   <Items>
     <ProjectItem name="EF.contextDataRegistration" type="CLS"></ProjectItem>
     <ProjectItem name="EF.contextDataRegistrationMock" type="CLS"></ProjectItem>
@@ -21355,7 +21461,6 @@ Returns true if the template is custom made</Description>
     <ProjectItem name="EF.ui.components.attribute" type="CLS"></ProjectItem>
     <ProjectItem name="EF.ui.components.backend.panel" type="CLS"></ProjectItem>
     <ProjectItem name="EF.ui.components.frontend.buttonAddGuest" type="CLS"></ProjectItem>
-    <ProjectItem name="EF.ui.components.frontend.buttonSubmit" type="CLS"></ProjectItem>
     <ProjectItem name="EF.ui.components.frontend.checkbox" type="CLS"></ProjectItem>
     <ProjectItem name="EF.ui.components.frontend.checkboxGroup" type="CLS"></ProjectItem>
     <ProjectItem name="EF.ui.components.frontend.datePicker" type="CLS"></ProjectItem>
@@ -21447,6 +21552,8 @@ Returns true if the template is custom made</Description>
     <ProjectItem name="EF.ui.components.frontend.alternativeABIRadio" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.proweb.radioGroup" type="CLS"></ProjectItem>
     <ProjectItem name="EF.ui.components.frontend.radioGroup" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.ui.components.frontend.buttonSubmit" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.ui.components.frontend.buttonLink" type="CLS"></ProjectItem>
   </Items>
   <BreakPoints>
     <BreakPoint Routine="cspRealEV.frontend.reg.pagecontrollerstandardsave.CLS" Offset="OnPreHTTPafter+28"></BreakPoint>

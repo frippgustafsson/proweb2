@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.2 (Build 736U)" ts="2016-11-17 16:40:28">
+<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.2 (Build 736U)" ts="2016-11-22 14:12:41">
 <Class name="EF.contextDataRegistration">
 <Description><![CDATA[
 <!-- ;vc;-
@@ -1581,11 +1581,15 @@ Should be run if any of the sub-classes are deleted</Description>
 
 <Class name="EF.pageController.proweb.guestPanel">
 <Super>EF.pageController.proweb.panel</Super>
-<TimeChanged>64236,39221.288162</TimeChanged>
+<TimeChanged>64243,41213.238062</TimeChanged>
 <TimeCreated>63372,47064.603748</TimeCreated>
 
 <Property name="guestNumber">
 <Type>%Integer</Type>
+</Property>
+
+<Property name="deleteButton">
+<Type>EF.pageController.proweb.buttonAddGuest</Type>
 </Property>
 
 <Method name="getDefaultUIComponent">
@@ -1602,12 +1606,91 @@ Should be run if any of the sub-classes are deleted</Description>
 ]]></Implementation>
 </Method>
 
+<Method name="createGuestPanel">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>parent:EF.pageController.proweb.list,prowebID:%Integer,guestNumber:%Integer</FormalSpec>
+<ReturnType>EF.pageController.proweb.guestPanel</ReturnType>
+<Implementation><![CDATA[
+	set guestPanel = ##class(EF.pageController.proweb.guestPanel).addElementToParent(parent, "GuestPanel-"_prowebID_"-"_guestNumber, "Guest")	
+	set guestPanel.guestNumber = guestNumber
+	set guestPanel.showHideDependencyList = ##class(EF.ui.components.dependencyList).createNew("ef-is-guest-active-"_guestNumber,1)
+	do guestPanel.addDeleteGuestButton()
+	do parent.listOfControllerIDsSorted.Insert(guestPanel.identifier)
+	
+	return guestPanel
+]]></Implementation>
+</Method>
+
 <Method name="renderElements">
 <FormalSpec>parentListElement:EF.pageController.containerElements.list=""</FormalSpec>
 <Implementation><![CDATA[
 	do ..uiComponent.renderStart()
 	do ##super()
+	do ..deleteButton.uiComponent.render()
 	do ..uiComponent.renderEnd()
+]]></Implementation>
+</Method>
+
+<Method name="addElementForProwebItem">
+<FormalSpec>prowebItem:sc.facade.prowebItem,guestNumber:%Integer</FormalSpec>
+<ReturnType>EF.pageController.element</ReturnType>
+<Implementation><![CDATA[
+	set element = ##super(prowebItem, guestNumber)
+	if $IsObject(element.enableDisableDependencyList) {
+		set dependencyItem = ##class(EF.ui.components.dependencyItem).createNew("ef-is-guest-active-"_guestNumber,1)
+		do element.enableDisableDependencyList.addDependencyItem(dependencyItem)
+	} else {
+		set dependency = ##class(EF.ui.components.dependencyList).createNew("ef-is-guest-active-"_guestNumber,1)
+		set element.enableDisableDependencyList = dependency 	
+	}
+	return element
+]]></Implementation>
+</Method>
+
+<Method name="addDeleteGuestButton">
+<Implementation><![CDATA[
+	set ..deleteButton = ##class(EF.pageController.proweb.buttonDeleteGuest).addElementToParent($this, "ef-delete-guest-button-"_..guestNumber, "Delete Guest")
+	set ..deleteButton.uiComponent.guestNumber = ..guestNumber
+]]></Implementation>
+</Method>
+
+<Method name="copyGuestPanelForEachGuest">
+<Private>1</Private>
+<Implementation><![CDATA[
+	#dim key as %Integer = ""
+	#dim element as EF.pageController.element
+	#dim maxGuests as %Integer = ..page.getEventConfiguration().getMaxGuestsPerAttendee()
+	#dim prowebID = $Piece(..identifier,"-",2)
+	
+	if ..page.contextData.isTestMode {
+		set maxGuests = ..page.contextData.maxGuests
+	}
+	for guestNumber = 2:1:maxGuests {
+		set newGuestPanel = ..createGuestPanel(..elementParent,prowebID, guestNumber)	
+		set key = ""
+		for  {
+			set elementID = ..listOfControllerIDsSorted.GetNext(.key)
+			if key="" quit
+			set element = ..page.getElementByIdentifier(elementID)
+			set newController = newGuestPanel.addElementForProwebItem(element.uiComponent.prowebItem, guestNumber)
+ 
+			
+			kill newController	
+		}
+		
+		
+	}
+	
+	do ..addGuestTool()
+]]></Implementation>
+</Method>
+
+<Method name="addGuestTool">
+<Implementation><![CDATA[
+	#dim prowebID = $Piece(..identifier,"-",2)
+	set parent =..elementParent.identifier
+	set button = ##class(EF.pageController.proweb.buttonAddGuest).addElementToParent(..elementParent, "ef-guest-tool-"_prowebID, "Add Guest")
+	do ..elementParent.listOfControllerIDsSorted.Insert(button.identifier)
 ]]></Implementation>
 </Method>
 
@@ -1615,10 +1698,12 @@ Should be run if any of the sub-classes are deleted</Description>
 <Type>%Library.CacheStorage</Type>
 <DefaultData>guestPanelDefaultData</DefaultData>
 <Data name="guestPanelDefaultData">
-<Structure>listnode</Structure>
 <Subscript>"guestPanel"</Subscript>
 <Value name="1">
 <Value>guestNumber</Value>
+</Value>
+<Value name="2">
+<Value>deleteButton</Value>
 </Value>
 </Data>
 </Storage>
@@ -1773,7 +1858,7 @@ Should be run if any of the sub-classes are deleted</Description>
 <Description>
 Should have a one-to-one relationship with sc.objList</Description>
 <Super>EF.pageController.containerElement</Super>
-<TimeChanged>64239,37728.99282</TimeChanged>
+<TimeChanged>64240,65087.034804</TimeChanged>
 <TimeCreated>64231,55587.036042</TimeCreated>
 
 <Property name="prowebListID">
@@ -1831,24 +1916,21 @@ refers to sc.xModules.objList</Description>
 			set prowebItem = ##class(sc.facade.prowebItem).createNew(storage)
 			if (prowebItem.storage.%Extends("sc.facade.prowebItemStorageInputElement")) && (prowebItem.storage.isGuest) {
 				if '$IsObject(guestPanel) {
-					set guestPanel = ##class(EF.pageController.proweb.guestPanel).addElementToParent($this, "GuestPanel-"_prowebItem.storage.prowebID, "Guest")	
-					set guestPanel.guestNumber = 1
-					set guestPanel.showHideDependencyList = ##class(EF.ui.components.dependencyList).createNew("ef-is-guest-active-"_guestPanel.guestNumber,1)
-					do ..listOfControllerIDsSorted.Insert(guestPanel.identifier)
+					set guestPanel = ##class(EF.pageController.proweb.guestPanel).createGuestPanel($this, prowebItem.storage.prowebID, 1)
 				}
 				set element = guestPanel.addElementForProwebItem(prowebItem,1)
 			} else {
-				set element = ..addElementForProwebItem(prowebItem)
 				if $IsObject(guestPanel) {
-					do ..insertOneSetOfQuestionsPerGuest(guestPanel, prowebItem)
+					do guestPanel.copyGuestPanelForEachGuest()
 					set guestPanel = ""
 				}
+				set element = ..addElementForProwebItem(prowebItem)
 			}
 			
 		}
 	}
 	if $IsObject(guestPanel) {
-		do ..insertOneSetOfQuestionsPerGuest(guestPanel, prowebItem.storage.prowebID)
+		do guestPanel.copyGuestPanelForEachGuest()
 	}
 ]]></Implementation>
 </Method>
@@ -1865,12 +1947,8 @@ refers to sc.xModules.objList</Description>
 
 	#dim elementIdentifier as %String = ..page.getElementIdentifierForProwebItems(prowebItem)
 	#dim element as EF.pageController.proweb.prowebBase
-	set guestNumber = ""
 	if $$$isInputElement { 
-		set element = ..getNewElementForQuestion(prowebItem, optionalGuestNumber)
-		if element.uiComponent.isGuest {
-			set guestNumber = 1	
-		}	
+		set element = ..getNewElementForQuestion(prowebItem, optionalGuestNumber)	
 	} elseif $$$isTextBlock {
 		set element = ##class(EF.pageController.proweb.textBlock).addElementToParent($this, elementIdentifier, prowebItem.storage.text)
 	
@@ -1896,52 +1974,10 @@ refers to sc.xModules.objList</Description>
 	set element.uiComponent.contextData = ..page.contextData
 	
 	if (element.#canBeDependent) {
-		do ..addDependencyToElement(element, prowebItem, guestNumber)
+		do ..addDependencyToElement(element, prowebItem, optionalGuestNumber)
 	}
 	do ..listOfControllerIDsSorted.Insert(element.identifier)
 	return element
-]]></Implementation>
-</Method>
-
-<Method name="insertOneSetOfQuestionsPerGuest">
-<FormalSpec>guestPanel,identifier</FormalSpec>
-<Private>1</Private>
-<Implementation><![CDATA[
-	#dim key as %Integer = ""
-	#dim element as EF.pageController.element
-	#dim maxGuests as %Integer = ..page.getEventConfiguration().getMaxGuestsPerAttendee()
-	
-	if ..page.contextData.isTestMode {
-		set maxGuests = ..page.contextData.maxGuests
-	}
-	for guestNumber = 2:1:maxGuests {
-		set newGuestPanel = ##class(EF.pageController.proweb.guestPanel).addElementToParent($this, "GuestPanel-"_identifier_"-"_guestNumber, "Guest")	
-		set newGuestPanel.guestNumber = guestNumber
-		set newGuestPanel.showHideDependencyList = ##class(EF.ui.components.dependencyList).createNew("ef-is-guest-active-"_guestNumber,1)
-		set key = ""
-		for  {
-			set elementID = guestPanel.listOfControllerIDsSorted.GetNext(.key)
-			if key="" quit
-			set element = ..page.getElementByIdentifier(elementID)
-			
-			set newController = newGuestPanel.addElementForProwebItem(element.uiComponent.prowebItem, guestNumber)
- 
-			
-			kill newController	
-		}
-		do ..listOfControllerIDsSorted.Insert(newGuestPanel.identifier)
-		
-	}
-	
-	do ..addGuestTool(identifier)
-]]></Implementation>
-</Method>
-
-<Method name="addGuestTool">
-<FormalSpec>insertPosition:%Integer</FormalSpec>
-<Implementation><![CDATA[
-	set button = ##class(EF.pageController.proweb.buttonAddGuest).addElementToParent($this, "ef-guest-tool-"_insertPosition, "Add Guest")
-	do ..listOfControllerIDsSorted.Insert(button.identifier)
 ]]></Implementation>
 </Method>
 
@@ -2235,16 +2271,24 @@ Should have a one-to-one relationship with sc.objList</Description>
 
 <Class name="EF.pageController.proweb.listWithQuestionsRegistration">
 <Super>EF.pageController.proweb.listWithQuestions</Super>
-<TimeChanged>64236,42851.487768</TimeChanged>
+<TimeChanged>64240,63466.278886</TimeChanged>
 <TimeCreated>64233,52209.241492</TimeCreated>
 
 <Method name="loadProwebListElementsFromDatabase">
 <Implementation><![CDATA[
 	for guestNumber = 1:1:..page.getEventConfiguration().getMaxGuestsPerAttendee() {
-		if ..page.getTempPersonIdForGuestNumber(guestNumber) {
-			set isActive = 1	
+		if (..page.contextData.prowebMode = "edit") {
+			if guestNumber = 1 {
+				set isActive = 1
+			} else {
+				set isActive = 0	
+			}
 		} else {
-			set isActive = 0	
+			if ..page.getTempPersonIdForGuestNumber(guestNumber) {
+				set isActive = 1	
+			} else {
+				set isActive = 0	
+			}
 		}
 		set isGuestActiveElem = ##class(EF.pageController.proweb.hiddenInput).addElementToParent($this,"ef-is-guest-active-"_guestNumber, "",isActive)
 		do isGuestActiveElem.uiComponent.addClass("ef-is-guest-active")
@@ -2300,7 +2344,7 @@ Should have a one-to-one relationship with sc.objList</Description>
 
 <Class name="EF.pageController.proweb.page">
 <Super>EF.pageController.page</Super>
-<TimeChanged>64236,40779.285955</TimeChanged>
+<TimeChanged>64240,62771.801809</TimeChanged>
 <TimeCreated>64189,51696.559047</TimeCreated>
 
 <Property name="contextData">
@@ -2441,6 +2485,12 @@ Should have a one-to-one relationship with sc.objList</Description>
 		throw ##class(shared.exceptions.generalException).%New("Failed to create a new tempPerson for guest")
 	}
 	return tempPersonGuestID
+]]></Implementation>
+</Method>
+
+<Method name="deleteTempGuest">
+<FormalSpec>tempPersonID</FormalSpec>
+<Implementation><![CDATA[	do ##class(eCom.tempPerson).deleteGuest(tempPersonID)
 ]]></Implementation>
 </Method>
 
@@ -2620,9 +2670,13 @@ also an entry point from unit tests</Description>
 			set prowbItemName = ##class(sc.xModules.objCODitem).getCODItemName(prowebItemID)
 			
 			if element.isGuest {
+				set isActive = ..getValueByIdentifier("ef-is-guest-active-"_element.guestNumber)
 				set tempPersonID = ..getTempPersonIdForGuestNumber(element.guestNumber)
-				if 'tempPersonID {
-					set tempPerson=..createNewTempPersonForGuest()	
+				if (isActive) && ('tempPersonID) {
+					set tempPersonID=..createNewTempPersonForGuest()	
+				}
+				if ('isActive) &&(tempPersonID) {
+					do ..deleteTempGuest(tempPersonID)	
 				}
 			} else {
 				set tempPersonID = ..contextData.tempPersonID	
@@ -4326,7 +4380,7 @@ this is for version 1 of proweb</Description>
 <Class name="EF.pages.frontend.baseProweb">
 <ProcedureBlock>0</ProcedureBlock>
 <Super>EF.pages.frontend.base</Super>
-<TimeChanged>64239,55059.268604</TimeChanged>
+<TimeChanged>64243,42740.932761</TimeChanged>
 <TimeCreated>64191,31442.531402</TimeCreated>
 
 <Parameter name="ENCODED">
@@ -4393,8 +4447,7 @@ this is for version 1 of proweb</Description>
 	if ##class(shared.pageMethods).getEditMode() = "edit" {
 		set %session.Data("inSitePageEditing") = 1 // force the menu and banner to be displayed
 		do ##class(eCom.tempPurchase).clearBackendBooking()
-		kill %session.Data("insertBeforeProwebID") 
-		kill %session.Data("insertAfterProwebID")
+		kill %session.Data("eventsforce", "backend", "proweb page")
 		set floatingMenu = ##class(EF.ui.components.frontend.floatingMenu).%New()
 		do floatingMenu.outputFloatingMenuHTML()	
 	}
@@ -4436,15 +4489,18 @@ this is for version 1 of proweb</Description>
 <Implementation><![CDATA[
 	write ##class(shared.pageMethods).outputFrontendHeader()
 	Write !,"<head>"
+ 	
  	do ##class(layout.objTemplate).writeBit("","{{ef_header}}")
+	
 	Do ..Include("frontendHTTPheader.csp")
+	
 	Do ..Include("colourScheme.csp")
 	do ..renderCommonCSS()
 	do ..OnPagePageHeaderCSS()
 	do ..renderCommonJavascript()
 	do ..outputMetaTags()
 	Write !,"</head>"
-	Write !,"<body class=""bodyBackground"">"
+	Write !,"<body class=""ef-background-color"">"
 	
  	do ##class(layout.objTemplate).writeBit("{{ef_header}}","{{ef_banner}}")
  	
@@ -6464,7 +6520,7 @@ eventid</Description>
 
 <Class name="EF.ui.components.frontend.menuBlock">
 <Super>EF.ui.components.frontend.prowebBase</Super>
-<TimeChanged>64223,57685.796936</TimeChanged>
+<TimeChanged>64244,43977.086575</TimeChanged>
 <TimeCreated>64183,38661.128484</TimeCreated>
 
 <Method name="render">
@@ -6474,7 +6530,7 @@ eventid</Description>
 
 	do ..renderRowOpening()
 		do ..renderCellOpening()
-			write !,"<div ",..rawHTML(..getProwebExtraAttributes()),">"
+			write !,"<div class=""ef-menu-block""",..rawHTML(..getProwebExtraAttributes()),">"
 			write !,..rawHTML("<ul class='ef_proweb_menu_ul'>")
 			for i = 1:1:menuCount {
 				set menuItem = ..prowebItem.storage.listOfMenuItems.GetAt(i)
@@ -6547,7 +6603,7 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 
 <Class name="EF.ui.components.frontend.panel">
 <Super>EF.ui.components.frontend.prowebBase,EF.ui.components.panel</Super>
-<TimeChanged>64236,44172.720064</TimeChanged>
+<TimeChanged>64239,62186.701468</TimeChanged>
 <TimeCreated>64204,36543.176151</TimeCreated>
 
 <Method name="renderStart">
@@ -6555,9 +6611,6 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 	&html<
 			<div class="ef-proweb-guest-panel ef-draggable-div"   #(..rawHTML(..getExtraAttributes()))#>
 	            <div class="panel-heading">#(..encodeForHTML(##class(shared.pCSP).out("Guest")))#
-	            	<button type="button" id="efProwebDeleteLink" class="btn btn-default">
-		        		<span class="glyphicon glyphicon-trash"></span>
-					</button>
 	            	
 	            </div>
 				<div class="panel-body ef-proweb-reorderable-guest">
@@ -9041,10 +9094,15 @@ function loadItem(itemNameID) {
 								<td class="black10px" colspan="3" style="padding-left: 2px;">
 									<textarea name="txtPrompt" class="black10px" style="width: 292px; height: 40px; padding-left: 4px; padding-top: 4px;">#(..encodeHTMLContentForTinyMCETextarea(prompt))#</textarea>
 								</td><td valign="top">
-									<csp:if condition=((itemNameID="NEW")!(itemNameID="CREATE"))>
-										<img src="../../media/images/English/Default/backend/advanced.gif" alt="advanced"  border="0" style="filter: alpha(opacity=35); opacity: 0.35;" title="You must save the database item before you can edit the question text.">
-									<csp:else>
-										<a href="javascript: popup('question');"><img src="../../media/images/English/Default/backend/advanced.gif" alt="advanced" border="0"></a>
+									<script language="cache" runat="server">
+										set allowHtmlEditing = '##class(sc.methods).isUsingProweb2()
+									</script>
+									<csp:if condition=(allowHtmlEditing)>
+										<csp:if condition=((itemNameID="NEW")!(itemNameID="CREATE"))>
+											<img src="../../media/images/English/Default/backend/advanced.gif" alt="advanced"  border="0" style="filter: alpha(opacity=35); opacity: 0.35;" title="You must save the database item before you can edit the question text.">
+										<csp:else>
+											<a href="javascript: popup('question');"><img src="../../media/images/English/Default/backend/advanced.gif" alt="advanced" border="0"></a>
+										</csp:if>
 									</csp:if>
 								</td>
 							</tr>
@@ -15247,6 +15305,7 @@ function cancelUpdate() {
 
 <CSP name="backEnd/proweb/quickEditAJAX.csp" application="/largedevsrc/" default="1"><![CDATA[
 <script language="cache" runat="server">
+	#dim prowebItem as sc.xModules.objCODitem
 	set contextData = ##class(EF.contextDataRegistration).createFromFrontendCSPSession()
 	set prowebID = %request.Get("prowebID") 
 	if 'prowebID {
@@ -15285,7 +15344,19 @@ function cancelUpdate() {
 			</label>
 		</div>	
 		<div class='col-sm-8'>
-			<input type="text" name="labelText" value="#(..encodeForHTMLAttribute(prowebItem.objItemName.description))#" disabled class="form-control ef-proweb-input-element">
+			<script language="cache" runat="server">
+				#dim prowebItem as sc.xModules.objCODitem
+				if prowebItem.objItemName.carryOver {
+					set scopeString = "Answer applies to all events"
+				} elseif ##class(cod.objItemName).isSingleEventQuestion(prowebItem.objItemName.%Id()) {
+					set scopeString = "Question is only available to this event"	
+				} else {
+					set scopeString = "Question is available to all events"	
+				}
+				set databaseItemDescription = prowebItem.objItemName.description_" - "_scopeString
+			</script>
+			<input type="text" name="labelText" value="#(..encodeForHTMLAttribute(databaseItemDescription))#" disabled class="form-control ef-proweb-input-element">
+
 		</div> 
 	</div>
 
@@ -15328,6 +15399,7 @@ function cancelUpdate() {
 					}
 				</script>
 			</select>
+			<span class="ef-depends-on">is</span>
 			<select id="dependsOnAlternative" class="form-control ef-proweb-input-element" style="width: 45%; margin-left: 12px;">
 				<script language="cache" runat="server">
 					if (prowebItem.dependsOnPrompt) && (prowebItem.dependsOnAlternative) {
@@ -15342,42 +15414,7 @@ function cancelUpdate() {
 		</div> 
 	</div>
 
-	<csp:if condition="isTextInput">
-		<div class='row'> 
-			<div class="col-sm-4 ef_proweb_form_prompt">
-				<label for="type" class="control-label" >The answer is</label>
-			</div>
-			<div class='col-sm-8'>
-				<div class="btn-group ef-proweb-input-element" id="type" data-toggle="buttons">
-					<label class="btn ef-proweb-btn-default #($Select(prowebItem.type = "text":"active",1:""))#">
-						<input type="radio" value="text" name="type">
-						Text
-					</label>
-					
-					<label class="btn ef-proweb-btn-default #($Select(prowebItem.type = "emailAddress":"active",1:""))#">
-						<input type="radio" value="emailAddress" name="type">
-						Email
-					</label>
-					
-					<label class="btn ef-proweb-btn-default #($Select(prowebItem.type = "phoneNumber":"active",1:""))#">
-						<input type="radio" value="phoneNumber" name="type">
-						Phone
-					</label>
-					
-					<label class="btn ef-proweb-btn-default #($Select(prowebItem.type = "webAddress":"active",1:""))#">
-						<input type="radio" value="webAddress" name="type">
-						URL
-					</label>
 
-					<label class="btn ef-proweb-btn-default #($Select(prowebItem.type = "integer":"active",1:""))#">
-						<input type="radio" value="integer" name="type">
-						Number
-					</label>
-
-				</div>
-			</div>
-		</div>
-	</csp:if>
 </div>
 <script language="javascript">
 $('.ef-Proweb-Quick-Edit-Panel').find('input[type=checkbox]').each(function() {
@@ -15439,29 +15476,15 @@ $('.ef-Proweb-Quick-Edit-Panel').find('textarea').each(function() {
 	set prowebItem.mandatory = +%request.Get("isMandatory")
 	set newIsMandatory = prowebItem.mandatory
 	
-	if $Length( %request.Get("type") ) {
-		set oldType = prowebItem.type
-		set prowebItem.type = %request.Get("type")
-		set newType = prowebItem.type
-		if (oldType '= newType) {
-			set auditType = 1
-		}
-	}
-	
 	set oldDependsOnPrompt = prowebItem.dependsOnPrompt
 	set prowebItem.dependsOnPrompt = %request.Get("dependsOnParent")
 	set newDependsOnPrompt = prowebItem.dependsOnPrompt
-	
-	;w "new value=",%request.Get("dependsOnParent")
-	;w "<br>new alt=",%request.Get("dependsOnAlternative")
 	
 	if prowebItem.dependsOnPrompt {
 		set auditDepencency = 1
 		set selectedAlternative = %request.Get("dependsOnAlternative")
 		set databaseItemID = ##class(sc.xModules.objCODitem).getCODItemNameID(prowebItem.dependsOnPrompt)
 		set selectedAlternativeID = ##class(cod.objItemAlternatives).getIDFromDescription(databaseItemID, selectedAlternative)
-	;	w !,"databaseItemID=",databaseItemID
-	;	w !,"selectedAlternativeID=",selectedAlternativeID
 	}
 	
 	set oldDependsOnAlternative = prowebItem.dependsOnAlternative
@@ -16342,11 +16365,11 @@ function updateAlts(codPromptID) {
 	set pageControllerID=%request.Get("prowebPageControllerID")
 	
 	set ok=1
-	try {
+	//try {
 		set pageController=##class(EF.pageController.page).open(pageControllerID,contextData)
-	} catch {
-		throw ##class(shared.exceptions.generalException).%New("Failed to open the frontend page controller when saving page")
-	}
+	//} catch {
+	//	throw ##class(shared.exceptions.generalException).%New("Failed to open the frontend page controller when saving page")
+	//}
 	
 	set backforward=##class(setup.objPageNav).goWhere("codFormSave.csp", , contextData.tempPersonID, %request.Get("pageID")) 
 	set redirectURL = $Piece(backforward,"|",2)
@@ -19956,7 +19979,7 @@ The basic frontend default stuff</Description>
 <ClassType>persistent</ClassType>
 <ProcedureBlock>1</ProcedureBlock>
 <Super>%Library.Persistent,shared.timeStamp</Super>
-<TimeChanged>64239,43001.591871</TimeChanged>
+<TimeChanged>64243,42086.859988</TimeChanged>
 <TimeCreated>60782,60196.270659</TimeCreated>
 <Inheritance>right</Inheritance>
 
@@ -20691,13 +20714,13 @@ outputs each section of code doing the banner, menu and footer when needed</Desc
 		if okToWrite	{
 			if before="" {
 				if ##class(sc.methods).isUsingProweb2() {
-					// only output the CSS files of external libraries for proweb2 pages
 					do ##class(layout.cssDefaultMethods).outputComponentCSS()
 					&html<
 						<!-- generation 4 frontend styles -->
 						<link rel="stylesheet" href="../../media/stylesheets/frontend/gen4/ef-website-gen4.css" type="text/css" />
 
 					>
+					do ##class(layout.cssOverrideMethods).outputWebsiteAppearanceCSS(xEventID)
 				} else {
 					do ##class(layout.cssDefaultMethods).outputDefaultCSS(xEventID,layoutTemplateID)
 				}
@@ -21398,7 +21421,7 @@ Returns true if the template is custom made</Description>
 </Class>
 
 
-<Project name="proweb 2" LastModified="2016-11-17 16:40:28.334589" Target="largedevsrc/EF.pages.frontend.baseProweb.cls" TargetType="3">
+<Project name="proweb 2" LastModified="2016-11-17 16:40:28.333995" Target="largedevsrc/EF.pages.frontend.baseProweb.cls" TargetType="3">
   <Items>
     <ProjectItem name="EF.contextDataRegistration" type="CLS"></ProjectItem>
     <ProjectItem name="EF.contextDataRegistrationMock" type="CLS"></ProjectItem>
@@ -21431,6 +21454,7 @@ Returns true if the template is custom made</Description>
     <ProjectItem name="EF.pageController.proweb.phoneNumber" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.proweb.privateData" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.proweb.prowebBase" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.pageController.proweb.radioGroup" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.proweb.testCases.checkboxGroupTestCase" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.proweb.testCases.datePIckerTestCase" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.proweb.testCases.dateRangeTestCase" type="CLS"></ProjectItem>
@@ -21460,7 +21484,12 @@ Returns true if the template is custom made</Description>
     <ProjectItem name="EF.pages.frontend.baseProweb" type="CLS"></ProjectItem>
     <ProjectItem name="EF.ui.components.attribute" type="CLS"></ProjectItem>
     <ProjectItem name="EF.ui.components.backend.panel" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.ui.components.frontend.alternativeABI" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.ui.components.frontend.alternativeABIDropdown" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.ui.components.frontend.alternativeABIRadio" type="CLS"></ProjectItem>
     <ProjectItem name="EF.ui.components.frontend.buttonAddGuest" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.ui.components.frontend.buttonLink" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.ui.components.frontend.buttonSubmit" type="CLS"></ProjectItem>
     <ProjectItem name="EF.ui.components.frontend.checkbox" type="CLS"></ProjectItem>
     <ProjectItem name="EF.ui.components.frontend.checkboxGroup" type="CLS"></ProjectItem>
     <ProjectItem name="EF.ui.components.frontend.datePicker" type="CLS"></ProjectItem>
@@ -21475,6 +21504,7 @@ Returns true if the template is custom made</Description>
     <ProjectItem name="EF.ui.components.frontend.inputElement" type="CLS"></ProjectItem>
     <ProjectItem name="EF.ui.components.frontend.inputLabel" type="CLS"></ProjectItem>
     <ProjectItem name="EF.ui.components.frontend.integerInput" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.ui.components.frontend.label" type="CLS"></ProjectItem>
     <ProjectItem name="EF.ui.components.frontend.menuBlock" type="CLS"></ProjectItem>
     <ProjectItem name="EF.ui.components.frontend.numericInput" type="CLS"></ProjectItem>
     <ProjectItem name="EF.ui.components.frontend.panel" type="CLS"></ProjectItem>
@@ -21482,6 +21512,7 @@ Returns true if the template is custom made</Description>
     <ProjectItem name="EF.ui.components.frontend.phoneNumber" type="CLS"></ProjectItem>
     <ProjectItem name="EF.ui.components.frontend.privateData" type="CLS"></ProjectItem>
     <ProjectItem name="EF.ui.components.frontend.prowebBase" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.ui.components.frontend.radioGroup" type="CLS"></ProjectItem>
     <ProjectItem name="EF.ui.components.frontend.textArea" type="CLS"></ProjectItem>
     <ProjectItem name="EF.ui.components.frontend.textBlock" type="CLS"></ProjectItem>
     <ProjectItem name="EF.ui.components.frontend.textInput" type="CLS"></ProjectItem>
@@ -21546,14 +21577,6 @@ Returns true if the template is custom made</Description>
     <ProjectItem name="setup.availabilityCheckerSession" type="CLS"></ProjectItem>
     <ProjectItem name="setup.bookingLevelCounterFrontendSession" type="CLS"></ProjectItem>
     <ProjectItem name="shared.pageMethods" type="CLS"></ProjectItem>
-    <ProjectItem name="EF.ui.components.frontend.label" type="CLS"></ProjectItem>
-    <ProjectItem name="EF.ui.components.frontend.alternativeABI" type="CLS"></ProjectItem>
-    <ProjectItem name="EF.ui.components.frontend.alternativeABIDropdown" type="CLS"></ProjectItem>
-    <ProjectItem name="EF.ui.components.frontend.alternativeABIRadio" type="CLS"></ProjectItem>
-    <ProjectItem name="EF.pageController.proweb.radioGroup" type="CLS"></ProjectItem>
-    <ProjectItem name="EF.ui.components.frontend.radioGroup" type="CLS"></ProjectItem>
-    <ProjectItem name="EF.ui.components.frontend.buttonSubmit" type="CLS"></ProjectItem>
-    <ProjectItem name="EF.ui.components.frontend.buttonLink" type="CLS"></ProjectItem>
   </Items>
   <BreakPoints>
     <BreakPoint Routine="cspRealEV.frontend.reg.pagecontrollerstandardsave.CLS" Offset="OnPreHTTPafter+28"></BreakPoint>
@@ -24795,7 +24818,7 @@ note that this must be a classmethod or you will a compile error as the property
 
 <Class name="sc.proweb2methods">
 <Super>%RegisteredObject</Super>
-<TimeChanged>64231,38473.152379</TimeChanged>
+<TimeChanged>64243,50322.459983</TimeChanged>
 <TimeCreated>64218,41830.065131</TimeCreated>
 
 <Method name="moveNewElementToDesiredPosition">
@@ -24803,36 +24826,37 @@ note that this must be a classmethod or you will a compile error as the property
 <FormalSpec>dataID:%Integer</FormalSpec>
 <Implementation><![CDATA[
 	#dim targetPosition as %Integer = ""
-	#dim insertBeforeProwebID as %Integer = %session.Get("insertBeforeProwebID")
-	#dim insertAfterProwebID as %Integer = %session.Get("insertAfterProwebID")
-	#dim basePosition as %Integer
+	#dim beforeOrAfter as %Integer = $Get(%session.Data("eventsforce", "backend", "proweb page", "insert proweb item", "beforeOrAfter"))
+	#dim selectedProwebID As %Integer = $Get(%session.Data("eventsforce", "backend", "proweb page", "insert proweb item", "selectedProwebID"))
 
-	if insertBeforeProwebID {
-		set basePosition = ##class(sc.objData).getDisplayOrder(insertBeforeProwebID)
-		set targetPosition  = (basePosition - 1)
-	} elseif insertAfterProwebID {
-		set basePosition = ##class(sc.objData).getDisplayOrder(insertAfterProwebID)
-		set targetPosition  = (basePosition)
+	if (beforeOrAfter = "after") {
+		set targetPosition = ##class(sc.objData).getDisplayOrder(selectedProwebID)
 	}
 	
 	if targetPosition {
 		do ..moveChildToPosition(dataID, targetPosition)
 	}
 	
-	kill %session.Data("insertAfterProwebID")
-	kill %session.Data("insertBeforeProwebID")
+	kill %session.Data("eventsforce", "backend", "proweb page")
 ]]></Implementation>
 </Method>
 
 <Method name="savePassedInDesiredPositionToSession">
 <ClassMethod>1</ClassMethod>
 <Implementation><![CDATA[
-	if %request.Get("insertBeforeProwebID") {
-		set %session.Data("insertBeforeProwebID") = %request.Get("insertBeforeProwebID")
+	if ((%request.Get("selectedProwebID") '= "") && (%request.Get("beforeOrAfter") '= "")) {
+		set %session.Data("eventsforce", "backend", "proweb page", "insert proweb item", "selectedProwebID") = %request.Get("selectedProwebID")
+		set %session.Data("eventsforce", "backend", "proweb page", "insert proweb item", "beforeOrAfter") = %request.Get("beforeOrAfter")
 	}
-	if %request.Get("insertAfterProwebID") {
-		set %session.Data("insertAfterProwebID") = %request.Get("insertAfterProwebID")
-	}
+]]></Implementation>
+</Method>
+
+<Method name="setDesiredPositionToSession">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>selectedProwebID,beforeOrAfter</FormalSpec>
+<Implementation><![CDATA[
+	set %session.Data("eventsforce", "backend", "proweb page", "insert proweb item", "selectedProwebID") = selectedProwebID
+	set %session.Data("eventsforce", "backend", "proweb page", "insert proweb item", "beforeOrAfter") = beforeOrAfter
 ]]></Implementation>
 </Method>
 

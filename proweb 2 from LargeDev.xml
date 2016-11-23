@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.2 (Build 736U)" ts="2016-11-22 14:12:41">
+<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.2 (Build 736U)" ts="2016-11-23 18:00:22">
 <Class name="EF.contextDataRegistration">
 <Description><![CDATA[
 <!-- ;vc;-
@@ -273,15 +273,15 @@ if website is private, this will be set to the cod.objPerson.ID of that logged i
 <Class name="EF.pageController.containerElement">
 <Description><![CDATA[
 <!-- ;vc;-
-;vc;    Object: EF.pageController.containerElement.CLS/EV.17
+;vc;    Object: EF.pageController.containerElement.CLS/EV.19
 ;vc; Component: CLS.EF.pageController.containerElement
 ;vc;  Location: LargeDev
-;vc; Date/Time: 25-Oct-16 12:34
-;vc;      User: FredG
-;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>EF.pageController.containerElement.CLS/EV.17</td><td>CLS.EF.pageController.containerElement</td><td>LargeDev</td><td style='white-space: nowrap;'>25-Oct-16 12:34</td><td>FredG</td></tr></table>
+;vc; Date/Time: 22-Nov-16 16:08
+;vc;      User: MindaugasL
+;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>EF.pageController.containerElement.CLS/EV.19</td><td>CLS.EF.pageController.containerElement</td><td>LargeDev</td><td style='white-space: nowrap;'>22-Nov-16 16:08</td><td>MindaugasL</td></tr></table>
 ]]></Description>
 <Super>EF.pageController.element</Super>
-<TimeChanged>64142,56781</TimeChanged>
+<TimeChanged>64245,44611.353687</TimeChanged>
 <TimeCreated>63372,47273.826383</TimeCreated>
 
 <Property name="getContentsMethod">
@@ -387,6 +387,18 @@ This is a list of all the elements that are updated by the processGetContents me
 ]]></Implementation>
 </Method>
 
+<Method name="addTextInputRange">
+<FormalSpec>identifier:%String,description:%String,value1="",value2="",isReadOnly=0</FormalSpec>
+<ReturnType>EF.pageController.inputElements.textInput</ReturnType>
+<Implementation><![CDATA[
+	set element = ##class(EF.pageController.inputElements.textInputRange).addElementToParent($this, identifier, description, "", isReadOnly)
+	do ##class(EF.pageController.inputElements.textInput).addElementToParent(element, identifier_"-value1", "", value1, isReadOnly)
+	do ##class(EF.pageController.inputElements.textInput).addElementToParent(element, identifier_"-value2", "", value2, isReadOnly)
+
+	quit element
+]]></Implementation>
+</Method>
+
 <Method name="addEmailInput">
 <FormalSpec>identifier:%String,description:%String,value:%String,isReadOnly=0</FormalSpec>
 <ReturnType>EF.pageController.inputElements.textInput</ReturnType>
@@ -479,6 +491,18 @@ This is a list of all the elements that are updated by the processGetContents me
 ]]></Implementation>
 </Method>
 
+<Method name="addDateRange">
+<FormalSpec>identifier:%String,description:%String,value1="",value2="",isReadOnly=0</FormalSpec>
+<ReturnType>EF.pageController.inputElements.textInput</ReturnType>
+<Implementation><![CDATA[
+	set element = ##class(EF.pageController.inputElements.dateRange).addElementToParent($this, identifier, description, "", isReadOnly)
+	do ##class(EF.pageController.inputElements.datePicker).addElementToParent(element, identifier_"-value1", "", value1, isReadOnly)
+	do ##class(EF.pageController.inputElements.datePicker).addElementToParent(element, identifier_"-value2", "", value2, isReadOnly)
+
+	quit element
+]]></Implementation>
+</Method>
+
 <Method name="addDateTimePicker">
 <FormalSpec>identifier:%String,description:%String,value:%String,isReadOnly=0</FormalSpec>
 <ReturnType>EF.pageController.inputElements.textInput</ReturnType>
@@ -489,11 +513,37 @@ This is a list of all the elements that are updated by the processGetContents me
 ]]></Implementation>
 </Method>
 
+<Method name="addDateTimeRange">
+<FormalSpec>identifier:%String,description:%String,value1="",value2="",isReadOnly=0</FormalSpec>
+<ReturnType>EF.pageController.inputElements.textInput</ReturnType>
+<Implementation><![CDATA[
+	do ##class(EF.pageController.text).addElementToParent($this, identifier_"-label1", description)
+	set element = ##class(EF.pageController.containerElements.div).addElementToParent($this, identifier, description)
+	do ##class(EF.pageController.inputElements.dateTimePicker).addElementToParent(element, identifier_"-value1", "", value1, isReadOnly)
+	do ##class(EF.pageController.text).addElementToParent(element, identifier_"-label2", "and")
+	do ##class(EF.pageController.inputElements.dateTimePicker).addElementToParent(element, identifier_"-value2", "", value2, isReadOnly)
+
+	quit element
+]]></Implementation>
+</Method>
+
 <Method name="addTimePicker">
 <FormalSpec>identifier:%String,description:%String,value:%String,isReadOnly=0</FormalSpec>
 <ReturnType>EF.pageController.inputElements.textInput</ReturnType>
 <Implementation><![CDATA[
 	set element=##class(EF.pageController.inputElements.timePicker).addElementToParent($this,identifier,description,value,isReadOnly)
+
+	quit element
+]]></Implementation>
+</Method>
+
+<Method name="addTimeRange">
+<FormalSpec>identifier:%String,description:%String,value1="",value2="",isReadOnly=0</FormalSpec>
+<ReturnType>EF.pageController.inputElements.textInput</ReturnType>
+<Implementation><![CDATA[
+	set element = ##class(EF.pageController.inputElements.timeRange).addElementToParent($this, identifier, description, "", isReadOnly)
+	do ##class(EF.pageController.inputElements.timePicker).addElementToParent(element, identifier_"-value1", "", value1, isReadOnly)
+	do ##class(EF.pageController.inputElements.timePicker).addElementToParent(element, identifier_"-value2", "", value2, isReadOnly)
 
 	quit element
 ]]></Implementation>
@@ -2344,7 +2394,7 @@ Should have a one-to-one relationship with sc.objList</Description>
 
 <Class name="EF.pageController.proweb.page">
 <Super>EF.pageController.page</Super>
-<TimeChanged>64240,62771.801809</TimeChanged>
+<TimeChanged>64245,55930.977938</TimeChanged>
 <TimeCreated>64189,51696.559047</TimeCreated>
 
 <Property name="contextData">
@@ -2357,14 +2407,13 @@ Should have a one-to-one relationship with sc.objList</Description>
 
 <Method name="load">
 <Implementation><![CDATA[
-	if ..contextData.isTestMode = 0 {
+	if ..contextData.isTestMode {
+		do ..insertMockProwebItems()	
+	
+	} else {
 		do ..loadIncludePage(..contextData.eventWebsiteLanguage.getBannerPageID() , "banner page")
 		do ..loadIncludePage(..contextData.eventWebsiteLanguage.getMenuPageID() , "navigation bar page")
 		do ..loadAllProwebListsForPage()
-	} else {
-		do ..insertMockProwebItems()
-	}
-	if ..contextData.isTestMode = 0 {
 		do ..loadIncludePage(..contextData.eventWebsiteLanguage.getSponsorPageID(), "sponsor page") 
 		do ..loadIncludePage(..contextData.eventWebsiteLanguage.getFooterPageID(), "footer page")
 	}
@@ -4380,7 +4429,7 @@ this is for version 1 of proweb</Description>
 <Class name="EF.pages.frontend.baseProweb">
 <ProcedureBlock>0</ProcedureBlock>
 <Super>EF.pages.frontend.base</Super>
-<TimeChanged>64243,42740.932761</TimeChanged>
+<TimeChanged>64245,50848.05252</TimeChanged>
 <TimeCreated>64191,31442.531402</TimeCreated>
 
 <Parameter name="ENCODED">
@@ -4529,12 +4578,6 @@ this is for version 1 of proweb</Description>
 	do ##class(layout.objTemplate).writeBit("{{ef_main_buttons}}","{{ef_footer}}")
 	do ##class(layout.objTemplate).writeBit("{{ef_footer}}","")
 	
-	/* we don't want all the old proweb JS anymore
-	Do ..Include("editingFooter.csp")
-	set app=##class(sc.objData).applicationPath()
-	do ##class(cspRealEV.system.proweb.templatestop).OnPageCSPROOT()
-	*/
-	
 	Write !,!,"</body>"
 	Write !,"</html>",!
 ]]></Implementation>
@@ -4547,13 +4590,6 @@ this is for version 1 of proweb</Description>
 
 <Method name="renderCommonCSS">
 <ClassMethod>1</ClassMethod>
-<Implementation><![CDATA[
-	if ##class(shared.pageMethods).getEditMode() = "edit" {
-		&html<
-			<link type="text/css" href="https://2bb0f132f679bac07fa4-638acaa65ecf53798e8a5faa656f2b95.ssl.cf3.rackcdn.com/libs/jQueryUI/v.1.8.21/jquery.css" rel="Stylesheet"/>
-		>
-	}
-]]></Implementation>
 </Method>
 
 <Method name="outputMetaTags">
@@ -4614,7 +4650,7 @@ this is for version 1 of proweb</Description>
 <ClassMethod>1</ClassMethod>
 <Implementation><![CDATA[
 	&html<
-		<form id="#(..#efFormID)#" name="#(..getFormName())#" method="POST" action="#(..Link(..getFormAction()))#" class="form-horizontal">
+		<form id="#(..#efFormID)#" name="#(..getFormName())#" method="POST" action="#(..Link(..getFormAction()))#" class="form-horizontal ef-form">
 			<input type="hidden" name="pageID" value="#(contextData.pageID)#">
 			<input type="hidden" id="efSubmitButtonIdentifier" name="efSubmitButtonIdentifier" value="">
 			<input type="hidden" id="efDeleteButtonIdentifier" name="efDeleteButtonIdentifier" value="">
@@ -4668,23 +4704,6 @@ we need to refactor the frontend buttons to make them callable from class method
 	set proceedButton = ##class(EF.ui.components.frontend.buttonSubmit).createNew("Proceed","submit")
 	do proceedButton.render()
 	&html< </div></div> >
-	/*
-	// =======
-	set %request.Data("isSubmit",1) = 1
-	set %request.Data("name",1) = "butProceed"
-	set %request.Data("buttonText",1) = "Proceed"
-	set %request.Data("hoverText",1) = "Submit and proceed"
-	&html<
-			<button id="ef_frontend_button_back" type="button" class="noPrint btn" 
-			data-link-url="#(..encodeForHTMLAttribute(..Link(..getBackButtonURL())))#">
-            	Back
-        	</button>
-			<div style="float: right;">
-			
-		>
-	do ##class(cspRealEV.frontend.reg.frontendbutton).OnPage()
-	write !,"</div>"
-	*/
 ]]></Implementation>
 </Method>
 
@@ -5059,7 +5078,7 @@ we need to refactor the frontend buttons to make them callable from class method
 
 <Class name="EF.ui.components.frontend.buttonLink">
 <Super>EF.ui.components.buttonBase</Super>
-<TimeChanged>64239,55322.908562</TimeChanged>
+<TimeChanged>64245,64484.214721</TimeChanged>
 <TimeCreated>64239,51952.661539</TimeCreated>
 
 <Property name="href">
@@ -5084,7 +5103,7 @@ we need to refactor the frontend buttons to make them callable from class method
 	set button.href = href
 	set button.title = title
 	set button.isDisabled = isDisabled
-	set button.classes = "btn on-click-redirect"	
+	set button.classes = "btn btn-secondary on-click-redirect ef-push-button ef-push-button-secondary"	
 
 	return button
 ]]></Implementation>
@@ -5116,7 +5135,7 @@ we need to refactor the frontend buttons to make them callable from class method
 
 <Class name="EF.ui.components.frontend.buttonSubmit">
 <Super>EF.ui.components.buttonBase</Super>
-<TimeChanged>64239,54669.558475</TimeChanged>
+<TimeChanged>64245,64353.970775</TimeChanged>
 <TimeCreated>64239,51952.661539</TimeCreated>
 
 <Method name="createNew">
@@ -5133,7 +5152,7 @@ we need to refactor the frontend buttons to make them callable from class method
 	set button.type = "submit"
 	set button.title = title
 	set button.isDisabled = isDisabled
-	set button.classes = "btn-lg btn-primary "
+	set button.classes = "btn btn-primary ef-push-button ef-push-button-primary"
 	
 	return button
 ]]></Implementation>
@@ -5147,7 +5166,7 @@ we need to refactor the frontend buttons to make them callable from class method
 
 <Class name="EF.ui.components.frontend.checkbox">
 <Super>EF.ui.components.checkbox,EF.ui.components.frontend.inputElement,EF.ui.components.frontend.alternativeABI</Super>
-<TimeChanged>64237,57363.65403</TimeChanged>
+<TimeChanged>64245,62938.270294</TimeChanged>
 <TimeCreated>63355,62572.097775</TimeCreated>
 
 <Property name="price">
@@ -5159,7 +5178,7 @@ we need to refactor the frontend buttons to make them callable from class method
 	// The html bit
 	if $length(..label) {
 		&html<
-	        <label>
+	        <label class="ef-control-label">
 		        #[do ..renderCheckbox()]#
 		        #(..encodeHTMLContent(..label))#
 		        #(..getFormattedPriceString() )#
@@ -5261,7 +5280,7 @@ we need to refactor the frontend buttons to make them callable from class method
 
 <Class name="EF.ui.components.frontend.checkboxGroup">
 <Super>EF.ui.components.frontend.inputElement</Super>
-<TimeChanged>64237,61592.519538</TimeChanged>
+<TimeChanged>64245,63525.35507</TimeChanged>
 <TimeCreated>63356,56848.077942</TimeCreated>
 
 <Property name="label">
@@ -5312,14 +5331,7 @@ we need to refactor the frontend buttons to make them callable from class method
 </Method>
 
 <Method name="renderColumnStart">
-<Implementation><![CDATA[
-	if ..columns=1 {
-		&html<<div class="inputs-list ef-proweb-input-element ef-proweb-checkboxGroup">>
-	} elseif ..columns=2 {
-		&html<<div class="inputs-list ef-proweb-input-element ef-proweb-checkboxGroup col-sm-6">>
-	} else {
-		throw ##class(shared.exceptions.generalException).%New("Checkbox group not implemented for "_..columns_" columns")	
-	}
+<Implementation><![CDATA[	&html<<div class="inputs-list ef-proweb-input-element ef-checkbox-group">>
 ]]></Implementation>
 </Method>
 
@@ -6120,7 +6132,7 @@ we need to refactor the frontend buttons to make them callable from class method
 
 <Class name="EF.ui.components.frontend.inputElement">
 <Super>EF.ui.components.frontend.prowebBase,EF.ui.components.inputBase</Super>
-<TimeChanged>64239,59544.496318</TimeChanged>
+<TimeChanged>64245,62297.073713</TimeChanged>
 <TimeCreated>64183,40678.260093</TimeCreated>
 
 <Property name="alternatives">
@@ -6249,7 +6261,7 @@ we need to refactor the frontend buttons to make them callable from class method
 					id="ef-edit-label-input-#(..encodeForHTMLAttribute(..htmlID))#" 
 					data-proweb-id="#(..prowebItem.storage.prowebID)#"
 				>
-				<input class="ef-label-text" id="quick-edit-#(..htmlID)#" type="text" value="#(..encodeForHTMLAttribute(..label))#">
+				<input class="ef-control-label" id="quick-edit-#(..htmlID)#" type="text" value="#(..encodeForHTMLAttribute(..label))#">
 					
 				</div>
 			>
@@ -6347,7 +6359,7 @@ we need to refactor the frontend buttons to make them callable from class method
 
 <Class name="EF.ui.components.frontend.inputLabel">
 <Super>EF.ui.components.label</Super>
-<TimeChanged>64239,50590.074514</TimeChanged>
+<TimeChanged>64245,62401.569894</TimeChanged>
 <TimeCreated>64231,55311.604253</TimeCreated>
 
 <Method name="renderContents">
@@ -6358,7 +6370,7 @@ we need to refactor the frontend buttons to make them callable from class method
 <Method name="getDefaultClasses">
 <ClassMethod>1</ClassMethod>
 <ReturnType>%String</ReturnType>
-<Implementation><![CDATA[	return "control-label ef-label-text"
+<Implementation><![CDATA[	return "control-label ef-control-label"
 ]]></Implementation>
 </Method>
 
@@ -6520,7 +6532,7 @@ eventid</Description>
 
 <Class name="EF.ui.components.frontend.menuBlock">
 <Super>EF.ui.components.frontend.prowebBase</Super>
-<TimeChanged>64244,43977.086575</TimeChanged>
+<TimeChanged>64245,38511.005199</TimeChanged>
 <TimeCreated>64183,38661.128484</TimeCreated>
 
 <Method name="render">
@@ -6531,7 +6543,7 @@ eventid</Description>
 	do ..renderRowOpening()
 		do ..renderCellOpening()
 			write !,"<div class=""ef-menu-block""",..rawHTML(..getProwebExtraAttributes()),">"
-			write !,..rawHTML("<ul class='ef_proweb_menu_ul'>")
+			write !,..rawHTML("<ul class=""ef_proweb_menu_ul"">")
 			for i = 1:1:menuCount {
 				set menuItem = ..prowebItem.storage.listOfMenuItems.GetAt(i)
 				write !,"<li>"
@@ -6603,17 +6615,17 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 
 <Class name="EF.ui.components.frontend.panel">
 <Super>EF.ui.components.frontend.prowebBase,EF.ui.components.panel</Super>
-<TimeChanged>64239,62186.701468</TimeChanged>
+<TimeChanged>64245,51968.532972</TimeChanged>
 <TimeCreated>64204,36543.176151</TimeCreated>
 
 <Method name="renderStart">
 <Implementation><![CDATA[
 	&html<
-			<div class="ef-proweb-guest-panel ef-draggable-div"   #(..rawHTML(..getExtraAttributes()))#>
-	            <div class="panel-heading">#(..encodeForHTML(##class(shared.pCSP).out("Guest")))#
+			<div class="ef-panel ef-draggable-div"   #(..rawHTML(..getExtraAttributes()))#>
+	            <div class="ef-panel-heading">#(..encodeForHTML(##class(shared.pCSP).out("Guest")))#
 	            	
 	            </div>
-				<div class="panel-body ef-proweb-reorderable-guest">
+				<div class="ef-panel-body ef-proweb-reorderable-guest">
 	>
 ]]></Implementation>
 </Method>
@@ -6845,7 +6857,7 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 
 <Class name="EF.ui.components.frontend.radioGroup">
 <Super>EF.ui.components.listInput,EF.ui.components.frontend.inputElement</Super>
-<TimeChanged>64239,43533.368039</TimeChanged>
+<TimeChanged>64245,63874.945648</TimeChanged>
 <TimeCreated>63356,39686.205586</TimeCreated>
 
 <Method name="getDefaultClasses">
@@ -6872,12 +6884,12 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 </Method>
 
 <Method name="renderInputElementCellOpening">
-<Implementation><![CDATA[	write "<div class=' col-sm-8 ef-proweb-radio-group'>"
+<Implementation><![CDATA[	write "<div class=""col-sm-8 ef-radio-group"">"
 ]]></Implementation>
 </Method>
 
 <Method name="renderCellOpening">
-<Implementation><![CDATA[	write "<div class='ef-proweb-radio-button'>"
+<Implementation><![CDATA[	write "<div class=""ef-radio-button"">"
 ]]></Implementation>
 </Method>
 
@@ -6888,7 +6900,8 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 		set alternative.enableDisableDependencyList = ..enableDisableDependencyList
 	}
 	do ..renderCellOpening()
-	do alternative.addClass("ef-proweb-radio-button")
+	do alternative.removeClass("ef-btn-default")
+	do alternative.addClass("ef-control-label")
 	do alternative.render()
 	do ..renderCellClosing()
 ]]></Implementation>
@@ -7055,7 +7068,7 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 
 <Class name="EF.ui.components.frontend.textBlock">
 <Super>EF.ui.components.frontend.prowebBase</Super>
-<TimeChanged>64223,56829.493819</TimeChanged>
+<TimeChanged>64245,49968.976305</TimeChanged>
 <TimeCreated>64183,38661.128484</TimeCreated>
 
 <Property name="text">
@@ -7067,7 +7080,7 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 <Implementation><![CDATA[
 	do ..renderRowOpening()
 		do ..renderCellOpening()
-			write "<div ",..rawHTML(..getProwebExtraAttributes()),">"
+			write "<div class=""ef-text-block"" ",..rawHTML(..getProwebExtraAttributes()),">"
 			write ..rawHTML(..text)
 			write "</div>"
 		do ..renderCellClosing()
@@ -10073,7 +10086,7 @@ function loadItem(itemNameID) {
 											<td width="190"></td>
 										</tr>
 										<tr>
-											<td class="black10px" align="right"><tx>Registration status</tx>:&nbsp;&nbsp;</td>
+											<td class="black10px" align="right">Registrations:&nbsp;&nbsp;</td>
 											<td class="black10px">
 												<select name="selRegistrationStatus" class="black10px">
 													<option value="unlimited" #(..rawHTML($Select(qRegistrationStatus="unlimited":"selected",1:"")))#>Unlimited</option>
@@ -19966,6 +19979,473 @@ The basic frontend default stuff</Description>
 </Class>
 
 
+<Class name="layout.cssOverrideMethods">
+<Description><![CDATA[
+<!-- ;vc;-
+;vc;    Object: layout.cssOverrideMethods.CLS/EV.28
+;vc; Component: CLS.layout.cssOverrideMethods
+;vc;  Location: LargeDev
+;vc; Date/Time: 26-Oct-16 15:11
+;vc;      User: FredG
+;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>layout.cssOverrideMethods.CLS/EV.28</td><td>CLS.layout.cssOverrideMethods</td><td>LargeDev</td><td style='white-space: nowrap;'>26-Oct-16 15:11</td><td>FredG</td></tr></table>
+]]></Description>
+<Abstract>1</Abstract>
+<ClassType/>
+<ProcedureBlock>1</ProcedureBlock>
+<TimeChanged>64245,53355.854023</TimeChanged>
+<TimeCreated>63046,56108.531536</TimeCreated>
+
+<Method name="outputDynamicCSS">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>xEventID</FormalSpec>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	set templateID=##class(layout.objTemplate).getLayoutForEvent(xEventID)
+	set showDynamicCSS=0
+	if (##class(layout.methods).canUseStyleOverrides(xEventID))	{ // if we are using the new color picker, then output the buttons that use those colors and have a better design
+		set showDynamicCSS=1
+	}
+	
+	do ..outputAbstractDynamicCSS(xEventID)
+	
+	if 'showDynamicCSS quit
+	set efwscolor1=##class(layout.eventColorMethods).getWebsiteColor1(xEventID)
+	set efwscolor2=##class(layout.eventColorMethods).getWebsiteColor2(xEventID)
+	set efwscolor3=##class(layout.eventColorMethods).getWebsiteColor3(xEventID)
+	set menuTextColor=##class(layout.eventColorMethods).getMenuTextColor(xEventID)
+	set formDividerColor=##class(layout.eventColorMethods).getFormDividerColor(xEventID)
+ 
+ 	&html<
+		/* outputDynamicCSS() */
+		body, p, h2, h3, td, div, .black10px, .blackbold10px, .black12px, .blackbold12px, .red9px, .whitebold12px,
+		.ef_proweb_menu_ul, .ef_proweb_menu_ul a, .dropdown .btn, .EF_inputBox, .ef_frontend_button,
+		.ef_frontend_file_uploader .k-upload-button, .ef_frontend_button:hover, .ef_frontend_file_uploader .k-upload-button:hover,
+		.ef_frontend_button_proceed, .ef_frontend_button_proceed:hover, td.ef_proweb_form_prompt,
+		.whitebold10px, a.whitebold10px:hover, .yellow, td.yellow, .grey, td.grey,
+		.ef_progress_bar_text, .ef-table th,
+		.ef-registration-section input[type=text],
+		.ef-registration-section input[type=password],
+		.ef-registration-section input[type=number],
+		.ef-registration-section input[type=url],
+		.ef-registration-section input[type=tel],
+		.ef-registration-section textarea, 
+		.ef-registration-section select {
+			#(..getFontCSS(xEventID,"otherText"))#
+		}
+			
+		body {
+			background-color: #(##class(layout.eventColorMethods).getWebsiteBgColor(xEventID))#;
+		}
+		
+		h1, .ef-tinyMCE-header {
+			color: #(##class(layout.eventColorMethods).getHeaderColor(xEventID))#;
+			#(..getFontCSS(xEventID,"headings"))#	
+		}		
+		
+		.ef_proweb_menu_ul, .ef_proweb_menu_ul a, .dropdown .btn,
+		.select2-container--default .select2-results__option--highlighted[aria-selected]  {
+			background-color: #(efwscolor1)#;	
+			color: #(menuTextColor)#;
+		}
+		
+		.ef_proweb_menu_ul li:hover, .ef_proweb_menu_ul a:hover, .dropdown .btn:hover, .dropdown .btn:focus,>
+		write ".open>.dropdown-toggle.btn-primary " // note the '>' sign that causes compile issues
+		&html<
+		  {
+			background-color: #(##class(layout.eventColorMethods).getMenuHoverBgColor(xEventID))#;
+			color: #(##class(layout.eventColorMethods).getMenuHoverTextColor(xEventID))#;
+		}
+    	
+		.EF_inputBox, 
+		.ef-registration-section input[type=text],
+		.ef-registration-section input[type=password],
+		.ef-registration-section input[type=number],
+		.ef-registration-section input[type=url],
+		.ef-registration-section input[type=tel],
+		.ef-registration-section textarea, 
+		.ef-registration-section select,
+		.select2-dropdown,
+		.select2-container--default .select2-selection--single .select2-selection__rendered {
+			background-color: #(##class(layout.eventColorMethods).getInputFieldBgColor(xEventID))#; 
+			color: #(##class(layout.eventColorMethods).getInputFieldTextColor(xEventID))#;
+			border-color: #(##class(layout.eventColorMethods).getInputBorderColor(xEventID))#;
+		}
+		
+		.ef_form_divider {
+			color: #(formDividerColor)#;
+			border-color:#(formDividerColor)#;
+			background-color: #(formDividerColor)#;
+		}
+		.ef_progress_bar_progress_div {	
+			background-color:#(##class(layout.eventColorMethods).getProgressBarColor(xEventID))#;
+		}
+		.ef_progress_bar_border_div {	
+			border: 1px solid  #(##class(layout.eventColorMethods).getProgressBarBorderColor(xEventID))#;
+		}
+		.ef_frontend_button, .ef_frontend_file_uploader .k-upload-button {
+			color: #(##class(layout.eventColorMethods).getButtonTextColor(xEventID))#;
+			background-color: #(##class(layout.eventColorMethods).getButtonBgColor(xEventID))#;
+			border: 1px solid #(##class(layout.eventColorMethods).getButtonBorderColor(xEventID))#;
+		}
+		.ef_frontend_button:hover, .ef_frontend_file_uploader .k-upload-button:hover {
+			color: #(##class(layout.eventColorMethods).getButtonHoverTextColor(xEventID))#;
+			background-color: #(##class(layout.eventColorMethods).getButtonHoverBgColor(xEventID))#;
+		}
+		.ef_frontend_button_proceed {
+			color: #(##class(layout.eventColorMethods).getButtonProceedTextColor(xEventID))#;
+			background-color: #(##class(layout.eventColorMethods).getButtonProceedBgColor(xEventID))#;
+			border: 1px solid #(##class(layout.eventColorMethods).getButtonProceedBorderColor(xEventID))#;
+		}
+		.ef_frontend_button_proceed:hover {
+			color: #(##class(layout.eventColorMethods).getButtonProceedHoverTextColor(xEventID))#;
+			background-color: #(##class(layout.eventColorMethods).getButtonProceedHoverBgColor(xEventID))#;
+		}
+		.ef_frontend_file_uploader .k-file-progress .k-progress {
+		    background-color:#(##class(layout.eventColorMethods).getProgressBarColor(xEventID))#
+		}
+		.ef-table-header td, 
+		.ef-table-header th
+		 {
+			background-color: #(##class(layout.eventColorMethods).getTableHeaderBgColor(xEventID))#;
+			color: #(##class(layout.eventColorMethods).getTableHeaderTextColor(xEventID))#;
+		}
+		>
+		if ##class(layout.objTemplate).isTemplateGen3(templateID)	{
+			write ".dropdown .btn, .btn-primary:hover, .btn-primary:focus, .btn-primary:active, .btn-primary.active, .open > .dropdown-toggle.btn-primary {",!
+			write "		border-color: "_##class(layout.eventColorMethods).getDropdownMenuBorderColor(xEventID)_";",!	
+			write "}",!
+		} else {
+			&html<
+				.red {
+					background-color: #(##class(layout.eventColorMethods).getTableHeaderBgColor(xEventID))#;
+				}
+				.whitebold10px, a.whitebold10px:hover {
+					color: #(##class(layout.eventColorMethods).getTableHeaderTextColor(xEventID))#;
+				}				
+			>
+		}
+		&html<
+
+		
+		.ef_frontend_help_text_icon {
+			background-color: #(##class(layout.eventColorMethods).getHelpTextIconBgColor(xEventID))#;
+			color: #(##class(layout.eventColorMethods).getHelpTextIconTextColor(xEventID))#;
+			border-color: #(##class(layout.eventColorMethods).getHelpTextIconBorderColor(xEventID))#;
+		}
+		
+		.ef_frontend_help_text_popover {
+			background-color: #(##class(layout.eventColorMethods).getHelpTextBgColor(xEventID))#;
+			border-color: #(##class(layout.eventColorMethods).getHelpTextBorderColor(xEventID))#;
+		}
+		
+		.ef_frontend_help_text_popover .ui-tooltip-tip, .ef_frontend_help_text_popover .qtip-tip {
+			border-color: #(##class(layout.eventColorMethods).getHelpTextBorderColor(xEventID))#;
+			background-color: #(##class(layout.eventColorMethods).getHelpTextBgColor(xEventID))#;
+		}
+		.ef-table th {
+			background-color:  #(##class(layout.eventColorMethods).getTableHeaderBgColor(xEventID))#;
+			color: #(##class(layout.eventColorMethods).getTableHeaderTextColor(xEventID))#;
+		}
+		.k-calendar td.ef-date-picker-event-day {
+			background-color: #(##class(layout.eventColorMethods).getInputFieldBgColor(xEventID))#; 
+		}
+		.k-calendar td.ef-date-picker-event-day .k-link {
+			color: #(##class(layout.eventColorMethods).getInputFieldTextColor(xEventID))#;
+		}
+		.ef-proweb-guest-panel .panel-heading {
+			background-color: #(##class(layout.eventColorMethods).getTableHeaderBgColor(xEventID))#;
+			color: #(##class(layout.eventColorMethods).getTableHeaderTextColor(xEventID))#;
+		}
+		
+	>
+	// CSS direct child selector doesn't work in &html tag. Bloody cache compiler
+	w "		.ef_frontend_help_text_content>pre { color: "_##class(layout.eventColorMethods).getHelpTextTextColor(xEventID)_"}"
+		
+	// quit blank so it can be used in #()#
+	quit ""
+]]></Implementation>
+</Method>
+
+<Method name="outputStyleToChangeBGColourInMoxie">
+<ClassMethod>1</ClassMethod>
+<Implementation><![CDATA[
+	&html<
+		/* ======= outputStyleToChangeBGColourInMoxie() ======= */
+		.mceContentBody,.mce-content-body {
+			background-color: #FFFFFF;
+		}
+	>
+	quit
+]]></Implementation>
+</Method>
+
+<Method name="getClassAgendaCalendarSessionTypeSpecificOn">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>className,color,background,borderColor</FormalSpec>
+<Implementation><![CDATA[
+	set out=""
+	set out=out_" ."_className_" {"
+	set out=out_"	color:"_color_";"
+	set out=out_"	background:"_background_";"
+	set out=out_"	border: 1px solid "_borderColor_";"
+	set out=out_"}"
+	set out=out_" ."_className_" p {"
+	set out=out_"	color:"_color_";"
+	set out=out_"}"
+	quit out
+]]></Implementation>
+</Method>
+
+<Method name="getClassSessionDetailsPopOverSpecific">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>className,borderColor</FormalSpec>
+<Implementation><![CDATA[
+	set out=""
+	set out=out_" ."_className_" {"
+	set out=out_"	border-color:"_borderColor_";"
+	set out=out_"}"
+	quit out
+]]></Implementation>
+</Method>
+
+<Method name="getMenuBlockItemStyles">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>liClass,liStyle,aClass,aStyle,aHoverStyle</FormalSpec>
+<Implementation><![CDATA[
+	set out=""
+	set out=out_" li."_liClass_" {"_liStyle_"}"
+	set out=out_" a."_aClass_" {"_aStyle_"}"
+	set out=out_" a."_aClass_":hover {"_aHoverStyle_"}"
+	quit out
+]]></Implementation>
+</Method>
+
+<Method name="getFontCSS">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>xEventID,elementName</FormalSpec>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	set out=""
+	set font=##class(layout.objStyleAttribute).getAttribute(xEventID,elementName,"font")
+	
+	if %request.Get("efPreviewInIframe") {
+		if elementName="headings" {
+			if $Data(%session.Data("headingsFont")) {
+				set font = %session.Data("headingsFont")
+			}
+		} elseif elementName="otherText" {
+			if $Data(%session.Data("otherTextFont")) {
+				set font = %session.Data("otherTextFont")
+			}
+		}
+	}
+
+	if $l(font) {
+		set fontFamily=##class(layout.objStyleAttribute).getFontFamily(font)
+		set out="font-family: "_fontFamily
+	}
+	quit out
+]]></Implementation>
+</Method>
+
+<Method name="outputUploadedStylesheet">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>xEventID</FormalSpec>
+<Implementation><![CDATA[
+	set objEvent=##class(setup.objEvent).%OpenId(xEventID)
+	//  output a style for the inputboxes because we have changed it from being black10px to being 'EF_inputBox'.
+	// Existing custom style sheets will not have the new class so we need to output it somewhere but it has before the custom CSS is outputted so that existing clients can override it by putting it in their custom CSS 
+	if $L(##class(setup.eventWebMethods).getStyleSheetClass(xEventID,".EF_inputBox"))<2 { // only if it isn't specified in the stream
+		 set currentBlack10pxClass=##class(setup.eventWebMethods).getStyleSheetClass(xEventID,".black10px")	
+		 write !,"EF_inputBox {",currentBlack10pxClass,"}"
+	}
+	w !!,"/* ======= outputUploadedStylesheet() ======= */",!
+	do objEvent.stylesheetFileStream.Rewind()
+	while 'objEvent.stylesheetFileStream.AtEnd	{
+		write objEvent.stylesheetFileStream.Read(30000)
+	}
+	w !!,"/* ======= end of outputUploadedStylesheet() ======= */",!
+]]></Implementation>
+</Method>
+
+<Method name="streamTemplateStyleSheet">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>xEventID,styleSource</FormalSpec>
+<Implementation><![CDATA[
+	write !,"/* ======= streamTemplateStyleSheet() ======= */",!
+	// get the style sheet from template related style file
+	set coreCSSfile=""
+	&SQL(SELECT layoutObjTemplate->templateDirectory,layoutObjTemplate->originalFilename,layoutObjTemplate INTO :templateDirectory,:templateFilename,:templateID FROM setup.objEvent WHERE ID = :xEventID)
+	if +SQLCODE=0 {
+		set templateFilename=$p(templateFilename,"\",$L(templateFilename,"\")) // remove the path
+		set templateFilename=$p(templateFilename,".",1) // get rid of the extension
+		set coreCSSfile="../../frontend/layouts/"_templateDirectory_"/"_templateFilename_"_efCoreStyles.css"
+	}
+	set coreCSSfile=##class(EF.config.server).getEFRootPathSourceNew()_$TR($P(coreCSSfile,"../",3),"/","\")
+	if ##class(%File).Exists(coreCSSfile) {
+		set cssstream=##class(%FileCharacterStream).%New()
+		set cssstream.Filename=coreCSSfile
+		while 'cssstream.AtEnd {
+			write cssstream.ReadLine()_$C(13,10)
+		}
+		kill cssstream
+	}
+	// output theme styles
+	if (styleSource="template") {
+		// try to get from the stream that contains the style.css file (saved when uploading a custom template ZIP file)
+		set objTemplate=##class(layout.objTemplate).%OpenId(templateID)
+		if ($ISOBJECT(objTemplate)&&(objTemplate.templateCSSFile.Size>0)) {
+			do objTemplate.templateCSSFile.OutputToDevice()
+		}
+	}
+]]></Implementation>
+</Method>
+
+<Method name="outputAbstractDynamicCSS">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>eventID</FormalSpec>
+<Implementation><![CDATA[
+	set marker=$ZCVT(##class(setup.objEventSetting).getParameter("abstracts","Identify the presenting author using",eventID),"L")
+	if marker="*" {
+		&html<
+			.ef-presenting-author::after {
+		    	content: "*";
+			}
+		>
+	} elseif marker="bold" {
+		
+		&html<
+			.ef-presenting-author {
+		    	font-weight: bold;
+			}
+		>
+	} elseif marker="underline" {
+		
+		&html<
+			.ef-presenting-author {
+		    	text-decoration: underline;
+			}
+		>
+	}
+]]></Implementation>
+</Method>
+
+<Method name="outputCustomEventCSS">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>eventID:%Integer</FormalSpec>
+<Implementation><![CDATA[
+	write !,"/* Custom Event CSS */"
+
+	if %request.Get("pageControllerID") {
+		set contextData = ##class(EF.contextData).createFromBackendCSPSession()
+		set pageControllerID=%request.Get("pageControllerID")
+		if pageControllerID {
+			try {
+				set pageController=##class(EF.pageController.page).open(pageControllerID,contextData)
+				if pageController.getValueByIdentifier("useCustomCSS") {
+					write !,##class(EF.htmlGenerator).rawCSS(pageController.getValueByIdentifier("customCSS"))
+				}
+			} catch error {
+				do ##class(EF.errors.loggingMethods).logException(error,"outputCustomEventCSS() - Could not open page controller")
+			}
+		}
+
+	} else {
+		if eventID {
+			set event = ##class(setup.objEvent).%OpenId(eventID)
+			if $IsObject(event) {
+				do event.%Reload()
+				if event.useCustomEventCSS {
+					write !,##class(EF.htmlGenerator).rawCSS(event.customEventCSS)
+				}
+				kill event
+			}
+		}
+	}
+]]></Implementation>
+</Method>
+
+<Method name="getFontFamilyHeadings">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>eventID:%Integer</FormalSpec>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	set font = ##class(layout.objStyleAttribute).getAttribute(eventID,"headings","font")
+	return ##class(layout.objStyleAttribute).getFontFamily(font)
+]]></Implementation>
+</Method>
+
+<Method name="getFontFamilyOtherText">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>eventID:%Integer</FormalSpec>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	set font = ##class(layout.objStyleAttribute).getAttribute(eventID,"otherText","font")
+	return ##class(layout.objStyleAttribute).getFontFamily(font)
+]]></Implementation>
+</Method>
+
+<Method name="outputWebsiteAppearanceCSS">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>eventID:%Integer</FormalSpec>
+<Implementation><![CDATA[
+	if '##class(layout.methods).canUseStyleOverrides(eventID) {
+		quit
+	}
+	write !,"<!-- ========= CSS styles defined in Website Appearance ======= -->"
+	&js<
+		<style>
+			body, 
+			.ef-input-background, 
+			.ef-push-button.ef-push-button-secondary,
+			.form-control, select, .k-input, .select2-container--default .select2-selection--single 
+			{
+				background-color: #(##class(layout.eventColorMethods).getWebsiteBgColor(eventID))#;
+				font-family: #(..getFontFamilyOtherText(eventID))#;
+				color: #(##class(layout.eventColorMethods).getInputFieldTextColor(eventID))#;
+			}
+			
+			h1, h2, h3, h4, h5,	h6 {
+				font-family: #(..getFontFamilyHeadings(eventID))#;
+				color: #(##class(layout.eventColorMethods).getHeaderColor(eventID))#;
+			}
+			
+			.ef-menu-block, 
+			.ef-menu-block ul li a, 
+			.ef-push-button.ef-push-button-primary, 
+			.ef-progress-bar-filled, 
+			.ef-form-divider,
+			.ef-help-icon,
+			.ef-panel-heading,
+			.ef-table-header {
+				background-color: #(##class(layout.eventColorMethods).getWebsiteColor1(eventID))#;
+				color: #(##class(layout.eventColorMethods).getMenuTextColor(eventID))#;
+				#(..getFontCSS(eventID,"headings"))#; 
+			}
+			
+			.ef-menu-block:hover, 
+			.ef-push-button.ef-push-button-primary:hover  {
+				background-color: #(##class(layout.eventColorMethods).getMenuHoverBgColor(eventID))#;
+				color: #(##class(layout.eventColorMethods).getMenuHoverTextColor(eventID))#;
+			}
+			
+			.ef-push-button.ef-push-button-secondary:hover {
+				color: #(##class(layout.eventColorMethods).getButtonHoverTextColor(eventID))#;
+				background-color: #(##class(layout.eventColorMethods).getButtonHoverBgColor(eventID))#;
+			}
+			
+			.ef-panel-body, 
+			.ef-panel {
+				color: #(##class(layout.eventColorMethods).getButtonHoverTextColor(eventID))#;
+				background-color: #(##class(layout.eventColorMethods).getButtonHoverBgColor(eventID))#;
+			}
+		</style>
+	>
+]]></Implementation>
+</Method>
+</Class>
+
+
 <Class name="layout.objTemplate">
 <Description><![CDATA[
 <!-- ;vc;-
@@ -19979,7 +20459,7 @@ The basic frontend default stuff</Description>
 <ClassType>persistent</ClassType>
 <ProcedureBlock>1</ProcedureBlock>
 <Super>%Library.Persistent,shared.timeStamp</Super>
-<TimeChanged>64243,42086.859988</TimeChanged>
+<TimeChanged>64245,57165.992467</TimeChanged>
 <TimeCreated>60782,60196.270659</TimeCreated>
 <Inheritance>right</Inheritance>
 
@@ -20539,7 +21019,8 @@ outputs each section of code doing the banner, menu and footer when needed</Desc
 	// 	 set bits("[[ef_main_buttons]]")=""
 	// 	 set bits("[[ef_footer]]")=""
 	//
-	new okToWrite,rs,sqltext,menuPageID,homePageID,bannerPageID,secondaryBannerPageID,layoutTemplateID,sectionID,before,after,curPageName,isSurvey,surveyID,curPageID,externalLoginPage,standardDesingID
+	new contextData,okToWrite,rs,sqltext,menuPageID,homePageID,bannerPageID,secondaryBannerPageID,layoutTemplateID,sectionID,before,after,curPageName,isSurvey,surveyID,curPageID,externalLoginPage,standardDesingID
+	#dim contextData as EF.contextDataFrontend = ##class(EF.contextDataFrontend).createFromFrontendCSPSession()
 	if from["{{" set from=$TR(from,"{","[")
 	if from["}}" set from=$TR(from,"}","]")
 	if to["{{" set to=$TR(to,"{","[")
@@ -20715,12 +21196,20 @@ outputs each section of code doing the banner, menu and footer when needed</Desc
 			if before="" {
 				if ##class(sc.methods).isUsingProweb2() {
 					do ##class(layout.cssDefaultMethods).outputComponentCSS()
+					
 					&html<
-						<!-- generation 4 frontend styles -->
+						<!-- ====== Default generation 4 frontend styles ============= -->
 						<link rel="stylesheet" href="../../media/stylesheets/frontend/gen4/ef-website-gen4.css" type="text/css" />
-
 					>
+					
+					if contextData.prowebMode = "edit" {
+						&html<
+							<!-- ====== Proweb2 editor styles ============= -->
+							<link rel="stylesheet" href="../../media/stylesheets/backend/ef-editor.css" type="text/css" />
+						>
+					}
 					do ##class(layout.cssOverrideMethods).outputWebsiteAppearanceCSS(xEventID)
+					
 				} else {
 					do ##class(layout.cssDefaultMethods).outputDefaultCSS(xEventID,layoutTemplateID)
 				}
@@ -20812,7 +21301,9 @@ outputs each section of code doing the banner, menu and footer when needed</Desc
 				//do banner
 				if ##class(sc.methods).isUsingProweb2() {
 					set parentListElement = pageController.getElementByIdentifier("banner page")
+					write !,"<div class=""ef-banner-section"">"
 					do parentListElement.renderElements()
+					w !,"</div>"
 						
 				} else {
 					// store current pageid before we insert another one
@@ -20887,8 +21378,14 @@ outputs each section of code doing the banner, menu and footer when needed</Desc
 				//do menu
 				if ##class(sc.methods).isUsingProweb2() {
 					set parentListElement = pageController.getElementByIdentifier("navigation bar page")
+					write !,"<div class=""ef-navigation-section"">"
 					do parentListElement.renderElements()
-						
+					write !,"</div>"
+
+					write !,"<div class=""ef-social-media-section"">"
+					set %request.Data("option",1) = "menu"
+					do ##class(cspRealEV.frontend.reg.socialmediabuttons).OnPage()
+					write !,"</div>"						
 				} else {
 					// store current pageid before we insert another one
 					set curPageID=##class(shared.pageMethods).getPageID()
@@ -20927,7 +21424,9 @@ outputs each section of code doing the banner, menu and footer when needed</Desc
 			if before="[[ef_right]]",'##class(eCom.tempPurchase).isBackendBooking(%session.SessionId),'isSurvey {
 				if ##class(sc.methods).isUsingProweb2() {
 					set parentListElement = pageController.getElementByIdentifier("sponsor page")
+					write !,"<div class=""ef-sponsors-section"">"
 					do parentListElement.renderElements()
+					write !,"</div>"
 						
 				} else {
 					// store current pageid before we insert another one
@@ -20963,7 +21462,14 @@ outputs each section of code doing the banner, menu and footer when needed</Desc
 				//do footer
 				if ##class(sc.methods).isUsingProweb2() {
 					set parentListElement = pageController.getElementByIdentifier("footer page")
+					write !,"<div class=""ef-footer-section"">"
 					do parentListElement.renderElements()
+					write !,"</div>"
+					
+					write !,"<div class=""ef-social-media-section"">"
+					set %request.Data("option",1) = "footer"
+					do ##class(cspRealEV.frontend.reg.socialmediabuttons).OnPage()
+					write !,"</div>"
 						
 				} else {
 					// store current pageid before we insert another one
@@ -21421,7 +21927,7 @@ Returns true if the template is custom made</Description>
 </Class>
 
 
-<Project name="proweb 2" LastModified="2016-11-17 16:40:28.333995" Target="largedevsrc/EF.pages.frontend.baseProweb.cls" TargetType="3">
+<Project name="proweb 2" LastModified="2016-11-23 14:19:36.970047" Target="largedevsrc/EF.pages.frontend.baseProweb.cls" TargetType="3">
   <Items>
     <ProjectItem name="EF.contextDataRegistration" type="CLS"></ProjectItem>
     <ProjectItem name="EF.contextDataRegistrationMock" type="CLS"></ProjectItem>
@@ -21577,6 +22083,7 @@ Returns true if the template is custom made</Description>
     <ProjectItem name="setup.availabilityCheckerSession" type="CLS"></ProjectItem>
     <ProjectItem name="setup.bookingLevelCounterFrontendSession" type="CLS"></ProjectItem>
     <ProjectItem name="shared.pageMethods" type="CLS"></ProjectItem>
+    <ProjectItem name="layout.cssOverrideMethods" type="CLS"></ProjectItem>
   </Items>
   <BreakPoints>
     <BreakPoint Routine="cspRealEV.frontend.reg.pagecontrollerstandardsave.CLS" Offset="OnPreHTTPafter+28"></BreakPoint>

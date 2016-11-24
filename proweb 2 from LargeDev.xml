@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.2 (Build 736U)" ts="2016-11-24 11:04:38">
+<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.2 (Build 736U)" ts="2016-11-24 14:51:08">
 <Class name="EF.contextDataRegistration">
 <Description><![CDATA[
 <!-- ;vc;-
@@ -11,7 +11,7 @@
 ;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>EF.contextDataRegistration.CLS/EV.9</td><td>CLS.EF.contextDataRegistration</td><td>LargeDev</td><td style='white-space: nowrap;'>08-Nov-16 12:49</td><td>FredG</td></tr></table>
 ]]></Description>
 <Super>EF.contextDataFrontend</Super>
-<TimeChanged>64230,46301.117824</TimeChanged>
+<TimeChanged>64246,49564.956136</TimeChanged>
 <TimeCreated>63755,56082.660879</TimeCreated>
 
 <Property name="tempPurchaseID">
@@ -56,11 +56,6 @@ if website is private, this will be set to the cod.objPerson.ID of that logged i
 <Type>%Integer</Type>
 </Property>
 
-<Property name="isTestMode">
-<Type>%Boolean</Type>
-<InitialExpression>0</InitialExpression>
-</Property>
-
 <Property name="context">
 <Type>%String</Type>
 <InitialExpression>"registration"</InitialExpression>
@@ -70,26 +65,9 @@ if website is private, this will be set to the cod.objPerson.ID of that logged i
 <Type>%Integer</Type>
 </Property>
 
-<Property name="pageID">
-<Type>%Integer</Type>
-</Property>
-
-<Property name="listID">
-<Type>%Integer</Type>
-</Property>
-
-<Property name="prowebComponentName">
-<Type>%String</Type>
-<Parameter name="MAXLEN" value="255"/>
-</Property>
-
 <Property name="isBackendSuperUser">
 <Type>%Boolean</Type>
 <InitialExpression>0</InitialExpression>
-</Property>
-
-<Property name="eventWebsiteLanguage">
-<Type>setup.eventWebsiteLanguage</Type>
 </Property>
 
 <Method name="createFromFrontendCSPSession">
@@ -119,7 +97,7 @@ if website is private, this will be set to the cod.objPerson.ID of that logged i
 	
 	set contextData.isBackendBooking=##class(eCom.tempPurchase).isBackendBooking(sessionID)
 	set contextData.pricingHorologUTC=##class(eCom.tempPurchase).getPriceHorologUTC(contextData.tempPurchaseID)	
-	set contextData.pageID=%session.Get("pageID")
+	
 	set contextData.tempBookerID = ##class(eCom.tempPerson).getBookerIDfromTempPurchaseID(contextData.tempPurchaseID)
 	set contextData.isBackendSuperUser=##class(eCom.tempPurchase).isBackendSuperUser(sessionID)
 
@@ -4429,7 +4407,7 @@ this is for version 1 of proweb</Description>
 <Class name="EF.pages.frontend.baseProweb">
 <ProcedureBlock>0</ProcedureBlock>
 <Super>EF.pages.frontend.base</Super>
-<TimeChanged>64245,50848.05252</TimeChanged>
+<TimeChanged>64246,47836.070224</TimeChanged>
 <TimeCreated>64191,31442.531402</TimeCreated>
 
 <Parameter name="ENCODED">
@@ -4485,8 +4463,9 @@ this is for version 1 of proweb</Description>
 <Implementation><![CDATA[
 	do ..initPageController()
 	do ..OnPagePageTop()
+		
 	do ..outputFormBeginning()
-	do ..outputPageControllerTag()	
+	do ..outputPageControllerTag()
 	do ..OnPagePageContent()
 	do ..outputButtons()
 	do ..outputFormEnding()
@@ -4555,7 +4534,7 @@ this is for version 1 of proweb</Description>
  	
  	do ##class(layout.objTemplate).writeBit("{{ef_banner}}","{{ef_main_progress}}")
  	if ..#showRegistrationProgressBar {
-		Do ..Include("progress.csp")
+		Do ..outputProgressBar()
  	}
  	do ##class(layout.objTemplate).writeBit("{{ef_main_progress}}","{{ef_main_header}}")
  	do ..outputPageHeader()
@@ -4665,6 +4644,14 @@ this is for version 1 of proweb</Description>
 	&html<
 		<input type="hidden" name="prowebPageControllerID" value="#(pageControllerID)#">
 	>
+]]></Implementation>
+</Method>
+
+<Method name="outputProgressBar">
+<ClassMethod>1</ClassMethod>
+<Implementation><![CDATA[
+	set progressBar = ##class(EF.ui.components.frontend.progressBar).%New("ef-progress-bar")
+	do progressBar.render()
 ]]></Implementation>
 </Method>
 
@@ -6747,9 +6734,48 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 </Class>
 
 
+<Class name="EF.ui.components.frontend.progressBar">
+<Super>EF.ui.components.frontend.prowebBase</Super>
+<TimeChanged>64246,53409.162508</TimeChanged>
+<TimeCreated>64246,45739.42717</TimeCreated>
+
+<Method name="render">
+<Implementation><![CDATA[
+	set contextData = ##class(EF.contextDataFrontend).createFromFrontendCSPSession()
+	if (contextData.isTestMode) ! (##class(setup.objEventSetting).getParameter("reg pages","hide progress bar",..contextData.eventID) ) {
+		quit
+	}
+	
+	// #################### needs refactoring #############
+	set pageName = "tregistration.csp" 
+	set tmpProgress = ##class(setup.objPageNav).getProgress(pageName, contextData.pageID , contextData.sessionID , contextData.eventID, contextData.languageID)
+	set value = $Piece(tmpProgress,"|",2)/$Piece(tmpProgress,"|",1)*100\5*5
+	
+	&html<
+		<div class="row">
+			<div class="col-sm-4"></div>
+			<div class="col-sm-4">
+				<div class="progress ef-progress-bar">
+					<div role="progressbar" style="width: #(..encodeForHTMLAttribute(value))#%;" aria-valuenow="#(..encodeForHTMLAttribute(value))#" aria-valuemin="0" aria-valuemax="100" class="progress-bar">
+						<span class="sr-only">#(..encodeForHTML(value))#% Complete</span>
+					</div>
+				</div>
+			</div>
+			<div class="col-sm-4"></div>
+		</div>
+	>
+]]></Implementation>
+</Method>
+
+<Storage name="Default">
+<Type>%Library.CacheStorage</Type>
+</Storage>
+</Class>
+
+
 <Class name="EF.ui.components.frontend.prowebBase">
 <Super>EF.ui.components.base</Super>
-<TimeChanged>64239,50499.748372</TimeChanged>
+<TimeChanged>64246,47031.845358</TimeChanged>
 <TimeCreated>64183,41819.123112</TimeCreated>
 
 <Property name="isProwebEditMode">
@@ -6767,7 +6793,7 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 </Property>
 
 <Property name="contextData">
-<Type>EF.contextData</Type>
+<Type>EF.contextDataFrontend</Type>
 </Property>
 
 <Method name="renderRowOpening">
@@ -16477,6 +16503,7 @@ function updateAlts(codPromptID) {
 <CSP name="frontEnd/reg/t4Registration.csp" application="/largedevsrc/" default="1"><![CDATA[
 <csp:class super="EF.pages.frontend.baseProweb">
 <csp:parameter name="efPageName" value="tregistration.csp">
+<csp:parameter name="showRegistrationProgressBar" value="1">
 
 <script language="cache" runat="server">
 	Do ##super() 
@@ -21944,7 +21971,7 @@ Returns true if the template is custom made</Description>
 </Class>
 
 
-<Project name="proweb 2" LastModified="2016-11-23 14:19:36.970047" Target="largedevsrc/EF.pages.frontend.baseProweb.cls" TargetType="3">
+<Project name="proweb 2" LastModified="2016-11-24 14:51:08.36298" Target="largedevsrc/EF.pages.frontend.baseProweb.cls" TargetType="3">
   <Items>
     <ProjectItem name="EF.contextDataRegistration" type="CLS"></ProjectItem>
     <ProjectItem name="EF.contextDataRegistrationMock" type="CLS"></ProjectItem>
@@ -22101,6 +22128,7 @@ Returns true if the template is custom made</Description>
     <ProjectItem name="setup.bookingLevelCounterFrontendSession" type="CLS"></ProjectItem>
     <ProjectItem name="shared.pageMethods" type="CLS"></ProjectItem>
     <ProjectItem name="layout.cssOverrideMethods" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.ui.components.frontend.progressBar" type="CLS"></ProjectItem>
   </Items>
   <BreakPoints>
     <BreakPoint Routine="cspRealEV.frontend.reg.pagecontrollerstandardsave.CLS" Offset="OnPreHTTPafter+28"></BreakPoint>

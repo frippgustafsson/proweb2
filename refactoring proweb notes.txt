@@ -133,6 +133,7 @@ move CSS
 the radios are jumping on mouseOver
 
 ===============================================================================
+replace most contextDataRegistration with contextDataFrontend
 left align labels in small viewports
 the timeout warning
 re-style the quick edit panel

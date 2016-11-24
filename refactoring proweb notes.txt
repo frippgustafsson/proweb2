@@ -133,6 +133,7 @@ move CSS
 the radios are jumping on mouseOver
 
 ===============================================================================
+left align labels in small viewports
 the timeout warning
 re-style the quick edit panel
 reinstate the progress bar

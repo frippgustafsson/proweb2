@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.2 (Build 736U)" ts="2016-11-23 18:00:22">
+<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.2 (Build 736U)" ts="2016-11-24 11:04:38">
 <Class name="EF.contextDataRegistration">
 <Description><![CDATA[
 <!-- ;vc;-
@@ -5078,7 +5078,7 @@ we need to refactor the frontend buttons to make them callable from class method
 
 <Class name="EF.ui.components.frontend.buttonLink">
 <Super>EF.ui.components.buttonBase</Super>
-<TimeChanged>64245,64484.214721</TimeChanged>
+<TimeChanged>64246,32943.28674</TimeChanged>
 <TimeCreated>64239,51952.661539</TimeCreated>
 
 <Property name="href">
@@ -6532,28 +6532,45 @@ eventid</Description>
 
 <Class name="EF.ui.components.frontend.menuBlock">
 <Super>EF.ui.components.frontend.prowebBase</Super>
-<TimeChanged>64245,38511.005199</TimeChanged>
+<TimeChanged>64246,39788.228135</TimeChanged>
 <TimeCreated>64183,38661.128484</TimeCreated>
 
 <Method name="render">
 <Implementation><![CDATA[
 	#dim menuItem as sc.facade.prowebItemStorageMenuBlockItem
-	set menuCount = ..prowebItem.storage.listOfMenuItems.Count()
 
 	do ..renderRowOpening()
 		do ..renderCellOpening()
-			write !,"<div class=""ef-menu-block""",..rawHTML(..getProwebExtraAttributes()),">"
-			write !,..rawHTML("<ul class=""ef_proweb_menu_ul"">")
-			for i = 1:1:menuCount {
-				set menuItem = ..prowebItem.storage.listOfMenuItems.GetAt(i)
-				write !,"<li>"
-				write "		<a href=""",..encodeForHTMLAttribute(menuItem.linkURL),""" target=""",menuItem.linkTarget,""">",..encodeForHTML(menuItem.text),"</a>"
-				write !,"</li>"
-			}
-			write !,"<ul>"
-			write !,"</div>"
+			&html<
+				<div class="ef_proweb_menu_block ef-menu-block #(..rawHTML(..getProwebExtraAttributes()))#">
+					<div class="dropdown visible-xs-block">
+						<button class="btn btn-primary dropdown-toggle ef-menu-block-button" data-toggle="dropdown" type="button">Menu <span class="caret"></span></button>
+						<ul class="dropdown-menu ef-menu-block-ul-xs">
+							#[do ..outputListItems()]#
+						</ul>
+					</div>
+					<div class="ef_nav_horizontal hidden-xs" role="nav">	
+						<ul class="ef_proweb_menu_ul ef-menu-block-ul" >
+							#[do ..outputListItems()]#
+						</ul>
+					</div>
+				</div>	
+			>
 		do ..renderCellClosing()
 	do ..renderRowClosing()
+]]></Implementation>
+</Method>
+
+<Method name="outputListItems">
+<Private>1</Private>
+<Implementation><![CDATA[
+	set menuCount = ..prowebItem.storage.listOfMenuItems.Count()
+	for i = 1:1:menuCount {
+		set menuItem = ..prowebItem.storage.listOfMenuItems.GetAt(i)
+		write !,"<li>"
+		write "		<a href=""",..encodeForHTMLAttribute(menuItem.linkURL),""" target=""",menuItem.linkTarget,""">",..encodeForHTML(menuItem.text),"</a>"
+		write !,"</li>"
+	}
 ]]></Implementation>
 </Method>
 
@@ -19992,7 +20009,7 @@ The basic frontend default stuff</Description>
 <Abstract>1</Abstract>
 <ClassType/>
 <ProcedureBlock>1</ProcedureBlock>
-<TimeChanged>64245,53355.854023</TimeChanged>
+<TimeChanged>64246,37531.879181</TimeChanged>
 <TimeCreated>63046,56108.531536</TimeCreated>
 
 <Method name="outputDynamicCSS">
@@ -20423,7 +20440,7 @@ The basic frontend default stuff</Description>
 				#(..getFontCSS(eventID,"headings"))#; 
 			}
 			
-			.ef-menu-block:hover, 
+			.ef-menu-block ul li a:hover, 
 			.ef-push-button.ef-push-button-primary:hover  {
 				background-color: #(##class(layout.eventColorMethods).getMenuHoverBgColor(eventID))#;
 				color: #(##class(layout.eventColorMethods).getMenuHoverTextColor(eventID))#;

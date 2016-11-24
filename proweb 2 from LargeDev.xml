@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.2 (Build 736U)" ts="2016-11-24 14:51:08">
+<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.2 (Build 736U)" ts="2016-11-24 16:39:12">
 <Class name="EF.contextDataRegistration">
 <Description><![CDATA[
 <!-- ;vc;-
@@ -259,7 +259,7 @@ if website is private, this will be set to the cod.objPerson.ID of that logged i
 ;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>EF.pageController.containerElement.CLS/EV.19</td><td>CLS.EF.pageController.containerElement</td><td>LargeDev</td><td style='white-space: nowrap;'>22-Nov-16 16:08</td><td>MindaugasL</td></tr></table>
 ]]></Description>
 <Super>EF.pageController.element</Super>
-<TimeChanged>64245,44611.353687</TimeChanged>
+<TimeChanged>64246,57612.693549</TimeChanged>
 <TimeCreated>63372,47273.826383</TimeCreated>
 
 <Property name="getContentsMethod">
@@ -486,20 +486,6 @@ This is a list of all the elements that are updated by the processGetContents me
 <ReturnType>EF.pageController.inputElements.textInput</ReturnType>
 <Implementation><![CDATA[
 	set element=##class(EF.pageController.inputElements.dateTimePicker).addElementToParent($this,identifier,description,value,isReadOnly)
-
-	quit element
-]]></Implementation>
-</Method>
-
-<Method name="addDateTimeRange">
-<FormalSpec>identifier:%String,description:%String,value1="",value2="",isReadOnly=0</FormalSpec>
-<ReturnType>EF.pageController.inputElements.textInput</ReturnType>
-<Implementation><![CDATA[
-	do ##class(EF.pageController.text).addElementToParent($this, identifier_"-label1", description)
-	set element = ##class(EF.pageController.containerElements.div).addElementToParent($this, identifier, description)
-	do ##class(EF.pageController.inputElements.dateTimePicker).addElementToParent(element, identifier_"-value1", "", value1, isReadOnly)
-	do ##class(EF.pageController.text).addElementToParent(element, identifier_"-label2", "and")
-	do ##class(EF.pageController.inputElements.dateTimePicker).addElementToParent(element, identifier_"-value2", "", value2, isReadOnly)
 
 	quit element
 ]]></Implementation>
@@ -4876,7 +4862,7 @@ we need to refactor the frontend buttons to make them callable from class method
 
 <Class name="EF.ui.components.frontend.alternativeABI">
 <Super>EF.ui.components.alternative</Super>
-<TimeChanged>64237,44443.938476</TimeChanged>
+<TimeChanged>64246,59872.670866</TimeChanged>
 <TimeCreated>64237,29515.209186</TimeCreated>
 
 <Property name="price">
@@ -4902,7 +4888,7 @@ we need to refactor the frontend buttons to make them callable from class method
 	
 	if '##class(setup.objEventSetting).getParameter("bookingings","suppress prices in reg pages", ..contextData.eventID) {  // ## don't fix the typo without running upgrade code! ###
 		if ..price {
-			set priceString = "<span class=""ef-proweb-ABI-price"">"_..encodeHTMLContent(##class(eCom.objPrice).formatAmount(..price, ..contextData.currencyID))_"</span>"
+			set priceString = "<span class=""ef-price"">"_..encodeHTMLContent(##class(eCom.objPrice).formatAmount(..price, ..contextData.currencyID))_"</span>"
 		}
 	}
 	
@@ -4916,7 +4902,7 @@ we need to refactor the frontend buttons to make them callable from class method
 	#dim capacityString as %String = ""
 	
 	if (..contextData.isBackendBooking) && (..capacity) {
-		set capacityString = "<span class=""ef-proweb-ABI-capacity"">"_..encodeHTMLContent(..currentBookingLevel_"/"_..capacity)_"</span>"
+		set capacityString = "<span class=""ef-capacity"">"_..encodeHTMLContent(..currentBookingLevel_"/"_..capacity)_"</span>"
 	}
 	
 	return capacityString
@@ -5153,7 +5139,7 @@ we need to refactor the frontend buttons to make them callable from class method
 
 <Class name="EF.ui.components.frontend.checkbox">
 <Super>EF.ui.components.checkbox,EF.ui.components.frontend.inputElement,EF.ui.components.frontend.alternativeABI</Super>
-<TimeChanged>64245,62938.270294</TimeChanged>
+<TimeChanged>64246,57946.485332</TimeChanged>
 <TimeCreated>63355,62572.097775</TimeCreated>
 
 <Property name="price">
@@ -5189,6 +5175,7 @@ we need to refactor the frontend buttons to make them callable from class method
 
 <Method name="renderCheckbox">
 <Implementation><![CDATA[
+	do ..addClass("ef-check-box")
 	set disabledString=""
 	if ..isDisabled {
 		set disabledString="disabled=""disabled"""
@@ -5366,7 +5353,7 @@ we need to refactor the frontend buttons to make them callable from class method
 ;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>EF.ui.components.backend.datePicker.CLS/EV.3</td><td>CLS.EF.ui.components.backend.datePicker</td><td>LargeDev</td><td style='white-space: nowrap;'>02-Feb-16 12:32</td><td>AdrianM2</td></tr></table>
 ]]></Description>
 <Super>EF.ui.components.textInput,EF.ui.components.frontend.inputElement</Super>
-<TimeChanged>64232,38986.442297</TimeChanged>
+<TimeChanged>64246,58120.885603</TimeChanged>
 <TimeCreated>63384,38215.518113</TimeCreated>
 
 <Parameter name="typeAttribute">
@@ -5380,7 +5367,10 @@ we need to refactor the frontend buttons to make them callable from class method
 <Method name="getDefaultClasses">
 <ClassMethod>1</ClassMethod>
 <ReturnType>%String</ReturnType>
-<Implementation><![CDATA[	Return ##super()_" ef-kendo-form-control"
+<Implementation><![CDATA[
+	set defaultClasses = ..getDefaultProwebClasses()
+	set defaultClasses = defaultClasses_" ef-input-short ef-date-picker ef-kendo-form-control"
+	return defaultClasses
 ]]></Implementation>
 </Method>
 
@@ -5402,7 +5392,7 @@ we need to refactor the frontend buttons to make them callable from class method
 <Method name="render">
 <Implementation><![CDATA[
 	do ..renderRowOpeningAndLabel()
-	&html<<div class=" ef-proweb-input-element-short">>
+	write !,"<div class=""",..getDefaultClasses(),""">"
 	do ..renderInputElementOnly()
 	&html<</div>>
 	do ..renderHelpAndRowClosing()
@@ -5481,7 +5471,7 @@ we need to refactor the frontend buttons to make them callable from class method
 ;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>EF.ui.components.backend.datePicker.CLS/EV.3</td><td>CLS.EF.ui.components.backend.datePicker</td><td>LargeDev</td><td style='white-space: nowrap;'>02-Feb-16 12:32</td><td>AdrianM2</td></tr></table>
 ]]></Description>
 <Super>EF.ui.components.textInput,EF.ui.components.frontend.inputElement</Super>
-<TimeChanged>64232,38986.479131</TimeChanged>
+<TimeChanged>64246,58956.405277</TimeChanged>
 <TimeCreated>63384,38215.518113</TimeCreated>
 
 <Parameter name="typeAttribute">
@@ -5495,7 +5485,10 @@ we need to refactor the frontend buttons to make them callable from class method
 <Method name="getDefaultClasses">
 <ClassMethod>1</ClassMethod>
 <ReturnType>%String</ReturnType>
-<Implementation><![CDATA[	Return ##super()_" ef-kendo-form-control"
+<Implementation><![CDATA[
+	set defaultClasses = ..getDefaultProwebClasses()
+	set defaultClasses = defaultClasses_" ef-date-picker ef-kendo-form-control"
+	return defaultClasses
 ]]></Implementation>
 </Method>
 
@@ -5608,14 +5601,14 @@ we need to refactor the frontend buttons to make them callable from class method
 
 <Class name="EF.ui.components.frontend.divider">
 <Super>EF.ui.components.frontend.prowebBase</Super>
-<TimeChanged>64205,53540.549524</TimeChanged>
+<TimeChanged>64246,57302.621687</TimeChanged>
 <TimeCreated>64188,59498.911424</TimeCreated>
 
 <Method name="render">
 <Implementation><![CDATA[
 	do ..renderRowOpening()
 		do ..renderCellOpening()
-			write "<hr class='ef_form_divider'>"
+			write "<hr class=""ef-form-divider"">"
 		do ..renderCellClosing()
 	do ..renderRowClosing()
 ]]></Implementation>
@@ -5629,7 +5622,7 @@ we need to refactor the frontend buttons to make them callable from class method
 
 <Class name="EF.ui.components.frontend.dropdown">
 <Super>EF.ui.components.listInput,EF.ui.components.frontend.inputElement</Super>
-<TimeChanged>64237,58638.31736</TimeChanged>
+<TimeChanged>64246,58032.856593</TimeChanged>
 <TimeCreated>63355,56609.363142</TimeCreated>
 
 <Property name="isPersistent">
@@ -5672,8 +5665,8 @@ we need to refactor the frontend buttons to make them callable from class method
 <Method name="render">
 <Implementation><![CDATA[
 	if ..hasError do ..addClass("has-error")
-
-	set selectClass="form-control ef-proweb-input-element"
+	
+	set selectClass="form-control "_..getDefaultProwebClasses()_" ef-dropdown-list "
 	set searchableDataAttributes = ""
 	if ..isSearchAsYouType {
 		set selectClass = selectClass_" ef_element_dropdown_searchable select2-hidden-accessible "
@@ -6119,7 +6112,7 @@ we need to refactor the frontend buttons to make them callable from class method
 
 <Class name="EF.ui.components.frontend.inputElement">
 <Super>EF.ui.components.frontend.prowebBase,EF.ui.components.inputBase</Super>
-<TimeChanged>64245,62297.073713</TimeChanged>
+<TimeChanged>64246,59347.807939</TimeChanged>
 <TimeCreated>64183,40678.260093</TimeCreated>
 
 <Property name="alternatives">
@@ -6169,6 +6162,13 @@ we need to refactor the frontend buttons to make them callable from class method
 ]]></Implementation>
 </Method>
 
+<Method name="getDefaultProwebClasses">
+<ClassMethod>1</ClassMethod>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[	return "ef-input"
+]]></Implementation>
+</Method>
+
 <Method name="renderRowOpeningAndLabel">
 <Implementation><![CDATA[
 	if ..#html5Validation {
@@ -6194,7 +6194,7 @@ we need to refactor the frontend buttons to make them callable from class method
 <Implementation><![CDATA[
 	if $Length(..helpText) > 0 {
 		&html<
-			<span class="glyphicon glyphicon-question-sign ef-proweb-help-icon" title="#(..encodeForHTMLAttribute(..helpText))#"></span>
+			<span class="glyphicon glyphicon-question-sign ef-help-icon" title="#(..encodeForHTMLAttribute(..helpText))#"></span>
 		>
 	}
 	
@@ -6381,7 +6381,7 @@ we need to refactor the frontend buttons to make them callable from class method
 
 <Class name="EF.ui.components.frontend.integerInput">
 <Super>EF.ui.components.frontend.textInput</Super>
-<TimeChanged>64205,53559.551207</TimeChanged>
+<TimeChanged>64246,55746.593963</TimeChanged>
 <TimeCreated>63357,57620.613738</TimeCreated>
 
 <Parameter name="typeAttribute">
@@ -6401,7 +6401,7 @@ we need to refactor the frontend buttons to make them callable from class method
 <Method name="getDefaultClasses">
 <ClassMethod>1</ClassMethod>
 <ReturnType>%String</ReturnType>
-<Implementation><![CDATA[	Return "form-control ef-proweb-input-element-short"
+<Implementation><![CDATA[	Return "form-control "_..getDefaultProwebClasses()_" ef-input-short"
 ]]></Implementation>
 </Method>
 
@@ -6582,7 +6582,7 @@ eventid</Description>
 
 <Class name="EF.ui.components.frontend.numericInput">
 <Super>EF.ui.components.frontend.textInput</Super>
-<TimeChanged>64205,53559.69249</TimeChanged>
+<TimeChanged>64246,55752.425738</TimeChanged>
 <TimeCreated>63357,57620.613738</TimeCreated>
 
 <Parameter name="typeAttribute">
@@ -6607,7 +6607,7 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 <Method name="getDefaultClasses">
 <ClassMethod>1</ClassMethod>
 <ReturnType>%String</ReturnType>
-<Implementation><![CDATA[	Return "form-control ef-proweb-input-element-short"
+<Implementation><![CDATA[	Return "form-control "_..getDefaultProwebClasses()_" ef-input-short"
 ]]></Implementation>
 </Method>
 
@@ -6736,7 +6736,7 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 
 <Class name="EF.ui.components.frontend.progressBar">
 <Super>EF.ui.components.frontend.prowebBase</Super>
-<TimeChanged>64246,53409.162508</TimeChanged>
+<TimeChanged>64246,56977.058219</TimeChanged>
 <TimeCreated>64246,45739.42717</TimeCreated>
 
 <Method name="render">
@@ -6756,7 +6756,7 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 			<div class="col-sm-4"></div>
 			<div class="col-sm-4">
 				<div class="progress ef-progress-bar">
-					<div role="progressbar" style="width: #(..encodeForHTMLAttribute(value))#%;" aria-valuenow="#(..encodeForHTMLAttribute(value))#" aria-valuemin="0" aria-valuemax="100" class="progress-bar">
+					<div class="progress-bar ef-progress-bar-filled" role="progressbar" style="width: #(..encodeForHTMLAttribute(value))#%;" aria-valuenow="#(..encodeForHTMLAttribute(value))#" aria-valuemin="0" aria-valuemax="100">
 						<span class="sr-only">#(..encodeForHTML(value))#% Complete</span>
 					</div>
 				</div>
@@ -6900,7 +6900,7 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 
 <Class name="EF.ui.components.frontend.radioGroup">
 <Super>EF.ui.components.listInput,EF.ui.components.frontend.inputElement</Super>
-<TimeChanged>64245,63874.945648</TimeChanged>
+<TimeChanged>64246,57882.276727</TimeChanged>
 <TimeCreated>63356,39686.205586</TimeCreated>
 
 <Method name="getDefaultClasses">
@@ -6919,9 +6919,9 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 <Method name="render">
 <Implementation><![CDATA[
 	do ..renderRowOpeningAndLabel()
-	w "<div class=""ef-proweb-input-element"">"
+	write "<div class=""ef-input"">"
 	do ..renderAlternatives()
-	w "</div>"
+	write "</div>"
 	do ..renderHelpAndRowClosing()
 ]]></Implementation>
 </Method>
@@ -6972,6 +6972,7 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 	
 	set radio.htmlName = ..htmlName
 	do radio.addClass("ef-btn-default")
+	do radio.addAttribute("class","ef-radio-button")
 	do ..alternatives.Insert(radio)
 	
 	// Also add to the validator
@@ -7016,7 +7017,7 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 
 <Class name="EF.ui.components.frontend.textArea">
 <Super>EF.ui.components.textInput,EF.ui.components.frontend.inputElement</Super>
-<TimeChanged>64232,41007.202291</TimeChanged>
+<TimeChanged>64246,57593.592991</TimeChanged>
 <TimeCreated>63357,57620.613738</TimeCreated>
 
 <Parameter name="html5Validation">
@@ -7026,7 +7027,10 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 <Method name="getDefaultClasses">
 <ClassMethod>1</ClassMethod>
 <ReturnType>%String</ReturnType>
-<Implementation><![CDATA[	Return "form-control ef-proweb-input-element"
+<Implementation><![CDATA[
+	set defaultClasses = ..getDefaultProwebClasses()
+	set defaultClasses = defaultClasses_" form-control ef-input-text-area"
+	return defaultClasses
 ]]></Implementation>
 </Method>
 
@@ -7146,7 +7150,7 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 
 <Class name="EF.ui.components.frontend.textInput">
 <Super>EF.ui.components.textInput,EF.ui.components.frontend.inputElement</Super>
-<TimeChanged>64232,41017.461621</TimeChanged>
+<TimeChanged>64246,57575.351003</TimeChanged>
 <TimeCreated>63357,57620.613738</TimeCreated>
 
 <Parameter name="typeAttribute">
@@ -7165,7 +7169,8 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 <ClassMethod>1</ClassMethod>
 <ReturnType>%String</ReturnType>
 <Implementation><![CDATA[
-	set defaultClasses = "form-control ef-proweb-input-element"
+	set defaultClasses = ..getDefaultProwebClasses()
+	set defaultClasses = defaultClasses_" form-control ef-input-text-field"
 	return defaultClasses
 ]]></Implementation>
 </Method>
@@ -7262,7 +7267,7 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 
 <Class name="EF.ui.components.frontend.timeInput">
 <Super>EF.ui.components.frontend.textInput</Super>
-<TimeChanged>64229,35816.669048</TimeChanged>
+<TimeChanged>64246,58184.432624</TimeChanged>
 <TimeCreated>63357,57620.613738</TimeCreated>
 
 <Parameter name="typeAttribute">
@@ -7277,7 +7282,7 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 <ClassMethod>1</ClassMethod>
 <ReturnType>%String</ReturnType>
 <Implementation><![CDATA[
-	set defaultClasses = "ef-kendo-form-control"
+	set defaultClasses = "ef-input-short ef-time-picker ef_proweb_form_field_container_type_time ef-kendo-form-control"
 	return defaultClasses
 ]]></Implementation>
 </Method>
@@ -7302,7 +7307,7 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 	set timeFormat = ..validator.timeFormat
 	set ..placeHolder = ##class(shared.timeFunctions).getFrontendInputTimePattern(timeFormat)
 	&html<
-    	    <div class="ef_proweb_form_field_container_type_time ef-proweb-input-element-short">
+    	    <div class="#(..getDefaultClasses())#">
 	    	    <input type="#(..encodeHTMLAttribute(..#typeAttribute))#" class="#(..encodeHTMLAttribute(..classes))#" #(..rawHTML(..getDisabledString()))# 
 	    	    title="#(..encodeHTMLAttribute(..title))#" id="#(..encodeHTMLAttribute(..htmlID))#" name="#(..encodeHTMLAttribute(..htmlName))#" 
 	    	    value="#(..encodeHTMLAttribute(..value))#" placeholder="#(..encodeHTMLAttribute(..placeHolder))#"  #(..rawHTML(..getProwebExtraAttributes()))#
@@ -7347,7 +7352,7 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 
 <Class name="EF.ui.components.frontend.youTubeVideo">
 <Super>EF.ui.components.frontend.prowebBase</Super>
-<TimeChanged>64208,58750.977302</TimeChanged>
+<TimeChanged>64246,58251.010312</TimeChanged>
 <TimeCreated>64188,59498.911424</TimeCreated>
 
 <Property name="yourTubeVideoURL">
@@ -7359,15 +7364,18 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 	do ..renderRowOpening()
 		do ..renderCellOpening()
 			&html<
-				<object classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000" codebase="//download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=5,0,0,0" width=#(..prowebItem.storage.width)# height=#(..prowebItem.storage.height)#>
-					<param name=movie value="#(..prowebItem.storage.youTubeVideoURL)#">
-					<param name=quality value=high>
-					<param name=wmode value=transparent>
-					<param name="LOOP" value="#(..prowebItem.storage.isLooped)#">
-					<param name="menu" value="false">
-					<embed src="//www.youtube.com/v/sJ363mnyHEk?fs=1&amp;hl=en_GB" wmode=transparent quality=high pluginspage="//www.macromedia.com/shockwave/download/index.cgi?P1_Prod_Version=ShockwaveFlash" type="application/x-shockwave-flash" loop="true" width=600 height=360>
-					</embed>
-				</object>			>
+				<div class="ef-video">
+					<object classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000" codebase="//download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=5,0,0,0" width=#(..prowebItem.storage.width)# height=#(..prowebItem.storage.height)#>
+						<param name=movie value="#(..prowebItem.storage.youTubeVideoURL)#">
+						<param name=quality value=high>
+						<param name=wmode value=transparent>
+						<param name="LOOP" value="#(..prowebItem.storage.isLooped)#">
+						<param name="menu" value="false">
+						<embed src="//www.youtube.com/v/sJ363mnyHEk?fs=1&amp;hl=en_GB" wmode=transparent quality=high pluginspage="//www.macromedia.com/shockwave/download/index.cgi?P1_Prod_Version=ShockwaveFlash" type="application/x-shockwave-flash" loop="true" width=600 height=360>
+						</embed>
+					</object>			
+				</div>
+			>
 		do ..renderCellClosing()
 	do ..renderRowClosing()
 ]]></Implementation>
@@ -20036,7 +20044,7 @@ The basic frontend default stuff</Description>
 <Abstract>1</Abstract>
 <ClassType/>
 <ProcedureBlock>1</ProcedureBlock>
-<TimeChanged>64246,37531.879181</TimeChanged>
+<TimeChanged>64246,59607.041103</TimeChanged>
 <TimeCreated>63046,56108.531536</TimeCreated>
 
 <Method name="outputDynamicCSS">
@@ -20457,16 +20465,33 @@ The basic frontend default stuff</Description>
 			.ef-menu-block, 
 			.ef-menu-block ul li a, 
 			.ef-push-button.ef-push-button-primary, 
-			.ef-progress-bar-filled, 
 			.ef-form-divider,
-			.ef-help-icon,
 			.ef-panel-heading,
+			.ef-progress-bar-filled,
+			.ef-form-divider,
+			.ef-table-header {
+				background-color: #(##class(layout.eventColorMethods).getWebsiteColor1(eventID))#;
+				color: #(##class(layout.eventColorMethods).getMenuTextColor(eventID))#;
+			}
+			
+			.ef-menu-block, 
+			.ef-menu-block ul li a, 
+			.ef-push-button.ef-push-button-primary, 
+			.ef-form-divider,
+			.ef-panel-heading,
+			.ef-progress-bar-filled,
+			.ef-form-divider,
 			.ef-table-header {
 				background-color: #(##class(layout.eventColorMethods).getWebsiteColor1(eventID))#;
 				color: #(##class(layout.eventColorMethods).getMenuTextColor(eventID))#;
 				#(..getFontCSS(eventID,"headings"))#; 
 			}
-			
+
+			.ef-help-icon {
+				background-color: #(##class(layout.eventColorMethods).getMenuTextColor(eventID))#;
+				color: #(##class(layout.eventColorMethods).getWebsiteColor1(eventID))#;
+			}
+
 			.ef-menu-block ul li a:hover, 
 			.ef-push-button.ef-push-button-primary:hover  {
 				background-color: #(##class(layout.eventColorMethods).getMenuHoverBgColor(eventID))#;

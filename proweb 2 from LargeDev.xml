@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.2 (Build 736U)" ts="2016-11-24 16:39:12">
+<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.2 (Build 736U)" ts="2016-11-25 08:43:59">
 <Class name="EF.contextDataRegistration">
 <Description><![CDATA[
 <!-- ;vc;-
@@ -1312,11 +1312,23 @@ Should be run if any of the sub-classes are deleted</Description>
 
 <Class name="EF.pageController.proweb.checkbox">
 <Super>EF.pageController.proweb.inputElement</Super>
-<TimeChanged>64237,57574.868765</TimeChanged>
+<TimeChanged>64247,31241.607373</TimeChanged>
 <TimeCreated>63372,44893.197087</TimeCreated>
 
 <Property name="price">
 <Type>%Numeric</Type>
+</Property>
+
+<Property name="capacity">
+<Type>%Integer</Type>
+</Property>
+
+<Property name="currentBookingLevel">
+<Type>%Integer</Type>
+</Property>
+
+<Property name="isBookingStopped">
+<Type>%Boolean</Type>
 </Property>
 
 <Method name="getDefaultUIComponent">
@@ -1331,6 +1343,9 @@ Should be run if any of the sub-classes are deleted</Description>
 <Implementation><![CDATA[
 	do ##super()
 	set ..uiComponent.price = ..price
+	set ..uiComponent.capacity = ..capacity
+	set ..uiComponent.currentBookingLevel = ..currentBookingLevel
+	set ..uiComponent.isBookingStopped = ..isBookingStopped
 	set ..uiComponent.contextData = ..page.contextData
 ]]></Implementation>
 </Method>
@@ -1353,6 +1368,15 @@ Should be run if any of the sub-classes are deleted</Description>
 <Value name="1">
 <Value>price</Value>
 </Value>
+<Value name="2">
+<Value>capacity</Value>
+</Value>
+<Value name="3">
+<Value>currentBookingLevel</Value>
+</Value>
+<Value name="4">
+<Value>isBookingStopped</Value>
+</Value>
 </Data>
 </Storage>
 </Class>
@@ -1360,7 +1384,7 @@ Should be run if any of the sub-classes are deleted</Description>
 
 <Class name="EF.pageController.proweb.checkboxGroup">
 <Super>EF.pageController.proweb.inputElement</Super>
-<TimeChanged>64237,55597.480624</TimeChanged>
+<TimeChanged>64247,25070.066295</TimeChanged>
 <TimeCreated>64189,53206.554402</TimeCreated>
 
 <Method name="getDefaultUIComponent">
@@ -1388,7 +1412,6 @@ Should be run if any of the sub-classes are deleted</Description>
 <ReturnType>EF.pageController.inputElements.checkbox</ReturnType>
 <Implementation><![CDATA[
 	set element = ##class(EF.pageController.proweb.checkbox).addElementToParent(parent, identifier,description,value,isReadOnly)
-	;set element.price =99
 	quit element
 ]]></Implementation>
 </Method>
@@ -1872,7 +1895,7 @@ Should be run if any of the sub-classes are deleted</Description>
 <Description>
 Should have a one-to-one relationship with sc.objList</Description>
 <Super>EF.pageController.containerElement</Super>
-<TimeChanged>64240,65087.034804</TimeChanged>
+<TimeChanged>64247,31184.8314</TimeChanged>
 <TimeCreated>64231,55587.036042</TimeCreated>
 
 <Property name="prowebListID">
@@ -2163,6 +2186,9 @@ refers to sc.xModules.objList</Description>
 			set isChecked = ##class(EF.pageController.proweb.checkboxGroup).isAlternativeInValueString(alternative.displayText, value)
 			set childController = element.addProwebCheckbox(element, elementIdentifier_"-"_counter, alternative.displayText, isChecked)
 			set childController.price = ..getPrice(alternative, prowebItem) 
+			set childController.capacity = alternative.ABICapacity
+			set childController.currentBookingLevel = alternative.ABICurrentBookingLevel
+			set childController.isBookingStopped = alternative.ABIIsBookingStopped
 		} else {
 			set childController = element.addAlternative(alternative, ..getPrice(alternative, prowebItem))	
 		} 
@@ -4862,7 +4888,7 @@ we need to refactor the frontend buttons to make them callable from class method
 
 <Class name="EF.ui.components.frontend.alternativeABI">
 <Super>EF.ui.components.alternative</Super>
-<TimeChanged>64246,59872.670866</TimeChanged>
+<TimeChanged>64247,31000.698454</TimeChanged>
 <TimeCreated>64237,29515.209186</TimeCreated>
 
 <Property name="price">
@@ -4877,6 +4903,10 @@ we need to refactor the frontend buttons to make them callable from class method
 <Type>%Integer</Type>
 </Property>
 
+<Property name="isBookingStopped">
+<Type>%Boolean</Type>
+</Property>
+
 <Property name="contextData">
 <Type>EF.contextDataRegistration</Type>
 </Property>
@@ -4885,13 +4915,15 @@ we need to refactor the frontend buttons to make them callable from class method
 <ReturnType>%String</ReturnType>
 <Implementation><![CDATA[
 	#dim priceString as %String = ""
-	
 	if '##class(setup.objEventSetting).getParameter("bookingings","suppress prices in reg pages", ..contextData.eventID) {  // ## don't fix the typo without running upgrade code! ###
 		if ..price {
-			set priceString = "<span class=""ef-price"">"_..encodeHTMLContent(##class(eCom.objPrice).formatAmount(..price, ..contextData.currencyID))_"</span>"
+			set classes = "ef-price"
+			if ..isFull() {
+				set classes = classes_" ef-capacity-full"
+			}
+			set priceString = "<span class="""_classes_""">"_..encodeHTMLContent(##class(eCom.objPrice).formatAmount(..price, ..contextData.currencyID))_"</span>"
 		}
 	}
-	
 	return priceString
 ]]></Implementation>
 </Method>
@@ -4906,6 +4938,17 @@ we need to refactor the frontend buttons to make them callable from class method
 	}
 	
 	return capacityString
+]]></Implementation>
+</Method>
+
+<Method name="isFull">
+<ReturnType>%Boolean</ReturnType>
+<Implementation><![CDATA[
+	if (+..currentBookingLevel < +..capacity) ! (+..capacity = 0) {
+		return 0
+	} else {
+		return 1
+	}
 ]]></Implementation>
 </Method>
 
@@ -4926,6 +4969,9 @@ we need to refactor the frontend buttons to make them callable from class method
 <Value name="4">
 <Value>contextData</Value>
 </Value>
+<Value name="5">
+<Value>isBookingStopped</Value>
+</Value>
 </Data>
 </Storage>
 </Class>
@@ -4944,7 +4990,7 @@ we need to refactor the frontend buttons to make them callable from class method
 
 <Class name="EF.ui.components.frontend.alternativeABIRadio">
 <Super>EF.ui.components.radio,EF.ui.components.frontend.alternativeABI</Super>
-<TimeChanged>64237,29938.614142</TimeChanged>
+<TimeChanged>64247,23965.302911</TimeChanged>
 <TimeCreated>64236,41273.459766</TimeCreated>
 
 <Method name="getOptionLabel">
@@ -4965,7 +5011,6 @@ we need to refactor the frontend buttons to make them callable from class method
 <Type>%Library.CacheStorage</Type>
 <DefaultData>alternativeABIRadioDefaultData</DefaultData>
 <Data name="alternativeABIRadioDefaultData">
-<Structure>listnode</Structure>
 <Subscript>"alternativeABIRadio"</Subscript>
 <Value name="1">
 <Value>price</Value>
@@ -5139,7 +5184,7 @@ we need to refactor the frontend buttons to make them callable from class method
 
 <Class name="EF.ui.components.frontend.checkbox">
 <Super>EF.ui.components.checkbox,EF.ui.components.frontend.inputElement,EF.ui.components.frontend.alternativeABI</Super>
-<TimeChanged>64246,57946.485332</TimeChanged>
+<TimeChanged>64247,31313.850358</TimeChanged>
 <TimeCreated>63355,62572.097775</TimeCreated>
 
 <Property name="price">
@@ -5148,10 +5193,13 @@ we need to refactor the frontend buttons to make them callable from class method
 
 <Method name="render">
 <Implementation><![CDATA[
-	// The html bit
+	do ..addClass("ef-control-label")
+	if (..isFull() ) ! (..isBookingStopped) {
+		do ..addClass("ef-capacity-full")
+	}
 	if $length(..label) {
 		&html<
-	        <label class="ef-control-label">
+	        <label class="#(..getClasses())#">
 		        #[do ..renderCheckbox()]#
 		        #(..encodeHTMLContent(..label))#
 		        #(..getFormattedPriceString() )#
@@ -5176,13 +5224,16 @@ we need to refactor the frontend buttons to make them callable from class method
 <Method name="renderCheckbox">
 <Implementation><![CDATA[
 	do ..addClass("ef-check-box")
-	set disabledString=""
-	if ..isDisabled {
-		set disabledString="disabled=""disabled"""
+	if (..isFull() ) ! (..isBookingStopped) {
+		set ..isDisabled = 1
 	}
-	set isCheckedString=""
+	set disabledString = ""
+	if ..isDisabled {
+		set disabledString = "disabled=""disabled"""
+	}
+	set isCheckedString = ""
 	if ..value {
-		set isCheckedString="checked"
+		set isCheckedString = "checked"
 	}
 	&html<
 		<input type="checkbox" value="1" id="#(..encodeHTMLAttribute(..htmlID))#" class="#(..encodeForHTMLAttribute(..classes))#" name="#(..encodeHTMLAttribute(..htmlName))#" title="#(..encodeHTMLAttribute(..title))#" #(..rawHTML(isCheckedString))# #(..rawHTML(disabledString))# #(..rawHTML(..getExtraAttributes()))#>
@@ -5246,6 +5297,9 @@ we need to refactor the frontend buttons to make them callable from class method
 </Value>
 <Value name="17">
 <Value>isSelected</Value>
+</Value>
+<Value name="18">
+<Value>isBookingStopped</Value>
 </Value>
 </Data>
 </Storage>
@@ -5622,7 +5676,7 @@ we need to refactor the frontend buttons to make them callable from class method
 
 <Class name="EF.ui.components.frontend.dropdown">
 <Super>EF.ui.components.listInput,EF.ui.components.frontend.inputElement</Super>
-<TimeChanged>64246,58032.856593</TimeChanged>
+<TimeChanged>64247,31422.937932</TimeChanged>
 <TimeCreated>63355,56609.363142</TimeCreated>
 
 <Property name="isPersistent">
@@ -5646,6 +5700,7 @@ we need to refactor the frontend buttons to make them callable from class method
 		set alternative.price = price
 		set alternative.capacity = storageAlternative.ABICapacity
 		set alternative.currentBookingLevel = storageAlternative.ABICurrentBookingLevel
+		set alternative.isBookingStopped = storageAlternative.ABIIsBookingStopped
 		set alternative.contextData = contextData
 		
 	
@@ -5710,7 +5765,10 @@ we need to refactor the frontend buttons to make them callable from class method
 	if alternative.isSelected {
 		set selectedString="selected="""""	
 	}
-	
+	if (alternative.%Extends("EF.ui.components.frontend.alternativeABI") ) && ( (alternative.isFull()!(alternative.isBookingStopped) )) {
+		set alternative.isDisabled = 1
+		do alternative.addClass("ef-capacity-full")
+	}
 	set disabledString=""
 	if alternative.isDisabled {
 		set disabledString="disabled"	
@@ -5721,6 +5779,7 @@ we need to refactor the frontend buttons to make them callable from class method
         <option #(..rawHTML(selectedString))# #(..rawHTML(disabledString))# 
         	value="#(..encodeHTMLAttribute(alternative.value))#" 
         	#(..rawHTML(alternative.getExtraAttributes()))#
+        	class="#(alternative.getClasses())#"
         	>
         	#(..encodeHTMLContent(alternative.label))#
 			#(..getABIInfoEncoded(alternative))#
@@ -6900,7 +6959,7 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 
 <Class name="EF.ui.components.frontend.radioGroup">
 <Super>EF.ui.components.listInput,EF.ui.components.frontend.inputElement</Super>
-<TimeChanged>64246,57882.276727</TimeChanged>
+<TimeChanged>64247,31114.368603</TimeChanged>
 <TimeCreated>63356,39686.205586</TimeCreated>
 
 <Method name="getDefaultClasses">
@@ -6945,6 +7004,10 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 	do ..renderCellOpening()
 	do alternative.removeClass("ef-btn-default")
 	do alternative.addClass("ef-control-label")
+	if ( alternative.%Extends("EF.ui.components.frontend.alternativeABI") ) && ( (alternative.isFull()) ! (alternative.isBookingStopped) ) {
+		do alternative.addClass("ef-capacity-full")
+		set alternative.isDisabled = 1
+	}
 	do alternative.render()
 	do ..renderCellClosing()
 ]]></Implementation>
@@ -6961,6 +7024,7 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 		set radio.price = price
 		set radio.capacity = storageAlternative.ABICapacity
 		set radio.currentBookingLevel = storageAlternative.ABICurrentBookingLevel
+		set radio.isBookingStopped = storageAlternative.ABIIsBookingStopped
 		set radio.contextData = contextData
 		
 	} else {
@@ -22603,7 +22667,7 @@ to make sure group bookers can't see already existing data of attendees</Descrip
 
 <Class name="sc.facade.prowebItemStorageInputElementAlternative">
 <Super>%RegisteredObject</Super>
-<TimeChanged>64237,57927.37175</TimeChanged>
+<TimeChanged>64247,30922.188857</TimeChanged>
 <TimeCreated>64211,61761.805017</TimeCreated>
 
 <Property name="value">
@@ -22634,7 +22698,7 @@ to make sure group bookers can't see already existing data of attendees</Descrip
 <Type>%Integer</Type>
 </Property>
 
-<Property name="ABIIsFullyBooked">
+<Property name="ABIIsBookingStopped">
 <Type>%Boolean</Type>
 </Property>
 
@@ -22655,6 +22719,7 @@ to make sure group bookers can't see already existing data of attendees</Descrip
 	#dim prowebAlternative AS cod.objItemAlternatives = ##class(cod.objItemAlternatives).%OpenId(alternativeID)
 	#dim controllerID as %Integer = ##class(setup.objEvent).getControllerID(contextData.eventID)
 	#define returnBookingLevel 1
+	#dim availabilityChecker as setup.availabilityCheckerABI
 	
 	if '$IsObject(prowebAlternative) {
 		throw ##class(shared.exceptions.generalException).%New("Failed to open alternative")
@@ -22669,12 +22734,13 @@ to make sure group bookers can't see already existing data of attendees</Descrip
 	set alternativeExtraID=##class(cod.objAlternativeExtras).getExtrasIDFromItemAltID(alternativeID, prowebID )
 	if alternativeExtraID {			
 		set alternative.isABI = 1
-		; moved to the list class //set alternative.ABIPrice = ##class(sc.xModules.objCODitem).getPrice(alternativeID, prowebID , contextData.eventID, contextData.currencyID)
+		
 		
 		set availabilityChecker = ##class(setup.availabilityCheckerABI).createForABIIDAndTempPersonID(alternativeExtraID,contextData.tempPersonID)
 		
 		set alternative.ABICurrentBookingLevel = availabilityChecker.getBookingLevel()
 		set alternative.ABICapacity = availabilityChecker.getCapacity()
+		set alternative.ABIIsBookingStopped = availabilityChecker.isStopped()
 	}
 
 	set alternative.alternativeID = alternativeID

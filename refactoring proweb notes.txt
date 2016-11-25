@@ -136,6 +136,7 @@ refacotr menu for small devices
 move the  capacity loading away from the facade and into the list
 ABIs
 ===============================================================================
+allow backend bookings to override full ABIs
 replace most contextDataRegistration with contextDataFrontend
 style the guests buttons
 left align labels in small viewports

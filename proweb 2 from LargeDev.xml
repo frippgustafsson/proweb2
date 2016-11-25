@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.2 (Build 736U)" ts="2016-11-25 08:43:59">
+<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.2 (Build 736U)" ts="2016-11-25 09:07:57">
 <Class name="EF.contextDataRegistration">
 <Description><![CDATA[
 <!-- ;vc;-
@@ -5407,7 +5407,7 @@ we need to refactor the frontend buttons to make them callable from class method
 ;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>EF.ui.components.backend.datePicker.CLS/EV.3</td><td>CLS.EF.ui.components.backend.datePicker</td><td>LargeDev</td><td style='white-space: nowrap;'>02-Feb-16 12:32</td><td>AdrianM2</td></tr></table>
 ]]></Description>
 <Super>EF.ui.components.textInput,EF.ui.components.frontend.inputElement</Super>
-<TimeChanged>64246,58120.885603</TimeChanged>
+<TimeChanged>64247,32824.099091</TimeChanged>
 <TimeCreated>63384,38215.518113</TimeCreated>
 
 <Parameter name="typeAttribute">
@@ -5446,7 +5446,7 @@ we need to refactor the frontend buttons to make them callable from class method
 <Method name="render">
 <Implementation><![CDATA[
 	do ..renderRowOpeningAndLabel()
-	write !,"<div class=""",..getDefaultClasses(),""">"
+	write !,"<div style=""width: 40%"" class=""",..getDefaultClasses(),""">"
 	do ..renderInputElementOnly()
 	&html<</div>>
 	do ..renderHelpAndRowClosing()
@@ -6171,7 +6171,7 @@ we need to refactor the frontend buttons to make them callable from class method
 
 <Class name="EF.ui.components.frontend.inputElement">
 <Super>EF.ui.components.frontend.prowebBase,EF.ui.components.inputBase</Super>
-<TimeChanged>64246,59347.807939</TimeChanged>
+<TimeChanged>64247,32385.496004</TimeChanged>
 <TimeCreated>64183,40678.260093</TimeCreated>
 
 <Property name="alternatives">
@@ -6319,7 +6319,7 @@ we need to refactor the frontend buttons to make them callable from class method
 <Method name="getBackendOnlyStyles">
 <Implementation><![CDATA[
 	if ..prowebItem.storage.isBackendOnly {
-		set ..classes = ..classes_" ef-proweb-input-element-backendOnly"	
+		set ..classes = ..classes_" ef-admin-only"	
 	}
 ]]></Implementation>
 </Method>
@@ -7214,7 +7214,7 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 
 <Class name="EF.ui.components.frontend.textInput">
 <Super>EF.ui.components.textInput,EF.ui.components.frontend.inputElement</Super>
-<TimeChanged>64246,57575.351003</TimeChanged>
+<TimeChanged>64247,32451.521294</TimeChanged>
 <TimeCreated>63357,57620.613738</TimeCreated>
 
 <Parameter name="typeAttribute">
@@ -7331,7 +7331,7 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 
 <Class name="EF.ui.components.frontend.timeInput">
 <Super>EF.ui.components.frontend.textInput</Super>
-<TimeChanged>64246,58184.432624</TimeChanged>
+<TimeChanged>64247,32861.307918</TimeChanged>
 <TimeCreated>63357,57620.613738</TimeCreated>
 
 <Parameter name="typeAttribute">
@@ -7371,7 +7371,7 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 	set timeFormat = ..validator.timeFormat
 	set ..placeHolder = ##class(shared.timeFunctions).getFrontendInputTimePattern(timeFormat)
 	&html<
-    	    <div class="#(..getDefaultClasses())#">
+    	    <div style="width: 40%" class="#(..getDefaultClasses())#">
 	    	    <input type="#(..encodeHTMLAttribute(..#typeAttribute))#" class="#(..encodeHTMLAttribute(..classes))#" #(..rawHTML(..getDisabledString()))# 
 	    	    title="#(..encodeHTMLAttribute(..title))#" id="#(..encodeHTMLAttribute(..htmlID))#" name="#(..encodeHTMLAttribute(..htmlName))#" 
 	    	    value="#(..encodeHTMLAttribute(..value))#" placeholder="#(..encodeHTMLAttribute(..placeHolder))#"  #(..rawHTML(..getProwebExtraAttributes()))#
@@ -20108,7 +20108,7 @@ The basic frontend default stuff</Description>
 <Abstract>1</Abstract>
 <ClassType/>
 <ProcedureBlock>1</ProcedureBlock>
-<TimeChanged>64246,59607.041103</TimeChanged>
+<TimeChanged>64247,32663.909104</TimeChanged>
 <TimeCreated>63046,56108.531536</TimeCreated>
 
 <Method name="outputDynamicCSS">
@@ -20571,6 +20571,10 @@ The basic frontend default stuff</Description>
 			.ef-panel {
 				color: #(##class(layout.eventColorMethods).getButtonHoverTextColor(eventID))#;
 				background-color: #(##class(layout.eventColorMethods).getButtonHoverBgColor(eventID))#;
+			}
+			
+			.ef-admin-only {
+   				background-color: burlywood;    
 			}
 		</style>
 	>

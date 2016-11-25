@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.2 (Build 736U)" ts="2016-11-25 09:07:57">
+<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.2 (Build 736U)" ts="2016-11-25 12:01:16">
 <Class name="EF.contextDataRegistration">
 <Description><![CDATA[
 <!-- ;vc;-
@@ -259,7 +259,7 @@ if website is private, this will be set to the cod.objPerson.ID of that logged i
 ;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>EF.pageController.containerElement.CLS/EV.19</td><td>CLS.EF.pageController.containerElement</td><td>LargeDev</td><td style='white-space: nowrap;'>22-Nov-16 16:08</td><td>MindaugasL</td></tr></table>
 ]]></Description>
 <Super>EF.pageController.element</Super>
-<TimeChanged>64246,57612.693549</TimeChanged>
+<TimeChanged>64247,43076.120809</TimeChanged>
 <TimeCreated>63372,47273.826383</TimeCreated>
 
 <Property name="getContentsMethod">
@@ -370,8 +370,8 @@ This is a list of all the elements that are updated by the processGetContents me
 <ReturnType>EF.pageController.inputElements.textInput</ReturnType>
 <Implementation><![CDATA[
 	set element = ##class(EF.pageController.inputElements.textInputRange).addElementToParent($this, identifier, description, "", isReadOnly)
-	do ##class(EF.pageController.inputElements.textInput).addElementToParent(element, identifier_"-value1", "", value1, isReadOnly)
-	do ##class(EF.pageController.inputElements.textInput).addElementToParent(element, identifier_"-value2", "", value2, isReadOnly)
+	do ##class(EF.pageController.inputElements.textInput).addElementToParent(element, identifier_"-value1", description, value1, isReadOnly)
+	do ##class(EF.pageController.inputElements.textInput).addElementToParent(element, identifier_"-value2", "To:", value2, isReadOnly)
 
 	quit element
 ]]></Implementation>
@@ -474,9 +474,12 @@ This is a list of all the elements that are updated by the processGetContents me
 <ReturnType>EF.pageController.inputElements.textInput</ReturnType>
 <Implementation><![CDATA[
 	set element = ##class(EF.pageController.inputElements.dateRange).addElementToParent($this, identifier, description, "", isReadOnly)
-	do ##class(EF.pageController.inputElements.datePicker).addElementToParent(element, identifier_"-value1", "", value1, isReadOnly)
-	do ##class(EF.pageController.inputElements.datePicker).addElementToParent(element, identifier_"-value2", "", value2, isReadOnly)
-
+	set element.uiComponent.containerClasses = element.uiComponent.containerClasses_" row"
+	set dateElementFrom = ##class(EF.pageController.inputElements.datePicker).addElementToParent(element, identifier_"-value1", description, value1, isReadOnly)
+	set dateElementTo = ##class(EF.pageController.inputElements.datePicker).addElementToParent(element, identifier_"-value2", "To:", value2, isReadOnly)
+	set dateElementFrom.uiComponent.containerClasses = dateElementFrom.uiComponent.containerClasses_" col-sm-6"
+	set dateElementTo.uiComponent.containerClasses = dateElementTo.uiComponent.containerClasses_" col-sm-6"
+	
 	quit element
 ]]></Implementation>
 </Method>
@@ -506,8 +509,8 @@ This is a list of all the elements that are updated by the processGetContents me
 <ReturnType>EF.pageController.inputElements.textInput</ReturnType>
 <Implementation><![CDATA[
 	set element = ##class(EF.pageController.inputElements.timeRange).addElementToParent($this, identifier, description, "", isReadOnly)
-	do ##class(EF.pageController.inputElements.timePicker).addElementToParent(element, identifier_"-value1", "", value1, isReadOnly)
-	do ##class(EF.pageController.inputElements.timePicker).addElementToParent(element, identifier_"-value2", "", value2, isReadOnly)
+	do ##class(EF.pageController.inputElements.timePicker).addElementToParent(element, identifier_"-value1", description, value1, isReadOnly)
+	do ##class(EF.pageController.inputElements.timePicker).addElementToParent(element, identifier_"-value2", "To:", value2, isReadOnly)
 
 	quit element
 ]]></Implementation>
@@ -1310,6 +1313,43 @@ Should be run if any of the sub-classes are deleted</Description>
 </Class>
 
 
+<Class name="EF.pageController.proweb.buttonDeleteGuest">
+<Description><![CDATA[
+<!-- ;vc;-
+;vc;    Object: EF.pageController.buttons.button.CLS/EV.1
+;vc; Component: CLS.EF.pageController.buttons.button
+;vc;  Location: LargeDev
+;vc; Date/Time: 05-Feb-16 15:28
+;vc;      User: AdrianM2
+;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>EF.pageController.buttons.button.CLS/EV.1</td><td>CLS.EF.pageController.buttons.button</td><td>LargeDev</td><td style='white-space: nowrap;'>05-Feb-16 15:28</td><td>AdrianM2</td></tr></table>
+]]></Description>
+<Super>EF.pageController.buttonElement,EF.pageController.proweb.prowebBase</Super>
+<TimeChanged>64239,63460.568345</TimeChanged>
+<TimeCreated>63404,34415.706614</TimeCreated>
+
+<Method name="getDefaultUIComponent">
+<ReturnType>EF.ui.components.backend.button</ReturnType>
+<Implementation><![CDATA[	return ##class(EF.ui.components.frontend.buttonDeleteGuest).%New(..identifier)
+]]></Implementation>
+</Method>
+
+<Storage name="Default">
+<Type>%Library.CacheStorage</Type>
+<DefaultData>buttonDeleteGuestDefaultData</DefaultData>
+<Data name="buttonDeleteGuestDefaultData">
+<Structure>listnode</Structure>
+<Subscript>"buttonDeleteGuest"</Subscript>
+<Value name="1">
+<Value>prowebItem</Value>
+</Value>
+<Value name="2">
+<Value>prowebID</Value>
+</Value>
+</Data>
+</Storage>
+</Class>
+
+
 <Class name="EF.pageController.proweb.checkbox">
 <Super>EF.pageController.proweb.inputElement</Super>
 <TimeChanged>64247,31241.607373</TimeChanged>
@@ -1618,7 +1658,7 @@ Should be run if any of the sub-classes are deleted</Description>
 
 <Class name="EF.pageController.proweb.guestPanel">
 <Super>EF.pageController.proweb.panel</Super>
-<TimeChanged>64243,41213.238062</TimeChanged>
+<TimeChanged>64247,43238.269898</TimeChanged>
 <TimeCreated>63372,47064.603748</TimeCreated>
 
 <Property name="guestNumber">
@@ -1631,7 +1671,9 @@ Should be run if any of the sub-classes are deleted</Description>
 
 <Method name="getDefaultUIComponent">
 <ReturnType>EF.ui.components.container</ReturnType>
-<Implementation><![CDATA[	quit ##class(EF.ui.components.frontend.panel).%New(..identifier)
+<Implementation><![CDATA[
+	set panel = ##class(EF.ui.components.frontend.panel).%New(..identifier)
+	return panel
 ]]></Implementation>
 </Method>
 
@@ -1640,6 +1682,7 @@ Should be run if any of the sub-classes are deleted</Description>
 <Implementation><![CDATA[
 	do ##super(uiComponent)
 	set ..uiComponent.heading=..description
+	;set ..uiComponent.guestNumber = ..guestNumber
 ]]></Implementation>
 </Method>
 
@@ -1651,7 +1694,7 @@ Should be run if any of the sub-classes are deleted</Description>
 	set guestPanel = ##class(EF.pageController.proweb.guestPanel).addElementToParent(parent, "GuestPanel-"_prowebID_"-"_guestNumber, "Guest")	
 	set guestPanel.guestNumber = guestNumber
 	set guestPanel.showHideDependencyList = ##class(EF.ui.components.dependencyList).createNew("ef-is-guest-active-"_guestNumber,1)
-	do guestPanel.addDeleteGuestButton()
+	
 	do parent.listOfControllerIDsSorted.Insert(guestPanel.identifier)
 	
 	return guestPanel
@@ -1661,9 +1704,10 @@ Should be run if any of the sub-classes are deleted</Description>
 <Method name="renderElements">
 <FormalSpec>parentListElement:EF.pageController.containerElements.list=""</FormalSpec>
 <Implementation><![CDATA[
+	set ..uiComponent.guestNumber = ..guestNumber
 	do ..uiComponent.renderStart()
 	do ##super()
-	do ..deleteButton.uiComponent.render()
+	
 	do ..uiComponent.renderEnd()
 ]]></Implementation>
 </Method>
@@ -1686,8 +1730,8 @@ Should be run if any of the sub-classes are deleted</Description>
 
 <Method name="addDeleteGuestButton">
 <Implementation><![CDATA[
-	set ..deleteButton = ##class(EF.pageController.proweb.buttonDeleteGuest).addElementToParent($this, "ef-delete-guest-button-"_..guestNumber, "Delete Guest")
-	set ..deleteButton.uiComponent.guestNumber = ..guestNumber
+	;set ..deleteButton = ##class(EF.pageController.proweb.buttonDeleteGuest).addElementToParent($this, "ef-delete-guest-button-"_..guestNumber, "Delete Guest")
+	;set ..deleteButton.uiComponent.guestNumber = ..guestNumber
 ]]></Implementation>
 </Method>
 
@@ -5031,7 +5075,7 @@ we need to refactor the frontend buttons to make them callable from class method
 
 <Class name="EF.ui.components.frontend.buttonAddGuest">
 <Super>EF.ui.components.buttonBase,EF.ui.components.frontend.prowebBase</Super>
-<TimeChanged>64239,43427.15275</TimeChanged>
+<TimeChanged>64247,39599.670743</TimeChanged>
 <TimeCreated>64183,40678.260093</TimeCreated>
 
 <Property name="maximumNumberOfGuests">
@@ -5041,7 +5085,7 @@ we need to refactor the frontend buttons to make them callable from class method
 <Method name="getDefaultClasses">
 <ClassMethod>1</ClassMethod>
 <ReturnType>%String</ReturnType>
-<Implementation><![CDATA[	return "ef_frontend_button ef-add-guest-button"
+<Implementation><![CDATA[	return "btn btn-secondary ef-add-guest-button ef-push-button ef-push-button-secondary"
 ]]></Implementation>
 </Method>
 
@@ -5088,6 +5132,69 @@ we need to refactor the frontend buttons to make them callable from class method
 </Value>
 <Value name="7">
 <Value>maximumNumberOfGuests</Value>
+</Value>
+</Data>
+</Storage>
+</Class>
+
+
+<Class name="EF.ui.components.frontend.buttonDeleteGuest">
+<Super>EF.ui.components.buttonBase,EF.ui.components.frontend.prowebBase</Super>
+<TimeChanged>64247,39977.00346</TimeChanged>
+<TimeCreated>64183,40678.260093</TimeCreated>
+
+<Property name="guestNumber">
+<Type>%Integer</Type>
+</Property>
+
+<Method name="getDefaultClasses">
+<ClassMethod>1</ClassMethod>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[	return "ef_frontend_button ef-delete-guest-button btn btn-secondary ef-push-button ef-push-button-secondary"
+]]></Implementation>
+</Method>
+
+<Method name="render">
+<Implementation><![CDATA[
+	set outerDiv = ##class(EF.ui.components.div).%New()
+	set outerDiv.classes = "row"
+	do outerDiv.renderStart()
+	set labelDiv = ##class(EF.ui.components.div).%New()
+	set labelDiv.classes = "col-sm-4 ef-proweb-label-container"
+	do labelDiv.render()
+	set buttonDiv = ##class(EF.ui.components.div).%New()
+	set buttonDiv.classes = "col-sm-8"
+	do buttonDiv.renderStart()
+	do ..addAttribute("data-ef-guest-number",..guestNumber)
+	do ##super()
+	
+	do buttonDiv.renderEnd()
+	do outerDiv.renderEnd()
+]]></Implementation>
+</Method>
+
+<Storage name="Default">
+<Type>%Library.CacheStorage</Type>
+<DefaultData>buttonDeleteGuestDefaultData</DefaultData>
+<Data name="buttonDeleteGuestDefaultData">
+<Subscript>"buttonDeleteGuest"</Subscript>
+<Value name="1">
+<Value>isProwebEditMode</Value>
+</Value>
+<Value name="2">
+<Value>prowebItemID</Value>
+</Value>
+<Value name="3">
+<Value>prowebItem</Value>
+</Value>
+<Value name="4">
+<Value>contextData</Value>
+</Value>
+<Value name="5">
+<Value>maximumNumberOfGuests</Value>
+</Value>
+<Value name="6">
+<Value>guestNumber</Value>
 </Value>
 </Data>
 </Storage>
@@ -6678,15 +6785,22 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 
 <Class name="EF.ui.components.frontend.panel">
 <Super>EF.ui.components.frontend.prowebBase,EF.ui.components.panel</Super>
-<TimeChanged>64245,51968.532972</TimeChanged>
+<TimeChanged>64247,43068.154074</TimeChanged>
 <TimeCreated>64204,36543.176151</TimeCreated>
+
+<Property name="guestNumber">
+<Type>%Integer</Type>
+</Property>
 
 <Method name="renderStart">
 <Implementation><![CDATA[
+	;set guestNumber = 1 // ######################
 	&html<
 			<div class="ef-panel ef-draggable-div"   #(..rawHTML(..getExtraAttributes()))#>
-	            <div class="ef-panel-heading">#(..encodeForHTML(##class(shared.pCSP).out("Guest")))#
-	            	
+	            <div class="ef-panel-heading" id="">#(..encodeForHTML(##class(shared.pCSP).out("Guest")))#
+					<div class="ef-delete-guest-button"  data-ef-guest-number="#(..guestNumber)#" >
+						<span class="glyphicon glyphicon-trash">
+					</div>
 	            </div>
 				<div class="ef-panel-body ef-proweb-reorderable-guest">
 	>
@@ -6715,6 +6829,9 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 </Value>
 <Value name="3">
 <Value>isOpeningOrClosing</Value>
+</Value>
+<Value name="4">
+<Value>guestNumber</Value>
 </Value>
 </Data>
 </Storage>
@@ -20108,7 +20225,7 @@ The basic frontend default stuff</Description>
 <Abstract>1</Abstract>
 <ClassType/>
 <ProcedureBlock>1</ProcedureBlock>
-<TimeChanged>64247,32663.909104</TimeChanged>
+<TimeChanged>64247,39511.702107</TimeChanged>
 <TimeCreated>63046,56108.531536</TimeCreated>
 
 <Method name="outputDynamicCSS">
@@ -20154,7 +20271,7 @@ The basic frontend default stuff</Description>
 		}
 		
 		h1, .ef-tinyMCE-header {
-			color: #(##class(layout.eventColorMethods).getHeaderColor(xEventID))#;
+			color: #(##class(layout.eventColorMethods).getHeadingColor(xEventID))#;
 			#(..getFontCSS(xEventID,"headings"))#	
 		}		
 		
@@ -20511,36 +20628,28 @@ The basic frontend default stuff</Description>
 	write !,"<!-- ========= CSS styles defined in Website Appearance ======= -->"
 	&js<
 		<style>
+			body {
+				font-family: #(..getFontFamilyOtherText(eventID))#;
+			}
+			
 			body, 
 			.ef-input-background, 
-			.ef-push-button.ef-push-button-secondary,
+			.ef-push-button,
+			.ef-push-button-secondary,
 			.form-control, select, .k-input, .select2-container--default .select2-selection--single 
 			{
 				background-color: #(##class(layout.eventColorMethods).getWebsiteBgColor(eventID))#;
-				font-family: #(..getFontFamilyOtherText(eventID))#;
 				color: #(##class(layout.eventColorMethods).getInputFieldTextColor(eventID))#;
 			}
 			
 			h1, h2, h3, h4, h5,	h6 {
 				font-family: #(..getFontFamilyHeadings(eventID))#;
-				color: #(##class(layout.eventColorMethods).getHeaderColor(eventID))#;
+				color: #(##class(layout.eventColorMethods).getHeadingColor(eventID))#;
 			}
 			
-			.ef-menu-block, 
 			.ef-menu-block ul li a, 
-			.ef-push-button.ef-push-button-primary, 
-			.ef-form-divider,
-			.ef-panel-heading,
-			.ef-progress-bar-filled,
-			.ef-form-divider,
-			.ef-table-header {
-				background-color: #(##class(layout.eventColorMethods).getWebsiteColor1(eventID))#;
-				color: #(##class(layout.eventColorMethods).getMenuTextColor(eventID))#;
-			}
-			
-			.ef-menu-block, 
-			.ef-menu-block ul li a, 
-			.ef-push-button.ef-push-button-primary, 
+			.ef-push-button,
+			.ef-push-button-primary, 
 			.ef-form-divider,
 			.ef-panel-heading,
 			.ef-progress-bar-filled,
@@ -22064,7 +22173,7 @@ Returns true if the template is custom made</Description>
 </Class>
 
 
-<Project name="proweb 2" LastModified="2016-11-24 14:51:08.36298" Target="largedevsrc/EF.pages.frontend.baseProweb.cls" TargetType="3">
+<Project name="proweb 2" LastModified="2016-11-25 11:01:48.327991" Target="largedevsrc/EF.pages.frontend.baseProweb.cls" TargetType="3">
   <Items>
     <ProjectItem name="EF.contextDataRegistration" type="CLS"></ProjectItem>
     <ProjectItem name="EF.contextDataRegistrationMock" type="CLS"></ProjectItem>
@@ -22072,6 +22181,7 @@ Returns true if the template is custom made</Description>
     <ProjectItem name="EF.pageController.element" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.pagesFrontend.t4Registration" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.proweb.buttonAddGuest" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.pageController.proweb.buttonDeleteGuest" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.proweb.checkbox" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.proweb.checkboxGroup" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.proweb.datePicker" type="CLS"></ProjectItem>
@@ -22131,6 +22241,7 @@ Returns true if the template is custom made</Description>
     <ProjectItem name="EF.ui.components.frontend.alternativeABIDropdown" type="CLS"></ProjectItem>
     <ProjectItem name="EF.ui.components.frontend.alternativeABIRadio" type="CLS"></ProjectItem>
     <ProjectItem name="EF.ui.components.frontend.buttonAddGuest" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.ui.components.frontend.buttonDeleteGuest" type="CLS"></ProjectItem>
     <ProjectItem name="EF.ui.components.frontend.buttonLink" type="CLS"></ProjectItem>
     <ProjectItem name="EF.ui.components.frontend.buttonSubmit" type="CLS"></ProjectItem>
     <ProjectItem name="EF.ui.components.frontend.checkbox" type="CLS"></ProjectItem>
@@ -22154,6 +22265,7 @@ Returns true if the template is custom made</Description>
     <ProjectItem name="EF.ui.components.frontend.passwordInput" type="CLS"></ProjectItem>
     <ProjectItem name="EF.ui.components.frontend.phoneNumber" type="CLS"></ProjectItem>
     <ProjectItem name="EF.ui.components.frontend.privateData" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.ui.components.frontend.progressBar" type="CLS"></ProjectItem>
     <ProjectItem name="EF.ui.components.frontend.prowebBase" type="CLS"></ProjectItem>
     <ProjectItem name="EF.ui.components.frontend.radioGroup" type="CLS"></ProjectItem>
     <ProjectItem name="EF.ui.components.frontend.textArea" type="CLS"></ProjectItem>
@@ -22195,6 +22307,7 @@ Returns true if the template is custom made</Description>
     <ProjectItem name="largedevsrc/frontEnd/reg/tRegistration.csp" type="CSP"></ProjectItem>
     <ProjectItem name="largedevsrc/system/eventsForceRules.csr" type="CSP"></ProjectItem>
     <ProjectItem name="layout.cssDefaultMethods" type="CLS"></ProjectItem>
+    <ProjectItem name="layout.cssOverrideMethods" type="CLS"></ProjectItem>
     <ProjectItem name="layout.objTemplate" type="CLS"></ProjectItem>
     <ProjectItem name="sc.facade.prowebItem" type="CLS"></ProjectItem>
     <ProjectItem name="sc.facade.prowebItemStorage" type="CLS"></ProjectItem>
@@ -22220,8 +22333,6 @@ Returns true if the template is custom made</Description>
     <ProjectItem name="setup.availabilityCheckerSession" type="CLS"></ProjectItem>
     <ProjectItem name="setup.bookingLevelCounterFrontendSession" type="CLS"></ProjectItem>
     <ProjectItem name="shared.pageMethods" type="CLS"></ProjectItem>
-    <ProjectItem name="layout.cssOverrideMethods" type="CLS"></ProjectItem>
-    <ProjectItem name="EF.ui.components.frontend.progressBar" type="CLS"></ProjectItem>
   </Items>
   <BreakPoints>
     <BreakPoint Routine="cspRealEV.frontend.reg.pagecontrollerstandardsave.CLS" Offset="OnPreHTTPafter+28"></BreakPoint>

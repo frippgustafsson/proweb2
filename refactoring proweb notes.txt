@@ -135,10 +135,12 @@ reinstate the progress bar
 refacotr menu for small devices
 move the  capacity loading away from the facade and into the list
 ABIs
+style the guests buttons
 ===============================================================================
 allow backend bookings to override full ABIs
 replace most contextDataRegistration with contextDataFrontend
-style the guests buttons
+the menu is short
+the primary buttons looks the same as secondary
 left align labels in small viewports
 the timeout warning
 re-style the quick edit panel

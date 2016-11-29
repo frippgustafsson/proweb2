@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.2 (Build 736U)" ts="2016-11-25 12:01:16">
+<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.2 (Build 736U)" ts="2016-11-29 09:08:16">
 <Class name="EF.contextDataRegistration">
 <Description><![CDATA[
 <!-- ;vc;-
@@ -259,7 +259,7 @@ if website is private, this will be set to the cod.objPerson.ID of that logged i
 ;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>EF.pageController.containerElement.CLS/EV.19</td><td>CLS.EF.pageController.containerElement</td><td>LargeDev</td><td style='white-space: nowrap;'>22-Nov-16 16:08</td><td>MindaugasL</td></tr></table>
 ]]></Description>
 <Super>EF.pageController.element</Super>
-<TimeChanged>64247,43076.120809</TimeChanged>
+<TimeChanged>64247,46292.534732</TimeChanged>
 <TimeCreated>63372,47273.826383</TimeCreated>
 
 <Property name="getContentsMethod">
@@ -370,8 +370,13 @@ This is a list of all the elements that are updated by the processGetContents me
 <ReturnType>EF.pageController.inputElements.textInput</ReturnType>
 <Implementation><![CDATA[
 	set element = ##class(EF.pageController.inputElements.textInputRange).addElementToParent($this, identifier, description, "", isReadOnly)
-	do ##class(EF.pageController.inputElements.textInput).addElementToParent(element, identifier_"-value1", description, value1, isReadOnly)
-	do ##class(EF.pageController.inputElements.textInput).addElementToParent(element, identifier_"-value2", "To:", value2, isReadOnly)
+	set element.uiComponent.containerClasses = "row"
+	set textInputElementFrom = ##class(EF.pageController.inputElements.textInput).addElementToParent(element, identifier_"-value1", description, value1, isReadOnly)
+	set textInputElementTo = ##class(EF.pageController.inputElements.textInput).addElementToParent(element, identifier_"-value2", "To:", value2, isReadOnly)
+	set textInputElementFrom.uiComponent.containerClasses = textInputElementFrom.uiComponent.containerClasses_" col-sm-6"
+	set textInputElementTo.uiComponent.containerClasses = textInputElementTo.uiComponent.containerClasses_" col-sm-6"
+	set textInputElementFrom.uiComponent.classes = textInputElementFrom.uiComponent.classes_" ef-backend-input-element-short"
+	set textInputElementTo.uiComponent.classes = textInputElementTo.uiComponent.classes_" ef-backend-input-element-short"
 
 	quit element
 ]]></Implementation>
@@ -474,11 +479,13 @@ This is a list of all the elements that are updated by the processGetContents me
 <ReturnType>EF.pageController.inputElements.textInput</ReturnType>
 <Implementation><![CDATA[
 	set element = ##class(EF.pageController.inputElements.dateRange).addElementToParent($this, identifier, description, "", isReadOnly)
-	set element.uiComponent.containerClasses = element.uiComponent.containerClasses_" row"
+	set element.uiComponent.containerClasses = "row"
 	set dateElementFrom = ##class(EF.pageController.inputElements.datePicker).addElementToParent(element, identifier_"-value1", description, value1, isReadOnly)
 	set dateElementTo = ##class(EF.pageController.inputElements.datePicker).addElementToParent(element, identifier_"-value2", "To:", value2, isReadOnly)
 	set dateElementFrom.uiComponent.containerClasses = dateElementFrom.uiComponent.containerClasses_" col-sm-6"
 	set dateElementTo.uiComponent.containerClasses = dateElementTo.uiComponent.containerClasses_" col-sm-6"
+	set dateElementFrom.uiComponent.classes = dateElementFrom.uiComponent.classes_" ef-backend-input-element-short"
+	set dateElementTo.uiComponent.classes = dateElementTo.uiComponent.classes_" ef-backend-input-element-short"
 	
 	quit element
 ]]></Implementation>
@@ -509,8 +516,13 @@ This is a list of all the elements that are updated by the processGetContents me
 <ReturnType>EF.pageController.inputElements.textInput</ReturnType>
 <Implementation><![CDATA[
 	set element = ##class(EF.pageController.inputElements.timeRange).addElementToParent($this, identifier, description, "", isReadOnly)
-	do ##class(EF.pageController.inputElements.timePicker).addElementToParent(element, identifier_"-value1", description, value1, isReadOnly)
-	do ##class(EF.pageController.inputElements.timePicker).addElementToParent(element, identifier_"-value2", "To:", value2, isReadOnly)
+	set element.uiComponent.containerClasses = "row"
+	set timeElementFrom = ##class(EF.pageController.inputElements.timePicker).addElementToParent(element, identifier_"-value1", description, value1, isReadOnly)
+	set timeElementTo = ##class(EF.pageController.inputElements.timePicker).addElementToParent(element, identifier_"-value2", "To:", value2, isReadOnly)
+	set timeElementFrom.uiComponent.containerClasses = timeElementFrom.uiComponent.containerClasses_" col-sm-6"
+	set timeElementTo.uiComponent.containerClasses = timeElementTo.uiComponent.containerClasses_" col-sm-6"
+	set timeElementFrom.uiComponent.classes = timeElementFrom.uiComponent.classes_" ef-backend-input-element-short"
+	set timeElementTo.uiComponent.classes = timeElementTo.uiComponent.classes_" ef-backend-input-element-short"
 
 	quit element
 ]]></Implementation>
@@ -6278,7 +6290,7 @@ we need to refactor the frontend buttons to make them callable from class method
 
 <Class name="EF.ui.components.frontend.inputElement">
 <Super>EF.ui.components.frontend.prowebBase,EF.ui.components.inputBase</Super>
-<TimeChanged>64247,32385.496004</TimeChanged>
+<TimeChanged>64247,44636.324595</TimeChanged>
 <TimeCreated>64183,40678.260093</TimeCreated>
 
 <Property name="alternatives">
@@ -6406,7 +6418,7 @@ we need to refactor the frontend buttons to make them callable from class method
 		if ..contextData.prowebMode = "edit" {
 			set directEditClasses = "ef-proweb-direct-label-edit"
 			if ..validator.isMandatory {
-				set directEditClasses = directEditClasses_" ef-proweb-required-field"
+				set directEditClasses = directEditClasses_" ef-required-field"
 			}
 			&html<
 				<div class="#(..encodeForHTMLAttribute(directEditClasses))#" 
@@ -6512,7 +6524,7 @@ we need to refactor the frontend buttons to make them callable from class method
 
 <Class name="EF.ui.components.frontend.inputLabel">
 <Super>EF.ui.components.label</Super>
-<TimeChanged>64245,62401.569894</TimeChanged>
+<TimeChanged>64247,44645.72703</TimeChanged>
 <TimeCreated>64231,55311.604253</TimeCreated>
 
 <Method name="renderContents">
@@ -6532,7 +6544,7 @@ we need to refactor the frontend buttons to make them callable from class method
 <Implementation><![CDATA[
 	set classes = ##super()
 	if ..isMandatory {
-		set classes = classes_" ef-proweb-required-field"
+		set classes = classes_" ef-required-field"
 	}
 	
 	return classes
@@ -6685,7 +6697,7 @@ eventid</Description>
 
 <Class name="EF.ui.components.frontend.menuBlock">
 <Super>EF.ui.components.frontend.prowebBase</Super>
-<TimeChanged>64246,39788.228135</TimeChanged>
+<TimeChanged>64250,36574.361088</TimeChanged>
 <TimeCreated>64183,38661.128484</TimeCreated>
 
 <Method name="render">
@@ -6698,7 +6710,7 @@ eventid</Description>
 				<div class="ef_proweb_menu_block ef-menu-block #(..rawHTML(..getProwebExtraAttributes()))#">
 					<div class="dropdown visible-xs-block">
 						<button class="btn btn-primary dropdown-toggle ef-menu-block-button" data-toggle="dropdown" type="button">Menu <span class="caret"></span></button>
-						<ul class="dropdown-menu ef-menu-block-ul-xs">
+						<ul class="ef_proweb_menu_ul dropdown-menu ef-menu-block-ul-xs">
 							#[do ..outputListItems()]#
 						</ul>
 					</div>
@@ -20225,7 +20237,7 @@ The basic frontend default stuff</Description>
 <Abstract>1</Abstract>
 <ClassType/>
 <ProcedureBlock>1</ProcedureBlock>
-<TimeChanged>64247,39511.702107</TimeChanged>
+<TimeChanged>64250,34257.398566</TimeChanged>
 <TimeCreated>63046,56108.531536</TimeCreated>
 
 <Method name="outputDynamicCSS">
@@ -20634,7 +20646,6 @@ The basic frontend default stuff</Description>
 			
 			body, 
 			.ef-input-background, 
-			.ef-push-button,
 			.ef-push-button-secondary,
 			.form-control, select, .k-input, .select2-container--default .select2-selection--single 
 			{
@@ -20647,8 +20658,8 @@ The basic frontend default stuff</Description>
 				color: #(##class(layout.eventColorMethods).getHeadingColor(eventID))#;
 			}
 			
-			.ef-menu-block ul li a, 
-			.ef-push-button,
+			.ef-menu-block,
+			.ef-menu-block a, 
 			.ef-push-button-primary, 
 			.ef-form-divider,
 			.ef-panel-heading,
@@ -20665,7 +20676,7 @@ The basic frontend default stuff</Description>
 				color: #(##class(layout.eventColorMethods).getWebsiteColor1(eventID))#;
 			}
 
-			.ef-menu-block ul li a:hover, 
+			.ef-menu-block a:hover, 
 			.ef-push-button.ef-push-button-primary:hover  {
 				background-color: #(##class(layout.eventColorMethods).getMenuHoverBgColor(eventID))#;
 				color: #(##class(layout.eventColorMethods).getMenuHoverTextColor(eventID))#;
@@ -20705,7 +20716,7 @@ The basic frontend default stuff</Description>
 <ClassType>persistent</ClassType>
 <ProcedureBlock>1</ProcedureBlock>
 <Super>%Library.Persistent,shared.timeStamp</Super>
-<TimeChanged>64245,57165.992467</TimeChanged>
+<TimeChanged>64250,63616.035424</TimeChanged>
 <TimeCreated>60782,60196.270659</TimeCreated>
 <Inheritance>right</Inheritance>
 
@@ -20813,6 +20824,11 @@ Indicates whether the style is coming from the event (streamed) or from a file t
 </Property>
 
 <Property name="hasBootstrap">
+<Type>%Boolean</Type>
+<InitialExpression>0</InitialExpression>
+</Property>
+
+<Property name="isUsingProweb2">
 <Type>%Boolean</Type>
 <InitialExpression>0</InitialExpression>
 </Property>
@@ -21069,7 +21085,7 @@ gets the templateID for the popup - if there is one</Description>
 
 <Method name="loadTemplate">
 <ClassMethod>1</ClassMethod>
-<FormalSpec>description:%String,internalDescription:%String,active:%String,displayOrder:%String,filename:%String,replace:%Boolean=0,popup:%Boolean=0,imgFile:%String,level,source,directory,efLogoInTemplate=0,layoutStructure="",standardDesign="",isIframe=0,hasBootstrap=0,customTemplate=0</FormalSpec>
+<FormalSpec>description:%String,internalDescription:%String,active:%String,displayOrder:%String,filename:%String,replace:%Boolean=0,popup:%Boolean=0,imgFile:%String,level,source,directory,efLogoInTemplate=0,layoutStructure="",standardDesign="",isIframe=0,hasBootstrap=0,customTemplate=0,isUsingProweb2=0</FormalSpec>
 <ReturnType>%String</ReturnType>
 <Implementation><![CDATA[
 	set replace=+$G(replace)
@@ -21104,6 +21120,7 @@ gets the templateID for the popup - if there is one</Description>
 		set objTemplate.description=description
 		set objTemplate.isIframe=+isIframe
 		set objTemplate.hasBootstrap=+hasBootstrap	
+		set objTemplate.isUsingProweb2 = +isUsingProweb2
 		set ok=objTemplate.%Save()
 		if 'ok quit "0~Error creating template - "_ok_" - description='"_description_"'"
 		set templateID=objTemplate.%Id()
@@ -21445,13 +21462,13 @@ outputs each section of code doing the banner, menu and footer when needed</Desc
 					
 					&html<
 						<!-- ====== Default generation 4 frontend styles ============= -->
-						<link rel="stylesheet" href="../../media/stylesheets/frontend/gen4/ef-website-gen4.css" type="text/css" />
+						<link rel="stylesheet" href="../../media/stylesheets/frontend/gen4/ef-website-gen4-base-styles.css" type="text/css" />
 					>
 					
 					if contextData.prowebMode = "edit" {
 						&html<
 							<!-- ====== Proweb2 editor styles ============= -->
-							<link rel="stylesheet" href="../../media/stylesheets/backend/ef-editor.css" type="text/css" />
+							<link rel="stylesheet" href="../../media/stylesheets/backend/gen4/ef-editor.css" type="text/css" />
 						>
 					}
 					do ##class(layout.cssOverrideMethods).outputWebsiteAppearanceCSS(xEventID)
@@ -22081,6 +22098,19 @@ Returns true if the template is custom made</Description>
 ]]></Implementation>
 </Method>
 
+<Method name="isUsingProweb2">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>templateID:%Integer</FormalSpec>
+<ReturnType>%Boolean</ReturnType>
+<Implementation><![CDATA[
+	set template = ..%OpenId(templateID)
+	if '$IsObject(template) {
+		throw ##class(shared.exceptions.generalException).%New("Invalid templateID: "_templateID)
+	}
+	return template.isUsingProweb2
+]]></Implementation>
+</Method>
+
 <Storage name="Default">
 <Type>%Library.CacheStorage</Type>
 <DataLocation>^layout.objTemplateD</DataLocation>
@@ -22167,6 +22197,9 @@ Returns true if the template is custom made</Description>
 </Value>
 <Value name="26">
 <Value>customTemplate</Value>
+</Value>
+<Value name="27">
+<Value>isUsingProweb2</Value>
 </Value>
 </Data>
 </Storage>
@@ -23097,7 +23130,7 @@ to make sure group bookers can't see already existing data of attendees</Descrip
 ]]></Description>
 <Abstract>1</Abstract>
 <ProcedureBlock>1</ProcedureBlock>
-<TimeChanged>64231,38923.327494</TimeChanged>
+<TimeChanged>64250,63394.995395</TimeChanged>
 <TimeCreated>61845,54770.681958</TimeCreated>
 
 <Method name="isUsingProweb2">
@@ -23105,9 +23138,11 @@ to make sure group bookers can't see already existing data of attendees</Descrip
 <ReturnType>%Boolean</ReturnType>
 <Implementation><![CDATA[
 	set pageName = %request.PageName
-
-	if ..isPageConvertedToProweb2(pageName) {
-		return +$get(%session.Data("useExperimentalCMS"))
+	
+	set contextData = ##class(EF.contextDataFrontend).createFromFrontendCSPSession()
+	set templateID = ##class(layout.objTemplate).getLayoutForEvent(contextData.eventID)
+	if (##class(layout.objTemplate).isUsingProweb2(templateID)) && (..isPageConvertedToProweb2(pageName)) {
+		return 1
 	} else {
 		return 0	
 	}

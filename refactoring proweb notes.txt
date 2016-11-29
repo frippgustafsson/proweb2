@@ -109,7 +109,6 @@ make initPageController load hardcoded page section contents into new branches
 adapt OnPagePageTop to output contents from the page controller
 fixeds headers, banners and menues etc
 do the simple edit panel
-
 Proceed buttons in edit mode
 Word and character count
 date-range boundary values are not honoured
@@ -136,22 +135,22 @@ refacotr menu for small devices
 move the  capacity loading away from the facade and into the list
 ABIs
 style the guests buttons
+the menu is short
+left align labels in small viewports
+the primary buttons looks the same as secondary
 ===============================================================================
+
+re-style the quick edit panel
 allow backend bookings to override full ABIs
 replace most contextDataRegistration with contextDataFrontend
-the menu is short
-the primary buttons looks the same as secondary
-left align labels in small viewports
 the timeout warning
-re-style the quick edit panel
+rename "Responsive Standard Design" will be renamed to "Standard Design 1.0"
 date range has JS error
 rename "row ef-proweb-form-row" to something that fits non form pages too
 review the way we integrate the new CSP page with the old one, wrapper around pageNav?
 menu doesn't get populated on first load
 Marketing code
 Warning on leaving the page
-
-==== adrian ===
 make sure we can't add questions on components that shouldn't allow it (use new attrib on tag + new prop on objComponenet)
 test multiple list on a page
 test more date formats
@@ -163,3 +162,4 @@ table bookings
 add integration test where we create the whole shebang
 remove proweb version 1.5 code
 time field placeholder in FF is outside the box
+add WARNING note about loading the new template and creating the new design

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.2 (Build 736U)" ts="2016-11-29 09:08:16">
+<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.2 (Build 736U)" ts="2016-11-30 15:25:28">
 <Class name="EF.contextDataRegistration">
 <Description><![CDATA[
 <!-- ;vc;-
@@ -5087,7 +5087,7 @@ we need to refactor the frontend buttons to make them callable from class method
 
 <Class name="EF.ui.components.frontend.buttonAddGuest">
 <Super>EF.ui.components.buttonBase,EF.ui.components.frontend.prowebBase</Super>
-<TimeChanged>64247,39599.670743</TimeChanged>
+<TimeChanged>64251,43291.994524</TimeChanged>
 <TimeCreated>64183,40678.260093</TimeCreated>
 
 <Property name="maximumNumberOfGuests">
@@ -5104,7 +5104,7 @@ we need to refactor the frontend buttons to make them callable from class method
 <Method name="render">
 <Implementation><![CDATA[
 	set outerDiv = ##class(EF.ui.components.div).%New()
-	set outerDiv.classes = "row"
+	set outerDiv.classes = "row ef-proweb-form-row"
 	do outerDiv.renderStart()
 	set labelDiv = ##class(EF.ui.components.div).%New()
 	set labelDiv.classes = "col-sm-4 ef-proweb-label-container"
@@ -5526,7 +5526,7 @@ we need to refactor the frontend buttons to make them callable from class method
 ;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>EF.ui.components.backend.datePicker.CLS/EV.3</td><td>CLS.EF.ui.components.backend.datePicker</td><td>LargeDev</td><td style='white-space: nowrap;'>02-Feb-16 12:32</td><td>AdrianM2</td></tr></table>
 ]]></Description>
 <Super>EF.ui.components.textInput,EF.ui.components.frontend.inputElement</Super>
-<TimeChanged>64247,32824.099091</TimeChanged>
+<TimeChanged>64251,52056.666623</TimeChanged>
 <TimeCreated>63384,38215.518113</TimeCreated>
 
 <Parameter name="typeAttribute">
@@ -5541,8 +5541,9 @@ we need to refactor the frontend buttons to make them callable from class method
 <ClassMethod>1</ClassMethod>
 <ReturnType>%String</ReturnType>
 <Implementation><![CDATA[
+	
 	set defaultClasses = ..getDefaultProwebClasses()
-	set defaultClasses = defaultClasses_" ef-input-short ef-date-picker ef-kendo-form-control"
+	set defaultClasses = defaultClasses_" ef-date-picker ef-kendo-form-control"
 	return defaultClasses
 ]]></Implementation>
 </Method>
@@ -5564,6 +5565,7 @@ we need to refactor the frontend buttons to make them callable from class method
 
 <Method name="render">
 <Implementation><![CDATA[
+	
 	do ..renderRowOpeningAndLabel()
 	write !,"<div style=""width: 40%"" class=""",..getDefaultClasses(),""">"
 	do ..renderInputElementOnly()
@@ -5574,6 +5576,7 @@ we need to refactor the frontend buttons to make them callable from class method
 
 <Method name="renderInputElementOnly">
 <Implementation><![CDATA[
+	do ..removeClass("ef-input")
 	set ..classes = ..classes_"  efDatePicker "
 	set kendoDateFormat = ##class(shared.dateFunctions).getKendoDateFormat(..validator.dateFormat)
 	set ..placeHolder = ##class(shared.dateFunctions).datePattern(..validator.dateFormat)
@@ -5644,7 +5647,7 @@ we need to refactor the frontend buttons to make them callable from class method
 ;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>EF.ui.components.backend.datePicker.CLS/EV.3</td><td>CLS.EF.ui.components.backend.datePicker</td><td>LargeDev</td><td style='white-space: nowrap;'>02-Feb-16 12:32</td><td>AdrianM2</td></tr></table>
 ]]></Description>
 <Super>EF.ui.components.textInput,EF.ui.components.frontend.inputElement</Super>
-<TimeChanged>64246,58956.405277</TimeChanged>
+<TimeChanged>64251,51445.703096</TimeChanged>
 <TimeCreated>63384,38215.518113</TimeCreated>
 
 <Parameter name="typeAttribute">
@@ -5717,7 +5720,7 @@ we need to refactor the frontend buttons to make them callable from class method
 </Method>
 
 <Method name="renderColumnStart">
-<Implementation><![CDATA[	write !,"<div class='ef-proweb-input-element-short' style='width: 35%;'>"
+<Implementation><![CDATA[	write !,"<div class=""ef-input-short"">"
 ]]></Implementation>
 </Method>
 
@@ -6239,7 +6242,7 @@ we need to refactor the frontend buttons to make them callable from class method
 
 <Class name="EF.ui.components.frontend.floatingMenu">
 <Super>shared.pCSPmanage</Super>
-<TimeChanged>64237,61863.067276</TimeChanged>
+<TimeChanged>64252,34479.576357</TimeChanged>
 <TimeCreated>64203,40625.329831</TimeCreated>
 
 <Method name="outputFloatingMenuHTML">
@@ -6270,7 +6273,7 @@ we need to refactor the frontend buttons to make them callable from class method
 			</div>			
 		</div>
 	
-	<div class="ef-Proweb-Quick-Edit-Panel" style="display: none; padding: 5px;">
+	<div class="ef-Quick-Edit-Panel" style="display: none; padding: 5px;">
 		<div id="topButtonsQuickEdit">
 			<button type="button" id="quickEditSave" class="glyphicon glyphicon-ok"></button>
 			<button type="button" id="quickEditClose" class="glyphicon glyphicon-remove"></button>
@@ -6290,7 +6293,7 @@ we need to refactor the frontend buttons to make them callable from class method
 
 <Class name="EF.ui.components.frontend.inputElement">
 <Super>EF.ui.components.frontend.prowebBase,EF.ui.components.inputBase</Super>
-<TimeChanged>64247,44636.324595</TimeChanged>
+<TimeChanged>64252,33984.164652</TimeChanged>
 <TimeCreated>64183,40678.260093</TimeCreated>
 
 <Property name="alternatives">
@@ -6464,12 +6467,12 @@ we need to refactor the frontend buttons to make them callable from class method
 </Method>
 
 <Method name="renderLabelCellOpening">
-<Implementation><![CDATA[	write "<div class=""col-sm-4 ef-proweb-label-container ",..encodeForHTMLAttribute(..getDependentClass()),""" ",..rawHTML(..getDependsOnText()),">"
+<Implementation><![CDATA[	write "<div class=""col-sm-4 ef-label-container ",..encodeForHTMLAttribute(..getDependentClass()),""" ",..rawHTML(..getDependsOnText()),">"
 ]]></Implementation>
 </Method>
 
 <Method name="renderInputElementCellOpening">
-<Implementation><![CDATA[	write "<div class=""col-sm-8"">"
+<Implementation><![CDATA[	write "<div class=""col-sm-8 ef-input-container"">"
 ]]></Implementation>
 </Method>
 
@@ -6963,7 +6966,7 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 
 <Class name="EF.ui.components.frontend.prowebBase">
 <Super>EF.ui.components.base</Super>
-<TimeChanged>64246,47031.845358</TimeChanged>
+<TimeChanged>64252,34802.080809</TimeChanged>
 <TimeCreated>64183,41819.123112</TimeCreated>
 
 <Property name="isProwebEditMode">
@@ -6989,7 +6992,7 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 	if ..isProwebEditMode {
 		set uiComponentType = $Piece($CLASSNAME(), ".", *)
 		&HTML<
-			<div class="row ef-draggable-div ef-proweb-form-row-editable" 
+			<div class="row ef-draggable-div ef-form-row ef-form-row-editable" 
 			id="ef-field-proweb-#(..prowebItem.storage.prowebID)#" 
 			data-proweb-id="#(..prowebItem.storage.prowebID)#" 
 			data-proweb-list-id="#(..prowebItem.storage.getListID())#" 
@@ -7002,7 +7005,7 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 			set dependencyListJSON = ##class(shared.jsonFunctions).getObjectAsJSONString(..showHideDependencyList)
 			set dataAttributes = "data-show-hide-dependency-list="""_..encodeForHTMLAttribute(dependencyListJSON)_""" "
 		}
-		write !,"<div class=""row ef-proweb-form-row"" "_..rawHTML(dataAttributes)_">"
+		write !,"<div class=""row ef-form-row"" "_..rawHTML(dataAttributes)_">"
 	}
 ]]></Implementation>
 </Method>
@@ -7040,7 +7043,7 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 <ReturnType>%String</ReturnType>
 <Implementation><![CDATA[
 	if (..showHideDependencyList '= "") && (..contextData.prowebMode = "edit") {	
-		return "ef-proweb-dependent-field"
+		return "ef-dependent-field"
 	} else {
 		return ""
 	}
@@ -7460,7 +7463,7 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 
 <Class name="EF.ui.components.frontend.timeInput">
 <Super>EF.ui.components.frontend.textInput</Super>
-<TimeChanged>64247,32861.307918</TimeChanged>
+<TimeChanged>64251,52108.87085</TimeChanged>
 <TimeCreated>63357,57620.613738</TimeCreated>
 
 <Parameter name="typeAttribute">
@@ -7475,7 +7478,7 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 <ClassMethod>1</ClassMethod>
 <ReturnType>%String</ReturnType>
 <Implementation><![CDATA[
-	set defaultClasses = "ef-input-short ef-time-picker ef_proweb_form_field_container_type_time ef-kendo-form-control"
+	set defaultClasses = " ef-time-picker ef_proweb_form_field_container_type_time ef-kendo-form-control"
 	return defaultClasses
 ]]></Implementation>
 </Method>
@@ -7495,6 +7498,7 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 
 <Method name="render">
 <Implementation><![CDATA[
+	do ..removeClass("ef-input")
 	do ..renderRowOpeningAndLabel()
 	set ..classes = ..classes_" efTimePicker "
 	set timeFormat = ..validator.timeFormat
@@ -15582,22 +15586,22 @@ function cancelUpdate() {
 	}
 </script>
 <input type="hidden" name="prowebID" value="#(prowebID)#">
-<div class="form-horizontal">
-	<div class='row' style="margin-top: 0px;"> 
-		<div class='col-sm-4 ef_proweb_form_prompt'>
+<div class="form-horizontal ef-proweb-quick-edit-panel">
+	<div class="row" style="margin-top: 0px;"> 
+		<div class="col-sm-4">
 			<label for="isMandatory" class="control-label" >
-				<div class="ef-label-text">Label text</div>
+				<div class="ef-label-text">Label text:</div>
 			</label>
 		</div>
-		<div class='col-sm-8'>
-			<input type="text" name="labelText" value="#(..encodeForHTMLAttribute(labelText))#" class="form-control ef-proweb-input-element">
+		<div class="col-sm-8">
+			<input type="text" name="labelText" value="#(..encodeForHTMLAttribute(labelText))#" class="form-control">
 		</div> 
 	</div>
 
-	<div class='row'> 
-		<div class='col-sm-4 ef_proweb_form_prompt'>
+	<div class="row"> 
+		<div class="col-sm-4 ">
 			<label for="isMandatory" class="control-label" >
-				Database item
+				Database item:
 			</label>
 		</div>	
 		<div class='col-sm-8'>
@@ -15610,25 +15614,25 @@ function cancelUpdate() {
 				} else {
 					set scopeString = "Question is available to all events"	
 				}
-				set databaseItemDescription = prowebItem.objItemName.description_" - "_scopeString
+				set databaseItemDescription = prowebItem.objItemName.description_" ("_scopeString_")"
 			</script>
-			<input type="text" name="labelText" value="#(..encodeForHTMLAttribute(databaseItemDescription))#" disabled class="form-control ef-proweb-input-element">
+			<input type="text" name="labelText" value="#(..encodeForHTMLAttribute(databaseItemDescription))#" disabled class="form-control">
 
 		</div> 
 	</div>
 
 	<div class='row'> 
-		<div class="col-sm-4 ef_proweb_form_prompt">
-			<label for="isMandatory" class="control-label" >The answer is</label>
+		<div class="col-sm-4 ">
+			<label for="isMandatory" class="control-label" >The answer is:</label>
 		</div>
 		<div class='col-sm-8'>
-			<div class="btn-group ef-proweb-input-element" id="isMandatory" data-toggle="buttons">
-				<label class="btn ef-proweb-btn-default #($Select(+prowebItem.mandatory = 0 :"active",1:""))#">
+			<div class="btn-group" id="isMandatory" data-toggle="buttons">
+				<label class="btn ef-push-button #($Select(+prowebItem.mandatory = 0 :"active",1:""))#">
 					<input type="radio" value="0" name="isMandatory">
 					Optional
 				</label>
 
-				<label class="btn ef-proweb-btn-default #($Select(+prowebItem.mandatory = 1 :"active",1:""))#">
+				<label class="btn ef-push-button #($Select(+prowebItem.mandatory = 1 :"active",1:""))#">
 					<input type="radio" value="1" name="isMandatory">
 					Required
 				</label>
@@ -15637,13 +15641,13 @@ function cancelUpdate() {
 	</div>
 
 	<div class='row'> 
-		<div class='col-sm-4 ef_proweb_form_prompt'>
+		<div class='col-sm-4 '>
 			<label for="dependsOnParent" class="control-label" >
-				Display only when
+				Display only when:
 			</label>
 		</div>	
 		<div class='col-sm-8'>
-			<select name="dependsOnParent" id="dependsOnParent" class="form-control ef-proweb-input-element" onChange="ef_updateAlternatives(#(pageID)#, this.value)"  style="width: 45%;">
+			<select name="dependsOnParent" id="dependsOnParent" class="form-control" onChange="ef_updateAlternatives(#(pageID)#, this.value)"  style="width: 35%; float: left;">
 				<option value=""></option>
 				<script language="cache" runat="server">
 					set rsQuestions = ##class(%ResultSet).%New("sc.xModules.objCODitem:qQuestionsThatCanBeDependencyParents")
@@ -15656,8 +15660,8 @@ function cancelUpdate() {
 					}
 				</script>
 			</select>
-			<span class="ef-depends-on">is</span>
-			<select id="dependsOnAlternative" class="form-control ef-proweb-input-element" style="width: 45%; margin-left: 12px;">
+			<span style="float: left; margin-left:20px; margin-right: 20px; margin-top:5px;">is</span>
+			<select id="dependsOnAlternative" class="form-control" style="width: 35%; margin-left: 12px; float: left;">
 				<script language="cache" runat="server">
 					if (prowebItem.dependsOnPrompt) && (prowebItem.dependsOnAlternative) {
 						set databaseItemID = ##class(sc.xModules.objCODitem).getCODItemNameID(prowebItem.dependsOnPrompt)
@@ -16713,12 +16717,11 @@ function updateAlts(codPromptID) {
 
 <csp:section name="PageContent">
 	
-	<ef-pc-container type="panel-body">
+	
 	   	<div class="row ef-proweb-reorderable" data-ef-reorderable-save-url="#(..encodeForHTMLAttribute(..Link("../../frontend/reg/reorderProwebElements.csp")))#" >
 			<ef-pc-element prowebcomponentname="Main List" componenttype="listWithQuestionsRegistration" >
 		</div>
 			
-	</ef-pc-container>			
 	
 </csp:section>
 
@@ -17275,6 +17278,36 @@ function updateAlts(codPromptID) {
 </script>
 </body>
 </html>
+]]></CSP>
+
+
+<CSP name="media/templates/ALL_CLIENTS/EF_theme_standard_design-v2-08/index.html" application="/largedevsrc/" default="1"><![CDATA[
+<link href="../../media/templates/ALL_CLIENTS/EF_theme_standard_design-v2-08/template-styles.css" rel="stylesheet">
+  [[ef_header]]
+<div class="container ef-template-container">
+		<div class="jumbotron" role="banner">
+			[[ef_banner]]
+		</div><!-- /.jumbotron -->
+		<div class="row" role="navigation">
+        	<div class="col-sm-12">
+				[[ef_menu]]
+			</div>
+		</div>
+		<div class="row" role="main">
+        	<div class="col-sm-12">
+				[[ef_main_progress]]
+				[[ef_main_header]]
+				[[ef_main_content]]
+				[[ef_main_buttons]]
+			</div>
+		</div>
+		<div class="row">
+        	<div class="col-sm-12 ef-footer">
+				[[ef_footer]]
+				[[ef_logo]]
+			</div>
+		</div>
+</div>
 ]]></CSP>
 
 
@@ -20237,7 +20270,7 @@ The basic frontend default stuff</Description>
 <Abstract>1</Abstract>
 <ClassType/>
 <ProcedureBlock>1</ProcedureBlock>
-<TimeChanged>64250,34257.398566</TimeChanged>
+<TimeChanged>64251,42234.108728</TimeChanged>
 <TimeCreated>63046,56108.531536</TimeCreated>
 
 <Method name="outputDynamicCSS">
@@ -20634,22 +20667,19 @@ The basic frontend default stuff</Description>
 <ClassMethod>1</ClassMethod>
 <FormalSpec>eventID:%Integer</FormalSpec>
 <Implementation><![CDATA[
-	if '##class(layout.methods).canUseStyleOverrides(eventID) {
-		quit
-	}
 	write !,"<!-- ========= CSS styles defined in Website Appearance ======= -->"
 	&js<
 		<style>
 			body {
 				font-family: #(..getFontFamilyOtherText(eventID))#;
+				background-color: #(##class(layout.eventColorMethods).getWebsiteBgColor(eventID))#;
 			}
 			
-			body, 
 			.ef-input-background, 
 			.ef-push-button-secondary,
 			.form-control, select, .k-input, .select2-container--default .select2-selection--single 
 			{
-				background-color: #(##class(layout.eventColorMethods).getWebsiteBgColor(eventID))#;
+				background-color: #(##class(layout.eventColorMethods).getWebsiteColor3(eventID))#;
 				color: #(##class(layout.eventColorMethods).getInputFieldTextColor(eventID))#;
 			}
 			
@@ -20668,7 +20698,12 @@ The basic frontend default stuff</Description>
 			.ef-table-header {
 				background-color: #(##class(layout.eventColorMethods).getWebsiteColor1(eventID))#;
 				color: #(##class(layout.eventColorMethods).getMenuTextColor(eventID))#;
-				#(..getFontCSS(eventID,"headings"))#; 
+				 
+			}
+
+			.ef-push-button-primary,
+			.ef-panel-heading {
+				#(..getFontCSS(eventID,"headings"))#;
 			}
 
 			.ef-help-icon {
@@ -20716,7 +20751,7 @@ The basic frontend default stuff</Description>
 <ClassType>persistent</ClassType>
 <ProcedureBlock>1</ProcedureBlock>
 <Super>%Library.Persistent,shared.timeStamp</Super>
-<TimeChanged>64250,63616.035424</TimeChanged>
+<TimeChanged>64251,57587.15221</TimeChanged>
 <TimeCreated>60782,60196.270659</TimeCreated>
 <Inheritance>right</Inheritance>
 
@@ -21079,7 +21114,7 @@ gets the templateID for the popup - if there is one</Description>
 	#define active 1			
 	#define replace 1
 	#define notPopup 0
-	write " result=",##class(layout.objTemplate).loadTemplate(t.description,t.internalName,$$$active,,t.indexFilename,$$$replace,$$$notPopup,t.imageFile,t.accessibilityLevel,t.styleSource,t.templateDirectory,t.isLogoIncudedInTemplate,t.layoutStructure,t.designName,t.isIframe,t.isUsingBootstrap)
+	write " result=",##class(layout.objTemplate).loadTemplate(t.description,t.internalName,$$$active,,t.indexFilename,$$$replace,$$$notPopup,t.imageFile,t.accessibilityLevel,t.styleSource,t.templateDirectory,t.isLogoIncudedInTemplate,t.layoutStructure,t.designName,t.isIframe,t.isUsingBootstrap, , t.isUsingProweb2)
 ]]></Implementation>
 </Method>
 
@@ -21461,7 +21496,7 @@ outputs each section of code doing the banner, menu and footer when needed</Desc
 					do ##class(layout.cssDefaultMethods).outputComponentCSS()
 					
 					&html<
-						<!-- ====== Default generation 4 frontend styles ============= -->
+						<!-- ====== Default generation 4 frontend base styles ============= -->
 						<link rel="stylesheet" href="../../media/stylesheets/frontend/gen4/ef-website-gen4-base-styles.css" type="text/css" />
 					>
 					
@@ -21471,7 +21506,9 @@ outputs each section of code doing the banner, menu and footer when needed</Desc
 							<link rel="stylesheet" href="../../media/stylesheets/backend/gen4/ef-editor.css" type="text/css" />
 						>
 					}
-					do ##class(layout.cssOverrideMethods).outputWebsiteAppearanceCSS(xEventID)
+					if ##class(layout.methods).canUseWebsiteColorsForEvent(xEventID) {
+						do ##class(layout.cssOverrideMethods).outputWebsiteAppearanceCSS(xEventID)
+					}
 					
 				} else {
 					do ##class(layout.cssDefaultMethods).outputDefaultCSS(xEventID,layoutTemplateID)
@@ -22206,7 +22243,7 @@ Returns true if the template is custom made</Description>
 </Class>
 
 
-<Project name="proweb 2" LastModified="2016-11-25 11:01:48.327991" Target="largedevsrc/EF.pages.frontend.baseProweb.cls" TargetType="3">
+<Project name="proweb 2" LastModified="2016-11-29 10:55:21.904773" Target="largedevsrc/EF.pages.frontend.baseProweb.cls" TargetType="3">
   <Items>
     <ProjectItem name="EF.contextDataRegistration" type="CLS"></ProjectItem>
     <ProjectItem name="EF.contextDataRegistrationMock" type="CLS"></ProjectItem>
@@ -22338,6 +22375,7 @@ Returns true if the template is custom made</Description>
     <ProjectItem name="largedevsrc/frontEnd/reg/reorderProwebElements.csp" type="CSP"></ProjectItem>
     <ProjectItem name="largedevsrc/frontEnd/reg/t4Registration.csp" type="CSP"></ProjectItem>
     <ProjectItem name="largedevsrc/frontEnd/reg/tRegistration.csp" type="CSP"></ProjectItem>
+    <ProjectItem name="largedevsrc/media/templates/ALL_CLIENTS/EF_theme_standard_design-v2-08/index.html" type="CSP"></ProjectItem>
     <ProjectItem name="largedevsrc/system/eventsForceRules.csr" type="CSP"></ProjectItem>
     <ProjectItem name="layout.cssDefaultMethods" type="CLS"></ProjectItem>
     <ProjectItem name="layout.cssOverrideMethods" type="CLS"></ProjectItem>

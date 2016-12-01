@@ -144,12 +144,12 @@ rename "row ef-proweb-form-row" to something that fits non form pages too
 fix the 'only show if'
 the timeout warning
 add the other templates
-
+rename "Responsive Standard Design" will be renamed to "Standard Design 1.0"
+reorder the old and new template
 ===============================================================================
 
 
-rename "Responsive Standard Design" will be renamed to "Standard Design 1.0"
-reorder the old and new template
+
 allow backend bookings to override full ABIs
 replace most contextDataRegistration with contextDataFrontend
 date range has JS error

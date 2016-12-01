@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.2 (Build 736U)" ts="2016-11-30 15:29:48">
+<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.2 (Build 736U)" ts="2016-12-01 16:07:36">
 <Class name="EF.contextDataRegistration">
 <Description><![CDATA[
 <!-- ;vc;-
@@ -5046,7 +5046,7 @@ we need to refactor the frontend buttons to make them callable from class method
 
 <Class name="EF.ui.components.frontend.alternativeABIRadio">
 <Super>EF.ui.components.radio,EF.ui.components.frontend.alternativeABI</Super>
-<TimeChanged>64247,23965.302911</TimeChanged>
+<TimeChanged>64252,62907.682444</TimeChanged>
 <TimeCreated>64236,41273.459766</TimeCreated>
 
 <Method name="getOptionLabel">
@@ -5079,6 +5079,9 @@ we need to refactor the frontend buttons to make them callable from class method
 </Value>
 <Value name="4">
 <Value>contextData</Value>
+</Value>
+<Value name="5">
+<Value>isBookingStopped</Value>
 </Value>
 </Data>
 </Storage>
@@ -5427,7 +5430,7 @@ we need to refactor the frontend buttons to make them callable from class method
 
 <Class name="EF.ui.components.frontend.checkboxGroup">
 <Super>EF.ui.components.frontend.inputElement</Super>
-<TimeChanged>64245,63525.35507</TimeChanged>
+<TimeChanged>64253,39628.464312</TimeChanged>
 <TimeCreated>63356,56848.077942</TimeCreated>
 
 <Property name="label">
@@ -5496,6 +5499,16 @@ we need to refactor the frontend buttons to make them callable from class method
 <Method name="getDefaultValidator">
 <ReturnType>EF.validator.base</ReturnType>
 <Implementation><![CDATA[	return ##class(EF.validator.checkboxGroup).%New()
+]]></Implementation>
+</Method>
+
+<Method name="renderLabelCellOpening">
+<Implementation><![CDATA[	write "<div class=""col-sm-4 ef-label-container ef-label-container-vertical-group",..encodeForHTMLAttribute(..getDependentClass()),""" ",..rawHTML(..getDependsOnText()),">"
+]]></Implementation>
+</Method>
+
+<Method name="renderInputElementCellOpening">
+<Implementation><![CDATA[	write "<div class=""col-sm-8 ef-checkbox-container"">"
 ]]></Implementation>
 </Method>
 
@@ -5798,7 +5811,7 @@ we need to refactor the frontend buttons to make them callable from class method
 
 <Class name="EF.ui.components.frontend.dropdown">
 <Super>EF.ui.components.listInput,EF.ui.components.frontend.inputElement</Super>
-<TimeChanged>64247,31422.937932</TimeChanged>
+<TimeChanged>64253,48987.213882</TimeChanged>
 <TimeCreated>63355,56609.363142</TimeCreated>
 
 <Property name="isPersistent">
@@ -5896,17 +5909,8 @@ we need to refactor the frontend buttons to make them callable from class method
 		set disabledString="disabled"	
 	}
 	
-	// The html bit
-	&html<
-        <option #(..rawHTML(selectedString))# #(..rawHTML(disabledString))# 
-        	value="#(..encodeHTMLAttribute(alternative.value))#" 
-        	#(..rawHTML(alternative.getExtraAttributes()))#
-        	class="#(alternative.getClasses())#"
-        	>
-        	#(..encodeHTMLContent(alternative.label))#
-			#(..getABIInfoEncoded(alternative))#
-        </option>
-	>
+	// Output the markup for the option on one line to keep the HTML short when having loads of alternatives
+	&html<<option #(..rawHTML(selectedString))# #(..rawHTML(disabledString))# value="#(..encodeHTMLAttribute(alternative.value))#" #(..rawHTML(alternative.getExtraAttributes()))# class="#(alternative.getClasses())#">#(..encodeHTMLContent(alternative.label))#	#(..getABIInfoEncoded(alternative))#</option>>
 ]]></Implementation>
 </Method>
 
@@ -6242,7 +6246,7 @@ we need to refactor the frontend buttons to make them callable from class method
 
 <Class name="EF.ui.components.frontend.floatingMenu">
 <Super>shared.pCSPmanage</Super>
-<TimeChanged>64252,34479.576357</TimeChanged>
+<TimeChanged>64253,41848.233548</TimeChanged>
 <TimeCreated>64203,40625.329831</TimeCreated>
 
 <Method name="outputFloatingMenuHTML">
@@ -7091,7 +7095,7 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 
 <Class name="EF.ui.components.frontend.radioGroup">
 <Super>EF.ui.components.listInput,EF.ui.components.frontend.inputElement</Super>
-<TimeChanged>64247,31114.368603</TimeChanged>
+<TimeChanged>64253,39032.472086</TimeChanged>
 <TimeCreated>63356,39686.205586</TimeCreated>
 
 <Method name="getDefaultClasses">
@@ -7118,7 +7122,7 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 </Method>
 
 <Method name="renderInputElementCellOpening">
-<Implementation><![CDATA[	write "<div class=""col-sm-8 ef-radio-group"">"
+<Implementation><![CDATA[	write "<div class=""col-sm-8 ef-input-container ef-radio-group"">"
 ]]></Implementation>
 </Method>
 
@@ -7174,6 +7178,11 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 	// Also add to the validator
 	do ..validator.addAllowedValue(storageAlternative.value)
 	return radio
+]]></Implementation>
+</Method>
+
+<Method name="renderLabelCellOpening">
+<Implementation><![CDATA[	write "<div class=""col-sm-4 ef-label-container ef-label-container-vertical-group",..encodeForHTMLAttribute(..getDependentClass()),""" ",..rawHTML(..getDependsOnText()),">"
 ]]></Implementation>
 </Method>
 
@@ -7346,7 +7355,7 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 
 <Class name="EF.ui.components.frontend.textInput">
 <Super>EF.ui.components.textInput,EF.ui.components.frontend.inputElement</Super>
-<TimeChanged>64247,32451.521294</TimeChanged>
+<TimeChanged>64253,51191.098683</TimeChanged>
 <TimeCreated>63357,57620.613738</TimeCreated>
 
 <Parameter name="typeAttribute">
@@ -7383,6 +7392,8 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 
 <Method name="render">
 <Implementation><![CDATA[
+	do ..addClassForShortInputFields()
+
 	do ..getBackendOnlyStyles()
 	if ..prowebItem.storage.isBackendOnly {
 		set $this.placeHolder = "(Admin portal only)"
@@ -7409,6 +7420,29 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 <Method name="getDefaultValidator">
 <ReturnType>EF.validator.base</ReturnType>
 <Implementation><![CDATA[	return ##class(EF.validator.singleLineText).%New()
+]]></Implementation>
+</Method>
+
+<Method name="addClassForShortInputFields">
+<ReturnType>%Boolean</ReturnType>
+<Implementation><![CDATA[
+	#dim shouldTHisFieldBeShort as %Boolean = 0
+
+	if ..prowebItem.storage.inputType = "phoneNumber" {
+		set shouldTHisFieldBeShort = 1
+	}
+	
+	if ($this.%Extends("EF.ui.components.frontend.wholeNumber")) ! ($this.%Extends("EF.ui.components.frontend.integerInput")) {
+		set shouldTHisFieldBeShort = 1
+	}
+	
+	if $ZCVT(..prowebItem.storage.databaseItemName, "U") = "POSTCODE" {
+		set shouldTHisFieldBeShort = 1	
+	}
+	
+	if shouldTHisFieldBeShort {
+		do ..addClass("ef-input-short") 
+	}
 ]]></Implementation>
 </Method>
 
@@ -15594,7 +15628,7 @@ function cancelUpdate() {
 			</label>
 		</div>
 		<div class="col-sm-8">
-			<input type="text" name="labelText" value="#(..encodeForHTMLAttribute(labelText))#" class="form-control">
+			<input type="text" name="labelText" value="#(..encodeForHTMLAttribute(labelText))#" class="form-control ef-input">
 		</div> 
 	</div>
 
@@ -15616,7 +15650,7 @@ function cancelUpdate() {
 				}
 				set databaseItemDescription = prowebItem.objItemName.description_" ("_scopeString_")"
 			</script>
-			<input type="text" name="labelText" value="#(..encodeForHTMLAttribute(databaseItemDescription))#" disabled class="form-control">
+			<input type="text" name="labelText" value="#(..encodeForHTMLAttribute(databaseItemDescription))#" disabled class="form-control ef-input">
 
 		</div> 
 	</div>
@@ -15647,7 +15681,7 @@ function cancelUpdate() {
 			</label>
 		</div>	
 		<div class='col-sm-8'>
-			<select name="dependsOnParent" id="dependsOnParent" class="form-control" onChange="ef_updateAlternatives(#(pageID)#, this.value)"  style="width: 35%; float: left;">
+			<select name="dependsOnParent" id="dependsOnParent" class="form-control ef-input" onChange="ef_updateAlternatives(#(pageID)#, this.value)"  style="width: 35%; float: left;">
 				<option value=""></option>
 				<script language="cache" runat="server">
 					set rsQuestions = ##class(%ResultSet).%New("sc.xModules.objCODitem:qQuestionsThatCanBeDependencyParents")
@@ -15660,8 +15694,10 @@ function cancelUpdate() {
 					}
 				</script>
 			</select>
+			
 			<span style="float: left; margin-left:20px; margin-right: 20px; margin-top:5px;">is</span>
-			<select id="dependsOnAlternative" class="form-control" style="width: 35%; margin-left: 12px; float: left;">
+			
+			<select id="dependsOnAlternative" class="form-control ef-input" style="width: 35%; float: left;">
 				<script language="cache" runat="server">
 					if (prowebItem.dependsOnPrompt) && (prowebItem.dependsOnAlternative) {
 						set databaseItemID = ##class(sc.xModules.objCODitem).getCODItemNameID(prowebItem.dependsOnPrompt)
@@ -15674,36 +15710,18 @@ function cancelUpdate() {
 			</select>
 		</div> 
 	</div>
-
+	<csp:if condition=(prowebItem.type="dropdown")>
+		<div class="row"> 
+			<div class="col-sm-4 ">
+			</div>	
+			<div class="col-sm-8">	
+				<input type="checkbox" id="searchAsYouType" value=1 #( $Select(prowebItem.searchAsYouType:"CHECKED", 1:"") )#>
+				<label for="searchAsYouType" class="control-label">Search-as-you-type</label>
+			</div>	
+		</div>
+	</csp:if>
 
 </div>
-<script language="javascript">
-$('.ef-Proweb-Quick-Edit-Panel').find('input[type=checkbox]').each(function() {
-    $(this).change(function() {
-        anythingChanged = 1;
-    });
-});
-$('.ef-Proweb-Quick-Edit-Panel').find('input[type=radio]').each(function() {
-    $(this).change(function() {
-        anythingChanged = 1;
-    });
-});
-$('.ef-Proweb-Quick-Edit-Panel').find('select').each(function() {
-    $(this).change(function() {
-        anythingChanged = 1;
-    });
-});
-$('.ef-Proweb-Quick-Edit-Panel').find('input[type=text]').each(function() {
-    $(this).keydown(function() {
-        anythingChanged = 1;
-    });
-});
-$('.ef-Proweb-Quick-Edit-Panel').find('textarea').each(function() {
-    $(this).keydown(function() {
-        anythingChanged = 1;
-    });
-});
-</script>
 ]]></CSP>
 
 
@@ -15752,6 +15770,10 @@ $('.ef-Proweb-Quick-Edit-Panel').find('textarea').each(function() {
 	set prowebItem.dependsOnAlternative = selectedAlternativeID
 	set newDependsOnAlternative = prowebItem.dependsOnAlternative
 	
+	set oldSearchAsYouType = prowebItem.searchAsYouType
+	set prowebItem.searchAsYouType = +%request.Get("searchAsYouType")
+	set newSearchAsYouType = prowebItem.searchAsYouType
+	
 	set sc = prowebItem.%Save()
 	if ('$$$ISERR(sc)) {
 		set status = "ok"
@@ -15773,6 +15795,9 @@ $('.ef-Proweb-Quick-Edit-Panel').find('textarea').each(function() {
 		if (auditDepencency) {
 			do ##class(setup.objEventAudit).add(xUserID, eventID, "Reg Page '"_pageName_"' ("_pageID_"), Changed Registration Question Depends On Prompt: "_newDependsOnPrompt_" (New Value) - "_oldDependsOnPrompt_" (Old Value)")
 			do ##class(setup.objEventAudit).add(xUserID, eventID, "Reg Page '"_pageName_"' ("_pageID_"), Changed Registration Question Depends On Alternative: "_newDependsOnAlternative_" (New Value) - "_oldDependsOnAlternative_" (Old Value)")
+		}
+		if (oldSearchAsYouType '= newSearchAsYouType) {
+			do ##class(setup.objEventAudit).add(xUserID, eventID, "Reg Page '"_pageName_"' ("_pageID_"), Changed Registration Question Search as you type: "_newSearchAsYouType_" (New Value) - "_oldSearchAsYouType_" (Old Value)")
 		}
 	}
 	
@@ -17281,6 +17306,156 @@ function updateAlts(codPromptID) {
 ]]></CSP>
 
 
+<CSP name="media/templates/ALL_CLIENTS/EF_theme_standard_design-v2-04/index.html" application="/largedevsrc/" default="1"><![CDATA[
+<link rel="stylesheet" type="text/css" href="../../media/templates/ALL_CLIENTS/EF_theme_standard_design-v2-04/template-styles.css" >
+[[ef_header]]
+<div class="container ef-template-container">
+  <div class="jumbotron ef-banner" role="banner">
+        [[ef_banner]]
+  </div>
+  <div class="row">
+      <div class="col-sm-3 ef-left-column" role="navigation">
+        [[ef_menu]]
+      </div>
+      <div class="col-sm-9 ef-middle-column" role="main">
+    [[ef_main_progress]]
+    [[ef_main_header]]
+    [[ef_main_content]]
+    [[ef_main_buttons]]
+      </div>
+  </div>		
+	<div class="row">
+		<div class="col-sm-12 ef-footer">
+			[[ef_footer]]
+			[[ef_logo]]
+		</div>
+	</div>
+</div>
+]]></CSP>
+
+
+<CSP name="media/templates/ALL_CLIENTS/EF_theme_standard_design-v2-04/style.LESS" application="/largedevsrc/" default="1"><![CDATA[
+// out: template-styles.css 
+
+
+/* Navigation */
+.ef-menu-block-ul {
+	padding: 0;
+	margin: 0;
+}
+
+.ef-menu-block-ul li {
+    list-style-type: none;
+	border-bottom: 1px solid #ffffff;
+}
+
+.ef-menu-block-ul a {
+	padding: 10px 0 10px 12px;
+	text-decoration: none;
+	display: block;
+}
+
+/* non-standard fonts are downloaded from google fonts  */
+@font-face {
+  font-family: 'Roboto Slab';
+  font-style: normal;
+  font-weight: 400;
+  src: local('Roboto Slab Regular'), local('RobotoSlab-Regular'), url(https://themes.googleusercontent.com/static/fonts/robotoslab/v1/y7lebkjgREBJK96VQi37ZobN6UDyHWBl620a-IRfuBk.woff) format('woff');
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+]]></CSP>
+
+
+<CSP name="media/templates/ALL_CLIENTS/EF_theme_standard_design-v2-07/index.html" application="/largedevsrc/" default="1"><![CDATA[
+<link href="../../media/templates/ALL_CLIENTS/EF_theme_standard_design-v2-07/template-styles.css" rel="stylesheet">
+[[ef_header]]
+<div class="container ef-template-container">
+	<div class="jumbotron" role="banner">
+		[[ef_banner]]
+	</div><!-- /.jumbotron -->
+	<div class="row">
+    	<div class="col-sm-12" role="navigation">
+			[[ef_menu]]
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-sm-12">
+			[[ef_main_progress]]
+			[[ef_main_header]]
+		</div>
+	</div>
+	<div class="row">
+		<div id="middle_column" class="col-sm-9 ef-event-middle-column" role="main">
+			[[ef_main_content]]
+			[[ef_main_buttons]]
+		</div>
+		<div id="right_column" class="col-sm-3 ef-event-right-column">
+			[[ef_right]]
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-sm-12 ef-footer">
+			[[ef_footer]]
+			[[ef_logo]]
+		</div>
+	</div>
+</div>
+]]></CSP>
+
+
+<CSP name="media/templates/ALL_CLIENTS/EF_theme_standard_design-v2-07/style.LESS" application="/largedevsrc/" default="1"><![CDATA[
+// out: template-styles.css 
+
+/* Navigation */
+.ef-menu-block-ul {
+    font-size: 0;
+    padding: 0;
+    margin: 0;
+    border: 0;
+    list-style: none;
+    line-height: 34px;
+    height: 34px;
+}
+
+.ef-menu-block-ul li {
+    display: inline-block;
+    zoom: 1;
+    *display: inline;
+    border-right: 1px solid #ffffff;
+    height: 34px;
+}
+
+.ef-menu-block-ul a {
+    display: inline-block;
+    padding-left: 22px;
+    padding-right: 22px;
+    margin-bottom: 0;
+    text-decoration: none;
+    text-align: left;
+}
+.ef-menu-block-ul>* {
+    font-size: 13px;
+}
+
+
+
+
+
+]]></CSP>
+
+
 <CSP name="media/templates/ALL_CLIENTS/EF_theme_standard_design-v2-08/index.html" application="/largedevsrc/" default="1"><![CDATA[
 <link href="../../media/templates/ALL_CLIENTS/EF_theme_standard_design-v2-08/template-styles.css" rel="stylesheet">
   [[ef_header]]
@@ -17308,6 +17483,161 @@ function updateAlts(codPromptID) {
 			</div>
 		</div>
 </div>
+]]></CSP>
+
+
+<CSP name="media/templates/ALL_CLIENTS/EF_theme_standard_design-v2-08/style.LESS" application="/largedevsrc/" default="1"><![CDATA[
+// out: template-styles.css 
+
+
+/* Navigation */
+.ef-menu-block-ul {
+    font-size: 0;
+    padding: 0;
+    margin: 0;
+    border: 0;
+    list-style: none;
+    line-height: 34px;
+    height: 34px;
+}
+
+.ef-menu-block-ul li {
+    display: inline-block;
+    *display: inline;
+    zoom: 1;
+    border-right: 1px solid #ffffff;
+    height: 34px;
+}
+
+.ef-menu-block-ul a {
+    display: inline-block;
+    padding-left: 22px;
+    padding-right: 22px;
+    margin-bottom: 0;
+    text-decoration: none;
+    text-align: left;
+}
+.ef-menu-block-ul>* {
+    font-size: 13px;
+}
+
+/* non-standard fonts are downloaded from google fonts  */
+@font-face {
+  font-family: 'Roboto Slab';
+  font-style: normal;
+  font-weight: 400;
+  src: local('Roboto Slab Regular'), local('RobotoSlab-Regular'), url(https://themes.googleusercontent.com/static/fonts/robotoslab/v1/y7lebkjgREBJK96VQi37ZobN6UDyHWBl620a-IRfuBk.woff) format('woff');
+}
+
+]]></CSP>
+
+
+<CSP name="media/templates/ALL_CLIENTS/EF_theme_standard_design-v2-09/index.html" application="/largedevsrc/" default="1"><![CDATA[
+  [[ef_header]]
+<div class="container ef-template-container">
+		<div class="jumbotron" role="banner">
+			[[ef_banner]]
+		</div><!-- /.jumbotron -->
+		<div class="row" role="main">
+        	<div class="col-sm-12">
+				[[ef_main_progress]]
+				[[ef_main_header]]
+				[[ef_main_content]]
+				[[ef_main_buttons]]
+			</div>
+		</div>
+		<div class="row">
+        	<div class="col-sm-12 ef-footer">
+				[[ef_footer]]
+				[[ef_logo]]
+			</div>
+		</div>
+</div>
+]]></CSP>
+
+
+<CSP name="media/templates/ALL_CLIENTS/EF_theme_standard_design-v2-21/index.html" application="/largedevsrc/" default="1"><![CDATA[
+<link rel="stylesheet" href="../../media/templates/ALL_CLIENTS/EF_theme_standard_design-v2-21/template-style.css" rel="stylesheet" />
+
+[[ef_header]]
+
+<style>
+body {background-color:white;}
+#eflogodiv {padding-top:10px;padding-bottom:10px;}
+</style>
+
+<div id="wrapper">
+
+<div id="middle_column">
+
+[[ef_main_progress]]
+
+[[ef_main_header]]
+
+[[ef_main_content]]
+	[[ef_main_buttons]]
+
+	[[ef_footer]]
+
+	[[ef_logo]]
+
+</div> <!-- end of middle_column div -->
+
+<div style="clear:both;"></div>
+
+</div> <!-- end of wrapper div -->
+]]></CSP>
+
+
+<CSP name="media/templates/ALL_CLIENTS/EF_theme_standard_design-v2-21/style.LESS" application="/largedevsrc/" default="1"><![CDATA[
+// out: template-styles.css 
+
+/* Navigation */
+.ef-menu-block-ul {
+	text-align: left;
+	padding-top:7px;
+	padding-bottom:7px;
+	padding-left:0px;
+	padding-right:0px;
+	margin:0px;
+	border: 0px;
+	background-color: #17b3c4;
+	height:20px;
+}
+
+.ef-menu-block-ul li {
+	display: inline;
+	list-style-type: none;
+	height: 40px;}
+
+.ef-menu-block-ul a {
+	font:  13px Verdana, Arial, Helvetica, sans-serif;
+	padding:8px 22px 10px 22px;
+	margin-bottom: 0px;
+	background-color: #17b3c4;
+	text-decoration:none;
+	text-align: left;
+	margin-right: -4px;
+	border-right: 1px solid #ffffff;
+	}
+	
+.ef-menu-block-ul  a:hover {	
+	background-color: #4D141F;
+	color: #ffffff;
+}
+
+
+/* boxes */
+#wrapper {
+	margin:20px;
+	background-color: #ffffff;
+}
+
+#middle_column {
+	background-color: #ffffff;
+	min-height: 500px;
+}
+	
 ]]></CSP>
 
 
@@ -20738,6 +21068,1215 @@ The basic frontend default stuff</Description>
 </Class>
 
 
+<Class name="layout.methods">
+<Description><![CDATA[
+<!-- ;vc;-
+;vc;    Object: layout.methods.CLS/EV.139
+;vc; Component: CLS.layout.methods
+;vc;  Location: LargeDev
+;vc; Date/Time: 28-Nov-16 15:36
+;vc;      User: FredG
+;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>layout.methods.CLS/EV.139</td><td>CLS.layout.methods</td><td>LargeDev</td><td style='white-space: nowrap;'>28-Nov-16 15:36</td><td>FredG</td></tr></table>
+]]></Description>
+<Abstract>1</Abstract>
+<ClassType/>
+<ProcedureBlock>1</ProcedureBlock>
+<TimeChanged>64253,54904.818669</TimeChanged>
+<TimeCreated>61075,71223.195943</TimeCreated>
+
+<Method name="reloadAll">
+<ClassMethod>1</ClassMethod>
+<Implementation><![CDATA[
+	do ..addStandardDesigns()
+	
+	// set path="d:\websites\eventsforce.net\SOURCENEW\frontend\layouts\",newPath="d:\websites\eventsforce.net\SOURCENEW\media\templates\ALL_CLIENTS\"
+	set path=##class(shared.fileMethods).addSlash(##class(EF.config.server).getTemplatesRootPathOld())
+	set newPath=##class(shared.fileMethods).addSlash(##class(EF.config.server).getTemplatesRootShared())
+	
+	// THE DESCRIPTIONS HAVE TO BE UNIQUE - it will be overwritten with another template if the same
+	set fn($I(fn))=newPath_"EF_base_layout_left_menu\index.csp",de(fn)="Blank 01 "_##class(layout.methods).getLayoutDescriptionFromNumber(10),in(fn)="EF_DEFAULT_LEFT_MENU",img(fn)="layout1.jpg",level(fn)="none",source(fn)="event",directory(fn)="ALL_CLIENTS/EF_base_layout_left_menu",layout(fn)=##class(layout.methods).getLayoutDescriptionFromNumber(10),design(fn)="Blank Design"
+	set fn($I(fn))=path_"table1.html",de(fn)="Blank 02 "_##class(layout.methods).getLayoutDescriptionFromNumber(11),in(fn)="frontEndFrameset1.csp",img(fn)="layout1.jpg",level(fn)="none",source(fn)="event",directory(fn)="EF/EF_theme_blank-02",efLogo(fn)=0,layout(fn)=##class(layout.methods).getLayoutDescriptionFromNumber(11),design(fn)="Blank Design"
+	set fn($I(fn))=path_"table2.html",de(fn)="Blank 03 "_##class(layout.methods).getLayoutDescriptionFromNumber(12),in(fn)="frontEndFrameset2.csp",img(fn)="layout2.jpg",level(fn)="none",source(fn)="event",directory(fn)="EF/EF_theme_blank-03",efLogo(fn)=0,layout(fn)=##class(layout.methods).getLayoutDescriptionFromNumber(12),design(fn)="Blank Design"
+	set fn($I(fn))=path_"table3.html",de(fn)="Blank 04 "_##class(layout.methods).getLayoutDescriptionFromNumber(13),in(fn)="frontEndFrameset3.csp",img(fn)="layout3.jpg",level(fn)="none",source(fn)="event",directory(fn)="EF/EF_theme_blank-04",efLogo(fn)=0,layout(fn)=##class(layout.methods).getLayoutDescriptionFromNumber(13),design(fn)="Blank Design"
+	set fn($I(fn))=path_"table4.html",de(fn)="Blank 05 "_##class(layout.methods).getLayoutDescriptionFromNumber(14),in(fn)="frontEndFrameset4.csp",img(fn)="layout4.jpg",level(fn)="none",source(fn)="event",directory(fn)="EF/EF_theme_blank-05",efLogo(fn)=0,layout(fn)=##class(layout.methods).getLayoutDescriptionFromNumber(14),design(fn)="Blank Design"
+	set fn($I(fn))=path_"table5.html",de(fn)="Blank 06 "_##class(layout.methods).getLayoutDescriptionFromNumber(15),in(fn)="frontEndFrameset5.csp",img(fn)="layout5.jpg",level(fn)="none",source(fn)="event",directory(fn)="EF/EF_theme_blank-06",efLogo(fn)=0,layout(fn)=##class(layout.methods).getLayoutDescriptionFromNumber(15),design(fn)="Blank Design"
+	set fn($I(fn))=path_"table6.html",de(fn)="Blank 07 "_##class(layout.methods).getLayoutDescriptionFromNumber(16),in(fn)="layout6",img(fn)="layout6.jpg",level(fn)="none",source(fn)="event",directory(fn)="EF/EF_theme_blank-07",efLogo(fn)=0,layout(fn)=##class(layout.methods).getLayoutDescriptionFromNumber(16),design(fn)="Blank Design"
+	set fn($I(fn))=path_"divexistingnoframeset.html",de(fn)="Blank 08 "_##class(layout.methods).getLayoutDescriptionFromNumber(17),in(fn)="noFrameset.csp",img(fn)="layoutNoFrameset.jpg",level(fn)="none",source(fn)="event",directory(fn)="EF/EF_theme_blank-08",efLogo(fn)=0,layout(fn)=##class(layout.methods).getLayoutDescriptionFromNumber(17),design(fn)="Blank Design"
+	set fn($I(fn))=path_"3_column_static_glish.html",de(fn)="Blank 09 "_##class(layout.methods).getLayoutDescriptionFromNumber(18),in(fn)="Glish3ColStatic",img(fn)="layout4.jpg",level(fn)="A",source(fn)="event",directory(fn)="EF/EF_theme_blank-09",efLogo(fn)=0,layout(fn)=##class(layout.methods).getLayoutDescriptionFromNumber(18),design(fn)="Blank Design"
+	set fn($I(fn))=path_"2_column_static_jw.html",de(fn)="Blank 10 "_##class(layout.methods).getLayoutDescriptionFromNumber(19),in(fn)="JAW2ColStatic",img(fn)="layout5.jpg",level(fn)="A",source(fn)="event",directory(fn)="EF/EF_theme_blank-10",efLogo(fn)=0,layout(fn)=##class(layout.methods).getLayoutDescriptionFromNumber(19),design(fn)="Blank Design"
+	set fn($I(fn))=path_"1_column_static_jw.html",de(fn)="Blank 11 "_##class(layout.methods).getLayoutDescriptionFromNumber(20),in(fn)="JAW1ColStatic",img(fn)="layout3.jpg",level(fn)="A",source(fn)="event",directory(fn)="EF/EF_theme_blank-11",efLogo(fn)=0,layout(fn)=##class(layout.methods).getLayoutDescriptionFromNumber(20),design(fn)="Blank Design"
+	
+	set fn($I(fn))=newPath_"EF_theme_iFrame\index.csp",de(fn)="No Menu and Banner (For IFRAMES)",in(fn)="IFRAME",img(fn)="layoutiFrame.jpg",level(fn)="none",source(fn)="event",directory(fn)="ALL_CLIENTS/EF_theme_iFrame",isIframe(fn)=1
+	set fn($I(fn))=newPath_"EF_theme_survey\index.csp",de(fn)="Generic Template for Surveys",in(fn)="SURVEY",img(fn)="layoutiFrame.jpg",level(fn)="none",source(fn)="event",directory(fn)="ALL_CLIENTS/EF_theme_survey"
+	
+	// automated section for loading numeric themes
+	for d=1:1:19 {
+		set design="",$P(design,"0",4-$L(d))="",design=design_d // add the leading zeroes
+		for l=1:1:9 {
+			set layout="",$P(layout,"0",3-$L(l))="",layout=layout_l // add the leading zeroes
+			set fn($I(fn))=newPath_"EF_theme_"_design_"-"_layout_"\index.csp",de(fn)="Theme "_design_" "_layout_" "_##class(layout.methods).getLayoutDescriptionFromNumber(l),in(fn)="EF_THEME_"_design_"_"_layout,img(fn)="layout_structure_"_l_".gif",level(fn)="none",source(fn)="template",directory(fn)="ALL_CLIENTS/EF_theme_"_design_"-"_layout,efLogo(fn)=0,layout(fn)=##class(layout.methods).getLayoutDescriptionFromNumber(l),design(fn)="Design "_+design
+			
+			
+			set indexFile = ##class(shared.fileMethods).fileActions(newPath_"EF_theme_"_design_"-"_layout_"\index.csp", "R")
+			set resultFile = ##class(shared.fileMethods).fileActions(newPath_"EF_theme_"_design_"-"_layout_"\index.csp", "WR", indexFile, "[[PATH]]|"_"../../media/templates/ALL_CLIENTS/EF_theme_"_design_"-"_layout_"/")
+		}
+	}
+	
+	// add new default design - as not numeric have to hard code the values
+	for l=4,7,8,9,21 {
+		set design="default_design"
+		set layout="",$P(layout,"0",3-$L(l))="",layout=layout_l // add the leading zeroes
+		set fn($I(fn))=newPath_"EF_theme_"_design_"-"_layout_"\index.csp"
+		set de(fn)="Default Design "_layout_" "_##class(layout.methods).getLayoutDescriptionFromNumber(l)
+		set in(fn)="EF_THEME_"_design_"_"_layout
+		set img(fn)="layout_structure_"_l_".gif",level(fn)="none",source(fn)="template"
+		set directory(fn)="ALL_CLIENTS/EF_theme_"_design_"-"_layout,efLogo(fn)=1
+
+		set isIframe(fn)=$S(l=21:1,1:0) // No 21 is an iFrame
+		set isUsingBootstrap(fn)=0
+
+		set layout(fn)=##class(layout.methods).getLayoutDescriptionFromNumber(l)
+		set design(fn)="Default Design"
+		
+		set indexFile = ##class(shared.fileMethods).fileActions(newPath_"EF_theme_"_design_"-"_layout_"\index.csp", "R")
+		set resultFile = ##class(shared.fileMethods).fileActions(newPath_"EF_theme_"_design_"-"_layout_"\index.csp", "WR", indexFile, "[[PATH]]|"_"../../media/templates/ALL_CLIENTS/EF_theme_"_design_"-"_layout_"/")
+	}
+
+	set i=""
+	for  {
+		set i=$O(fn(i))
+		if i="" quit
+		
+		s fn=fn(i)
+		w !,"Loading:",fn,"..."
+		w " result=",##class(layout.objTemplate).loadTemplate(de(i),in(i),1,i,fn,1,0,img(i),level(i),source(i),directory(i),$G(efLogo(i)),$G(layout(i)),$G(design(i)),$G(isIframe(i)),$G(isUsingBootstrap(i)))
+		s fn=$P(fn,".html",1)_"_popup.html"
+		if ##class(%Library.File).Exists(fn)	{  // if we don't have a popup template, doesn't matter, the normal one will be used
+			w !,"Loading:",fn,"..."
+			w " result=",##class(layout.objTemplate).loadTemplate(de(i)_"_popup",in(i)_"_popup",1,i,fn,1,1,img(i),level(i),source(i),directory(i),$G(efLogo(i)),$G(layout(i)),$G(design(i)),$G(isIframe(i)),$G(isUsingBootstrap(i)))
+		} else {
+			// Check for csp popup
+			s fn=$P(fn,".csp",1)_"_popup.csp"
+			if ##class(%Library.File).Exists(fn)	{  // if we don't have a popup template, doesn't matter, the normal one will be used
+				w !,"Loading:",fn,"..."
+				w " result=",##class(layout.objTemplate).loadTemplate(de(i)_"_popup",in(i)_"_popup",1,i,fn,1,1,img(i),level(i),source(i),directory(i),$G(efLogo(i)),$G(layout(i)),$G(design(i)),$G(isIframe(i)),$G(isUsingBootstrap(i)))
+			}
+		}
+	}
+	
+	do ..loadResponsiveStandardTemplates()
+	
+	do ..updateTemplateCSSFileAll()
+]]></Implementation>
+</Method>
+
+<Method name="loadResponsiveStandardTemplates">
+<Description>
+Loads the first generation templates of the Eventsforce responsive standard design</Description>
+<ClassMethod>1</ClassMethod>
+<Implementation><![CDATA[
+	#define horiMenuNoSponsNoLogo 8
+	#define vertMenuNoSponsNoLogo 4
+	#define horiMenuSponsNoLogo 7
+	#define noMenuNoSponsNoLogo 9
+	#define iFrame 21
+	
+	set path=##class(shared.fileMethods).addSlash(##class(EF.config.server).getTemplatesRootShared())
+	
+	for layoutNumber=$$$horiMenuNoSponsNoLogo,$$$vertMenuNoSponsNoLogo,$$$horiMenuSponsNoLogo,$$$noMenuNoSponsNoLogo,$$$iFrame {
+		
+		set template=##class(%ZEN.proxyObject).%New()
+		set template.isIframe=(layoutNumber=$$$iFrame)
+		set internalDesignName="standard_design"
+		
+		set layout="",$P(layout,"0",3-$L(layoutNumber))="",layout=layout_layoutNumber // add the leading zeroes
+		
+		set template.description="Responsive Standard Design "_layout_" "_##class(layout.methods).getLayoutDescriptionFromNumber(layoutNumber)
+		set template.internalName="EF_THEME_"_internalDesignName_"_"_layout
+		set template.designName="Responsive Standard Design"
+		set template.layoutStructure=##class(layout.methods).getLayoutDescriptionFromNumber(layoutNumber)
+		
+		set template.indexFilename=path_"EF_theme_"_internalDesignName_"-"_layout_"\index.csp"
+		set template.templateDirectory="ALL_CLIENTS/EF_theme_"_internalDesignName_"-"_layout
+		set template.imageFile="layout_structure_"_layoutNumber_".gif"
+
+		set template.accessibilityLevel="none"
+		set template.styleSource="template"
+		set template.isLogoIncudedInTemplate=1
+		set template.isUsingBootstrap=1
+		
+		set indexFile = ##class(shared.fileMethods).fileActions(path_"EF_theme_"_layoutNumber_"-"_layout_"\index.csp", "R")
+		set resultFile = ##class(shared.fileMethods).fileActions(path_"EF_theme_"_layoutNumber_"-"_layout_"\index.csp", "WR", indexFile, "[[PATH]]|"_"../../media/templates/ALL_CLIENTS/EF_theme_"_layoutNumber_"-"_layout_"/")
+
+		do ##class(layout.objTemplate).loadTemplateUsingProxy(template)
+		kill template
+	}
+]]></Implementation>
+</Method>
+
+<Method name="loadStandardDesignV2">
+<Description>
+loads the Eventsforce templates that can use Proweb2</Description>
+<ClassMethod>1</ClassMethod>
+<Implementation><![CDATA[
+	#define horiMenuNoSponsNoLogo 8	
+	#define vertMenuNoSponsNoLogo 4
+	#define horiMenuSponsNoLogo 7
+	#define noMenuNoSponsNoLogo 9
+	#define iFrame 21
+	
+	set path = ##class(shared.fileMethods).addSlash(##class(EF.config.server).getTemplatesRootShared())	
+	for layoutNumber=$$$horiMenuNoSponsNoLogo,$$$vertMenuNoSponsNoLogo,$$$horiMenuSponsNoLogo,$$$noMenuNoSponsNoLogo,$$$iFrame {
+		
+		set template=##class(%ZEN.proxyObject).%New()
+		set template.isIframe=(layoutNumber=$$$iFrame)
+		set internalDesignName="standard_design-v2"
+		
+		set layout="",$P(layout,"0",3-$L(layoutNumber))="",layout=layout_layoutNumber // add the leading zeroes
+		
+		set template.description="Standard Design 2.0"_layout_" "_##class(layout.methods).getLayoutDescriptionFromNumber(layoutNumber)
+		set template.internalName="EF_THEME_"_internalDesignName_"_"_layout
+		set template.designName="Standard Design 2.0"
+		set template.layoutStructure=##class(layout.methods).getLayoutDescriptionFromNumber(layoutNumber)
+		
+		set template.indexFilename=path_"EF_theme_"_internalDesignName_"-"_layout_"\index.html"
+		set template.templateDirectory="ALL_CLIENTS/EF_theme_"_internalDesignName_"-"_layout
+		set template.imageFile="layout_structure_"_layoutNumber_".gif"
+
+		set template.accessibilityLevel="none"
+		set template.styleSource="template"
+		set template.isLogoIncudedInTemplate=1
+		set template.isUsingBootstrap=1
+		set template.isUsingProweb2=1
+		
+		set indexFile = ##class(shared.fileMethods).fileActions(path_"EF_theme_"_layoutNumber_"-"_layout_"\index.html", "R")
+		set resultFile = ##class(shared.fileMethods).fileActions(path_"EF_theme_"_layoutNumber_"-"_layout_"\index.html", "WR", indexFile, "[[PATH]]|"_"../../media/templates/ALL_CLIENTS/EF_theme_"_layoutNumber_"-"_layout_"/")
+
+		do ##class(layout.objTemplate).loadTemplateUsingProxy(template)
+		kill template
+
+	}
+]]></Implementation>
+</Method>
+
+<Method name="addStandardDesigns">
+<ClassMethod>1</ClassMethod>
+<Implementation><![CDATA[
+	write !,##class(layout.objStandardDesign).add("Standard Design 2.0") 
+	write !,##class(layout.objStandardDesign).add("Responsive Standard Design") 
+	write !,##class(layout.objStandardDesign).add("Default Design") 
+	write !,##class(layout.objStandardDesign).add("Design 1")
+	write !,##class(layout.objStandardDesign).add("Design 2")
+	write !,##class(layout.objStandardDesign).add("Design 3")
+	write !,##class(layout.objStandardDesign).add("Design 4")
+	write !,##class(layout.objStandardDesign).add("Design 5")
+	write !,##class(layout.objStandardDesign).add("Design 6")
+	write !,##class(layout.objStandardDesign).add("Design 7")
+	write !,##class(layout.objStandardDesign).add("Design 8")
+	write !,##class(layout.objStandardDesign).add("Design 9")
+	write !,##class(layout.objStandardDesign).add("Design 10")
+	write !,##class(layout.objStandardDesign).add("Design 11")
+	write !,##class(layout.objStandardDesign).add("Design 12")
+	write !,##class(layout.objStandardDesign).add("Design 13")
+	write !,##class(layout.objStandardDesign).add("Design 14")
+	write !,##class(layout.objStandardDesign).add("Design 15")
+	write !,##class(layout.objStandardDesign).add("Design 16")
+	write !,##class(layout.objStandardDesign).add("Design 17")
+	write !,##class(layout.objStandardDesign).add("Design 18")
+	write !,##class(layout.objStandardDesign).add("Design 19")
+	write !,##class(layout.objStandardDesign).add("Blank Design") // Legacy design
+]]></Implementation>
+</Method>
+
+<Method name="getTemplateIDFromInternalDescription">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>internalDescription</FormalSpec>
+<ReturnType>%Integer</ReturnType>
+<Implementation><![CDATA[
+	&SQL(SELECT ID INTO :tmp FROM layout.objTemplate WHERE internalDescription = :internalDescription)
+	if +SQLCODE=0 {
+		return tmp
+	} else {
+		throw ##class(shared.exceptions.generalSQLException).CreateFromSQLCODE(SQLCODE,$G(%msg))	
+	}
+]]></Implementation>
+</Method>
+
+<Method name="reloadTemplate">
+<Description>
+reloads an individual template. uses "internal description" from layout.objTemplate as input
+needs to be used after changing the CSP/HTML index file</Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec>templateDescription:%String</FormalSpec>
+<Implementation><![CDATA[
+	try {
+		set templateID=..getTemplateIDFromInternalDescription(templateDescription)
+		do ..reloadTemplateID(templateID)
+	} catch {
+		write !,"Error: Description did not match any Template."
+	}
+]]></Implementation>
+</Method>
+
+<Method name="reloadTemplateID">
+<Description>
+reloads an individual template. uses ID from layout.objTemplate as input
+needs to be used after changing the CSP/HTML index file</Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec>templateID</FormalSpec>
+<Implementation><![CDATA[
+	if 'templateID quit 0
+	
+	// create the sql object
+	set rs=##class(%ResultSet).%New("%Library.DynamicQuery:SQL")
+	set ok=rs.Prepare("SELECT * FROM layout.objTemplate WHERE ID=?")
+	set ok=rs.Execute(templateID)
+	do rs.Next()
+	set fn=rs.Get("originalFilename")
+	
+	set isIframe=$S(rs.Get("isIframe")=1:1,1:0)
+	set isUsingBootstrap=$S(rs.Get("hasBootstrap")=1:1,1:0)
+
+	set indexFile = ##class(shared.fileMethods).fileActions(fn, "R")
+	set resultFile = ##class(shared.fileMethods).fileActions(fn, "WR", indexFile, "[[PATH]]|"_"../../media/templates/"_rs.Get("templateDirectory")_"/")
+	
+	w !,"Loading:",fn,"..."
+	w " result=",##class(layout.objTemplate).loadTemplate(rs.Get("description"),rs.Get("internalDescription"),1,rs.Get("displayOrder"),fn,1,0,rs.Get("exampleImage"),rs.Get("accessibilityLevel"),rs.Get("styleSource"),rs.Get("templateDirectory"),rs.Get("efLogoInTemplate"),rs.Get("layoutStructure"),,isIframe,isUsingBootstrap)
+	s fn=$P(fn,".html",1)_"_popup.html"
+	if ##class(%Library.File).Exists(fn)	{  // if we don't have a popup template, doesn't matter, the normal one will be used
+		w !,"Loading:",fn,"..."
+		w " result=",##class(layout.objTemplate).loadTemplate(rs.Get("description")_"_popup",rs.Get("internalDescription")_"_popup",1,rs.Get("displayOrder"),fn,1,1,rs.Get("exampleImage"),rs.Get("accessibilityLevel"),rs.Get("styleSource"),rs.Get("templateDirectory"),rs.Get("efLogoInTemplate"),rs.Get("layoutStructure"),,isIframe,isUsingBootstrap)
+	} else {
+		s fn=$P(fn,".csp",1)_"_popup.csp"
+		if ##class(%Library.File).Exists(fn)	{  // if we don't have a popup template, doesn't matter, the normal one will be used
+			w !,"Loading:",fn,"..."
+			w " result=",##class(layout.objTemplate).loadTemplate(rs.Get("description")_"_popup",rs.Get("internalDescription")_"_popup",1,rs.Get("displayOrder"),fn,1,1,rs.Get("exampleImage"),rs.Get("accessibilityLevel"),rs.Get("styleSource"),rs.Get("templateDirectory"),rs.Get("efLogoInTemplate"),rs.Get("layoutStructure"),,isIframe,isUsingBootstrap)
+		}
+	}
+	
+	Do ..updateTemplateCSSFile(templateID)
+]]></Implementation>
+</Method>
+
+<Method name="reloadTemplateDesign">
+<Description>
+reloads a set of templates in one design group. uses "description" from layout.objStandardDesign as input
+needs to be used after changing the CSP/HTML index file</Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec>templateDesignDescription:%String</FormalSpec>
+<Implementation><![CDATA[
+
+	&SQL(SELECT ID INTO :tmp FROM layout.objStandardDesign WHERE description = :templateDesignDescription)
+	if +SQLCODE=0 {
+		set templateDesignID = tmp
+		d ..reloadTemplateDesignID(templateDesignID)
+	} else {
+		w !,"Error: Description did not match any Template Design."
+	}
+]]></Implementation>
+</Method>
+
+<Method name="reloadTemplateDesignID">
+<Description>
+reloads a set of templates in one design group. uses ID from layout.objStandardDesign as input
+needs to be used after changing the CSP/HTML index file</Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec>templateDesignID</FormalSpec>
+<Implementation><![CDATA[
+	if 'templateDesignID quit 0
+	
+	// create the sql object
+	set rs=##class(%ResultSet).%New("%Library.DynamicQuery:SQL")
+	set ok=rs.Prepare("SELECT * FROM layout.objTemplate WHERE objStandardDesign=?")
+	set ok=rs.Execute(templateDesignID)
+	while rs.Next() {
+		set isIframe=$S(rs.Get("isIframe")=1:1,1:0)
+		set fn=rs.Get("originalFilename")
+		
+		set indexFile = ##class(shared.fileMethods).fileActions(fn, "R")
+		set resultFile = ##class(shared.fileMethods).fileActions(fn, "WR", indexFile, "[[PATH]]|"_"../../media/templates/"_rs.Get("templateDirectory")_"/")
+		
+		w !,"Loading:",fn,"..."
+		w " result=",##class(layout.objTemplate).loadTemplate(rs.Get("description"),rs.Get("internalDescription"),1,rs.Get("displayOrder"),fn,1,0,rs.Get("exampleImage"),rs.Get("accessibilityLevel"),rs.Get("styleSource"),rs.Get("templateDirectory"),rs.Get("efLogoInTemplate"),rs.Get("layoutStructure"),,isIframe)
+		s fn=$P(fn,".html",1)_"_popup.html"
+		if ##class(%Library.File).Exists(fn)	{  // if we don't have a popup template, doesn't matter, the normal one will be used
+			w !,"Loading:",fn,"..."
+			w " result=",##class(layout.objTemplate).loadTemplate(rs.Get("description")_"_popup",rs.Get("internalDescription")_"_popup",1,rs.Get("displayOrder"),fn,1,1,rs.Get("exampleImage"),rs.Get("accessibilityLevel"),rs.Get("styleSource"),rs.Get("templateDirectory"),rs.Get("efLogoInTemplate"),rs.Get("layoutStructure"),,isIframe)
+		} else {
+			//SA 17/01/2012 PBUG00006021 - Check for csp popup
+			s fn=$P(fn,".csp",1)_"_popup.csp"
+			if ##class(%Library.File).Exists(fn)	{  // if we don't have a popup template, doesn't matter, the normal one will be used
+				w !,"Loading:",fn,"..."
+				w " result=",##class(layout.objTemplate).loadTemplate(rs.Get("description")_"_popup",rs.Get("internalDescription")_"_popup",1,rs.Get("displayOrder"),fn,1,1,rs.Get("exampleImage"),rs.Get("accessibilityLevel"),rs.Get("styleSource"),rs.Get("templateDirectory"),rs.Get("efLogoInTemplate"),rs.Get("layoutStructure"),,isIframe)
+			}
+		}
+	}
+]]></Implementation>
+</Method>
+
+<Method name="reloadSingle">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>page:%String</FormalSpec>
+<Implementation><![CDATA[
+	
+	set page=$ZCVT(page,"L")
+
+	if $ZUTIL(131,0)="TOYOTA"	{
+		set path="d:\websites\eventsforce\frontend\layouts\"
+		if $ZNSPACE="EVDEV" set path="d:\websites\eventsforcedev\frontend\layouts\"
+	} else { 
+		// default to D:\ for all live servers 
+		set path="d:\websites\eventsforce.net\eventsforce\frontend\layouts\"
+	}
+	
+	// THE DESCRIPTIONS HAVE TO BE UNIQUE - it will be overwritten with another template if the same
+	set fn($I(fn))="table1.html",de(fn)="Left menu, banner and footer",in(fn)="frontEndFrameset1.csp",img(fn)="layout1.jpg",level(fn)="none",source(fn)="event",directory(fn)=""
+	set fn($I(fn))="table2.html",de(fn)="Right menu, banner and footer",in(fn)="frontEndFrameset2.csp",img(fn)="layout2.jpg",level(fn)="none",source(fn)="event",directory(fn)=""
+	set fn($I(fn))="table3.html",de(fn)="Menu along top and footer",in(fn)="frontEndFrameset3.csp",img(fn)="layout3.jpg",level(fn)="none",source(fn)="event",directory(fn)=""
+	set fn($I(fn))="table4.html",de(fn)="Left menu, banner, footer and right hand page",in(fn)="frontEndFrameset4.csp",img(fn)="layout4.jpg",level(fn)="none",source(fn)="event",directory(fn)=""
+	set fn($I(fn))="table5.html",de(fn)="Left menu, banner and footer centre aligned",in(fn)="frontEndFrameset5.csp",img(fn)="layout5.jpg",level(fn)="none",source(fn)="event",directory(fn)=""
+	set fn($I(fn))="table6.html",de(fn)="Banner, menu along top and footer centre aligned",in(fn)="layout6",img(fn)="layout6.jpg",level(fn)="none",source(fn)="event",directory(fn)=""
+	set fn($I(fn))="divexistingnoframeset.html",de(fn)="Existing no frameset layout",in(fn)="noFrameset.csp",img(fn)="layoutNoFrameset.jpg",level(fn)="none",source(fn)="event",directory(fn)=""
+	set fn($I(fn))="tableiframe.html",de(fn)="No menu and banner (for IFRAMES)",in(fn)="IFRAME",img(fn)="layoutiFrame.jpg",level(fn)="none",source(fn)="event",directory(fn)=""
+	set fn($I(fn))="EF_base_layout_left_menu.html",de(fn)="Standard Layout",in(fn)="EF_DEFAULT_LEFT_MENU",img(fn)="theme_8_small.gif",level(fn)="none",source(fn)="event",directory(fn)="EF/EF_base_layout_left_menu"
+	set fn($I(fn))="EF_base_layout_left_menu_sponsors.html",de(fn)="Standard Layout with sponsors",in(fn)="EF_DEFAULT_LEFT_MENU_SPONSORS",img(fn)="theme_9_small.gif",level(fn)="none",source(fn)="event",directory(fn)="EF/EF_base_layout_left_menu_sponsors"
+	set fn($I(fn))="EF_theme_001-01.html",de(fn)="EF theme 001-01",in(fn)="EF_THEME_001_01",img(fn)="layout4.jpg",level(fn)="none",source(fn)="template",directory(fn)="EF/EF_theme_001-01",efLogo(fn)=0,layout(fn)="vertical menu, sponsors, logo",design(fn)="Proof of Concept template"
+	set fn($I(fn))="EF_theme_001-02.html",de(fn)="EF theme 001-02",in(fn)="EF_THEME_001_02",img(fn)="layout4.jpg",level(fn)="none",source(fn)="template",directory(fn)="EF/EF_theme_001-02",efLogo(fn)=0,layout(fn)="vertical menu, no sponsors, logo",design(fn)="Proof of Concept template"
+	set fn($I(fn))="EF_theme_007-03.html",de(fn)="Theme 007 03 vertical menu, sponsors, logo",in(fn)="EF_THEME_007_03",img(fn)="layout1.jpg",level(fn)="none",source(fn)="template",directory(fn)="EF/EF_theme_007-03",efLogo(fn)=0,layout(fn)="vertical menu, sponsors, logo",design(fn)="Design 7"
+	set fn($I(fn))="EF_theme_006-04.html",de(fn)="Theme 006 04 horizontal menu, no sponsors, no logo",in(fn)="EF_THEME_006_04",img(fn)="layout6.jpg",level(fn)="none",source(fn)="template",directory(fn)="EF/EF_theme_006-04",efLogo(fn)=0,layout(fn)=" horizontal menu, no sponsors, no logo",design(fn)="Design 6"
+	
+	// eventsforce branded template
+	set fn($I(fn))="eventsforce_2010.html",de(fn)="Eventsforce Brand 2010",in(fn)="EF_2010",img(fn)="layout4.jpg",level(fn)="none",source(fn)="template",directory(fn)="EF/eventsforce_2010"
+	
+	set fn($I(fn))="schroders.html",de(fn)="Schroders",in(fn)="SCHRODERS",img(fn)="layout6.jpg",level(fn)="none",source(fn)="template",directory(fn)="schroders_images"
+	set fn($I(fn))="schroders2.html",de(fn)="Schroders (no banner)",in(fn)="SCHRODERSNOBANNER",img(fn)="layout6.jpg",level(fn)="none",source(fn)="template",directory(fn)="schroders_images"
+	set fn($I(fn))="schroders_2010.html",de(fn)="Schroders 2010",in(fn)="SCHRODERS2010",img(fn)="layout6.jpg",level(fn)="none",source(fn)="template",directory(fn)="Schroders/2010"
+	set fn($I(fn))="juniper3cols.html",de(fn)="Juniper 3 columns",in(fn)="Juniper3Col",img(fn)="layout4.jpg",level(fn)="none",source(fn)="template",directory(fn)="juniper"
+	set fn($I(fn))="vodafone.html",de(fn)="Vodafone",in(fn)="VODAFONE",img(fn)="layout6.jpg",level(fn)="none",source(fn)="template",directory(fn)="vodafone"
+	set fn($I(fn))="vodafone2.html",de(fn)="Vodafone.com",in(fn)="VODAFONE.COM",img(fn)="layout3.jpg",level(fn)="none",source(fn)="template",directory(fn)="vodafone2"
+	set fn($I(fn))="rslive_ncsl.html",de(fn)="NCSL",in(fn)="NCSL",img(fn)="layout4.jpg",level(fn)="none",source(fn)="template",directory(fn)="rslive_NCSL"
+	set fn($I(fn))="rslive_learndirect_awards.html",de(fn)="LEARNDIRECT AWARDS",in(fn)="RSLIVE LEARNDIRECT AWARDS",img(fn)="layout5.jpg",level(fn)="none",source(fn)="template",directory(fn)="rslive_learndirect_awards"
+	set fn($I(fn))="rslive_dh.html",de(fn)="Dept of Health",in(fn)="DEPT OF HEALTH",img(fn)="layout3.jpg",level(fn)="none",source(fn)="template",directory(fn)="rslive_dh"
+	set fn($I(fn))="rslive_chpo_conf.html",de(fn)="CHPO Conference",in(fn)="CHPO CONFERENCE",img(fn)="layout6.jpg",level(fn)="none",source(fn)="template",directory(fn)="rslive_chpo_conf"
+	set fn($I(fn))="rslive_ucl_09.html",de(fn)="UCL 2009",in(fn)="UCL 2009",img(fn)="layout1.jpg",level(fn)="none",source(fn)="template",directory(fn)="rslive_ucl"
+	set fn($I(fn))="menu_along_top_over_banner.html",de(fn)="Menu along top, banner below, centred",in(fn)="MENUTOPBANNERBELOW",img(fn)="layout6.jpg",level(fn)="none",source(fn)="event",directory(fn)="menu_along_top_over_banner"
+	set fn($I(fn))="rockwell.html",de(fn)="Rockwell",in(fn)="ROCKWELL",img(fn)="layout1.jpg",level(fn)="none",source(fn)="template",directory(fn)="rockwell"
+	set fn($I(fn))="AOP2008.html",de(fn)="AOP2008",in(fn)="AOP2008",img(fn)="layout4.jpg",level(fn)="none",source(fn)="template",directory(fn)="AOP2008"
+	set fn($I(fn))="PPA_FIPP.html",de(fn)="PPA FIPP",in(fn)="PPAFIPP",img(fn)="layout5.jpg",level(fn)="none",source(fn)="template",directory(fn)="PPA_FIPP"
+	set fn($I(fn))="PPA_FIPP2.html",de(fn)="PPA FIPP2",in(fn)="PPAFIPP2",img(fn)="layout5.jpg",level(fn)="none",source(fn)="template",directory(fn)="PPA_FIPP2"
+	set fn($I(fn))="DODS_westminster.html",de(fn)="DODS Westminster",in(fn)="DODS WESTMINSTER",img(fn)="layout4.jpg",level(fn)="none",source(fn)="template",directory(fn)="DODS_Westminster"
+	set fn($I(fn))="DODS_div_template.html",de(fn)="DODS Blank",in(fn)="DODS BLANK",img(fn)="layoutNoFrameset.jpg",level(fn)="none",source(fn)="event",directory(fn)=""
+	set fn($I(fn))="centaur_awards.html",de(fn)="Centaur Awards",in(fn)="CENTAUR AWARDS",img(fn)="layout5.jpg",level(fn)="none",source(fn)="template",directory(fn)="centaur_awards"
+	set fn($I(fn))="waterfront.html",de(fn)="Waterfront",in(fn)="WATERFRONT",img(fn)="layout2.jpg",level(fn)="none",source(fn)="template",directory(fn)="waterfront"
+	set fn($I(fn))="3_column_static_glish.html",de(fn)="Left menu, banner, footer, right page, centred (accessible)",in(fn)="Glish3ColStatic",img(fn)="layout4.jpg",level(fn)="A",source(fn)="event",directory(fn)=""
+	set fn($I(fn))="2_column_static_jw.html",de(fn)="Left menu, banner, footer, centred (accessible)",in(fn)="JAW2ColStatic",img(fn)="layout5.jpg",level(fn)="A",source(fn)="event",directory(fn)=""
+	set fn($I(fn))="1_column_static_jw.html",de(fn)="Top menu, banner, footer, centred (accessible)",in(fn)="JAW1ColStatic",img(fn)="layout3.jpg",level(fn)="A",source(fn)="event",directory(fn)=""
+	set fn($I(fn))="idl_fixed_banner.html",de(fn)="IDL (fixed top banner)",in(fn)="PJCFixedTopBanner",img(fn)="layout1.jpg",level(fn)="A",source(fn)="event",directory(fn)=""
+	set fn($I(fn))="juniper_feb_2009.html",de(fn)="Juniper (top site menu, left menu, banner)",in(fn)="PJCJuniper",img(fn)="layout1.jpg",level(fn)="none",source(fn)="template",directory(fn)="juniper"
+	set fn($I(fn))="juniper_oct_2009.html",de(fn)="Juniper Oct 2009",in(fn)="JUNIPER_OCT2009",img(fn)="layout1.jpg",level(fn)="none",source(fn)="template",directory(fn)="juniper/juniper_oct_2009"
+	set fn($I(fn))="p4m_tandberg.html",de(fn)="P4M Tandberg",in(fn)="P4MTandberg",img(fn)="layout6.jpg",level(fn)="none",source(fn)="template",directory(fn)="p4m/tandberg"
+	set fn($I(fn))="p4m_wabcg.html",de(fn)="P4M WABCG",in(fn)="P4MWABCG",img(fn)="layout6.jpg",level(fn)="none",source(fn)="template",directory(fn)="p4m/wabcg"
+	set fn($I(fn))="p4m_tandberg_amsterdam.html",de(fn)="P4M Tandberg Amsterdam",in(fn)="P4MTandbergAmsterdam",img(fn)="layout6.jpg",level(fn)="none",source(fn)="template",directory(fn)="p4m/tandberg_amsterdam"
+	set fn($I(fn))="incisive_bia2010.html",de(fn)="Incisive - The British Insurance Awards 2010",in(fn)="Incisive_BIA2010",img(fn)="layout6.jpg",level(fn)="none",source(fn)="template",directory(fn)="Incisive/Incisive_BIA2010"
+	set fn($I(fn))="Reed_Mackay_Generic.html",de(fn)="Reed & Mackay Generic",in(fn)="Reed_Mackay_Generic",img(fn)="layout6.jpg",level(fn)="none",source(fn)="template",directory(fn)="Reed_Mackay/Generic"
+	set fn($I(fn))="bad_agm2010.html",de(fn)="BAD AGM 2010",in(fn)="BAD_AGM2010",img(fn)="layout6.jpg",level(fn)="none",source(fn)="template",directory(fn)="BAD/BAD_AGM2010"
+	set fn($I(fn))="aviva2010branded.html",de(fn)="Aviva Branded 2010",in(fn)="AVIVA_2010",img(fn)="layout6.jpg",level(fn)="none",source(fn)="template",directory(fn)="aviva/2010"
+	set fn($I(fn))="tfl2010.html",de(fn)="TFL Branded 2010",in(fn)="TFL_2010",img(fn)="layout6.jpg",level(fn)="none",source(fn)="template",directory(fn)="TFL/2010"
+	set fn($I(fn))="Enterprise_Ireland_new.html",de(fn)="Enterprise Ireland Branded 2010",in(fn)="Enterprise_Ireland",img(fn)="layout6.jpg",level(fn)="none",source(fn)="template",directory(fn)="Enterprise_Ireland/new"
+	set fn($I(fn))="Enterprise_Ireland_current.html",de(fn)="Enterprise Ireland Current",in(fn)="Enterprise_Ireland",img(fn)="layout6.jpg",level(fn)="none",source(fn)="template",directory(fn)="Enterprise_Ireland/current"
+	set fn($I(fn))="ScottishEnterprise.html",de(fn)="Scottish Enterprise",in(fn)="Scottish_Enterprise",img(fn)="layout6.jpg",level(fn)="none",source(fn)="template",directory(fn)="Scottish_Enterprise/ScottishE"
+	set fn($I(fn))="TFI_Tarkett2011.html",de(fn)="TFI Tarkett 2011",in(fn)="TFI",img(fn)="layout6.jpg",level(fn)="none",source(fn)="template",directory(fn)="TFI/Tarkett_2011"
+	set fn($I(fn))="EuroRSCG_Heist.html",de(fn)="EuroRSCG Heist",in(fn)="EuroRSCG",img(fn)="layout6.jpg",level(fn)="none",source(fn)="template",directory(fn)="EuroRSCG/EuroRSCG_Heist"
+	set fn($I(fn))="aocms_2011.html",de(fn)="AoC MS 2011",in(fn)="AOC",img(fn)="layout6.jpg",level(fn)="none",source(fn)="template",directory(fn)="AOC/AOCMS_2011"
+	set fn($I(fn))="aocms_2011_orange.html",de(fn)="AoC MS 2011 Orange",in(fn)="AOC_orange",img(fn)="layout6.jpg",level(fn)="none",source(fn)="template",directory(fn)="AOC/AOCMS_2011_orange"
+	set fn($I(fn))="aocms_2011_blue.html",de(fn)="AoC MS 2011 Blue",in(fn)="AOC_blue",img(fn)="layout6.jpg",level(fn)="none",source(fn)="template",directory(fn)="AOC/AOCMS_2011_blue"
+	set fn($I(fn))="ifb_nextgen2011.html",de(fn)="IFB Next Generation",in(fn)="IFB_NextGen",img(fn)="layout6.jpg",level(fn)="none",source(fn)="template",directory(fn)="IFB/NEXTGEN2011"
+	set fn($I(fn))="EuroRSCG_Heist_UHR.html",de(fn)="EuroRSCG Heist UHR",in(fn)="EuroRSCG_UHR",img(fn)="layout6.jpg",level(fn)="none",source(fn)="template",directory(fn)="EuroRSCG/EuroRSCG_Heist_UHR"
+	set fn($I(fn))="lwm_iframe.html",de(fn)="Last Word Media Iframe",in(fn)="LWM_IFRAME",img(fn)="layout6.jpg",level(fn)="none",source(fn)="template",directory(fn)="lwm/lwm_iframe"
+	set fn($I(fn))="Bookseller_Awards2011.html",de(fn)="Bookseller Awards 2011",in(fn)="BOOKSELLERA2011",img(fn)="layout6.jpg",level(fn)="none",source(fn)="template",directory(fn)="Bookseller/Bookseller_Awards2011"
+	// AVIVA
+	set fn($I(fn))="Aviva2010.html",de(fn)="Aviva 2010",in(fn)="AVIVA2010",img(fn)="layout1.jpg",level(fn)="none",source(fn)="template",directory(fn)="aviva/aviva2010"
+	set fn($I(fn))="AvivaInvestors2010.html",de(fn)="Aviva Investors 2010",in(fn)="AVIVA_INVESTORS2010",img(fn)="layout1.jpg",level(fn)="none",source(fn)="template",directory(fn)="aviva/avivainvestors2010"
+	set fn($I(fn))="AvivaAthletics2010.html",de(fn)="Aviva Athletics 2010",in(fn)="AVIVA_ATHLETICS2010",img(fn)="layout6.jpg",level(fn)="none",source(fn)="template",directory(fn)="aviva/avivaathletics2010"
+	set fn($I(fn))="AvivaBoat2010.html",de(fn)="Aviva Boat 2010",in(fn)="AVIVA_BOAT2010",img(fn)="layout6.jpg",level(fn)="none",source(fn)="template",directory(fn)="aviva/avivaboat2010"
+	set fn($I(fn))="AvivaArsenal2010.html",de(fn)="Aviva Arsenal 2010",in(fn)="AVIVA_ARSENAL2010",img(fn)="layout6.jpg",level(fn)="none",source(fn)="template",directory(fn)="aviva/avivaarsenal2010"
+	set fn($I(fn))="AvivaGleneagles2010.html",de(fn)="Aviva Gleneagles 2010",in(fn)="AVIVA_GLENEAGLES2010",img(fn)="layout6.jpg",level(fn)="none",source(fn)="template",directory(fn)="aviva/avivagleneagles2010"
+	set fn($I(fn))="AvivaMurrayField2010.html",de(fn)="Aviva MurrayField 2010",in(fn)="AVIVA_MURRAYFIELD2010",img(fn)="layout6.jpg",level(fn)="none",source(fn)="template",directory(fn)="aviva/avivamurrayfield2010"
+	set fn($I(fn))="AvivaManchester2010.html",de(fn)="Aviva Manchester 2010",in(fn)="AVIVA_MANCHESTER2010",img(fn)="layout6.jpg",level(fn)="none",source(fn)="template",directory(fn)="aviva/avivamanchester2010"
+	set fn($I(fn))="AvivaMillennium2010.html",de(fn)="Aviva Millennium 2010",in(fn)="AVIVA_MILLENNIUM2010",img(fn)="layout6.jpg",level(fn)="none",source(fn)="template",directory(fn)="aviva/avivamillennium2010"
+	set fn($I(fn))="AvivaTwickenham2010.html",de(fn)="Aviva Twickenham 2010",in(fn)="AVIVA_TWICKENHAM2010",img(fn)="layout6.jpg",level(fn)="none",source(fn)="template",directory(fn)="aviva/avivatwickenham2010"
+	set fn($I(fn))="AvivaWembley2010.html",de(fn)="Aviva Wembley 2010",in(fn)="AVIVA_WEMBLEY2010",img(fn)="layout6.jpg",level(fn)="none",source(fn)="template",directory(fn)="aviva/avivawembley2010"
+	set fn($I(fn))="AvivaWimbledon2010.html",de(fn)="Aviva Wimbledon 2010",in(fn)="AVIVA_WIMBLEDON2010",img(fn)="layout6.jpg",level(fn)="none",source(fn)="template",directory(fn)="aviva/avivawimbledon2010"
+	set fn($I(fn))="AvivaTop2010.html",de(fn)="Aviva Top 2010",in(fn)="AVIVA_TOP2010",img(fn)="layout6.jpg",level(fn)="none",source(fn)="template",directory(fn)="aviva/avivatop2010"
+	set fn($I(fn))="AvivaInvestorsTop2010.html",de(fn)="Aviva Investors Top 2010",in(fn)="AVIVA_INVESTORSTOP2010",img(fn)="layout6.jpg",level(fn)="none",source(fn)="template",directory(fn)="aviva/avivainvestorstop2010"
+	set fn($I(fn))="AvivaNoImage2010.html",de(fn)="Aviva No images 2010",in(fn)="AVIVA_NOIMAGE2010",img(fn)="layout6.jpg",level(fn)="none",source(fn)="template",directory(fn)="aviva/avivanoimage2010"
+	set fn($I(fn))="AvivaNoImage2011.html",de(fn)="Aviva No images 2011",in(fn)="AVIVA_NOIMAGE2011",img(fn)="layout6.jpg",level(fn)="none",source(fn)="template",directory(fn)="aviva/avivanoimage2011"
+	set fn($I(fn))="AvivaRacNoImages.html",de(fn)="Aviva RAC No images",in(fn)="AVIVA_RACNOIMAGES",img(fn)="layout6.jpg",level(fn)="none",source(fn)="template",directory(fn)="aviva/avivaracnoimages"
+	// HAYMARKET
+	set fn($I(fn))="haymarket_av2010.html",de(fn)="Haymarket - AV Awards 2010",in(fn)="Haymarket_AV2010",img(fn)="layout6.jpg",level(fn)="none",source(fn)="template",directory(fn)="Haymarket/Haymarket_AV2010"
+	// INCISIVE MEDIA
+	set fn($I(fn))="incisive_crn2010.html",de(fn)="Incisive - CRN Channel Awards 2010",in(fn)="Incisive_CRN2010",img(fn)="layout6.jpg",level(fn)="none",source(fn)="template",directory(fn)="Incisive/Incisive_CRN2010"
+	set fn($I(fn))="incisive_ukit2010.html",de(fn)="Incisive - UK IT Industry Awards 2010",in(fn)="Incisive_UKIT2010",img(fn)="layout6.jpg",level(fn)="none",source(fn)="template",directory(fn)="Incisive/Incisive_UKIT2010"
+	set fn($I(fn))="incisive_accountancyage10.html",de(fn)="Incisive - Accountancy Age Awards 2010",in(fn)="Incisive_accountancyage10",img(fn)="layout6.jpg",level(fn)="none",source(fn)="template",directory(fn)="Incisive/Incisive_AccountancyAge10"
+	set fn($I(fn))="incisive_rfa2010.html",de(fn)="Incisive - Rehabilitation First Awards 2010",in(fn)="Incisive_RFA2010",img(fn)="layout6.jpg",level(fn)="none",source(fn)="template",directory(fn)="Incisive/Incisive_RFA2010"
+	
+	// WELLCOME TRUST
+	set fn($I(fn))="wellcome_pacifichealth2010.html",de(fn)="Wellcome Pacific Health 2010",in(fn)="WELLCOME_PACIFICHEALTH2010",img(fn)="layout6.jpg",level(fn)="none",source(fn)="template",directory(fn)="Wellcome/Wellcome_PacificHealth2010"
+	set fn($I(fn))="wellcome_events.html",de(fn)="Wellcome Trust Events",in(fn)="WELLCOME_EVENTS",img(fn)="layout5.jpg",level(fn)="none",source(fn)="template",directory(fn)="Wellcome/Wellcome_Events"
+	set fn($I(fn))="wellcome_generic.html",de(fn)="Wellcome Trust Generic",in(fn)="WELLCOME_GENERIC",img(fn)="layout5.jpg",level(fn)="none",source(fn)="template",directory(fn)="Wellcome/Wellcome_Generic"
+	set fn($I(fn))="wellcome_2011.html",de(fn)="Wellcome 2011",in(fn)="WELLCOME_2011",img(fn)="layout5.jpg",level(fn)="none",source(fn)="template",directory(fn)="Wellcome/Wellcome_2011"
+	// CMPI
+	set fn($I(fn))="cmpi_cmpmedica_dementia.html",de(fn)="CMPMedica dementia",in(fn)="CMPI_CMPMEDICA_DEMENTIA",img(fn)="layout3.jpg",level(fn)="none",source(fn)="template",directory(fn)="CMPI/CMPMedica_Dementia"
+	// DEMOS
+	set fn($I(fn))="societe_generale.html",de(fn)="Societe Generale Demo",in(fn)="SOCIETE_GENERALE_DEMO",img(fn)="layout1.jpg",level(fn)="none",source(fn)="template",directory(fn)="societe_generale/demo"
+	
+	set i=""
+	for  {
+		set i=$O(fn(i))
+		if i="" quit
+		
+		s fn=$ZCVT(fn(i),"L")
+		if fn=page!(page="*") {
+			w !,"Loading:",fn,"..."
+			if ##class(%Library.File).Exists(path_fn) {
+				w " result=",##class(layout.objTemplate).loadTemplate(de(i),in(i),1,i,path_fn,1,0,img(i),level(i),source(i),directory(i),$G(efLogo(i)),$G(layout(i)),$G(design(i)))
+			} else {
+				w " file not found"
+			}
+		}
+		s fnP=$P(fn,".html",1)_"_popup.html"
+		if fn=page!(page="*"),##class(%Library.File).Exists(path_fnP)	{  // if we don't have a popup template, doesn't matter, the normal one will be used
+			w !,"Loading:",fnP,"..."
+			w " result=",##class(layout.objTemplate).loadTemplate(de(i)_"_popup",in(i)_"_popup",1,i,path_fnP,1,1,img(i),level(i),source(i),directory(i),$G(efLogo(i)),$G(layout(i)),$G(design(i)))
+		}
+	}
+	
+	quit
+]]></Implementation>
+</Method>
+
+<Method name="isAccessible">
+<Description>
+to determine when to use the accessible coding in frontend</Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec>eventID:%String</FormalSpec>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	set layoutTemplateID=##class(layout.objTemplate).getLayoutForEvent(eventID)
+	set isAccessible=(##class(layout.objTemplate).getAccessibility(layoutTemplateID)["A")
+	// use this for now - will be removed when we've educated the masses on the accessible templates
+	if '##class(setup.objSetting).getParameter("accessibility","use new accessible code") set isAccessible=0
+	quit isAccessible
+]]></Implementation>
+</Method>
+
+<Method name="setNewProps">
+<Description>
+noddy to populate the new properties for accessibility and style sheets</Description>
+<ClassMethod>1</ClassMethod>
+<Implementation><![CDATA[
+	// MAKE SURE NEW TEMPLATES HAVE A PATH TO NEW CSS FILE PRIOR TO RUNNING THIS
+	// this will reload the templates a client currently has on their system and also populate the properties (as the properties are set in the above methods)
+	set rs=##class(%ResultSet).%New("%Library.DynamicQuery:SQL")
+	set sqltext="SELECT * FROM layout.objTemplate "
+	do rs.Prepare(sqltext)
+	do rs.Execute()
+	while rs.Next() {
+		set templateID=rs.Data("ID")
+		set filename=rs.Data("originalFilename")
+		set filename=$P(filename,"\",$L(filename,"\"))
+		// don't load popups, they get loaded by the original file
+		if 'rs.Data("popup") do ..reloadSingle(filename)
+	}
+	
+	quit
+]]></Implementation>
+</Method>
+
+<Method name="removeStyleFromAllMenusInEvent">
+<Description>
+apply CSS based menu</Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec>xEventID</FormalSpec>
+<Implementation><![CDATA[
+	if 'xEventID quit 0
+	set ^xApplyThemeLog($I(^xApplyThemeLog),$ZTS,"removeStyleFromAllMenusInEvent")="start - xEventID="_xEventID
+
+	// loop on all languages in the event
+	set rs=##class(%ResultSet).%New("%Library.DynamicQuery:SQL")
+	do rs.Prepare("SELECT ID FROM shared.objLanguage")
+	d rs.Execute()
+	set out=0
+	while rs.Next() {
+		set xLangID=rs.Get("ID")
+		set ^xApplyThemeLog($I(^xApplyThemeLog),$ZTS,"removeStyleFromAllMenusInEvent")="Language loop - xLangID="_xLangID
+		// find the page that contains the menu
+		&SQL(SELECT menuPageID INTO :tmp FROM setup.objEventDetails WHERE objEvent = :xEventID AND objLanguage = :xLangID)
+		if +SQLCODE=0 {
+			set menuPageID=tmp
+			set ^xApplyThemeLog($I(^xApplyThemeLog),$ZTS,"removeStyleFromAllMenusInEvent")="Language loop - menuPageID found="_menuPageID
+	
+			// remove any style from the menu block
+			set rs2=##class(%ResultSet).%New("%Library.DynamicQuery:SQL")
+			do rs2.Prepare("SELECT ID,description FROM sc_xModules.objMenuBlock WHERE parent->parent=? ORDER BY xMOstamp DESC")
+			do rs2.Execute(menuPageID)
+			while rs2.Next() { 
+				set dataID=rs2.Get("ID")
+				set mbDescription=rs2.Get("description")
+				do ##class(sc.xModules.objMenuBlock).update(dataID,mbDescription,"","","","","","","") // clear all styles
+				set ^xApplyThemeLog($I(^xApplyThemeLog),$ZTS,"removeStyleFromAllMenusInEvent")="menu block dataID="_dataID
+			}
+		}
+	}
+		
+	quit out
+]]></Implementation>
+</Method>
+
+<Method name="applyLegacyStyleToMenu">
+<Description>
+aplly the style of the legacy templates to the menu</Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec>xEventID</FormalSpec>
+<Implementation><![CDATA[
+	if 'xEventID quit 0
+	set ^xApplyThemeLog($I(^xApplyThemeLog),$ZTS,"applyLegacyStyleToMenu")="start - xEventID="_xEventID
+
+	// loop on all languages in the event
+	set rs=##class(%ResultSet).%New("%Library.DynamicQuery:SQL")
+	do rs.Prepare("SELECT ID FROM shared.objLanguage")
+	d rs.Execute()
+	set out=0
+	while rs.Next() {
+		set xLangID=rs.Get("ID")
+		set ^xApplyThemeLog($I(^xApplyThemeLog),$ZTS,"applyLegacyStyleToMenu")="Language loop - xLangID="_xLangID
+		// find the page that contains the menu
+		&SQL(SELECT menuPageID INTO :tmp FROM setup.objEventDetails WHERE objEvent = :xEventID AND objLanguage = :xLangID)
+		if +SQLCODE=0 {
+			set menuPageID=tmp
+			set ^xApplyThemeLog($I(^xApplyThemeLog),$ZTS,"applyLegacyStyleToMenu")="Language loop - menuPageID found="_menuPageID
+			
+			// identify the themeID for the 'vertical graduated black/green' default style
+			set themeID=""
+			&SQL(SELECT ID INTO :tmp FROM layout.objTheme WHERE internalDescription='vertical graduated black/green menu')
+			if +SQLCODE=0 set themeID=tmp
+	
+			// add the 'vertical graduated black/green' default style to the menu block
+			set rs2=##class(%ResultSet).%New("%Library.DynamicQuery:SQL")
+			do rs2.Prepare("SELECT ID,description FROM sc_xModules.objMenuBlock WHERE parent->parent=? ORDER BY xMOstamp DESC")
+			do rs2.Execute(menuPageID)
+			while rs2.Next() { 
+				set dataID=rs2.Get("ID")
+				set mbDescription=rs2.Get("description")
+				do ##class(sc.xModules.objMenuBlock).update(dataID,mbDescription,"","","","","",themeID,"") // clear all styles
+				
+				set ^xApplyThemeLog($I(^xApplyThemeLog),$ZTS,"applyLegacyStyleToMenu")="menu block dataID="_dataID
+			}
+		}
+	}
+		
+	quit out
+]]></Implementation>
+</Method>
+
+<Method name="applyBannersToTemplate">
+<Description>
+apply the banners to EF standard templates</Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec>layoutTemplateID,xEventID,dontAddImage=0</FormalSpec>
+<Implementation><![CDATA[
+	set out=0
+	if 'layoutTemplateID quit out
+	set bannerImage="banner.png"
+	set secondaryBannerImage="secondary_banner.png"
+	#dim imageTag as %String 
+
+	// get the path to the template
+	&SQL(SELECT templateDirectory INTO :templateDirectory FROM layout.objTemplate WHERE ID =:layoutTemplateID)
+	
+	// check if we are using the new style (autoban) or the old style templates
+	if ##class(layout.objTemplate).isTemplateNewStyle(layoutTemplateID) {
+		set rootDir="../../media/templates/"
+	} else {
+		set rootDir="../../frontend/layouts/"
+	}
+	
+	// loop on all languages in the event
+	set rs=##class(%ResultSet).%New("%Library.DynamicQuery:SQL")
+	do rs.Prepare("SELECT ID FROM shared.objLanguage")
+	do rs.Execute()
+	set out=0
+	while rs.Next() {
+		set xLangID=rs.Get("ID")
+		set desciptionModifier=""
+		if xLangID'=1 set desciptionModifier=" - "_##class(shared.objLanguage).getLanguageDesc(xLangID)
+		
+		// find the pages that contains the banner
+		&SQL(SELECT bannerPageID INTO :tmp FROM setup.objEventDetails WHERE objEvent = :xEventID AND objLanguage = :xLangID)
+		if +SQLCODE=0 {
+			set bannerPageID=tmp
+			set secondaryBannerPageID=##class(setup.objEventSetting).getParameter("mainpages","secondary banner pageID"_desciptionModifier,xEventID)
+
+			for pageID=bannerPageID,secondaryBannerPageID {
+				set filename=rootDir_templateDirectory_"/"_$S(pageID=bannerPageID:bannerImage,1:secondaryBannerImage)
+				set imageTag="<img alt='Eventsforce banner' src='"_filename_"' border=0 style='width: 100%'>"
+				
+				// walk through all the text blocks
+				set foundTextBlock=0
+				set rs2=##class(%ResultSet).%New("%Library.DynamicQuery:SQL")
+				do rs2.Prepare("SELECT ID,description FROM sc_xModules.objText WHERE (active=1) AND (parent->parent=?)")
+				do rs2.Execute(pageID)
+				while rs2.Next() {
+					set dataID=rs2.Get("ID")
+					set foundTextBlock=1
+					set HTMLstring=rs2.Get("description")	
+					if (HTMLstring["ADDED BY layout.methods.applyBannersToTemplate(dontAddImage)") ! (HTMLstring["alt='Eventsforce banner'")  { // remove any banners that were 'factory' added
+				
+						set objTextItem=##class(sc.xModules.objText).%OpenId(dataID)
+						set listID=objTextItem.parent.%Id()
+						kill objTextitem
+
+						// disable ANY old text blocks in this list
+						&SQL(UPDATE sc_xModules.objText SET active=0 WHERE parent = :listID AND active=1)
+					
+						// add my new text block with the passed in image
+						set text=imageTag
+						if dontAddImage set text="<!-- ADDED BY layout.methods.applyBannersToTemplate(dontAddImage) -->"
+						set out=##class(sc.xModules.objText).add(listID,text)
+						
+						quit  // quit the text block loop to make sure we don't find the item we just added
+						
+					} else { // do not touch banners that have been manually uploaded
+						// do nothing
+					}
+				}
+			
+				// create new text block if none found
+				if foundTextBlock=0 {
+					// check if we already have a list item
+					&SQL(SELECT ID INTO :tmp FROM sc_xModules.objList WHERE active=1 AND parent= :pageID)
+					if +SQLCODE=0 {
+						set listID=tmp	
+					} else {
+						set listID=##class(sc.xModules.objList).add(pageID)
+						// create a component
+						&SQL(SELECT objTemplate INTO :templateID FROM sc_xModules.objPage WHERE (active=1 AND ID = :pageID))		
+						if +SQLCODE=0 {
+							do ##class(sc.objComponent).add("INDEXLIST",templateID,listID)	
+						}
+					}
+				
+					// add the text
+					set text=imageTag
+					if dontAddImage set text="<!-- ADDED BY layout.methods.applyBannersToTemplate(dontAddImage) -->"
+					set out=##class(sc.xModules.objText).add(listID,text)
+				}
+			}
+		}
+	}
+	quit out
+]]></Implementation>
+</Method>
+
+<Method name="applyHomePageContents">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>xEventID</FormalSpec>
+<Implementation><![CDATA[
+	if 'xEventID quit 0
+	set ^xApplyThemeLog($I(^xApplyThemeLog),$ZTS,"applyHomePageContents")=xEventID
+
+	set SQLCODE=""
+	// loop on all languages in the event
+	set rs=##class(%ResultSet).%New("%Library.DynamicQuery:SQL")
+	do rs.Prepare("SELECT ID FROM shared.objLanguage")
+	do rs.Execute()
+	while rs.Next() {
+		set xLangID=rs.Get("ID")
+		
+		// find the page that contains the homepage
+		&SQL(SELECT homePageID INTO :tmp FROM setup.objEventDetails WHERE objEvent = :xEventID AND objLanguage = :xLangID)
+		if +SQLCODE=0 {
+			set homePageID=tmp,tmp2=""
+			set ^xApplyThemeLog($I(^xApplyThemeLog),$ZTS,"homePageID")=homePageID
+			// look for any text block that was created by this method
+			&SQL(SELECT ID,description INTO :tmp1,:tmp2 FROM sc_xModules.objText WHERE (parent->parent = :homePageID) AND (active=1) AND (description LIKE '%ADDED BY layout.methods.applyHomePageContents()%'))
+			set foundTextBlock=$S(+SQLCODE=0:1,1:0)
+			set ^xApplyThemeLog($I(^xApplyThemeLog),$ZTS,"foundTextBlock")=foundTextBlock_" | "_tmp2
+			
+			if foundTextBlock=0 {
+				// check if we already have a list item
+				&SQL(SELECT ID INTO :tmp FROM sc_xModules.objList WHERE active=1 AND parent= :homePageID)
+				if +SQLCODE=0 {
+					set listID=tmp	
+				} else {
+					set listID=##class(sc.xModules.objList).add(homePageID)
+					// create a component
+					&SQL(SELECT objTemplate INTO :templateID FROM sc_xModules.objPage WHERE (active=1 AND ID = :homePageID))		
+					if +SQLCODE=0 {
+						do ##class(sc.objComponent).add("Main List",templateID,listID)	
+						set ^xApplyThemeLog($I(^xApplyThemeLog),$ZTS,"applyHomePageContents")="added component for listID "_listID_" and templateID: "_templateID
+					}						
+				
+				}
+				
+				&SQL(SELECT ID FROM sc_xModules.objtext WHERE parent=:listID AND active=1)
+				if +SQLCODE'=0 {
+					// add the text but only if we have no real text and no latin text
+					set text="<!-- ADDED BY layout.methods.applyHomePageContents() --><h2>Lorem ipsum</h2><h3>dolor sit</h3><p>Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat. Ut wisi enim ad minim veniam, quis nostrud exerci tation ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo consequat. Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis at vero eros et accumsan et iusto odio dignissim qui blandit praesent luptatum zzril delenit augue duis dolore te feugait nulla facilisi.</p><h3>Nam liber<br /></h3><p>Nam liber tempor cum soluta nobis eleifend option congue nihil imperdiet doming id quod mazim placerat facer possim assum. Typi non habent claritatem insitam; est usus legentis in iis qui facit eorum claritatem. Investigationes demonstraverunt lectores legere me lius quod ii legunt saepius. Claritas est etiam processus dynamicus, qui sequitur mutationem consuetudium lectorum. Mirum est notare quam litteraothica, quam nunc putamus parum claram, anteposuerit litterarum formas humanitatis per seacula quarta decima et quinta decima. Eodem modo typi, qui nunc nobis videntur parum clari, fiant sollemnes in futurum.</p>"
+					set ok=##class(sc.xModules.objText).add(listID,text)
+					set ^xApplyThemeLog($I(^xApplyThemeLog),$ZTS,"applyHomePageContents")="added text item: "_ok_" - text:" _text
+				}
+			}
+		}
+	}
+		
+	quit 1
+]]></Implementation>
+</Method>
+
+<Method name="applySampleSponsors">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>xEventID</FormalSpec>
+<Implementation><![CDATA[
+	if 'xEventID quit 0
+	set out=0
+	set ^xApplyThemeLog($I(^xApplyThemeLog),$ZTS,"applySampleSponsors")=xEventID
+	set SQLCODE=""
+	// loop on all languages in the event
+	set rs=##class(%ResultSet).%New("%Library.DynamicQuery:SQL")
+	do rs.Prepare("SELECT ID FROM shared.objLanguage")
+	do rs.Execute()
+	while rs.Next() {
+		set xLangID=rs.Get("ID")
+		
+		set desciptionModifier=""
+		if xLangID'=1 set desciptionModifier=" - "_##class(shared.objLanguage).getLanguageDesc(xLangID)
+		set rightPageID=##class(setup.objEventSetting).getParameter("mainpages","rightPageID"_desciptionModifier,xEventID)	
+		
+		// make sure we do NOT have a text block already
+		set foundTextBlock=0
+		&SQL(SELECT ID FROM sc_xModules.objText WHERE (active=1) AND parent->parent = :rightPageID)
+		if +SQLCODE'=0,rightPageID {
+			// check if we already have a list item
+			&SQL(SELECT ID INTO :tmp FROM sc_xModules.objList WHERE active=1 AND parent= :rightPageID)
+			if +SQLCODE=0 {
+				set listID=tmp	
+			} else {
+				set listID=##class(sc.xModules.objList).add(rightPageID)
+				// create a component
+				&SQL(SELECT objTemplate INTO :templateID FROM sc_xModules.objPage WHERE (active=1 AND ID = :rightPageID))		
+				if +SQLCODE=0 do ##class(sc.objComponent).add("INDEXLIST",templateID,listID)	
+			}
+			
+			// add the text
+			set text="<!-- ADDED BY 'layout.methods.applySampleSponsors()' --><table width='100%'><tr><td align='center'><img src='../../media/images/English/Default/frontend/example_acorn.png' alt='' /><br /><br /><img src='../../media/images/English/Default/frontend/example_atari.png' alt='' /><br /><br /><img src='../../media/images/English/Default/frontend/example_betamax.png' alt='' /><br /><br /><img src='../../media/images/English/Default/frontend/example_sinclair.png' alt='' /><br /><br /><img src='../../media/images/English/Default/frontend/example_amiga.png' alt='' /><br /><br /></td></tr></table>"
+			do ##class(sc.xModules.objText).add(listID,text)
+			set ^xApplyThemeLog($I(^xApplyThemeLog),$ZTS,"applySampleSponsors")="added text block: "_text
+			set out=out+1
+		}
+	}
+		
+	quit out
+]]></Implementation>
+</Method>
+
+<Method name="getCurrentTheme">
+<Description>
+returns "templateID | template description"</Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec>eventID</FormalSpec>
+<Implementation><![CDATA[
+	set out="",tmp="",currentTemplateID=""
+	&SQL(SELECT layoutObjTemplate INTO :tmp FROM setup.objEvent WHERE ID = :eventID)
+	if +SQLCODE=0 set currentTemplateID=tmp
+
+	&SQL(SELECT description INTO :desc FROM layout.objTemplate WHERE ID = :currentTemplateID)
+	if +SQLCODE=0 {
+		set desc=$replace(desc,"Default Design","Standard Design") // renamed Oct 2014
+		set out=currentTemplateID_"|"_desc
+	}
+	quit out
+]]></Implementation>
+</Method>
+
+<Method name="getLayoutDescriptionFromNumber">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>layoutNumber</FormalSpec>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	set out="0|not found"
+
+	if layoutNumber=1 set out="Vertical Menu, Sponsors, Logo"
+	if layoutNumber=2 set out="Vertical Menu, No Sponsors, Logo"
+	if layoutNumber=3 set out="Vertical Menu, Sponsors, No Logo"
+	if layoutNumber=4 set out="Vertical Menu, No Sponsors, No Logo"
+	if layoutNumber=5 set out="Horizontal Menu, Sponsors, Logo"
+	if layoutNumber=6 set out="Horizontal Menu, No Sponsors, Logo"
+	if layoutNumber=7 set out="Horizontal Menu, Sponsors, No Logo"
+	if layoutNumber=8 set out="Horizontal Menu, No Sponsors, No Logo"
+	if layoutNumber=9 set out="No Menu, No Sponsors, No Logo"
+	if layoutNumber=10 set out="Left Menu"
+	if layoutNumber=11 set out="Left Menu, Banner and Footer"
+	if layoutNumber=12 set out="Right Menu, Banner and Footer"
+	if layoutNumber=13 set out="Top Menu and Footer"
+	if layoutNumber=14 set out="Left Menu, Banner, Footer and Right Hand Page"
+	if layoutNumber=15 set out="Left Menu, Banner and Footer Centre Aligned"
+	if layoutNumber=16 set out="Top Menu, Banner and Footer Centre Aligned"
+	if layoutNumber=17 set out="Existing No Frameset Layout"
+	if layoutNumber=18 set out="Left Menu, Banner, Footer, Right Page, Centred (Accessible)"
+	if layoutNumber=19 set out="Left Menu, Banner, Footer, Centred (Accessible)"
+	if layoutNumber=20 set out="Top Menu, Banner, Footer, Centred (Accessible)"
+	if layoutNumber=21 set out="Iframe"
+	
+	quit out
+]]></Implementation>
+</Method>
+
+<Method name="getDefaultThemeID">
+<Description>
+get the theme either we have setup or the client has overridden - used for brand new events</Description>
+<ClassMethod>1</ClassMethod>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	set themeID=##class(setup.objSetting).getParameter("themes","default theme for new events")
+	if 'themeID {
+		set themeID=##class(layout.objTemplate).getIDfromIntDesc("EF_THEME_default_design_04")
+	}
+	if 'themeID {  // if we still haven't found the default, use the latest one we've loaded
+		&SQL(SELECT TOP 1 ID INTO :tmp FROM layout.objTemplate ORDER BY ID DESC)
+		if +SQLCODE=0 set themeID=tmp
+	}
+	quit themeID
+]]></Implementation>
+</Method>
+
+<Method name="convertDefaultTheme">
+<Description>
+convert currently set default them from our old to newer template</Description>
+<ClassMethod>1</ClassMethod>
+<Implementation><![CDATA[
+	
+	set curDefaultThemeID=##class(setup.objSetting).getParameter("themes","default theme for new events")
+	set oldDefaultThemeID=##class(layout.objTemplate).getIDfromIntDesc("EF_DEFAULT_LEFT_MENU")
+	set newDefaultThemeID=##class(layout.objTemplate).getIDfromIntDesc("EF_THEME_default_design_04")
+	set updateDefault=0
+	if oldDefaultThemeID=curDefaultThemeID set updateDefault=1
+	if 'curDefaultThemeID set updateDefault=1
+	if curDefaultThemeID&&$L(##class(layout.objTemplate).getIntDesc(curDefaultThemeID))="" set updateDefault=1  // deal with deleted default templates
+	if updateDefault	{
+		do ##class(setup.objSetting).setParameter("themes","default theme for new events",newDefaultThemeID)
+	}
+]]></Implementation>
+</Method>
+
+<Method name="canUseWebsiteColorsForEvent">
+<Description>
+Can website colors be used for this event?</Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec>eventID:%Integer</FormalSpec>
+<ReturnType>%Boolean</ReturnType>
+<Implementation><![CDATA[
+	set templateID = +(##class(layout.objTemplate).getLayoutForEvent(eventID))
+	
+	/*
+	if ##class(layout.objTemplate).isUsingProweb2(templateID) {
+		return 1
+	}
+	*/
+	
+	if ..isThisDefaultDesign(templateID) {
+		return 1
+	}
+	
+	return 0
+]]></Implementation>
+</Method>
+
+<Method name="canUseStyleOverrides">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>eventID</FormalSpec>
+<ReturnType>%Boolean</ReturnType>
+<Implementation><![CDATA[
+	// Same as canUseWebsiteColorsForEvent for now....
+	quit ..canUseWebsiteColorsForEvent(eventID)
+]]></Implementation>
+</Method>
+
+<Method name="canUseCustomEventCSS">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>eventID:%Integer</FormalSpec>
+<ReturnType>%Boolean</ReturnType>
+<Implementation><![CDATA[
+	if ##class(layout.objTemplate).getIntDesc( ##class(layout.objTemplate).getLayoutForEvent(eventID) ) ?1"EF_THEME_standard_design".E	{
+		return 1	
+	} else {
+		return 0
+	}
+]]></Implementation>
+</Method>
+
+<Method name="isThisDefaultDesign">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>templateID</FormalSpec>
+<ReturnType>%Boolean</ReturnType>
+<Implementation><![CDATA[
+	// *** NOTE THIS SHOULD BE CHANGED TO USE THE THEME GROUP NAME rather than the actual layout ***
+	set ret=0
+	
+	kill allowedThemeIDs
+	set allowedThemeIDs(+(##class(layout.objTemplate).getIDfromIntDesc("EF_THEME_default_design_04")))=""
+	set allowedThemeIDs(+(##class(layout.objTemplate).getIDfromIntDesc("EF_THEME_default_design_07")))=""
+	set allowedThemeIDs(+(##class(layout.objTemplate).getIDfromIntDesc("EF_THEME_default_design_08")))=""
+	set allowedThemeIDs(+(##class(layout.objTemplate).getIDfromIntDesc("EF_THEME_default_design_09")))=""
+	set allowedThemeIDs(+(##class(layout.objTemplate).getIDfromIntDesc("EF_THEME_default_design_21")))="" 
+
+	set allowedThemeIDs(+(##class(layout.objTemplate).getIDfromIntDesc("EF_THEME_standard_design_04")))="" 
+	set allowedThemeIDs(+(##class(layout.objTemplate).getIDfromIntDesc("EF_THEME_standard_design_07")))="" 
+	set allowedThemeIDs(+(##class(layout.objTemplate).getIDfromIntDesc("EF_THEME_standard_design_08")))="" 
+	set allowedThemeIDs(+(##class(layout.objTemplate).getIDfromIntDesc("EF_THEME_standard_design_09")))="" 
+	set allowedThemeIDs(+(##class(layout.objTemplate).getIDfromIntDesc("EF_THEME_standard_design_21")))="" 
+	
+	set allowedThemeIDs(+(##class(layout.objTemplate).getIDfromIntDesc("EF_THEME_standard_design-v2_08")))="" 
+	set allowedThemeIDs(+(##class(layout.objTemplate).getIDfromIntDesc("EF_THEME_standard_design-v2_04")))="" 
+	set allowedThemeIDs(+(##class(layout.objTemplate).getIDfromIntDesc("EF_THEME_standard_design-v2_07")))="" 
+	set allowedThemeIDs(+(##class(layout.objTemplate).getIDfromIntDesc("EF_THEME_standard_design-v2_09")))="" 
+	set allowedThemeIDs(+(##class(layout.objTemplate).getIDfromIntDesc("EF_THEME_standard_design-v2_21")))="" 
+
+	If (templateID) {
+		If ($DATA(allowedThemeIDs(templateID))) {
+			Set ret=1
+		}
+	}
+	
+	quit ret
+]]></Implementation>
+</Method>
+
+<Method name="canChangeWebsiteStyles">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>eventID</FormalSpec>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	set out=1
+	
+	set eventStatus=""
+	&SQL(SELECT status INTO :tmpEventStatus FROM setup.objEvent WHERE ID = :eventID)
+	if +SQLCODE=0 {
+		if tmpEventStatus="live" set out=0
+	}
+	
+	quit out
+]]></Implementation>
+</Method>
+
+<Method name="popIsIframeForExistingTempl">
+<Description>
+one-off noddy to set the 'isIframe' value to '1' for the two existing iFrame templates we have</Description>
+<ClassMethod>1</ClassMethod>
+<Implementation><![CDATA[
+	&SQL(UPDATE layout.objTemplate SET isIframe=1 WHERE description='No Menu and Banner (For IFRAMES)')
+	&SQL(UPDATE layout.objTemplate SET isIframe=1 WHERE description='Default Design 21 Iframe')
+]]></Implementation>
+</Method>
+
+<Method name="updateEFLogoForDefaultDesign">
+<Description>
+one-off to update all clients who have not got the EF logo flag correctly set on their default design templates 
+ - these will only be new clients since we installed the default design</Description>
+<ClassMethod>1</ClassMethod>
+<Implementation><![CDATA[
+	set rs=##class(%ResultSet).%New("%Library.DynamicQuery:SQL")
+	do rs.Prepare("SELECT ID FROM layout.objTemplate")
+	do rs.Execute()
+	while rs.Next() {
+		set templateID=rs.Data("ID")
+		if ..isThisDefaultDesign(templateID) {
+			if '##class(layout.objTemplate).isEFLogoInTemplate(templateID)	{
+				&SQL(UPDATE layout.objTemplate SET efLogoInTemplate=1 WHERE ID=:templateID)
+			}
+		}
+	}
+	quit
+]]></Implementation>
+</Method>
+
+<Method name="isClientUsingSingleEventDomain">
+<Description>
+Checks if the passed in namespace is in the list of clients using Single Event Domain.</Description>
+<ClassMethod>1</ClassMethod>
+<ReturnType>%Integer</ReturnType>
+<Implementation><![CDATA[
+	set out=0 
+	
+	set clientNamespace=$ZCVT($ZNSPACE,"U")
+	// This is a comma seperated list of namespaces.Must start and end with a comma and no spaces anywhere.
+	set clientsUsingSingleEventDomain = $LB("EVSTANDREWS","EVBANKSSADLER","EVULTIMATEEVENT","EVEQUITY","EVSCHRODERS","EVTFI","EVPMM")
+	
+	if ($LISTFIND(clientsUsingSingleEventDomain,clientNamespace)) {
+		set out=1
+	}
+	if $G(^xForceStopFrameBreaker) set out=1
+	
+	quit out
+]]></Implementation>
+</Method>
+
+<Method name="moveResponsiveStandardDesignToTop">
+<ClassMethod>1</ClassMethod>
+<Implementation><![CDATA[	&SQL(update layout.objStandardDesign set displayorder=0 where description='Responsive Standard Design')
+]]></Implementation>
+</Method>
+
+<Method name="updateDefaultTemplate">
+<ClassMethod>1</ClassMethod>
+<Implementation><![CDATA[
+	set templateID=..getTemplateIDFromInternalDescription("EF_THEME_default_design_08")
+	do ##class(setup.objSetting).setParameter("themes","default theme for new events",templateID)
+]]></Implementation>
+</Method>
+
+<Method name="getTemplateToUseForBackendBookings">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>xEventID</FormalSpec>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	set eventLayoutTemplateID=##class(layout.objTemplate).getLayoutForEvent(xEventID)
+	set layoutTemplateID=""
+	if ##class(layout.objTemplate).isUsingEFStandardTemplate(xEventID) {
+		if ##class(layout.objTemplate).isTemplateHTML5Compatible(eventLayoutTemplateID)	{
+			// use responsive one if the current template is using HTML5 doc type otherwise doctype will not match the doctype the template needs
+			set layoutTemplateID=##class(layout.objTemplate).getIDfromIntDesc("EF_THEME_standard_design_08")
+		} else {
+			set layoutTemplateID=##class(layout.objTemplate).getIDfromIntDesc("EF_THEME_default_design_08")
+		}
+	} else {
+		set isPopup=1
+		set layoutTemplateID=##class(layout.objTemplate).getLayoutForEvent(xEventID,isPopup)
+	}
+	if layoutTemplateID="" set layoutTemplateID=eventLayoutTemplateID
+	quit layoutTemplateID
+]]></Implementation>
+</Method>
+
+<Method name="getTemplateToUseForPopups">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>eventID</FormalSpec>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	set regularTemplateID=##class(layout.objTemplate).getLayoutForEvent(eventID,0)
+	set popupTemplateID=##class(layout.objTemplate).getLayoutForEvent(eventID,1)
+
+	if popupTemplateID=regularTemplateID {
+		if (##class(layout.objTemplate).isTemplateGen2(regularTemplateID)) ! (##class(layout.objTemplate).isTemplateGen3(regularTemplateID)) {
+			return ##class(layout.objTemplate).getIDfromIntDesc("EF_THEME_default_design_21") // this is the Gen 2 iFrame template
+		} else {
+			return regularTemplateID  // This is the wrong behaviour as it will show menu in popup but we don't want to change this now (as part of responsive project).
+			//return ##class(layout.objTemplate).getIDfromIntDesc("IFRAME") // this is the Gen 1 iFrame template (blank design) - ### Leave this commented line for now ####
+		}
+	}
+	return popupTemplateID
+]]></Implementation>
+</Method>
+
+<Method name="areMandatoryMarkersOnTheLeftForEventID">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>eventID</FormalSpec>
+<ReturnType>%Boolean</ReturnType>
+<Implementation><![CDATA[
+	set out=0
+	set templateID=+(##class(layout.objTemplate).getLayoutForEvent(eventID))
+	if ##class(layout.methods).isThisDefaultDesign(templateID) set out=1
+	return out
+]]></Implementation>
+</Method>
+
+<Method name="getAllowedExtensionsForTemplateUpload">
+<Description>
+Returns comma delimited list of extensions</Description>
+<ClassMethod>1</ClassMethod>
+<Implementation><![CDATA[
+	set allowedExtensions=##class(shared.fileMethods).allowedExtensions()
+	set allowedExtensions=allowedExtensions_",TTF,EOT,WOFF"   // fonts are uploaded inside template zips
+	set allowedExtensions=allowedExtensions_",XML,HTML,HTM,JS"  // web page contents
+	return $ZCVT(allowedExtensions,"U")
+]]></Implementation>
+</Method>
+
+<Method name="isExtensionAllowedForTemplateUpload">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>fileExtension</FormalSpec>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[	return ##class(shared.fileMethods).isExtensionInList(fileExtension,..getAllowedExtensionsForTemplateUpload())
+]]></Implementation>
+</Method>
+
+<Method name="updateTemplateCSSFileAll">
+<ClassMethod>1</ClassMethod>
+<Implementation><![CDATA[
+	set rs=##class(%ResultSet).%New("%Library.DynamicQuery:SQL")
+	set sqltext="SELECT ID FROM layout.objTemplate ORDER BY ID"
+	do rs.Prepare(sqltext)
+	do rs.Execute()
+	while rs.Next() {
+		set templateID=rs.Data("ID")
+		
+		do ..updateTemplateCSSFile(templateID)
+	}
+	do rs.Close()
+	Kill rs
+]]></Implementation>
+</Method>
+
+<Method name="updateTemplateCSSFile">
+<Description>
+Looks for "style.css" file to update "templateCSSFile" with</Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec>templateID</FormalSpec>
+<Implementation><![CDATA[
+	&SQL(SELECT templateDirectory, originalFilename INTO :templateDirectory, :originalFilename
+		FROM layout.objTemplate
+		WHERE ID=:templateID)
+		
+	If (+SQLCODE=0) {
+		if ('(##class(layout.objTemplate).isTemplateCustomMade(templateID))) {
+			set objTemplate=##class(layout.objTemplate).%OpenId(templateID)
+			if ($ISOBJECT(objTemplate)) {
+				do objTemplate.%Reload()
+				if ($ZCVT($P(originalFilename,"\",*),"L") = "index.csp") {
+					set fileName=$REPLACE(originalFilename,"index.csp","style.css")
+					if (##class(%Library.File).Exists(fileName)) {
+						w !,"Updating templateCSSFile for templateID "_templateID_" from "_fileName_" ..."
+						set styleCSSStream=##class(%Stream.FileCharacter).%New()
+						set styleCSSStream.Filename=fileName
+						set sc=styleCSSStream.Rewind()
+						if ($$$ISERR(sc)) {
+							Throw ##class(shared.exceptions.generalStatusException).CreateFromStatus(sc)
+						}
+						set sc=objTemplate.templateCSSFile.Clear()
+						if ($$$ISERR(sc)) {
+							Throw ##class(shared.exceptions.generalStatusException).CreateFromStatus(sc)
+						}
+						set sc=objTemplate.templateCSSFile.CopyFromAndSave(styleCSSStream)
+						if ($$$ISERR(sc)) {
+							Throw ##class(shared.exceptions.generalStatusException).CreateFromStatus(sc)
+						}
+						set sc=objTemplate.%Save()
+						if ($$$ISERR(sc)) {
+							Throw ##class(shared.exceptions.generalStatusException).CreateFromStatus(sc)
+						}
+						kill styleCSSStream
+					}
+				}
+			}
+			kill objTemplate
+		}
+	}
+	quit
+]]></Implementation>
+</Method>
+</Class>
+
+
 <Class name="layout.objTemplate">
 <Description><![CDATA[
 <!-- ;vc;-
@@ -22243,7 +23782,7 @@ Returns true if the template is custom made</Description>
 </Class>
 
 
-<Project name="proweb 2" LastModified="2016-11-29 10:55:21.904773" Target="largedevsrc/EF.pages.frontend.baseProweb.cls" TargetType="3">
+<Project name="proweb 2" LastModified="2016-12-01 16:07:28.051981" Target="largedevsrc/EF.pages.frontend.baseProweb.cls" TargetType="3">
   <Items>
     <ProjectItem name="EF.contextDataRegistration" type="CLS"></ProjectItem>
     <ProjectItem name="EF.contextDataRegistrationMock" type="CLS"></ProjectItem>
@@ -22404,6 +23943,15 @@ Returns true if the template is custom made</Description>
     <ProjectItem name="setup.availabilityCheckerSession" type="CLS"></ProjectItem>
     <ProjectItem name="setup.bookingLevelCounterFrontendSession" type="CLS"></ProjectItem>
     <ProjectItem name="shared.pageMethods" type="CLS"></ProjectItem>
+    <ProjectItem name="layout.methods" type="CLS"></ProjectItem>
+    <ProjectItem name="largedevsrc/media/templates/ALL_CLIENTS/EF_theme_standard_design-v2-04/style.LESS" type="CSP"></ProjectItem>
+    <ProjectItem name="largedevsrc/media/templates/ALL_CLIENTS/EF_theme_standard_design-v2-04/index.html" type="CSP"></ProjectItem>
+    <ProjectItem name="largedevsrc/media/templates/ALL_CLIENTS/EF_theme_standard_design-v2-08/style.LESS" type="CSP"></ProjectItem>
+    <ProjectItem name="largedevsrc/media/templates/ALL_CLIENTS/EF_theme_standard_design-v2-21/style.LESS" type="CSP"></ProjectItem>
+    <ProjectItem name="largedevsrc/media/templates/ALL_CLIENTS/EF_theme_standard_design-v2-21/index.html" type="CSP"></ProjectItem>
+    <ProjectItem name="largedevsrc/media/templates/ALL_CLIENTS/EF_theme_standard_design-v2-09/index.html" type="CSP"></ProjectItem>
+    <ProjectItem name="largedevsrc/media/templates/ALL_CLIENTS/EF_theme_standard_design-v2-07/index.html" type="CSP"></ProjectItem>
+    <ProjectItem name="largedevsrc/media/templates/ALL_CLIENTS/EF_theme_standard_design-v2-07/style.LESS" type="CSP"></ProjectItem>
   </Items>
   <BreakPoints>
     <BreakPoint Routine="cspRealEV.frontend.reg.pagecontrollerstandardsave.CLS" Offset="OnPreHTTPafter+28"></BreakPoint>

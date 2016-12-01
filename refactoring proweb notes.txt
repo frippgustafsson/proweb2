@@ -139,16 +139,20 @@ the menu is short
 left align labels in small viewports
 the primary buttons looks the same as secondary
 re-style the quick edit panel
+add the checkbox for search as you type
+rename "row ef-proweb-form-row" to something that fits non form pages too
+fix the 'only show if'
+the timeout warning
+add the other templates
+
 ===============================================================================
 
-fix the 'only show if'
-add the checkbox for search as you type
+
+rename "Responsive Standard Design" will be renamed to "Standard Design 1.0"
+reorder the old and new template
 allow backend bookings to override full ABIs
 replace most contextDataRegistration with contextDataFrontend
-the timeout warning
-rename "Responsive Standard Design" will be renamed to "Standard Design 1.0"
 date range has JS error
-rename "row ef-proweb-form-row" to something that fits non form pages too
 review the way we integrate the new CSP page with the old one, wrapper around pageNav?
 menu doesn't get populated on first load
 empty list marker is outputted in runtime mode
@@ -156,8 +160,6 @@ Marketing code
 Warning on leaving the page
 make sure we can't add questions on components that shouldn't allow it (use new attrib on tag + new prop on objComponenet)
 test multiple list on a page
-test more date formats
-dependency on multicheck
 autiding delete&add
 QBIs
 warning before leaving the page

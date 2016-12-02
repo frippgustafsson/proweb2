@@ -146,24 +146,26 @@ the timeout warning
 add the other templates
 rename "Responsive Standard Design" will be renamed to "Standard Design 1.0"
 reorder the old and new template
+empty list marker is outputted in runtime mode
+empty lists doesn't seem to be editable
+allow backend bookings to override full ABIs
+
 ===============================================================================
 
-
-
-allow backend bookings to override full ABIs
-replace most contextDataRegistration with contextDataFrontend
-date range has JS error
+make sure we can't add questions on components that shouldn't allow it (use new attrib on tag + new prop on objComponenet)
 review the way we integrate the new CSP page with the old one, wrapper around pageNav?
 menu doesn't get populated on first load
-empty list marker is outputted in runtime mode
 Marketing code
 Warning on leaving the page
-make sure we can't add questions on components that shouldn't allow it (use new attrib on tag + new prop on objComponenet)
+date range has JS error
 test multiple list on a page
+replace most contextDataRegistration with contextDataFrontend
 autiding delete&add
 QBIs
 warning before leaving the page
+Look at the capitalisation logic
 table bookings
+should we block menu blocks? Or let them add new ones?
 add integration test where we create the whole shebang
 remove proweb version 1.5 code
 time field placeholder in FF is outside the box

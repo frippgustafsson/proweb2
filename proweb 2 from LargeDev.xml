@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.2 (Build 736U)" ts="2016-12-01 16:07:36">
+<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.2 (Build 736U)" ts="2016-12-02 09:06:42">
 <Class name="EF.contextDataRegistration">
 <Description><![CDATA[
 <!-- ;vc;-
@@ -1951,7 +1951,7 @@ Should be run if any of the sub-classes are deleted</Description>
 <Description>
 Should have a one-to-one relationship with sc.objList</Description>
 <Super>EF.pageController.containerElement</Super>
-<TimeChanged>64247,31184.8314</TimeChanged>
+<TimeChanged>64254,31985.082646</TimeChanged>
 <TimeCreated>64231,55587.036042</TimeCreated>
 
 <Property name="prowebListID">
@@ -2300,13 +2300,15 @@ refers to sc.xModules.objList</Description>
 
 <Method name="renderEmptyListHTML">
 <Implementation><![CDATA[
-	try {
-		set listID = ..prowebListID
-		&HTML<
-			<div class="row ef-draggable-div ef-proweb-form-row-editable ef-proweb-empty-list" data-ui-component-type="emptyList" data-proweb-list-id="#(##class(EF.htmlGenerator).encodeForHTMLAttribute(listID))#">Empty List</div>
-		>
-	} catch {
-		throw ##class(shared.exceptions.generalException).%New("No listID found for "_..identifier)
+	if ..page.contextData.prowebMode = "edit" {
+		try {
+			set listID = ..prowebListID
+			&HTML<
+				<div class="row ef-draggable-div ef-form-row-editable ef-empty-list" data-ui-component-type="emptyList" data-proweb-list-id="#(##class(EF.htmlGenerator).encodeForHTMLAttribute(listID))#">Empty List</div>
+			>
+		} catch {
+			throw ##class(shared.exceptions.generalException).%New("No listID found for "_..identifier)
+		}
 	}
 ]]></Implementation>
 </Method>
@@ -4860,15 +4862,15 @@ we need to refactor the frontend buttons to make them callable from class method
 <Class name="EF.ui.components.backend.panel">
 <Description><![CDATA[
 <!-- ;vc;-
-;vc;    Object: EF.ui.components.backend.panel.CLS/EV.5
+;vc;    Object: EF.ui.components.backend.panel.CLS/EV.7
 ;vc; Component: CLS.EF.ui.components.backend.panel
 ;vc;  Location: LargeDev
-;vc; Date/Time: 14-Oct-16 15:01
-;vc;      User: AdrianM2
-;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>EF.ui.components.backend.panel.CLS/EV.5</td><td>CLS.EF.ui.components.backend.panel</td><td>LargeDev</td><td style='white-space: nowrap;'>14-Oct-16 15:01</td><td>AdrianM2</td></tr></table>
+;vc; Date/Time: 01-Dec-16 17:16
+;vc;      User: MindaugasL
+;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>EF.ui.components.backend.panel.CLS/EV.7</td><td>CLS.EF.ui.components.backend.panel</td><td>LargeDev</td><td style='white-space: nowrap;'>01-Dec-16 17:16</td><td>MindaugasL</td></tr></table>
 ]]></Description>
 <Super>EF.ui.components.container</Super>
-<TimeChanged>64203,38572</TimeChanged>
+<TimeChanged>64253,62184.978882</TimeChanged>
 <TimeCreated>63361,62973.538498</TimeCreated>
 
 <Property name="heading">
@@ -4883,7 +4885,7 @@ we need to refactor the frontend buttons to make them callable from class method
 
 <Method name="renderStart">
 <Implementation><![CDATA[
-	set classes="ef-admin-settings-panel"
+	set classes = "ef-admin-settings-panel "_..classes
 	if $l(..errorMessage) {
 		set classes=classes_" ef-panel-with-error"
 	}
@@ -5306,7 +5308,7 @@ we need to refactor the frontend buttons to make them callable from class method
 
 <Class name="EF.ui.components.frontend.checkbox">
 <Super>EF.ui.components.checkbox,EF.ui.components.frontend.inputElement,EF.ui.components.frontend.alternativeABI</Super>
-<TimeChanged>64247,31313.850358</TimeChanged>
+<TimeChanged>64254,32271.726888</TimeChanged>
 <TimeCreated>63355,62572.097775</TimeCreated>
 
 <Property name="price">
@@ -5346,7 +5348,7 @@ we need to refactor the frontend buttons to make them callable from class method
 <Method name="renderCheckbox">
 <Implementation><![CDATA[
 	do ..addClass("ef-check-box")
-	if (..isFull() ) ! (..isBookingStopped) {
+	if ('..contextData.isBackendBooking) && ((..isFull() ) ! (..isBookingStopped)) {
 		set ..isDisabled = 1
 	}
 	set disabledString = ""
@@ -5811,7 +5813,7 @@ we need to refactor the frontend buttons to make them callable from class method
 
 <Class name="EF.ui.components.frontend.dropdown">
 <Super>EF.ui.components.listInput,EF.ui.components.frontend.inputElement</Super>
-<TimeChanged>64253,48987.213882</TimeChanged>
+<TimeChanged>64254,32334.646673</TimeChanged>
 <TimeCreated>63355,56609.363142</TimeCreated>
 
 <Property name="isPersistent">
@@ -5901,7 +5903,9 @@ we need to refactor the frontend buttons to make them callable from class method
 		set selectedString="selected="""""	
 	}
 	if (alternative.%Extends("EF.ui.components.frontend.alternativeABI") ) && ( (alternative.isFull()!(alternative.isBookingStopped) )) {
-		set alternative.isDisabled = 1
+		if '..contextData.isBackendBooking {
+			set alternative.isDisabled = 1
+		}
 		do alternative.addClass("ef-capacity-full")
 	}
 	set disabledString=""
@@ -7095,7 +7099,7 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 
 <Class name="EF.ui.components.frontend.radioGroup">
 <Super>EF.ui.components.listInput,EF.ui.components.frontend.inputElement</Super>
-<TimeChanged>64253,39032.472086</TimeChanged>
+<TimeChanged>64254,32155.543792</TimeChanged>
 <TimeCreated>63356,39686.205586</TimeCreated>
 
 <Method name="getDefaultClasses">
@@ -7142,7 +7146,9 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 	do alternative.addClass("ef-control-label")
 	if ( alternative.%Extends("EF.ui.components.frontend.alternativeABI") ) && ( (alternative.isFull()) ! (alternative.isBookingStopped) ) {
 		do alternative.addClass("ef-capacity-full")
-		set alternative.isDisabled = 1
+		if '..contextData.isBackendBooking {
+			set alternative.isDisabled = 1
+		}
 	}
 	do alternative.render()
 	do ..renderCellClosing()
@@ -22290,7 +22296,7 @@ Looks for "style.css" file to update "templateCSSFile" with</Description>
 <ClassType>persistent</ClassType>
 <ProcedureBlock>1</ProcedureBlock>
 <Super>%Library.Persistent,shared.timeStamp</Super>
-<TimeChanged>64251,57587.15221</TimeChanged>
+<TimeChanged>64253,59030.857787</TimeChanged>
 <TimeCreated>60782,60196.270659</TimeCreated>
 <Inheritance>right</Inheritance>
 
@@ -22438,6 +22444,7 @@ to store the style.css stream in order to avoid having to get it via FTP from a 
 	&SQL(SELECT objStandardDesign->description INTO :designName FROM layout.objTemplate WHERE ID = :templateID)	
 	if +SQLCODE=0 {
 		if designName="Default Design" set designName="Non-responsive Standard Design" //renamed July 2016
+		if designName="Responsive Standard Design" set designName="Standard Design 1.0" //renamed Dec 2016
 		return designName
 	} else {
 		throw ##class(shared.exceptions.generalException).%New("no such template found") 	

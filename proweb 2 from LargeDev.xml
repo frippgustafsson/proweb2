@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.2 (Build 736U)" ts="2016-12-02 09:06:42">
+<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.2 (Build 736U)" ts="2016-12-02 14:03:46">
 <Class name="EF.contextDataRegistration">
 <Description><![CDATA[
 <!-- ;vc;-
@@ -259,7 +259,7 @@ if website is private, this will be set to the cod.objPerson.ID of that logged i
 ;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>EF.pageController.containerElement.CLS/EV.19</td><td>CLS.EF.pageController.containerElement</td><td>LargeDev</td><td style='white-space: nowrap;'>22-Nov-16 16:08</td><td>MindaugasL</td></tr></table>
 ]]></Description>
 <Super>EF.pageController.element</Super>
-<TimeChanged>64247,46292.534732</TimeChanged>
+<TimeChanged>64254,45954.190753</TimeChanged>
 <TimeCreated>63372,47273.826383</TimeCreated>
 
 <Property name="getContentsMethod">
@@ -475,13 +475,17 @@ This is a list of all the elements that are updated by the processGetContents me
 </Method>
 
 <Method name="addDateRange">
-<FormalSpec>identifier:%String,description:%String,value1="",value2="",isReadOnly=0</FormalSpec>
+<FormalSpec>identifier:%String,description:%String,value1="",value2="",isReadOnly=0,fromDescription="is from:",toDescription="To:"</FormalSpec>
 <ReturnType>EF.pageController.inputElements.textInput</ReturnType>
 <Implementation><![CDATA[
 	set element = ##class(EF.pageController.inputElements.dateRange).addElementToParent($this, identifier, description, "", isReadOnly)
 	set element.uiComponent.containerClasses = "row"
-	set dateElementFrom = ##class(EF.pageController.inputElements.datePicker).addElementToParent(element, identifier_"-value1", description, value1, isReadOnly)
-	set dateElementTo = ##class(EF.pageController.inputElements.datePicker).addElementToParent(element, identifier_"-value2", "To:", value2, isReadOnly)
+	set dateElementFrom = ##class(EF.pageController.inputElements.datePicker).addElementToParent(element, identifier_"-value1", fromDescription, value1, isReadOnly)
+	set dateElementFrom.uiComponent.label = description_" "_fromDescription
+	set dateElementFrom.uiComponent.validator.fieldName = """"_description_" "_fromDescription_""""
+	set dateElementTo = ##class(EF.pageController.inputElements.datePicker).addElementToParent(element, identifier_"-value2", toDescription, value2, isReadOnly)
+	
+	set dateElementTo.uiComponent.validator.fieldName = """"_description_""" """_toDescription_""""
 	set dateElementFrom.uiComponent.containerClasses = dateElementFrom.uiComponent.containerClasses_" col-sm-6"
 	set dateElementTo.uiComponent.containerClasses = dateElementTo.uiComponent.containerClasses_" col-sm-6"
 	set dateElementFrom.uiComponent.classes = dateElementFrom.uiComponent.classes_" ef-backend-input-element-short"
@@ -512,13 +516,17 @@ This is a list of all the elements that are updated by the processGetContents me
 </Method>
 
 <Method name="addTimeRange">
-<FormalSpec>identifier:%String,description:%String,value1="",value2="",isReadOnly=0</FormalSpec>
+<FormalSpec>identifier:%String,description:%String,value1="",value2="",isReadOnly=0,fromDescription="is from:",toDescription="To:"</FormalSpec>
 <ReturnType>EF.pageController.inputElements.textInput</ReturnType>
 <Implementation><![CDATA[
 	set element = ##class(EF.pageController.inputElements.timeRange).addElementToParent($this, identifier, description, "", isReadOnly)
 	set element.uiComponent.containerClasses = "row"
-	set timeElementFrom = ##class(EF.pageController.inputElements.timePicker).addElementToParent(element, identifier_"-value1", description, value1, isReadOnly)
-	set timeElementTo = ##class(EF.pageController.inputElements.timePicker).addElementToParent(element, identifier_"-value2", "To:", value2, isReadOnly)
+	set timeElementFrom = ##class(EF.pageController.inputElements.timePicker).addElementToParent(element, identifier_"-value1", fromDescription, value1, isReadOnly)
+	set timeElementFrom.uiComponent.label = description_" "_fromDescription
+	set timeElementFrom.uiComponent.validator.fieldName = """"_description_" "_fromDescription_""""
+	set timeElementTo = ##class(EF.pageController.inputElements.timePicker).addElementToParent(element, identifier_"-value2", toDescription, value2, isReadOnly)
+	
+	set timeElementTo.uiComponent.validator.fieldName = """"_description_""" """_toDescription_""""
 	set timeElementFrom.uiComponent.containerClasses = timeElementFrom.uiComponent.containerClasses_" col-sm-6"
 	set timeElementTo.uiComponent.containerClasses = timeElementTo.uiComponent.containerClasses_" col-sm-6"
 	set timeElementFrom.uiComponent.classes = timeElementFrom.uiComponent.classes_" ef-backend-input-element-short"
@@ -1951,7 +1959,7 @@ Should be run if any of the sub-classes are deleted</Description>
 <Description>
 Should have a one-to-one relationship with sc.objList</Description>
 <Super>EF.pageController.containerElement</Super>
-<TimeChanged>64254,31985.082646</TimeChanged>
+<TimeChanged>64254,43472.085656</TimeChanged>
 <TimeCreated>64231,55587.036042</TimeCreated>
 
 <Property name="prowebListID">
@@ -2090,6 +2098,7 @@ refers to sc.xModules.objList</Description>
 			if (hasRenderedAtLeastOne = 0) && (element.uiComponent.%Extends("EF.ui.components.frontend.textInput")) && (..page.contextData.prowebMode '= "edit"){
 				set element.uiComponent.hasAutoFocus = 1 	
 			}
+			set element.uiComponent.nameOfControllerListClass = $ClassName($this)
 			do element.render()		
 			set hasRenderedAtLeastOne =1
 		}
@@ -2442,7 +2451,7 @@ Should have a one-to-one relationship with sc.objList</Description>
 
 <Class name="EF.pageController.proweb.page">
 <Super>EF.pageController.page</Super>
-<TimeChanged>64245,55930.977938</TimeChanged>
+<TimeChanged>64254,33794.061141</TimeChanged>
 <TimeCreated>64189,51696.559047</TimeCreated>
 
 <Property name="contextData">
@@ -2504,7 +2513,7 @@ Should have a one-to-one relationship with sc.objList</Description>
 		set dataType = rsComponents.Get("dataType")
 		set className = rsComponents.Get("listType")
 		if '$Length(className) {
-			set className = "listWithQuestionsRegistration"	
+			set className = "listWithQuestionsRegistration"	// ##### I don't think the default should allow questions /Fred ###################
 		}
 		if dataType = "objList" {	
 			set listElement = $ClassMethod("EF.pageController.proweb."_className, "addElementToParent", $this, componentName, "")
@@ -6250,14 +6259,14 @@ we need to refactor the frontend buttons to make them callable from class method
 
 <Class name="EF.ui.components.frontend.floatingMenu">
 <Super>shared.pCSPmanage</Super>
-<TimeChanged>64253,41848.233548</TimeChanged>
+<TimeChanged>64254,42130.140699</TimeChanged>
 <TimeCreated>64203,40625.329831</TimeCreated>
 
 <Method name="outputFloatingMenuHTML">
 <Implementation><![CDATA[
 	&html<
 		<div id="myFloater" class="form-inline ef-proweb-menu-handle" style="display: none;">
-	        <div class="ef-proweb-floater-button-group" >
+	        <div class="ef-editor-floater-button-group" >
 		        <button type="button" id="efProwebEditLink" class="btn btn-default">
 		        	<span class="glyphicon glyphicon-pencil"></span>
 				</button>
@@ -6276,7 +6285,7 @@ we need to refactor the frontend buttons to make them callable from class method
                   <li><a class="ef-proweb-dropdown-link" id="efProwebInsertDividerBelowLink" href="#">Divider</a></li>
                   <li><a class="ef-proweb-dropdown-link" id="efProwebInsertRegPromptCollectionBelowLink" tabindex="-1" href="#">Collection</a></li>
                   <li><a class="ef-proweb-dropdown-link" id="efProwebInsertFileUploadBelowLink" href="#">File upload</a></li>
-                  <li><a class="ef-proweb-dropdown-link" id="efProwebInsertYouTubeVideoBelowLink" href="#">YouTube video</a></li>
+                  <li><a class="ef-proweb-dropdown-link" id="efProwebInsertYouTubeVideoBelowLink" href="#">Video</a></li>
 				</ul>
 			</div>			
 		</div>
@@ -6974,7 +6983,7 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 
 <Class name="EF.ui.components.frontend.prowebBase">
 <Super>EF.ui.components.base</Super>
-<TimeChanged>64252,34802.080809</TimeChanged>
+<TimeChanged>64254,44099.274901</TimeChanged>
 <TimeCreated>64183,41819.123112</TimeCreated>
 
 <Property name="isProwebEditMode">
@@ -6995,16 +7004,24 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 <Type>EF.contextDataFrontend</Type>
 </Property>
 
+<Property name="nameOfControllerListClass">
+<Type>%String</Type>
+</Property>
+
 <Method name="renderRowOpening">
 <Implementation><![CDATA[
 	if ..isProwebEditMode {
 		set uiComponentType = $Piece($CLASSNAME(), ".", *)
+		set allowedElementTypes = ..getAllowedElementTypesForThisList()
+
 		&HTML<
 			<div class="row ef-draggable-div ef-form-row ef-form-row-editable" 
 			id="ef-field-proweb-#(..prowebItem.storage.prowebID)#" 
 			data-proweb-id="#(..prowebItem.storage.prowebID)#" 
 			data-proweb-list-id="#(..prowebItem.storage.getListID())#" 
-			data-ui-component-type="#(..encodeForHTMLAttribute(uiComponentType))#">
+			data-ui-component-type="#(..encodeForHTMLAttribute(uiComponentType))#"
+			data-proweb-allowed-types="#(..encodeForHTMLAttribute(allowedElementTypes))#"
+			>
 		>
 		
 	} else {
@@ -7015,6 +7032,24 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 		}
 		write !,"<div class=""row ef-form-row"" "_..rawHTML(dataAttributes)_">"
 	}
+]]></Implementation>
+</Method>
+
+<Method name="getAllowedElementTypesForThisList">
+<Private>1</Private>
+<ReturnType>%Boolean</ReturnType>
+<Implementation><![CDATA[
+	if ..nameOfControllerListClass = "EF.pageController.proweb.list" {
+		return "Text"	
+		
+	} elseif ..nameOfControllerListClass = "EF.pageController.proweb.listOfSingleElement" {
+		return "Text"	
+		
+	} elseif ..nameOfControllerListClass = "EF.pageController.proweb.listWithQuestionsRegistration" {
+		return "Question,ABI,QBI,Collection,Divider,Text,File upload,Video"	
+	}
+	
+	throw ##class(shared.exceptions.generalException).%New("List class has no allowed element types defined: "_..nameOfControllerListClass)
 ]]></Implementation>
 </Method>
 
@@ -7091,6 +7126,9 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 </Value>
 <Value name="5">
 <Value>prowebItemID</Value>
+</Value>
+<Value name="6">
+<Value>nameOfControllerListClass</Value>
 </Value>
 </Data>
 </Storage>
@@ -28574,7 +28612,7 @@ Gets the description without the language modifier</Description>
 <Abstract>1</Abstract>
 <ClassType/>
 <ProcedureBlock>1</ProcedureBlock>
-<TimeChanged>64218,50480.21709</TimeChanged>
+<TimeChanged>64254,46423.971892</TimeChanged>
 <TimeCreated>60747,44410.590792</TimeCreated>
 
 <Method name="prePartOne">
@@ -28751,7 +28789,7 @@ Gets the description without the language modifier</Description>
 				set ok=1
 				if ##class(access.objFunction).hasFunction(userID,"Dynamic Reports Only") set ok=0
 				// Just about anyone can get to this page
-			} elseif pagename="dynarepstart.csp" {
+			} elseif pagename = ..getReportListPageName() {
 				if (##class(access.objRole).hasRole(userID,"Reports Only")) set ok=1
 				if ##class(access.objFunction).hasFunctionByAccessID(userID,"REPS") set ok=1
 				if ##class(access.objFunction).hasFunction(userID,"Dynamic Reports Only") set ok=1

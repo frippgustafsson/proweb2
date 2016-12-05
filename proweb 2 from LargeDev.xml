@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.2 (Build 736U)" ts="2016-12-02 14:03:46">
+<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.2 (Build 736U)" ts="2016-12-05 11:04:49">
 <Class name="EF.contextDataRegistration">
 <Description><![CDATA[
 <!-- ;vc;-
@@ -1277,9 +1277,9 @@ Should be run if any of the sub-classes are deleted</Description>
 </Class>
 
 
-<Class name="EF.pageController.pagesFrontend.t4Registration">
+<Class name="EF.pageController.pagesFrontend.registration">
 <Super>EF.pageController.proweb.page</Super>
-<TimeChanged>64189,56633.940879</TimeChanged>
+<TimeChanged>64257,38422.443857</TimeChanged>
 <TimeCreated>64176,58073.730326</TimeCreated>
 
 <Method name="loadData">
@@ -2451,7 +2451,7 @@ Should have a one-to-one relationship with sc.objList</Description>
 
 <Class name="EF.pageController.proweb.page">
 <Super>EF.pageController.page</Super>
-<TimeChanged>64254,33794.061141</TimeChanged>
+<TimeChanged>64257,36684.140652</TimeChanged>
 <TimeCreated>64189,51696.559047</TimeCreated>
 
 <Property name="contextData">
@@ -4486,7 +4486,7 @@ this is for version 1 of proweb</Description>
 <Class name="EF.pages.frontend.baseProweb">
 <ProcedureBlock>0</ProcedureBlock>
 <Super>EF.pages.frontend.base</Super>
-<TimeChanged>64246,47836.070224</TimeChanged>
+<TimeChanged>64257,38253.26774</TimeChanged>
 <TimeCreated>64191,31442.531402</TimeCreated>
 
 <Parameter name="ENCODED">
@@ -4530,6 +4530,10 @@ this is for version 1 of proweb</Description>
 <Parameter name="efFormAction">
 <Type>%String</Type>
 <Default>pageControllerStandardSave.csp</Default>
+</Parameter>
+
+<Parameter name="pageNavProceedKey">
+<Type>%String</Type>
 </Parameter>
 
 <Property name="pageControllerID">
@@ -4713,6 +4717,7 @@ this is for version 1 of proweb</Description>
 			<input type="hidden" id="efSubmitButtonIdentifier" name="efSubmitButtonIdentifier" value="">
 			<input type="hidden" id="efDeleteButtonIdentifier" name="efDeleteButtonIdentifier" value="">
 			<input type="hidden" id="efSaveAndReloadFormOnly" name="efSaveAndReloadFormOnly" value="">
+			<input type="hidden" id="efPageNavproceedKey" name="pageNavproceedKey" value="#(..#pageNavProceedKey)#">
 	>
 ]]></Implementation>
 </Method>
@@ -4811,6 +4816,23 @@ we need to refactor the frontend buttons to make them callable from class method
 <Private>1</Private>
 <ReturnType>%String</ReturnType>
 <Implementation><![CDATA[	return ..#efFormAction
+]]></Implementation>
+</Method>
+
+<Method name="lookupTemplateFilenameOldToNew">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>oldTemplateFileName:%String</FormalSpec>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	set oldTemplateFileName = $ZCVT(oldTemplateFileName, "U")
+	set path = $Piece(oldTemplateFileName, "/", 1, $Length(oldTemplateFileName,"/")-1) 
+	set fileName = $Piece(oldTemplateFileName, "/" , $Length(oldTemplateFileName,"/") )
+	
+	if fileName = "TREGISTRATION.CSP" {
+		return path_"/"_"registration.csp"	
+	}
+	
+	return oldTemplateFileName
 ]]></Implementation>
 </Method>
 </Class>
@@ -5101,7 +5123,7 @@ we need to refactor the frontend buttons to make them callable from class method
 
 <Class name="EF.ui.components.frontend.buttonAddGuest">
 <Super>EF.ui.components.buttonBase,EF.ui.components.frontend.prowebBase</Super>
-<TimeChanged>64251,43291.994524</TimeChanged>
+<TimeChanged>64254,63064.141496</TimeChanged>
 <TimeCreated>64183,40678.260093</TimeCreated>
 
 <Property name="maximumNumberOfGuests">
@@ -5159,6 +5181,9 @@ we need to refactor the frontend buttons to make them callable from class method
 <Value name="7">
 <Value>maximumNumberOfGuests</Value>
 </Value>
+<Value name="8">
+<Value>nameOfControllerListClass</Value>
+</Value>
 </Data>
 </Storage>
 </Class>
@@ -5166,7 +5191,7 @@ we need to refactor the frontend buttons to make them callable from class method
 
 <Class name="EF.ui.components.frontend.buttonDeleteGuest">
 <Super>EF.ui.components.buttonBase,EF.ui.components.frontend.prowebBase</Super>
-<TimeChanged>64247,39977.00346</TimeChanged>
+<TimeChanged>64254,63064.137439</TimeChanged>
 <TimeCreated>64183,40678.260093</TimeCreated>
 
 <Property name="guestNumber">
@@ -5221,6 +5246,9 @@ we need to refactor the frontend buttons to make them callable from class method
 </Value>
 <Value name="6">
 <Value>guestNumber</Value>
+</Value>
+<Value name="7">
+<Value>nameOfControllerListClass</Value>
 </Value>
 </Data>
 </Storage>
@@ -5317,7 +5345,7 @@ we need to refactor the frontend buttons to make them callable from class method
 
 <Class name="EF.ui.components.frontend.checkbox">
 <Super>EF.ui.components.checkbox,EF.ui.components.frontend.inputElement,EF.ui.components.frontend.alternativeABI</Super>
-<TimeChanged>64254,32271.726888</TimeChanged>
+<TimeChanged>64254,63064.303398</TimeChanged>
 <TimeCreated>63355,62572.097775</TimeCreated>
 
 <Property name="price">
@@ -5433,6 +5461,9 @@ we need to refactor the frontend buttons to make them callable from class method
 </Value>
 <Value name="18">
 <Value>isBookingStopped</Value>
+</Value>
+<Value name="19">
+<Value>nameOfControllerListClass</Value>
 </Value>
 </Data>
 </Storage>
@@ -5550,7 +5581,7 @@ we need to refactor the frontend buttons to make them callable from class method
 ;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>EF.ui.components.backend.datePicker.CLS/EV.3</td><td>CLS.EF.ui.components.backend.datePicker</td><td>LargeDev</td><td style='white-space: nowrap;'>02-Feb-16 12:32</td><td>AdrianM2</td></tr></table>
 ]]></Description>
 <Super>EF.ui.components.textInput,EF.ui.components.frontend.inputElement</Super>
-<TimeChanged>64251,52056.666623</TimeChanged>
+<TimeChanged>64254,63064.303633</TimeChanged>
 <TimeCreated>63384,38215.518113</TimeCreated>
 
 <Parameter name="typeAttribute">
@@ -5655,6 +5686,9 @@ we need to refactor the frontend buttons to make them callable from class method
 <Value name="12">
 <Value>maxCharacters</Value>
 </Value>
+<Value name="13">
+<Value>nameOfControllerListClass</Value>
+</Value>
 </Data>
 </Storage>
 </Class>
@@ -5671,7 +5705,7 @@ we need to refactor the frontend buttons to make them callable from class method
 ;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>EF.ui.components.backend.datePicker.CLS/EV.3</td><td>CLS.EF.ui.components.backend.datePicker</td><td>LargeDev</td><td style='white-space: nowrap;'>02-Feb-16 12:32</td><td>AdrianM2</td></tr></table>
 ]]></Description>
 <Super>EF.ui.components.textInput,EF.ui.components.frontend.inputElement</Super>
-<TimeChanged>64251,51445.703096</TimeChanged>
+<TimeChanged>64254,63064.344445</TimeChanged>
 <TimeCreated>63384,38215.518113</TimeCreated>
 
 <Parameter name="typeAttribute">
@@ -5794,6 +5828,9 @@ we need to refactor the frontend buttons to make them callable from class method
 <Value name="12">
 <Value>maxCharacters</Value>
 </Value>
+<Value name="13">
+<Value>nameOfControllerListClass</Value>
+</Value>
 </Data>
 </Storage>
 </Class>
@@ -5822,7 +5859,7 @@ we need to refactor the frontend buttons to make them callable from class method
 
 <Class name="EF.ui.components.frontend.dropdown">
 <Super>EF.ui.components.listInput,EF.ui.components.frontend.inputElement</Super>
-<TimeChanged>64254,32334.646673</TimeChanged>
+<TimeChanged>64254,63064.481569</TimeChanged>
 <TimeCreated>63355,56609.363142</TimeCreated>
 
 <Property name="isPersistent">
@@ -6020,6 +6057,9 @@ we need to refactor the frontend buttons to make them callable from class method
 <Value name="13">
 <Value>maxCharacters</Value>
 </Value>
+<Value name="14">
+<Value>nameOfControllerListClass</Value>
+</Value>
 </Data>
 </Storage>
 </Class>
@@ -6085,7 +6125,7 @@ we need to refactor the frontend buttons to make them callable from class method
 
 <Class name="EF.ui.components.frontend.fileUpload">
 <Super>EF.ui.components.textInput,EF.ui.components.frontend.inputElement</Super>
-<TimeChanged>64232,38986.675695</TimeChanged>
+<TimeChanged>64254,63064.476705</TimeChanged>
 <TimeCreated>63357,57620.613738</TimeCreated>
 
 <Method name="getDefaultClasses">
@@ -6149,6 +6189,9 @@ we need to refactor the frontend buttons to make them callable from class method
 </Value>
 <Value name="12">
 <Value>maxCharacters</Value>
+</Value>
+<Value name="13">
+<Value>nameOfControllerListClass</Value>
 </Value>
 </Data>
 </Storage>
@@ -7137,7 +7180,7 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 
 <Class name="EF.ui.components.frontend.radioGroup">
 <Super>EF.ui.components.listInput,EF.ui.components.frontend.inputElement</Super>
-<TimeChanged>64254,32155.543792</TimeChanged>
+<TimeChanged>64254,63064.642158</TimeChanged>
 <TimeCreated>63356,39686.205586</TimeCreated>
 
 <Method name="getDefaultClasses">
@@ -7259,6 +7302,9 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 <Value name="8">
 <Value>prowebItemID</Value>
 </Value>
+<Value name="9">
+<Value>nameOfControllerListClass</Value>
+</Value>
 </Data>
 </Storage>
 </Class>
@@ -7266,7 +7312,7 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 
 <Class name="EF.ui.components.frontend.textArea">
 <Super>EF.ui.components.textInput,EF.ui.components.frontend.inputElement</Super>
-<TimeChanged>64246,57593.592991</TimeChanged>
+<TimeChanged>64254,63064.641515</TimeChanged>
 <TimeCreated>63357,57620.613738</TimeCreated>
 
 <Parameter name="html5Validation">
@@ -7357,6 +7403,9 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 <Value name="12">
 <Value>maxCharacters</Value>
 </Value>
+<Value name="13">
+<Value>nameOfControllerListClass</Value>
+</Value>
 </Data>
 </Storage>
 </Class>
@@ -7399,7 +7448,7 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 
 <Class name="EF.ui.components.frontend.textInput">
 <Super>EF.ui.components.textInput,EF.ui.components.frontend.inputElement</Super>
-<TimeChanged>64253,51191.098683</TimeChanged>
+<TimeChanged>64254,63064.642539</TimeChanged>
 <TimeCreated>63357,57620.613738</TimeCreated>
 
 <Parameter name="typeAttribute">
@@ -7533,6 +7582,9 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 </Value>
 <Value name="13">
 <Value>maxCharacters</Value>
+</Value>
+<Value name="14">
+<Value>nameOfControllerListClass</Value>
 </Value>
 </Data>
 </Storage>
@@ -8819,9 +8871,7 @@ function changeLang(newLangID) {
 	
 	do ##class(sc.methods).updateBackendVariablesFromPageID(pageID)
 	
-	if ##class(sc.methods).isUsingProweb2() {
-		do ##class(sc.proweb2methods).savePassedInDesiredPositionToSession()
-	}
+	do ##class(sc.proweb2methods).savePassedInDesiredPositionToSession()
 	set groupID=##class(sc.objData).getParentID(pageID)
 	
 	// switch to the org data to enable edit when having multi-stage workflow
@@ -9434,7 +9484,7 @@ function loadItem(itemNameID) {
 									<textarea name="txtPrompt" class="black10px" style="width: 292px; height: 40px; padding-left: 4px; padding-top: 4px;">#(..encodeHTMLContentForTinyMCETextarea(prompt))#</textarea>
 								</td><td valign="top">
 									<script language="cache" runat="server">
-										set allowHtmlEditing = '##class(sc.methods).isUsingProweb2()
+										set allowHtmlEditing = 0
 									</script>
 									<csp:if condition=(allowHtmlEditing)>
 										<csp:if condition=((itemNameID="NEW")!(itemNameID="CREATE"))>
@@ -12356,9 +12406,7 @@ function saveSameAs(categoryID) {
 				&SQL(UPDATE sc_xModules.objCODitem SET displayOrder = :lastPos + 1 WHERE ID = :dataID)
 			}
 		} else {
-			if ##class(sc.methods).isUsingProweb2() {
-				do ##class(sc.proweb2methods).moveNewElementToDesiredPosition(dataID)				
-			}
+			do ##class(sc.proweb2methods).moveNewElementToDesiredPosition(dataID)				
 		}
 		
 
@@ -13802,9 +13850,7 @@ function saveSameAs(categoryID) {
 	}
 	set %session.Data("dataID")=dataID
 	
-	if ##class(sc.methods).isUsingProweb2() {
-		do ##class(sc.proweb2methods).savePassedInDesiredPositionToSession()
-	}
+	do ##class(sc.proweb2methods).savePassedInDesiredPositionToSession()
 	
 	set templateURL=%request.Get("templateURL")	
 	if templateURL="" set templateURL=%session.Get("templateURL")
@@ -14860,9 +14906,7 @@ function popup(type) {
 				&SQL(UPDATE sc_xModules.objFileUpload SET displayOrder = :lastPos + 1 WHERE ID = :dataID)
 			}
 		} else {
-			if ##class(sc.methods).isUsingProweb2() {
-				do ##class(sc.proweb2methods).moveNewElementToDesiredPosition(dataID)	
-			}
+			do ##class(sc.proweb2methods).moveNewElementToDesiredPosition(dataID)	
 		}
 	} else {  
 		// existing objData
@@ -14961,9 +15005,7 @@ function popup(type) {
 	if dataID="" set dataID=%session.Get("dataID")
 	set %session.Data("dataID")=dataID
 	
-	if ##class(sc.methods).isUsingProweb2() {
-		do ##class(sc.proweb2methods).savePassedInDesiredPositionToSession()
-	}
+	do ##class(sc.proweb2methods).savePassedInDesiredPositionToSession()
 	
 	set orgDataID=%request.Get("orgDataID") // used when creating a new version of a data item
 	if orgDataID="" set orgDataID=%session.Get("orgDataID")
@@ -15511,9 +15553,7 @@ function cancelUpdate() {
 		 set comments="created"
 		 &SQL(INSERT INTO sc.objAuditTrail (description,objData,objUser) VALUES (:comments,:dataID,:userID))
 			
-		if ##class(sc.methods).isUsingProweb2() {
-	    	 do ##class(sc.proweb2methods).moveNewElementToDesiredPosition(dataID)	
-		}
+    	 do ##class(sc.proweb2methods).moveNewElementToDesiredPosition(dataID)	
 		 
 	} else {
 		// open existing
@@ -15630,9 +15670,7 @@ function cancelUpdate() {
 <CSP name="backEnd/proweb/formDivider.csp" application="/largedevsrc/" default="1"><![CDATA[
 <csp:class encoded="1" private="1">
 <script language="CACHE" method="OnPreHTTPafter" arguments="" returntype="%Boolean">
-	if ##class(sc.methods).isUsingProweb2() {
-		do ##class(sc.proweb2methods).savePassedInDesiredPositionToSession()
-	}
+	do ##class(sc.proweb2methods).savePassedInDesiredPositionToSession()
 	set dataID = ##class(sc.xModules.objFormDivider).add(%request.Get("parent"),%request.Get("position"))
 	do ##class(sc.proweb2methods).moveNewElementToDesiredPosition(dataID)
 	set %response.Redirect="../../proweb/frontend/start.csp?mode=edit&version=current&pageID="_$G(%session.Data("pageID"))			
@@ -15869,9 +15907,7 @@ function cancelUpdate() {
 	kill %session.Data("moxieDataID")
 	kill %session.Data("isCOD")
 	
-	if ##class(sc.methods).isUsingProweb2() {
-		do ##class(sc.proweb2methods).savePassedInDesiredPositionToSession()
-	}
+	do ##class(sc.proweb2methods).savePassedInDesiredPositionToSession()
 	&SQL(SELECT layoutObjTemplate->styleSource INTO :styleSource FROM setup.objEvent WHERE ID = :xEventID)
 	
 	set dataID=%request.Get("dataID")
@@ -16565,9 +16601,8 @@ function updateAlts(codPromptID) {
 	}
 
 	do objData.%Close()	
-	if ##class(sc.methods).isUsingProweb2() {
-		do ##class(sc.proweb2methods).moveNewElementToDesiredPosition(dataID)
-	}	
+	do ##class(sc.proweb2methods).moveNewElementToDesiredPosition(dataID)
+
 	// kill all category links and save
 	// - do this in method so it can compile without class
 	do ##class(links.lnkEventCategoryData).deleteAllForOne(dataID)
@@ -16695,13 +16730,10 @@ function updateAlts(codPromptID) {
 	set pageControllerID=%request.Get("prowebPageControllerID")
 	
 	set ok=1
-	//try {
-		set pageController=##class(EF.pageController.page).open(pageControllerID,contextData)
-	//} catch {
-	//	throw ##class(shared.exceptions.generalException).%New("Failed to open the frontend page controller when saving page")
-	//}
+	set pageController=##class(EF.pageController.page).open(pageControllerID,contextData)
 	
-	set backforward=##class(setup.objPageNav).goWhere("codFormSave.csp", , contextData.tempPersonID, %request.Get("pageID")) 
+	set pageNavproceedKey = %request.Get("pageNavproceedKey") 
+	set backforward=##class(setup.objPageNav).goWhere(pageNavproceedKey, , contextData.tempPersonID, %request.Get("pageID")) 
 	set redirectURL = $Piece(backforward,"|",2)
 	
 
@@ -16750,10 +16782,27 @@ function updateAlts(codPromptID) {
 		set redirectURL = ##class(EF.htmlGenerator).addParameterToURL("t4registration.csp", "prowebPageControllerID",pageControllerID) 
 		set redirectURL = ##class(EF.htmlGenerator).addParameterToURL(redirectURL, "pageID", %request.Get("pageID"))
 	}
-	s ^xfg("zredirect")=redirectURL
 	set %response.Redirect=redirectURL
 	quit 0
 </script>
+
+]]></CSP>
+
+
+<CSP name="frontEnd/reg/registration.csp" application="/largedevsrc/" default="1"><![CDATA[
+<csp:class super="EF.pages.frontend.baseProweb">
+<csp:parameter name="showRegistrationProgressBar" value="1">
+<csp:parameter name="pageNavProceedKey" value="codFormSave.csp">
+
+<script language="cache" runat="server">
+	Do ##super() 
+</script>
+
+<csp:section name="PageContent">
+   	<div class="row ef-proweb-reorderable" data-ef-reorderable-save-url="#(..encodeForHTMLAttribute(..Link("../../frontend/reg/reorderProwebElements.csp")))#" >
+		<ef-pc-element prowebcomponentname="Main List" componenttype="listWithQuestionsRegistration" >
+	</div>
+</csp:section>
 
 ]]></CSP>
 
@@ -16774,29 +16823,6 @@ function updateAlts(codPromptID) {
 ]]></CSP>
 
 
-<CSP name="frontEnd/reg/t4Registration.csp" application="/largedevsrc/" default="1"><![CDATA[
-<csp:class super="EF.pages.frontend.baseProweb">
-<csp:parameter name="efPageName" value="tregistration.csp">
-<csp:parameter name="showRegistrationProgressBar" value="1">
-
-<script language="cache" runat="server">
-	Do ##super() 
-</script>
-
-
-<csp:section name="PageContent">
-	
-	
-	   	<div class="row ef-proweb-reorderable" data-ef-reorderable-save-url="#(..encodeForHTMLAttribute(..Link("../../frontend/reg/reorderProwebElements.csp")))#" >
-			<ef-pc-element prowebcomponentname="Main List" componenttype="listWithQuestionsRegistration" >
-		</div>
-			
-	
-</csp:section>
-
-]]></CSP>
-
-
 <CSP name="frontEnd/reg/tRegistration.csp" application="/largedevsrc/" default="1"><![CDATA[
 <script language="cache" runat="server">w ##class(shared.pageMethods).outputFrontendHeader()</script>
 <head>
@@ -16806,15 +16832,6 @@ function updateAlts(codPromptID) {
 </head>
 <body class="bodyBackground">
 <script language="CACHE" method="OnPreHTTPafter" arguments="" returntype="%Boolean">
-	if ##class(sc.methods).isUsingProweb2() {
-		set pageID = $G(%session.Data("pageID")) 
-		if 'pageID {
-			throw ##class(shared.exceptions.generalException).%New("No pageID passed in to tRegsitration.csp")
-		}
-		set %response.ServerSideRedirect="t4Registration.csp?pageID="_pageID
-		return 0
-	}
-
 	set sessionID=%session.SessionId
 	set mode=%request.Get("mode")
 	if mode="" set mode=%session.Get("mode")
@@ -20644,7 +20661,7 @@ The basic frontend default stuff</Description>
 <Abstract>1</Abstract>
 <ClassType/>
 <ProcedureBlock>1</ProcedureBlock>
-<TimeChanged>64251,42234.108728</TimeChanged>
+<TimeChanged>64254,53724.564171</TimeChanged>
 <TimeCreated>63046,56108.531536</TimeCreated>
 
 <Method name="outputDynamicCSS">
@@ -21072,10 +21089,12 @@ The basic frontend default stuff</Description>
 			.ef-table-header {
 				background-color: #(##class(layout.eventColorMethods).getWebsiteColor1(eventID))#;
 				color: #(##class(layout.eventColorMethods).getMenuTextColor(eventID))#;
-				 
 			}
 
-			.ef-push-button-primary,
+			.ef-push-button {
+				font-family: #(..getFontFamilyOtherText(eventID))#;	
+			}
+			
 			.ef-panel-heading {
 				#(..getFontCSS(eventID,"headings"))#;
 			}
@@ -21125,7 +21144,7 @@ The basic frontend default stuff</Description>
 <Abstract>1</Abstract>
 <ClassType/>
 <ProcedureBlock>1</ProcedureBlock>
-<TimeChanged>64253,54904.818669</TimeChanged>
+<TimeChanged>64257,39812.299891</TimeChanged>
 <TimeCreated>61075,71223.195943</TimeCreated>
 
 <Method name="reloadAll">
@@ -22022,12 +22041,6 @@ Can website colors be used for this event?</Description>
 <Implementation><![CDATA[
 	set templateID = +(##class(layout.objTemplate).getLayoutForEvent(eventID))
 	
-	/*
-	if ##class(layout.objTemplate).isUsingProweb2(templateID) {
-		return 1
-	}
-	*/
-	
 	if ..isThisDefaultDesign(templateID) {
 		return 1
 	}
@@ -22334,7 +22347,7 @@ Looks for "style.css" file to update "templateCSSFile" with</Description>
 <ClassType>persistent</ClassType>
 <ProcedureBlock>1</ProcedureBlock>
 <Super>%Library.Persistent,shared.timeStamp</Super>
-<TimeChanged>64253,59030.857787</TimeChanged>
+<TimeChanged>64257,38634.000187</TimeChanged>
 <TimeCreated>60782,60196.270659</TimeCreated>
 <Inheritance>right</Inheritance>
 
@@ -23076,7 +23089,7 @@ outputs each section of code doing the banner, menu and footer when needed</Desc
 		if to=before set okToWrite=0   // stop writing if the item we've got to is the one we want to stop at
 		if okToWrite	{
 			if before="" {
-				if ##class(sc.methods).isUsingProweb2() {
+				if ..useProweb2(xEventID,%request.PageName) { 
 					do ##class(layout.cssDefaultMethods).outputComponentCSS()
 					
 					&html<
@@ -23183,7 +23196,7 @@ outputs each section of code doing the banner, menu and footer when needed</Desc
 			}
 			if before="[[ef_banner]]",'##class(eCom.tempPurchase).isBackendBooking(%session.SessionId),'isSurvey {
 				//do banner
-				if ##class(sc.methods).isUsingProweb2() {
+				if ..useProweb2(xEventID,%request.PageName) { 
 					set parentListElement = pageController.getElementByIdentifier("banner page")
 					write !,"<div class=""ef-banner-section"">"
 					do parentListElement.renderElements()
@@ -23260,7 +23273,7 @@ outputs each section of code doing the banner, menu and footer when needed</Desc
 			
 			if before="[[ef_menu]]",'##class(eCom.tempPurchase).isBackendBooking(%session.SessionId),'isSurvey {
 				//do menu
-				if ##class(sc.methods).isUsingProweb2() {
+				if ..useProweb2(xEventID,%request.PageName) { 
 					set parentListElement = pageController.getElementByIdentifier("navigation bar page")
 					write !,"<div class=""ef-navigation-section"">"
 					do parentListElement.renderElements()
@@ -23306,7 +23319,7 @@ outputs each section of code doing the banner, menu and footer when needed</Desc
 				}
 			}
 			if before="[[ef_right]]",'##class(eCom.tempPurchase).isBackendBooking(%session.SessionId),'isSurvey {
-				if ##class(sc.methods).isUsingProweb2() {
+				if ..useProweb2(xEventID,%request.PageName) { 
 					set parentListElement = pageController.getElementByIdentifier("sponsor page")
 					write !,"<div class=""ef-sponsors-section"">"
 					do parentListElement.renderElements()
@@ -23344,7 +23357,7 @@ outputs each section of code doing the banner, menu and footer when needed</Desc
 			}
 			if before="[[ef_footer]]",'##class(eCom.tempPurchase).isBackendBooking(%session.SessionId),'isSurvey {
 				//do footer
-				if ##class(sc.methods).isUsingProweb2() {
+				if ..useProweb2(xEventID,%request.PageName) { 
 					set parentListElement = pageController.getElementByIdentifier("footer page")
 					write !,"<div class=""ef-footer-section"">"
 					do parentListElement.renderElements()
@@ -23719,7 +23732,7 @@ Returns true if the template is custom made</Description>
 ]]></Implementation>
 </Method>
 
-<Method name="isUsingProweb2">
+<Method name="isTemplateUsingProweb2">
 <ClassMethod>1</ClassMethod>
 <FormalSpec>templateID:%Integer</FormalSpec>
 <ReturnType>%Boolean</ReturnType>
@@ -23729,6 +23742,19 @@ Returns true if the template is custom made</Description>
 		throw ##class(shared.exceptions.generalException).%New("Invalid templateID: "_templateID)
 	}
 	return template.isUsingProweb2
+]]></Implementation>
+</Method>
+
+<Method name="useProweb2">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>eventID:%Integer,pageName:%String</FormalSpec>
+<ReturnType>%Boolean</ReturnType>
+<Implementation><![CDATA[
+	if (##class(setup.objEvent).isEventUsingProweb2(eventID)) && (##class(sc.methods).isPageConvertedToProweb2(pageName)) {
+		return 1
+	} else {
+		return 0
+	}
 ]]></Implementation>
 </Method>
 
@@ -23827,7 +23853,7 @@ Returns true if the template is custom made</Description>
 </Class>
 
 
-<Project name="proweb 2" LastModified="2016-12-01 16:07:28.051981" Target="largedevsrc/EF.pages.frontend.baseProweb.cls" TargetType="3">
+<Project name="proweb 2" LastModified="2016-12-05 11:01:16.012772" Target="largedevsrc/backEnd/proweb/codQuestionDetails.csp" TargetType="3">
   <Items>
     <ProjectItem name="EF.contextDataRegistration" type="CLS"></ProjectItem>
     <ProjectItem name="EF.contextDataRegistrationMock" type="CLS"></ProjectItem>
@@ -23957,12 +23983,20 @@ Returns true if the template is custom made</Description>
     <ProjectItem name="largedevsrc/backEnd/proweb/updateLabelText.csp" type="CSP"></ProjectItem>
     <ProjectItem name="largedevsrc/frontEnd/reg/pageControllerStandardSave.csp" type="CSP"></ProjectItem>
     <ProjectItem name="largedevsrc/frontEnd/reg/reorderProwebElements.csp" type="CSP"></ProjectItem>
-    <ProjectItem name="largedevsrc/frontEnd/reg/t4Registration.csp" type="CSP"></ProjectItem>
     <ProjectItem name="largedevsrc/frontEnd/reg/tRegistration.csp" type="CSP"></ProjectItem>
+    <ProjectItem name="largedevsrc/media/templates/ALL_CLIENTS/EF_theme_standard_design-v2-04/index.html" type="CSP"></ProjectItem>
+    <ProjectItem name="largedevsrc/media/templates/ALL_CLIENTS/EF_theme_standard_design-v2-04/style.LESS" type="CSP"></ProjectItem>
+    <ProjectItem name="largedevsrc/media/templates/ALL_CLIENTS/EF_theme_standard_design-v2-07/index.html" type="CSP"></ProjectItem>
+    <ProjectItem name="largedevsrc/media/templates/ALL_CLIENTS/EF_theme_standard_design-v2-07/style.LESS" type="CSP"></ProjectItem>
     <ProjectItem name="largedevsrc/media/templates/ALL_CLIENTS/EF_theme_standard_design-v2-08/index.html" type="CSP"></ProjectItem>
+    <ProjectItem name="largedevsrc/media/templates/ALL_CLIENTS/EF_theme_standard_design-v2-08/style.LESS" type="CSP"></ProjectItem>
+    <ProjectItem name="largedevsrc/media/templates/ALL_CLIENTS/EF_theme_standard_design-v2-09/index.html" type="CSP"></ProjectItem>
+    <ProjectItem name="largedevsrc/media/templates/ALL_CLIENTS/EF_theme_standard_design-v2-21/index.html" type="CSP"></ProjectItem>
+    <ProjectItem name="largedevsrc/media/templates/ALL_CLIENTS/EF_theme_standard_design-v2-21/style.LESS" type="CSP"></ProjectItem>
     <ProjectItem name="largedevsrc/system/eventsForceRules.csr" type="CSP"></ProjectItem>
     <ProjectItem name="layout.cssDefaultMethods" type="CLS"></ProjectItem>
     <ProjectItem name="layout.cssOverrideMethods" type="CLS"></ProjectItem>
+    <ProjectItem name="layout.methods" type="CLS"></ProjectItem>
     <ProjectItem name="layout.objTemplate" type="CLS"></ProjectItem>
     <ProjectItem name="sc.facade.prowebItem" type="CLS"></ProjectItem>
     <ProjectItem name="sc.facade.prowebItemStorage" type="CLS"></ProjectItem>
@@ -23988,15 +24022,8 @@ Returns true if the template is custom made</Description>
     <ProjectItem name="setup.availabilityCheckerSession" type="CLS"></ProjectItem>
     <ProjectItem name="setup.bookingLevelCounterFrontendSession" type="CLS"></ProjectItem>
     <ProjectItem name="shared.pageMethods" type="CLS"></ProjectItem>
-    <ProjectItem name="layout.methods" type="CLS"></ProjectItem>
-    <ProjectItem name="largedevsrc/media/templates/ALL_CLIENTS/EF_theme_standard_design-v2-04/style.LESS" type="CSP"></ProjectItem>
-    <ProjectItem name="largedevsrc/media/templates/ALL_CLIENTS/EF_theme_standard_design-v2-04/index.html" type="CSP"></ProjectItem>
-    <ProjectItem name="largedevsrc/media/templates/ALL_CLIENTS/EF_theme_standard_design-v2-08/style.LESS" type="CSP"></ProjectItem>
-    <ProjectItem name="largedevsrc/media/templates/ALL_CLIENTS/EF_theme_standard_design-v2-21/style.LESS" type="CSP"></ProjectItem>
-    <ProjectItem name="largedevsrc/media/templates/ALL_CLIENTS/EF_theme_standard_design-v2-21/index.html" type="CSP"></ProjectItem>
-    <ProjectItem name="largedevsrc/media/templates/ALL_CLIENTS/EF_theme_standard_design-v2-09/index.html" type="CSP"></ProjectItem>
-    <ProjectItem name="largedevsrc/media/templates/ALL_CLIENTS/EF_theme_standard_design-v2-07/index.html" type="CSP"></ProjectItem>
-    <ProjectItem name="largedevsrc/media/templates/ALL_CLIENTS/EF_theme_standard_design-v2-07/style.LESS" type="CSP"></ProjectItem>
+    <ProjectItem name="largedevsrc/frontEnd/reg/registration.csp" type="CSP"></ProjectItem>
+    <ProjectItem name="EF.pageController.pagesFrontend.registration" type="CLS"></ProjectItem>
   </Items>
   <BreakPoints>
     <BreakPoint Routine="cspRealEV.frontend.reg.pagecontrollerstandardsave.CLS" Offset="OnPreHTTPafter+28"></BreakPoint>
@@ -24761,24 +24788,8 @@ to make sure group bookers can't see already existing data of attendees</Descrip
 ]]></Description>
 <Abstract>1</Abstract>
 <ProcedureBlock>1</ProcedureBlock>
-<TimeChanged>64250,63394.995395</TimeChanged>
+<TimeChanged>64257,38612.927179</TimeChanged>
 <TimeCreated>61845,54770.681958</TimeCreated>
-
-<Method name="isUsingProweb2">
-<ClassMethod>1</ClassMethod>
-<ReturnType>%Boolean</ReturnType>
-<Implementation><![CDATA[
-	set pageName = %request.PageName
-	
-	set contextData = ##class(EF.contextDataFrontend).createFromFrontendCSPSession()
-	set templateID = ##class(layout.objTemplate).getLayoutForEvent(contextData.eventID)
-	if (##class(layout.objTemplate).isUsingProweb2(templateID)) && (..isPageConvertedToProweb2(pageName)) {
-		return 1
-	} else {
-		return 0	
-	}
-]]></Implementation>
-</Method>
 
 <Method name="isPageConvertedToProweb2">
 <ClassMethod>1</ClassMethod>
@@ -24788,9 +24799,9 @@ to make sure group bookers can't see already existing data of attendees</Descrip
 	set pageName = $ZCVT(pageName, "L")
 	set pageName = $Piece(pageName, ".", 1)
 
-	if pageName = "tregistration" return 1
-	if pageName = "t4registration" return 1
+	if (pageName = "tregistration") ! (pageName = "registration")  return 1
 	
+	/*
 	if pageName = "formdivider" return 1
 	if pageName = "codquestiondetails" return 1
 	if pageName = "codquestiondetails2" return 1
@@ -24802,7 +24813,7 @@ to make sure group bookers can't see already existing data of attendees</Descrip
 	if pageName = "textdetailsmoxie2" return 1
 	if pageName = "regpromptcollectiondetails" return 1
 	if pageName = "regpromptcollectiondetails2" return 1
-
+	*/
 	return 0
 ]]></Implementation>
 </Method>
@@ -27468,17 +27479,17 @@ Creates new list object. Should be done the first time the page is loaded</Descr
 <Description><![CDATA[
 The data type that represents a a page level in the hierachy. 
 <!-- ;vc;
-;vc;    Object: sc.xModules.objPage.CLS/EV.35
+;vc;    Object: sc.xModules.objPage.CLS/EV.37
 ;vc; Component: CLS.sc.xModules.objPage
 ;vc;  Location: LargeDev
-;vc; Date/Time: 16-Nov-16 09:07
+;vc; Date/Time: 02-Dec-16 16:42
 ;vc;      User: FredG
-;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>sc.xModules.objPage.CLS/EV.35</td><td>CLS.sc.xModules.objPage</td><td>LargeDev</td><td style='white-space: nowrap;'>16-Nov-16 09:07</td><td>FredG</td></tr></table>
+;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>sc.xModules.objPage.CLS/EV.37</td><td>CLS.sc.xModules.objPage</td><td>LargeDev</td><td style='white-space: nowrap;'>02-Dec-16 16:42</td><td>FredG</td></tr></table>
 ]]></Description>
 <ClassType>persistent</ClassType>
 <ProcedureBlock>1</ProcedureBlock>
 <Super>sc.objData</Super>
-<TimeChanged>64194,48199</TimeChanged>
+<TimeChanged>64257,37245.616697</TimeChanged>
 <TimeCreated>58926,57261</TimeCreated>
 
 <Parameter name="EXTENTSIZE">
@@ -27651,6 +27662,27 @@ return the static URL for this page if it has been compiled and it is a static p
 	}
 	
 	quit out
+]]></Implementation>
+</Method>
+
+<Method name="getTemplateFilenameForAnyProwebVersion">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>pageID:%Integer</FormalSpec>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	set eventID = ..getEventID(pageID)
+	set prowebTemplateCSPFile = ..getTemplateFile(pageID)
+	
+	if prowebTemplateCSPFile = "" {
+		throw ##class(shared.exceptions.generalSQLException).%New("No template found on database for pageID: "_pageID)	
+	}
+
+	if ##class(setup.objEvent).isEventUsingProweb2(eventID) {
+		return ##class(EF.pages.frontend.baseProweb).lookupTemplateFilenameOldToNew(prowebTemplateCSPFile)
+		
+	} else {
+		return prowebTemplateCSPFile
+	}
 ]]></Implementation>
 </Method>
 
@@ -28612,7 +28644,7 @@ Gets the description without the language modifier</Description>
 <Abstract>1</Abstract>
 <ClassType/>
 <ProcedureBlock>1</ProcedureBlock>
-<TimeChanged>64254,46423.971892</TimeChanged>
+<TimeChanged>64257,33748.498284</TimeChanged>
 <TimeCreated>60747,44410.590792</TimeCreated>
 
 <Method name="prePartOne">
@@ -29133,15 +29165,13 @@ clean the passed in URL to make sure only allow an internal redirection</Descrip
 <Description>
  method to be used to get pageID to make sure it's "clean"</Description>
 <ClassMethod>1</ClassMethod>
-<FormalSpec>fromRequest=1,setIntoSession=1</FormalSpec>
 <ReturnType>%String</ReturnType>
 <Implementation><![CDATA[
-	set pageID=""
-	if ..doesPageHaveAProwebPageID(%request.PageName) {
-		if fromRequest set pageID=+%request.Get("pageID")
-		if 'pageID set pageID=%session.Get("pageID") 
+	set pageID = +%request.Get("pageID")
+	if 'pageID {
+		set pageID=%session.Get("pageID") 
 	}
-	quit pageID
+	return pageID
 ]]></Implementation>
 </Method>
 
@@ -30264,18 +30294,7 @@ sets up the session variables based on the xWorkLangID. If that is not found, we
 <Method name="doesPageHaveAProwebPageID">
 <ClassMethod>1</ClassMethod>
 <FormalSpec>pageName</FormalSpec>
-<Implementation><![CDATA[
-	if ##class(sc.methods).isUsingProweb2() {
-		return 1
-	}
-	
-	set pageName=$ZCVT(pageName,"L")
-	if pageName="start.csp" {
-		return 1
-	} elseif ##class(sc.objTemplate).isPageNameProwebTemplate(pageName) {
-		return 1
-	}
-	return 0
+<Implementation><![CDATA[	return 1
 ]]></Implementation>
 </Method>
 

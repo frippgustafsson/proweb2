@@ -1,0 +1,11 @@
+Steps for converting the home page
+==================================
+1. Copy "registration.csp" to "home.csp"
+1. set the super class to either 'baseProweb' for non-reg pages or to 'registrationProcessProweb' for reg pages
+2. Set showRegistrationProgressBar = 0
+3. remove "pageNavProceedKey"
+4. Set "componenttype" = "list"
+5. Add "home.csp" to ##class(sc.methods).isPageConvertedToProweb2()
+6. Add "lookup in ##class(EF.pages.frontend.baseProweb).lookupTemplateFilenameOldToNew()
+7. Copy "EF.pageController.pagesFrontend.registration" to "EF.pageController.pagesFrontend.home"
+8. 

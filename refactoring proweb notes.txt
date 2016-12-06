@@ -153,7 +153,7 @@ make sure we can't add questions on components that shouldn't allow it (use new 
 review the way we integrate the new CSP page with the old one, wrapper around pageNav?
 ===============================================================================
 
-
+implment the home page
 improve the editor iframe handling
 the items outside the form area jumps when they get the edit panel
 Look at the capitalisation logic

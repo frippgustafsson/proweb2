@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.2 (Build 736U)" ts="2016-12-05 11:04:49">
+<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.2 (Build 736U)" ts="2016-12-06 10:57:54">
 <Class name="EF.contextDataRegistration">
 <Description><![CDATA[
 <!-- ;vc;-
@@ -1273,6 +1273,26 @@ Should be run if any of the sub-classes are deleted</Description>
 <Value>isModalTempData</Value>
 </Value>
 </Data>
+</Storage>
+</Class>
+
+
+<Class name="EF.pageController.pagesFrontend.home">
+<Super>EF.pageController.proweb.page</Super>
+<TimeChanged>64257,52979.865449</TimeChanged>
+<TimeCreated>64176,58073.730326</TimeCreated>
+
+<Method name="loadData">
+</Method>
+
+<Method name="validate">
+</Method>
+
+<Method name="saveData">
+</Method>
+
+<Storage name="Default">
+<Type>%Library.CacheStorage</Type>
 </Storage>
 </Class>
 
@@ -4486,7 +4506,7 @@ this is for version 1 of proweb</Description>
 <Class name="EF.pages.frontend.baseProweb">
 <ProcedureBlock>0</ProcedureBlock>
 <Super>EF.pages.frontend.base</Super>
-<TimeChanged>64257,38253.26774</TimeChanged>
+<TimeChanged>64258,39172.747119</TimeChanged>
 <TimeCreated>64191,31442.531402</TimeCreated>
 
 <Parameter name="ENCODED">
@@ -4793,7 +4813,7 @@ we need to refactor the frontend buttons to make them callable from class method
 <Method name="verifyValidPage">
 <ClassMethod>1</ClassMethod>
 <ReturnType>%Library.Boolean</ReturnType>
-<Implementation><![CDATA[	return ##class(EF.pages.frontend.registrationProcess).verifyValidPage()
+<Implementation><![CDATA[	return 1
 ]]></Implementation>
 </Method>
 
@@ -4832,7 +4852,33 @@ we need to refactor the frontend buttons to make them callable from class method
 		return path_"/"_"registration.csp"	
 	}
 	
+	if fileName = "THOME.CSP" {
+		return path_"/"_"home.csp"	
+	}
+	
 	return oldTemplateFileName
+]]></Implementation>
+</Method>
+</Class>
+
+
+<Class name="EF.pages.frontend.registrationProcessProweb">
+<Super>EF.pages.frontend.baseProweb</Super>
+<TimeChanged>64258,38987.736222</TimeChanged>
+<TimeCreated>64258,38909.998566</TimeCreated>
+
+<Method name="verifyValidPage">
+<ClassMethod>1</ClassMethod>
+<ReturnType>%Library.Boolean</ReturnType>
+<Implementation><![CDATA[
+	if (##class(eCom.tempPurchase).isThereAValidTempPurchaseInSession(%session.SessionId)) ! (%session.Get("mode")="edit") {
+		return 1
+	} else {
+		set hdate=+$ZTS,htime=$P($ZTS,",",2)  
+		set ^xPage(hdate,%session.SessionId,htime,$I(^xPage(hdate,%session.SessionId,htime)))="Redirected to 'registerNew.csp' from 'EF.pages.frontend.registrationProcessProweb' due to invalid tempPurchase"
+	 	set %response.Redirect="registerNew.csp"
+	 	quit 0
+ 	}
 ]]></Implementation>
 </Method>
 </Class>
@@ -16722,6 +16768,24 @@ function updateAlts(codPromptID) {
 ]]></CSP>
 
 
+<CSP name="frontEnd/reg/home.csp" application="/largedevsrc/" default="1"><![CDATA[
+<csp:class super="EF.pages.frontend.baseProweb">
+<csp:parameter name="showRegistrationProgressBar" value="0">
+
+
+<script language="cache" runat="server">
+	Do ##super() 
+</script>
+
+<csp:section name="PageContent">
+   	<div class="row ef-proweb-reorderable" data-ef-reorderable-save-url="#(..encodeForHTMLAttribute(..Link("../../frontend/reg/reorderProwebElements.csp")))#" >
+		<ef-pc-element prowebcomponentname="Main List" componenttype="list" >
+	</div>
+</csp:section>
+
+]]></CSP>
+
+
 <CSP name="frontEnd/reg/pageControllerStandardSave.csp" application="/largedevsrc/" default="1"><![CDATA[
 <csp:class encoded="1" private="1">
 
@@ -16790,7 +16854,7 @@ function updateAlts(codPromptID) {
 
 
 <CSP name="frontEnd/reg/registration.csp" application="/largedevsrc/" default="1"><![CDATA[
-<csp:class super="EF.pages.frontend.baseProweb">
+<csp:class super="EF.pages.frontend.registrationProcessProweb">
 <csp:parameter name="showRegistrationProgressBar" value="1">
 <csp:parameter name="pageNavProceedKey" value="codFormSave.csp">
 
@@ -18446,6 +18510,78 @@ FRRE RULE
 </script>
 </csr:ACTION>
 </csr:RULE>
+]]></CSP>
+
+
+<CSP name="system/proweb/start.csp" application="/largedevsrc/" default="1"><![CDATA[
+<script language="CACHE" method="OnPreHTTPafter" arguments="" returntype="%Boolean">	
+	// enforce public mode in normal cases
+	if %request.Get("honorMode")'="yes",$G(%session.Data("mode"))'="edit" {
+		set %session.Data("mode")="preview"
+		set %session.Data("version")="current"
+	}
+	
+	// accept mode and version changes through URL
+	if %request.Get("mode")'="" set %session.Data("mode")=%request.Get("mode")
+	if %request.Get("version")'="" set %session.Data("version")=%request.Get("version")
+	set %session.Data("memberID")=%request.Get("memberID")
+
+	// force preview mode non logged on users
+	if '$D(%session.Data("password validated")) {
+		set %session.Data("mode")="preview"
+		set %session.Data("version")="current"
+	}	
+
+	// capture the flag that's used when selecting items for re-use
+	set %session.Data("selectItem")=%request.Get("selectItem")
+	
+	set pageID = ##class(shared.pageMethods).getPageID()
+	s x=$I(^xfg)
+	s ^xfg(x,"pgaeID in start.csp")=pageID
+	set CspFileName = ##class(sc.xModules.objPage).getTemplateFilenameForAnyProwebVersion(pageID)
+	
+	s ^xfg(x,"CspFileName")=CspFileName
+	if CspFileName'="" {
+		set URL=CspFileName_"?pageID="_pageID
+		if %session.Get("memberID") set URL=URL_"&memberID="_%session.Get("memberID")_"&surveyID="_%request.Get("surveyID")_"&mode="_%session.Get("mode")_"&version="_%session.Get("version")
+
+		// store the referer in the session to be picked up, stored and killed by logPageHit() in objLog
+		set %session.Data("proweb","referer")=$G(%request.CgiEnvs("HTTP_REFERER"))
+		
+		// go to the static version of the page if we have one
+		if %session.Get("xUserID")="" {
+			if %request.Get("noStatic")'=1 {
+				if ##class(setup.objSetting).getParameter("system","static html") {
+					set tmp=##class(sc.xModules.objPage).getStaticURL(pageID)
+					if tmp'="",tmp'=0 set URL=tmp
+				}
+			}
+		}
+		
+		// add anchorID if we used that to navigate to this page
+		if %session.Get("anchorID")'="" {
+			set URL=URL_"#dataID="_%session.Data("anchorID")
+			kill %session.Data("anchorID")
+		}
+		
+		// goto page
+		// add all passed in params
+		set URL=URL_"&"_##class(shared.pageMethods).requestDataToParams("pageID")  // exclude pageID as added just above
+		do ##class(shared.pageMethodsFrontend).setRedirection(URL)
+		quit 0
+	} else {
+		quit 1
+	}
+</script>
+<html>
+<body>
+<h3>No CspFileName Found</h3>
+<br>
+<font color="#FFFFFF">request pageID=#(%request.Get("pageID"))#
+<br>
+session pageID=#(%session.Get("pageID"))#
+</font></body>
+</html>
 ]]></CSP>
 
 
@@ -23853,12 +23989,14 @@ Returns true if the template is custom made</Description>
 </Class>
 
 
-<Project name="proweb 2" LastModified="2016-12-05 11:01:16.012772" Target="largedevsrc/backEnd/proweb/codQuestionDetails.csp" TargetType="3">
+<Project name="proweb 2" LastModified="2016-12-06 10:57:50.221344" Target="largedevsrc/backEnd/home/login.csp" TargetType="3">
   <Items>
     <ProjectItem name="EF.contextDataRegistration" type="CLS"></ProjectItem>
     <ProjectItem name="EF.contextDataRegistrationMock" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.containerElement" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.element" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.pageController.pagesFrontend.home" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.pageController.pagesFrontend.registration" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.pagesFrontend.t4Registration" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.proweb.buttonAddGuest" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.proweb.buttonDeleteGuest" type="CLS"></ProjectItem>
@@ -23981,7 +24119,9 @@ Returns true if the template is custom made</Description>
     <ProjectItem name="largedevsrc/backEnd/proweb/textDetailsMoxie.csp" type="CSP"></ProjectItem>
     <ProjectItem name="largedevsrc/backEnd/proweb/textDetailsMoxie2.csp" type="CSP"></ProjectItem>
     <ProjectItem name="largedevsrc/backEnd/proweb/updateLabelText.csp" type="CSP"></ProjectItem>
+    <ProjectItem name="largedevsrc/frontEnd/reg/home.csp" type="CSP"></ProjectItem>
     <ProjectItem name="largedevsrc/frontEnd/reg/pageControllerStandardSave.csp" type="CSP"></ProjectItem>
+    <ProjectItem name="largedevsrc/frontEnd/reg/registration.csp" type="CSP"></ProjectItem>
     <ProjectItem name="largedevsrc/frontEnd/reg/reorderProwebElements.csp" type="CSP"></ProjectItem>
     <ProjectItem name="largedevsrc/frontEnd/reg/tRegistration.csp" type="CSP"></ProjectItem>
     <ProjectItem name="largedevsrc/media/templates/ALL_CLIENTS/EF_theme_standard_design-v2-04/index.html" type="CSP"></ProjectItem>
@@ -23994,6 +24134,7 @@ Returns true if the template is custom made</Description>
     <ProjectItem name="largedevsrc/media/templates/ALL_CLIENTS/EF_theme_standard_design-v2-21/index.html" type="CSP"></ProjectItem>
     <ProjectItem name="largedevsrc/media/templates/ALL_CLIENTS/EF_theme_standard_design-v2-21/style.LESS" type="CSP"></ProjectItem>
     <ProjectItem name="largedevsrc/system/eventsForceRules.csr" type="CSP"></ProjectItem>
+    <ProjectItem name="largedevsrc/system/proweb/start.csp" type="CSP"></ProjectItem>
     <ProjectItem name="layout.cssDefaultMethods" type="CLS"></ProjectItem>
     <ProjectItem name="layout.cssOverrideMethods" type="CLS"></ProjectItem>
     <ProjectItem name="layout.methods" type="CLS"></ProjectItem>
@@ -24022,11 +24163,13 @@ Returns true if the template is custom made</Description>
     <ProjectItem name="setup.availabilityCheckerSession" type="CLS"></ProjectItem>
     <ProjectItem name="setup.bookingLevelCounterFrontendSession" type="CLS"></ProjectItem>
     <ProjectItem name="shared.pageMethods" type="CLS"></ProjectItem>
-    <ProjectItem name="largedevsrc/frontEnd/reg/registration.csp" type="CSP"></ProjectItem>
-    <ProjectItem name="EF.pageController.pagesFrontend.registration" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.pages.frontend.registrationProcessProweb" type="CLS"></ProjectItem>
   </Items>
   <BreakPoints>
     <BreakPoint Routine="cspRealEV.frontend.reg.pagecontrollerstandardsave.CLS" Offset="OnPreHTTPafter+28"></BreakPoint>
+    <BreakPoint Routine="shared.pageMethodsFrontend.CLS" Offset="setRedirectPageFromHomepage+14"></BreakPoint>
+    <BreakPoint Routine="cspRealEV.system.proweb.start.CLS" Offset="OnPreHTTPafter+2"></BreakPoint>
+    <BreakPoint Routine="cspRealEV.system.proweb.start.CLS" Offset="OnPreHTTPafter+23"></BreakPoint>
   </BreakPoints>
 </Project>
 
@@ -24788,7 +24931,7 @@ to make sure group bookers can't see already existing data of attendees</Descrip
 ]]></Description>
 <Abstract>1</Abstract>
 <ProcedureBlock>1</ProcedureBlock>
-<TimeChanged>64257,38612.927179</TimeChanged>
+<TimeChanged>64257,49868.088893</TimeChanged>
 <TimeCreated>61845,54770.681958</TimeCreated>
 
 <Method name="isPageConvertedToProweb2">
@@ -24800,6 +24943,7 @@ to make sure group bookers can't see already existing data of attendees</Descrip
 	set pageName = $Piece(pageName, ".", 1)
 
 	if (pageName = "tregistration") ! (pageName = "registration")  return 1
+	if (pageName = "thome") ! (pageName = "home")  return 1
 	
 	/*
 	if pageName = "formdivider" return 1
@@ -27489,7 +27633,7 @@ The data type that represents a a page level in the hierachy.
 <ClassType>persistent</ClassType>
 <ProcedureBlock>1</ProcedureBlock>
 <Super>sc.objData</Super>
-<TimeChanged>64257,37245.616697</TimeChanged>
+<TimeChanged>64257,52660.752826</TimeChanged>
 <TimeCreated>58926,57261</TimeCreated>
 
 <Parameter name="EXTENTSIZE">
@@ -27672,7 +27816,12 @@ return the static URL for this page if it has been compiled and it is a static p
 <Implementation><![CDATA[
 	set eventID = ..getEventID(pageID)
 	set prowebTemplateCSPFile = ..getTemplateFile(pageID)
-	
+	s x=$I(^xfg)
+	s ^xfg("in getTemplateFilenameForAnyProwebVersion","pageID")=pageID
+	s ^xfg("in getTemplateFilenameForAnyProwebVersion","prowebTemplateCSPFile")=prowebTemplateCSPFile
+	s ^xfg("in getTemplateFilenameForAnyProwebVersion","lookupTemplateFilenameOldToNew")=##class(EF.pages.frontend.baseProweb).lookupTemplateFilenameOldToNew(prowebTemplateCSPFile)
+	s ^xfg("in getTemplateFilenameForAnyProwebVersion","isEventUsingProweb2")=##class(setup.objEvent).isEventUsingProweb2(eventID)
+
 	if prowebTemplateCSPFile = "" {
 		throw ##class(shared.exceptions.generalSQLException).%New("No template found on database for pageID: "_pageID)	
 	}
@@ -28644,7 +28793,7 @@ Gets the description without the language modifier</Description>
 <Abstract>1</Abstract>
 <ClassType/>
 <ProcedureBlock>1</ProcedureBlock>
-<TimeChanged>64257,33748.498284</TimeChanged>
+<TimeChanged>64257,51537.458039</TimeChanged>
 <TimeCreated>60747,44410.590792</TimeCreated>
 
 <Method name="prePartOne">
@@ -28856,6 +29005,7 @@ Gets the description without the language modifier</Description>
 		}
 	}
 	
+	if $G(^xDEBUG) set ^xDEBUGPAGES($I(^xDEBUGPAGES),$ZTS,"end of prePartThree - redirect=")=%response.Redirect
 	quit 1  // continue processing
 ]]></Implementation>
 </Method>

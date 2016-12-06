@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.2 (Build 736U)" ts="2016-12-06 14:39:34">
+<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.2 (Build 736U)" ts="2016-12-06 18:31:27">
 <Class name="EF.contextDataRegistration">
 <Description><![CDATA[
 <!-- ;vc;-
@@ -259,7 +259,7 @@ if website is private, this will be set to the cod.objPerson.ID of that logged i
 ;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>EF.pageController.containerElement.CLS/EV.19</td><td>CLS.EF.pageController.containerElement</td><td>LargeDev</td><td style='white-space: nowrap;'>22-Nov-16 16:08</td><td>MindaugasL</td></tr></table>
 ]]></Description>
 <Super>EF.pageController.element</Super>
-<TimeChanged>64258,39894.866196</TimeChanged>
+<TimeChanged>64258,53469.703434</TimeChanged>
 <TimeCreated>63372,47273.826383</TimeCreated>
 
 <Property name="getContentsMethod">
@@ -366,13 +366,14 @@ This is a list of all the elements that are updated by the processGetContents me
 </Method>
 
 <Method name="addTextInputRange">
-<FormalSpec>identifier:%String,description:%String,value1="",value2="",isReadOnly=0</FormalSpec>
+<FormalSpec>identifier:%String,description:%String,value1="",value2="",isReadOnly=0,fromDescription="is from:",toDescription="To:"</FormalSpec>
 <ReturnType>EF.pageController.inputElements.textInput</ReturnType>
 <Implementation><![CDATA[
 	set element = ##class(EF.pageController.inputElements.textInputRange).addElementToParent($this, identifier, description, "", isReadOnly)
 	set element.uiComponent.containerClasses = "row"
-	set textInputElementFrom = ##class(EF.pageController.inputElements.textInput).addElementToParent(element, identifier_"-value1", description, value1, isReadOnly)
-	set textInputElementTo = ##class(EF.pageController.inputElements.textInput).addElementToParent(element, identifier_"-value2", "To:", value2, isReadOnly)
+	set textInputElementFrom = ##class(EF.pageController.inputElements.textInput).addElementToParent(element, identifier_"-value1", fromDescription, value1, isReadOnly)
+	set textInputElementFrom.uiComponent.label = description_" "_fromDescription
+	set textInputElementTo = ##class(EF.pageController.inputElements.textInput).addElementToParent(element, identifier_"-value2", toDescription, value2, isReadOnly)
 	set textInputElementFrom.uiComponent.containerClasses = textInputElementFrom.uiComponent.containerClasses_" col-sm-6"
 	set textInputElementTo.uiComponent.containerClasses = textInputElementTo.uiComponent.containerClasses_" col-sm-6"
 	set textInputElementFrom.uiComponent.classes = textInputElementFrom.uiComponent.classes_" ef-backend-input-element-short"
@@ -1979,7 +1980,7 @@ Should be run if any of the sub-classes are deleted</Description>
 <Description>
 Should have a one-to-one relationship with sc.objList</Description>
 <Super>EF.pageController.containerElement</Super>
-<TimeChanged>64254,43472.085656</TimeChanged>
+<TimeChanged>64258,65170.320912</TimeChanged>
 <TimeCreated>64231,55587.036042</TimeCreated>
 
 <Property name="prowebListID">
@@ -2333,7 +2334,7 @@ refers to sc.xModules.objList</Description>
 		try {
 			set listID = ..prowebListID
 			&HTML<
-				<div class="row ef-draggable-div ef-form-row-editable ef-empty-list" data-ui-component-type="emptyList" data-proweb-list-id="#(##class(EF.htmlGenerator).encodeForHTMLAttribute(listID))#">Empty List</div>
+				<div class="row ef-draggable-div ef-form-row ef-form-row-editable ef-empty-list" data-ui-component-type="emptyList" data-proweb-list-id="#(##class(EF.htmlGenerator).encodeForHTMLAttribute(listID))#">Empty List</div>
 			>
 		} catch {
 			throw ##class(shared.exceptions.generalException).%New("No listID found for "_..identifier)
@@ -6808,7 +6809,7 @@ eventid</Description>
 
 <Class name="EF.ui.components.frontend.menuBlock">
 <Super>EF.ui.components.frontend.prowebBase</Super>
-<TimeChanged>64250,36574.361088</TimeChanged>
+<TimeChanged>64258,66109.135373</TimeChanged>
 <TimeCreated>64183,38661.128484</TimeCreated>
 
 <Method name="render">
@@ -6820,7 +6821,7 @@ eventid</Description>
 			&html<
 				<div class="ef_proweb_menu_block ef-menu-block #(..rawHTML(..getProwebExtraAttributes()))#">
 					<div class="dropdown visible-xs-block">
-						<button class="btn btn-primary dropdown-toggle ef-menu-block-button" data-toggle="dropdown" type="button">Menu <span class="caret"></span></button>
+						<button class="btn btn-primary dropdown-toggle ef-push-button ef-push-button-primary ef-menu-block-button" data-toggle="dropdown" type="button">Menu <span class="caret"></span></button>
 						<ul class="ef_proweb_menu_ul dropdown-menu ef-menu-block-ul-xs">
 							#[do ..outputListItems()]#
 						</ul>
@@ -20902,7 +20903,7 @@ The basic frontend default stuff</Description>
 <Abstract>1</Abstract>
 <ClassType/>
 <ProcedureBlock>1</ProcedureBlock>
-<TimeChanged>64254,53724.564171</TimeChanged>
+<TimeChanged>64258,66620.55536</TimeChanged>
 <TimeCreated>63046,56108.531536</TimeCreated>
 
 <Method name="outputDynamicCSS">
@@ -21300,7 +21301,7 @@ The basic frontend default stuff</Description>
 <FormalSpec>eventID:%Integer</FormalSpec>
 <Implementation><![CDATA[
 	write !,"<!-- ========= CSS styles defined in Website Appearance ======= -->"
-	&js<
+	&html<
 		<style>
 			body {
 				font-family: #(..getFontFamilyOtherText(eventID))#;
@@ -21327,6 +21328,7 @@ The basic frontend default stuff</Description>
 			.ef-panel-heading,
 			.ef-progress-bar-filled,
 			.ef-form-divider,
+			.ef-menu-block-ul-xs li a, >write "			.open>.dropdown-toggle.btn-primary,"	&html<
 			.ef-table-header {
 				background-color: #(##class(layout.eventColorMethods).getWebsiteColor1(eventID))#;
 				color: #(##class(layout.eventColorMethods).getMenuTextColor(eventID))#;
@@ -28903,7 +28905,7 @@ Gets the description without the language modifier</Description>
 <IncludeCode>EF.common.macros</IncludeCode>
 <ProcedureBlock>1</ProcedureBlock>
 <Super>%Persistent</Super>
-<TimeChanged>64258,52358.501373</TimeChanged>
+<TimeChanged>64258,62586.77991</TimeChanged>
 <TimeCreated>61908,40601.453382</TimeCreated>
 
 <Method name="createEventPages">
@@ -29361,57 +29363,53 @@ Returns 1 if OK otherwise it'll be an error</Description>
 	// if not then this is first time in the page so auto create the defaults
 	if listID	{
 		set URLbit="/"_$ZCVT(^%ZCSPAPPS($ZNSPACE),"L")   // JAW 03MAY2007 - so that it works for no framesets too - should always be absolute (without domain)
-		set tmp="",create=0
-		&SQL(SELECT ID INTO :tmp FROM sc.objData WHERE (parent=:listID AND active=1))
-		if +SQLCODE'=0 set create=1   // no data items exist with the listID as their parent
-		if create	{
-			// get the homepageID
-			set tmp="",homeID=""
-			&SQL(SELECT homePageID INTO :tmp FROM setup.objEventDetails WHERE (objEvent = :xEventID) AND (objLanguage = :xLangID) )
-			if +SQLCODE=0 set homeID=tmp
+		
+		// get the homepageID
+		set tmp="",homeID=""
+		&SQL(SELECT homePageID INTO :tmp FROM setup.objEventDetails WHERE (objEvent = :xEventID) AND (objLanguage = :xLangID) )
+		if +SQLCODE=0 set homeID=tmp
+		
+		// find the group name
+		set groupName="",groupID=""
+		&SQL(SELECT parent INTO :groupID FROM sc_xModules.objPage WHERE ID = :pageID)
+		&SQL(SELECT description INTO :groupName FROM sc_xModules.objGroup WHERE ID = :groupID)
+		
+		if groupName="Menu Pages" {
 			
-			// find the group name
-			set groupName="",groupID=""
-			&SQL(SELECT parent INTO :groupID FROM sc_xModules.objPage WHERE ID = :pageID)
-			&SQL(SELECT description INTO :groupName FROM sc_xModules.objGroup WHERE ID = :groupID)
 			
-			if groupName="Menu Pages" {
-				
-				
-				// get the current menu theme from the active template
-				if ##class(layout.objTemplate).isUsingLegacyTemplate(xEventID) {
-					set themeID=##class(layout.objTheme).getIDfromIntDesc("vertical graduated black/green menu")
-				} else {
-					set themeID=""	
-				}
-				
-				// add new menu block
-				set dataID=##class(sc.xModules.objMenuBlock).add(listID,0,"Auto Menu","","","","","",themeID,"")
-
-				set ok=""
-				// add the home page link
-				if homeID {
-					set menuItemID=##class(layout.objMenuItem).add(dataID,"Home Page",URLbit_"/system/proweb/start.csp?pageID="_homeID,"_self","","","","","")
-				}
-				
-				// add the Register link
-				set menuItemID=##class(layout.objMenuItem).add(dataID,"Register",URLbit_"/frontEnd/reg/registerNew.csp","_self","","","","","")
-				set menuItemID=##class(layout.objMenuItem).add(dataID,"Amend",URLbit_"/frontEnd/reg/registerAmend.csp","_self","","","","","")
-
-				// add the Daily Agenda link
-				set menuItemID=##class(layout.objMenuItem).add(dataID,"Agenda",URLbit_"/frontEnd/reg/dailyAgenda.csp","_self","","","","","")
-
-			
-			} elseif groupName="Abstract Management" {
-				// create the menu for the abstract website
-				set homePageID=##class(setup.objEventSetting).getParameter("abstract management pages","homePageID",xEventID)				
-				set documentPageID=##class(setup.objEventSetting).getParameter("abstract management pages","documentPageID",xEventID)
-				set topicListPageID=##class(setup.objEventSetting).getParameter("abstract management pages","topicListPageID",xEventID)
-
-				set ok=##class(sc.xModules.objImage).createButton(listID,"  Home Page",URLbit_"/system/proweb/start.csp?pageID="_homePageID,"")
-				set ok=##class(sc.xModules.objImage).createButton(listID,"  Submit Abstracts",URLbit_"/system/proweb/start.csp?userType=submitter&pageID="_topicListPageID,"")
-				set ok=##class(sc.xModules.objImage).createButton(listID,"  Review Abstracts",URLbit_"/frontend/reg/absLogin.csp?isReviewer=1","",125)
+			// get the current menu theme from the active template
+			if ##class(layout.objTemplate).isUsingLegacyTemplate(xEventID) {
+				set themeID=##class(layout.objTheme).getIDfromIntDesc("vertical graduated black/green menu")
+			} else {
+				set themeID=""	
 			}
+			
+			// add new menu block
+			set dataID=##class(sc.xModules.objMenuBlock).add(listID,0,"Auto Menu","","","","","",themeID,"")
+
+			set ok=""
+			// add the home page link
+			if homeID {
+				set menuItemID=##class(layout.objMenuItem).add(dataID,"Home Page",URLbit_"/system/proweb/start.csp?pageID="_homeID,"_self","","","","","")
+			}
+			
+			// add the Register link
+			set menuItemID=##class(layout.objMenuItem).add(dataID,"Register",URLbit_"/frontEnd/reg/registerNew.csp","_self","","","","","")
+			set menuItemID=##class(layout.objMenuItem).add(dataID,"Amend",URLbit_"/frontEnd/reg/registerAmend.csp","_self","","","","","")
+
+			// add the Daily Agenda link
+			set menuItemID=##class(layout.objMenuItem).add(dataID,"Agenda",URLbit_"/frontEnd/reg/dailyAgenda.csp","_self","","","","","")
+
+		
+		} elseif groupName="Abstract Management" {
+			// create the menu for the abstract website
+			set homePageID=##class(setup.objEventSetting).getParameter("abstract management pages","homePageID",xEventID)				
+			set documentPageID=##class(setup.objEventSetting).getParameter("abstract management pages","documentPageID",xEventID)
+			set topicListPageID=##class(setup.objEventSetting).getParameter("abstract management pages","topicListPageID",xEventID)
+
+			set ok=##class(sc.xModules.objImage).createButton(listID,"  Home Page",URLbit_"/system/proweb/start.csp?pageID="_homePageID,"")
+			set ok=##class(sc.xModules.objImage).createButton(listID,"  Submit Abstracts",URLbit_"/system/proweb/start.csp?userType=submitter&pageID="_topicListPageID,"")
+			set ok=##class(sc.xModules.objImage).createButton(listID,"  Review Abstracts",URLbit_"/frontend/reg/absLogin.csp?isReviewer=1","",125)
 		}
 	}
 ]]></Implementation>

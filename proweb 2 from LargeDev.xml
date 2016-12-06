@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.2 (Build 736U)" ts="2016-12-06 10:57:54">
+<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.2 (Build 736U)" ts="2016-12-06 14:39:34">
 <Class name="EF.contextDataRegistration">
 <Description><![CDATA[
 <!-- ;vc;-
@@ -259,7 +259,7 @@ if website is private, this will be set to the cod.objPerson.ID of that logged i
 ;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>EF.pageController.containerElement.CLS/EV.19</td><td>CLS.EF.pageController.containerElement</td><td>LargeDev</td><td style='white-space: nowrap;'>22-Nov-16 16:08</td><td>MindaugasL</td></tr></table>
 ]]></Description>
 <Super>EF.pageController.element</Super>
-<TimeChanged>64254,45954.190753</TimeChanged>
+<TimeChanged>64258,39894.866196</TimeChanged>
 <TimeCreated>63372,47273.826383</TimeCreated>
 
 <Property name="getContentsMethod">
@@ -4506,7 +4506,7 @@ this is for version 1 of proweb</Description>
 <Class name="EF.pages.frontend.baseProweb">
 <ProcedureBlock>0</ProcedureBlock>
 <Super>EF.pages.frontend.base</Super>
-<TimeChanged>64258,39172.747119</TimeChanged>
+<TimeChanged>64258,40889.824145</TimeChanged>
 <TimeCreated>64191,31442.531402</TimeCreated>
 
 <Parameter name="ENCODED">
@@ -4777,25 +4777,7 @@ this is for version 1 of proweb</Description>
 </Method>
 
 <Method name="outputButtons">
-<Description>
-we need to refactor the frontend buttons to make them callable from class methods</Description>
 <ClassMethod>1</ClassMethod>
-<Implementation><![CDATA[
-	&html< 
-		<div class="row">
-			<div class="col-sm-6 ef-button-container-left">
-	 >
-	set cancelButton = ##class(EF.ui.components.frontend.buttonLink).createNew("Back", ..Link(..getBackButtonURL()) )
-	do cancelButton.render()
-	
-	&html< 
-		</div>
-		<div class="col-sm-6 ef-button-container-right">
-	>
-	set proceedButton = ##class(EF.ui.components.frontend.buttonSubmit).createNew("Proceed","submit")
-	do proceedButton.render()
-	&html< </div></div> >
-]]></Implementation>
 </Method>
 
 <Method name="getBackButtonURL">
@@ -4864,7 +4846,7 @@ we need to refactor the frontend buttons to make them callable from class method
 
 <Class name="EF.pages.frontend.registrationProcessProweb">
 <Super>EF.pages.frontend.baseProweb</Super>
-<TimeChanged>64258,38987.736222</TimeChanged>
+<TimeChanged>64258,40897.778785</TimeChanged>
 <TimeCreated>64258,38909.998566</TimeCreated>
 
 <Method name="verifyValidPage">
@@ -4879,6 +4861,26 @@ we need to refactor the frontend buttons to make them callable from class method
 	 	set %response.Redirect="registerNew.csp"
 	 	quit 0
  	}
+]]></Implementation>
+</Method>
+
+<Method name="outputButtons">
+<ClassMethod>1</ClassMethod>
+<Implementation><![CDATA[
+	&html< 
+		<div class="row">
+			<div class="col-sm-6 ef-button-container-left">
+	 >
+	set cancelButton = ##class(EF.ui.components.frontend.buttonLink).createNew("Back", ..Link(..getBackButtonURL()) )
+	do cancelButton.render()
+	
+	&html< 
+		</div>
+		<div class="col-sm-6 ef-button-container-right">
+	>
+	set proceedButton = ##class(EF.ui.components.frontend.buttonSubmit).createNew("Proceed","submit")
+	do proceedButton.render()
+	&html< </div></div> >
 ]]></Implementation>
 </Method>
 </Class>
@@ -17431,6 +17433,109 @@ function updateAlts(codPromptID) {
 ]]></CSP>
 
 
+<CSP name="frontEnd/reg/tmenu.csp" application="/largedevsrc/" default="1"><![CDATA[
+<script language="cache" runat="server">w ##class(shared.pageMethods).outputFrontendHeader()</script>
+
+<head>
+<layout:section from="" to="{{ef_header}}">
+<csp:include page="frontendHTTPheader.csp">
+<csp:include page="colourScheme.csp">
+</head>
+<body class="bodyBackground">
+<sc:templatestart>
+<script language="cache" runat="server">
+	do ..OnPageProwebSection()
+</script>
+<csp:section name="ProwebSection">
+	<script language="cache" runat="server">
+		set URLbit="/"_$ZCVT(^%ZCSPAPPS($ZNSPACE),"L")   // so that it works for no framesets too - should always be absolute (without domain)
+
+		set showEFLogo=##class(setup.objSetting).getParameter("system","show eventsforce logo in menu")
+		// might be calling this page from another page - i.e. when using noframeset
+
+	</script>
+
+	<div id="ef_menu_area" class="ef_proweb_menu_block ef-menu-block noPrint">
+		<script language="cache" runat="server">
+			set beforeItems="",afterItems="",beforeRow="",afterRow=""   
+
+			// determine which layout is in use
+			set tmpLayoutTemplateID=##class(layout.objTemplate).getLayoutForEvent(xEventID)
+
+			// special fix for when we have horizontal items - have to stop the "<br>" 
+			if $ZCVT(##class(layout.objTemplate).getIntDesc(tmpLayoutTemplateID),"U")="FRONTENDFRAMESET3.CSP" set afterItems=""
+			if $ZCVT(##class(layout.objTemplate).getIntDesc(tmpLayoutTemplateID),"U")="LAYOUT6" set afterItems=""
+			set isInclude=1  // added this to avoid some special behaviour when isCOD etc.
+			
+			// output the menu twice to accommodate bootstrap's way of doing responsive menues
+			set showRepeatedMenu=0
+			if $G(%session.Data("mode"))'="edit"  {
+				if ##class(layout.objTemplate).hasBootstrapMenu(tmpLayoutTemplateID) {
+					set showRepeatedMenu=1 	
+				}
+			}
+		</script>
+		
+		
+		<csp:if condition=(showRepeatedMenu)>
+			<div class="dropdown visible-xs-block">
+                    <button class="btn btn-primary dropdown-toggle" data-toggle="dropdown" type="button">Menu <span class="caret"></span>
+                    </button>			
+                    <script language="cache" runat="server">
+                    	do ##class(EF.pages.frontend.base).outputProwebListRows("INDEXLIST", $G(%session.Data("pageID")),0,1)
+                    </script>
+			</div>
+		</csp:if>
+		
+		<div class="ef_nav_horizontal hidden-xs" role="nav">	
+			<script language="cache" runat="server">
+		            	do ##class(EF.pages.frontend.base).outputProwebListRows("INDEXLIST", $G(%session.Data("pageID")),0,0)
+		            </script>
+		</div>
+		
+		<script language="cache" runat="server">
+			set isInclude=0
+		</script>
+	</div>
+
+
+<script language="cache" runat="server">
+	// AUTO POUPLATE THE MENU WITH ITEM PRONOIA THINK SHOULD BE THERE
+	// THIS CODE HAS TO BE AFTER THE SC FREE TAG SO THAT THE LIST IS AUTO GENERATED FIRST
+
+	// first get the pageID to get the listID
+	if $G(%session.Data("eventsforce","frontend","xPrefLangID")) set xLangID=%session.Data("eventsforce","frontend","xPrefLangID")
+	set tmp="",listID="",pageID=%session.Data("pageID")
+	&SQL(SELECT ID INTO :tmp FROM sc_xModules.objList WHERE (parent=:pageID) AND (active=1) )
+	if +SQLCODE=0 set listID=tmp
+	// now check if to see if any data items exist with the objList as their parent,
+	// if not then this is first time in the page so auto create the defaults
+
+	if listID	{
+		set URLbit="/"_$ZCVT(^%ZCSPAPPS($ZNSPACE),"L")   // JAW 03MAY2007 - so that it works for no framesets too - should always be absolute (without domain)
+		set tmp="",create=0
+		&SQL(SELECT ID INTO :tmp FROM sc.objData WHERE (parent=:listID AND active=1))
+		if +SQLCODE'=0 set create=1   // no data items exist with the listID as their parent
+		if create	{
+			do ##class(setup.eventCreationMethods).addDefaultMenuItems(pageID,xLangID)		
+			
+			// reload page as now the image items are part of the above free list thingy
+			write "<scr"_"ipt language=JavaSc"_"ript>self.document.location=self.document.location</scr"_"ipt>"
+		}
+	}
+</script>
+<csp:include page="../../frontEnd/reg/socialMediaButtons.csp?option=menu">	
+</csp:section>
+
+<csp:include page="editingFooter.csp">
+
+<sc:templatestop>
+
+</body>
+</html>
+]]></CSP>
+
+
 <CSP name="media/templates/ALL_CLIENTS/EF_theme_standard_design-v2-04/index.html" application="/largedevsrc/" default="1"><![CDATA[
 <link rel="stylesheet" type="text/css" href="../../media/templates/ALL_CLIENTS/EF_theme_standard_design-v2-04/template-styles.css" >
 [[ef_header]]
@@ -23989,7 +24094,7 @@ Returns true if the template is custom made</Description>
 </Class>
 
 
-<Project name="proweb 2" LastModified="2016-12-06 10:57:50.221344" Target="largedevsrc/backEnd/home/login.csp" TargetType="3">
+<Project name="proweb 2" LastModified="2016-12-06 14:39:07.801703" Target="largedevsrc/backEnd/home/login.csp" TargetType="3">
   <Items>
     <ProjectItem name="EF.contextDataRegistration" type="CLS"></ProjectItem>
     <ProjectItem name="EF.contextDataRegistrationMock" type="CLS"></ProjectItem>
@@ -24164,12 +24269,15 @@ Returns true if the template is custom made</Description>
     <ProjectItem name="setup.bookingLevelCounterFrontendSession" type="CLS"></ProjectItem>
     <ProjectItem name="shared.pageMethods" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pages.frontend.registrationProcessProweb" type="CLS"></ProjectItem>
+    <ProjectItem name="largedevsrc/frontEnd/reg/tmenu.csp" type="CSP"></ProjectItem>
+    <ProjectItem name="setup.eventCreationMethods" type="CLS"></ProjectItem>
   </Items>
   <BreakPoints>
     <BreakPoint Routine="cspRealEV.frontend.reg.pagecontrollerstandardsave.CLS" Offset="OnPreHTTPafter+28"></BreakPoint>
     <BreakPoint Routine="shared.pageMethodsFrontend.CLS" Offset="setRedirectPageFromHomepage+14"></BreakPoint>
     <BreakPoint Routine="cspRealEV.system.proweb.start.CLS" Offset="OnPreHTTPafter+2"></BreakPoint>
     <BreakPoint Routine="cspRealEV.system.proweb.start.CLS" Offset="OnPreHTTPafter+23"></BreakPoint>
+    <BreakPoint Routine="setup.eventCreationMethods.CLS" Offset="addDefaultMenuItems+2"></BreakPoint>
   </BreakPoints>
 </Project>
 
@@ -28775,6 +28883,1895 @@ Gets the description without the language modifier</Description>
 	}
 	
 	return count
+]]></Implementation>
+</Method>
+</Class>
+
+
+<Class name="setup.eventCreationMethods">
+<Description><![CDATA[
+<!-- ;vc;-
+;vc;    Object: setup.eventCreationMethods.CLS/EV.110
+;vc; Component: CLS.setup.eventCreationMethods
+;vc;  Location: LargeDev
+;vc; Date/Time: 06-Dec-16 13:33
+;vc;      User: FredG
+;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>setup.eventCreationMethods.CLS/EV.110</td><td>CLS.setup.eventCreationMethods</td><td>LargeDev</td><td style='white-space: nowrap;'>06-Dec-16 13:33</td><td>FredG</td></tr></table>
+]]></Description>
+<Abstract>1</Abstract>
+<ClassType/>
+<IncludeCode>EF.common.macros</IncludeCode>
+<ProcedureBlock>1</ProcedureBlock>
+<Super>%Persistent</Super>
+<TimeChanged>64258,52358.501373</TimeChanged>
+<TimeCreated>61908,40601.453382</TimeCreated>
+
+<Method name="createEventPages">
+<Description>
+create the proweb structure for a new event - groups and pages
+this is a seperate method so that the copyEvent can use the same code
+Returns 1 if OK otherwise it'll be an error</Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec>eventID:%String,newLangID:%String=""</FormalSpec>
+<ProcedureBlock>1</ProcedureBlock>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	if 'eventID quit 0
+	
+	// v 2.9 - no language passed in means that it is creating the root language as opposed to a adding a new language to an existing event
+	set eventLanguage=##class(setup.objEventSetting).getParameter("system","language",eventID)
+	set langID=##class(shared.objLanguage).getLanguageID(eventLanguage)
+	set eventDesc=##class(setup.objEventDetails).getDetails(eventID,langID)
+	
+	if newLangID {
+		set langID=newLangID	
+	}
+	
+	set detailsID=##class(setup.objEventDetails).getDetailsID(eventID,langID)
+	set objEventDetails=##class(setup.objEventDetails).%OpenId(detailsID)
+	if newLangID="" { // don't create groups if adding lingo - v2.9
+		// find root level
+		set rootID=""
+		&SQL(SELECT ID INTO :tmp FROM sc_xModules.objGroup WHERE (parent IS NULL AND active=1))
+		if +SQLCODE=0 set rootID=tmp
+	
+		if rootID="" {
+			// create new root if we don't have one
+			set rootID=##class(setup.objEventDetails).addNewGroup("eventsForce Event Pages",eventID)
+		}
+	
+		// create a new top group for the event
+		set eventGroupID=##class(setup.objEventDetails).addNewGroup(eventDesc,rootID,eventID)
+		if $D(%objlasterror),'%objlasterror quit %objlasterror   // **** ERROR ****
+	
+		// this is a special case - the presenters span events so the group must be at the same level as the eventgroup
+		//  - only need to create once for the namespace
+		set presentersGroupID=##class(sc.xModules.objGroup).findGroupID("Presenter Pages",rootID)
+		if 'presentersGroupID set presentersGroupID=##class(setup.objEventDetails).addNewGroup("Presenter Pages",rootID,eventID)
+	
+		//add sub groups for this event
+		set homePagesGroupID=##class(setup.objEventDetails).addNewGroup("Home Pages",eventGroupID,eventID)
+		set menuPagesGroupID=##class(setup.objEventDetails).addNewGroup("Menu Pages",eventGroupID,eventID)
+		set footerPagesGroupID=##class(setup.objEventDetails).addNewGroup("Footer Pages",eventGroupID,eventID)
+		set itemsGroupID=##class(setup.objEventDetails).addNewGroup("Item Pages",eventGroupID,eventID)
+		set tAndCGroupID=##class(setup.objEventDetails).addNewGroup("Terms and Conditions Pages",eventGroupID,eventID)
+		set venuesGroupID=##class(setup.objEventDetails).addNewGroup("Venue Pages",eventGroupID,eventID)
+		set locationsGroupID=##class(setup.objEventDetails).addNewGroup("Location Pages",eventGroupID,eventID)
+		set cancellationsGroupID=##class(setup.objEventDetails).addNewGroup("Cancellation Pages",eventGroupID,eventID)
+		set moreGroupID=##class(setup.objEventDetails).addNewGroup("More Pages",eventGroupID,eventID)
+		set registrationPagesGroupID=##class(setup.objEventDetails).addNewGroup("Registration Pages",eventGroupID,eventID)
+		set thankYouPagesGroupID=##class(setup.objEventDetails).addNewGroup("Thank You Pages",eventGroupID,eventID)
+		set bannerPagesGroupID=##class(setup.objEventDetails).addNewGroup("Banner Pages",eventGroupID,eventID)
+		set secondaryBannerPagesGroupID=##class(setup.objEventDetails).addNewGroup("Secondary Banner Pages",eventGroupID,eventID)
+		set paymentMethodPagesGroupID=##class(setup.objEventDetails).addNewGroup("Payment Method Instructions",eventGroupID,eventID)
+		do ##class(setup.objEventDetails).addNewGroup("Additional Registration Pages",eventGroupID,eventID)
+		set abstractGroupID=##class(setup.objEventDetails).addNewGroup("Abstract Management",eventGroupID,eventID)
+		set moreGroupID=##class(setup.objEventDetails).addNewGroup("More Abstract Pages",eventGroupID,eventID)
+		set groupBookingsGroupID=##class(setup.objEventDetails).addNewGroup("Group Booking Pages",eventGroupID,eventID)
+		set awardsGroupID=##class(setup.objEventDetails).addNewGroup("Award Pages",eventGroupID,eventID)
+		set hotelGroupID=##class(setup.objEventDetails).addNewGroup("Hotel Booking Pages",eventGroupID,eventID)
+		set tableGroupID=##class(setup.objEventDetails).addNewGroup("Table Booking Pages",eventGroupID,eventID)
+		set chooseDaysGroupID=##class(setup.objEventDetails).addNewGroup("Choose Days Pages",eventGroupID,eventID)
+		set chooseSessionsGroupID=##class(setup.objEventDetails).addNewGroup("Choose Sessions Pages",eventGroupID,eventID)
+		set registerEmailAmendGroupID=##class(setup.objEventDetails).addNewGroup("Register Email Amend Pages",eventGroupID,eventID)
+		set registerEmailNewGroupID=##class(setup.objEventDetails).addNewGroup("Register Email New Pages",eventGroupID,eventID)
+		set basketGroupID=##class(setup.objEventDetails).addNewGroup("Basket Pages",eventGroupID,eventID)
+		set accomChooseDatesGroupID=##class(setup.objEventDetails).addNewGroup("Accom Choose Dates Pages",eventGroupID,eventID)
+		set accomHotelListGroupID=##class(setup.objEventDetails).addNewGroup("Accom Hotel List Pages",eventGroupID,eventID)
+		set accomGuestGroupID=##class(setup.objEventDetails).addNewGroup("Accom Guest Pages",eventGroupID,eventID)
+		set accomEditGroupID=##class(setup.objEventDetails).addNewGroup("Accom Edit Pages",eventGroupID,eventID)
+		set dailyAgendaGridviewGroupID=##class(setup.objEventDetails).addNewGroup("Daily Agenda Gridview Pages",eventGroupID,eventID)
+		set dailyAgendaListviewGroupID=##class(setup.objEventDetails).addNewGroup("Daily Agenda Listview Pages",eventGroupID,eventID)
+		set meetManGroupID=##class(setup.objEventDetails).addNewGroup("Meeting Manager Pages",eventGroupID,eventID)
+		set sendEmailGroupID=##class(setup.objEventDetails).addNewGroup("Send Email Pages",eventGroupID,eventID)
+		set declineGroupID=##class(setup.objEventDetails).addNewGroup("Decline Pages",eventGroupID,eventID)
+		set bookingSummaryGroupID=##class(setup.objEventDetails).addNewGroup("Booking Summary Pages",eventGroupID,eventID)
+		set eventLoginPagesGroupID=##class(setup.objEventDetails).addNewGroup("Event Login Pages",eventGroupID,eventID)
+		set externalEventLoginPagesGroupID=##class(setup.objEventDetails).addNewGroup("External Event Login Pages",eventGroupID,eventID)
+		set requestPasswordGroupID=##class(setup.objEventDetails).addNewGroup("Request Password Pages",eventGroupID,eventID)
+	
+		if $D(%objlasterror),'%objlasterror quit %objlasterror   // **** ERROR ****
+		
+	} else {
+		
+		// pick up the existing groups if adding a lingo	
+		set eventGroupID=##class(sc.methods).getEventGroupID(eventID)
+		&SQL(SELECT ID INTO :homePagesGroupID FROM sc_xModules.objGroup WHERE (parent = :eventGroupID) AND (active=1) AND (description = 'Home Pages'))
+		if +SQLCODE'=0 w 1/0 // ## error creating new language pages - no group found
+		&SQL(SELECT ID INTO :menuPagesGroupID FROM sc_xModules.objGroup WHERE (parent = :eventGroupID) AND (active=1) AND (description = 'Menu Pages'))
+		&SQL(SELECT ID INTO :footerPagesGroupID FROM sc_xModules.objGroup WHERE (parent = :eventGroupID) AND (active=1) AND (description = 'Footer Pages'))
+		&SQL(SELECT ID INTO :itemsGroupID FROM sc_xModules.objGroup WHERE (parent = :eventGroupID) AND (active=1) AND (description = 'Item Pages'))
+		&SQL(SELECT ID INTO :tAndCGroupID FROM sc_xModules.objGroup WHERE (parent = :eventGroupID) AND (active=1) AND (description = 'Terms and Conditions Pages'))
+		&SQL(SELECT ID INTO :venuesGroupID FROM sc_xModules.objGroup WHERE (parent = :eventGroupID) AND (active=1) AND (description = 'Venue Pages'))
+		&SQL(SELECT ID INTO :locationsGroupID FROM sc_xModules.objGroup WHERE (parent = :eventGroupID) AND (active=1) AND (description = 'Location Pages'))
+		&SQL(SELECT ID INTO :cancellationsGroupID FROM sc_xModules.objGroup WHERE (parent = :eventGroupID) AND (active=1) AND (description = 'Cancellation Pages'))
+		&SQL(SELECT ID INTO :moreGroupID FROM sc_xModules.objGroup WHERE (parent = :eventGroupID) AND (active=1) AND (description = 'More Pages'))
+		&SQL(SELECT ID INTO :registrationPagesGroupID FROM sc_xModules.objGroup WHERE (parent = :eventGroupID) AND (active=1) AND (description = 'Registration Pages'))
+		&SQL(SELECT ID INTO :thankYouPagesGroupID FROM sc_xModules.objGroup WHERE (parent = :eventGroupID) AND (active=1) AND (description = 'Thank You Pages'))
+		&SQL(SELECT ID INTO :bannerPagesGroupID FROM sc_xModules.objGroup WHERE (parent = :eventGroupID) AND (active=1) AND (description = 'Banner Pages'))
+		&SQL(SELECT ID INTO :secondaryBannerPagesGroupID FROM sc_xModules.objGroup WHERE (parent = :eventGroupID) AND (active=1) AND (description = 'Secondary Banner Pages'))
+		&SQL(SELECT ID INTO :paymentMethodPagesGroupID FROM sc_xModules.objGroup WHERE (parent = :eventGroupID) AND (active=1) AND (description = 'Payment Method Instructions'))
+		&SQL(SELECT ID INTO :abstractGroupID FROM sc_xModules.objGroup WHERE (parent = :eventGroupID) AND (active=1) AND (description = 'Abstract Management'))
+		&SQL(SELECT ID INTO :groupBookingsGroupID FROM sc_xModules.objGroup WHERE (parent = :eventGroupID) AND (active=1) AND (description = 'Group Booking Pages'))
+		&SQL(SELECT ID INTO :awardsGroupID FROM sc_xModules.objGroup WHERE (parent = :eventGroupID) AND (active=1) AND (description = 'Award Pages'))
+		&SQL(SELECT ID INTO :hotelGroupID FROM sc_xModules.objGroup WHERE (parent = :eventGroupID) AND (active=1) AND (description = 'Hotel Booking Pages'))
+		&SQL(SELECT ID INTO :tableGroupID FROM sc_xModules.objGroup WHERE (parent = :eventGroupID) AND (active=1) AND (description = 'Table Booking Pages'))
+		&SQL(SELECT ID INTO :chooseDaysGroupID FROM sc_xModules.objGroup WHERE (parent = :eventGroupID) AND (active=1) AND (description = 'Choose Days Pages'))
+		&SQL(SELECT ID INTO :chooseSessionsGroupID FROM sc_xModules.objGroup WHERE (parent = :eventGroupID) AND (active=1) AND (description = 'Choose Sessions Pages'))
+		&SQL(SELECT ID INTO :registerEmailAmendGroupID FROM sc_xModules.objGroup WHERE (parent = :eventGroupID) AND (active=1) AND (description = 'Register Email Amend Pages'))
+		&SQL(SELECT ID INTO :registerEmailNewGroupID FROM sc_xModules.objGroup WHERE (parent = :eventGroupID) AND (active=1) AND (description = 'Register Email New Pages'))
+		&SQL(SELECT ID INTO :basketGroupID FROM sc_xModules.objGroup WHERE (parent = :eventGroupID) AND (active=1) AND (description = 'Basket Pages'))
+		&SQL(SELECT ID INTO :accomChooseDatesGroupID FROM sc_xModules.objGroup WHERE (parent = :eventGroupID) AND (active=1) AND (description = 'Accom Choose Dates Pages'))
+		&SQL(SELECT ID INTO :accomHotelListGroupID FROM sc_xModules.objGroup WHERE (parent = :eventGroupID) AND (active=1) AND (description = 'Accom Hotel List Pages'))
+		&SQL(SELECT ID INTO :accomGuestGroupID FROM sc_xModules.objGroup WHERE (parent = :eventGroupID) AND (active=1) AND (description = 'Accom Guest Pages'))
+		&SQL(SELECT ID INTO :accomEditGroupID FROM sc_xModules.objGroup WHERE (parent = :eventGroupID) AND (active=1) AND (description = 'Accom Edit Pages'))
+		&SQL(SELECT ID INTO :dailyAgendaGridviewGroupID FROM sc_xModules.objGroup WHERE (parent = :eventGroupID) AND (active=1) AND (description = 'Daily Agenda Gridview Pages'))
+		&SQL(SELECT ID INTO :dailyAgendaListviewGroupID FROM sc_xModules.objGroup WHERE (parent = :eventGroupID) AND (active=1) AND (description = 'Daily Agenda Listview Pages'))
+		&SQL(SELECT ID INTO :meetManGroupID FROM sc_xModules.objGroup WHERE (parent = :eventGroupID) AND (active=1) AND (description = 'Meeting Manager Pages'))
+		&SQL(SELECT ID INTO :sendEmailGroupID FROM sc_xModules.objGroup WHERE (parent = :eventGroupID) AND (active=1) AND (description = 'Send Email Pages'))
+		&SQL(SELECT ID INTO :declineGroupID FROM sc_xModules.objGroup WHERE (parent = :eventGroupID) AND (active=1) AND (description = 'Decline Pages'))
+		&SQL(SELECT ID INTO :bookingSummaryGroupID FROM sc_xModules.objGroup WHERE (parent = :eventGroupID) AND (active=1) AND (description = 'Booking Summary Pages'))
+		&SQL(SELECT ID INTO :eventLoginPagesGroupID FROM sc_xModules.objGroup WHERE (parent = :eventGroupID) AND (active=1) AND (description = 'Event Login Pages'))
+		&SQL(SELECT ID INTO :externalEventLoginPagesGroupID FROM sc_xModules.objGroup WHERE (parent = :eventGroupID) AND (active=1) AND (description = 'External Event Login Pages'))
+		&SQL(SELECT ID INTO :requestPasswordGroupID FROM sc_xModules.objGroup WHERE (parent = :eventGroupID) AND (active=1) AND (description = 'Request Password Pages'))
+	
+	}
+	
+	set desciptionModifier=""
+	if newLangID set desciptionModifier=" - "_##class(shared.objLanguage).getLanguageDesc(newLangID)
+	
+	//create new proweb pages for home, menu, tandc, and cancellation
+	set objEventDetails.homePageID=##class(setup.objEventDetails).addNewPage("homepages","home page"_desciptionModifier,homePagesGroupID,eventID,langID)
+	set objEventDetails.menuPageID=##class(setup.objEventDetails).addNewPage("menupages","menu page"_desciptionModifier,menuPagesGroupID,eventID,langID)
+	do ..addDefaultMenuItems(objEventDetails.menuPageID, langID)
+	set footerPageID=##class(setup.objEventDetails).addNewPage("footerpages","footer page"_desciptionModifier,footerPagesGroupID,eventID,langID)
+	do ##class(setup.objEventSetting).setParameter("mainpages","footerPageID"_desciptionModifier,footerPageID,eventID)
+	set objEventDetails.tAndCPageID=##class(setup.objEventDetails).addNewPage("tandcpages","T&C page"_desciptionModifier,tAndCGroupID,eventID,langID)
+	set objEventDetails.venuePageID=##class(setup.objEventDetails).addNewPage("venuepages","venue page"_desciptionModifier,venuesGroupID,eventID,langID)
+	set objEventDetails.bannerPageID=##class(setup.objEventDetails).addNewPage("bannerpages","banner page"_desciptionModifier,bannerPagesGroupID,eventID,langID)
+	set secondaryBannerPageID=##class(setup.objEventDetails).addNewPage("secondarybannerpages","secondary banner page"_desciptionModifier,secondaryBannerPagesGroupID,eventID,langID)
+	do ##class(setup.objEventSetting).setParameter("mainpages","secondary banner pageID"_desciptionModifier,secondaryBannerPageID,eventID)
+	set rightPageID=##class(setup.objEventDetails).addNewPage("blank pages","right page"_desciptionModifier,homePagesGroupID,eventID,langID)
+	do ##class(setup.objEventSetting).setParameter("mainpages","rightPageID"_desciptionModifier,rightPageID,eventID)
+	set objEventDetails.cancellationPageID=##class(setup.objEventDetails).addNewPage("cancellationpages","cancellation page"_desciptionModifier,cancellationsGroupID,eventID,langID)
+	set objEventDetails.thankYouPageID=##class(setup.objEventDetails).addNewPage("Thank You Pages","Thank You Page"_desciptionModifier,thankYouPagesGroupID,eventID,langID)
+	
+	set regPageID=""
+	if 'newLangID	{  // only when event is created from scratch
+		// create the delegate reg page
+		set regPageID=##class(setup.objEventDetails).addNewPage("Registration Page","Registration Page"_desciptionModifier,registrationPagesGroupID,eventID,langID)
+		set objEventDetails.registrationPageID=regPageID
+		set eventCategoryID=##class(setup.objEventCategory).getDefaultCategoryID()
+		set eventCategoryDesc=##class(setup.objEventCategory).getDescription(eventCategoryID)
+		set lnkCategoryEventID=##class(setup.lnkCategoryEvent).add(eventID,eventCategoryDesc,regPageID,0,"",langID)
+		do ##class(setup.lnkAttendeeCategoryDetailsEvent).activate(eventID,eventCategoryID)
+		do ##class(setup.lnkAttendeeCategoryDetailsEvent).setDefault(eventID,eventCategoryID)
+	}
+	// deal with multi reg pages
+	if newLangID { // when adding a new language
+		// when adding pages to a new language
+		// loop on all activate attendee types and create a page for each
+		set rs=##class(%ResultSet).%New("%Library.DynamicQuery:SQL")
+		// v3.0.0 - go through all the active English reg pages and copy to new langauge
+		do rs.Prepare("SELECT *,objEventCategory->description As catDesc FROM setup.lnkCategoryEvent WHERE (objEvent=?) AND (langID=1) AND (active=1)")
+		do rs.Execute(eventID)
+		while rs.Next() {
+			// copy the page? not yet - issues with ABI's
+			set oldPageID=rs.Data("pageID")
+			set newPageID=""
+			set newDesc=rs.Data("description")
+			set tmpCategoryID=rs.Data("objEventCategory")
+			// If it is the default convert to the new language
+			if newDesc=rs.Data("catDesc")_" details" {
+				set newDesc=##class(setup.objEventCategory).getDescription(tmpCategoryID,newLangID)
+			}
+			set lnkCategoryEventID=##class(setup.lnkCategoryEvent).add(eventID,rs.Data("catDesc"),newPageID,rs.Data("backendOnly"),"",langID,newDesc)
+		}
+	}
+	
+	if newLangID {	
+		// when adding pages to a new language
+		&SQL(SELECT ID INTO :eventCategoryGroupID FROM sc_xModules.objGroup WHERE (parent = :eventGroupID) AND (active=1) AND (description = 'Category Selection Pages'))	
+	} else {
+		// when creating a new event
+		set eventCategoryGroupID=##class(setup.objEventDetails).addNewGroup("Category Selection Pages",eventGroupID,eventID)
+	}
+	
+	
+	// create the person category selection page - v2.7
+	set eventCategoryPageID=##class(setup.objEventDetails).addNewPage("Category Selection Pages","Category Selection Page"_desciptionModifier,eventCategoryGroupID,eventID,langID)
+	// and store - v2.7
+	do ##class(setup.objEventSetting).setParameter("bookings","SelectPersonCategoryPageID"_desciptionModifier,eventCategoryPageID,eventID)
+	// new pages for group bookings
+	set selectBookingModePageID=##class(setup.objEventDetails).addNewPage("Select Booking Mode Pages","selectBookingMode"_desciptionModifier,groupBookingsGroupID,eventID,langID)
+	do ##class(setup.objEventSetting).setParameter("bookings","selectBookingModePageID"_desciptionModifier,selectBookingModePageID,eventID)
+	set delegateUIDPageID=##class(setup.objEventDetails).addNewPage("Delegate UID Pages","DelegateUID"_desciptionModifier,groupBookingsGroupID,eventID,langID)
+	do ##class(setup.objEventSetting).setParameter("bookings","delegateUIDPageID"_desciptionModifier,delegateUIDPageID,eventID)
+	set bookerPageID=##class(setup.objEventDetails).addNewPage("Booker Pages","Booker Page"_desciptionModifier,groupBookingsGroupID,eventID,langID)
+	do ##class(setup.objEventSetting).setParameter("bookings","bookerRegPageID"_desciptionModifier,bookerPageID,eventID)
+	// table booking pages
+	set tableBookingPageID=##class(setup.objEventDetails).addNewPage("Table Booking Pages","Table Guests Page"_desciptionModifier,tableGroupID,eventID,langID)
+	do ##class(setup.objEventSetting).setParameter("bookings","Table Guests PageID"_desciptionModifier,tableBookingPageID,eventID)
+	// Choose Days pages
+	set chooseDaysPageID=##class(setup.objEventDetails).addNewPage("Choose Days Pages","Choose Days Pages"_desciptionModifier,chooseDaysGroupID,eventID,langID)
+	do ##class(setup.objEventSetting).setParameter("bookings","Choose Days PageID"_desciptionModifier,chooseDaysPageID,eventID)
+	
+	// Choose Sessions pages
+	set chooseSessionsPageID=##class(setup.objEventDetails).addNewPage("Choose Sessions Pages","Choose Sessions Pages"_desciptionModifier,chooseSessionsGroupID,eventID,langID)
+	do ##class(setup.objEventSetting).setParameter("bookings","Choose Sessions PageID"_desciptionModifier,chooseSessionsPageID,eventID)
+	
+	// Register Email Amend pages
+	set registerEmailAmendPageID=##class(setup.objEventDetails).addNewPage("Register Email Amend Pages","Register Email Amend Pages"_desciptionModifier,registerEmailAmendGroupID,eventID,langID)
+	do ##class(setup.objEventSetting).setParameter("bookings","Register Email Amend PageID"_desciptionModifier,registerEmailAmendPageID,eventID)
+	
+	// Register Email New pages
+	set registerEmailNewPageID=##class(setup.objEventDetails).addNewPage("Register Email New Pages","Register Email New Pages"_desciptionModifier,registerEmailNewGroupID,eventID,langID)
+	do ##class(setup.objEventSetting).setParameter("bookings","Register Email New PageID"_desciptionModifier,registerEmailNewPageID,eventID)
+	
+	// Request Password pages
+	set requestPasswordPageID=##class(setup.objEventDetails).addNewPage("Request Password Pages","Request Password Pages"_desciptionModifier,requestPasswordGroupID,eventID,langID)
+	do ##class(setup.objEventSetting).setParameter("bookings","Request Password PageID"_desciptionModifier,requestPasswordPageID,eventID)
+	
+	// Basket New pages
+	set basketPageID=##class(setup.objEventDetails).addNewPage("Basket Pages","Basket Pages"_desciptionModifier,basketGroupID,eventID,langID)
+	do ##class(setup.objEventSetting).setParameter("bookings","Basket PageID"_desciptionModifier,basketPageID,eventID)
+	
+	//Daily Agenda pages
+	set dailyAgendaGridviewPageID=##class(setup.objEventDetails).addNewPage("Daily Agenda Gridview Pages","Daily Agenda Gridview Pages"_desciptionModifier,dailyAgendaGridviewGroupID,eventID,langID)
+	set dailyAgendaListviewPageID=##class(setup.objEventDetails).addNewPage("Daily Agenda Listview Pages","Daily Agenda Listview Pages"_desciptionModifier,dailyAgendaListviewGroupID,eventID,langID)
+	// create abstract pages
+	set documentPageID=##class(setup.objEventDetails).addNewPage("Abstract Document Pages","Abstract Submission Details"_desciptionModifier,abstractGroupID,eventID,langID)
+	set documentTextPageID=##class(setup.objEventDetails).addNewPage("Abstract Document Text Pages","Abstract Submission Content"_desciptionModifier,abstractGroupID,eventID,langID)
+	set documentPreviewPageID=##class(setup.objEventDetails).addNewPage("Abstract Document Preview Pages","Abstract Submission Preview"_desciptionModifier,abstractGroupID,eventID,langID)
+	set topicListPageID=##class(setup.objEventDetails).addNewPage("Abstract Topic List","Abstract Submission Topics"_desciptionModifier,abstractGroupID,eventID,langID)
+	set thankYouPageID=##class(setup.objEventDetails).addNewPage("More Pages","More Pages"_desciptionModifier,abstractGroupID,eventID,langID)
+	set signUpPageID=##class(setup.objEventDetails).addNewPage("Abstracts Sign Up Pages","Abstract Submitter Details"_desciptionModifier,abstractGroupID,eventID,langID)
+	set reviewListPageID=##class(setup.objEventDetails).addNewPage("Abstracts Review List","Abstract Reviews"_desciptionModifier,abstractGroupID,eventID,langID)
+	set absSearchDocPageID=##class(setup.objEventDetails).addNewPage("Abstract Search Document Pages","Abstracts Search"_desciptionModifier,abstractGroupID,eventID,langID)
+	set absSearchDocResultsPageID=##class(setup.objEventDetails).addNewPage("Abstract Search Document Results Pages","Abstracts Search Results"_desciptionModifier,abstractGroupID,eventID,langID)
+	set abstractSubmitterLoginPageID=##class(setup.objEventDetails).addNewPage("Abstract Submitter Login Pages","Abstract Submission Login"_desciptionModifier,abstractGroupID,eventID,langID)
+	set abstractReviewerLoginPageID=##class(setup.objEventDetails).addNewPage("Abstract Reviewer Login Pages","Abstract Reviewer Login"_desciptionModifier,abstractGroupID,eventID,langID)
+	//store their IDs in objEventSettings  
+	do ##class(setup.objEventSetting).setParameter("abstract management pages","documentPageID"_desciptionModifier,documentPageID,eventID)
+	do ##class(setup.objEventSetting).setParameter("abstract management pages","documentTextPageID"_desciptionModifier,documentTextPageID,eventID)
+	do ##class(setup.objEventSetting).setParameter("abstract management pages","documentPreviewPageID"_desciptionModifier,documentPreviewPageID,eventID)
+	do ##class(setup.objEventSetting).setParameter("abstract management pages","topicListPageID"_desciptionModifier,topicListPageID,eventID)
+	do ##class(setup.objEventSetting).setParameter("abstract management pages","thankYouPageID"_desciptionModifier,thankYouPageID,eventID)
+	do ##class(setup.objEventSetting).setParameter("abstract management pages","signUpPageID"_desciptionModifier,signUpPageID,eventID)
+	do ##class(setup.objEventSetting).setParameter("abstract management pages","reviewListPageID"_desciptionModifier,reviewListPageID,eventID)
+	do ##class(setup.objEventSetting).setParameter("abstract management pages","abstractSearchDocumentPageID"_desciptionModifier,absSearchDocPageID,eventID)
+	do ##class(setup.objEventSetting).setParameter("abstract management pages","abstractSearchDocumentResultsPageID"_desciptionModifier,absSearchDocResultsPageID,eventID)
+	do ##class(setup.objEventSetting).setParameter("abstract management pages","abstractSubmitterLoginPageID"_desciptionModifier,abstractSubmitterLoginPageID,eventID)
+	do ##class(setup.objEventSetting).setParameter("abstract management pages","abstractReviewerLoginPageID"_desciptionModifier,abstractReviewerLoginPageID,eventID)
+	
+	// create awards pages
+	set awardClientPageID=##class(setup.objEventDetails).addNewPage("Award Client Pages","Award Client Page"_desciptionModifier,awardsGroupID,eventID,langID)
+	set awardEntryPageID=##class(setup.objEventDetails).addNewPage("Award Entry Pages","Award Entry Page"_desciptionModifier,awardsGroupID,eventID,langID)
+	set catInterestPageID=##class(setup.objEventDetails).addNewPage("Awards Category Interest Pages","Awards Category Interest Page"_desciptionModifier,awardsGroupID,eventID,langID)
+	set summaryPageID=##class(setup.objEventDetails).addNewPage("Awards Summary Pages","Awards Summary Page"_desciptionModifier,awardsGroupID,eventID,langID)
+	set judgeLoginPageID=##class(setup.objEventDetails).addNewPage("Awards Judge Login Pages","Awards Judge Login Page"_desciptionModifier,awardsGroupID,eventID,langID)
+	set judgeEntryListPageID=##class(setup.objEventDetails).addNewPage("Awards Judge Entry List Pages","Awards Judge Entry List Page"_desciptionModifier,awardsGroupID,eventID,langID)
+	set reviewEntryPageID=##class(setup.objEventDetails).addNewPage("Awards Review Entry Pages","Awards Review Entry Page"_desciptionModifier,awardsGroupID,eventID,langID)
+	set judgeScoreListPageID=##class(setup.objEventDetails).addNewPage("Awards Judge Score List Pages","Awards Judge Score List Page"_desciptionModifier,awardsGroupID,eventID,langID)
+	
+	do ##class(setup.objEventSetting).setParameter("awards","awardClientPageID"_desciptionModifier,awardClientPageID,eventID)
+	do ##class(setup.objEventSetting).setParameter("awards","awardEntryPageID"_desciptionModifier,awardEntryPageID,eventID)
+	do ##class(setup.objEventSetting).setParameter("awards","categoryInterestPageID"_desciptionModifier,catInterestPageID,eventID)
+	do ##class(setup.objEventSetting).setParameter("awards","summaryPageID",summaryPageID,eventID)
+	do ##class(setup.objEventSetting).setParameter("awards","judgeLoginPageID"_desciptionModifier,judgeLoginPageID,eventID)
+	do ##class(setup.objEventSetting).setParameter("awards","judgeEntryListPageID"_desciptionModifier,judgeEntryListPageID,eventID)
+	do ##class(setup.objEventSetting).setParameter("awards","reviewEntryPageID"_desciptionModifier,reviewEntryPageID,eventID)
+	do ##class(setup.objEventSetting).setParameter("awards","judgeScoreListPageID"_desciptionModifier,judgeScoreListPageID,eventID)
+	
+	do ##class(setup.objEventSetting).setParameter("Daily Agenda","dailyAgendaGridviewPageID"_desciptionModifier,dailyAgendaGridviewPageID,eventID)
+	do ##class(setup.objEventSetting).setParameter("Daily Agenda","dailyAgendaListviewPageID"_desciptionModifier,dailyAgendaListviewPageID,eventID)
+	// Meeting Manager pages
+	set meetManDiaryPageID=##class(setup.objEventDetails).addNewPage("Meeting Manager Diary Pages","Meeting Manager Diary Page"_desciptionModifier,meetManGroupID,eventID,langID)
+	do ##class(setup.objEventSetting).setParameter("meeting manager pages","Diary Manager PageID"_desciptionModifier,meetManDiaryPageID,eventID)
+	set meetManAvailabilityPageID=##class(setup.objEventDetails).addNewPage("Meeting Manager Availability Pages","Meeting Manager Availability Page"_desciptionModifier,meetManGroupID,eventID,langID)
+	do ##class(setup.objEventSetting).setParameter("meeting manager pages","Meeting Availability PageID"_desciptionModifier,meetManAvailabilityPageID,eventID)
+	set meetManDetailsPageID=##class(setup.objEventDetails).addNewPage("Meeting Manager Meeting Details Pages","Meeting Manager Meeting Details Page"_desciptionModifier,meetManGroupID,eventID,langID)
+	do ##class(setup.objEventSetting).setParameter("meeting manager pages","Meeting Details PageID"_desciptionModifier,meetManDetailsPageID,eventID)
+	set meetManDetailsPageID=##class(setup.objEventDetails).addNewPage("Meeting Manager Email Pages","Meeting Manager Email Page"_desciptionModifier,meetManGroupID,eventID,langID)
+	do ##class(setup.objEventSetting).setParameter("meeting manager pages","Meeting Email PageID"_desciptionModifier,meetManDetailsPageID,eventID)
+	set meetManAttendeeSearchPageID=##class(setup.objEventDetails).addNewPage("Meeting Manager Attendee Search Pages","Meeting Manager Attendee Search Page"_desciptionModifier,meetManGroupID,eventID,langID)
+	do ##class(setup.objEventSetting).setParameter("meeting manager pages","Attendee Search PageID"_desciptionModifier,meetManAttendeeSearchPageID,eventID)
+	set meetManDemographicSearchPageID=##class(setup.objEventDetails).addNewPage("Meeting Manager Demographic Search Pages","Meeting Manager Demographic Search Page"_desciptionModifier,meetManGroupID,eventID,langID)
+	do ##class(setup.objEventSetting).setParameter("meeting manager pages","Demographic Search PageID"_desciptionModifier,meetManDemographicSearchPageID,eventID)
+	set meetManCompanySearchPageID=##class(setup.objEventDetails).addNewPage("Meeting Manager Company Search Pages","Meeting Manager Company Search Page"_desciptionModifier,meetManGroupID,eventID,langID)
+	do ##class(setup.objEventSetting).setParameter("meeting manager pages","Company Search PageID"_desciptionModifier,meetManCompanySearchPageID,eventID)
+	set meetManInvConfirmPageID=##class(setup.objEventDetails).addNewPage("Meeting Manager Invitation Confirm Pages","Meeting Manager Invitation Confirm Page"_desciptionModifier,meetManGroupID,eventID,langID)
+	do ##class(setup.objEventSetting).setParameter("meeting manager pages","Invitation Confirm PageID"_desciptionModifier,meetManInvConfirmPageID,eventID)
+	set meetManAcceptMeetingPageID=##class(setup.objEventDetails).addNewPage("Meeting Manager Accept Meeting Pages","Meeting Manager Accept Meeting Page"_desciptionModifier,meetManGroupID,eventID,langID)
+	do ##class(setup.objEventSetting).setParameter("meeting manager pages","Accept Meeting PageID"_desciptionModifier,meetManAcceptMeetingPageID,eventID)
+	set meetManAcceptConfirmPageID=##class(setup.objEventDetails).addNewPage("Meeting Manager Accept Meeting Confirm Pages","Meeting Manager Accept Meeting Confirm Page"_desciptionModifier,meetManGroupID,eventID,langID)
+	do ##class(setup.objEventSetting).setParameter("meeting manager pages","Accept Meeting Confirm PageID"_desciptionModifier,meetManAcceptConfirmPageID,eventID)
+	set meetManDeclineMeetingPageID=##class(setup.objEventDetails).addNewPage("Meeting Manager Decline Meeting Pages","Meeting Manager Decline Meeting Page"_desciptionModifier,meetManGroupID,eventID,langID)
+	do ##class(setup.objEventSetting).setParameter("meeting manager pages","Decline Meeting PageID"_desciptionModifier,meetManDeclineMeetingPageID,eventID)
+	set meetManDeclineConfirmPageID=##class(setup.objEventDetails).addNewPage("Meeting Manager Decline Meeting Confirm Pages","Meeting Manager Decline Meeting Confirm Page"_desciptionModifier,meetManGroupID,eventID,langID)
+	do ##class(setup.objEventSetting).setParameter("meeting manager pages","Decline Meeting Confirm PageID"_desciptionModifier,meetManDeclineConfirmPageID,eventID)
+	set meetManCancelMeetingPageID=##class(setup.objEventDetails).addNewPage("Meeting Manager Cancel Meeting Pages","Meeting Manager Cancel Meeting Page"_desciptionModifier,meetManGroupID,eventID,langID)
+	do ##class(setup.objEventSetting).setParameter("meeting manager pages","Cancel Meeting PageID"_desciptionModifier,meetManCancelMeetingPageID,eventID)
+	set meetManCancelConfirmPageID=##class(setup.objEventDetails).addNewPage("Meeting Manager Cancel Meeting Confirm Pages","Meeting Manager Cancel Meeting Confirm Page"_desciptionModifier,meetManGroupID,eventID,langID)
+	do ##class(setup.objEventSetting).setParameter("meeting manager pages","Cancel Meeting Confirm PageID"_desciptionModifier,meetManCancelConfirmPageID,eventID)
+	set meetManNewTimePageID=##class(setup.objEventDetails).addNewPage("Meeting Manager Propose New Time Pages","Meeting Manager Propose New Time Page"_desciptionModifier,meetManGroupID,eventID,langID)
+	do ##class(setup.objEventSetting).setParameter("meeting manager pages","Propose New Time PageID"_desciptionModifier,meetManNewTimePageID,eventID)
+	set meetManNewTimeDetPageID=##class(setup.objEventDetails).addNewPage("Meeting Manager Propose New Time Details Pages","Meeting Manager Propose New Time Details Page"_desciptionModifier,meetManGroupID,eventID,langID)
+	do ##class(setup.objEventSetting).setParameter("meeting manager pages","Propose New Time Details PageID"_desciptionModifier,meetManNewTimeDetPageID,eventID)
+	set meetManNewTimeConfirmPageID=##class(setup.objEventDetails).addNewPage("Meeting Manager Propose New Time Confirm Pages","Meeting Manager Propose New Time Confirm Page"_desciptionModifier,meetManGroupID,eventID,langID)
+	do ##class(setup.objEventSetting).setParameter("meeting manager pages","Propose New Time Confirm PageID"_desciptionModifier,meetManNewTimeConfirmPageID,eventID)
+	set meetManCommsPageID=##class(setup.objEventDetails).addNewPage("Meeting Manager Communications Pages","Meeting Manager Communications Page"_desciptionModifier,meetManGroupID,eventID,langID)
+	do ##class(setup.objEventSetting).setParameter("meeting manager pages","Communications PageID"_desciptionModifier,meetManCommsPageID,eventID)
+	set meetManLoginPageID=##class(setup.objEventDetails).addNewPage("Meeting Manager Login Pages","Meeting Manager Login Page"_desciptionModifier,meetManGroupID,eventID,langID)
+	do ##class(setup.objEventSetting).setParameter("meeting manager pages","Login PageID"_desciptionModifier,meetManLoginPageID,eventID)
+	set meetManChangeLocationPageID=##class(setup.objEventDetails).addNewPage("Meeting Manager Change Location Pages","Meeting Manager Change Location Page"_desciptionModifier,meetManGroupID,eventID,langID)
+	do ##class(setup.objEventSetting).setParameter("meeting manager pages","Change Location PageID"_desciptionModifier,meetManChangeLocationPageID,eventID)
+	set meetManAttInfoPageID=##class(setup.objEventDetails).addNewPage("Meeting Manager Attendee Information Pages","Meeting Manager Attendee Information Page"_desciptionModifier,meetManGroupID,eventID,langID)
+	do ##class(setup.objEventSetting).setParameter("meeting manager pages","Attendee Information PageID"_desciptionModifier,meetManAttInfoPageID,eventID)
+	set meetSchedulePageID=##class(setup.objEventDetails).addNewPage("Meeting Manager Schedule Pages","Meeting Manager Schedule Page"_desciptionModifier,meetManGroupID,eventID,langID)
+	do ##class(setup.objEventSetting).setParameter("meeting manager pages","Schedule PageID"_desciptionModifier,meetSchedulePageID,eventID)
+	set createOpenPageID=##class(setup.objEventDetails).addNewPage("Meeting Manager Create Open Meeting Pages","Create Open Meeting Page"_desciptionModifier,meetManGroupID,eventID,langID)
+	do ##class(setup.objEventSetting).setParameter("meeting manager pages","Create Open Meeting PageID"_desciptionModifier,createOpenPageID,eventID)
+	set bookOpenPageID=##class(setup.objEventDetails).addNewPage("Meeting Manager Book Open Meeting Pages","Book Open Meeting Page"_desciptionModifier,meetManGroupID,eventID,langID)
+	do ##class(setup.objEventSetting).setParameter("meeting manager pages","Book Open Meeting PageID"_desciptionModifier,bookOpenPageID,eventID)
+	set openConfirmPageID=##class(setup.objEventDetails).addNewPage("Meeting Manager Open Meeting Confirm Pages","Open Meeting Confirm Page"_desciptionModifier,meetManGroupID,eventID,langID)
+	do ##class(setup.objEventSetting).setParameter("meeting manager pages","Open Meeting Confirm PageID"_desciptionModifier,openConfirmPageID,eventID)
+	set createNewMeetingPageID=##class(setup.objEventDetails).addNewPage("Meeting Manager Create New Meeting Pages","Create New Meeting Page"_desciptionModifier,meetManGroupID,eventID,langID)
+	do ##class(setup.objEventSetting).setParameter("meeting manager pages","Create New Meeting PageID"_desciptionModifier,createNewMeetingPageID,eventID)
+	
+	// New accommodation pages
+	set accomChooseDatesPageID=##class(setup.objEventDetails).addNewPage("Accom Choose Dates Pages","Accom Choose Dates Pages"_desciptionModifier,accomChooseDatesGroupID,eventID,langID)
+	do ##class(setup.objEventSetting).setParameter("accommodation pages","Accom Choose Dates PageID"_desciptionModifier,accomChooseDatesPageID,eventID)
+	set accomHotelListPageID=##class(setup.objEventDetails).addNewPage("Accom Hotel List Pages","Accom Hotel List Pages"_desciptionModifier,accomHotelListGroupID,eventID,langID)
+	do ##class(setup.objEventSetting).setParameter("accommodation pages","Accom Hotel List PageID"_desciptionModifier,accomHotelListPageID,eventID)
+	set accomGuestPageID=##class(setup.objEventDetails).addNewPage("Accom Guest Pages","Accom Guest Pages"_desciptionModifier,accomGuestGroupID,eventID,langID)
+	do ##class(setup.objEventSetting).setParameter("accommodation pages","Accom Guest PageID"_desciptionModifier,accomGuestPageID,eventID)
+	set accomEditPageID=##class(setup.objEventDetails).addNewPage("Accom Edit Pages","Accom Edit Pages"_desciptionModifier,accomEditGroupID,eventID,langID)
+	do ##class(setup.objEventSetting).setParameter("accommodation pages","Accom Edit PageID"_desciptionModifier,accomEditPageID,eventID)
+	
+	//Email a friend Page
+	set sendEmailPageID=##class(setup.objEventDetails).addNewPage("Send Email Pages","Send Email Pages"_desciptionModifier,sendEmailGroupID,eventID,langID)
+	do ##class(setup.objEventSetting).setParameter("Send Email","sendEmailPageID"_desciptionModifier,sendEmailPageID,eventID)
+	
+	//Decline Page
+	set declinePageID=##class(setup.objEventDetails).addNewPage("Decline Pages","Decline Page"_desciptionModifier,declineGroupID,eventID,langID)
+	do ##class(setup.objEventSetting).setParameter("Decline Page","declinePageID"_desciptionModifier,declinePageID,eventID)
+	
+	//Booking Summary page
+	set bookingSummaryPageID=##class(setup.objEventDetails).addNewPage("Booking Summary Pages","Booking Summary Page"_desciptionModifier,bookingSummaryGroupID,eventID,langID)
+	do ##class(setup.objEventSetting).setParameter("Booking Summary","bookingSummaryPageID"_desciptionModifier,bookingSummaryPageID,eventID)
+	
+	//Event Login Page
+	set eventLoginPageID=##class(setup.objEventDetails).addNewPage("Event Login Pages","Event Login Page"_desciptionModifier,eventLoginPagesGroupID,eventID,langID)
+	do ##class(setup.objEventSetting).setParameter("website","eventLoginPageID"_desciptionModifier,eventLoginPageID,eventID)
+	
+	// AJM 18/1/2012 15186-5797 Add a new version of the event login page so that it is compatible with Eventsforce templates
+	//External Event Login Page
+	set externalEventLoginPageID=##class(setup.objEventDetails).addNewPage("External Event Login Pages","External Event Login Page"_desciptionModifier,externalEventLoginPagesGroupID,eventID,langID)
+	do ##class(setup.objEventSetting).setParameter("website","externalEventLoginPageID"_desciptionModifier,externalEventLoginPageID,eventID)
+	
+	if $D(%objlasterror),'%objlasterror quit %objlasterror   // **** ERROR ****
+	// Populate the registration page 
+	// Must create a list object before we can add items
+	if 'newLangID	{  // only for new event as other pages are created 
+		for tempPageID=regPageID,bookerPageID,awardClientPageID {
+			do ..addDefaultRegistrationPromptsToPage(tempPageID,"Main List","registration page")
+		}
+	}
+	if $D(%objlasterror),'%objlasterror quit %objlasterror   // **** ERROR ****
+
+	do ..addDefaultRegistrationPromptsToPage(signUpPageID,"Main List","abstract sign up page")
+	kill %objlasterror
+	
+	if $D(%objlasterror),'%objlasterror quit %objlasterror   // **** ERROR ****
+	
+	if $D(%objlasterror),'%objlasterror quit %objlasterror   // **** ERROR ****
+	set ok=objEventDetails.%Save()  // will not save objEvent and objController
+	if 'ok quit ok  // **** ERROR ****
+	
+	quit 1
+]]></Implementation>
+</Method>
+
+<Method name="activateNewLanguageForEvent">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>eventID:%Integer,langID:%Integer</FormalSpec>
+<Implementation><![CDATA[
+	&SQL(SELECT ID FROM setup.objEventDetails WHERE (objEvent = :eventID) AND (objLanguage = :langID))
+	if +SQLCODE=100 {
+		// create the event details
+		set objEventDetails=##class(setup.objEventDetails).%New()
+		do objEventDetails.objLanguageSetObjectId(langID)
+		do objEventDetails.objEventSetObjectId(eventID)
+		set ok=objEventDetails.%Save()
+		set eventDetailsID=objEventDetails.%Id()
+		
+		do ##class(mail.methods).createEmailContents(eventID,langID)
+
+		// create the event web pages
+		set ok=##class(setup.objEvent).createEventPages(eventID,langID)
+	}
+]]></Implementation>
+</Method>
+
+<Method name="setIsLanguageActiveForEvent">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>eventID:%Integer,langID:%Integer,isLanguageOn:%Boolean</FormalSpec>
+<Implementation><![CDATA[
+	set langaugeDescription=##class(shared.objLanguage).getLanguageDesc(langID)
+	do ##class(setup.objEventSetting).setParameter("frontend languages",langaugeDescription,isLanguageOn,eventID)
+	if isLanguageOn {
+		do ..activateNewLanguageForEvent(eventID,langID)	
+	}
+]]></Implementation>
+</Method>
+
+<Method name="canShowLanguageFlagBeSetForEvent">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>eventID</FormalSpec>
+<Implementation><![CDATA[
+	set out=1
+	set currentTheme=##class(layout.methods).getCurrentTheme(eventID)
+	if ($ZCVT($P(currentTheme,"|",2),"L")["horizontal")!($ZCVT($P(currentTheme,"|",2),"L")="no menu, no sponsors, no logo") {
+		set out=0
+	}
+	quit out
+]]></Implementation>
+</Method>
+
+<Method name="addDefaultMenuItems">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>pageID:%Integer,langID:%Integer</FormalSpec>
+<Implementation><![CDATA[
+	// first get the pageID to get the listID
+	set xLangID = langID
+	set xEventID = ##class(sc.objData).getEventID(pageID)
+	
+	set tmp="",listID=""
+	&SQL(SELECT ID INTO :tmp FROM sc_xModules.objList WHERE (parent=:pageID) AND (active=1) )
+	if +SQLCODE=0 set listID=tmp
+
+	if listID = "" {
+		set listID = ##class(sc.xModules.objList).add(pageID)
+		set templateID = ##class(sc.pageMethods).getTemplateIDfromPageID(pageID)
+		set componentID = ##class(sc.objComponent).add("INDEXLIST", templateID, listID)	
+	}
+
+	// now check if to see if any data items exist with the objList as their parent,
+	// if not then this is first time in the page so auto create the defaults
+	if listID	{
+		set URLbit="/"_$ZCVT(^%ZCSPAPPS($ZNSPACE),"L")   // JAW 03MAY2007 - so that it works for no framesets too - should always be absolute (without domain)
+		set tmp="",create=0
+		&SQL(SELECT ID INTO :tmp FROM sc.objData WHERE (parent=:listID AND active=1))
+		if +SQLCODE'=0 set create=1   // no data items exist with the listID as their parent
+		if create	{
+			// get the homepageID
+			set tmp="",homeID=""
+			&SQL(SELECT homePageID INTO :tmp FROM setup.objEventDetails WHERE (objEvent = :xEventID) AND (objLanguage = :xLangID) )
+			if +SQLCODE=0 set homeID=tmp
+			
+			// find the group name
+			set groupName="",groupID=""
+			&SQL(SELECT parent INTO :groupID FROM sc_xModules.objPage WHERE ID = :pageID)
+			&SQL(SELECT description INTO :groupName FROM sc_xModules.objGroup WHERE ID = :groupID)
+			
+			if groupName="Menu Pages" {
+				
+				
+				// get the current menu theme from the active template
+				if ##class(layout.objTemplate).isUsingLegacyTemplate(xEventID) {
+					set themeID=##class(layout.objTheme).getIDfromIntDesc("vertical graduated black/green menu")
+				} else {
+					set themeID=""	
+				}
+				
+				// add new menu block
+				set dataID=##class(sc.xModules.objMenuBlock).add(listID,0,"Auto Menu","","","","","",themeID,"")
+
+				set ok=""
+				// add the home page link
+				if homeID {
+					set menuItemID=##class(layout.objMenuItem).add(dataID,"Home Page",URLbit_"/system/proweb/start.csp?pageID="_homeID,"_self","","","","","")
+				}
+				
+				// add the Register link
+				set menuItemID=##class(layout.objMenuItem).add(dataID,"Register",URLbit_"/frontEnd/reg/registerNew.csp","_self","","","","","")
+				set menuItemID=##class(layout.objMenuItem).add(dataID,"Amend",URLbit_"/frontEnd/reg/registerAmend.csp","_self","","","","","")
+
+				// add the Daily Agenda link
+				set menuItemID=##class(layout.objMenuItem).add(dataID,"Agenda",URLbit_"/frontEnd/reg/dailyAgenda.csp","_self","","","","","")
+
+			
+			} elseif groupName="Abstract Management" {
+				// create the menu for the abstract website
+				set homePageID=##class(setup.objEventSetting).getParameter("abstract management pages","homePageID",xEventID)				
+				set documentPageID=##class(setup.objEventSetting).getParameter("abstract management pages","documentPageID",xEventID)
+				set topicListPageID=##class(setup.objEventSetting).getParameter("abstract management pages","topicListPageID",xEventID)
+
+				set ok=##class(sc.xModules.objImage).createButton(listID,"  Home Page",URLbit_"/system/proweb/start.csp?pageID="_homePageID,"")
+				set ok=##class(sc.xModules.objImage).createButton(listID,"  Submit Abstracts",URLbit_"/system/proweb/start.csp?userType=submitter&pageID="_topicListPageID,"")
+				set ok=##class(sc.xModules.objImage).createButton(listID,"  Review Abstracts",URLbit_"/frontend/reg/absLogin.csp?isReviewer=1","",125)
+			}
+		}
+	}
+]]></Implementation>
+</Method>
+
+<Method name="addDefaultRegistrationPromptsToPage">
+<Description>
+sets up the default questions for a brand new event on the registration pages (and booker's pages)</Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec>pageID,listName,pageType</FormalSpec>
+<Implementation><![CDATA[
+	set listID=##class(sc.methods).getListIDfromPageIDlistName(pageID,listName)
+	if 'listID {
+		set listID=##class(sc.xModules.objList).add(pageID)
+		&SQL(SELECT objTemplate INTO :templateID FROM sc_xModules.objPage WHERE (active=1 AND ID = :pageID))		
+		do ##class(sc.objComponent).add(listName,templateID,listID)
+	}
+
+	if listID {
+		set tmp="",create=0
+		if (##class(sc.methods).anyQuestionsOnPage(pageID,listName)=0) {   // no data items exist with the listID as their parent
+			if pageType="abstract sign up page" {
+				do ..getDefaultQuestionsForAbstractSignUp(.questions)
+			} elseif listName="Main Author List" {
+				do ..getDefaultQuestionsForAbstractMainAuthor(.questions)
+			} elseif listName="Co Author List" {
+				do ..getDefaultQuestionsForAbstractCoAuthor(.questions)
+			} elseif pageType="Awards Submitter" {
+				do ..getDefaultQuestionsForAwardsSubmitter(.questions)
+			} elseif pageType="Table Guests" {
+				do ..getDefaultQuestionsForTableGuests(.questions)
+			} elseif pageType="Room Guests" {
+				do ..getDefaultQuestionsForRoomGuests(.questions)
+				
+			} elseif pageType="registration page" {
+				do ..getDefaultQuestionsForRegistrationPages(.questions)
+			}
+			set key=0
+			for  {
+				set key=$O(questions(key))
+				if key="" quit
+				
+				if $G(questions(key,"type"))="form divider" {
+					do ##class(sc.xModules.objFormDivider).add(listID,"bottom")
+							
+				} else {
+					set type=$G(questions(key,"type"))
+					if type="" set type="text"
+					set itemNameID=##class(cod.objItemName).getIDFromDescriptionNoEvent(questions(key,"codItemName"))
+					set mandatory=+$G(questions(key,"isMandatory"))
+					set width=$G(questions(key,"fieldWidthPx"))
+					if 'width set width=$$$defaultTextFieldWidthPx
+					set descr=questions(key,"label")
+			
+					set ok=##class(sc.xModules.objCODitem).add(itemNameID,descr,listID,"system",0,"",type,mandatory,"horizontal",width,"",1,0,1)
+				}
+			}
+		}
+	}
+	quit
+]]></Implementation>
+</Method>
+
+<Method name="getDefaultQuestionsForRegistrationPages">
+<ClassMethod>1</ClassMethod>
+<FormalSpec><![CDATA[&questions]]></FormalSpec>
+<Implementation><![CDATA[
+	set questions(1,"label")="First name"	
+	set questions(1,"codItemName")="firstname"	
+	set questions(1,"isMandatory")=1	
+	
+	set questions(2,"label")="Last name"	
+	set questions(2,"codItemName")="lastname"	
+	set questions(2,"isMandatory")=1	
+	
+	set questions(3,"type")="form divider"	
+
+	set questions(4,"label")="Company"	
+	set questions(4,"codItemName")="Company"	
+	
+	set questions(5,"label")="Address line 1"	
+	set questions(5,"codItemName")="Address line 1"	
+	
+	set questions(6,"label")="Address line 2"	
+	set questions(6,"codItemName")="Address line 2"	
+	
+	set questions(7,"label")="Town"	
+	set questions(7,"codItemName")="Town"	
+	
+	set questions(8,"label")="Postcode"	
+	set questions(8,"codItemName")="Postcode"	
+	set questions(8,"fieldWidthPx")=$$$defaultPostcodeFieldWidthPx	
+	
+	
+	set questions(9,"label")="Country"	
+	set questions(9,"codItemName")="Country"	
+	set questions(9,"type")="dropdown"	
+	
+	set questions(10,"label")="Phone number"	
+	set questions(10,"codItemName")="Phone number"
+	set questions(10,"type")="phoneNumber"
+]]></Implementation>
+</Method>
+
+<Method name="getDefaultQuestionsForAbstractSignUp">
+<ClassMethod>1</ClassMethod>
+<FormalSpec><![CDATA[&questions]]></FormalSpec>
+<Implementation><![CDATA[
+	set questions(1,"label")="First name"	
+	set questions(1,"codItemName")="firstname"	
+	set questions(1,"isMandatory")=1	
+	
+	set questions(2,"label")="Last name"	
+	set questions(2,"codItemName")="lastname"	
+	set questions(2,"isMandatory")=1	
+	
+	set questions(3,"type")="form divider"	
+
+	set questions(4,"label")="Email"
+	set questions(4,"codItemName")="Email"	
+	set questions(4,"isMandatory")=1	
+	set questions(4,"type")="emailAddress"
+
+	set questions(5,"label")="Company"	
+	set questions(5,"codItemName")="Company"	
+	
+	set questions(6,"label")="Address line 1"	
+	set questions(6,"codItemName")="Address line 1"	
+	
+	set questions(7,"label")="Address line 2"	
+	set questions(7,"codItemName")="Address line 2"	
+	
+	set questions(8,"label")="Town"	
+	set questions(8,"codItemName")="Town"	
+	
+	set questions(9,"label")="Postcode"	
+	set questions(9,"codItemName")="Postcode"	
+	set questions(9,"fieldWidthPx")=$$$defaultPostcodeFieldWidthPx	
+	
+	set questions(10,"label")="Phone number"	
+	set questions(10,"codItemName")="Phone number"
+	set questions(10,"type")="phoneNumber"
+]]></Implementation>
+</Method>
+
+<Method name="getDefaultQuestionsForAbstractMainAuthor">
+<ClassMethod>1</ClassMethod>
+<FormalSpec><![CDATA[&questions]]></FormalSpec>
+<Implementation><![CDATA[
+	set questions(1,"label")="First name"	
+	set questions(1,"codItemName")="firstname"	
+	set questions(1,"isMandatory")=1	
+	
+	set questions(2,"label")="Last name"	
+	set questions(2,"codItemName")="lastname"	
+	set questions(2,"isMandatory")=1	
+
+	set questions(3,"label")="Company"	
+	set questions(3,"codItemName")="Company"	
+	set questions(3,"isMandatory")=1
+
+	set questions(4,"label")="Job Title"	
+	set questions(4,"codItemName")="Job Title"	
+
+	set questions(5,"label")="Email"
+	set questions(5,"codItemName")="Email2"	
+	set questions(5,"isMandatory")=1
+	set questions(5,"type")="emailAddress"
+]]></Implementation>
+</Method>
+
+<Method name="getDefaultQuestionsForAbstractCoAuthor">
+<ClassMethod>1</ClassMethod>
+<FormalSpec><![CDATA[&questions]]></FormalSpec>
+<Implementation><![CDATA[
+	set questions(1,"label")="First name"	
+	set questions(1,"codItemName")="firstname"	
+	set questions(1,"isMandatory")=1	
+	
+	set questions(2,"label")="Last name"	
+	set questions(2,"codItemName")="lastname"	
+	set questions(2,"isMandatory")=1	
+
+	set questions(3,"label")="Company/Organisation"	
+	set questions(3,"codItemName")="Company"	
+	set questions(3,"isMandatory")=1	
+
+	set questions(4,"label")="Email"
+	set questions(4,"codItemName")="Email2"	
+	set questions(4,"isMandatory")=1
+	set questions(4,"type")="emailAddress"
+]]></Implementation>
+</Method>
+
+<Method name="getDefaultQuestionsForTableGuests">
+<ClassMethod>1</ClassMethod>
+<FormalSpec><![CDATA[&questions]]></FormalSpec>
+<Implementation><![CDATA[
+	set questions(1,"label")="First name"	
+	set questions(1,"codItemName")="firstname"	
+	set questions(1,"isMandatory")=0	
+	
+	set questions(2,"label")="Last name"	
+	set questions(2,"codItemName")="lastname"	
+	set questions(2,"isMandatory")=0
+]]></Implementation>
+</Method>
+
+<Method name="getDefaultQuestionsForRoomGuests">
+<ClassMethod>1</ClassMethod>
+<FormalSpec><![CDATA[&questions]]></FormalSpec>
+<Implementation><![CDATA[
+	set questions(1,"label")="First name"	
+	set questions(1,"codItemName")="firstname"	
+	set questions(1,"isMandatory")=0	
+	
+	set questions(2,"label")="Last name"	
+	set questions(2,"codItemName")="lastname"	
+	set questions(2,"isMandatory")=0
+]]></Implementation>
+</Method>
+
+<Method name="getDefaultQuestionsForAwardsSubmitter">
+<ClassMethod>1</ClassMethod>
+<FormalSpec><![CDATA[&questions]]></FormalSpec>
+<Implementation><![CDATA[
+	//"firstname","lastname","Company","Address Line 1","Address Line 2","Town","Postcode","Work Telephone No."
+	set questions(1,"label")="First name"	
+	set questions(1,"codItemName")="firstname"	
+	set questions(1,"isMandatory")=1	
+	
+	set questions(2,"label")="Last name"	
+	set questions(2,"codItemName")="lastname"	
+	set questions(2,"isMandatory")=1	
+	
+	set questions(3,"type")="form divider"	
+
+	set questions(4,"label")="Company"	
+	set questions(4,"codItemName")="Company"	
+	
+	set questions(5,"label")="Address line 1"	
+	set questions(5,"codItemName")="Address line 1"	
+	
+	set questions(6,"label")="Address line 2"	
+	set questions(6,"codItemName")="Address line 2"	
+	
+	set questions(7,"label")="Town"	
+	set questions(7,"codItemName")="Town"	
+	
+	set questions(8,"label")="Postcode"	
+	set questions(8,"codItemName")="Postcode"	
+	set questions(8,"fieldWidthPx")=$$$defaultPostcodeFieldWidthPx	
+	
+	set questions(9,"label")="Phone number"	
+	set questions(9,"codItemName")="Phone number"
+	set questions(9,"type")="phoneNumber"
+]]></Implementation>
+</Method>
+
+<Method name="getShortenedDescription">
+<Description><![CDATA[
+Automatically builds shortened description string.																			<br />
+e.g. If you want to shorten "moo: one two three four five six seven (123456)" to "moo: one two...even (123456)", do this:	<br />
+	desc 				= "one two three four five six seven"																<br />
+	prefix				= "moo: "																							<br />
+		suffix				= " (123456)"																						<br />
+	separator			= "..."																								<br />
+	threshold			= 10																								<br />
+		minLeadingChars		= 7																									<br />
+		minTrailingChars	= 4																									<br />
+																																<br />
+	"threshold" indicates how long the total length (prefix+desc+suffix) has to be before shortening happens					<br />]]></Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec>desc:%String,prefix:%String="",suffix:%String="",separator:%String="...",threshold:%Integer=0,minLeadingChars:%Integer=0,minTrailingChars:%Integer=0</FormalSpec>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	set ret=prefix_desc_suffix
+	
+	If threshold=0 Set threshold=$LENGTH(ret)
+	
+	If ($LENGTH(ret) > threshold) {
+		Set maxDescLength=threshold-($LENGTH(prefix_suffix))
+		
+		If (minLeadingChars=0) {
+			Set minLeadingChars=maxDescLength-(minTrailingChars+$LENGTH(separator))
+		}
+		
+		If (minTrailingChars=0) {
+			Set minTrailingChars=maxDescLength-(minLeadingChars+$LENGTH(separator))
+		}
+		
+		If minLeadingChars<0 Set minLeadingChars=0
+		If minTrailingChars<0 Set minTrailingChars=0
+		
+		If ((minLeadingChars+minTrailingChars) > maxDescLength) {
+			Set minTrailingChars=maxDescLength-minLeadingChars
+		}
+		
+		Set desc1=$EXTRACT(desc,1,minLeadingChars)
+		Set desc2=$EXTRACT(desc,($LENGTH(desc)-(minTrailingChars-1)),$LENGTH(desc))
+		
+		Set ret=prefix_desc1_separator_desc2_suffix
+	}
+	
+	Quit ret
+]]></Implementation>
+</Method>
+
+<Method name="getEventLinks">
+<Description>
+get a list of all the active links for an event - used in drop-downs for nice URLs and quick links in config.csp</Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec><![CDATA[eventID,langID,&linkArray,returnFullURLs:%Boolean=0]]></FormalSpec>
+<ProcedureBlock>1</ProcedureBlock>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	kill linkArray
+	set objEvent = ##class(setup.objEvent).%OpenId(eventID)
+	set eventConfiguration=##class(setup.eventConfiguration).createForEventID(eventID)
+	if (objEvent.gridList="grid") {
+		set dailyAgendaPageID = ##class(sc.pageMethods).getDailyAgendaGridViewPageID(eventID,langID)
+	} else {
+		set dailyAgendaPageID = ##class(sc.pageMethods).getDailyAgendaListViewPageID(eventID,langID)
+	}
+	// get the full url to use instead of a relative path
+	if returnFullURLs {
+		set fullURL=##class(shared.pageMethods).getFullPath()
+	} else {
+		set fullURL="/"_$ZCVT(^%ZCSPAPPS($ZNSPACE),"L")   
+	}
+	
+	// pages are relative to the proweb templates as this will be used from within proweb
+	set eventDescription=##class(setup.objEventDetails).getDetails(eventID,langID)
+	set eventDetailsID=##class(setup.objEventDetails).getDetailsID(eventID,langID)
+	set eventGroupID=##class(sc.methods).getEventGroupID(eventID)
+	set isAwardsEvent=+##class(setup.objEventSetting).getParameter("system","isAwardsEvent",eventID)
+	set showSSOLinks=##class(setup.webSSOmethods).isWebSSOAllowedForFrontend(eventID)
+	set isMeetingManagerEvent=(##class(setup.objSystemTypes).isModuleAllowed("Meeting Manager"))&&(eventConfiguration.getHasMeetingManager())
+	
+	set declinePageID=##class(setup.objEventSetting).getParameter("Decline Page","declinePageID",eventID)
+	set allowInvitations=1
+
+	if returnFullURLs	{
+		set linkArray($I(linkArray),"Main: Registration Start")="{{EVENTPAGELINK:"_eventID_"|REGISTER}}"
+		set linkArray($I(linkArray),"Main: Amendment Start")="{{EVENTPAGELINK:"_eventID_"|AMEND}}"
+		if showSSOLinks {
+			set linkArray($I(linkArray),"Main: Registration Start (External Login)")="{{EVENTPAGELINK:"_eventID_"|REGISTER|SSO}}"
+			set linkArray($I(linkArray),"Main: Amendment Start (External Login)")="{{EVENTPAGELINK:"_eventID_"|AMEND|SSO}}"
+		}
+		set linkArray($I(linkArray),"Main: Decline Start")="{{EVENTPAGELINK:"_eventID_"|"_declinePageID_"}}"
+		set linkArray($I(linkArray),"Main: Daily Agenda")="{{EVENTPAGELINK:"_eventID_"|"_dailyAgendaPageID_"}}"
+		set linkArray($I(linkArray),"Main: Personal Event Link")="{{PersonalEventLink}}"
+		set linkArray($I(linkArray),"Main: Personal Registration Link")="{{PersonalRegistrationLink}}"
+		set linkArray($I(linkArray),"Main: Personal Amendment Link")="{{PersonalAmendmentLink}}"
+		if allowInvitations {
+			set linkArray($I(linkArray),"Main: Personal Decline Link")="{{PersonalDeclineLink}}"
+		}
+	} else {
+		set linkArray($I(linkArray),"Main: Registration Start")=fullURL_"/frontend/reg/registerNew.csp"
+		if showSSOLinks {
+			set linkArray($I(linkArray),"Main: Registration Start (External Login)")=fullURL_"/frontend/reg/registerNew.csp?externalLogin=1"
+		}
+		set linkArray($I(linkArray),"Main: Amendment Start")=fullURL_"/frontend/reg/registerAmend.csp"
+		if showSSOLinks {
+			set linkArray($I(linkArray),"Main: Amendment Start (External Login)")=fullURL_"/frontend/reg/registerAmend.csp?externalLogin=1"
+		}
+		if allowInvitations {
+			set linkArray($I(linkArray),"Main: Decline Start")=fullURL_"/frontend/reg/decline.csp"
+		}
+		set linkArray($I(linkArray),"Main: Daily Agenda")=fullURL_"/system/proweb/start.csp?pageID="_dailyAgendaPageID
+	}
+	
+	// get auto generated proweb pages
+	set objEventDetails=##class(setup.objEventDetails).%OpenId(eventDetailsID)
+	
+	set extraBit=""
+	if langID>1 set extraBit=" - "_##class(shared.objLanguage).getLanguageDesc(langID)
+	set sendEmailPageID=##class(setup.objEventSetting).getParameter("Send Email","sendEmailPageID"_extraBit,eventID)
+	
+	if returnFullURLs	{
+		set linkArray($I(linkArray),"Main: Home Page")="{{EVENTPAGELINK:"_eventID_"}}"
+		set linkArray($I(linkArray),"Main: Terms and Conditions")="{{EVENTPAGELINK:"_eventID_"|"_objEventDetails.tAndCPageID_"}}"
+		set linkArray($I(linkArray),"Main: Venue Page")="{{EVENTPAGELINK:"_eventID_"|"_objEventDetails.venuePageID_"}}"
+		if ##class(setup.objSystemTypes).isModuleAllowed("Email a Friend") {	
+			set linkArray($I(linkArray),"Main: Email A Friend")="{{EVENTPAGELINK:"_eventID_"|"_sendEmailPageID_"}}"
+		}
+		// add the links to the abstracts pages
+		if ((##class(setup.objSystemTypes).isModuleAllowed("Abstract Management"))&&(##class(setup.objEventSetting).getParameter("event setup","has abstracts",eventID))) {  // added Fred Aug2009
+			set topicListPageID=##class(setup.objEventSetting).getParameter("abstract management pages","topicListPageID"_extraBit,eventID)
+			set searchPageID=##class(setup.objEventSetting).getParameter("abstract management pages","abstractSearchDocumentPageID"_extraBit,eventID)
+			set linkArray($I(linkArray),"Abstracts: Submission Login")="{{EVENTPAGELINK:"_eventID_"|"_topicListPageID_"}}"
+			set linkArray($I(linkArray),"Abstracts: Personal Submission")="{{PersonalAbstractSubmissionLink}}"
+			set linkArray($I(linkArray),"Abstracts: Personal Reviewer")="{{PersonalAbstractReviewerLink}}"
+			set linkArray($I(linkArray),"Abstracts: Reviews")="{{EVENTPAGELINK:"_eventID_"|ABSJUDGE}}"
+			set linkArray($I(linkArray),"Abstracts: Search")="{{EVENTPAGELINK:"_eventID_"|"_searchPageID_"}}"
+		}
+		if (##class(setup.objSystemTypes).isModuleAllowed("Awards") && isAwardsEvent) {  
+			set linkArray($I(linkArray),"Awards: Judge")="{{PersonalAwardsJudgeLink}}"
+		}
+		if isMeetingManagerEvent {
+			set linkArray($I(linkArray),"Meeting Manager: Diary")="{{PersonalDiaryLink}}"
+		}
+		
+	} else {
+		set linkArray($I(linkArray),"Main: Home Page")=fullURL_"/system/proweb/start.csp?pageID="_objEventDetails.homePageID
+		set linkArray($I(linkArray),"Main: Menu Page")=fullURL_"/system/proweb/start.csp?pageID="_objEventDetails.menuPageID
+		set linkArray($I(linkArray),"Main: Terms and Conditions")=fullURL_"/system/proweb/start.csp?pageID="_objEventDetails.tAndCPageID
+		set linkArray($I(linkArray),"Main: Venue Page")=fullURL_"/system/proweb/start.csp?pageID="_objEventDetails.venuePageID
+		if ##class(setup.objSystemTypes).isModuleAllowed("Email a Friend") {
+			set linkArray($I(linkArray),"Main: Email A Friend")=fullURL_"/system/proweb/start.csp?pageID="_sendEmailPageID
+		}
+	}
+	
+	// do we need a log-out link at all?
+	set (privateEvent,privateWebsite,PINEvent)=0
+	
+	// private event
+	&SQL(SELECT privateEvent INTO :tmp FROM setup.objEvent WHERE ID=:eventID)
+	if (+SQLCODE=0) {
+		if (tmp=1) {
+			set privateEvent=1
+		}
+	}
+	
+	// private website
+	set privateWebsite=##class(setup.objEventSetting).getParameter("website","private website",eventID)
+	
+	//PIN event
+	set PINEvent=+##class(setup.objEventSetting).getParameter("website","private website my account",eventID)
+	
+	if ((privateEvent)!(privateWebsite)!(PINEvent)){
+		// is this an entry code event?
+		&SQL(SELECT objEntryCode FROM setup.lnkEntryCodeEvent WHERE objEvent=:eventID)
+		if (+SQLCODE=0) {
+			set entryPage=##class(setup.objSetting).getParameter("system","xtEntryCode")
+			if $L(entryPage)=0 set entryPage="xtentrycode.csp"
+			set linkArray($I(linkArray),"Main: Log Out Page")=fullURL_"/frontend/xt/"_entryPage
+		} else { // standard login page
+			set linkArray($I(linkArray),"Main: Log Out Page")=fullURL_"/frontend/xt/xtLogout.csp?eventID="_eventID
+		}
+	}
+	
+	// get manually created proweb pages
+	set parent=##class(sc.xModules.objGroup).findGroupID("More Pages",eventGroupID)
+	kill pages
+	do ##class(sc.objData).findChildrenPages(parent,.pages)
+	set pageID=""
+	for  {
+		set pageID=$O(pages(pageID))
+		if pageID="" quit
+		&SQL(SELECT description INTO :desc FROM sc_xModules.objPage WHERE ID=:pageID)
+		if +SQLCODE=0 {
+			if returnFullURLs	{
+				set linkArray($I(linkArray),"Additional: "_desc_" ("_pageID_")")="{{EVENTPAGELINK:"_eventID_"|"_pageID_"}}"
+			} else {
+				set linkArray($I(linkArray),"Additional: "_desc_" ("_pageID_")")=fullURL_"/system/proweb/start.csp?pageID="_pageID
+			}
+		}
+	}
+	if 'returnFullURLs	{
+		if (eventConfiguration.areSessionsAllowed()) { // pjc, 8th July 2009, add event-specific check
+			// get list of active session types
+			set rs=##class(%ResultSet).%New("%Library.DynamicQuery:SQL")
+			do rs.Prepare("SELECT * FROM setup.objSessionType WHERE (active = 1) AND (isSystem = 0) AND (isBreak = 0) ORDER BY displayOrder")
+			do rs.Execute()
+			while rs.Next()	{
+				set linkArray($I(linkArray),"SessionType: "_rs.Get("description"))=fullURL_"/frontend/reg/sessionsByType.csp?sessionType="_rs.Get("description")
+			}
+			kill rs
+		
+	
+			// get item pages  #### CHANGE TO USE ONLY ACTIVE ITEMS PAGES ####
+			set parent=##class(sc.xModules.objGroup).findGroupID("Item Pages",eventGroupID)
+			kill pages
+			do ##class(sc.objData).findChildrenPages(parent,.pages)
+			set pageID=""
+			for  {
+				set pageID=$O(pages(pageID))
+				if pageID="" quit
+				&SQL(SELECT description INTO :desc FROM sc_xModules.objPage WHERE ID=:pageID)
+				// need to shorten the description to avoid crashes where the total length exceeds > 256
+				if +SQLCODE=0 {
+					Set tempDesc=##class(setup.eventCreationMethods).getShortenedDescription(desc,"Session: "," ("_pageID_")","...",50,,7)
+					// set linkArray($I(linkArray),"Session: "_desc_" ("_pageID_")")=fullURL_"/system/proweb/start.csp?pageID="_pageID
+					set linkArray($I(linkArray),tempDesc)=fullURL_"/system/proweb/start.csp?pageID="_pageID
+				}
+			}
+		
+		
+			// get presenter pages
+			set rs=##class(%ResultSet).%New("setup.objPresenter:qActivePresenters")
+			do rs.Execute(eventID)
+			while rs.Next()	{
+				Set presenterID=rs.Data("ID")
+				Set presenterPersonID=rs.Data("objPerson")
+				If (##class(setup.presenterMethods).canEventUseStaticPresenterPages(eventID)) {
+					If (##class(setup.objPresenter).canShowStaticPresenterPage(presenterID)) {
+						Set desc=##class(setup.objPresenter).getTitleAndFullName(presenterPersonID)
+						Set linkArray($I(linkArray),"Presenter: "_desc_" ("_presenterPersonID_")")=fullURL_"/frontend/reg/presenterDetails.csp?presenterID="_presenterID
+					}
+				} else {
+					set pageID=rs.Data("pageID")   //pres
+					&SQL(SELECT description INTO :desc FROM sc_xModules.objPage WHERE ID=:pageID)
+					if +SQLCODE=0 set linkArray($I(linkArray),"Presenter: "_desc_" ("_pageID_")")=fullURL_"/system/proweb/start.csp?pageID="_pageID
+				}
+			}
+			// get location pages
+			set rs=##class(%ResultSet).%New("setup.objLocation:qAllActive")
+			do rs.Execute(langID,eventID)
+			while rs.Next()	{
+				set pageID=rs.Data("pageID")   //loc
+				&SQL(SELECT description INTO :desc FROM sc_xModules.objPage WHERE ID=:pageID)
+				if +SQLCODE=0 set linkArray($I(linkArray),"Location: "_desc_" ("_pageID_")")=fullURL_"/system/proweb/start.csp?pageID="_pageID
+			}
+		}
+		
+		// add direct link to meeting manager
+		if isMeetingManagerEvent {
+			set linkArray($I(linkArray),"Meeting Manager: Diary Login")=fullURL_"/frontend/reg/registerAmend.csp?meetingManOnly=1"
+		}
+		
+		// add the links to the abstracts pages
+		if ((##class(setup.objSystemTypes).isModuleAllowed("Abstract Management"))&&(##class(setup.objEventSetting).getParameter("event setup","has abstracts",eventID))) {  // added JAW 20JUN2005 // pjc, 8th July 2009, add event-specific check
+			set topicListPageID=##class(setup.objEventSetting).getParameter("abstract management pages","topicListPageID"_extraBit,eventID)
+			set searchPageID=##class(setup.objEventSetting).getParameter("abstract management pages","abstractSearchDocumentPageID"_extraBit,eventID)
+			set linkArray($I(linkArray),"Abstracts: Submission Login")=fullURL_"/system/proweb/start.csp?userType=submitter&pageID="_topicListPageID
+			set linkArray($I(linkArray),"Abstracts: Reviews")=fullURL_"/frontend/reg/absLogin.csp?isReviewer=1"
+			set linkArray($I(linkArray),"Abstracts: Search")=fullURL_"/system/proweb/start.csp?pageID="_searchPageID
+		}
+		// add links to the award
+		if ##class(setup.objSystemTypes).isModuleAllowed("Awards"),isAwardsEvent      {  // added JAW 20JUN2005
+			//v2.7 set pageID=##class(setup.objEventSetting).getParameter("awards","awardClientPageID",eventID)
+			set linkArray($I(linkArray),"Awards: Entry")=fullURL_"/frontend/reg/registerNew.csp?isAwards=1"
+			set linkArray($I(linkArray),"Awards: Amendment")=fullURL_"/frontend/reg/registerAmend.csp?isAwards=1"
+			set judgeLoginPageID=##class(setup.objEventSetting).getParameter("awards","judgeLoginPageID"_extraBit,eventID)
+			set linkArray($I(linkArray),"Awards: Judges Login")=fullURL_"/system/proweb/start.csp?pageID="_judgeLoginPageID
+			if showSSOLinks {
+				set linkArray($I(linkArray),"Awards: Judges Login (External Login)")=fullURL_"/system/proweb/start.csp?externalLogin=1&pageID="_judgeLoginPageID
+			}
+		}
+		// ACCOMMODATION PAGES
+	
+		if ((##class(setup.objSystemTypes).isModuleAllowed("Accommodation"))&&(##class(setup.objEventSetting).getParameter("bookings","allow accommodation bookings",eventID)))	{  // added JAW 20JUN2005 // pjc, 8th July 2009, add event-specific check
+			// get the first venuepageID (the rest will also be displayed in this page)
+			set firstVenuePageID=##class(accom.objEventHotel).getFirstVenuePageID(eventID)
+			set firstVenuePageID=##class(accom.objEventHotel).getFirstVenuePageID(eventID)
+			if firstVenuePageID set linkArray($I(linkArray),"Hotel: hotel list (read only)")=fullURL_"/system/proweb/start.csp?pageID="_firstVenuePageID_"&mode=preview&version=current&readonly=1"
+				
+			set rs=##class(%ResultSet).%New("accom.objEventHotel:qEventHotelsWithRooms")
+			do rs.Execute(eventID)
+			while rs.Next()	{
+				set venueID=rs.Data("objVenue")
+				set pageID=rs.Data("venueMainPageID")
+				set desc=##class(accom.objVenueItemData).get(venueID,"description")
+				set linkArray($I(linkArray),"Hotel: "_desc)=fullURL_"/system/proweb/start.csp?pageID="_pageID_"&mode=preview&version=current"
+			}
+			
+		}
+	}
+	
+	if returnFullURLs {
+		if ##class(setup.objSystemTypes).isModuleAllowed("Email PDFs") {
+			set rsPDFs=##class(%ResultSet).%New("pdf.lnkContentDefinition:qAllForEventAndNotEvent")
+			do rsPDFs.Execute(eventID)
+			while rsPDFs.Next() {
+				set show=1
+				if rsPDFs.Data("isInvoice") set show=0 // should be dealt with in the invoice-run page
+				if 'rsPDFs.Data("objDefinition") set show=0
+				if show {
+					set lnkContentDefinitionID=rsPDFs.Data("ID")
+					set linkArray($I(linkArray),"PDF: "_rsPDFs.Data("description"))="{{PDFDOWNLOAD:"_lnkContentDefinitionID_"}}"
+				}
+			}
+		}
+		if ##class(setup.objSystemTypes).isModuleAllowed("Invoice by Email") {
+			if ##class(setup.objEventSetting).getParameter("event setup","has pricing",eventID) {
+				if ##class(setup.objEventSetting).getParameter("invoicing","default invoice template",eventID) {
+					set linkArray($I(linkArray),"Latest Invoice PDF")="{{LASTINVOICEPDF}}"
+				}
+			}
+		}
+	}
+	quit ""
+]]></Implementation>
+</Method>
+
+<Method name="checkEvent">
+<Description>
+runs the same checks as the eventStatus page (used to do)</Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec><![CDATA[eventConfiguration:setup.eventConfiguration,&out]]></FormalSpec>
+<ProcedureBlock>1</ProcedureBlock>
+<Implementation><![CDATA[
+	kill out set out=""
+	set xLangID=1
+	set xEventID = eventConfiguration.getEventID()
+	set xControllerID=##class(setup.objEvent).getControllerID(xEventID)
+	set objEvent=##class(setup.objEvent).%OpenId(xEventID)
+	
+	// =====================================================================================================================================
+	// if multi currency, check that all priced items have all currencies
+	if ##class(setup.objEventSetting).getParameter("currency","allow currency selection",xEventID) {
+		// step1 - collect all prices per currency
+		set rs=##class(%ResultSet).%New("%Library.DynamicQuery:SQL")
+		set ok=rs.Prepare("SELECT * FROM eCom.objBasketItem WHERE objController=?")
+		do rs.Execute(xControllerID)
+		while rs.Next() {
+			set basketItemID=rs.Get("ID")
+			
+			// check if it still used, could be a deleted prompt
+			set inUse=0
+			&SQL(SELECT codItemID INTO :tmp FROM cod.objAlternativeExtras WHERE basketItemID = :basketItemID)
+			if +SQLCODE=0 {
+				&SQL(SELECT active INTO :tmp2 FROM sc_xModules.objCODitem WHERE ID = :tmp)
+				if +SQLCODE=0,tmp2=1 set inUse=1
+			} else {
+				&SQL(SELECT active INTO :tmp FROM setup.objItem WHERE (objDelegateBasketItem = :basketItemID) OR (objGuestBasketItem = :basketItemID))
+				if +SQLCODE=0,tmp=1 set inUse=1
+			}
+			
+			&SQL(SELECT objAlternativeExtras->codItemID,objItem->active INTO :tmp,:tmp2 FROM links.lnkCategoryItemBasketItem WHERE objBasketItem=:basketItemID)
+			if +SQLCODE=0 {
+				if tmp2 set inUse=1
+				if tmp {
+					&SQL(SELECT active INTO :tmp2 FROM sc_xModules.objCODitem WHERE ID = :tmp)
+					if +SQLCODE=0,tmp2=1 set inUse=1
+				}
+			}
+			
+			if inUse {
+				set rs2=##class(%ResultSet).%New("eCom.objCurrency:qActiveCurrencies")
+				do rs2.Execute()
+				while rs2.Next() {
+					set currencyID=rs2.Get("ID")
+					set price=##class(eCom.objBasketItem).getPrice(xEventID,basketItemID,,currencyID)
+					if price set hasPrice(basketItemID,currencyID)=price,hasCurrencies(currencyID)=""
+				}
+			}
+		}
+		// step 2 - check if any is missing
+		set (basketItemID)=""
+		for  {
+			set basketItemID=$O(hasPrice(basketItemID))
+			if basketItemID="" quit
+			set currencyID=""
+			
+			for  {
+				set currencyID=$o(hasCurrencies(currencyID))
+				if currencyID="" quit
+				if '$D(hasPrice(basketItemID,currencyID)) {
+					set missing(basketItemID,currencyID)=""
+					
+					&SQL(SELECT objPriceDescriptor->description INTO :tmp from eCom.objBasketItem WHERE ID = :basketItemID)
+					if +SQLCODE=0,tmp'="" {
+						set name=tmp
+						set out($I(out))=name_" "_##class(shared.pCSP).translateAdmin("is missing a price in the following currency")_": "_##class(eCom.objCurrency).getCode(currencyID)
+					}
+				}
+			}	
+		}
+	}
+	
+	
+	// =====================================================================================================================================
+	// check to make sure there is a field called email2 on the reg page OR the bookers page
+	if ##class(setup.objEventSetting).getParameter("system","do not use email",xEventID)	{
+		// if awards event check the entry page
+		if ##class(setup.objEventSetting).getParameter("system","isAwardsEvent",xEventID) {
+			set pageID=##class(setup.objEventSetting).getParameter("awards","awardClientPageID",xEventID)
+			if '..isItemInPage(pageID,"email2") set out($I(out))=##class(shared.pCSP).translateAdmin("Email2 field is not in the client details page")
+			// if group bookings then check the bookers page
+		} elseif ##class(setup.objEventSetting).getParameter("bookings","allow group bookings",xEventID)	{
+			set pageID=##class(setup.objEventSetting).getParameter("bookings","bookerRegPageID",xEventID)
+			if '..isItemInPage(pageID,"email2") set out($I(out))=##class(shared.pCSP).translateAdmin("Email2 field is not in the registration contact's details page")
+		} else {
+			set ok=##class(setup.lnkCategoryEvent).getAllRegPages(xEventID,xLangID,1,,.allRegPageIDs,)
+			// for each category
+			set categoryID=""
+			for  {
+				set categoryID=$O(allRegPageIDs(categoryID))
+				if categoryID="" quit
+				set emailOK(categoryID)=0
+				set pageID=""
+				for  {
+					set pageID=$O(allRegPageIDs(categoryID,pageID))
+					if pageID="" quit
+					if ..isItemInPage(pageID,"email2") set emailOK(categoryID)=1
+				}
+				if emailOK(categoryID)=0 set out($I(out))=##class(shared.pCSP).translateAdmin("Email2 field is not in the registration page for category: ")_##class(setup.objEventCategory).getDescription(categoryID)
+			}
+			
+		}
+	}
+	
+	// =====================================================================================================================================
+	// check to make sure there is a fields called firstname and lastname on the reg page OR the bookers page
+	// if group bookings then check the bookers page
+	if ##class(setup.objEventSetting).getParameter("system","isAwardsEvent",xEventID) {
+		// for awards events, we need to check the submitter's page instead
+		set awardClientPageID=##class(setup.objEventSetting).getParameter("awards","awardClientPageID",xEventID)
+		if '..isItemInPage(awardClientPageID,"firstname") set out($I(out))=##class(shared.pCSP).translateAdmin("firstname field is not in the submitter details page: ")_##class(shared.pCSP).translateAdmin(" - this is required")
+		if '..isItemInPage(awardClientPageID,"lastname") set out($I(out))=##class(shared.pCSP).translateAdmin("lastname field is not in the submitter details page: ")_##class(shared.pCSP).translateAdmin(" - this is required")
+	} else {
+		// not an awards event
+		if ##class(setup.objEventSetting).getParameter("bookings","allow group bookings",xEventID)	{
+			set pageID=##class(setup.objEventSetting).getParameter("bookings","bookerRegPageID",xEventID)
+			if '..isItemInPage(pageID,"firstname") set out($I(out))=##class(shared.pCSP).translateAdmin("firstname field is not in the registration contact's details page - this is required")
+			if '..isItemInPage(pageID,"lastname") set out($I(out))=##class(shared.pCSP).translateAdmin("lastname field is not in the registration contact's details page - this is required")
+		} else {
+			set ok=##class(setup.lnkCategoryEvent).getAllRegPages(xEventID,xLangID,1,,.allRegPageIDs,)
+			// for each category
+			set categoryID=""
+			for  {
+				set categoryID=$O(allRegPageIDs(categoryID))
+				if categoryID="" quit
+				set firstnameOK(categoryID)=0
+				set lastnameOK(categoryID)=0
+				set pageID=""
+				for  {
+					set pageID=$O(allRegPageIDs(categoryID,pageID))
+					if pageID="" quit
+					if ..isItemInPage(pageID,"firstname") set firstnameOK(categoryID)=1
+					if ..isItemInPage(pageID,"lastname") set lastnameOK(categoryID)=1
+				}
+				if firstnameOK(categoryID)=0 set out($I(out))=##class(shared.pCSP).translateAdmin("firstname field is not in the registration page for category: ")_##class(setup.objEventCategory).getDescription(categoryID)_##class(shared.pCSP).translateAdmin(" - this is required")
+				if lastnameOK(categoryID)=0 set out($I(out))=##class(shared.pCSP).translateAdmin("lastname field is not in the registration page for category: ")_##class(setup.objEventCategory).getDescription(categoryID)_##class(shared.pCSP).translateAdmin(" - this is required")
+			}
+		}
+	}
+	// =====================================================================================================================================
+	
+	// ticketing checks:
+	if ##class(cod.objTicket).isTicketingPersonMode(xEventID)	{
+		if '##class(setup.objEventSetting).getParameter("bookings","allow group bookings",xEventID)	{
+			set out($I(out))=##class(shared.pCSP).translateAdmin("Group registrations is turned off but you have questions that create attendees in the registration contact's details page:")
+			set out($I(out))=##class(shared.pCSP).translateAdmin(" - please enable, remove those questions and disable.")
+		}
+	}
+	
+	// =====================================================================================================================================
+	
+	// Check whether there are any value basket discounts for events with overriding VAT
+	&SQL(SELECT ID INTO :tmp FROM eCom.objDiscountHistory WHERE (objDiscount->whichPrice='basket') AND (objDiscount->active=1) AND (discountUnit='amount') AND (objDiscount->objController = :xControllerID))
+	if +SQLCODE=0 {
+		if ##class(eCom.objVatCode).isVatCodesEnabled() {
+			if ##class(setup.objSetting).getParameter("basket","always itemise VAT") {
+				set generalError($I(generalError))=##class(shared.pCSP).translateAdmin("A basket discount is set up with a price")
+				set generalError($I(generalError))=##class(shared.pCSP).translateAdmin("Only percentage basket discounts work when using VAT codes")
+			} else {
+				// Do not allow values for basket if there is overriding VAT
+				set defaultEventCode=##class(eCom.objVatCode).getDefaultEventVatCodeID(xEventID)
+				&SQL(SELECT objVatCode INTO :tmp
+					FROM eCom.objBasketItem
+					WHERE (objEvent=:xEventID) OR (objController=  :xControllerID)
+					AND (objVatCode <> :defaultEventCode)
+					ORDER BY objVatCode desc
+				)
+				if +SQLCODE=0,tmp {
+					set generalError($I(generalError))=##class(shared.pCSP).translateAdmin("There are overriding VAT rates as well as a basket discount set up with a price.")
+					set generalError($I(generalError))=##class(shared.pCSP).translateAdmin("Only percentage basket discounts work when there is Overriding VAT")
+				}
+			}
+		} else {
+			&SQL(SELECT ID FROM setup.objItem WHERE ((overridingVAT IS NOT NULL) OR (overridingVAT <>'')) AND (objEvent = :xEventID) AND (active=1))
+			if +SQLCODE=0 {
+				set out($I(out))=##class(shared.pCSP).translateAdmin("There are overriding VAT rates as well as a basket discount set up with a price.")
+				set out($I(out))=##class(shared.pCSP).translateAdmin("Only percentage basket discounts work when there is Overriding VAT")
+			} else {
+				&SQL(SELECT ID FROM cod.objAlternativeExtras 
+					WHERE ((overridingVAT IS NOT NULL) OR (overridingVAT <>''))
+					AND (objItemAlternative->active = 1) 
+					AND (basketItemID IN (
+						SELECT ID FROM eCom.objBasketItem
+						WHERE objEvent = :xEventID)
+					)
+				)
+				if +SQLCODE=0 {
+					set out($I(out))=##class(shared.pCSP).translateAdmin("There are overriding VAT rates as well as a basket discount set up with a price.")
+					set out($I(out))=##class(shared.pCSP).translateAdmin("Only percentage basket discounts work when there is Overriding VAT")
+				}
+			}
+		}
+	}
+	// =====================================================================================================================================
+	// check WorldPay is set up
+	&SQL(SELECT ID INTO :tmp FROM links.lnkEventPaymentMethod where (objPaymentMethod->internalDescription='Worldpay') AND (objEvent = :xEventID))
+	if +SQLCODE=0 {
+		&SQL(SELECT ID INTO :tmp FROM worldpay.objAccount WHERE (eventID=:xEventID) AND (installationID <> ''))
+		if +SQLCODE'=0 {
+			set out($I(out))=##class(shared.pCSP).translateAdmin("WorldPay is selected for credit card processing but no details have been set up")
+		}
+	}
+	
+	// =====================================================================================================================================
+	
+	if ##class(cod.objTicket).isTicketingPersonMode(xEventID) {
+		if ##class(setup.objEventSetting).getParameter("table bookings","enable frontend",xEventID) {
+			set out($I(out))=##class(shared.pCSP).translateAdmin("It is not possible for table booking and QBIs creating registrations to be switched on in the same event")
+		}
+	}
+	// =====================================================================================================================================
+	
+	if ##class(setup.objEventSetting).getParameter("system","isAwardsEvent",xEventID) {
+		if ##class(setup.objEventSetting).getParameter("table bookings","enable frontend",xEventID) {
+			set out($I(out))=##class(shared.pCSP).translateAdmin("Awards and Table booking are both active which is not allowed")		
+		}
+	}
+	
+	// =====================================================================================================================================
+	
+	&SQL(SELECT status INTO :selEventStatus FROM setup.objEvent WHERE ID = :xEventID)
+	set show=0 	
+	if selEventStatus="notlive" {
+		set rs=##class(%ResultSet).%New("%Library.DynamicQuery:SQL")
+		do rs.Prepare("SELECT ID,minValue,maxValue,criteriaCODid,criteriaValue,freebie,internalDescription FROM eCom.objPaymentMethod WHERE (active=1)  AND (creditcardType=1)")
+		do rs.Execute()
+		while rs.Next() {
+			set paymentMethodID=rs.Data("ID")
+			set internalDescription=rs.Data("internalDescription")
+			set isActive=##class(links.lnkEventPaymentMethod).isActive(xEventID,paymentMethodID)
+			if isActive {							
+				set activeCreditCard($ZCVT(rs.Data("internalDescription"),"U"))=1												
+			}
+		} 
+		if $G(activeCreditCard("WORLDPAY")) {set show=1}
+		elseif $G(activeCreditCard("SAGE PAY")) {set show=1}
+		elseif $G(activeCreditCard("NETBANX")) {set show=1}
+		else {set show=0}
+	}
+	if show set out($I(out))=##class(shared.pCSP).translateAdmin("Credit Card Payment Method is active but the Event is not live")		
+	// =====================================================================================================================================
+	 
+	// check if any mandatory prompts have not been completed.
+	set rsSoft=##class(%ResultSet).%New("%Library.DynamicQuery:SQL")
+	do rsSoft.Prepare("SELECT ID FROM setup.objEventPrompt WHERE (active = 1) AND (mandatory = 1)")
+	do rsSoft.Execute()
+	while rsSoft.Next() {
+		if '$l(##class(setup.objEventData).getData(xEventID,rsSoft.Get("ID"))) {
+			set out($I(out))=##class(shared.pCSP).translateAdmin("Not all mandatory event settings have been completed")
+		}
+	}
+	
+	// =====================================================================================================================================
+	
+	// check if multiple attendee categories are active for Award events (that causes automatic registration emails to fail).
+	if ##class(setup.objEventSetting).getParameter("system","isAwardsEvent",xEventID) {
+		set tmp=""
+		if ##class(setup.lnkCategoryEvent).numCategories(xEventID,1,1)>1 {
+			set out($I(out))=##class(shared.pCSP).translateAdmin("An Award Event cannot have multiple attendee categories active. Please deactivate the inappropriate categories.")
+		}
+	}
+	
+	// =====================================================================================================================================
+	//  warn if the event is in the past but still has booking open
+	if (##class(setup.eventBookingMethods).hasEventFinished(xEventID))&&(##class(setup.eventBookingMethods).areFrontendRegistrationsAllowed(xEventID)) {
+		set out($I(out))=##class(shared.pCSP).translateAdmin("The event has finished but is still open for registrations.")
+			
+	}
+	// =====================================================================================================================================
+	// warn if they have emailed invoices switched on but do not have one set up
+	if ##class(setup.objEventSetting).getParameter("invoicing","invoice delivery method",xEventID)="autoEmail" {
+		if '##class(setup.objEventSetting).getParameter("invoicing","default invoice template",xEventID) {
+			set out($I(out))=##class(shared.pCSP).translateAdmin("There is no default invoice template for this event. No invoices will be emailed until the default template is set.")
+		}
+		if ##class(setup.objEventSetting).getParameter("invoicing","create credit notes",xEventID) {
+			if '##class(setup.objEventSetting).getParameter("invoicing","default credit note template",xEventID) {
+				set out($I(out))=##class(shared.pCSP).translateAdmin("There is no default credit note template for this event. No credit notes will be sent until the default template is set")	
+			}
+		}
+	}
+	
+	set mailTemplateIDs = ##class(mail.objMailTemplate).getListOfActiveMailTemplateIDsForEvent(eventConfiguration)
+	for mailTemplateIndex = 1:1:mailTemplateIDs.Count() {
+		set mailTemplateID = mailTemplateIDs.GetAt(mailTemplateIndex)
+		set objMailTemplate = ##class(mail.objMailTemplate).%OpenId(mailTemplateID)
+		set unsupportedTags =  objMailTemplate.findUnsupportedTags()
+		set passwordHashVersion = ##class(EF.security.objPasswordFrontend).getCurrentHashVersion()
+		if (passwordHashVersion = "v0") {
+			set unsupportedTagDescription = "deprecated tag"
+		} else {
+			set unsupportedTagDescription = "unsupported tag"
+		}
+		if unsupportedTags.Count() {
+			set warningMessage = "Email template, "_objMailTemplate.description_", contains "_unsupportedTagDescription
+			if (unsupportedTags.Count() > 1) {
+				set warningMessage = warningMessage_"s: "
+			} else {
+				set warningMessage = warningMessage_": "
+			}	
+			for badTagIndex = 1:1:unsupportedTags.Count() {
+				if badTagIndex > 1 {
+					set warningMessage=warningMessage_", "
+				}
+				set warningMessage = warningMessage_unsupportedTags.GetAt(badTagIndex)
+			}
+			if (passwordHashVersion = "v0") {
+				if (unsupportedTags.Count() > 1) {
+					set warningMessage = warningMessage_". These tags will be removed in a future release."
+				} else {
+					set warningMessage = warningMessage_". This tag will be removed in a future release."
+				}
+			}
+			set out($Increment(out)) = warningMessage
+		}
+	}
+	
+	// =====================================================================================================================================
+	// Warn if any of the questions on any of the payment method pages can affect the total price or payment method pages can control the available payment methods
+	set rsPM=##class(%ResultSet).%New("links.lnkEventPaymentMethod:qPayMethodByEvent")
+	do rsPM.Execute(xEventID)
+	while rsPM.Next() {
+		set paymentMethodID=rsPM.Get("payID")
+		set paymentPageID=##class(links.lnkEventPaymentMethod).getPaymentPageID(xEventID,paymentMethodID,$$$efEnglishLangID) // this page is not multilingual yet
+		if ##class(sc.xModules.objPage).hasAnyQuestionThatAffectsPricing(paymentPageID) {
+			do ##class(sc.xModules.objPage).getArrayOfQuestionsThatAffectsPricing(paymentPageID,.problemQuestions)
+			do ..addPaymentIssueToMessageArray(paymentMethodID,.problemQuestions,.out,"payment details page may change the total amount after the basket page.")
+		}
+		if ##class(sc.xModules.objPage).hasAnyQuestionThatAffectsPaymentMethods(paymentPageID) {
+			do ##class(sc.xModules.objPage).getArrayOfQuestionsThatAffectsPaymentMethods(paymentPageID,.problemQuestions)
+			do ..addPaymentIssueToMessageArray(paymentMethodID,.problemQuestions,.out,"payment details page may invalidate the payment method.")
+		}	
+	}
+	
+	// =====================================================================================================================================
+	// warn if any salable item has overriding VAT
+	if '##class(setup.objSetting).getParameter("basket","always itemise VAT") { 
+		if objEvent.hasAnyOverridingVATCodes() {
+			set out($I(out))="An additional item, quantity bookable item or a session is not using the default VAT rate for the event. This means that discounts applied to the Grand Total can only be a percentage of the grand total. Use the default VAT rate to apply a currency discount."		
+		}
+	}		
+	quit
+]]></Implementation>
+</Method>
+
+<Method name="addPaymentIssueToMessageArray">
+<ClassMethod>1</ClassMethod>
+<FormalSpec><![CDATA[paymentMethodID,&problemQuestions,&out,messageText]]></FormalSpec>
+<Implementation><![CDATA[
+	set m=""
+	for  {
+		set m=$O(problemQuestions(m))
+		if m="" quit
+		
+		set question=##class(shared.pCSP).EscapeHTML(problemQuestions(m,"questionName"))
+		set paymentMethodName=##class(eCom.objPaymentMethod).getInternalDescription(paymentMethodID)
+		set out($I(out))="The question """_question_""" on the """_paymentMethodName_""" "_messageText
+	}
+]]></Implementation>
+</Method>
+
+<Method name="checkIncompatibleModes">
+<Description>
+Call this method from all possible settings pages to make sure we don't have any weird combinations
+make sure the objEvent is saved and killed before calling this method</Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec>eventID</FormalSpec>
+<ProcedureBlock>1</ProcedureBlock>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	set out=1,xEventID=eventID
+	set objEvent=##class(setup.objEvent).%OpenId(eventID)
+	
+	// do some checking and changing to make sure we do not allow incompatible modes of operation:
+	if ##class(setup.objEventSetting).getParameter("system","do not use email",eventID)	{
+		if objEvent.privateEvent {
+			// show message to user
+			set %session.Data("eventsforce","backend","eventSettings.csp","errmsg")=$G(%session.Data("eventsforce","backend","eventSettings.csp","errmsg"))_##class(shared.pCSP).translateAdmin("Anonymous mode does not work with private event")_". <BR>"
+		}
+		set objEvent.privateEvent=0   // cannot have private event - but CAN have private website event PIN (due to eventPIN uniqueness)
+		if ##class(setup.objEventSetting).getParameter("bookings","allow group bookings",eventID)	{
+			// if we are not using email then turn off the advanced option for delegateUID page
+			if '##class(setup.objEventSetting).getParameter("bookings","do not show delegateUID page",eventID) {
+				// show message to user
+				set %session.Data("eventsforce","backend","eventSettings.csp","errmsg")=$G(%session.Data("eventsforce","backend","eventSettings.csp","errmsg"))_##class(shared.pCSP).translateAdmin("Authenticate attendees in group registrations has been turned off to match anonymous mode")_". <BR>"
+			}
+			do ##class(setup.objEventSetting).setParameter("bookings","do not show delegateUID page",1,eventID)  // this is done in adv2 as well
+		}
+	}
+	
+	// don't allow username as identifier in anonymous mode
+	if ##class(setup.objEventSetting).getParameter("system","identifying field",xEventID)="username" { 
+		if ##class(setup.objEventSetting).getParameter("system","do not use email",xEventID) {
+			set %session.Data("eventsforce","backend","eventSettings.csp","errmsg")=$G(%session.Data("eventsforce","backend","eventSettings.csp","errmsg"))_##class(shared.pCSP).translateAdmin("Anonymous mode cannot be used in combination with username as identifier")_". <BR>"	
+			do ##class(setup.objEventSetting).setParameter("system","identifying field","email",xEventID)
+		}	
+	}
+	
+	// don't allow force email confirmation with username as indetifier
+	if ##class(setup.objEventSetting).getParameter("system","identifying field",xEventID)="username" {
+		if ##class(setup.objEventSetting).getParameter("frontend","force email confirmation",xEventID) {
+			set %session.Data("eventsforce","backend","eventSettings.csp","errmsg")=$G(%session.Data("eventsforce","backend","eventSettings.csp","errmsg"))_##class(shared.pCSP).translateAdmin("Force email confirmation cannot be used in combination with username as identifier")_". <BR>"
+			do ##class(setup.objEventSetting).setParameter("frontend","force email confirmation","",xEventID)
+		}
+	}
+	// don't allow delegateUID page with username as indentifier
+	if ##class(setup.objEventSetting).getParameter("system","identifying field",xEventID)="username" {
+		if "EVDEV,EVTAP,EVTAPTEST"'[$ZNSPACE { // exception to the actuaries that have a single-sign on that interfecs to an external lookup web services
+			if ##class(setup.objEventSetting).getParameter("bookings","allow group bookings",xEventID) {
+				if '##class(setup.objEventSetting).getParameter("bookings","do not show delegateUID page",xEventID) {
+					/* pjc 05 May 2009 */
+					// no need to throw errr here as we're fixing the conflict auttomatically // bollocks to that - Fred Feb 2010
+					set %session.Data("eventsforce","backend","eventSettings.csp","errmsg")=$G(%session.Data("eventsforce","backend","eventSettings.csp","errmsg"))_##class(shared.pCSP).translateAdmin("Attendee identification cannot be used in combination with username as identifier")_". <BR>"
+					do ##class(setup.objEventSetting).setParameter("bookings","do not show delegateUID page","1",xEventID)
+				}
+			}
+		}
+	}
+	// do some addt stuff here so that we can rely on these flags always
+	if ##class(setup.objEventSetting).getParameter("bookings","allow group bookings",eventID)	{
+		if (($ZNSPACE="EVHAYMARKET")!($ZNSPACE="EVHAYTEST")) {
+			do ##class(setup.objEventSetting).setParameter("bookings","allow multi categories per booking",0,eventID)   // ##### WILL ALWAYS TURN THIS TO ZERO
+		}
+		// cannot have this if we are doing group bookings
+		if ##class(setup.objEventSetting).getParameter("bookings","only accommodation bookings",eventID) {
+			// show message to user
+			set %session.Data("eventsforce","backend","eventSettings.csp","errmsg")=$G(%session.Data("eventsforce","backend","eventSettings.csp","errmsg"))_##class(shared.pCSP).translateAdmin("Only accommodation bookings has been turned off as cannot use group registrations in this mode")_". <BR>"
+		}
+		do ##class(setup.objEventSetting).setParameter("bookings","only accommodation bookings",0,eventID) 
+		if ##class(setup.objEventSetting).getParameter("website","private website my account",eventID) {
+			// show message to user
+			set %session.Data("eventsforce","backend","eventSettings.csp","errmsg")=$G(%session.Data("eventsforce","backend","eventSettings.csp","errmsg"))_##class(shared.pCSP).translateAdmin("Group registrations cannot work with private website (eventPIN)")_". <BR>"
+		}
+		do ##class(setup.objEventSetting).setParameter("website","private website my account",0,eventID)
+		
+		do ##class(setup.objEventSetting).setParameter("my registration pages","show sessions",0,xEventID)
+		do ##class(setup.objEventSetting).setParameter("my registration pages","show my booking Details",0,xEventID)
+	}
+	// if we are only doing accommodation bookings then unset the day selection (on by default for new events)
+	if ##class(setup.objEventSetting).getParameter("bookings","only accommodation bookings",eventID) {
+		do ##class(setup.objEventSetting).setParameter("page order","choose days",0,eventID)
+		// obviously make sure we allow accom bookings
+		do ##class(setup.objEventSetting).setParameter("bookings","allow accommodation bookings",1,eventID) 
+		// turn off email functionality to be consistent as the "diagramG" is not specifically checking the email flag
+		do ##class(setup.objEventSetting).setParameter("system","do not use email",1,eventID)
+		// turn off group bookings too
+		do ##class(setup.objEventSetting).setParameter("bookings","allow group bookings",0,eventID)
+		// cannot have either private event personal modes
+		set objEvent.privateEvent=0
+		do ##class(setup.objEventSetting).setParameter("website","private website my account",0,eventID)
+		// show message to user
+		set %session.Data("eventsforce","backend","eventSettings.csp","errmsg")=$G(%session.Data("eventsforce","backend","eventSettings.csp","errmsg"))
+	}
+		
+	// check if multiple attendee categories are active for Award events and reset them to have only one category.
+	if ##class(setup.objEventSetting).getParameter("system","isAwardsEvent",eventID) {
+		set tmp=""
+		if ##class(setup.lnkCategoryEvent).numCategories(eventID,1,1)>1 {
+			do ##class(setup.lnkAttendeeCategoryDetailsEvent).deactivateAllCategoriesExceptDefault(eventID)
+			// show message to user
+			set %session.Data("eventsforce","backend","eventSettings.csp","errmsg")=$G(%session.Data("eventsforce","backend","eventSettings.csp","errmsg"))_##class(shared.pCSP).translateAdmin("For Award events, multiple attendee categories cannot be active. So, the non-default categories have been deactivated.")_". <BR>"
+		}
+	}
+	// =====================================================================================================================================
+	do objEvent.%Save()	
+	quit out
+]]></Implementation>
+</Method>
+
+<Method name="isItemInPage">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>pageID,itemNameDesc</FormalSpec>
+<ProcedureBlock>1</ProcedureBlock>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	set eventID=##class(sc.methods).getEventIDfromPageID(pageID)
+	// get the ID first
+	set itemNameID=##class(cod.objItemName).getIDFromDescriptionAndEvent(itemNameDesc,eventID)
+	
+	// find the cod item in this page
+	set found=0
+	&SQL(SELECT ID FROM sc_xModules.objCODitem WHERE (parent->parent=:pageID) AND (active=1) AND (objItemName=:itemNameID) AND (isDelegate=1) )
+	if +SQLCODE=0 set found=1
+	
+	quit found
+]]></Implementation>
+</Method>
+
+<Method name="isPrivateEventSet">
+<Description>
+----------------------------------------------------------------------------------------------------------------------------
+returns '1' if private events is set for this event (note that this covers both private event and private website)</Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec>xEventID</FormalSpec>
+<Implementation><![CDATA[
+	set privateEventSet=0
+	// check "Registration process only by personal invitation " (used to be called 'Private Event')
+	&SQL(SELECT privateEvent INTO :tmp FROm setup.objEvent WHERE ID = :xEventID)
+	if +SQLCODE=0,tmp=1 set privateEventSet=1
+	
+	// check "Website and registration process by personal invitation " (used to be called 'event PIN')
+	if ##class(setup.objEventSetting).getParameter("website","private website",xEventID) set privateEventSet=1
+	
+	// check "Website and registration process only using a shared invitation code" (used to be called 'Private Website')
+	if ##class(setup.objEventSetting).getParameter("website","private website my account",xEventID) set privateEventSet=1
+		
+	quit privateEventSet
+]]></Implementation>
+</Method>
+
+<Method name="isPublicEventSet">
+<Description>
+returns '1' if public events is set for this event (note that this covers both private event and private website)</Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec>xEventID</FormalSpec>
+<Implementation><![CDATA[
+	set publicEventSet='..isPrivateEventSet(xEventID)
+	quit publicEventSet
+]]></Implementation>
+</Method>
+
+<Method name="isPublicEventEnabled">
+<Description>
+returns '1' if the public events option should be available  (note that this covers both private event and private website)</Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec>xEventID</FormalSpec>
+<Implementation><![CDATA[
+	set publicEventEnabled=1
+	quit publicEventEnabled
+]]></Implementation>
+</Method>
+
+<Method name="isGroupBookingsSet">
+<Description>
+----------------------------------------------------------------------------------------------------------------------------
+returns '1' if group bookings is set for this event</Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec>xEventID</FormalSpec>
+<Implementation><![CDATA[
+	set groupBookingState=0
+	if ##class(setup.objEventSetting).getParameter("bookings","allow group bookings",xEventID) set groupBookingState=1
+	if ##class(setup.objEventSetting).getParameter("system","isAwardsEvent",xEventID) set groupBookingState=0				// not allwoed
+	if ##class(setup.objEventSetting).getParameter("event setup","allow meeting manager",xEventID) set groupBookingState=0  // not allowed
+	if ##class(setup.objEventSetting).getParameter("table bookings","enable frontend",xEventID) set groupBookingState=1     //mandatory
+	quit groupBookingState
+]]></Implementation>
+</Method>
+
+<Method name="isGroupBookingsEnabled">
+<Description>
+returns '1' if the group bookings option should be available  </Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec>xEventID</FormalSpec>
+<Implementation><![CDATA[
+	set groupBookingEnabled=0
+	// check the module
+	if ##class(setup.objSystemTypes).isModuleAllowed("Group Bookings") set groupBookingEnabled=1
+
+	// disable on if we are awards or meetman
+	if ##class(setup.objEventSetting).getParameter("system","isAwardsEvent",xEventID) set groupBookingEnabled=0              // not allowed
+	if ##class(setup.objEventSetting).getParameter("event setup","allow meeting manager",xEventID) set groupBookingEnabled=0 // not allowed
+	
+	// overide modules availablity if the event has the setting so they can un-select a disabled module
+	if ..isGroupBookingsSet(xEventID) set groupBookingEnabled=1 
+	
+	quit groupBookingEnabled
+]]></Implementation>
+</Method>
+
+<Method name="isSingleBookingsSet">
+<Description>
+returns '1' if single bookings is set for this event </Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec>xEventID</FormalSpec>
+<Implementation><![CDATA[
+	set singleBookings='..isGroupBookingsSet(xEventID)
+	quit singleBookings
+]]></Implementation>
+</Method>
+
+<Method name="isSingleBookingsEnabled">
+<Description>
+returns '1' if the single bookings option should be available  </Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec>xEventID</FormalSpec>
+<Implementation><![CDATA[
+	set singleBookingsEnabled=1
+	if ##class(setup.objEventSetting).getParameter("system","isAwardsEvent",xEventID) set singleBookingsEnabled=1
+	if ##class(setup.objEventSetting).getParameter("event setup","allow meeting manager",xEventID) set singleBookingsEnabled=1
+	if ##class(setup.objEventSetting).getParameter("table bookings","enable frontend",xEventID) set singleBookingsEnabled=0
+	if +##class(setup.objSystemTypes).isModuleAllowed("Group Bookings")=0 set singleBookingsEnabled=1
+	quit singleBookingsEnabled
+]]></Implementation>
+</Method>
+
+<Method name="isAnonymousModeSet">
+<Description>
+------------------------------------------------------------------------------------------------------------------------------
+returns '1' if anonymous mode is set for this event</Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec>xEventID</FormalSpec>
+<Implementation><![CDATA[
+	set anonymousModeState=0
+	if ##class(setup.objEventSetting).getParameter("system","do not use email",xEventID) set anonymousModeState=1
+	if '##class(setup.objSystemTypes).isModuleAllowed("Anonymous mode") set anonymousModeState=0
+	
+	if ##class(setup.objEventSetting).getParameter("bookings","allow accommodation bookings",xEventID) {
+		if ##class(setup.objEventSetting).getParameter("bookings","only accommodation bookings",xEventID) {
+			set anonymousModeState=1
+		}
+	}
+	quit anonymousModeState
+]]></Implementation>
+</Method>
+
+<Method name="isAnonymousModeEnabled">
+<Description>
+returns '1' if the anonymous mode option should be available  </Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec>xEventID</FormalSpec>
+<Implementation><![CDATA[
+	set anonymousModEnabled=1
+	if ##class(setup.objEventSetting).getParameter("system","do not use email",xEventID) set anonymousModEnabled=1
+	if '##class(setup.objSystemTypes).isModuleAllowed("Anonymous mode") set anonymousModEnabled=0
+	if '##class(setup.objSetting).getParameter("system","allow no email setting per event") set anonymousModEnabled=0
+	quit anonymousModEnabled
+]]></Implementation>
+</Method>
+
+<Method name="isIdentifiedModeSet">
+<Description>
+returns '1' if anonymous mode is set for this event </Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec>xEventID</FormalSpec>
+<Implementation><![CDATA[
+	set identifiedMode='..isAnonymousModeSet(xEventID)
+	quit identifiedMode
+]]></Implementation>
+</Method>
+
+<Method name="isIdentifiedModeEnabled">
+<Description>
+returns '1' if the anonymous mode option should be available  </Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec>xEventID</FormalSpec>
+<Implementation><![CDATA[
+	set identifiedModeEnabled=1
+	if ##class(setup.objEventSetting).getParameter("bookings","allow accommodation bookings",xEventID) {
+		if ##class(setup.objEventSetting).getParameter("bookings","only accommodation bookings",xEventID) {
+			set identifiedModeEnabled=0
+		}
+	}
+	quit identifiedModeEnabled
+]]></Implementation>
+</Method>
+
+<Method name="getGroupBookingsButtonStyle">
+<Description>
+Returns the correct style of the button depending on what mode are available and the current setting</Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec>xEventID</FormalSpec>
+<Implementation><![CDATA[
+	set groupBookingsState=##class(setup.eventCreationMethods).isGroupBookingsSet(xEventID)
+	set groupBookingsAvailable=##class(setup.eventCreationMethods).isGroupBookingsEnabled(xEventID)
+	set singleBookingsState=##class(setup.eventCreationMethods).isSingleBookingsSet(xEventID)
+	set singleBookingsAvailable=##class(setup.eventCreationMethods).isSingleBookingsEnabled(xEventID)
+	
+	set style=""
+	if groupBookingsState,singleBookingsAvailable set style="active button|transparent.png"
+	if singleBookingsState,groupBookingsAvailable set style="inactive button|transparent.png"
+	if singleBookingsState,'groupBookingsAvailable set style="disabled button|lock_disabled.png"
+	if groupBookingsState,'singleBookingsAvailable set style="pre-selected button|lock_active.png"
+
+	// lock down the setting if we have any bookings
+	if ##class(links.lnkPersonEvent).hasAnyBookings(xEventID) {
+		if $P(style,"|",1)="active button" set style="pre-selected button|lock_active.png"
+		if $P(style,"|",1)="inactive button" set style="disabled button|lock_disabled.png"
+	}
+	quit style
+]]></Implementation>
+</Method>
+
+<Method name="getAnonymousModeButtonStyle">
+<Description>
+Returns the correct style of the button depending on what mode are available and the current setting</Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec>xEventID</FormalSpec>
+<Implementation><![CDATA[
+	set anonymousModeState=##class(setup.eventCreationMethods).isAnonymousModeSet(xEventID)
+	set anonymousModeAvailable=##class(setup.eventCreationMethods).isAnonymousModeEnabled(xEventID)
+	set identifiedModeState=##class(setup.eventCreationMethods).isIdentifiedModeSet(xEventID)
+	set identifiedModeAvailable=##class(setup.eventCreationMethods).isIdentifiedModeEnabled(xEventID)
+	
+	set style=""
+	if anonymousModeState,identifiedModeAvailable set style="active button|transparent.png"
+	if identifiedModeState,anonymousModeAvailable set style="inactive button|transparent.png"
+	if identifiedModeState,'anonymousModeAvailable set style="disabled button|lock_disabled.png"
+	if anonymousModeState,'identifiedModeAvailable set style="pre-selected button|lock_active.png"
+
+	// lock down the setting if we have any bookings
+	if ##class(links.lnkPersonEvent).hasAnyBookings(xEventID) {
+		if $P(style,"|",1)="active button" set style="pre-selected button|lock_active.png"
+		if $P(style,"|",1)="inactive button" set style="disabled button|lock_disabled.png"
+	}
+	quit style
+]]></Implementation>
+</Method>
+
+<Method name="getEventStatusForDisplay">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>eventStatusRaw</FormalSpec>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	set out=$CASE(eventStatusRaw
+		,"live":"Live"
+		,"archived":"Archived"
+		,"cancelled":"Cancelled"
+		,:"Not Live"
+	)
+	quit out
+]]></Implementation>
+</Method>
+
+<Method name="createAwardsFTPpath">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>eventID</FormalSpec>
+<Implementation><![CDATA[
+	set FTPpath=##class(setup.objSetting).getParameter("awards","FTP path")
+	if $E(FTPpath,1)'="/" set FTPpath="/"_FTPpath
+	if $E(FTPpath,$L(FTPpath))'="/" set FTPpath=FTPpath_"/"
+	
+	set clientName=^%ZCSPAPPS($ZCVT($ZNSPACE,"U"))
+	set FTPpath=FTPpath_clientName_"/"_"event_"_eventID_"/"
+	
+	do ##class(setup.objEventSetting).setParameter("awards","file FTP path",FTPpath,eventID)
+	
+	quit
+]]></Implementation>
+</Method>
+
+<Method name="createAwardsWebPath">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>eventID</FormalSpec>
+<Implementation><![CDATA[
+	set path=##class(setup.objSetting).getParameter("awards","web path")
+	if $E(path,1)'="/" set path="/"_path
+	if $E(path,$L(path))'="/" set path=path_"/"
+	
+	set cspAppName=^%ZCSPAPPS($ZNSPACE)
+	set path="/"_cspAppName_"/media"_path_cspAppName_"/"_"event_"_eventID_"/" // eg. 'GLA/media/awards/event_12/'
+	
+	do ##class(setup.objEventSetting).setParameter("awards","file web path",path,eventID)
+	
+	quit
+]]></Implementation>
+</Method>
+
+<Method name="isEventNameValid">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>inDesc</FormalSpec>
+<ReturnType>%Boolean</ReturnType>
+<Implementation><![CDATA[
+	set isValid=0
+	
+	// Don't allow the following ~|<>"
+	
+	if inDesc=$ZSTRIP(inDesc,"*C","~|<>""") set isValid=1
+	if ##class(shared.pageMethods).hasStringBeenSanitisedForCrossSiteScripting(inDesc) {
+		set isValid=0	
+	}
+	quit isValid
 ]]></Implementation>
 </Method>
 </Class>

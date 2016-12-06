@@ -151,13 +151,14 @@ empty lists doesn't seem to be editable
 allow backend bookings to override full ABIs
 make sure we can't add questions on components that shouldn't allow it (use new attrib on tag + new prop on objComponenet)
 review the way we integrate the new CSP page with the old one, wrapper around pageNav?
-===============================================================================
-
 implment the home page
-improve the editor iframe handling
-the items outside the form area jumps when they get the edit panel
-Look at the capitalisation logic
+Remove proceed button on homepage
 menu doesn't get populated on first load
+
+===============================================================================
+the items outside the form area jumps when they get the edit panel
+improve the editor iframe handling
+Look at the capitalisation logic
 review the default list type for legacy components
 Marketing code
 Warning on leaving the page
@@ -166,7 +167,6 @@ test multiple list on a page
 replace most contextDataRegistration with contextDataFrontend
 autiding delete&add
 QBIs
-get rid of the word "proweb" in the CSS
 warning before leaving the page
 table bookings
 should we block menu blocks? Or let them add new ones?

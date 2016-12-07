@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.2 (Build 736U)" ts="2016-12-06 18:31:27">
+<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.2 (Build 736U)" ts="2016-12-07 09:34:53">
 <Class name="EF.contextDataRegistration">
 <Description><![CDATA[
 <!-- ;vc;-
@@ -1980,7 +1980,7 @@ Should be run if any of the sub-classes are deleted</Description>
 <Description>
 Should have a one-to-one relationship with sc.objList</Description>
 <Super>EF.pageController.containerElement</Super>
-<TimeChanged>64258,65170.320912</TimeChanged>
+<TimeChanged>64259,34431.547054</TimeChanged>
 <TimeCreated>64231,55587.036042</TimeCreated>
 
 <Property name="prowebListID">
@@ -2331,15 +2331,36 @@ refers to sc.xModules.objList</Description>
 <Method name="renderEmptyListHTML">
 <Implementation><![CDATA[
 	if ..page.contextData.prowebMode = "edit" {
-		try {
-			set listID = ..prowebListID
-			&HTML<
-				<div class="row ef-draggable-div ef-form-row ef-form-row-editable ef-empty-list" data-ui-component-type="emptyList" data-proweb-list-id="#(##class(EF.htmlGenerator).encodeForHTMLAttribute(listID))#">Empty List</div>
+		set allowedElementTypes = ..getAllowedElementTypesForThisListType( $CLASSNAME($this) )
+		&HTML<
+			<div class="row ef-draggable-div ef-form-row ef-form-row-editable ef-empty-list" 
+				data-ui-component-type="emptyList" 
+				data-proweb-list-id="#(##class(EF.htmlGenerator).encodeForHTMLAttribute(..prowebListID))#"
+				data-proweb-allowed-types="#(##class(EF.htmlGenerator).encodeForHTMLAttribute(allowedElementTypes))#"
 			>
-		} catch {
-			throw ##class(shared.exceptions.generalException).%New("No listID found for "_..identifier)
-		}
+					Empty List
+			</div>
+		>
 	}
+]]></Implementation>
+</Method>
+
+<Method name="getAllowedElementTypesForThisListType">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>nameOfListClass:%String</FormalSpec>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	if nameOfListClass = "EF.pageController.proweb.list" {
+		return "Text"	
+		
+	} elseif nameOfListClass = "EF.pageController.proweb.listOfSingleElement" {
+		return "Text"	
+		
+	} elseif nameOfListClass = "EF.pageController.proweb.listWithQuestionsRegistration" {
+		return "Question,ABI,QBI,Collection,Divider,Text,File upload,Video"	
+	}
+	
+	throw ##class(shared.exceptions.generalException).%New("List class has no allowed element types defined: "_nameOfListClass)
 ]]></Implementation>
 </Method>
 
@@ -5754,7 +5775,7 @@ this is for version 1 of proweb</Description>
 ;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>EF.ui.components.backend.datePicker.CLS/EV.3</td><td>CLS.EF.ui.components.backend.datePicker</td><td>LargeDev</td><td style='white-space: nowrap;'>02-Feb-16 12:32</td><td>AdrianM2</td></tr></table>
 ]]></Description>
 <Super>EF.ui.components.textInput,EF.ui.components.frontend.inputElement</Super>
-<TimeChanged>64254,63064.344445</TimeChanged>
+<TimeChanged>64259,32987.53991</TimeChanged>
 <TimeCreated>63384,38215.518113</TimeCreated>
 
 <Parameter name="typeAttribute">
@@ -5772,21 +5793,6 @@ this is for version 1 of proweb</Description>
 	set defaultClasses = ..getDefaultProwebClasses()
 	set defaultClasses = defaultClasses_" ef-date-picker ef-kendo-form-control"
 	return defaultClasses
-]]></Implementation>
-</Method>
-
-<Method name="renderJS">
-<Implementation><![CDATA[
-	&html<
-		<script language="javascript">
-		$(function() {
-			$('##(..encodeJS(..htmlID))#').kendoDatePicker({
-				format: getKendoDateFormat(#(..encodeJS(..validator.dateFormat))#),
-			});
-		});
-		</script>
-	>
-	do ##super()
 ]]></Implementation>
 </Method>
 
@@ -7075,7 +7081,7 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 
 <Class name="EF.ui.components.frontend.prowebBase">
 <Super>EF.ui.components.base</Super>
-<TimeChanged>64254,44099.274901</TimeChanged>
+<TimeChanged>64259,33983.837242</TimeChanged>
 <TimeCreated>64183,41819.123112</TimeCreated>
 
 <Property name="isProwebEditMode">
@@ -7104,7 +7110,7 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 <Implementation><![CDATA[
 	if ..isProwebEditMode {
 		set uiComponentType = $Piece($CLASSNAME(), ".", *)
-		set allowedElementTypes = ..getAllowedElementTypesForThisList()
+		set allowedElementTypes = ##class(EF.pageController.proweb.list).getAllowedElementTypesForThisListType(..nameOfControllerListClass)
 
 		&HTML<
 			<div class="row ef-draggable-div ef-form-row ef-form-row-editable" 
@@ -7124,24 +7130,6 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 		}
 		write !,"<div class=""row ef-form-row"" "_..rawHTML(dataAttributes)_">"
 	}
-]]></Implementation>
-</Method>
-
-<Method name="getAllowedElementTypesForThisList">
-<Private>1</Private>
-<ReturnType>%Boolean</ReturnType>
-<Implementation><![CDATA[
-	if ..nameOfControllerListClass = "EF.pageController.proweb.list" {
-		return "Text"	
-		
-	} elseif ..nameOfControllerListClass = "EF.pageController.proweb.listOfSingleElement" {
-		return "Text"	
-		
-	} elseif ..nameOfControllerListClass = "EF.pageController.proweb.listWithQuestionsRegistration" {
-		return "Question,ABI,QBI,Collection,Divider,Text,File upload,Video"	
-	}
-	
-	throw ##class(shared.exceptions.generalException).%New("List class has no allowed element types defined: "_..nameOfControllerListClass)
 ]]></Implementation>
 </Method>
 
@@ -24096,7 +24084,7 @@ Returns true if the template is custom made</Description>
 </Class>
 
 
-<Project name="proweb 2" LastModified="2016-12-06 14:39:07.801703" Target="largedevsrc/backEnd/home/login.csp" TargetType="3">
+<Project name="proweb 2" LastModified="2016-12-06 14:39:07.801071" Target="largedevsrc/backEnd/home/login.csp" TargetType="3">
   <Items>
     <ProjectItem name="EF.contextDataRegistration" type="CLS"></ProjectItem>
     <ProjectItem name="EF.contextDataRegistrationMock" type="CLS"></ProjectItem>
@@ -24160,6 +24148,7 @@ Returns true if the template is custom made</Description>
     <ProjectItem name="EF.pageController.proweb.youTubeVideo" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pages.frontend.base" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pages.frontend.baseProweb" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.pages.frontend.registrationProcessProweb" type="CLS"></ProjectItem>
     <ProjectItem name="EF.ui.components.attribute" type="CLS"></ProjectItem>
     <ProjectItem name="EF.ui.components.backend.panel" type="CLS"></ProjectItem>
     <ProjectItem name="EF.ui.components.frontend.alternativeABI" type="CLS"></ProjectItem>
@@ -24231,6 +24220,7 @@ Returns true if the template is custom made</Description>
     <ProjectItem name="largedevsrc/frontEnd/reg/registration.csp" type="CSP"></ProjectItem>
     <ProjectItem name="largedevsrc/frontEnd/reg/reorderProwebElements.csp" type="CSP"></ProjectItem>
     <ProjectItem name="largedevsrc/frontEnd/reg/tRegistration.csp" type="CSP"></ProjectItem>
+    <ProjectItem name="largedevsrc/frontEnd/reg/tmenu.csp" type="CSP"></ProjectItem>
     <ProjectItem name="largedevsrc/media/templates/ALL_CLIENTS/EF_theme_standard_design-v2-04/index.html" type="CSP"></ProjectItem>
     <ProjectItem name="largedevsrc/media/templates/ALL_CLIENTS/EF_theme_standard_design-v2-04/style.LESS" type="CSP"></ProjectItem>
     <ProjectItem name="largedevsrc/media/templates/ALL_CLIENTS/EF_theme_standard_design-v2-07/index.html" type="CSP"></ProjectItem>
@@ -24269,17 +24259,15 @@ Returns true if the template is custom made</Description>
     <ProjectItem name="sc.xModules.objPage" type="CLS"></ProjectItem>
     <ProjectItem name="setup.availabilityCheckerSession" type="CLS"></ProjectItem>
     <ProjectItem name="setup.bookingLevelCounterFrontendSession" type="CLS"></ProjectItem>
-    <ProjectItem name="shared.pageMethods" type="CLS"></ProjectItem>
-    <ProjectItem name="EF.pages.frontend.registrationProcessProweb" type="CLS"></ProjectItem>
-    <ProjectItem name="largedevsrc/frontEnd/reg/tmenu.csp" type="CSP"></ProjectItem>
     <ProjectItem name="setup.eventCreationMethods" type="CLS"></ProjectItem>
+    <ProjectItem name="shared.pageMethods" type="CLS"></ProjectItem>
   </Items>
   <BreakPoints>
     <BreakPoint Routine="cspRealEV.frontend.reg.pagecontrollerstandardsave.CLS" Offset="OnPreHTTPafter+28"></BreakPoint>
-    <BreakPoint Routine="shared.pageMethodsFrontend.CLS" Offset="setRedirectPageFromHomepage+14"></BreakPoint>
     <BreakPoint Routine="cspRealEV.system.proweb.start.CLS" Offset="OnPreHTTPafter+2"></BreakPoint>
     <BreakPoint Routine="cspRealEV.system.proweb.start.CLS" Offset="OnPreHTTPafter+23"></BreakPoint>
     <BreakPoint Routine="setup.eventCreationMethods.CLS" Offset="addDefaultMenuItems+2"></BreakPoint>
+    <BreakPoint Routine="shared.pageMethodsFrontend.CLS" Offset="setRedirectPageFromHomepage+14"></BreakPoint>
   </BreakPoints>
 </Project>
 

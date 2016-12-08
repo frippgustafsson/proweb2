@@ -155,17 +155,25 @@ implment the home page
 Remove proceed button on homepage
 menu doesn't get populated on first load
 the items outside the form area jumps when they get the edit panel
-===============================================================================
-
 empty list doesn't allow new items anymore
 the dropdown menu button in small window is the wrong colour
+The page dropdown shows pages for other att cats
+===============================================================================
+
+add cog to editor control panel for page properties
+harmonise the two routes
+edit page crashes after colour change
 improve the editor iframe handling (inPage panel instead?)
+
+The page header is all wrongly populated
 Look at the capitalisation logic
 review the default list type for legacy components
 Marketing code
 Warning on leaving the page
 convert email page
 convert basket page
+restore the unit tests
+pre-populate the page page header
 convert thankyou page
 alignments are off in narrow viewport
 date range has JS error

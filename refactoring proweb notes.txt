@@ -165,11 +165,11 @@ should we block menu blocks? Or let them add new ones?
 time field placeholder in FF is outside the box
 add WARNING note about loading the new template and creating the new design
 autiding delete&add
-
+harmonise the two routes
+add cog to editor control panel for page properties
 ===============================================================================
 
-add cog to editor control panel for page properties
-harmonise the two routes
+
 The page header is all wrongly populated
 editor panel shouldn't scroll
 restore the unit tests

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.2 (Build 736U)" ts="2016-12-12 10:26:28">
+<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.2 (Build 736U)" ts="2016-12-12 11:13:55">
 <Class name="EF.contextDataFrontend">
 <Description><![CDATA[
 <!-- ;vc;-
@@ -6267,7 +6267,7 @@ this is for version 1 of proweb</Description>
 
 <Class name="EF.ui.components.frontend.editorControlPanel">
 <Super>shared.pCSPmanage</Super>
-<TimeChanged>64261,33105.331723</TimeChanged>
+<TimeChanged>64264,40390.492987</TimeChanged>
 <TimeCreated>64203,40625.329831</TimeCreated>
 
 <Method name="outputEditorControlPanel">
@@ -6275,7 +6275,7 @@ this is for version 1 of proweb</Description>
 <Implementation><![CDATA[
 	#dim contextData as EF.contextDataFrontend = ##class(EF.contextDataFrontend).createFromFrontendCSPSession()
 	
-	set newPageURL = ..Link("../../system/proweb/start.csp")
+	set newPageURL = ..Link("../../system/proweb/start.csp?z=1")
 	set attendeeCategoryID = contextData.attendeeCategoryID
 	if attendeeCategoryID = "" {
 		set attendeeCategoryID = ##class(sc.xModules.objPage).getAttendeeCategoryFromPageID(contextData.pageID)	
@@ -6285,6 +6285,10 @@ this is for version 1 of proweb</Description>
 		<div id="efEditorControlPanel" class="container ef-editor-control-panel">
 			<div class="ef-editor-panel-heading">
 				Website Contents Editor
+				<div style="float: right;">
+					<button type="button" id="pageProperties" class="glyphicon glyphicon-pencil" style="color: black;" onClick="window.location.assign('#(..encodeForURL(..Link("../../backend/proweb/pageProperties.csp")))#');"></button>
+
+				</div>
 			</div>
 			<div class="ef-editor-panel-body">
 				<div class="row form-horizontal">
@@ -6294,7 +6298,7 @@ this is for version 1 of proweb</Description>
 						</label>
 					</div>
 					<div class="col-sm-2">
-						<select name="selPage" id="selPage" class="form-control ef-form-control" onChange="window.location.assign('#(..encodeForURL(newPageURL))#?pageID=' + this.value);">
+						<select name="selPage" id="selPage" class="form-control ef-form-control" onChange="window.location.assign('#(newPageURL)#&pageID=' + this.value);">
 							>
 							set eventPageList=##class(sc.eventPageList).createNew(contextData.eventID, contextData.languageID)
 							do eventPageList.getPageArray(.pageArray)
@@ -6330,7 +6334,7 @@ this is for version 1 of proweb</Description>
 						</label>
 					</div>
 					<div class="col-sm-2">
-						<select name="selLanguage" id="selPage" class="form-control ef-form-control" onChange="window.location.assign('#(..encodeForURL(newPageURL))#?pageID=' + this.value);">
+						<select name="selLanguage" id="selPage" class="form-control ef-form-control" onChange="window.location.assign('#(newPageURL)#&pageID=' + this.value);">
 							>
 							do ##class(shared.objLanguage).getLanguagesForEvent(contextData.eventID, .languageArray)
 							set languageID = ""
@@ -6359,7 +6363,7 @@ this is for version 1 of proweb</Description>
 							id="selPage" 
 							class="form-control ef-form-control" 
 							#( $Select(attendeeCategoryID="":"DISABLED",1:"") )#
-							onChange="window.location.assign('#(..encodeForURL(newPageURL))#?pageID=' + this.value);">
+							onChange="window.location.assign('#(newPageURL)#&pageID=' + this.value);">
 						>
 							if attendeeCategoryID="" {
 								Write !,"<option></option>"	

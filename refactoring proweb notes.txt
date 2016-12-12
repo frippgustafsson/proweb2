@@ -158,33 +158,41 @@ the items outside the form area jumps when they get the edit panel
 empty list doesn't allow new items anymore
 the dropdown menu button in small window is the wrong colour
 The page dropdown shows pages for other att cats
+improve the editor iframe handling (inPage panel instead?)
+Use database names for field IDs
+date range has JS error
+should we block menu blocks? Or let them add new ones?
+time field placeholder in FF is outside the box
+add WARNING note about loading the new template and creating the new design
+autiding delete&add
+
 ===============================================================================
 
 add cog to editor control panel for page properties
 harmonise the two routes
-edit page crashes after colour change
-improve the editor iframe handling (inPage panel instead?)
-
 The page header is all wrongly populated
+editor panel shouldn't scroll
+restore the unit tests
 Look at the capitalisation logic
+page header should not be stylable
+turn off setting in template upload (temporary)
+
+--- iceboxing it ---
+editor panel should cope with narrow mode
+tweak vertical alignment of labels vs fields
+edit page crashes after colour change
+find out why it is so slow
 review the default list type for legacy components
 Marketing code
 Warning on leaving the page
 convert email page
 convert basket page
-restore the unit tests
-pre-populate the page page header
 convert thankyou page
 alignments are off in narrow viewport
-date range has JS error
 test multiple list on a page
 replace most contextDataRegistration with contextDataFrontend
-autiding delete&add
 QBIs
 warning before leaving the page
 table bookings
-should we block menu blocks? Or let them add new ones?
 add integration test where we create the whole shebang
 remove proweb version 1.5 code
-time field placeholder in FF is outside the box
-add WARNING note about loading the new template and creating the new design

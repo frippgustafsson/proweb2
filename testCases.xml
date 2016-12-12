@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.2 (Build 736U)" ts="2016-12-08 15:09:54">
+<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.2 (Build 736U)" ts="2016-12-12 10:26:28">
 <Class name="EF.contextDataFrontend">
 <Description><![CDATA[
 <!-- ;vc;-
@@ -2594,7 +2594,7 @@ Should have a one-to-one relationship with sc.objList</Description>
 
 <Class name="EF.pageController.proweb.page">
 <Super>EF.pageController.page</Super>
-<TimeChanged>64260,28277.642075</TimeChanged>
+<TimeChanged>64261,32958.157481</TimeChanged>
 <TimeCreated>64189,51696.559047</TimeCreated>
 
 <Property name="contextData">
@@ -2783,8 +2783,12 @@ Should have a one-to-one relationship with sc.objList</Description>
 <FormalSpec>prowebItem:sc.facade.prowebItem,optionalGuestNumber:%Integer=""</FormalSpec>
 <ReturnType>%String</ReturnType>
 <Implementation><![CDATA[
-	set identifier = "proweb-"_prowebItem.storage.prowebID
-	
+	;set identifier = "proweb-"_prowebItem.storage.prowebID
+	try {
+		set identifier = prowebItem.storage.databaseItemName
+	} catch {
+		set identifier = "proweb-"_prowebItem.storage.prowebID
+	}
 	if optionalGuestNumber {
 		set identifier = identifier_"-"_optionalGuestNumber		
 	}
@@ -4665,7 +4669,7 @@ this is for version 1 of proweb</Description>
 <Class name="EF.pages.frontend.baseProweb">
 <ProcedureBlock>0</ProcedureBlock>
 <Super>EF.pages.frontend.base</Super>
-<TimeChanged>64259,53613.722755</TimeChanged>
+<TimeChanged>64261,33011.138265</TimeChanged>
 <TimeCreated>64191,31442.531402</TimeCreated>
 
 <Parameter name="ENCODED">
@@ -4895,7 +4899,7 @@ this is for version 1 of proweb</Description>
 <ClassMethod>1</ClassMethod>
 <Implementation><![CDATA[
 	&html<
-		<form id="#(..#efFormID)#" name="#(..getFormName())#" method="POST" action="#(..Link(..getFormAction()))#" class="form-horizontal ef-form">
+		<form id="#(..#efFormID)#" name="#(..getFormName())#" method="POST" action="#(..Link(..getFormAction()))#" class="form-horizontal ef-form" autocomplete="on">
 			<input type="hidden" name="pageID" value="#(contextData.pageID)#">
 			<input type="hidden" id="efSubmitButtonIdentifier" name="efSubmitButtonIdentifier" value="">
 			<input type="hidden" id="efDeleteButtonIdentifier" name="efDeleteButtonIdentifier" value="">
@@ -6263,7 +6267,7 @@ this is for version 1 of proweb</Description>
 
 <Class name="EF.ui.components.frontend.editorControlPanel">
 <Super>shared.pCSPmanage</Super>
-<TimeChanged>64260,54463.467019</TimeChanged>
+<TimeChanged>64261,33105.331723</TimeChanged>
 <TimeCreated>64203,40625.329831</TimeCreated>
 
 <Method name="outputEditorControlPanel">
@@ -6280,7 +6284,7 @@ this is for version 1 of proweb</Description>
 	&html<
 		<div id="efEditorControlPanel" class="container ef-editor-control-panel">
 			<div class="ef-editor-panel-heading">
-				Website Contents Editor ####### PageID = #(contextData.pageID)#  - Session/page Attendee Category ID = #(attendeeCategoryID)# ########
+				Website Contents Editor
 			</div>
 			<div class="ef-editor-panel-body">
 				<div class="row form-horizontal">
@@ -8859,11 +8863,7 @@ table {margin-left:0px;margin-right:0px;}
 							<td class="black10px">
 									<csp:if condition=(sameAs)>
 									<csp:else>
-										<csp:if condition=(+$get(%session.Data("useExperimentalCMS")))>
-											<a target="_self" href="../../backend/home/inSiteEditingFrame.csp?pageID=#(..encodeForHTMLAttribute(pageID))#"><img src="../../media/images/English/Default/backend/edit.gif" width="45" height="17" alt="" border="0" /></a>
-										<csp:else>
-											<a target="frameEdit" href="../../system/proweb/start.csp?pageID=#(pageID)#&mode=edit&hideButtons=1&version=current&eventID=#(xEventID)#&eventCategoryID=#(eventCategoryID)#"><img src="../../media/images/English/Default/backend/edit.gif" width="45" height="17" alt="" border="0" /></a>
-										</csp:if>
+										<a target="frameEdit" href="../../system/proweb/start.csp?pageID=#(pageID)#&mode=edit&hideButtons=1&version=current&eventID=#(xEventID)#&eventCategoryID=#(eventCategoryID)#"><img src="../../media/images/English/Default/backend/edit.gif" width="45" height="17" alt="" border="0" /></a>
 									</csp:if>
 							</td>
 							<td class="black10px" align="center">
@@ -12653,7 +12653,7 @@ function saveSameAs(categoryID) {
 					set itemNameID=##class(cod.objItemName).add(description,mandatory,tmpType,codGroup,,,carryOver,eventHotelID)
 				}
 			} catch error {
-				set %session.Data("proweb","backend","errMsg")=error.DisplayString()	
+				set %session.Data("proweb","backend","errMsg")=error.Name
 				set %response.Redirect=errorURL
 				return 0
 			}
@@ -24356,7 +24356,7 @@ Returns true if the template is custom made</Description>
 </Class>
 
 
-<Project name="proweb 2" LastModified="2016-12-08 07:48:12.935708" Target="largedevsrc/backEnd/home/login.csp" TargetType="3">
+<Project name="proweb 2" LastModified="2016-12-12 10:26:20.401282" Target="largedevsrc/backEnd/home/login.csp" TargetType="3">
   <Items>
     <ProjectItem name="EF.contextDataRegistration" type="CLS"></ProjectItem>
     <ProjectItem name="EF.contextDataRegistrationMock" type="CLS"></ProjectItem>
@@ -24535,6 +24535,7 @@ Returns true if the template is custom made</Description>
     <ProjectItem name="shared.pageMethods" type="CLS"></ProjectItem>
     <ProjectItem name="EF.ui.components.frontend.editorControlPanel" type="CLS"></ProjectItem>
     <ProjectItem name="EF.contextDataFrontend" type="CLS"></ProjectItem>
+    <ProjectItem name="setup.backendMenu" type="CLS"></ProjectItem>
   </Items>
   <BreakPoints>
     <BreakPoint Routine="cspRealEV.frontend.reg.pagecontrollerstandardsave.CLS" Offset="OnPreHTTPafter+28"></BreakPoint>
@@ -29155,6 +29156,1426 @@ Used for listing corresponding pages in a different language</Description>
 <Implementation><![CDATA[	return ..eventSession.registrationStatus="limited"
 ]]></Implementation>
 </Method>
+</Class>
+
+
+<Class name="setup.backendMenu">
+<Description><![CDATA[
+<!-- ;vc;-
+;vc;    Object: setup.backendMenu.CLS/EV.77
+;vc; Component: CLS.setup.backendMenu
+;vc;  Location: LargeDev
+;vc; Date/Time: 12-Dec-16 09:39
+;vc;      User: FredG
+;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>setup.backendMenu.CLS/EV.77</td><td>CLS.setup.backendMenu</td><td>LargeDev</td><td style='white-space: nowrap;'>12-Dec-16 09:39</td><td>FredG</td></tr></table>
+]]></Description>
+<Abstract>1</Abstract>
+<IncludeCode>%occStatus,%occXSLT,EF.common.macros</IncludeCode>
+<TimeChanged>64264,37365.484553</TimeChanged>
+<TimeCreated>62734,53934.49686</TimeCreated>
+
+<XData name="backendMenuTree">
+<Description>
+please note that you must escape any ampersands in the data</Description>
+<Data><![CDATA[
+<backendMenu>
+	<level1 description="Create New" hoverText="Create new..." divID="ef_menu_button_add" class="ef_menu_button_add" URL="" accessID="CREMANEV" spanEvents="yes" requiredModule="" menuPosition="left" noSiblingMenu="1" isPublic="1">
+		<level2 description="Create new..." URL="" isMenuCaption="1" spanEvents="yes"/>
+		<level2 description="Event" URL="../../backend/home/eventProperties.csp?eventID=NEW" accessID="NEWEVENT" spanEvents="yes" requiredModule="" previewImage="event.png"/>
+		<level2 description="Event using an existing event as a template" URL="../../backend/home/eventCopy.csp" accessID="COPYEVENT" spanEvents="no" requiredModule="" previewImage="event using temp.png"/>
+		<level2 description="Registration" URL="../../frontEnd/reg/initSession.csp?page=registerNew.csp&amp;backendBooking=1"  accessID="NEWBOOK" spanEvents="no" newWindow="1" requiredModule="New Backend Booking" previewImage="booking.png"/>
+		<level2 description="Ad Hoc Email" URL="../../backend/home/gotoNewAdhocEmail.csp" accessID="NEWEMAIL" spanEvents="no" requiredModule="EMAIL" previewImage="ad-hoc email.png"/>
+	</level1>
+	<level1 description="Task List" hoverText="View Action List" onClick="wizardEntryPopup()" divID="ef_menu_button_tasks" class="ef_menu_button_tasks" accessID="ACTIONLISTUPD" spanEvents="no" requiredModule="Action List" menuPosition="left" hideFromActionList="1"/>
+	<level1 description="Test" hoverText="Preview and test Event Website" URL="##PREVIEWURL##" divID="ef_menu_button_preview"  class="ef_menu_button_preview" newWindow="1" accessID="TESTEV" spanEvents="no" menuPosition="left" hideFromActionList="1"/>
+	<level1 description="Shortcuts" accessID="SHORTCUTS" noSiblingMenu="1" hoverText="Shortcuts" isPublic="1" URL="" divID="ef_menu_button_shortcuts"  class="ef_menu_button_shortcuts"  menuPosition="left" hideFromActionList="1">
+		<level2 description="Your shortcuts:"  isPublic="1" URL="" isMenuCaption="1"/>
+		<level2 description="Configure Shortcuts" accessID="CONFIGSHORTCUTS" URL="../../backend/home/usershortcuts.csp" spanEvents="no" isPublic="1"/>
+	</level1>
+	<level1 description="Home" hoverText="Event Dashboard" URL="../../backend/home/dashboardRedirect.csp" class="ef_menu_button_home" accessID="HOME" isPublic="1" spanEvents="no" requiredModule="" menuPosition="right" hideFromActionList="1"/>
+	<level1 description="System" hoverText="Change system settings" class="ef_menu_button_system" URL="" accessID="SYSMAN" spanEvents="yes" requiredModule="" menuPosition="right" isPublic="1">
+		<level2 description="System Settings" URL="" isMenuCaption="1"/>
+		<level2 description="My Details" URL="../../backend/home/myDetails.csp" accessID="MYDETAILS" isPublic="1" spanEvents="yes" requiredModule=""/>
+		<level2 description="Security" URL="" accessID="SYSUSERMAN" spanEvents="yes" isPublic="1" requiredModule="">
+			<level3 description="Users" URL="../../backend/home/userList.csp"        accessID="SYSUSER" spanEvents="yes" requiredModule="User Management" previewImage="user Profiles.png"/>
+			<level3 description="Roles" URL="../../backend/home/userRoleList.csp"    accessID="SYSROLE" spanEvents="yes" requiredModule="Role Management"  previewImage="Roles.png"/>
+			<level3 description="Organisational Units" URL="../../backend/home/orgUnitSetup.csp"  accessID="SYSORGUNITSETUP" spanEvents="yes" requiredModule="Organisational Units - Aviva Only" />
+		</level2>
+		<level2 description="Settings" URL="" isPublic="1" accessID="SYSPREF" spanEvents="yes" requiredModule="">
+			<level3 description="System Settings" URL="../../backend/home/systemDefaults.csp"        accessID="SYSDEF" spanEvents="yes" requiredModule="" previewImage="system defaults.png"/>
+			<level3 description="Account Details" URL="../../backend/home/clientSetting.csp"     accessID="SYSCLI" spanEvents="yes" requiredModule="" previewImage="my account details.png"/>
+			<level3 description="Action Lists" URL="../../backend/home/wizardList.csp"        accessID="ACTLIS" spanEvents="yes" requiredModule="Action List" previewImage="action lists.png"/>
+			<level3 description="Attendee Categories" URL="../../backend/home/eventCategoryList.csp"      accessID="ATTLIST" spanEvents="yes" requiredModule="Attendee Categories" previewImage="attendee categories2.png"/>
+			<level3 description="Presentation Methods" URL="../../backend/home/absPresentationMethods.csp" accessID="ABSPRESEV" spanEvents="yes" requiredModule="Abstract Management" previewImage="default presentation methods.png"/>
+			<level3 description="Accommodation Library" URL="../../backend/home/venueSearch.csp?pageMode=library"    accessID="ACCLIB" spanEvents="yes" requiredModule="Accommodation" previewImage="Hotel Library.png"/>
+			<level3 description="Templates" URL="../../backend/home/themeLoad.csp" accessID="ACCESSLOADTHEME" spanEvents="yes" requiredModule="Upload Template" previewImage="templates.png"/>
+			<level3 description="Translations" URL="../../backend/home/translationLanguages.csp" accessID="ACCESSTRANS" spanEvents="yes" requiredModule="Allow Access to Translation" previewImage="translations.png"/>
+		</level2>
+		<level2 description="Database" URL="" isPublic="1" accessID="SYSPROMPTS" spanEvents="yes" requiredModule="">
+			<level3 description="Database Items" URL="../../backend/home/codItemSearch.csp"      accessID="SYSDATA" spanEvents="yes" requiredModule="Data Items" previewImage="data items.png"/>
+			<level3 description="Collections" URL="../../backend/home/codCollectionList.csp"  accessID="REGCOLL" spanEvents="yes" requiredModule="Registration prompt collections" previewImage="collections.png"/>
+			<level3 description="Custom Event Fields" URL="../../backend/home/softEventPromptList.csp"        accessID="CUSTEVFIELD" spanEvents="yes" requiredModule="Custom event fields" previewImage="soft event prompts.png"/>
+			<level3 description="People De-Duplication" URL="../../backend/home/codPersonDeDupeSelectFields.csp?load=1"      accessID="SYSDEDUPE" spanEvents="yes" requiredModule="Person De-Duplication" previewImage="people de-duplication.png"/>
+		</level2>
+		<level2 description="Salesforce" URL="" isPublic="1" accessID="SFMENU" spanEvents="yes" requiredModule="SALESFORCE">
+			<level3 description="Settings" URL="../../backend/home/systemSettingsSalesforce.csp"     accessID="SFSYSSETTINGS" spanEvents="yes" requiredModule="SALESFORCE" previewImage="salesforce system settings.png"/>
+			<level3 description="Field Mappings" URL="../../backend/home/salesforceMappings.csp"     accessID="SFMAPPING" spanEvents="yes" requiredModule="SALESFORCE" previewImage="salesforce mappings.png"/> 
+			<level3 description="Transactions" URL="../../backend/home/sfTxnList.csp"     accessID="SFTXNLIST" spanEvents="yes" requiredModule="SALESFORCE" previewImage="salesforce transactions.png"/>
+			<level3 description="Schroders" URL="../../backend/home/sfTxnList.csp"     accessID="SFSCHRODERSTXNLIST" spanEvents="yes" requiredModule="SALESFORCE SCHRODERS" previewImage="salesforce transactions.png"/>
+		</level2>
+		<level2 description="Eventsforce Tools" URL="" isPublic="1" accessID="EVONLYTOOLS" spanEvents="yes" requiredModule="" menuGroup="EFONLY" hideFromActionList="1">
+			<level3 description="Messages" URL="../../backend/home/userMessages.csp"    accessID="EVMSGS" spanEvents="yes" requiredModule="" previewImage=""/>
+			<level3 description="Application Errors" URL="../../system/listAppErrors.csp" accessID="EVAPPERRORS" spanEvents="yes" requiredModule="" previewImage=""/>
+			<level3 description="Unit Tests" URL="../../system/unitTests.csp" accessID="EVUNITTESTS" spanEvents="yes" requiredModule="" previewImage=""/>
+			<level3 description="Session Dump" URL="../../system/sessionDump.csp" accessID="EVSESSDUMP" spanEvents="yes" requiredModule="" previewImage=""/>
+			<level3 description="Multi Audit" URL="../../backend/home/multiSourceAudit.csp"       accessID="EVSMULTAUDIT" spanEvents="yes" requiredModule="" previewImage=""/>
+			<level3 description="Proweb Tree" URL="../../backend/home/prowebTreeDisplay.csp"      accessID="EVPROWEBTREE" spanEvents="yes" requiredModule="" previewImage=""/>
+			<level3 description="Templates" URL="../../backend/home/themeLoad.csp"        accessID="EVLOADTHEME" spanEvents="yes" requiredModule="" previewImage=""/>
+		</level2>
+		<level2 description="Eventsforce Settings" URL="" isPublic="1" accessID="EVONLYSETTINGS" spanEvents="yes" requiredModule="" menuGroup="EFONLY" hideFromActionList="1">
+			<level3 description="Installation" URL="../../backend/home/systemSettings.csp"  accessID="EVSETT" spanEvents="yes" requiredModule=""/>
+			<level3 description="License" URL="../../backend/home/eventsforceLicense.csp"   accessID="EVLIC" spanEvents="yes" requiredModule=""/>
+			<level3 description="Custom Packages" URL="../../backend/home/systemTypeList.csp"       accessID="EVMOD" spanEvents="yes" requiredModule=""/>
+			<level3 description="Currencies" URL="../../backend/home/currencyList.csp"    accessID="EVCURRENCIES" spanEvents="yes" requiredModule=""/>
+			<level3 description="Translations" URL="../../backend/home/translationLanguages.csp"     accessID="EVTRANS" spanEvents="yes" requiredModule=""/>
+		</level2>
+	</level1>
+	<level1 description="Events" hoverText="Choose an event to manage" URL="" isPublic="1" accessID="EVENTS" spanEvents="no" requiredModule="" menuPosition="right" noSiblingMenu="1" hideFromActionList="1">
+		<level2 description="Select a recent event:" accessID="MRUEVENTS" URL="../../backend/home/switchEvent.csp" menuGroup="RecentEvents"/>
+		<level2 description="Show all Events" URL="../../backend/home/eventSelection.csp"  accessID="ALLEVENTS" spanEvents="yes" requiredModule="" menuGroup="AllEvents"/> 
+	</level1>
+	<level1 description="Setup" hoverText="Set up your event" URL="" accessID="EVSETUP" spanEvents="no" requiredModule=""  menuPosition="right">
+		<level2 description="Event" URL="" accessID="MAINSETT" spanEvents="no" requiredModule="" isPublic="1">
+			<level3 description="Properties" URL="../../backend/home/eventProperties.csp" accessID="EVPROP" spanEvents="no" requiredModule="" previewImage="event.png"/>
+			<level3 description="Categories" URL="../../backend/home/eventAttendeeCategories.csp"   accessID="ATTCAT" spanEvents="no" requiredModule="Attendee Categories" previewImage="attendee categories.png"/>
+			<level3 description="Registration" URL="../../backend/home/registrationSettings.csp" accessID="BOOKOPT" spanEvents="no" requiredModule="" previewImage="booking options.png"/>
+			<level3 description="Capacity" URL="../../backend/home/eventCapacity.csp" accessID="CAPA" spanEvents="no" requiredModule="" previewImage="capacity.png"/>
+			<level3 description="Salesforce" URL="../../backend/home/eventSettingsSalesforce.csp" accessID="SFEVENTSETTV2" spanEvents="no" requiredModule="SALESFORCE" previewImage=""/>
+		</level2>
+		<level2 description="Program" URL="" accessID="PROG" spanEvents="no" requiredModule="Sessions" isPublic="1">
+			<level3 description="Settings" URL="../../backend/home/eventSettingsAgendaSessions.csp" accessID="SESSSETT" spanEvents="no" requiredModule="Sessions" previewImage="session settings.png"/>
+			<level3 description="Sessions" URL="../../backend/home/itemList.csp"     accessID="SESSDET" spanEvents="no" requiredModule="Sessions" previewImage="session details.png"/>
+			<level3 description="Session Types" URL="../../backend/home/sessionTypeList.csp" accessID="SESSTYP" spanEvents="yes" requiredModule="Sessions" previewImage="session types.png"/>
+			<level3 description="Presenters" URL="../../backend/home/presenterList.csp"      accessID="PRES" spanEvents="no" requiredModule="Sessions" previewImage="presenters.png"/>
+			<level3 description="Locations" URL="../../backend/home/locationList.csp?"       accessID="LOCS" spanEvents="no" requiredModule="Sessions" previewImage="locations.png"/>
+			<level3 description="Icons" URL="../../backend/home/iconList.csp"        accessID="ICONS" spanEvents="no" requiredModule="Sessions" previewImage="icons.png"/>
+		</level2>
+		<level2 description="Finance" URL="" accessID="FINSET" spanEvents="no" requiredModule="Pricing" menuGroup="EVFIN" isPublic="1">
+			<level3 description="Settings" URL="../../backend/home/eventSettingsFinancial.csp"     accessID="FINSETT" spanEvents="no" requiredModule="" previewImage="settings (financial).png"/>
+			<level3 description="Prices" URL="../../backend/home/priceList.csp"      accessID="PRICE" spanEvents="no" requiredModule="Price descriptors" previewImage="prices.png"/>
+			<level3 description="Discounts" URL="../../backend/home/discountList.csp"        accessID="DISC" spanEvents="no" requiredModule="Discounts" previewImage="discounts.png"/>
+			<level3 description="Payment Methods" URL="../../backend/home/paymentDetails.csp"        accessID="PAYMETH" spanEvents="no" requiredModule="" previewImage="payment methods.png"/>
+			<level3 description="VAT Codes" URL="../../backend/home/vatCodeList.csp" accessID="VATCODE" spanEvents="yes" requiredModule="" previewImage="vat codes.png"/>
+			<level3 description="Cost Centre Org Units" URL="../../backend/home/costCentreOrgUnitList.csp"   accessID="CCORGUNITLIST" spanEvents="yes" requiredModule="Organisational Units - Aviva Only" previewImage=""/>
+			<level3 description="Profit &amp; Loss" URL="../../backend/home/profitAndLoss1.csp"  accessID="PROFLOSS" spanEvents="yes" requiredModule="Profit &amp; Loss" previewImage="profit and loss.png"/>
+			<level3 description="Invoices" URL="../../backend/home/invoiceList.csp"     accessID="INVLIST" spanEvents="no" requiredModule="Invoice" requiredSystemSetting="haymarket special invoice list" previewImage=""/>
+			<level3 description="Invoice Control" URL="../../backend/home/invoiceExport.csp" accessID="INVEXPORT" spanEvents="no" requiredModule="Invoice Export" previewImage="invoice control.png"/>
+			<level3 description="Invoice Run" URL="../../backend/home/invoicingMain.csp"     accessID="INVRUN" spanEvents="no" requiredModule="Invoice" previewImage="invoice run.png"/>
+		</level2>
+		<level2 description="Table Booking" URL=""   accessID="TABL" spanEvents="no" requiredModule="Table Booking" isPublic="1">
+			<level3 description="Settings" URL="../../backend/home/tableSettings.csp"  accessID="TABLSETT" spanEvents="no" requiredModule="Table Booking" previewImage="table settings.png"/>
+			<level3 description="Groups" URL="../../backend/home/tableGroupList.csp"   accessID="TABLGROUP" spanEvents="no" requiredModule="Table Groups" previewImage="table groups.png"/>
+			<level3 description="Tables" URL="../../backend/home/tableList.csp"  accessID="TABLELIST" spanEvents="no" requiredModule="Table Booking" previewImage="table list.png"/>
+			<level3 description="Seating" URL="../../backend/home/tablePlanningAdvanced.csp"     accessID="TABLSEAT" spanEvents="no" requiredModule="Table Booking" previewImage="seating arrangement.png"/>
+		</level2>
+		<level2 description="Accommodation" URL=""    accessID="ACCOM" spanEvents="no" requiredModule="Accommodation" isPublic="1">
+			<level3 description="Settings" URL="../../backend/home/eventSettingsAccom.csp"     accessID="ACCSETT" spanEvents="no" requiredModule="Accommodation" previewImage="accommodation settings.png"/>
+			<level3 description="Rooms" URL="../../backend/home/hotelList.csp"  accessID="ACCHOT" spanEvents="no" requiredModule="Accommodation" previewImage="hotel list.png"/>
+		</level2>
+		<level2 description="Meeting Manager" URL=""  accessID="MEET" spanEvents="no" requiredModule="Meeting Manager" isPublic="1">
+			<level3 description="Settings" URL="../../backend/home/eventSettingsMeetMan.csp" accessID="MEETSET" spanEvents="no" requiredModule="Meeting Manager" previewImage="meeting manager settings.png"/>
+			<level3 description="Diary Slots" URL="../../backend/home/meetManDiarySlots.csp" accessID="MEETSLOTS" spanEvents="no" requiredModule="Meeting Manager" previewImage="diary slots.png"/>
+			<level3 description="Lunches" URL="../../backend/home/meetManLunches.csp?load=1" accessID="MEETLUNCH" spanEvents="no" requiredModule="Meeting Manager Lunches" previewImage=""/>
+			<level3 description="Arranged Meetings" URL="../../backend/home/meetManOverview.csp?load=1"      accessID="MEETOVER" spanEvents="no" requiredModule="Meeting Manager" previewImage="arranged meetings.png"/>
+		</level2>
+		<level2 description="Event Management" URL="" accessID="EVMAN" spanEvents="no" requiredModule="Event Management - Enterprise Ireland" isPublic="1">
+			<level3 description="Tasks" URL="../../backend/evMan/evManTaskList.csp"  accessID="EVTASK" spanEvents="no" requiredModule="Event Management - Enterprise Ireland" previewImage="Tasks.png"/>
+			<level3 description="Resources" URL="../../backend/evMan/evManResourceList.csp"  accessID="EVRES" spanEvents="no" requiredModule="Event Management - Enterprise Ireland" previewImage="resources.png"/>
+			<level3 description="Task Planning" URL="../../backend/evMan/evManTaskPlanning.csp"      accessID="EVTASKPL" spanEvents="no" requiredModule="Event Management - Enterprise Ireland" previewImage="task planning.png"/>
+			<level3 description="Task Types" URL="../../backend/evMan/evManTaskTypeList.csp"        accessID="EVTASKTYP" spanEvents="no" requiredModule="Event Management - Enterprise Ireland" previewImage="task types.png"/>
+			<level3 description="Event Calendar" URL="../../backend/home/eventCalendarMonthly.csp"   accessID="EVCAL" spanEvents="yes" previewImage="event calendar (Event management).png" isPublic="1"/>
+			<level3 description="Event Managers" URL="../../backend/evMan/evManEventManagers.csp"    accessID="EVMANS" spanEvents="yes" requiredModule="Event Management - Enterprise Ireland" previewImage="event managers.png"/>
+		</level2>
+		<level2 description="Badges and Documents" URL="../../backend/home/selectPrint.csp"   accessID="BADLAB" spanEvents="no" requiredModule="Badges &amp; Labels &amp; Letters" previewImage="setup and Management (Badges letters and labels).png"/>
+	</level1>
+	<level1 description="Awards" hoverText="Set up and manage your awards event" URL="" accessID="EVSETUPAWARDS" spanEvents="no" requiredModule="Awards"  menuPosition="right">	
+		<level2 description="Setup" URL="" accessID="AWRD" spanEvents="no" requiredModule="Awards" menuGroup="Awards" isPublic="1">
+			<level3 description="Settings" URL="../../backend/home/eventSettingsAwards.csp"   accessID="AWSETT" spanEvents="no" requiredModule="Awards" previewImage="settings (awards).png"/> 
+			<level3 description="Sections" URL="../../backend/home/awardsSectionList.csp" accessID="AWSEC" spanEvents="no" requiredModule="Awards" previewImage="sections.png"/>
+			<level3 description="Categories" URL="../../backend/home/awardsCategoryList.csp" accessID="AWCAT" spanEvents="no" requiredModule="Awards" previewImage="categories (Awards.png"/>
+			<level3 description="Award Types" URL="../../backend/home/awardsAwardList.csp" accessID="AWAW" spanEvents="no" requiredModule="Awards" previewImage="award types.png"/>
+			<level3 description="Judging Panel" URL="../../backend/home/awardsPanelList.csp" accessID="AWJUDGE" spanEvents="no" requiredModule="Awards" previewImage="judging panel.png"/>
+			<level3 description="Criteria" URL="../../backend/home/awardsCriteriaList.csp" accessID="AWCRIT" spanEvents="no" requiredModule="Awards" previewImage="criteria awards.png"/>
+		</level2>
+		<level2 description="Management" URL="" accessID="AWMANAGE" spanEvents="no" requiredModule="Awards" menuGroup="Awards" isPublic="1">
+			<level3 description="Entries" URL="../../backend/home/awardsOverview.csp?load=1" accessID="AWSUB" spanEvents="no" requiredModule="Awards"  previewImage="entries.png"/>
+			<level3 description="Submitters" URL="../../backend/home/awardsSubmitterDetails.csp"      accessID="AWSUBDET" spanEvents="no" requiredModule="Awards"  previewImage="submitter details.png"/>
+			<level3 description="Judges" URL="../../backend/home/awardsJudgingDetails.csp"   accessID="AWJUDDET" spanEvents="no" requiredModule="Awards" previewImage="judging details.png"/>
+			<level3 description="Judging Overview" URL="../../backend/home/awardsJudgingOverview.csp?load=1" accessID="AWJUDOV" spanEvents="no" requiredModule="Awards" previewImage="judging overview.png"/>
+			<level3 description="Award Assignment" URL="../../backend/home/awardsAssignment.csp"     accessID="AWASS" spanEvents="no" requiredModule="Awards" previewImage="awards assignment.png"/>
+		</level2>
+	</level1>
+	<level1 description="Abstracts" hoverText="Set up and manage abstract submissions" URL="" accessID="EVSETUPABSTRACTS" spanEvents="no" requiredModule="Abstract Management"  menuPosition="right">	
+		<level2 description="Setup" URL="" accessID="ABS" spanEvents="no" requiredModule="Abstract Management" menuGroup="Abstracts" isPublic="1">
+			<level3 description="Settings" URL="../../backend/home/abstractSettings.csp" accessID="ABSSETT" spanEvents="no" requiredModule="Abstract Management" previewImage="settings abstracts.png"/>
+			<level3 description="Topics" URL="../../backend/home/absTopicList.csp"   accessID="ABSTOP" spanEvents="no" requiredModule="Abstract Management" previewImage="topics.png"/>
+			<level3 description="Review Criteria" URL="../../backend/home/absCriteriaList.csp"    accessID="ABSCRIT" spanEvents="no" requiredModule="Abstract Management" previewImage="reviewing criteria abstracts.png"/>
+			<level3 description="Reviewers" URL="../../backend/home/absUserList.csp" accessID="ABSREV" spanEvents="no" requiredModule="Abstract Management" previewImage="reviewers.png"/>
+			<level3 description="Presentation Methods" URL="../../backend/home/absPresentationMethodEvent.csp" accessID="SYSABSPRES" spanEvents="no" requiredModule="Abstract Management" previewImage="presentation methods.png"/>
+		</level2>
+		<level2 description="Management" URL="" accessID="ABSMANAGE" spanEvents="no" requiredModule="Abstract Management" menuGroup="Abstracts" isPublic="1">
+			<level3 description="Submissions" URL="../../backend/home/abstractSubmissions.csp"        accessID="ABSSUB" spanEvents="no" requiredModule="Abstract Management" previewImage="submitted abstracts.png"/>
+			<level3 description="Reviews" URL="../../backend/home/absReviewsOverview.csp?load=1"     accessID="ABSRVW" spanEvents="no" requiredModule="Abstract Management" previewImage="reviews.png"/>
+		</level2>
+	</level1>
+	<level1 description="Website" URL="" hoverText="Set up your event website and registration process" accessID="FRONT" spanEvents="no" requiredModule="frontEndWebPages"  menuPosition="right" isPublic="1">
+		<level2 description="Settings" URL="" accessID="FRONTSITESETNG" spanEvents="no" requiredModule="" isPublic="1">
+			<level3 description="General" URL="../../backend/home/websiteSettings.csp" accessID="WEBSETT" spanEvents="no" requiredModule="" previewImage="website settings.png"/>
+			<level3 description="Addresses" URL="../../backend/home/eventSettingsWebAddr.csp"    accessID="WEBADDR" spanEvents="no" requiredModule="" previewImage="web addresses.png"/>
+			<level3 description="SEO" URL="../../backend/home/seoEventSettings.csp" accessID="SEOEVSETTINGS" spanEvents="no" requiredModule="SEO" previewImage="seo settings.png"/>
+		</level2>
+		<level2 description="Design" URL=""   accessID="FRONTSITEDESN" spanEvents="no" requiredModule="" isPublic="1">
+			<level3 description="Template" URL="../../backend/home/themeBrowser.csp"  accessID="THEMES" spanEvents="no" requiredModule="" previewImage="select template.png"/>
+			<level3 description="Appearance" URL="../../backend/home/websiteAppearance.csp" accessID="FONTSCOLORS" spanEvents="no" requiredModule="" previewImage="website colors.png"/>
+		</level2>
+		<level2 description="Content" URL=""  accessID="FRONTSITECONT" spanEvents="no" requiredModule="" isPublic="1">
+			<level3 description="Website Pages" URL="../../backend/home/inSiteEditingFrame.csp"  accessID="CONMAN" spanEvents="no" requiredModule="" previewImage="website contents.png"/>
+			<level3 description="Registration Pages" URL="../../backend/home/regPages.csp"   accessID="REGPAG" spanEvents="no" requiredModule="" previewImage="registration pages.png"/>
+			<level3 description="External Pages" URL="../../backend/home/externalWebPages.csp" accessID="EXTWEB" spanEvents="yes" requiredModule="External Webpages" previewImage="external pages.png"/>
+		</level2>
+	</level1>
+	<level1 description="Communications" URL="" hoverText="Manage automatic and ad hoc emails" accessID="INVMAIL" spanEvents="no" requiredModule=""  menuPosition="right" isPublic="1">
+		<level2 description="Automatic" URL="../../backend/home/emailSettings.csp" accessID="MAILTEMPL" spanEvents="no" requiredModule="EMAIL" previewImage="automatic.png"/>
+		<level2 description="Ad Hoc" URL="../../backend/home/eventEmails2.csp?butEvent_=1" accessID="EMAIL" spanEvents="no" requiredModule="EMAIL" previewImage="ad-hoc.png"/>
+		<level2 description="Approvals" URL="../../backend/bespokePages/schrodersEmailApprovals.csp" accessID="SCHROEMAILAPP" spanEvents="yes" isPublic="1" requiredSystemSetting="Schroders approval required for bulk emails" previewImage=""/>
+		<level2 description="Campaigns" URL="../../backend/home/emailCampaigns.csp" accessID="MAILCAMP" spanEvents="no" requiredModule="Email Campaigns" previewImage="campaigns.png"/>
+		<level2 description="Meeting Manager" URL="../../backend/home/meetManEmailSettings.csp" accessID="MEETEMAIL" spanEvents="no" requiredModule="Meeting Manager" previewImage="meeting manager (emails).png"/>
+		<level2 description="History" URL="../../backend/home/emailLog.csp" accessID="MAILLOG" spanEvents="yes" requiredModule="Email Log" previewImage="log (email).png"/>
+	</level1>
+	<level1 description="People" URL="" hoverText="Manage invitations, registrations and attendance recording" accessID="BOOKADM" spanEvents="no" requiredModule=""  menuPosition="right">
+		<level2 description="Lists" URL="../../backend/home/codLists.csp?clearPage=1"  accessID="PEOPLIST" spanEvents="no" requiredModule="Lists of People"  previewImage="lists of people.png"/>
+		<level2 description="Invitations" URL="../../backend/home/preRegister.csp?clearPage=1" accessID="INVITE" spanEvents="no" requiredModule="Invitations" previewImage="invitations.png"/>
+		<level2 description="Edit Registrations" URL="../../backend/home/delegateSearchGoToSimple.csp"  accessID="VIEWBOOK" spanEvents="no" requiredModule="View &amp; edit bookings" previewImage="edit bookings.png"/>
+		<level2 description="Registrations" URL="../../backend/home/registrations.csp"  accessID="REGISTRATIONLIST"  spanEvents="no"/>
+		<level2 description="Bulk Edit" URL="../../backend/home/eventBooking2.csp?butBulkEdit_=1"  accessID="BULK" spanEvents="no" requiredModule="Bulk Edit" previewImage="bulk edit.png"/>
+		<level2 description="Attendance Recording" URL="../../backend/home/attendanceRecording.csp" accessID="ATTREC" spanEvents="no" requiredModule="Attendance recording" previewImage="attendance recording.png"/>
+		<level2 description="Surveys" URL="../../backend/home/surveyList.csp" accessID="SURV" spanEvents="yes" requiredModule="Surveys" previewImage="surveys.png"/>
+	</level1>
+	<level1 description="Reports" hoverText="Create and run reports" URL="" accessID="REPORTS" spanEvents="no" requiredModule=""  menuPosition="right" isPublic="1">
+		<level2 description="Quick Search" URL="../../backend/home/delegateSearchSimple.csp?showEditButton=1" accessID="QUICKREP" spanEvents="no" requiredModule="Quick Search" previewImage="quick search.png"/>
+		<level2 description="Search" URL="../../backend/home/gotoOnlineReports.csp?reportType=default"  accessID="ADVSEARCH" spanEvents="yes" requiredModule="Standard Search" previewImage="search.png"/>
+		<level2 description="Reports" URL="../../backend/home/reportList.csp"  accessID="REPS" spanEvents="yes" requiredModule="Dynamic Reporting Runtime" previewImage="reports.png"/>
+		<level2 description="Additional Bookable Items" URL="../../backend/home/additionalItemsList.csp"  accessID="ABIS" spanEvents="no" requiredModule="Additional Bookings Items Overview" previewImage="Additional booking items.png"/>
+	</level1>
+</backendMenu>
+]]></Data>
+</XData>
+
+<Method name="validateBackendMenuTree">
+<Description>
+This checks the validity of the backend menu tree XML and returns invalid items in the array badMenuItems
+1. All items must have an accessID (except placeholders)
+2. All Access IDs must be unique</Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec><![CDATA[&badMenuItems]]></FormalSpec>
+<Implementation><![CDATA[
+	set ok=1
+
+	kill badMenuItems
+	do ..buildMenuArray(.myResults)
+	
+	set m=""
+	set count = 0
+	for  {
+		set m=$O(myResults(m))
+		if m="" quit
+		set count = count + 1
+		set isMenuCaption=$G(myResults(m,"isMenuCaption"))
+		if 'isMenuCaption {
+			set accessID=$G(myResults(m,"accessID"))
+			if '$l(accessID) {
+				set badMenuItems(count,myResults(m,"description"))="No access ID"
+			} else {
+				if $D(menuItems(accessID)) set badMenuItems(count,myResults(m,"description"))=accessID_" is not unique"
+				set menuItems(accessID) =""
+			}
+		}
+	}
+	
+	if $D(badMenuItems) set ok=0
+	
+	return ok
+]]></Implementation>
+</Method>
+
+<Method name="getMenuTreeForJSTree">
+<Description>
+create UL lists with hyperlinks that gets written out, use current pagename to create hyperlinks</Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec><![CDATA[&menuItems,isTopLevel=1]]></FormalSpec>
+<Implementation><![CDATA[
+	if isTopLevel {
+		w "<ul id=""menuTreeUL"" class=""filetree"">",!
+	} else {
+		w "<ul>"	
+	}
+	set item=""
+	for {
+		set item=$O(menuItems(item))
+		if item="" quit
+		
+		set accessID=$G(menuItems(item,"accessID"))
+		set description=$G(menuItems(item,"description"))
+		set isMenuCaption=$G(menuItems(item,"isMenuCaption"))
+		set hideFromActionList=$G(menuItems(item,"hideFromActionList"))
+		set previewImage=$G(menuItems(item,"previewImage"))
+		if ('isMenuCaption) && ('hideFromActionList) {
+		
+			w " <li id=""li_MenuItem_"_accessID_""" pageAccessID="""_accessID_""" previewImage="""_previewImage_""" pageName="""_description_""">"
+		
+			// only allow the leaves to be selected
+			if $D(menuItems(item,"children")) {
+				w description
+				kill childItems
+				merge childItems=menuItems(item,"children")
+				do ..getMenuTreeForJSTree(.childItems,0)
+			} else {
+				w "<a href=""#"">"_description_"</a>"
+			}
+			w "</li>"
+		}
+	}
+	w "</ul>"
+]]></Implementation>
+</Method>
+
+<Method name="getPathByAccessID">
+<Description>
+Pass in an accessID and this returns the path through the menu
+E.g. returns grandParentAccessID|parentAccessID|accessID</Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec><![CDATA[&menuItems,accessID,index=""]]></FormalSpec>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	set result=""
+	
+	set index=$O(menuItems(index))
+	if index="" quit ""
+	if $D(menuItems(index,"children")) {
+		kill childItems
+		merge childItems=menuItems(index,"children")
+		set result=result_..getPathByAccessID(.childItems,accessID,"")
+	}
+	set thisAccessID=$G(menuItems(index,"accessID"))
+	
+	if accessID=thisAccessID {
+		set result=accessID
+	} elseif $l(result) {
+		set result=thisAccessID_"|"_result
+	}
+	if '$l(result) {
+		set result=..getPathByAccessID(.menuItems,accessID,index)
+	}
+	quit result
+]]></Implementation>
+</Method>
+
+<Method name="getDisplayAttributes">
+<ClassMethod>1</ClassMethod>
+<FormalSpec><![CDATA[xEventID,xPersonID,level,&menuItem,&attributes]]></FormalSpec>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	
+	set (class,target,href,divID, onClick, outerClass)=""
+	set output=$G(menuItem("description"))
+	set hoverText=$G(menuItem("hoverText"))
+	set accessID=$G(menuItem("accessID"))
+	set URL=$G(menuItem("URL"))
+	
+	//If level2 and has children use the first childs accessID and URL
+	if ((level=2)!(level=3))&&($D(menuItem("children"))) {
+		set childID=$O(menuItem("children",""))
+		set accessID=$G(menuItem("children",childID,"accessID"))
+		set URL=$G(menuItem("children",childID,"URL"))
+	}
+	
+	// hellipsisicise the title and the hover text
+	set output=$replace(output,"...","&hellip;")
+	set hoverText=$replace(hoverText,"...","&hellip;")
+	if level=1 set class="ef_top_level_menu_right"
+	if level=3 set class="ef_sibling_menu_item"
+	if $G(menuItem("class"))'="" {
+		set class=menuItem("class")
+		if level=1 set output=""
+	}
+	
+	if $ZCVT($G(menuItem("spanEvents")),"U")="YES" {
+		set outerClass="ef_menu_option_is_event_spanning"
+	}
+	if $G(menuItem("isMenuCaption")) {
+		set outerClass="ef_menu_top_caption"
+	}
+	if $G(menuItem("isGroupCaption")) {
+		set outerClass="ef_menu_top_group_caption"
+	}
+	
+	if level=1,$G(menuItem("currentlySelected")) set class=class_"_on"
+	if level=3,$G(menuItem("currentlySelected")) {
+		if outerClass'="" {
+			set outerClass=outerClass_" ef_sibling_menu_selected"
+		} else {
+			set outerClass="ef_sibling_menu_selected"
+		}
+	}
+	
+	if $l($G(menuItem("onClick"))) set onClick="onClick='"_menuItem("onClick")_"'"
+	if $l($G(menuItem("divID"))) set divID="ID='"_menuItem("divID")_"'"
+	
+	if (accessID = "CONMAN") && (##class(setup.objEvent).isEventUsingProweb2(xEventID)) {
+		set pageID = ##class(setup.pageIDmethods).getEventHomePage(xEventID, $$$efEnglishLangID)
+		set URL = "../../system/proweb/start.csp?pageID="_pageID_"&mode=edit"
+		set menuItem("newWindow") = 1
+	}
+	
+	if URL'="" {
+		if URL="##PREVIEWURL##" {
+			set URL="../../frontEnd/reg/homePage.csp?inSitePageEditing=0&mode=preview&eventID="_xEventID
+			set language=##class(setup.objEventSetting).getParameter("backend","default creation language",xEventID)
+			if (language) && (language'=1) set URL=URL_"&language="_language
+	
+			if ##class(setup.objEventSetting).getParameter("system","isAwardsEvent",xEventID) {
+				if URL["registerNew" set URL=URL_"&isAwards=1"
+			}
+			set href="../../backend/home/backendMenuRedirect.csp?URL="_##class(%CSP.Page).EscapeURL(URL)
+		} else {
+			// AJM temporary change to always redirect to the playground page
+			if $G(%session.Data("eventsforce","backendMenuTest","redirectToPlayground")) set URL="aBackendPlayGround.csp"
+			if URL["?" {
+				// Make sure the event ID is not added twice
+				if URL'["?eventID=",URL'["&eventID=" {
+					set URL=URL_"&eventID="_xEventID
+				}
+			} else {
+				set URL=URL_"?eventID="_xEventID
+			}
+			set href="../../backend/home/backendMenuRedirect.csp?selectedMenuAccessID="_accessID_"&URL="_##class(%CSP.Page).EscapeURL(URL)
+		}
+	}
+	if href="" set href="#"
+	if $g(menuItem("newWindow")) set target="target='_blank'"
+	
+	set attributes("divID")=divID
+	set attributes("class")=class
+	set attributes("hoverText")=hoverText
+	set attributes("href")=href
+	set attributes("output")=output
+	set attributes("onClick")=onClick
+	set attributes("target")=target
+	set attributes("outerClass")=outerClass
+	
+	quit
+]]></Implementation>
+</Method>
+
+<Method name="useLegacyEditRegistrationPageForEvent">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>eventID</FormalSpec>
+<ReturnType>%Boolean</ReturnType>
+<Implementation><![CDATA[
+	if ##class(setup.objEventSetting).getParameter("system","isAwardsEvent",eventID) {
+		return 1
+	} else {
+		return 0	
+	}
+]]></Implementation>
+</Method>
+
+<Method name="accessIDappliesToEvent">
+<Description>
+check to see if a menu item is applicable to the selected event</Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec>eventConfiguration:setup.eventConfiguration,accessID</FormalSpec>
+<ReturnType>%Boolean</ReturnType>
+<Implementation><![CDATA[
+	set out=1
+	
+	if '$IsObject(eventConfiguration) {
+		throw ##class(shared.exceptions.generalException).%New("eventConfiguration must be passed in to accessIDappliesToEvent")	
+	}
+	
+	set xEventID=eventConfiguration.getEventID()
+	
+	// always allow empty 
+	if accessID="" quit 1
+	
+	// check awards
+	if (accessID="AWRD")!(accessID="AWJUDGESET")!(accessID="AWMANAGE") {
+		return +eventConfiguration.getIsAwardsEvent()
+	}
+	if accessID="VIEWBOOK" {
+		return ..useLegacyEditRegistrationPageForEvent(xEventID)
+	}
+	if accessID="REGISTRATIONLIST" {
+		return '..useLegacyEditRegistrationPageForEvent(xEventID)
+	}
+	
+	if (accessID="SFEVENTSETTV2") {
+		return 0	
+	}
+	
+	// pricing
+	if (accessID="FINSET")!(accessID="FINMAN") {
+		return +eventConfiguration.getHasCost()
+		
+	}
+	
+	// Badges, labels & Letters 
+	if (accessID="BADLAB") {
+		return 1	
+	}
+	
+	// frontend website access 
+	if (accessID="CAPA")!(accessID="WEBADDR")!(accessID="REGWEB")!(accessID="EXTWEB")!(accessID="CAPA")!(accessID="SURV")!(accessID="SEOEVSETTINGS") {
+		return 1	
+	}
+	// sessions
+	if (accessID="SESS")!(accessID="PRES")!(accessID="ICONS")!(accessID="SESSDET")!(accessID="SESSTYP")!(accessID="SESSSETT") {
+		return +eventConfiguration.areSessionsAllowed()
+
+	}
+	if (accessID="PROG")!(accessID="LOCS") {
+		if eventConfiguration.areSessionsAllowed() {
+			return 1	
+		}
+		if eventConfiguration.getHasMeetingManager() {
+			return 1	
+		}
+		return 0
+	}
+	// abstracts
+	if (accessID="ABS")!(accessID="ABSMANAGE") {
+		return +eventConfiguration.getHasAbstracts()	
+	}
+	
+	
+	// accomomodation
+	if accessID="ACCOM" {
+		return +eventConfiguration.getHasAccommodation()
+
+	}
+	// meeting
+	if (accessID="MEET")!(accessID="MEETEMAIL") {
+		return +eventConfiguration.getHasMeetingManager()
+
+	}	
+	// table boookings
+	if accessID="TABL" {
+		return +eventConfiguration.getHasTableBooking()	
+
+		
+	}
+	if accessID="TABLGROUP" set out=+##class(setup.objEventSetting).getParameter("table bookings","use table groups",xEventID)
+	
+	if accessID="ATTCAT" {
+		// don't show if standalone table booking mode
+		return +eventConfiguration.areAttendeeCategoriesAllowed()
+
+	}
+
+	// Invitations  
+	if accessID="INVITE" {
+		return 1	
+	}
+
+	
+	// Emails  
+	if accessID="INVMAIL"  {
+		return 1	
+	}
+	
+	if accessID="ACTIONLISTUPD" {
+		return $S(eventConfiguration.getActionListID():1,1:0)
+	}
+
+	if accessID="ATTREC" {
+		return +eventConfiguration.getIsAwardsEvent()=0 	
+	}	
+	quit out
+]]></Implementation>
+</Method>
+
+<Method name="getAllMenuItems">
+<Description>
+returns an array(toplevel,"description")= "login"
+					      "URL") = "../../login.csp"
+                		  "accessID") = "CREMANEV"
+					      "spanEvent" = "yes"
+					      "requiredModule") = "abstracts"
+					      "class") = "ef_myClass"
+					      "hoverText") = "click here to do something"
+					      "newWindow") = "1"
+					      "menuPosition") = "left"
+                          "currentlySelected" = "1" -  If the item or a child has been selected
+							  {{any other parameter from the backendMenuTree XML}}
+                          "children",secondLevel) = array of 2nd level items
+                          "children",secondLevel,"children",thirdLevel) = array of 3rd level items</Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec><![CDATA[xEventID:%String="",xPersonID:%String="",&menuItems]]></FormalSpec>
+<Implementation><![CDATA[
+	// retrieve the array from the cached version if possible
+	if ((xPersonID) && $D(%session)) && ($D(^CacheTempUserMenu(%session.SessionId))) {
+		merge menuItems=^CacheTempUserMenu(%session.SessionId)	
+		quit
+	} 
+
+	set (level1counter,level2counter)=0
+
+	do ..buildMenuArray(.myResults)
+	set m=""
+	for  {
+		set m=$O(myResults(m))
+		if m="" quit
+		set level=myResults(m,"level")
+		if level="level1" {
+			set level1counter=level1counter+1
+			set level2counter=0
+		} elseif level="level2" {
+			set level2counter=level2counter+1
+			set level3counter=0
+		} elseif level="level3" {
+			set level3counter=level3counter+1
+		}
+		set attribute=""
+		for  {
+			set attribute=$O(myResults(m,attribute))	
+			if attribute="" quit
+			if level="level1" {
+				set menuItems(+level1counter,attribute)=$G(myResults(m,attribute))
+			} elseif level="level2" {
+				set menuItems(+level1counter,"children",+level2counter,attribute)=$G(myResults(m,attribute))
+			} elseif level="level3" {
+				set menuItems(+level1counter,"children",+level2counter,"children",+level3counter,attribute)=$G(myResults(m,attribute))
+			}
+		}
+	}	
+	// add the shortcuts
+	do ..addShortcutsToMenuArray(xPersonID,.menuItems)
+	
+	// Tidy up the menu
+	// 1. cull the disallowed ones
+	do ..removedDisallowedMenuItems(xEventID,xPersonID,.menuItems)
+	// 2. cull menu items with no children 
+	do ..removeMenuItemsWithNoChildren(.menuItems)
+	// 3. cull group captions if there is only 1 option for that group
+	do ..removeUnneccessaryGroupCaptions(.menuItems)
+		
+
+	// populate the temp array
+	if (xPersonID) && $D(%session) {
+		do ##class(shared.pageMethods).clearBackendMenuCache()
+		merge ^CacheTempUserMenu(%session.SessionId)=menuItems
+	}	
+	return
+]]></Implementation>
+</Method>
+
+<Method name="getURLFromAccessID">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>eventID,userID,accessID</FormalSpec>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	do ##class(setup.backendMenu).getAllMenuItems(eventID,userID,.menuItems)
+	do ##class(setup.backendMenu).sortMenuItemsByAccessID(.menuItems,.menuItemsByAccessID)
+	
+	return $G(menuItemsByAccessID(accessID,"URL"))
+]]></Implementation>
+</Method>
+
+<Method name="removedDisallowedMenuItems">
+<Description>
+cull the disallowed ones</Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec><![CDATA[xEventID:%String="",xPersonID:%String="",&menuItems]]></FormalSpec>
+<Implementation><![CDATA[
+	if xEventID {
+		set eventConfiguration=##class(setup.eventConfiguration).createForEventID(xEventID)
+	} else {
+		set eventConfiguration=""	
+	}
+	set (level1counter,level2counter,level3counter)=""
+	for  {
+		set level1counter=$O(menuItems(level1counter))		
+		if level1counter="" quit
+		set accessID=$G(menuItems(level1counter,"accessID"))
+		if accessID'="" {
+			kill menuItem merge menuItem=menuItems(level1counter)
+			if '..isAllowedAccessToMenuItem(eventConfiguration , xPersonID,.menuItem) kill menuItems(level1counter)
+			if accessID="EVENTS" {
+				kill oldChildItems,newChildItems
+				merge oldChildItems=menuItems(level1counter,"children")
+				do ..addEventsToMenuArray(xPersonID,.oldChildItems,.newChildItems)
+				
+				kill menuItems(level1counter,"children")
+				merge menuItems(level1counter,"children")=newChildItems
+			} 
+		}
+		for  {
+			set level2counter=$O(menuItems(level1counter,"children",level2counter))			
+			if level2counter="" quit
+			
+			kill menuItem merge menuItem=menuItems(level1counter,"children",level2counter)
+			if '..isAllowedAccessToMenuItem(eventConfiguration , xPersonID,.menuItem) {
+				kill menuItems(level1counter,"children",level2counter)
+			}
+			for  {
+				set level3counter=$O(menuItems(level1counter,"children",level2counter,"children",level3counter))			
+				if level3counter="" quit
+			
+				kill menuItem merge menuItem=menuItems(level1counter,"children",level2counter,"children",level3counter)
+				if '..isAllowedAccessToMenuItem(eventConfiguration , xPersonID,.menuItem) kill menuItems(level1counter,"children",level2counter,"children",level3counter)
+			}
+		}
+	}
+]]></Implementation>
+</Method>
+
+<Method name="removeMenuItemsWithNoChildren">
+<ClassMethod>1</ClassMethod>
+<FormalSpec><![CDATA[&menuItems]]></FormalSpec>
+<Implementation><![CDATA[
+	set (level1counter,level2counter,level3counter)=""
+	for  {
+		set level1counter=$O(menuItems(level1counter))		
+		if level1counter="" quit
+		set level2ItemCount=0
+		for  {
+			set level2counter=$O(menuItems(level1counter,"children",level2counter))			
+			if level2counter="" quit
+			set level3ItemCount=0
+			for {
+				set level3counter=$O(menuItems(level1counter,"children",level2counter,"children",level3counter))
+				if level3counter="" quit
+				set isMenuCaption=$G(menuItems(level1counter,"children",level2counter,"children",level3counter,"isMenuCaption"))
+				if 'isMenuCaption {
+					set level3ItemCount=level3ItemCount+1
+				}	
+			}
+			set isMenuCaption=$G(menuItems(level1counter,"children",level2counter,"isMenuCaption"))
+			set isGroupCaption=$G(menuItems(level1counter,"children",level2counter,"isGroupCaption"))
+			set URL=$G(menuItems(level1counter,"children",level2counter,"URL"))
+			set onClick=$G(menuItems(level1counter,"children",level2counter,"onClick"))
+				// If I am a menu item and I have no children kill me
+			if 'level3ItemCount && 'isMenuCaption &&'$l(URL) && '$l(onClick) && 'isGroupCaption {
+				kill menuItems(level1counter,"children",level2counter)
+			}
+			if 'isMenuCaption {
+				set level2ItemCount=level2ItemCount+1
+			}
+		}
+		// If I am a menu item and I have no children kill me
+		set isMenuCaption=$G(menuItems(level1counter,"children"))
+		set URL=$G(menuItems(level1counter,"URL"))
+		set onClick=$G(menuItems(level1counter,"onClick"))
+		if 'level2ItemCount && 'isMenuCaption &&'$l(URL) && '$l(onClick) {
+			kill menuItems(level1counter)
+		}
+	}
+]]></Implementation>
+</Method>
+
+<Method name="removeUnneccessaryGroupCaptions">
+<ClassMethod>1</ClassMethod>
+<FormalSpec><![CDATA[&menuItems]]></FormalSpec>
+<Implementation><![CDATA[
+	set (level1counter,level2counter,level3counter)=""
+	for {
+		set level1counter=$O(menuItems(level1counter))		
+		if level1counter="" quit
+		kill menuGroups
+		for  {
+			set level2counter=$O(menuItems(level1counter,"children",level2counter))			
+			if level2counter="" quit
+			kill menuItem merge menuItem=menuItems(level1counter,"children",level2counter)
+			set menuGroup=$G(menuItem("menuGroup"))
+			if $l(menuGroup) {
+				if $G(menuItem("isGroupCaption")) {
+					set menuGroups(menuGroup,"caption")=level2counter
+					
+				} else {
+					set menuGroups(menuGroup)=$I(menuGroups(menuGroup))
+					set menuGroups(menuGroup,"node",level2counter)=""
+				}
+			}
+		}
+		// Check all the menu groups for this level and remove the group/caption if there is only one member of the group
+		set menuGroup=""
+		for {
+			set menuGroup=$O(menuGroups(menuGroup))
+			if menuGroup="" quit
+			if $G(menuGroups(menuGroup))<2 {
+				// Remove the caption if there is one
+				set captionItem=$G(menuGroups(menuGroup,"caption"))
+				if captionItem {
+					kill menuItems(level1counter,"children",captionItem)
+				}
+				for {
+					set level2counter=$O(menuGroups(menuGroup,"node",level2counter))
+					if level2counter="" quit
+					kill menuItems(level1counter,"children",level2counter,"menuGroup")
+				}
+			}
+		}
+	}
+]]></Implementation>
+</Method>
+
+<Method name="updateCurrentlySelected">
+<ClassMethod>1</ClassMethod>
+<FormalSpec><![CDATA[selectedMenuAccessID:%String="",&menuItems]]></FormalSpec>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	set (ind1,ind2,ind3)=""
+	set selectedFound=0
+	for {
+		set ind1=$O(menuItems(ind1))
+		if ind1="" quit
+		if selectedFound quit
+		set accessID=$G(menuItems(ind1,"accessID"))
+		if $l(accessID),accessID=selectedMenuAccessID {
+			set menuItems(ind1,"currentlySelected")=1
+			set selectedFound=1
+		}
+		for {
+			set ind2=$O(menuItems(ind1,"children",ind2))
+			if ind2="" quit
+			if selectedFound quit
+			set accessID=$G(menuItems(ind1,"children",ind2,"accessID"))
+			if $l(accessID),accessID=selectedMenuAccessID {
+				set menuItems(ind1,"currentlySelected")=1
+				set menuItems(ind1,"children",ind2,"currentlySelected")=1
+				set selectedFound=1
+			}
+			for {
+				set ind3=$O(menuItems(ind1,"children",ind2,"children",ind3))
+				if ind3="" quit
+				if selectedFound quit
+				set accessID=$G(menuItems(ind1,"children",ind2,"children",ind3,"accessID"))
+				if $l(accessID),accessID=selectedMenuAccessID {
+					set menuItems(ind1,"currentlySelected")=1
+					set menuItems(ind1,"children",ind2,"currentlySelected")=1
+					set menuItems(ind1,"children",ind2,"children",ind3,"currentlySelected")=1
+					set selectedFound=1
+				}
+			}
+		}
+	}
+]]></Implementation>
+</Method>
+
+<Method name="addEventsToMenuArray">
+<ClassMethod>1</ClassMethod>
+<FormalSpec><![CDATA[personID,&inMenuItems,&outMenuItems]]></FormalSpec>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	set (inIndex,outIndex)=""
+	for {
+		set inIndex=$o(inMenuItems(inIndex))
+		if inIndex="" quit
+		set accessID=$G(inMenuItems(inIndex,"accessID"))
+		if accessID="MRUEVENTS" {
+			set MRUlist=##class(cod.objItemData).get(personID,"Most Recently Used Events")
+			// maximum number of visible links
+			set maxLinks=##class(setup.objSetting).getParameter("homepage","Number of items on Most Recently Used Event list")
+			if maxLinks="" set maxLinks=6
+			set count=0
+			for i=$L(MRUlist,","):-1:1 {
+				set tmpEventID=$p(MRUlist,",",i)
+		
+				if count<(maxLinks) {
+					if ##class(links.lnkAccessPersonEvent).hasEvent(personID,tmpEventID) {
+						if '$D(eventsShown(tmpEventID)) {
+							if $I(count)=1 {
+								// Add the place holder
+								merge outMenuItems($I(outIndex))=inMenuItems(inIndex)
+								set outMenuItems(outIndex,"isMenuCaption")=1
+								set outMenuItems(outIndex,"URL")=""	
+							}
+							set eventsShown(tmpEventID)=1 
+							merge outMenuItems($I(outIndex))=inMenuItems(inIndex)
+							set eventDesc=##class(setup.objEventDetails).getDetails(tmpEventID,1)
+							set hoverText=##class(setup.eventBookingMethods).getEventStatus(tmpEventID)
+							
+							set hoverText=eventDesc_" ("_hoverText_")"
+							set outMenuItems(outIndex,"description")="<span class='ef_menu_recent_event_ID'>"_tmpEventID_"</span><span class='ef_menu_recent_event_desc ef_overflow_ellipsis'>"_eventDesc_"</span>"
+							set outMenuItems(outIndex,"URL")=$G(outMenuItems(outIndex,"URL"))_"?swEv=1&eventID="_tmpEventID
+							set outMenuItems(outIndex,"hoverText")=hoverText
+						}
+					}
+				}
+			}
+		} else {
+			merge outMenuItems($I(outIndex))=inMenuItems(inIndex)
+		}
+	}
+	quit 1
+]]></Implementation>
+</Method>
+
+<Method name="addShortcutsToMenuArray">
+<ClassMethod>1</ClassMethod>
+<FormalSpec><![CDATA[personID,&menuItems]]></FormalSpec>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	do ..getAllMenuDataByAccessID(.accessIDarray)
+	
+	set (level1counter,level2counter,level3counter)=""
+	for  {
+		set level1counter=$O(menuItems(level1counter))		
+		if level1counter="" quit
+		set accessID=$G(menuItems(level1counter,"accessID"))
+		if accessID="SHORTCUTS" {
+			
+			// save the last item ('configure your shortcuts') as we want to add it to the end of the list
+			set level2counter=""
+			for  {
+				set level2counter=$O(menuItems(level1counter,"children",level2counter))
+				if level2counter="" quit
+				if $G(menuItems(level1counter,"children",level2counter,"accessID"))="CONFIGSHORTCUTS" {
+					merge tempArray=menuItems(level1counter,"children",level2counter)		
+				}	
+			}
+			
+			
+			// loop through the saved personal shortcuts
+			set myIndex=1,foundAtLeastOne=0
+			set rs=##class(%ResultSet).%New("%Library.DynamicQuery:SQL")
+			do rs.Prepare("SELECT * FROM links.lnkUserShortcut WHERE objUser = ?")
+			do rs.Execute(personID)
+			while (rs.Next()) && (myIndex<=20) {
+				set myIndex=$I(myIndex)
+				set accessID=rs.Get("accessID")
+				if accessID'="" {
+					set (shortcutDesc,hoverText)=$G(accessIDarray(accessID,"description"))
+					set foundAtLeastOne=1
+					set menuItems(level1counter,"children",myIndex,"description")="<span class='ef_menu_shortcut_item ef_overflow_ellipsis'>"_shortcutDesc_"</span>"
+					set menuItems(level1counter,"children",myIndex,"URL")=$G(accessIDarray(accessID,"URL"))
+					set menuItems(level1counter,"children",myIndex,"hoverText")=hoverText
+					set menuItems(level1counter,"children",myIndex,"menuGroup")="ShortcutsItems"
+				}
+			}
+			
+			// add back the very last item
+			if foundAtLeastOne {
+				set myIndex=$I(myIndex)
+				merge menuItems(level1counter,"children",myIndex)=tempArray
+			}
+		}
+	}
+		
+	quit 1
+]]></Implementation>
+</Method>
+
+<Method name="isAllowedAccessToMenuItem">
+<ClassMethod>1</ClassMethod>
+<FormalSpec><![CDATA[eventConfiguration:setup.eventConfiguration="",xPersonID,&menuItem]]></FormalSpec>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	set allowed=1
+	if $IsObject(eventConfiguration) {
+		set xEventID=eventConfiguration.getEventID()
+	} else {
+		set xEventID=""	
+	}
+	set requiredModule=$G(menuItem("requiredModule"))
+	set isPublic=$G(menuItem("isPublic"))
+	set requiredSystemSetting=$G(menuItem("requiredSystemSetting"))
+	set accessID=$G(menuItem("accessID"))
+	set isMenuCaption=$G(menuItem("isMenuCaption"))
+	set spanEvents=($ZCVT($G(menuItem("spanEvents")),"U")="YES")
+	if 'isMenuCaption {
+		if $l(requiredSystemSetting) {
+			if '##class(setup.objSetting).getParameter("system",requiredSystemSetting) set allowed=0
+		}
+		if (allowed)&&$l(requiredModule) {
+			if ##class(setup.objSystemTypes).isModuleAllowed(requiredModule)=0 set allowed=0
+		}
+		if (allowed)&&('isPublic) {
+			if (xPersonID) && (##class(access.objFunction).hasFunctionByAccessID(xPersonID,accessID)=0) set allowed=0
+		}
+		if allowed {
+			if (xEventID) && (..accessIDappliesToEvent(eventConfiguration,accessID)=0) set allowed=0
+		}
+	}
+	if xPersonID {
+		if ('xEventID) && ('spanEvents) set allowed=0
+	}
+	quit allowed
+]]></Implementation>
+</Method>
+
+<Method name="getAllPrivateMenuItems">
+<ClassMethod>1</ClassMethod>
+<FormalSpec><![CDATA[&menuItems]]></FormalSpec>
+<Implementation><![CDATA[
+	set (level1counter,level2counter)=0
+
+	do ..buildMenuArray(.myResults)
+	
+	set m=""
+	set count = 0
+	for  {
+		set m=$O(myResults(m))
+		if m="" quit
+		if (('$G(myResults(m,"isMenuCaption")))&&('$G(myResults(m,"isPublic")))) {
+			set count = count + 1
+			set menuItems(count, "description") = myResults(m,"description")
+			set menuItems(count, "accessID") = myResults(m,"accessID")
+			set menuItems(count, "requiredModule") = $G(myResults(m,"requiredModule"))
+			set menuItems(count, "requiredSystemSetting") = $G(myResults(m,"requiredSystemSetting"))
+		}
+	}
+		
+	return
+]]></Implementation>
+</Method>
+
+<Method name="getAllMenuDataByAccessID">
+<Description>
+returns an array where accessID is the index</Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec><![CDATA[&menuItems]]></FormalSpec>
+<Implementation><![CDATA[
+	set (level1counter,level2counter)=0
+
+	do ..buildMenuArray(.myResults)
+	
+	set m=""
+	for  {
+		set m=$O(myResults(m))
+		if m="" quit
+		set accessID=$g(myResults(m,"accessID"))
+		if $l(accessID) {
+			kill menuItems(accessID)
+			merge menuItems(accessID) = myResults(m)
+		}
+	}
+		
+	return
+]]></Implementation>
+</Method>
+
+<Method name="getAllPrivateMenuItemsByAccessID">
+<Description>
+returns an array where accessID is the index and description is value.</Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec><![CDATA[&menuItems]]></FormalSpec>
+<Implementation><![CDATA[
+	set (level1counter,level2counter)=0
+	
+	do ..buildMenuArray(.myResults)
+	
+	set m=""
+	for  {
+		set m=$O(myResults(m))
+		if m="" quit
+		if (('$G(myResults(m,"isMenuCaption")))&&('$G(myResults(m,"isPublic")))) {
+			set menuItems(myResults(m,"accessID"),"description") = myResults(m,"description")
+			set menuItems(myResults(m,"accessID"),"requiredModule") =  $G(myResults(m,"requiredModule"))
+			set menuItems(myResults(m,"accessID"),"requiredSystemSetting") = $G(myResults(m,"requiredSystemSetting"))
+		}
+	}
+		
+	return
+]]></Implementation>
+</Method>
+
+<Method name="sortMenuItemsByAccessID">
+<ClassMethod>1</ClassMethod>
+<FormalSpec><![CDATA[&menuItems,&menuItemsByAccessID,index=""]]></FormalSpec>
+<Implementation><![CDATA[
+	set result=""
+	
+	set index=$O(menuItems(index))
+	if index="" quit
+	if $D(menuItems(index,"children")) {
+		kill childItems
+		merge childItems=menuItems(index,"children")
+		do ..sortMenuItemsByAccessID(.childItems,.menuItemsByAccessID)
+	}
+	set accessID=$G(menuItems(index,"accessID"))
+	if ($l(accessID)) {
+		merge menuItemsByAccessID(accessID) = menuItems(index)
+	}
+	
+	do ..sortMenuItemsByAccessID(.menuItems,.menuItemsByAccessID,index)
+	
+	quit
+]]></Implementation>
+</Method>
+
+<Method name="getAllPublicMenuItemsByAccessID">
+<Description>
+returns an array where accessID is the index and description is value.</Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec><![CDATA[&menuItems]]></FormalSpec>
+<Implementation><![CDATA[
+	set (level1counter,level2counter)=0
+
+	do ..buildMenuArray(.myResults)
+	
+	set m=""
+	for  {
+		set m=$O(myResults(m))
+		if m="" quit
+		if ($l($G(myResults(m,"accessID")))&&($G(myResults(m,"isPublic")))) {
+			set menuItems(myResults(m,"accessID"),"description") = myResults(m,"description")
+			set menuItems(myResults(m,"accessID"),"requiredModule") =  $G(myResults(m,"requiredModule"))
+			set menuItems(myResults(m,"accessID"),"requiredSystemSetting") = $G(myResults(m,"requiredSystemSetting"))
+		}
+	}
+		
+	return
+]]></Implementation>
+</Method>
+
+<Method name="clearDownPublicFunctions">
+<ClassMethod>1</ClassMethod>
+<Implementation><![CDATA[
+	do ##class(setup.backendMenu).getAllPublicMenuItemsByAccessID(.menuItems) 
+	set accessID = ""
+	for {
+		set accessID = $O(menuItems(accessID))
+		if accessID="" quit
+		
+		&SQL(DELETE FROM access.lnkFunctionRole
+			WHERE objFunction->accessID = :accessID
+		)
+		
+		&SQL(DELETE FROM access.objFunction
+			WHERE accessID = :accessID
+		)		
+	}
+]]></Implementation>
+</Method>
+
+<Method name="upgradeNewBackendMenu">
+<Description>
+this Method is to update all the current roles to have the new accessIDs 
+so that users can use it without problem. </Description>
+<ClassMethod>1</ClassMethod>
+<Implementation><![CDATA[
+	do ##class(setup.objSetting).setParameter("homepage","Number of items on Most Recently Used Event list",5)
+	//Add the TESTEV accessID to all roles except Dynamic reporting and single report roles.
+	
+	do ##class(access.objFunction).populateFunctionsFromXML()
+	do ##class(access.lnkFunctionRole).addFunctionToAllRolesExcluding("TESTEV")
+	
+	set rs=##class(%ResultSet).%New("%Library.DynamicQuery:SQL")
+	do rs.Prepare("SELECT * FROM access.objRole")
+	do rs.Execute()
+	set roleID=""
+	set roleDesc = ""
+	set excludingRoles="|Dynamic Reports Only|Reports only|"
+	while rs.Next() {
+		set roleID = rs.Get("ID")
+		set roleDesc = "|"_rs.Get("description")_"|"
+		if excludingRoles[roleDesc {
+			//ignore this role
+		} else {
+			//check if the role has got one of the children accessID for FrontEnd Website Content. FRONTSITECONT
+				
+			if ##class(access.lnkFunctionRole).doesRoleHasFunction(roleID,"INV") {
+				do ##class(access.lnkFunctionRole).add(roleID,"INVLIST")
+			}
+			if ##class(access.lnkFunctionRole).doesRoleHasFunction(roleID,"INV") {
+				do ##class(access.lnkFunctionRole).add(roleID,"INVRUN")
+			}
+		}
+	}
+	do ..clearDownPublicFunctions()
+	do ..upgradeActionListToNewMenu()
+	quit 1
+]]></Implementation>
+</Method>
+
+<Method name="buildMenuArray">
+<ClassMethod>1</ClassMethod>
+<FormalSpec><![CDATA[&menuArray]]></FormalSpec>
+<Implementation><![CDATA[
+	kill menuArray
+	
+	set xDataID = "backendMenuTree"
+	
+	if (##class(setup.objSetting).getParameter("feature flags", "use legacy backend menu")) {
+		set xDataID = "backendMenuTreeLegacy"
+	}
+	
+	set xDataStream = ##class(%Dictionary.CompiledXData).%OpenId("setup.backendMenu||"_xDataID).Data
+	if '$IsObject(xDataStream) {
+		throw ##class(shared.exceptions.generalStatusException).CreateFromStatus(%objlasterror)
+	}
+	
+	set sc = ##class(%XML.XPATH.Document).CreateFromStream(xDataStream, .xmlDocument)
+	if $$$ISERR(sc) {
+		return
+	}
+	
+	kill menuArray
+	kill xmlNodes
+	
+	set sc = xmlDocument.EvaluateExpression("/backendMenu", "*", .xmlNodes) // '*' returns all children
+	if $$$ISERR(sc) {
+		throw ##class(shared.exceptions.generalStatusException).CreateFromStatus(sc)
+	}
+	
+	set counter=0
+	for nodeIdx = 1 : 1 : xmlNodes.Count() {
+		
+		set xmlNode = xmlNodes.GetAt(nodeIdx)
+		
+		if (xmlNode.Type = $$$XPATHDOM) {
+			
+			while xmlNode.Read() {	
+				
+				set counter = counter + 1
+				
+				if (xmlNode.NodeType = "element") {
+					
+					set menuArray(counter, "level") = xmlNode.Name
+					if (xmlNode.HasAttributes) {
+						
+						for attrIdx = 1 : 1 : xmlNode.AttributeCount {
+							
+							do xmlNode.MoveToAttributeIndex(attrIdx)
+							
+							set menuArray(counter, xmlNode.Name) = xmlNode.Value
+						}
+					}
+					
+				}
+				
+			}
+			
+		}
+		
+	}
+]]></Implementation>
+</Method>
+
+<XData name="backendMenuTreeLegacy">
+<Description>
+please note that you must escape any ampersands in the data</Description>
+<Data><![CDATA[
+<backendMenu>
+<level1 description="Create New" hoverText="Create New..." divID="ef_menu_button_add" class="ef_menu_button_add" URL="" accessID="CREMANEV" spanEvents="yes" requiredModule="" menuPosition="left" noSiblingMenu="1" isPublic="1">
+<level2 description="Create New..." URL="" isMenuCaption="1" spanEvents="yes"/>
+<level2 description="Event" URL="../../backend/home/eventProperties.csp?eventID=NEW" accessID="NEWEVENT" spanEvents="yes" requiredModule="" previewImage="event.png"/>
+<level2 description="Event using an existing event as a template" URL="../../backend/home/eventCopy.csp" accessID="COPYEVENT" spanEvents="no" requiredModule="" previewImage="event using temp.png"/>
+<level2 description="Registration" URL="../../frontEnd/reg/initSession.csp?page=registerNew.csp&amp;backendBooking=1"  accessID="NEWBOOK" spanEvents="no" newWindow="1" requiredModule="New Backend Booking" previewImage="booking.png"/>
+<level2 description="Ad-Hoc Email" URL="../../backend/home/gotoNewAdhocEmail.csp" accessID="NEWEMAIL" spanEvents="no" requiredModule="EMAIL" previewImage="ad-hoc email.png"/>
+</level1>
+<level1 description="Task List" hoverText="View Action List" onClick="wizardEntryPopup()" divID="ef_menu_button_tasks" class="ef_menu_button_tasks" accessID="ACTIONLISTUPD" spanEvents="no" requiredModule="Action List" menuPosition="left" hideFromActionList="1"/>
+<level1 description="Test" hoverText="Preview and test Event Website" URL="##PREVIEWURL##" divID="ef_menu_button_preview"  class="ef_menu_button_preview" newWindow="1" accessID="TESTEV" spanEvents="no" menuPosition="left" hideFromActionList="1"/>
+<level1 description="Shortcuts" accessID="SHORTCUTS" noSiblingMenu="1" hoverText="Shortcuts" isPublic="1" URL="" divID="ef_menu_button_shortcuts"  class="ef_menu_button_shortcuts"  menuPosition="left" hideFromActionList="1">
+<level2 description="Your Personal  Shortcuts..."  isPublic="1" URL="" isMenuCaption="1"/>
+<level2 description="Configure Shortcuts" accessID="CONFIGSHORTCUTS" URL="../../backend/home/usershortcuts.csp" spanEvents="no" isPublic="1"/>
+</level1>
+<level1 description="Home" hoverText="Event Dashboard" URL="../../backend/home/dashboardRedirect.csp" class="ef_menu_button_home" accessID="HOME" isPublic="1" spanEvents="no" requiredModule="" menuPosition="right" hideFromActionList="1"/>
+<level1 description="System" hoverText="System Settings" class="ef_menu_button_system" URL="" accessID="SYSMAN" spanEvents="yes" requiredModule="" menuPosition="right" isPublic="1">
+<level2 description="System Settings" URL="" isMenuCaption="1"/>
+<level2 description="My Details" URL="../../backend/home/myDetails.csp" accessID="MYDETAILS" isPublic="1" spanEvents="yes" requiredModule=""/>
+<level2 description="Security" URL="" accessID="SYSUSERMAN" spanEvents="yes" isPublic="1" requiredModule="">
+<level3 description="User Profiles" URL="../../backend/home/userList.csp"        accessID="SYSUSER" spanEvents="yes" requiredModule="User Management" previewImage="user Profiles.png"/>
+<level3 description="Roles" URL="../../backend/home/userRoleList.csp"    accessID="SYSROLE" spanEvents="yes" requiredModule="Role Management"  previewImage="Roles.png"/>
+<level3 description="Org Units Setup" URL="../../backend/home/orgUnitSetup.csp"  accessID="SYSORGUNITSETUP" spanEvents="yes" requiredModule="Organisational Units - Aviva Only" />
+</level2>
+<level2 description="Preferences" URL="" isPublic="1" accessID="SYSPREF" spanEvents="yes" requiredModule="">
+<level3 description="System Defaults" URL="../../backend/home/systemDefaults.csp"        accessID="SYSDEF" spanEvents="yes" requiredModule="" previewImage="system defaults.png"/>
+<level3 description="Account Details" URL="../../backend/home/clientSetting.csp"     accessID="SYSCLI" spanEvents="yes" requiredModule="" previewImage="my account details.png"/>
+<level3 description="Translations" URL="../../backend/home/translationLanguages.csp" accessID="ACCESSTRANS" spanEvents="yes" requiredModule="Allow Access to Translation" previewImage="translations.png"/>
+<level3 description="Templates" URL="../../backend/home/themeLoad.csp" accessID="ACCESSLOADTHEME" spanEvents="yes" requiredModule="Upload Template" previewImage="templates.png"/>
+</level2>
+<level2 description="Manage Lists" URL="" isPublic="1" accessID="SYSLIST" spanEvents="yes" requiredModule="">
+<level3 description="Attendee Categories" URL="../../backend/home/eventCategoryList.csp"      accessID="ATTLIST" spanEvents="yes" requiredModule="Attendee Categories" previewImage="attendee categories2.png"/>
+<level3 description="Action List" URL="../../backend/home/wizardList.csp"        accessID="ACTLIS" spanEvents="yes" requiredModule="Action List" previewImage="action lists.png"/>
+<level3 description="Hotel Library" URL="../../backend/home/venueSearch.csp?pageMode=library"    accessID="ACCLIB" spanEvents="yes" requiredModule="Accommodation" previewImage="Hotel Library.png"/>
+</level2>
+<level2 description="Prompt Manager" URL="" isPublic="1" accessID="SYSPROMPTS" spanEvents="yes" requiredModule="">
+<level3 description="Data Items" URL="../../backend/home/codItemSearch.csp"      accessID="SYSDATA" spanEvents="yes" requiredModule="Data Items" previewImage="data items.png"/>
+<level3 description="Collections" URL="../../backend/home/codCollectionList.csp"  accessID="REGCOLL" spanEvents="yes" requiredModule="Registration prompt collections" previewImage="collections.png"/>
+<level3 description="Custom Event Fields" URL="../../backend/home/softEventPromptList.csp"        accessID="CUSTEVFIELD" spanEvents="yes" requiredModule="Custom event fields" previewImage="soft event prompts.png"/>
+</level2>
+<level2 description="Salesforce" URL="" isPublic="1" accessID="SFMENU" spanEvents="yes" requiredModule="SALESFORCE">
+<level3 description="Transactions" URL="../../backend/home/sfTxnList.csp"     accessID="SFTXNLIST" spanEvents="yes" requiredModule="SALESFORCE" previewImage="salesforce transactions.png"/>
+<level3 description="Settings" URL="../../backend/home/systemSettingsSalesforce.csp"     accessID="SFSYSSETTINGS" spanEvents="yes" requiredModule="SALESFORCE" previewImage="salesforce system settings.png"/>
+<level3 description="Field Mappings" URL="../../backend/home/salesforceMappings.csp"     accessID="SFMAPPING" spanEvents="yes" requiredModule="SALESFORCE" previewImage="salesforce mappings.png"/> 
+</level2>
+<level2 description="Schroders' Salesforce" URL="" isPublic="1" accessID="SFSCHRODERSMENU" spanEvents="yes" requiredModule="SALESFORCE SCHRODERS">
+<level3 description="Transactions" URL="../../backend/home/sfTxnList.csp"     accessID="SFSCHRODERSTXNLIST" spanEvents="yes" requiredModule="SALESFORCE SCHRODERS" previewImage="salesforce transactions.png"/>
+</level2>
+<level2 description="Eventsforce Tools" URL="" isPublic="1" accessID="EVONLYTOOLS" spanEvents="yes" requiredModule="" menuGroup="EFONLY" hideFromActionList="1">
+<level3 description="Messages" URL="../../backend/home/userMessages.csp"    accessID="EVMSGS" spanEvents="yes" requiredModule="" previewImage=""/>
+<level3 description="Session Dump" URL="../../system/sessionDump.csp" accessID="EVSESSDUMP" spanEvents="yes" requiredModule="" previewImage=""/>
+<level3 description="Application Errors" URL="../../system/listAppErrors.csp" accessID="EVAPPERRORS" spanEvents="yes" requiredModule="" previewImage=""/>
+<level3 description="Unit Tests" URL="../../system/unitTests.csp" accessID="EVUNITTESTS" spanEvents="yes" requiredModule="" previewImage=""/>
+<level3 description="Multi Audit" URL="../../backend/home/multiSourceAudit.csp"       accessID="EVSMULTAUDIT" spanEvents="yes" requiredModule="" previewImage=""/>
+<level3 description="Proweb Tree" URL="../../backend/home/prowebTreeDisplay.csp"      accessID="EVPROWEBTREE" spanEvents="yes" requiredModule="" previewImage=""/>
+<level3 description="Playground" URL="../../backend/home/aBackendPlayGround.csp"      accessID="EVPLAYGROUND" spanEvents="yes" requiredModule="" previewImage=""/>
+<level3 description="Templates" URL="../../backend/home/themeLoad.csp"        accessID="EVLOADTHEME" spanEvents="yes" requiredModule="" previewImage=""/>
+</level2>
+<level2 description="Eventsforce Settings" URL="" isPublic="1" accessID="EVONLYSETTINGS" spanEvents="yes" requiredModule="" menuGroup="EFONLY" hideFromActionList="1">
+<level3 description="Custom Packages" URL="../../backend/home/systemTypeList.csp"       accessID="EVMOD" spanEvents="yes" requiredModule=""/>
+<level3 description="Translations" URL="../../backend/home/translationLanguages.csp"     accessID="EVTRANS" spanEvents="yes" requiredModule=""/>
+<level3 description="License" URL="../../backend/home/eventsforceLicense.csp"   accessID="EVLIC" spanEvents="yes" requiredModule=""/>
+<level3 description="Currencies" URL="../../backend/home/currencyList.csp"    accessID="EVCURRENCIES" spanEvents="yes" requiredModule=""/>
+<level3 description="Salesforce" URL="../../backend/home/sfSettingsEF.csp"      accessID="EVSFSETT" spanEvents="yes" requiredModule="SALESFORCE"/>
+<level3 description="Installation" URL="../../backend/home/systemSettings.csp"  accessID="EVSETT" spanEvents="yes" requiredModule=""/>
+</level2>
+</level1>
+<level1 description="Event List" hoverText="" URL="" isPublic="1" accessID="EVENTS" spanEvents="no" requiredModule="" menuPosition="right" noSiblingMenu="1" hideFromActionList="1">
+<level2 description="Select a recent event..." accessID="MRUEVENTS" URL="../../backend/home/switchEvent.csp" menuGroup="RecentEvents"/>
+<level2 description="Show all Events" URL="../../backend/home/eventSelection.csp"  accessID="ALLEVENTS" spanEvents="yes" requiredModule="" menuGroup="AllEvents"/> 
+</level1>
+<level1 description="Event" hoverText="Setup and administer your event" URL="" accessID="EVSETUP" spanEvents="no" requiredModule=""  menuPosition="right">
+<level2 description="Select Area..." URL="" isMenuCaption="1"/>
+<level2 description="Settings" URL="" accessID="MAINSETT" spanEvents="no" requiredModule="" isPublic="1">
+<level3 description="Properties" URL="../../backend/home/eventProperties.csp" accessID="EVPROP" spanEvents="no" requiredModule="" previewImage="event.png"/>
+<level3 description="Capacity" URL="../../backend/home/eventCapacity.csp" accessID="CAPA" spanEvents="no" requiredModule="" previewImage="capacity.png"/>
+<level3 description="Registration" URL="../../backend/home/registrationSettings.csp" accessID="BOOKOPT" spanEvents="no" requiredModule="" previewImage="booking options.png"/>
+<level3 description="Attendee Categories" URL="../../backend/home/eventAttendeeCategories.csp"   accessID="ATTCAT" spanEvents="no" requiredModule="Attendee Categories" previewImage="attendee categories.png"/>
+<level3 description="Salesforce" URL="../../backend/home/eventSettingsSalesforce.csp" accessID="SFEVENTSETTV2" spanEvents="no" requiredModule="SALESFORCE" previewImage=""/>
+</level2>
+<level2 description="Sessions" URL="" accessID="PROG" spanEvents="no" requiredModule="Sessions" isPublic="1">
+<level3 description="Sessions Details" URL="../../backend/home/itemList.csp"     accessID="SESSDET" spanEvents="no" requiredModule="Sessions" previewImage="session details.png"/>
+<level3 description="Presenters" URL="../../backend/home/presenterList.csp"      accessID="PRES" spanEvents="no" requiredModule="Sessions" previewImage="presenters.png"/>
+<level3 description="Locations" URL="../../backend/home/locationList.csp?"       accessID="LOCS" spanEvents="no" requiredModule="Sessions" previewImage="locations.png"/>
+<level3 description="Session Types" URL="../../backend/home/sessionTypeList.csp" accessID="SESSTYP" spanEvents="yes" requiredModule="Sessions" previewImage="session types.png"/>
+<level3 description="Icons" URL="../../backend/home/iconList.csp"        accessID="ICONS" spanEvents="no" requiredModule="Sessions" previewImage="icons.png"/>
+<level3 description="Session Settings" URL="../../backend/home/eventSettingsAgendaSessions.csp" accessID="SESSSETT" spanEvents="no" requiredModule="Sessions" previewImage="session settings.png"/>
+</level2>
+<level2 description="Financial Setup" URL="" accessID="FINSET" spanEvents="no" requiredModule="Pricing" menuGroup="EVFIN" isPublic="1">
+<level3 description="Prices" URL="../../backend/home/priceList.csp"      accessID="PRICE" spanEvents="no" requiredModule="Price descriptors" previewImage="prices.png"/>
+<level3 description="Discounts" URL="../../backend/home/discountList.csp"        accessID="DISC" spanEvents="no" requiredModule="Discounts" previewImage="discounts.png"/>
+<level3 description="Payment Methods" URL="../../backend/home/paymentDetails.csp"        accessID="PAYMETH" spanEvents="no" requiredModule="" previewImage="payment methods.png"/>
+<level3 description="VAT Codes" URL="../../backend/home/vatCodeList.csp" accessID="VATCODE" spanEvents="yes" requiredModule="" previewImage="vat codes.png"/>
+<level3 description="Cost Centres" URL="../../backend/home/costCentreOrgUnitList.csp"   accessID="CCORGUNITLIST" spanEvents="yes" requiredModule="Organisational Units - Aviva Only" previewImage=""/>
+<level3 description="Settings" URL="../../backend/home/eventSettingsFinancial.csp"     accessID="FINSETT" spanEvents="no" requiredModule="" previewImage="settings (financial).png"/>
+</level2>
+<level2 description="Financial Management" URL="" accessID="FINMAN" spanEvents="no" requiredModule="Pricing" menuGroup="EVFIN" isPublic="1">
+<level3 description="Invoice Control" URL="../../backend/home/invoiceExport.csp" accessID="INVEXPORT" spanEvents="no" requiredModule="Invoice Export" previewImage="invoice control.png"/>
+<level3 description="Invoice Run" URL="../../backend/home/invoicingMain.csp"     accessID="INVRUN" spanEvents="no" requiredModule="Invoice" previewImage="invoice run.png"/>
+<level3 description="Invoice List" URL="../../backend/home/invoiceList.csp"     accessID="INVLIST" spanEvents="no" requiredModule="Invoice" requiredSystemSetting="haymarket special invoice list" previewImage=""/>
+<level3 description="Profit &amp; Loss" URL="../../backend/home/profitAndLoss1.csp"  accessID="PROFLOSS" spanEvents="yes" requiredModule="Profit &amp; Loss" previewImage="profit and loss.png"/>
+</level2>
+<level2 description="Awards Setup" URL="" accessID="AWRD" spanEvents="no" requiredModule="Awards" menuGroup="Awards" isPublic="1">
+<level3 description="Categories" URL="../../backend/home/awardsCategoryList.csp" accessID="AWCAT" spanEvents="no" requiredModule="Awards" previewImage="categories (Awards.png"/>
+<level3 description="Sections" URL="../../backend/home/awardsSectionList.csp" accessID="AWSEC" spanEvents="no" requiredModule="Awards" previewImage="sections.png"/>
+<level3 description="Award Types" URL="../../backend/home/awardsAwardList.csp" accessID="AWAW" spanEvents="no" requiredModule="Awards" previewImage="award types.png"/>
+<level3 description="Settings" URL="../../backend/home/eventSettingsAwards.csp"   accessID="AWSETT" spanEvents="no" requiredModule="Awards" previewImage="settings (awards).png"/> 
+</level2>
+<level2 description="Judging Setup" URL="" accessID="AWJUDGESET" spanEvents="no" requiredModule="Awards" menuGroup="Awards" isPublic="1">
+<level3 description="Judging Panel" URL="../../backend/home/awardsPanelList.csp" accessID="AWJUDGE" spanEvents="no" requiredModule="Awards" previewImage="judging panel.png"/>
+<level3 description="Criteria" URL="../../backend/home/awardsCriteriaList.csp" accessID="AWCRIT" spanEvents="no" requiredModule="Awards" previewImage="criteria awards.png"/>
+</level2>
+<level2 description="Awards Management" URL="" accessID="AWMANAGE" spanEvents="no" requiredModule="Awards" menuGroup="Awards" isPublic="1">
+<level3 description="Entries" URL="../../backend/home/awardsOverview.csp?load=1" accessID="AWSUB" spanEvents="no" requiredModule="Awards"  previewImage="entries.png"/>
+<level3 description="Submitters" URL="../../backend/home/awardsSubmitterDetails.csp"      accessID="AWSUBDET" spanEvents="no" requiredModule="Awards"  previewImage="submitter details.png"/>
+<level3 description="Judging Overview" URL="../../backend/home/awardsJudgingOverview.csp?load=1" accessID="AWJUDOV" spanEvents="no" requiredModule="Awards" previewImage="judging overview.png"/>
+<level3 description="Judges" URL="../../backend/home/awardsJudgingDetails.csp"   accessID="AWJUDDET" spanEvents="no" requiredModule="Awards" previewImage="judging details.png"/>
+<level3 description="Award Assignment" URL="../../backend/home/awardsAssignment.csp"     accessID="AWASS" spanEvents="no" requiredModule="Awards" previewImage="awards assignment.png"/>
+</level2>
+
+<level2 description="Abstracts Setup" URL="" accessID="ABS" spanEvents="no" requiredModule="Abstract Management" menuGroup="Abstracts" isPublic="1">
+<level3 description="Topics" URL="../../backend/home/absTopicList.csp"   accessID="ABSTOP" spanEvents="no" requiredModule="Abstract Management" previewImage="topics.png"/>
+<level3 description="Reviewing Criteria" URL="../../backend/home/absCriteriaList.csp"    accessID="ABSCRIT" spanEvents="no" requiredModule="Abstract Management" previewImage="reviewing criteria abstracts.png"/>
+<level3 description="Reviewers" URL="../../backend/home/absUserList.csp" accessID="ABSREV" spanEvents="no" requiredModule="Abstract Management" previewImage="reviewers.png"/>
+<level3 description="Presentation Methods" URL="../../backend/home/absPresentationMethodEvent.csp" accessID="SYSABSPRES" spanEvents="no" requiredModule="Abstract Management" previewImage="presentation methods.png"/>
+<level3 description="Default Methods" URL="../../backend/home/absPresentationMethods.csp" accessID="ABSPRESEV" spanEvents="yes" requiredModule="Abstract Management" previewImage="default presentation methods.png"/>
+<level3 description="Settings" URL="../../backend/home/abstractSettings.csp" accessID="ABSSETT" spanEvents="no" requiredModule="Abstract Management" previewImage="settings abstracts.png"/>
+
+</level2>
+<level2 description="Abstracts Management" URL="" accessID="ABSMANAGE" spanEvents="no" requiredModule="Abstract Management" menuGroup="Abstracts" isPublic="1">
+<level3 description="Submissions" URL="../../backend/home/abstractSubmissions.csp"        accessID="ABSSUB" spanEvents="no" requiredModule="Abstract Management" previewImage="submitted abstracts.png"/>
+<level3 description="Reviews" URL="../../backend/home/absReviewsOverview.csp?load=1"     accessID="ABSRVW" spanEvents="no" requiredModule="Abstract Management" previewImage="reviews.png"/>
+</level2>
+<level2 description="Table Bookings" URL=""   accessID="TABL" spanEvents="no" requiredModule="Table Booking" isPublic="1">
+<level3 description="Table List" URL="../../backend/home/tableList.csp"  accessID="TABLELIST" spanEvents="no" requiredModule="Table Booking" previewImage="table list.png"/>
+<level3 description="Table Groups" URL="../../backend/home/tableGroupList.csp"   accessID="TABLGROUP" spanEvents="no" requiredModule="Table Groups" previewImage="table groups.png"/>
+<level3 description="Seating Arrangement" URL="../../backend/home/tablePlanningAdvanced.csp"     accessID="TABLSEAT" spanEvents="no" requiredModule="Table Booking" previewImage="seating arrangement.png"/>
+<level3 description="Table Settings" URL="../../backend/home/tableSettings.csp"  accessID="TABLSETT" spanEvents="no" requiredModule="Table Booking" previewImage="table settings.png"/>
+</level2>
+<level2 description="Accommodation" URL=""    accessID="ACCOM" spanEvents="no" requiredModule="Accommodation" isPublic="1">
+<level3 description="Hotel List" URL="../../backend/home/hotelList.csp"  accessID="ACCHOT" spanEvents="no" requiredModule="Accommodation" previewImage="hotel list.png"/>
+<level3 description="Accommodation Settings" URL="../../backend/home/eventSettingsAccom.csp"     accessID="ACCSETT" spanEvents="no" requiredModule="Accommodation" previewImage="accommodation settings.png"/>
+</level2>
+<level2 description="Meeting Manager" URL=""  accessID="MEET" spanEvents="no" requiredModule="Meeting Manager" isPublic="1">
+<level3 description="Arranged Meetings" URL="../../backend/home/meetManOverview.csp?load=1"      accessID="MEETOVER" spanEvents="no" requiredModule="Meeting Manager" previewImage="arranged meetings.png"/>
+<level3 description="Diary Slots" URL="../../backend/home/meetManDiarySlots.csp" accessID="MEETSLOTS" spanEvents="no" requiredModule="Meeting Manager" previewImage="diary slots.png"/>
+<level3 description="Lunches" URL="../../backend/home/meetManLunches.csp?load=1" accessID="MEETLUNCH" spanEvents="no" requiredModule="Meeting Manager Lunches" previewImage=""/>
+<level3 description="Meeting Manager Settings" URL="../../backend/home/eventSettingsMeetMan.csp" accessID="MEETSET" spanEvents="no" requiredModule="Meeting Manager" previewImage="meeting manager settings.png"/>
+</level2>
+<level2 description="Event Management" URL="" accessID="EVMAN" spanEvents="no" requiredModule="Event Management - Enterprise Ireland" isPublic="1">
+<level3 description="Tasks" URL="../../backend/evMan/evManTaskList.csp"  accessID="EVTASK" spanEvents="no" requiredModule="Event Management - Enterprise Ireland" previewImage="Tasks.png"/>
+<level3 description="Resources" URL="../../backend/evMan/evManResourceList.csp"  accessID="EVRES" spanEvents="no" requiredModule="Event Management - Enterprise Ireland" previewImage="resources.png"/>
+<level3 description="Task Planning" URL="../../backend/evMan/evManTaskPlanning.csp"      accessID="EVTASKPL" spanEvents="no" requiredModule="Event Management - Enterprise Ireland" previewImage="task planning.png"/>
+<level3 description="Task Types" URL="../../backend/evMan/evManTaskTypeList.csp"        accessID="EVTASKTYP" spanEvents="no" requiredModule="Event Management - Enterprise Ireland" previewImage="task types.png"/>
+<level3 description="Event Calendar" URL="../../backend/home/eventCalendarMonthly.csp"   accessID="EVCAL" spanEvents="yes" previewImage="event calendar (Event management).png" isPublic="1"/>
+<level3 description="Event Managers" URL="../../backend/evMan/evManEventManagers.csp"    accessID="EVMANS" spanEvents="yes" requiredModule="Event Management - Enterprise Ireland" previewImage="event managers.png"/>
+</level2>
+<level2 description="Badges, Labels &amp; Letters" accessID="BADLABMEN" spanEvents="no" requiredModule="Badges &amp; Labels &amp; Letters" isPublic="1">
+	<level3 description="Setup &amp; Management" URL="../../backend/home/selectPrint.csp"   accessID="BADLAB" spanEvents="no" requiredModule="Badges &amp; Labels &amp; Letters" previewImage="setup and Management (Badges letters and labels).png"/>
+</level2>
+</level1>
+<level1 description="Website" URL="" hoverText="Setup and manage your website" accessID="FRONT" spanEvents="no" requiredModule="frontEndWebPages"  menuPosition="right" isPublic="1">
+<level2 description="Manage your Website..." URL="" isMenuCaption="1"/>
+<level2 description="Content" URL=""  accessID="FRONTSITECONT" spanEvents="no" requiredModule="" isPublic="1">
+<level3 description="Website Contents" URL="../../backend/home/inSiteEditingFrame.csp"  accessID="CONMAN" spanEvents="no" requiredModule="" previewImage="website contents.png"/>
+<level3 description="Registration Pages" URL="../../backend/home/regPages.csp"   accessID="REGPAG" spanEvents="no" requiredModule="" previewImage="registration pages.png"/>
+<level3 description="Additional Booking Items" URL="../../backend/home/additionalItemsList.csp"  accessID="ABIS" spanEvents="no" requiredModule="Additional Bookings Items Overview" previewImage="Additional booking items.png"/>
+<level3 description="External Pages" URL="../../backend/home/externalWebPages.csp" accessID="EXTWEB" spanEvents="yes" requiredModule="External Webpages" previewImage="external pages.png"/>
+</level2>
+<level2 description="Design" URL=""   accessID="FRONTSITEDESN" spanEvents="no" requiredModule="" isPublic="1">
+<level3 description="Select Template" URL="../../backend/home/themeBrowser.csp"  accessID="THEMES" spanEvents="no" requiredModule="" previewImage="select template.png"/>
+<level3 description="Appearance" URL="../../backend/home/websiteAppearance.csp" accessID="FONTSCOLORS" spanEvents="no" requiredModule="" previewImage="website colors.png"/>
+</level2> 
+<level2 description="Settings" URL="" accessID="FRONTSITESETNG" spanEvents="no" requiredModule="" isPublic="1">
+<level3 description="Website Settings" URL="../../backend/home/websiteSettings.csp" accessID="WEBSETT" spanEvents="no" requiredModule="" previewImage="website settings.png"/>
+<level3 description="SEO Settings" URL="../../backend/home/seoEventSettings.csp" accessID="SEOEVSETTINGS" spanEvents="no" requiredModule="SEO" previewImage="seo settings.png"/>
+<level3 description="Web Addresses" URL="../../backend/home/eventSettingsWebAddr.csp"    accessID="WEBADDR" spanEvents="no" requiredModule="" previewImage="web addresses.png"/>
+
+</level2>
+</level1>
+<level1 description="Communications" URL="" hoverText="Communicate with your customers by email and surveys" accessID="INVMAIL" spanEvents="no" requiredModule=""  menuPosition="right" isPublic="1">
+<level2 description="Approvals" URL="../../backend/bespokePages/schrodersEmailApprovals.csp" accessID="SCHROEMAILAPP" spanEvents="yes" isPublic="1" requiredSystemSetting="Schroders approval required for bulk emails" previewImage=""/>
+<level2 description="Emails" URL="" accessID="COMMEMAIL" spanEvents="no" requiredModule="" isPublic="1">
+<level3 description="Log" URL="../../backend/home/emailLog.csp" accessID="MAILLOG" spanEvents="yes" requiredModule="Email Log" previewImage="log (email).png"/>
+<level3 description="Automatic" URL="../../backend/home/emailSettings.csp" accessID="MAILTEMPL" spanEvents="no" requiredModule="EMAIL" previewImage="automatic.png"/>
+<level3 description="Ad-Hoc" URL="../../backend/home/eventEmails2.csp?butEvent_=1" accessID="EMAIL" spanEvents="no" requiredModule="EMAIL" previewImage="ad-hoc.png"/>
+<level3 description="Invitations" URL="../../backend/home/preRegister.csp?clearPage=1" accessID="INVITE" spanEvents="no" requiredModule="Invitations" previewImage="invitations.png"/>
+<level3 description="Campaigns" URL="../../backend/home/emailCampaigns.csp" accessID="MAILCAMP" spanEvents="no" requiredModule="Email Campaigns" previewImage="campaigns.png"/>
+<level3 description="Meeting Manager" URL="../../backend/home/meetManEmailSettings.csp" accessID="MEETEMAIL" spanEvents="no" requiredModule="Meeting Manager" previewImage="meeting manager (emails).png"/>
+</level2>
+<level2 description="Lists of People" URL="../../backend/home/codLists.csp?clearPage=1"  accessID="PEOPLIST" spanEvents="no" requiredModule="Lists of People"  previewImage="lists of people.png"/>
+<level2 description="Surveys" URL="../../backend/home/surveyList.csp" accessID="SURV" spanEvents="yes" requiredModule="Surveys" previewImage="surveys.png"/>
+</level1>
+
+<level1 description="Registrations" URL="" hoverText="Manage event registrations" accessID="BOOKADM" spanEvents="no" requiredModule=""  menuPosition="right">
+<level2 description="Edit Registrations" URL="../../backend/home/delegateSearchGoToSimple.csp"  accessID="VIEWBOOK" spanEvents="no" requiredModule="View &amp; edit bookings" previewImage="edit bookings.png"/>
+<level2 description="Registrations" URL="../../backend/home/registrations.csp"  accessID="REGISTRATIONLIST"  spanEvents="no"/>
+<level2 description="Attendance Recording" URL="../../backend/home/attendanceRecording.csp" accessID="ATTREC" spanEvents="no" requiredModule="Attendance recording" previewImage="attendance recording.png"/>
+<level2 description="Bulk Edit" URL="../../backend/home/eventBooking2.csp?butBulkEdit_=1"  accessID="BULK" spanEvents="no" requiredModule="Bulk Edit" previewImage="bulk edit.png"/>
+
+</level1>
+<level1 description="Search &amp; Reports" URL="" accessID="REPORTS" spanEvents="no" requiredModule=""  menuPosition="right" isPublic="1">
+<level2 description="Quick Search" URL="../../backend/home/delegateSearchSimple.csp?showEditButton=1" accessID="QUICKREP" spanEvents="no" requiredModule="Quick Search" previewImage="quick search.png"/>
+<level2 description="Search" URL="../../backend/home/gotoOnlineReports.csp?reportType=default"  accessID="ADVSEARCH" spanEvents="yes" requiredModule="Standard Search" previewImage="search.png"/>
+<level2 description="Reports" URL="../../backend/home/reportList.csp"  accessID="REPS" spanEvents="yes" requiredModule="Dynamic Reporting Runtime" previewImage="reports.png"/>
+<level2 description="People De-Duplication" URL="../../backend/home/codPersonDeDupeSelectFields.csp?load=1"      accessID="SYSDEDUPE" spanEvents="yes" requiredModule="Person De-Duplication" previewImage="people de-duplication.png"/>
+</level1>
+</backendMenu>
+]]></Data>
+</XData>
 </Class>
 
 

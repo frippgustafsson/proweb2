@@ -167,17 +167,18 @@ add WARNING note about loading the new template and creating the new design
 autiding delete&add
 harmonise the two routes
 add cog to editor control panel for page properties
+editor panel shouldn't scroll
 ===============================================================================
 
-
 The page header is all wrongly populated
-editor panel shouldn't scroll
-restore the unit tests
 Look at the capitalisation logic
-page header should not be stylable
+page header should not be stylable, change editor if ef-page-header
+search for ########
+restore the unit tests
 turn off setting in template upload (temporary)
 
 --- iceboxing it ---
+social media buttons are in the wrong place in the new templates
 editor panel should cope with narrow mode
 tweak vertical alignment of labels vs fields
 edit page crashes after colour change

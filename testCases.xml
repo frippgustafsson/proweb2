@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.2 (Build 736U)" ts="2016-12-12 11:13:55">
+<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.2 (Build 736U)" ts="2016-12-12 16:50:14">
 <Class name="EF.contextDataFrontend">
 <Description><![CDATA[
 <!-- ;vc;-
@@ -2077,7 +2077,7 @@ Should be run if any of the sub-classes are deleted</Description>
 <Description>
 Should have a one-to-one relationship with sc.objList</Description>
 <Super>EF.pageController.containerElement</Super>
-<TimeChanged>64259,42432.968859</TimeChanged>
+<TimeChanged>64264,60018.026345</TimeChanged>
 <TimeCreated>64231,55587.036042</TimeCreated>
 
 <Property name="prowebListID">
@@ -2160,6 +2160,7 @@ refers to sc.xModules.objList</Description>
 <Implementation><![CDATA[
 	#define isInputElement prowebItem.storage.%Extends("sc.facade.prowebItemStorageInputElement")
 	#define isTextBlock prowebItem.storage.%Extends("sc.facade.prowebItemStorageTextBlock")
+	#define isPageHeader prowebItem.storage.%Extends("sc.facade.prowebItemStoragePageHeader")
 	#define isMenuBlock prowebItem.storage.%Extends("sc.facade.prowebItemStorageMenuBlock")
 	#define isDivider prowebItem.storage.%Extends("sc.facade.prowebItemStorageDivider")
 	#define isYouTubeVideo prowebItem.storage.%Extends("sc.facade.prowebItemStorageYouTubeVideo")
@@ -2168,6 +2169,10 @@ refers to sc.xModules.objList</Description>
 	#dim element as EF.pageController.proweb.prowebBase
 	if $$$isInputElement { 
 		set element = ..getNewElementForQuestion(prowebItem, optionalGuestNumber)	
+
+	} elseif $$$isPageHeader {
+		set element = ##class(EF.pageController.proweb.pageHeader).addElementToParent($this, elementIdentifier, prowebItem.storage.text)
+	
 	} elseif $$$isTextBlock {
 		set element = ##class(EF.pageController.proweb.textBlock).addElementToParent($this, elementIdentifier, prowebItem.storage.text)
 	
@@ -2594,7 +2599,7 @@ Should have a one-to-one relationship with sc.objList</Description>
 
 <Class name="EF.pageController.proweb.page">
 <Super>EF.pageController.page</Super>
-<TimeChanged>64261,32958.157481</TimeChanged>
+<TimeChanged>64264,59831.326342</TimeChanged>
 <TimeCreated>64189,51696.559047</TimeCreated>
 
 <Property name="contextData">
@@ -2607,7 +2612,6 @@ Should have a one-to-one relationship with sc.objList</Description>
 
 <Method name="load">
 <Implementation><![CDATA[
-	;w jj
 	if ..contextData.isTestMode {
 		do ..insertMockProwebItems()	
 	
@@ -2664,10 +2668,14 @@ Should have a one-to-one relationship with sc.objList</Description>
 			set listElement.prowebListID = prowebID 
 			do listElement.loadProwebListElementsFromDatabase()
 
-		} elseif dataType = "objText" {
+		} elseif dataType = "objText" { // single text items that are directly located in the page
 			set listElement = ##class(EF.pageController.proweb.listOfSingleElement).addElementToParent($this, componentName, "")
 			set listElement.componentName = componentName 
-			set storage = ##class(sc.facade.prowebItemStorageTextBlock).createNew(prowebID, ..contextData)
+			if componentName = "header" {
+				set storage = ##class(sc.facade.prowebItemStoragePageHeader).createNew(prowebID, ..contextData)
+			} else {
+				set storage = ##class(sc.facade.prowebItemStorageTextBlock).createNew(prowebID, ..contextData)
+			}
 			if storage.isOkToLoad(..contextData) {			
 				set prowebItem = ##class(sc.facade.prowebItem).createNew(storage)
 				do listElement.addElementForProwebItem(prowebItem)
@@ -3008,6 +3016,23 @@ also an entry point from unit tests</Description>
 <Value>prowebPageID</Value>
 </Value>
 </Data>
+</Storage>
+</Class>
+
+
+<Class name="EF.pageController.proweb.pageHeader">
+<Super>EF.pageController.proweb.textBlock</Super>
+<TimeChanged>64264,58769.911576</TimeChanged>
+<TimeCreated>64264,58677.694749</TimeCreated>
+
+<Method name="getDefaultUIComponent">
+<ReturnType>EF.ui.components.base</ReturnType>
+<Implementation><![CDATA[	quit ##class(EF.ui.components.frontend.pageHeader).%New(..identifier)
+]]></Implementation>
+</Method>
+
+<Storage name="Default">
+<Type>%Library.CacheStorage</Type>
 </Storage>
 </Class>
 
@@ -4335,7 +4360,7 @@ also an entry point from unit tests</Description>
 
 <Class name="EF.pageController.proweb.textBlock">
 <Super>EF.pageController.proweb.prowebBase</Super>
-<TimeChanged>64197,56479.383488</TimeChanged>
+<TimeChanged>64264,58744.678496</TimeChanged>
 <TimeCreated>64183,49747.663252</TimeCreated>
 
 <Method name="getDefaultUIComponent">
@@ -4345,7 +4370,7 @@ also an entry point from unit tests</Description>
 </Method>
 
 <Method name="initialiseUIComponent">
-<FormalSpec>uiComponent:EF.ui.components.inputBase</FormalSpec>
+<FormalSpec>uiComponent:EF.ui.components.frontend.textBlock</FormalSpec>
 <Implementation><![CDATA[
 	do ##super(uiComponent)
 	set ..uiComponent.text=..description
@@ -7184,6 +7209,29 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 <ClassMethod>1</ClassMethod>
 <ReturnType>%String</ReturnType>
 <Implementation><![CDATA[	Return "form-control "_..getDefaultProwebClasses()_" ef-input-short"
+]]></Implementation>
+</Method>
+
+<Storage name="Default">
+<Type>%Library.CacheStorage</Type>
+</Storage>
+</Class>
+
+
+<Class name="EF.ui.components.frontend.pageHeader">
+<Super>EF.ui.components.frontend.textBlock</Super>
+<TimeChanged>64264,58652.560641</TimeChanged>
+<TimeCreated>64264,58652.092844</TimeCreated>
+
+<Method name="render">
+<Implementation><![CDATA[
+	do ..renderRowOpening()
+		do ..renderCellOpening()
+			write "<div class=""ef-page-header"" ",..rawHTML(..getProwebExtraAttributes()),">"
+			write ..rawHTML(..text)
+			write "</div>"
+		do ..renderCellClosing()
+	do ..renderRowClosing()
 ]]></Implementation>
 </Method>
 
@@ -21167,7 +21215,7 @@ The basic frontend default stuff</Description>
 <Abstract>1</Abstract>
 <ClassType/>
 <ProcedureBlock>1</ProcedureBlock>
-<TimeChanged>64258,66620.55536</TimeChanged>
+<TimeChanged>64264,60444.615625</TimeChanged>
 <TimeCreated>63046,56108.531536</TimeCreated>
 
 <Method name="outputDynamicCSS">
@@ -21580,7 +21628,7 @@ The basic frontend default stuff</Description>
 				color: #(##class(layout.eventColorMethods).getInputFieldTextColor(eventID))#;
 			}
 			
-			h1, h2, h3, h4, h5,	h6 {
+			h1, h2, h3, h4, h5,	h6, .ef-page-header {
 				font-family: #(..getFontFamilyHeadings(eventID))#;
 				color: #(##class(layout.eventColorMethods).getHeadingColor(eventID))#;
 			}
@@ -24360,8 +24408,9 @@ Returns true if the template is custom made</Description>
 </Class>
 
 
-<Project name="proweb 2" LastModified="2016-12-12 10:26:20.401282" Target="largedevsrc/backEnd/home/login.csp" TargetType="3">
+<Project name="proweb 2" LastModified="2016-12-12 16:50:14.561385" Target="largedevsrc/backEnd/home/login.csp" TargetType="3">
   <Items>
+    <ProjectItem name="EF.contextDataFrontend" type="CLS"></ProjectItem>
     <ProjectItem name="EF.contextDataRegistration" type="CLS"></ProjectItem>
     <ProjectItem name="EF.contextDataRegistrationMock" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.containerElement" type="CLS"></ProjectItem>
@@ -24440,6 +24489,7 @@ Returns true if the template is custom made</Description>
     <ProjectItem name="EF.ui.components.frontend.dateRange" type="CLS"></ProjectItem>
     <ProjectItem name="EF.ui.components.frontend.divider" type="CLS"></ProjectItem>
     <ProjectItem name="EF.ui.components.frontend.dropdown" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.ui.components.frontend.editorControlPanel" type="CLS"></ProjectItem>
     <ProjectItem name="EF.ui.components.frontend.emailInput" type="CLS"></ProjectItem>
     <ProjectItem name="EF.ui.components.frontend.emailInputMulti" type="CLS"></ProjectItem>
     <ProjectItem name="EF.ui.components.frontend.fileUpload" type="CLS"></ProjectItem>
@@ -24534,12 +24584,13 @@ Returns true if the template is custom made</Description>
     <ProjectItem name="sc.xModules.objList" type="CLS"></ProjectItem>
     <ProjectItem name="sc.xModules.objPage" type="CLS"></ProjectItem>
     <ProjectItem name="setup.availabilityCheckerSession" type="CLS"></ProjectItem>
+    <ProjectItem name="setup.backendMenu" type="CLS"></ProjectItem>
     <ProjectItem name="setup.bookingLevelCounterFrontendSession" type="CLS"></ProjectItem>
     <ProjectItem name="setup.eventCreationMethods" type="CLS"></ProjectItem>
     <ProjectItem name="shared.pageMethods" type="CLS"></ProjectItem>
-    <ProjectItem name="EF.ui.components.frontend.editorControlPanel" type="CLS"></ProjectItem>
-    <ProjectItem name="EF.contextDataFrontend" type="CLS"></ProjectItem>
-    <ProjectItem name="setup.backendMenu" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.ui.components.frontend.pageHeader" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.pageController.proweb.pageHeader" type="CLS"></ProjectItem>
+    <ProjectItem name="sc.facade.prowebItemStoragePageHeader" type="CLS"></ProjectItem>
   </Items>
   <BreakPoints>
     <BreakPoint Routine="cspRealEV.frontend.reg.pagecontrollerstandardsave.CLS" Offset="OnPreHTTPafter+28"></BreakPoint>
@@ -25179,6 +25230,13 @@ to make sure group bookers can't see already existing data of attendees</Descrip
 	return menuBlockItem
 ]]></Implementation>
 </Method>
+</Class>
+
+
+<Class name="sc.facade.prowebItemStoragePageHeader">
+<Super>sc.facade.prowebItemStorageTextBlock</Super>
+<TimeChanged>64264,59532.3045</TimeChanged>
+<TimeCreated>64264,59532.3045</TimeCreated>
 </Class>
 
 

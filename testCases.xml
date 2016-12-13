@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.2 (Build 736U)" ts="2016-12-12 16:50:14">
+<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.2 (Build 736U)" ts="2016-12-13 10:25:10">
 <Class name="EF.contextDataFrontend">
 <Description><![CDATA[
 <!-- ;vc;-
@@ -4694,7 +4694,7 @@ this is for version 1 of proweb</Description>
 <Class name="EF.pages.frontend.baseProweb">
 <ProcedureBlock>0</ProcedureBlock>
 <Super>EF.pages.frontend.base</Super>
-<TimeChanged>64261,33011.138265</TimeChanged>
+<TimeChanged>64265,36644.013252</TimeChanged>
 <TimeCreated>64191,31442.531402</TimeCreated>
 
 <Parameter name="ENCODED">
@@ -4754,7 +4754,6 @@ this is for version 1 of proweb</Description>
 <Implementation><![CDATA[
 	do ..initPageController()
 	do ..OnPagePageTop()
-
 	do ..outputFormBeginning()
 	do ..outputPageControllerTag()
 	do ..OnPagePageContent()
@@ -4764,7 +4763,6 @@ this is for version 1 of proweb</Description>
 	do ..OnPagePageBottom()
 	
 	if ##class(shared.pageMethods).getEditMode() = "edit" {
-		;set %session.Data("inSitePageEditing") = 1 // force the menu and banner to be displayed
 		do ##class(eCom.tempPurchase).clearBackendBooking()
 		kill %session.Data("eventsforce", "backend", "proweb page")
 		set floatingMenu = ##class(EF.ui.components.frontend.floatingMenu).%New()
@@ -4810,9 +4808,7 @@ this is for version 1 of proweb</Description>
 	Write !,"<head>"
  	
  	do ##class(layout.objTemplate).writeBit("","{{ef_header}}")
-	
 	Do ..Include("frontendHTTPheader.csp")
-	
 	Do ..Include("colourScheme.csp")
 	do ..renderCommonCSS()
 	do ..OnPagePageHeaderCSS()
@@ -22902,7 +22898,7 @@ Looks for "style.css" file to update "templateCSSFile" with</Description>
 <ClassType>persistent</ClassType>
 <ProcedureBlock>1</ProcedureBlock>
 <Super>%Library.Persistent,shared.timeStamp</Super>
-<TimeChanged>64257,38634.000187</TimeChanged>
+<TimeChanged>64265,36400.426818</TimeChanged>
 <TimeCreated>60782,60196.270659</TimeCreated>
 <Inheritance>right</Inheritance>
 
@@ -23652,15 +23648,17 @@ outputs each section of code doing the banner, menu and footer when needed</Desc
 						<link rel="stylesheet" href="../../media/stylesheets/frontend/gen4/ef-website-gen4-base-styles.css" type="text/css" />
 					>
 					
+					if ##class(layout.methods).canUseWebsiteColorsForEvent(xEventID) {
+						do ##class(layout.cssOverrideMethods).outputWebsiteAppearanceCSS(xEventID)
+					}
+					/*
 					if contextData.prowebMode = "edit" {
 						&html<
 							<!-- ====== Proweb2 editor styles ============= -->
 							<link rel="stylesheet" href="../../media/stylesheets/backend/gen4/ef-editor.css" type="text/css" />
 						>
 					}
-					if ##class(layout.methods).canUseWebsiteColorsForEvent(xEventID) {
-						do ##class(layout.cssOverrideMethods).outputWebsiteAppearanceCSS(xEventID)
-					}
+					*/
 					
 				} else {
 					do ##class(layout.cssDefaultMethods).outputDefaultCSS(xEventID,layoutTemplateID)
@@ -32606,7 +32604,7 @@ Returns the correct style of the button depending on what mode are available and
 <Abstract>1</Abstract>
 <ClassType/>
 <ProcedureBlock>1</ProcedureBlock>
-<TimeChanged>64257,51537.458039</TimeChanged>
+<TimeChanged>64265,37073.833215</TimeChanged>
 <TimeCreated>60747,44410.590792</TimeCreated>
 
 <Method name="prePartOne">
@@ -32771,33 +32769,6 @@ Returns the correct style of the button depending on what mode are available and
 				}
 			}
 			
-		}
-		if ##class(setup.objSetting).getParameter("system","backend menu security") {
-			// If pagename is a menu item check that they have access to it
-			set ok=0
-			// Special cases for pages that can be called from elsewhere
-			if pagename="gotoonlinereports.csp" {
-				if ##class(access.objRole).hasRole(userID,"Single Report") set ok=1
-				if ##class(access.objFunction).hasFunctionByAccessID(userID,"ADVSEARCH") set ok=1
-			} elseif pagename="delegatesearchsimple.csp" {
-				set ok=1
-				if ##class(access.objFunction).hasFunction(userID,"Dynamic Reports Only") set ok=0
-				// Just about anyone can get to this page
-			} elseif pagename = ..getReportListPageName() {
-				if (##class(access.objRole).hasRole(userID,"Reports Only")) set ok=1
-				if ##class(access.objFunction).hasFunctionByAccessID(userID,"REPS") set ok=1
-				if ##class(access.objFunction).hasFunction(userID,"Dynamic Reports Only") set ok=1
-			} elseif pagename="eventemails2.csp" {
-				for accessID="EMAIL","MAILCAMP" {
-					if ##class(access.objFunction).hasFunctionByAccessID(userID,accessID) set ok=1
-				}
-			} else {
-				set ok=1
-			}
-			if 'ok {
-				set %response.Redirect=##class(access.backendPageNav).whichHomepage(userID)
-				quit "0|0"
-			}
 		}
 	}
 
@@ -34283,9 +34254,8 @@ E.g https://dev.efsys.net/largedevsrc/backend/dashboard/dashboard.csp returns ba
 <Implementation><![CDATA[
 	if pageGeneration<4 {
 		return "https://da7xgjtj801h2.cloudfront.net/2013.2.716/"
-		
 	} else {
-		return "https://da7xgjtj801h2.cloudfront.net/2015.2.624/"	
+		return "https://da7xgjtj801h2.cloudfront.net/2016.3.1028/"	
 	}
 ]]></Implementation>
 </Method>

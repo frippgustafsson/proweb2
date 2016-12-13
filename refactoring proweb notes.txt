@@ -171,6 +171,7 @@ editor panel shouldn't scroll
 ===============================================================================
 
 The page header is all wrongly populated
+editor CSS should be outputted last
 Look at the capitalisation logic
 page header should not be stylable, change editor if ef-page-header
 search for ########
@@ -178,6 +179,8 @@ restore the unit tests
 turn off setting in template upload (temporary)
 
 --- iceboxing it ---
+move out all the inpage javascripts from frontJS.csp to real JS files
+home page text block is too far to the left
 social media buttons are in the wrong place in the new templates
 editor panel should cope with narrow mode
 tweak vertical alignment of labels vs fields

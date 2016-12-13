@@ -168,10 +168,11 @@ autiding delete&add
 harmonise the two routes
 add cog to editor control panel for page properties
 editor panel shouldn't scroll
+editor CSS should be outputted last
+
 ===============================================================================
 
 The page header is all wrongly populated
-editor CSS should be outputted last
 Look at the capitalisation logic
 page header should not be stylable, change editor if ef-page-header
 search for ########
@@ -180,6 +181,7 @@ turn off setting in template upload (temporary)
 
 --- iceboxing it ---
 move out all the inpage javascripts from frontJS.csp to real JS files
+rewrite frontendHTTPheader/frontednStyles/frontendJS
 home page text block is too far to the left
 social media buttons are in the wrong place in the new templates
 editor panel should cope with narrow mode

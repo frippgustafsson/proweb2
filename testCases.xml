@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.2 (Build 736U)" ts="2016-12-13 10:25:10">
+<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.2 (Build 736U)" ts="2016-12-13 10:43:20">
 <Class name="EF.contextDataFrontend">
 <Description><![CDATA[
 <!-- ;vc;-
@@ -4694,7 +4694,7 @@ this is for version 1 of proweb</Description>
 <Class name="EF.pages.frontend.baseProweb">
 <ProcedureBlock>0</ProcedureBlock>
 <Super>EF.pages.frontend.base</Super>
-<TimeChanged>64265,36644.013252</TimeChanged>
+<TimeChanged>64265,37872.199067</TimeChanged>
 <TimeCreated>64191,31442.531402</TimeCreated>
 
 <Parameter name="ENCODED">
@@ -4752,6 +4752,9 @@ this is for version 1 of proweb</Description>
 <ClassMethod>1</ClassMethod>
 <ReturnType>%Boolean</ReturnType>
 <Implementation><![CDATA[
+	if ##class(shared.pageMethods).getEditMode() = "edit" {
+		set %session.Data("mode") = "edit"		
+	}
 	do ..initPageController()
 	do ..OnPagePageTop()
 	do ..outputFormBeginning()
@@ -17079,6 +17082,135 @@ function updateAlts(codPromptID) {
 ]]></CSP>
 
 
+<CSP name="frontEnd/reg/frontendStyles.csp" application="/largedevsrc/" default="1"><![CDATA[
+<script language="CACHE" method="OnPreHTTPbefore" arguments="" returntype="%Boolean">
+	if %request.Get("noStyleTags") {
+		set %response.ContentType="text/css"
+	}
+	quit 1
+</script>
+<script language="cache" runat="server"> 
+	// Set up common variables
+	set frontBack="frontend"
+	// if edit mode or preview mode use backend
+	if %session.Get("mode")="edit" set frontBack="backend"
+	if %request.Get("hideButtons") set frontBack="backend"
+	
+	set surveyID=%request.Get("surveyID")
+	
+	
+	set xLangID=$G(%session.Data("eventsforce",frontBack,"xLangID"))
+	set xLanguage=$G(%session.Data("eventsforce",frontBack,"xLanguage"))
+	set xEventID=$G(%session.Data("eventsforce",frontBack,"xEventID"))
+	set xEventDescription=$G(%session.Data("eventsforce",frontBack,"xEventDescription"))
+	
+	if surveyID set xEventID="",xEventDescription=""
+
+	set xDateFormat=$G(%session.Data("eventsforce",frontBack,"xDateFormat"))
+	set xTimeFormat=##class(setup.objEventSetting).getParameter("system","time format",xEventID)
+	if xDateFormat="" set xDateFormat=##class(setup.objSetting).getParameter("system","defaultDateFormat")
+	set xControllerID=""
+	if xEventID	{
+		set xControllerID=##class(setup.objEvent).getControllerID(xEventID)
+		set xDateFormat=##class(setup.objEvent).getDateFormat(xEventID)
+	}
+	set %session.Data("eventsforce",frontBack,"xDateFormat")=xDateFormat
+
+	set useQtip=1
+	
+</script>
+<script language="cache" runat="server">
+	// get some properties from the template
+	set tmpTemplateID=$G(%session.Data("eventsforce","frontend","layoutTemplateID"))
+	if 'tmpTemplateID {
+		if surveyID {
+			set tmpTemplateID=##class(layout.objTemplate).getLayoutForSurvey(surveyID)
+		} else {
+			set tmpTemplateID=##class(layout.objTemplate).getLayoutForEvent(xEventID)
+		}
+	}
+
+	set styleSource=##class(layout.objTemplate).getStyleSource(tmpTemplateID)
+	
+	// find out if loading from editor so that we can load the core styles too.
+	set fromEditor=+%request.Get("fromEditor")
+	// shall we show STYLE html tags? default to no so it's backwards compatible. 
+	set noStyleTags=+%request.Get("noStyleTags")
+	
+	// decide whether to show the frontend default stylesheet (so we can have a completely free css)
+	set showFrontCSS=1
+	if '##class(setup.objEventSetting).getParameter("stylesheet","use default stylesheet",xEventID) set showFrontCSS=0
+	//Use the default stylesheet for surveys as we currently don't have a way of changing the stylesheet 
+	if surveyID set showFrontCSS=1
+	
+	// decide whether to show the uploaded style sheet
+	if xEventID	{
+		set showFrontCSS2=0
+		set objEvent=##class(setup.objEvent).%OpenId(xEventID)
+		if objEvent.stylesheetFileStream.Size set showFrontCSS2=1
+		if '##class(setup.objEventSetting).getParameter("stylesheet","use uploaded stylesheet",xEventID) set showFrontCSS2=0
+	} else{
+		set showFrontCSS2=0
+	}
+	//stop uploaded and default style sheets appearing for frontend
+	set streamTemplateStyleSheet=0
+	if styleSource="template" {
+		set showFrontCSS=0,showFrontCSS2=0
+		if fromEditor {
+			set streamTemplateStyleSheet=1
+			do ##class(layout.cssDefaultMethods).outputGen2Defaults()
+			do ##class(layout.cssOverrideMethods).outputDynamicCSS(xEventID)
+		}
+	}
+	
+	if 'noStyleTags w "<style>",!
+	
+	// CSS output order is different for Gen3, so all CSS is output by layout.cssDefaultMethods:outputDefaultCSS 
+	if ##class(layout.objTemplate).isTemplateGen3(tmpTemplateID) {
+		if streamTemplateStyleSheet {
+			do ##class(layout.cssOverrideMethods).streamTemplateStyleSheet(xEventID,styleSource)	
+		}
+	} else {
+		if showFrontCSS {
+			do ##class(layout.cssDefaultMethods).outputLegacyDefaultCSS()
+		}
+		if showFrontCSS2 {
+			do ##class(layout.cssOverrideMethods).outputUploadedStylesheet(xEventID)
+		}
+		if streamTemplateStyleSheet {
+			do ##class(layout.cssOverrideMethods).streamTemplateStyleSheet(xEventID,styleSource)	
+		}
+		if (##class(layout.objTemplate).isTemplateGen2(tmpTemplateID))	{ // if we are using the new color picker, then output the buttons that use those colors and have a better design
+			do ##class(layout.cssDefaultMethods).outputGen2and3Defaults()
+			do ##class(layout.cssDefaultMethods).outputGen2Defaults()
+			do ##class(layout.cssOverrideMethods).outputDynamicCSS(xEventID)
+		}
+	}
+	if (##class(layout.methods).canUseStyleOverrides(xEventID))	{  // we also have a white content area but use body bg colour for our default and standard designs
+		if fromEditor do ##class(layout.cssOverrideMethods).outputStyleToChangeBGColourInMoxie()
+	}
+	
+	if ##class(layout.methods).canUseWebsiteColorsForEvent(xEventID) {
+		do ##class(layout.cssOverrideMethods).outputCustomEventCSS(xEventID)		
+	}	
+	
+	if 'noStyleTags w "</style>",!
+	
+	if ##class(layout.objTemplate).useProweb2(xEventID,%request.PageName) { 
+		set contextData = ##class(EF.contextDataFrontend).createFromFrontendCSPSession()
+		if contextData.prowebMode = "edit" {
+			&html<
+				<!-- ====== Proweb2 editor styles ============= -->
+				<link rel="stylesheet" href="../../media/stylesheets/backend/gen4/ef-editor.css" type="text/css" />
+			>
+		}
+	}
+
+
+</script>
+]]></CSP>
+
+
 <CSP name="frontEnd/reg/home.csp" application="/largedevsrc/" default="1"><![CDATA[
 <csp:class super="EF.pages.frontend.baseProweb">
 <csp:parameter name="showRegistrationProgressBar" value="0">
@@ -24406,7 +24538,7 @@ Returns true if the template is custom made</Description>
 </Class>
 
 
-<Project name="proweb 2" LastModified="2016-12-12 16:50:14.561385" Target="largedevsrc/backEnd/home/login.csp" TargetType="3">
+<Project name="proweb 2" LastModified="2016-12-13 10:25:48.547057" Target="largedevsrc/backEnd/home/login.csp" TargetType="3">
   <Items>
     <ProjectItem name="EF.contextDataFrontend" type="CLS"></ProjectItem>
     <ProjectItem name="EF.contextDataRegistration" type="CLS"></ProjectItem>
@@ -24589,6 +24721,7 @@ Returns true if the template is custom made</Description>
     <ProjectItem name="EF.ui.components.frontend.pageHeader" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.proweb.pageHeader" type="CLS"></ProjectItem>
     <ProjectItem name="sc.facade.prowebItemStoragePageHeader" type="CLS"></ProjectItem>
+    <ProjectItem name="largedevsrc/frontEnd/reg/frontendStyles.csp" type="CSP"></ProjectItem>
   </Items>
   <BreakPoints>
     <BreakPoint Routine="cspRealEV.frontend.reg.pagecontrollerstandardsave.CLS" Offset="OnPreHTTPafter+28"></BreakPoint>
@@ -32604,7 +32737,7 @@ Returns the correct style of the button depending on what mode are available and
 <Abstract>1</Abstract>
 <ClassType/>
 <ProcedureBlock>1</ProcedureBlock>
-<TimeChanged>64265,37073.833215</TimeChanged>
+<TimeChanged>64265,37897.392416</TimeChanged>
 <TimeCreated>60747,44410.590792</TimeCreated>
 
 <Method name="prePartOne">
@@ -34255,7 +34388,7 @@ E.g https://dev.efsys.net/largedevsrc/backend/dashboard/dashboard.csp returns ba
 	if pageGeneration<4 {
 		return "https://da7xgjtj801h2.cloudfront.net/2013.2.716/"
 	} else {
-		return "https://da7xgjtj801h2.cloudfront.net/2016.3.1028/"	
+		return "https://da7xgjtj801h2.cloudfront.net/2016.3.1118/"	
 	}
 ]]></Implementation>
 </Method>

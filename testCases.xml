@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.2 (Build 736U)" ts="2016-12-13 10:43:20">
+<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.2 (Build 736U)" ts="2016-12-13 15:51:53">
 <Class name="EF.contextDataFrontend">
 <Description><![CDATA[
 <!-- ;vc;-
@@ -4694,7 +4694,7 @@ this is for version 1 of proweb</Description>
 <Class name="EF.pages.frontend.baseProweb">
 <ProcedureBlock>0</ProcedureBlock>
 <Super>EF.pages.frontend.base</Super>
-<TimeChanged>64265,37872.199067</TimeChanged>
+<TimeChanged>64265,52707.901169</TimeChanged>
 <TimeCreated>64191,31442.531402</TimeCreated>
 
 <Parameter name="ENCODED">
@@ -4753,7 +4753,7 @@ this is for version 1 of proweb</Description>
 <ReturnType>%Boolean</ReturnType>
 <Implementation><![CDATA[
 	if ##class(shared.pageMethods).getEditMode() = "edit" {
-		set %session.Data("mode") = "edit"		
+		;set %session.Data("mode") = "edit"		
 	}
 	do ..initPageController()
 	do ..OnPagePageTop()
@@ -7812,7 +7812,7 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 
 <Class name="EF.ui.components.frontend.textInput">
 <Super>EF.ui.components.textInput,EF.ui.components.frontend.inputElement</Super>
-<TimeChanged>64254,63064.642539</TimeChanged>
+<TimeChanged>64265,56970.777717</TimeChanged>
 <TimeCreated>63357,57620.613738</TimeCreated>
 
 <Parameter name="typeAttribute">
@@ -7868,6 +7868,7 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 	    	    placeholder="#(..encodeHTMLAttribute(..placeHolder))#"
 	    	    #(..rawHTML(..getAriaLabelForInputElement() ))#  
 	    	    #(..rawHTML(..getProwebExtraAttributes()))#
+	    	    #(..rawHTML(..prowebItem.storage.caseConversionCommand))#
     	   >
 	>
 	do ..renderHelpAndRowClosing()
@@ -17193,20 +17194,17 @@ function updateAlts(codPromptID) {
 	if ##class(layout.methods).canUseWebsiteColorsForEvent(xEventID) {
 		do ##class(layout.cssOverrideMethods).outputCustomEventCSS(xEventID)		
 	}	
-	
+
 	if 'noStyleTags w "</style>",!
 	
-	if ##class(layout.objTemplate).useProweb2(xEventID,%request.PageName) { 
-		set contextData = ##class(EF.contextDataFrontend).createFromFrontendCSPSession()
-		if contextData.prowebMode = "edit" {
+	if ##class(layout.objTemplate).useProweb2(xEventID,%request.PageName) {
+		if ##class(shared.pageMethods).getEditMode() = "edit" {
 			&html<
 				<!-- ====== Proweb2 editor styles ============= -->
 				<link rel="stylesheet" href="../../media/stylesheets/backend/gen4/ef-editor.css" type="text/css" />
 			>
-		}
+		}	
 	}
-
-
 </script>
 ]]></CSP>
 
@@ -23030,7 +23028,7 @@ Looks for "style.css" file to update "templateCSSFile" with</Description>
 <ClassType>persistent</ClassType>
 <ProcedureBlock>1</ProcedureBlock>
 <Super>%Library.Persistent,shared.timeStamp</Super>
-<TimeChanged>64265,36400.426818</TimeChanged>
+<TimeChanged>64265,52185.539921</TimeChanged>
 <TimeCreated>60782,60196.270659</TimeCreated>
 <Inheritance>right</Inheritance>
 
@@ -23783,14 +23781,6 @@ outputs each section of code doing the banner, menu and footer when needed</Desc
 					if ##class(layout.methods).canUseWebsiteColorsForEvent(xEventID) {
 						do ##class(layout.cssOverrideMethods).outputWebsiteAppearanceCSS(xEventID)
 					}
-					/*
-					if contextData.prowebMode = "edit" {
-						&html<
-							<!-- ====== Proweb2 editor styles ============= -->
-							<link rel="stylesheet" href="../../media/stylesheets/backend/gen4/ef-editor.css" type="text/css" />
-						>
-					}
-					*/
 					
 				} else {
 					do ##class(layout.cssDefaultMethods).outputDefaultCSS(xEventID,layoutTemplateID)
@@ -24538,7 +24528,7 @@ Returns true if the template is custom made</Description>
 </Class>
 
 
-<Project name="proweb 2" LastModified="2016-12-13 10:25:48.547057" Target="largedevsrc/backEnd/home/login.csp" TargetType="3">
+<Project name="proweb 2" LastModified="2016-12-13 10:25:48.545938" Target="largedevsrc/backEnd/home/login.csp" TargetType="3">
   <Items>
     <ProjectItem name="EF.contextDataFrontend" type="CLS"></ProjectItem>
     <ProjectItem name="EF.contextDataRegistration" type="CLS"></ProjectItem>
@@ -24570,6 +24560,7 @@ Returns true if the template is custom made</Description>
     <ProjectItem name="EF.pageController.proweb.menuBlock" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.proweb.numericInput" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.proweb.page" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.pageController.proweb.pageHeader" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.proweb.panel" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.proweb.passwordInput" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.proweb.phoneNumber" type="CLS"></ProjectItem>
@@ -24631,6 +24622,7 @@ Returns true if the template is custom made</Description>
     <ProjectItem name="EF.ui.components.frontend.label" type="CLS"></ProjectItem>
     <ProjectItem name="EF.ui.components.frontend.menuBlock" type="CLS"></ProjectItem>
     <ProjectItem name="EF.ui.components.frontend.numericInput" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.ui.components.frontend.pageHeader" type="CLS"></ProjectItem>
     <ProjectItem name="EF.ui.components.frontend.panel" type="CLS"></ProjectItem>
     <ProjectItem name="EF.ui.components.frontend.passwordInput" type="CLS"></ProjectItem>
     <ProjectItem name="EF.ui.components.frontend.phoneNumber" type="CLS"></ProjectItem>
@@ -24671,6 +24663,7 @@ Returns true if the template is custom made</Description>
     <ProjectItem name="largedevsrc/backEnd/proweb/textDetailsMoxie.csp" type="CSP"></ProjectItem>
     <ProjectItem name="largedevsrc/backEnd/proweb/textDetailsMoxie2.csp" type="CSP"></ProjectItem>
     <ProjectItem name="largedevsrc/backEnd/proweb/updateLabelText.csp" type="CSP"></ProjectItem>
+    <ProjectItem name="largedevsrc/frontEnd/reg/frontendStyles.csp" type="CSP"></ProjectItem>
     <ProjectItem name="largedevsrc/frontEnd/reg/home.csp" type="CSP"></ProjectItem>
     <ProjectItem name="largedevsrc/frontEnd/reg/pageControllerStandardSave.csp" type="CSP"></ProjectItem>
     <ProjectItem name="largedevsrc/frontEnd/reg/registration.csp" type="CSP"></ProjectItem>
@@ -24702,6 +24695,7 @@ Returns true if the template is custom made</Description>
     <ProjectItem name="sc.facade.prowebItemStorageInputElementMock" type="CLS"></ProjectItem>
     <ProjectItem name="sc.facade.prowebItemStorageMenuBlock" type="CLS"></ProjectItem>
     <ProjectItem name="sc.facade.prowebItemStorageMenuBlockItem" type="CLS"></ProjectItem>
+    <ProjectItem name="sc.facade.prowebItemStoragePageHeader" type="CLS"></ProjectItem>
     <ProjectItem name="sc.facade.prowebItemStorageTextBlock" type="CLS"></ProjectItem>
     <ProjectItem name="sc.facade.prowebItemStorageTextBlockMock" type="CLS"></ProjectItem>
     <ProjectItem name="sc.facade.prowebItemStorageYouTubeVideo" type="CLS"></ProjectItem>
@@ -24718,10 +24712,6 @@ Returns true if the template is custom made</Description>
     <ProjectItem name="setup.bookingLevelCounterFrontendSession" type="CLS"></ProjectItem>
     <ProjectItem name="setup.eventCreationMethods" type="CLS"></ProjectItem>
     <ProjectItem name="shared.pageMethods" type="CLS"></ProjectItem>
-    <ProjectItem name="EF.ui.components.frontend.pageHeader" type="CLS"></ProjectItem>
-    <ProjectItem name="EF.pageController.proweb.pageHeader" type="CLS"></ProjectItem>
-    <ProjectItem name="sc.facade.prowebItemStoragePageHeader" type="CLS"></ProjectItem>
-    <ProjectItem name="largedevsrc/frontEnd/reg/frontendStyles.csp" type="CSP"></ProjectItem>
   </Items>
   <BreakPoints>
     <BreakPoint Routine="cspRealEV.frontend.reg.pagecontrollerstandardsave.CLS" Offset="OnPreHTTPafter+28"></BreakPoint>
@@ -24953,7 +24943,7 @@ Property displayOrder As %Integer [ Required ];</Description>
 
 <Class name="sc.facade.prowebItemStorageInputElement">
 <Super>sc.facade.prowebItemStorage</Super>
-<TimeChanged>64236,67891.480266</TimeChanged>
+<TimeChanged>64265,56598.252711</TimeChanged>
 <TimeCreated>64206,40073.01042</TimeCreated>
 
 <Property name="inputType">
@@ -25057,6 +25047,11 @@ Property displayOrder As %Integer [ Required ];</Description>
 <Type>%Integer</Type>
 </Property>
 
+<Property name="caseConversionCommand">
+<Type>%Boolean</Type>
+<InitialExpression>0</InitialExpression>
+</Property>
+
 <Method name="createNew">
 <ClassMethod>1</ClassMethod>
 <FormalSpec>prowebItemID:%Integer,contextData:EF.contextDataRegistration</FormalSpec>
@@ -25105,6 +25100,15 @@ Property displayOrder As %Integer [ Required ];</Description>
 	set storage.dependsOnProwebAlternativeID = prowebItem.dependsOnAlternative
 	set storage.dependsOnProwebID = prowebItem.dependsOnPrompt
 	set storage.pageID = prowebItem.parent.parent.%Id()
+	
+	if ##class(setup.objEventSetting).getParameter("COD prompts","convert names to sentence case", contextData.eventID) {
+		if ($ZCVT(storage.databaseItemName, "U") = "FIRSTNAME") ! ($ZCVT(storage.databaseItemName, "U") = "LASTNAME") ! ($ZCVT(storage.databaseItemName, "U") = "TOWN") {
+			set storage.caseConversionCommand =	 " onBlur='sentenceCase(this);'"
+			
+		}  elseif $ZCVT(storage.databaseItemName, "U") = "POSTCODE" {
+			set storage.caseConversionCommand =	 " onBlur='this.value = this.value.toUpperCase();'"
+		}
+	}
 	
 	do ..populateAlternatives(storage, prowebItem,contextData)
 	

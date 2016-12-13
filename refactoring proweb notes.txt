@@ -169,11 +169,11 @@ harmonise the two routes
 add cog to editor control panel for page properties
 editor panel shouldn't scroll
 editor CSS should be outputted last
+Look at the capitalisation logic
 
 ===============================================================================
 
 The page header is all wrongly populated
-Look at the capitalisation logic
 page header should not be stylable, change editor if ef-page-header
 search for ########
 restore the unit tests
@@ -183,6 +183,7 @@ turn off setting in template upload (temporary)
 move out all the inpage javascripts from frontJS.csp to real JS files
 rewrite frontendHTTPheader/frontednStyles/frontendJS
 home page text block is too far to the left
+there is a JS error generated when you type in the input fioelds that says something about cannot find 'clearMessage'
 social media buttons are in the wrong place in the new templates
 editor panel should cope with narrow mode
 tweak vertical alignment of labels vs fields

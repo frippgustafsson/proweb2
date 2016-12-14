@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.2 (Build 736U)" ts="2016-12-14 13:18:18">
+<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.2 (Build 736U)" ts="2016-12-14 13:55:59">
 <Class name="EF.contextDataFrontend">
 <Description><![CDATA[
 <!-- ;vc;-
@@ -351,15 +351,15 @@ if website is private, this will be set to the cod.objPerson.ID of that logged i
 <Class name="EF.pageController.containerElement">
 <Description><![CDATA[
 <!-- ;vc;-
-;vc;    Object: EF.pageController.containerElement.CLS/EV.19
+;vc;    Object: EF.pageController.containerElement.CLS/EV.20
 ;vc; Component: CLS.EF.pageController.containerElement
 ;vc;  Location: LargeDev
-;vc; Date/Time: 22-Nov-16 16:08
+;vc; Date/Time: 14-Dec-16 13:52
 ;vc;      User: MindaugasL
-;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>EF.pageController.containerElement.CLS/EV.19</td><td>CLS.EF.pageController.containerElement</td><td>LargeDev</td><td style='white-space: nowrap;'>22-Nov-16 16:08</td><td>MindaugasL</td></tr></table>
+;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>EF.pageController.containerElement.CLS/EV.20</td><td>CLS.EF.pageController.containerElement</td><td>LargeDev</td><td style='white-space: nowrap;'>14-Dec-16 13:52</td><td>MindaugasL</td></tr></table>
 ]]></Description>
 <Super>EF.pageController.element</Super>
-<TimeChanged>64258,53469.703434</TimeChanged>
+<TimeChanged>64266,49985.802885</TimeChanged>
 <TimeCreated>63372,47273.826383</TimeCreated>
 
 <Property name="getContentsMethod">
@@ -576,17 +576,17 @@ This is a list of all the elements that are updated by the processGetContents me
 </Method>
 
 <Method name="addDateRange">
-<FormalSpec>identifier:%String,description:%String,value1="",value2="",isReadOnly=0,fromDescription="is from:",toDescription="To:"</FormalSpec>
+<FormalSpec>identifier:%String,description:%String,value1="",value2="",isReadOnly=0,fromDescription="From:",toDescription="To:"</FormalSpec>
 <ReturnType>EF.pageController.inputElements.textInput</ReturnType>
 <Implementation><![CDATA[
 	set element = ##class(EF.pageController.inputElements.dateRange).addElementToParent($this, identifier, description, "", isReadOnly)
 	set element.uiComponent.containerClasses = "row"
 	set dateElementFrom = ##class(EF.pageController.inputElements.datePicker).addElementToParent(element, identifier_"-value1", fromDescription, value1, isReadOnly)
-	set dateElementFrom.uiComponent.label = description_" "_fromDescription
-	set dateElementFrom.uiComponent.validator.fieldName = """"_description_" "_fromDescription_""""
+	//set dateElementFrom.uiComponent.label = description_" "_fromDescription
+	//set dateElementFrom.uiComponent.validator.fieldName = """"_description_" "_fromDescription_""""
 	set dateElementTo = ##class(EF.pageController.inputElements.datePicker).addElementToParent(element, identifier_"-value2", toDescription, value2, isReadOnly)
 	
-	set dateElementTo.uiComponent.validator.fieldName = """"_description_""" """_toDescription_""""
+	//set dateElementTo.uiComponent.validator.fieldName = """"_description_""" """_toDescription_""""
 	set dateElementFrom.uiComponent.containerClasses = dateElementFrom.uiComponent.containerClasses_" col-sm-6"
 	set dateElementTo.uiComponent.containerClasses = dateElementTo.uiComponent.containerClasses_" col-sm-6"
 	set dateElementFrom.uiComponent.classes = dateElementFrom.uiComponent.classes_" ef-backend-input-element-short"
@@ -14174,7 +14174,11 @@ function saveSameAs(categoryID) {
 		set targetPage = "fileUploadDetails.csp?isVideo=1"	
 
 	} elseif prowebItem.%Extends("sc.xModules.objText") {
-		set targetPage = "textDetailsMoxie.csp"	
+		if ##class(sc.xModules.objText).isMultipleItemsPerComponent(prowebID) {
+			set targetPage = "textDetailsMoxie.csp"	
+		} else {
+			set targetPage = "textHeaderMoxie.csp"	
+		}
 
 	} elseif prowebItem.%Extends("sc.xModules.objMenuBlock") {
 		set targetPage = "menuDetails.csp"	

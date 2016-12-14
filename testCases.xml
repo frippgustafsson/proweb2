@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.2 (Build 736U)" ts="2016-12-14 16:45:35">
+<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.2 (Build 736U)" ts="2016-12-14 17:34:05">
 <Class name="EF.contextDataFrontend">
 <Description><![CDATA[
 <!-- ;vc;-
@@ -21750,6 +21750,163 @@ The basic frontend default stuff</Description>
 </Class>
 
 
+<Class name="layout.disposableMethods">
+<Description><![CDATA[
+<!-- ;vc;-
+;vc;    Object: layout.disposableMethods.CLS/EV.7
+;vc; Component: CLS.layout.disposableMethods
+;vc;  Location: LargeDev
+;vc; Date/Time: 01-Dec-16 15:58
+;vc;      User: FredG
+;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>layout.disposableMethods.CLS/EV.7</td><td>CLS.layout.disposableMethods</td><td>LargeDev</td><td style='white-space: nowrap;'>01-Dec-16 15:58</td><td>FredG</td></tr></table>
+]]></Description>
+<Abstract>1</Abstract>
+<TimeChanged>64253,59816.575309</TimeChanged>
+<TimeCreated>63440,48937.670163</TimeCreated>
+
+<Method name="setHasBootstrapFlagForTemplate8">
+<ClassMethod>1</ClassMethod>
+<Implementation><![CDATA[	&SQL(UPDATE layout.objTemplate SET hasBootstrap=1 WHERE internalDescription = 'EF_THEME_default_design_08')
+]]></Implementation>
+</Method>
+
+<Method name="recreateCustomTemplate">
+<Description>
+re-build the template from the template stored in the database and the files on the web server</Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec>templateID,deleteFiles=1</FormalSpec>
+<Implementation><![CDATA[
+	if 'templateID {
+		throw ##class(shared.exceptions.generalException).%New("Missing templateID")
+	}
+	if '##class(layout.objTemplate).isTemplateCustomMade(templateID) return
+	if ##class(layout.objTemplate).isThisAPopupTemplate(templateID) return
+	
+	set popupTemplateID=##class(layout.objTemplate).getPopupTemplate(templateID)
+	
+	set internalDesc=##class(layout.objTemplate).getIntDesc(templateID)
+	set zipFileName=internalDesc_".zip"
+	set webserverPathToTemplateFiles="/"_##class(layout.objTemplate).getPath(templateID)
+	// (LT=C:\websites\efsys.net\largetest\media\templates)
+	set dir=##class(EF.config.server).getTemplatesRoot()_"\tmprecreated\"_$ZNSPACE_"\"_internalDesc_"\"
+	set filename="index.html"
+	set popupfilename="index_popup.html"
+	set objTemplate=##class(layout.objTemplate).%OpenId(templateID)
+	
+	do ##class(layout.objTemplate).rebuildAndOutputToFile(templateID,dir,filename)
+	if (popupTemplateID) {
+		do ##class(layout.objTemplate).rebuildAndOutputToFile(popupTemplateID,dir,popupfilename)
+	}
+	
+	// get the files from the webserver
+	kill filelist
+	do ##class(shared.ftpMethods).connectAndGetDirectoryList(webserverPathToTemplateFiles,.filelist)
+	
+	set fileToGetIndex=""
+	for  {
+		set fileToGetIndex=$O(filelist(fileToGetIndex))
+		if fileToGetIndex="" quit
+		set fileToGet=filelist(fileToGetIndex)
+		
+		if $ZCVT($P(fileToGet,".",$L(fileToGet,".")),"L")="zip" continue   // don't include the zip file as well - sometimes the directory that has the template also has the zip of the template
+		if $ZCVT(fileToGet,"L")="index.html" continue  // don't get this if it's there, we are recreating from the actual stored template
+		
+		kill tmpStream
+		set ok=##class(shared.ftpMethods).getFile(webserverPathToTemplateFiles,fileToGet,.tmpStream)
+		if 'ok {
+			throw ##class(shared.exceptions.generalException).%New("Cannot get:"_fileToGet_" from webserver")
+		}
+		do ##class(shared.fileMethods).createFileFromStream(tmpStream,dir,fileToGet)
+		
+		if $ZCVT(fileToGet,"L")="style.css" {
+			// store the style.css in order for moxie to get this without ftp'ing to the web servers
+			set sc=objTemplate.templateCSSFile.CopyFromAndSave(tmpStream)
+			If $$$ISERR(sc) {
+				Throw ##class(shared.exceptions.generalStatusException).CreateFromStatus(sc)
+			}
+		}
+		
+	}
+	
+	// zip up the directory
+	do ##class(shared.fileMethods).deleteLocalFile(dir,zipFileName)  // make sure it's not there already (will be if we have run this for this templateID once before)
+	do ##class(shared.fileMethods).zipFiles(dir,"*.*",dir,zipFileName,0,,0)
+	
+	set templateZipFileStream=##class(%Stream.FileBinary).%New()
+	set templateZipFileStream.Filename=dir_zipFileName
+	set sc=objTemplate.templateSourceFile.CopyFromAndSave(templateZipFileStream)
+	If $$$ISERR(sc) {
+		Throw ##class(shared.exceptions.generalStatusException).CreateFromStatus(sc)
+	}
+	kill templateZipFileStream
+	set objTemplate.customTemplate=1
+
+	set sc=objTemplate.%Save()
+	If $$$ISERR(sc) {
+		Throw ##class(shared.exceptions.generalStatusException).CreateFromStatus(sc)
+	}
+	
+	if deleteFiles {
+		// delete all the files we just retrieved
+		do ##class(%File).RemoveDirectoryTree(dir)
+	}
+	
+	quit
+]]></Implementation>
+</Method>
+
+<Method name="recreateAllCustomTemplatesAndStore">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>deleteFiles=1</FormalSpec>
+<Implementation><![CDATA[
+	set rs=##class(%ResultSet).%New("%Library.DynamicQuery:SQL")
+	set sqltext="SELECT ID FROM layout.objTemplate ORDER BY ID"
+	do rs.Prepare(sqltext)
+	do rs.Execute()
+	while rs.Next() {
+		set templateID=rs.Data("ID")
+		do ..recreateCustomTemplate(templateID,deleteFiles)
+	}
+	quit
+]]></Implementation>
+</Method>
+
+<Method name="updateDefaultTemplate">
+<ClassMethod>1</ClassMethod>
+<Implementation><![CDATA[
+	set currentDefaultTemplateID = ##class(setup.objSetting).getParameter("themes","default theme for new events")	
+	set currentDefaultTemplateName = ##class(layout.objTemplate).getIntDesc(currentDefaultTemplateID)
+	
+	if $zcvt(currentDefaultTemplateName,"U")["EF_THEME_STANDARD_DESIGN_" {
+		set newDefaultTemplateName = "EF_THEME_standard_design-v2_"_$Piece(currentDefaultTemplateName,"_",5)
+		set newDefaultTemplateID = ##class(layout.objTemplate).getIDfromIntDesc(newDefaultTemplateName)
+			
+		do ##class(setup.objSetting).setParameter("themes","default theme for new events",newDefaultTemplateID)
+	}
+]]></Implementation>
+</Method>
+
+<Method name="reorderStandardDesigns">
+<ClassMethod>1</ClassMethod>
+<Implementation><![CDATA[
+	set rs = ##class(%ResultSet).%New("%Library.DynamicQuery:SQL")
+	do rs.Prepare("SELECT * FROM layout.objStandardDesign ORDER BY ID DESC")
+	do rs.Execute()
+	while rs.Next() {
+		if (rs.Get("description") = 1) && (rs.Get("displayOrder") = 24) {
+			w !,"This method has already been run in this namespace"
+			quit	
+		}
+		set designID = rs.Get("ID")
+		&SQL(UPDATE layout.objStandardDesign SET displayOrder = displayOrder + 1 WHERE ID = :designID)			
+	}
+	&SQL(UPDATE layout.objStandardDesign SET displayOrder = 1 WHERE description = 'Standard Design 2.0')
+	&SQL(UPDATE layout.objStandardDesign SET displayOrder = 24 WHERE description = 'Responsive Standard Design')
+]]></Implementation>
+</Method>
+</Class>
+
+
 <Class name="layout.methods">
 <Description><![CDATA[
 <!-- ;vc;-
@@ -24465,7 +24622,7 @@ Returns true if the template is custom made</Description>
 </Class>
 
 
-<Project name="proweb 2" LastModified="2016-12-13 10:25:48.545938" Target="largedevsrc/backEnd/home/login.csp" TargetType="3">
+<Project name="proweb 2" LastModified="2016-12-14 17:13:45.493731" Target="largedevsrc/backEnd/home/login.csp" TargetType="3">
   <Items>
     <ProjectItem name="EF.contextDataFrontend" type="CLS"></ProjectItem>
     <ProjectItem name="EF.contextDataRegistration" type="CLS"></ProjectItem>
@@ -24649,6 +24806,7 @@ Returns true if the template is custom made</Description>
     <ProjectItem name="setup.bookingLevelCounterFrontendSession" type="CLS"></ProjectItem>
     <ProjectItem name="setup.eventCreationMethods" type="CLS"></ProjectItem>
     <ProjectItem name="shared.pageMethods" type="CLS"></ProjectItem>
+    <ProjectItem name="layout.disposableMethods" type="CLS"></ProjectItem>
   </Items>
   <BreakPoints>
     <BreakPoint Routine="cspRealEV.frontend.reg.pagecontrollerstandardsave.CLS" Offset="OnPreHTTPafter+28"></BreakPoint>

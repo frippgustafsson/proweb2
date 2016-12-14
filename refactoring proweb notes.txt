@@ -174,11 +174,12 @@ The page header is all wrongly populated
 page header should not be stylable, change editor if ef-page-header
 search for ########
 restore the unit tests
+look at form-horizontal isseuas
+turn off setting in template upload (temporary)
 
 ===============================================================================
 
-look at form-horizontal isseuas
-turn off setting in template upload (temporary)
+
 
 --- iceboxing it ---
 improve the way we preview/edit for specific attendee categories

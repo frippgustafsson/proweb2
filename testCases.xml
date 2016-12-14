@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.2 (Build 736U)" ts="2016-12-13 15:51:53">
+<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.2 (Build 736U)" ts="2016-12-14 13:18:18">
 <Class name="EF.contextDataFrontend">
 <Description><![CDATA[
 <!-- ;vc;-
@@ -11,7 +11,7 @@
 ;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>EF.contextDataFrontend.CLS/EV.1</td><td>CLS.EF.contextDataFrontend</td><td>LargeDev</td><td style='white-space: nowrap;'>24-Nov-16 12:59</td><td>FredG</td></tr></table>
 ]]></Description>
 <Super>EF.contextData</Super>
-<TimeChanged>64260,31069.918452</TimeChanged>
+<TimeChanged>64266,42668.469678</TimeChanged>
 <TimeCreated>63755,56082.660879</TimeCreated>
 
 <Property name="loggedInPersonID">
@@ -65,7 +65,10 @@ if website is private, this will be set to the cod.objPerson.ID of that logged i
 	set contextData.eventID=$G(%session.Data("eventsforce","frontend","xEventID"))
 	
 	Do contextData.setControllerID()
-	set contextData.pageID=%session.Get("pageID")
+	set contextData.pageID=%request.Get("pageID")
+	if 'contextData.pageID {
+		set contextData.pageID=%session.Get("pageID")
+	}
 	
 	set contextData.languageID=$G(%session.Data("eventsforce","frontend","xPrefLangID"))
 	if contextData.languageID="" {
@@ -3200,7 +3203,7 @@ also an entry point from unit tests</Description>
 
 <Class name="EF.pageController.proweb.testCases.checkboxGroupTestCase">
 <Super>EF.ISC.UnitTest.TestCase</Super>
-<TimeChanged>64259,40031.902312</TimeChanged>
+<TimeChanged>64265,58060.908718</TimeChanged>
 <TimeCreated>64204,52598.182886</TimeCreated>
 
 <Method name="TestWithMulticheckboxNoneSelected">
@@ -3240,7 +3243,7 @@ also an entry point from unit tests</Description>
 		
 	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(pageController,"renderComponent", "unit test")
 	set returnedHTML = $ZStrip(returnedHTML,"*WC")
-	set expectedHTML = "<divclass=""rowef-proweb-form-row""><divclass=""col-sm-4ef_proweb_form_prompt""><labelid=""ef-display-label-proweb-1""class=""control-labelef-label-text""for=""proweb-1"">Pleaseselectyouroptions</label></div><divclass=""col-sm-8ef_proweb_form_prompt""><divclass=""form-group""><divclass=""inputs-listef-proweb-input-elementef-proweb-checkboxGroup""><label><inputtype=""checkbox""value=""1""id=""proweb-1-1""class=""""name=""proweb-1-1""title="""">option1</label><br/><label><inputtype=""checkbox""value=""1""id=""proweb-1-2""class=""""name=""proweb-1-2""title="""">option2</label><br/><label><inputtype=""checkbox""value=""1""id=""proweb-1-3""class=""""name=""proweb-1-3""title="""">option3</label><br/></div></div></div></div>"
+	set expectedHTML = "<divclass=""rowef-form-row""><divclass=""col-sm-4ef-label-containeref-label-container-vertical-group""><labelid=""ef-display-label-mymulticheck""class=""control-labelef-control-label""for=""mymulticheck"">Pleaseselectyouroptions</label></div><divclass=""col-sm-8ef-checkbox-container""><div><divclass=""inputs-listef-proweb-input-elementef-checkbox-group""><labelclass=""ef-control-label""><inputtype=""checkbox""value=""1""id=""mymulticheck-1""class=""ef-control-labelef-check-box""name=""mymulticheck-1""title="""">option1&nbsp;</label><br/><labelclass=""ef-control-label""><inputtype=""checkbox""value=""1""id=""mymulticheck-2""class=""ef-control-labelef-check-box""name=""mymulticheck-2""title="""">option2&nbsp;</label><br/><labelclass=""ef-control-label""><inputtype=""checkbox""value=""1""id=""mymulticheck-3""class=""ef-control-labelef-check-box""name=""mymulticheck-3""title="""">option2&nbsp;</label><br/></div></div></div></div>"
 	do $$$AssertEquals(returnedHTML,expectedHTML)
 ]]></Implementation>
 </Method>
@@ -3249,7 +3252,7 @@ also an entry point from unit tests</Description>
 
 <Class name="EF.pageController.proweb.testCases.datePIckerTestCase">
 <Super>EF.ISC.UnitTest.TestCase</Super>
-<TimeChanged>64259,40356.689555</TimeChanged>
+<TimeChanged>64265,57903.534787</TimeChanged>
 <TimeCreated>64204,52627.550246</TimeCreated>
 
 <Method name="TestDatePicker">
@@ -3274,7 +3277,7 @@ also an entry point from unit tests</Description>
 		
 	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(pageController,"renderComponent","unit test")
 	set returnedHTML = $ZStrip(returnedHTML,"*WC")
-	set expectedHTML = "<divclass=""rowef-form-row""><divclass=""col-sm-4ef-label-container""><labelid=""ef-display-label-proweb-1""class=""control-labelef-control-label""for=""proweb-1"">PleaseenteryourDOB</label></div><divclass=""col-sm-8ef-input-container""><divstyle=""width:40%""class=""ef-inputef-date-pickeref-kendo-form-control""><inputtype=""date""class=""ef-date-pickeref-kendo-form-controlefDatePicker""title=""""id=""proweb-1""name=""proweb-1""value=""""placeholder=""DD/MM/YYYY""efKendoDateFormat=""dd/MM/yyyy""></div></div></div>"
+	set expectedHTML = "<divclass=""rowef-form-row""><divclass=""col-sm-4ef-label-container""><labelid=""ef-display-label-Mydatepicker""class=""control-labelef-control-label""for=""Mydatepicker"">PleaseenteryourDOB</label></div><divclass=""col-sm-8ef-input-container""><divstyle=""width:40%""class=""ef-inputef-date-pickeref-kendo-form-control""><inputtype=""date""class=""ef-date-pickeref-kendo-form-controlefDatePicker""title=""""id=""Mydatepicker""name=""Mydatepicker""value=""""placeholder=""DD/MM/YYYY""efKendoDateFormat=""dd/MM/yyyy""></div></div></div>"
 	do $$$AssertEquals(returnedHTML,expectedHTML)
 ]]></Implementation>
 </Method>
@@ -3283,7 +3286,7 @@ also an entry point from unit tests</Description>
 
 <Class name="EF.pageController.proweb.testCases.dateRangeTestCase">
 <Super>EF.ISC.UnitTest.TestCase</Super>
-<TimeChanged>64259,40412.779317</TimeChanged>
+<TimeChanged>64265,57942.507952</TimeChanged>
 <TimeCreated>64204,52642.759507</TimeCreated>
 
 <Method name="TestDateRange">
@@ -3308,7 +3311,7 @@ also an entry point from unit tests</Description>
 		
 	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(pageController,"renderComponent", "unit test")
 	set returnedHTML = $ZStrip(returnedHTML,"*WC")
-	set expectedHTML = "<divclass=""rowef-form-row""><divclass=""col-sm-4ef-label-container""><labelid=""ef-display-label-proweb-1""class=""control-labelef-control-label""for=""proweb-1"">Pleaseenteryourdatespan</label></div><divclass=""col-sm-8ef-input-container""><divclass=""ef-input-short""><inputtype=""date""class=""ef-date-pickeref-kendo-form-controlefDateRangeStartefDatePicker""title=""""id=""proweb-1-startDate""name=""proweb-1-startDate""value=""""placeholder=""DD/MM/YYYY""efdaterangeendid=""proweb-1-endDate""efKendoDateFormat=""dd/MM/yyyy""></div><divstyle='float:left;text-align:left;margin-left:15px;margin-right:15px;'>to</div><divclass=""ef-input-short""><inputtype=""date""class=""ef-date-pickeref-kendo-form-controlefDateRangeEndefDatePicker""title=""""id=""proweb-1-endDate""name=""proweb-1-endDate""value=""""placeholder=""DD/MM/YYYY""efdaterangestartid=""proweb-1-startDate""efKendoDateFormat=""dd/MM/yyyy""></div></div></div>"
+	set expectedHTML = "<divclass=""rowef-form-row""><divclass=""col-sm-4ef-label-container""><labelid=""ef-display-label-Mydateranger""class=""control-labelef-control-label""for=""Mydateranger"">Pleaseenteryourdatespan</label></div><divclass=""col-sm-8ef-input-container""><divclass=""ef-input-short""><inputtype=""date""class=""ef-date-pickeref-kendo-form-controlefDateRangeStartefDatePicker""title=""""id=""Mydateranger-startDate""name=""Mydateranger-startDate""value=""""placeholder=""DD/MM/YYYY""efdaterangeendid=""Mydateranger-endDate""efKendoDateFormat=""dd/MM/yyyy""></div><divstyle='float:left;text-align:left;margin-left:15px;margin-right:15px;'>to</div><divclass=""ef-input-short""><inputtype=""date""class=""ef-date-pickeref-kendo-form-controlefDateRangeEndefDatePicker""title=""""id=""Mydateranger-endDate""name=""Mydateranger-endDate""value=""""placeholder=""DD/MM/YYYY""efdaterangestartid=""Mydateranger-startDate""efKendoDateFormat=""dd/MM/yyyy""></div></div></div>"
 	do $$$AssertEquals(returnedHTML,expectedHTML)
 ]]></Implementation>
 </Method>
@@ -3317,7 +3320,7 @@ also an entry point from unit tests</Description>
 
 <Class name="EF.pageController.proweb.testCases.dropdownTestCase">
 <Super>EF.ISC.UnitTest.TestCase</Super>
-<TimeChanged>64259,42477.690471</TimeChanged>
+<TimeChanged>64265,58145.415886</TimeChanged>
 <TimeCreated>64204,52666.398429</TimeCreated>
 
 <Method name="TestPageWithDropdown">
@@ -3358,50 +3361,7 @@ also an entry point from unit tests</Description>
 		
 	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(pageController,"renderComponent", "unit test")
 	set returnedHTML = $ZStrip(returnedHTML,"*WC")
-	set expectedHTML = "<divclass=""rowef-form-row""><divclass=""col-sm-4ef-label-container""><labelid=""ef-display-label-proweb-1""class=""control-labelef-control-label""for=""proweb-1"">Pleasechooseyourweapon</label></div><divclass=""col-sm-8ef-input-container""><selectclass=""form-controlef-inputef-dropdown-list""name=""proweb-1""id=""proweb-1""title=""""><optionvalue=""option1""class="""">option1</option><optionvalue=""option2""class="""">option2</option><optionvalue=""option2""class="""">option2</option></select></div></div>"
-	do $$$AssertEquals(returnedHTML,expectedHTML)
-]]></Implementation>
-</Method>
-
-<Method name="TestPageWithDropdownPreSelected">
-<Implementation><![CDATA[
-	set eventConfiguration = ##class(setup.eventConfiguration.storageMock).createEventConfiguration()
-	
-	set contextData = ##class(EF.contextDataRegistrationMock).createMock()
-	set contextData.isBackendBooking = 1
-	set contextData.prowebMode = "preview"
-	
-	set storage = ##class(sc.facade.prowebItemStorageInputElementMock).createNew()
-	set storage.prowebID = "1"
-	set storage.databaseItemName = "My dropdown"
-	set storage.inputType = "dropdown"
-	set storage.labelText = "Please choose your weapon"
-	set storage.testValue = "option 1"
-	
-	set alternative = ##class(sc.facade.prowebItemStorageInputElementAlternative).%New()
-	set alternative.value = "option 1"
-	set alternative.displayText = "option 1"
-	do storage.listOfAlternatives.Insert( alternative)
-	
-	set alternative = ##class(sc.facade.prowebItemStorageInputElementAlternative).%New()
-	set alternative.value = "option 2"
-	set alternative.displayText = "option 2"
-	do storage.listOfAlternatives.Insert( alternative)
-
-	set alternative = ##class(sc.facade.prowebItemStorageInputElementAlternative).%New()
-	set alternative.value = "option 2"
-	set alternative.displayText = "option 2"
-	do storage.listOfAlternatives.Insert( alternative)
-	
-	
-	set prowebItem = ##class(sc.facade.prowebItem).createNew(storage)
-	do contextData.listOfProwebItemsToAdd.Insert(prowebItem)
-	
-	set pageController = ##class(EF.pageController.pagesFrontend.registration).createNew(contextData,,,eventConfiguration)
-		
-	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(pageController,"renderComponent", "unit test")	
-	set returnedHTML = $ZStrip(returnedHTML,"*WC")
-	set expectedHTML = "<divclass=""rowef-proweb-form-row""><divclass=""col-sm-4ef_proweb_form_prompt""><labelid=""ef-display-label-proweb-1""class=""control-labelef-label-text""for=""proweb-1"">Pleasechooseyourweapon</label></div><divclass=""col-sm-8ef_proweb_form_prompt""><selectclass=""form-controlef-proweb-input-element""name=""proweb-1""id=""proweb-1""title=""""><optionselected=""""value=""option1"">option1</option><optionvalue=""option2"">option2</option><optionvalue=""option3"">option3</option></select></div></div>"
+	set expectedHTML = "<divclass=""rowef-form-row""><divclass=""col-sm-4ef-label-container""><labelid=""ef-display-label-Mydropdown""class=""control-labelef-control-label""for=""Mydropdown"">Pleasechooseyourweapon</label></div><divclass=""col-sm-8ef-input-container""><selectclass=""form-controlef-inputef-dropdown-list""name=""Mydropdown""id=""Mydropdown""title=""""><optionvalue=""option1""class="""">option1</option><optionvalue=""option2""class="""">option2</option><optionvalue=""option2""class="""">option2</option></select></div></div>"
 	do $$$AssertEquals(returnedHTML,expectedHTML)
 ]]></Implementation>
 </Method>
@@ -3444,7 +3404,50 @@ also an entry point from unit tests</Description>
 		
 	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(pageController,"renderComponent", "unit test")	
 	set returnedHTML = $ZStrip(returnedHTML,"*WC")
-	set expectedHTML = "<divclass=""rowef-proweb-form-row""><divclass=""col-sm-4ef_proweb_form_prompt""><labelid=""ef-display-label-proweb-1""class=""control-labelef-label-textef-required-field""for=""proweb-1"">Pleasechooseyourweapon</label></div><divclass=""col-sm-8ef_proweb_form_prompt""><selectclass=""form-controlef-proweb-input-element""name=""proweb-1""id=""proweb-1""title=""""><optionvalue=''selecteddisabled>Chooseone...</option><optionvalue=""option1"">option1</option><optionvalue=""option2"">option2</option><optionvalue=""option3"">option3</option></select></div></div>"
+	set expectedHTML = "<divclass=""rowef-form-row""><divclass=""col-sm-4ef-label-container""><labelid=""ef-display-label-Mydropdown""class=""control-labelef-control-labelef-required-field""for=""Mydropdown"">Pleasechooseyourweapon</label></div><divclass=""col-sm-8ef-input-container""><selectclass=""form-controlef-inputef-dropdown-list""name=""Mydropdown""id=""Mydropdown""title=""""><optionvalue=''selecteddisabled>Chooseone...</option><optionvalue=""option1""class="""">option1</option><optionvalue=""option2""class="""">option2</option><optionvalue=""option2""class="""">option2</option></select></div></div>"
+	do $$$AssertEquals(returnedHTML,expectedHTML)
+]]></Implementation>
+</Method>
+
+<Method name="TestPageWithDropdownPreSelected">
+<Implementation><![CDATA[
+	set eventConfiguration = ##class(setup.eventConfiguration.storageMock).createEventConfiguration()
+	
+	set contextData = ##class(EF.contextDataRegistrationMock).createMock()
+	set contextData.isBackendBooking = 1
+	set contextData.prowebMode = "preview"
+	
+	set storage = ##class(sc.facade.prowebItemStorageInputElementMock).createNew()
+	set storage.prowebID = "1"
+	set storage.databaseItemName = "My dropdown"
+	set storage.inputType = "dropdown"
+	set storage.labelText = "Please choose your weapon"
+	set storage.testValue = "option 1"
+	
+	set alternative = ##class(sc.facade.prowebItemStorageInputElementAlternative).%New()
+	set alternative.value = "option 1"
+	set alternative.displayText = "option 1"
+	do storage.listOfAlternatives.Insert( alternative)
+	
+	set alternative = ##class(sc.facade.prowebItemStorageInputElementAlternative).%New()
+	set alternative.value = "option 2"
+	set alternative.displayText = "option 2"
+	do storage.listOfAlternatives.Insert( alternative)
+
+	set alternative = ##class(sc.facade.prowebItemStorageInputElementAlternative).%New()
+	set alternative.value = "option 2"
+	set alternative.displayText = "option 2"
+	do storage.listOfAlternatives.Insert( alternative)
+	
+	
+	set prowebItem = ##class(sc.facade.prowebItem).createNew(storage)
+	do contextData.listOfProwebItemsToAdd.Insert(prowebItem)
+	
+	set pageController = ##class(EF.pageController.pagesFrontend.registration).createNew(contextData,,,eventConfiguration)
+		
+	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(pageController,"renderComponent", "unit test")	
+	set returnedHTML = $ZStrip(returnedHTML,"*WC")
+	set expectedHTML = "<divclass=""rowef-form-row""><divclass=""col-sm-4ef-label-container""><labelid=""ef-display-label-Mydropdown""class=""control-labelef-control-label""for=""Mydropdown"">Pleasechooseyourweapon</label></div><divclass=""col-sm-8ef-input-container""><selectclass=""form-controlef-inputef-dropdown-list""name=""Mydropdown""id=""Mydropdown""title=""""><optionselected=""""value=""option1""class="""">option1</option><optionvalue=""option2""class="""">option2</option><optionvalue=""option2""class="""">option2</option></select></div></div>"
 	do $$$AssertEquals(returnedHTML,expectedHTML)
 ]]></Implementation>
 </Method>
@@ -3453,7 +3456,7 @@ also an entry point from unit tests</Description>
 
 <Class name="EF.pageController.proweb.testCases.emailInputMultiTestCase">
 <Super>EF.ISC.UnitTest.TestCase</Super>
-<TimeChanged>64259,40481.448294</TimeChanged>
+<TimeChanged>64265,58341.883034</TimeChanged>
 <TimeCreated>64204,52684.401246</TimeCreated>
 
 <Method name="TestMultiEmail">
@@ -3478,7 +3481,7 @@ also an entry point from unit tests</Description>
 	
 	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(pageController,"renderComponent","unit test")
 	set returnedHTML = $ZStrip(returnedHTML,"*WC")
-	set expectedHTML = "<divclass=""rowef-form-row""><divclass=""col-sm-4ef-label-container""><labelid=""ef-display-label-proweb-1""class=""control-labelef-control-label""for=""proweb-1"">Pleaseenterallyouremailaddresses</label></div><divclass=""col-sm-8ef-input-container""><inputtype=""email""class=""ef-inputform-controlef-input-text-field""title=""""id=""proweb-1""name=""proweb-1""value=""""placeholder=""""pattern=""^(([a-zA-Z0-9_\-\.&#39;]+)(\+[a-zA-Z0-9_\-\.&#39;]+){0,1}@(([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([a-zA-Z0-9\-]+\.)+))([a-zA-Z]{2,63}|[0-9]{1,3}))(\s*[;,]\s*(([a-zA-Z0-9_\-\.&#39;]+)(\+[a-zA-Z0-9_\-\.&#39;]+){0,1}@(([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([a-zA-Z0-9\-]+\.)+))([a-zA-Z]{2,63}|[0-9]{1,3})))*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;Pleaseenterallyouremailaddresses\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""autofocus=""autofocus""></div></div>"
+	set expectedHTML = "<divclass=""rowef-form-row""><divclass=""col-sm-4ef-label-container""><labelid=""ef-display-label-email""class=""control-labelef-control-label""for=""email"">Pleaseenterallyouremailaddresses</label></div><divclass=""col-sm-8ef-input-container""><inputtype=""email""class=""ef-inputform-controlef-input-text-field""title=""""id=""email""name=""email""value=""""placeholder=""""pattern=""^(([a-zA-Z0-9_\-\.&#39;]+)(\+[a-zA-Z0-9_\-\.&#39;]+){0,1}@(([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([a-zA-Z0-9\-]+\.)+))([a-zA-Z]{2,63}|[0-9]{1,3}))(\s*[;,]\s*(([a-zA-Z0-9_\-\.&#39;]+)(\+[a-zA-Z0-9_\-\.&#39;]+){0,1}@(([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([a-zA-Z0-9\-]+\.)+))([a-zA-Z]{2,63}|[0-9]{1,3})))*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;Pleaseenterallyouremailaddresses\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""autofocus=""autofocus""0></div></div>"
 	do $$$AssertEquals(returnedHTML,expectedHTML)
 ]]></Implementation>
 </Method>
@@ -3487,7 +3490,7 @@ also an entry point from unit tests</Description>
 
 <Class name="EF.pageController.proweb.testCases.emailInputTestCase">
 <Super>EF.ISC.UnitTest.TestCase</Super>
-<TimeChanged>64259,40509.843525</TimeChanged>
+<TimeChanged>64265,58390.723572</TimeChanged>
 <TimeCreated>64204,52696.984856</TimeCreated>
 
 <Method name="TestEmail">
@@ -3512,7 +3515,7 @@ also an entry point from unit tests</Description>
 	
 	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(pageController,"renderComponent", "unit test")
 	set returnedHTML = $ZStrip(returnedHTML,"*WC")
-	set expectedHTML = "<divclass=""rowef-form-row""><divclass=""col-sm-4ef-label-container""><labelid=""ef-display-label-proweb-1""class=""control-labelef-control-label""for=""proweb-1"">Pleaseenteryouremailaddress</label></div><divclass=""col-sm-8ef-input-container""><inputtype=""email""class=""ef-inputform-controlef-input-text-field""title=""""id=""proweb-1""name=""proweb-1""value=""""placeholder=""""pattern=""^(([a-zA-Z0-9_\-\.&#39;]+)(\+[a-zA-Z0-9_\-\.&#39;]+){0,1}@(([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([a-zA-Z0-9\-]+\.)+))([a-zA-Z]{2,63}|[0-9]{1,3}))$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;Pleaseenteryouremailaddress\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""autofocus=""autofocus""></div></div>"
+	set expectedHTML = "<divclass=""rowef-form-row""><divclass=""col-sm-4ef-label-container""><labelid=""ef-display-label-email""class=""control-labelef-control-label""for=""email"">Pleaseenteryouremailaddress</label></div><divclass=""col-sm-8ef-input-container""><inputtype=""email""class=""ef-inputform-controlef-input-text-field""title=""""id=""email""name=""email""value=""""placeholder=""""pattern=""^(([a-zA-Z0-9_\-\.&#39;]+)(\+[a-zA-Z0-9_\-\.&#39;]+){0,1}@(([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([a-zA-Z0-9\-]+\.)+))([a-zA-Z]{2,63}|[0-9]{1,3}))$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;Pleaseenteryouremailaddress\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""autofocus=""autofocus""0></div></div>"
 	do $$$AssertEquals(returnedHTML,expectedHTML)
 ]]></Implementation>
 </Method>
@@ -3555,7 +3558,7 @@ also an entry point from unit tests</Description>
 
 <Class name="EF.pageController.proweb.testCases.integerInputTestCase">
 <Super>EF.ISC.UnitTest.TestCase</Super>
-<TimeChanged>64259,40577.112726</TimeChanged>
+<TimeChanged>64265,58438.786366</TimeChanged>
 <TimeCreated>64204,52712.809439</TimeCreated>
 
 <Method name="TestInteger">
@@ -3580,7 +3583,7 @@ also an entry point from unit tests</Description>
 	
 	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(pageController, "renderComponent", "unit test")
 	set returnedHTML = $ZStrip(returnedHTML,"*WC")
-	set expectedHTML = "<divclass=""rowef-form-row""><divclass=""col-sm-4ef-label-container""><labelid=""ef-display-label-proweb-1""class=""control-labelef-control-label""for=""proweb-1"">Pleaseenteryourheightincm</label></div><divclass=""col-sm-8ef-input-container""><inputtype=""number""class=""form-controlef-inputef-input-shortef-input-short""title=""""id=""proweb-1""name=""proweb-1""value=""""placeholder=""""pattern=""^([\+\-]){0,1}\d+$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;Pleaseenteryourheightincm\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""autofocus=""autofocus""></div></div>"
+	set expectedHTML = "<divclass=""rowef-form-row""><divclass=""col-sm-4ef-label-container""><labelid=""ef-display-label-myint""class=""control-labelef-control-label""for=""myint"">Pleaseenteryourheightincm</label></div><divclass=""col-sm-8ef-input-container""><inputtype=""number""class=""form-controlef-inputef-input-shortef-input-short""title=""""id=""myint""name=""myint""value=""""placeholder=""""pattern=""^([\+\-]){0,1}\d+$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;Pleaseenteryourheightincm\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""autofocus=""autofocus""0></div></div>"
 	do $$$AssertEquals(returnedHTML,expectedHTML)
 ]]></Implementation>
 </Method>
@@ -3589,7 +3592,7 @@ also an entry point from unit tests</Description>
 
 <Class name="EF.pageController.proweb.testCases.numericInputTestCase">
 <Super>EF.ISC.UnitTest.TestCase</Super>
-<TimeChanged>64259,40616.861234</TimeChanged>
+<TimeChanged>64265,58473.920177</TimeChanged>
 <TimeCreated>64204,52723.013439</TimeCreated>
 
 <Method name="TestNumeric">
@@ -3614,7 +3617,7 @@ also an entry point from unit tests</Description>
 	
 	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(pageController,"renderComponent","unit test")
 	set returnedHTML = $ZStrip(returnedHTML,"*WC")
-	set expectedHTML = "<divclass=""rowef-form-row""><divclass=""col-sm-4ef-label-container""><labelid=""ef-display-label-proweb-1""class=""control-labelef-control-label""for=""proweb-1"">Pleaseenteryourheightinkilometers</label></div><divclass=""col-sm-8ef-input-container""><inputtype=""text""class=""form-controlef-inputef-input-short""title=""""id=""proweb-1""name=""proweb-1""value=""""placeholder=""""pattern=""^[+-]?((0)|([1-9][0-9]*?))?(\.[0-9]{1,2})?$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;Pleaseenteryourheightinkilometers\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""autofocus=""autofocus""></div></div>"
+	set expectedHTML = "<divclass=""rowef-form-row""><divclass=""col-sm-4ef-label-container""><labelid=""ef-display-label-myfloatingpointnumber""class=""control-labelef-control-label""for=""myfloatingpointnumber"">Pleaseenteryourheightinkilometers</label></div><divclass=""col-sm-8ef-input-container""><inputtype=""text""class=""form-controlef-inputef-input-short""title=""""id=""myfloatingpointnumber""name=""myfloatingpointnumber""value=""""placeholder=""""pattern=""^[+-]?((0)|([1-9][0-9]*?))?(\.[0-9]{1,2})?$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;Pleaseenteryourheightinkilometers\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""autofocus=""autofocus""0></div></div>"
 	do $$$AssertEquals(returnedHTML,expectedHTML)
 ]]></Implementation>
 </Method>
@@ -3771,7 +3774,7 @@ also an entry point from unit tests</Description>
 
 <Class name="EF.pageController.proweb.testCases.passwordInputTestCase">
 <Super>EF.ISC.UnitTest.TestCase</Super>
-<TimeChanged>64259,40769.984097</TimeChanged>
+<TimeChanged>64265,58534.883538</TimeChanged>
 <TimeCreated>64208,51641.871984</TimeCreated>
 
 <Method name="TestPasswordInput">
@@ -3797,7 +3800,7 @@ also an entry point from unit tests</Description>
 	
 	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(pageController,"renderComponent","unit test")
 	set returnedHTML = $ZStrip(returnedHTML,"*WC")
-	set expectedHTML = "<divclass=""rowef-form-row""><divclass=""col-sm-4ef-label-container""><labelid=""ef-display-label-proweb-1""class=""control-labelef-control-label""for=""proweb-1"">Pleaseenteryourpassword</label></div><divclass=""col-sm-8ef-input-container""><inputtype=""password""class=""ef-inputform-controlef-input-text-field""title=""""id=""proweb-1""name=""proweb-1""value=""""placeholder=""""autofocus=""autofocus""></div></div>"
+	set expectedHTML = "<divclass=""rowef-form-row""><divclass=""col-sm-4ef-label-container""><labelid=""ef-display-label-Password""class=""control-labelef-control-label""for=""Password"">Pleaseenteryourpassword</label></div><divclass=""col-sm-8ef-input-container""><inputtype=""password""class=""ef-inputform-controlef-input-text-field""title=""""id=""Password""name=""Password""value=""""placeholder=""""autofocus=""autofocus""0></div></div>"
 	do $$$AssertEquals(returnedHTML,expectedHTML)
 ]]></Implementation>
 </Method>
@@ -3806,7 +3809,7 @@ also an entry point from unit tests</Description>
 
 <Class name="EF.pageController.proweb.testCases.phoneNumberTestCase">
 <Super>EF.ISC.UnitTest.TestCase</Super>
-<TimeChanged>64259,39753.596637</TimeChanged>
+<TimeChanged>64265,58619.941455</TimeChanged>
 <TimeCreated>64204,52750.117876</TimeCreated>
 
 <Method name="TestPhoneNumber">
@@ -3831,7 +3834,7 @@ also an entry point from unit tests</Description>
 	
 	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(pageController,"renderComponent","unit test")
 	set returnedHTML = $ZStrip(returnedHTML,"*WC")
-	set expectedHTML = "<divclass=""rowef-form-row""><divclass=""col-sm-4ef-label-container""><labelid=""ef-display-label-proweb-1""class=""control-labelef-control-label""for=""proweb-1"">Pleaseenteryourphonenumber</label></div><divclass=""col-sm-8ef-input-container""><inputtype=""tel""class=""ef-inputform-controlef-input-text-fieldef-input-short""title=""""id=""proweb-1""name=""proweb-1""value=""""placeholder=""""pattern=""^(?!(.*-(\s)*-.*))(?!(.*\.(\s)*\..*))(?=.*[\d\)](\s)*$)(?=.*(\d)+.*)(\+(\d){1,3}){0,1}(?=\s*([\d\(]).*)(([\d\s\-\.])|(\(([\d\-\.\s])+\)))*(\s)*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;Pleaseenteryourphonenumber\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""autofocus=""autofocus""></div></div>"
+	set expectedHTML = "<divclass=""rowef-form-row""><divclass=""col-sm-4ef-label-container""><labelid=""ef-display-label-phoneNumber""class=""control-labelef-control-label""for=""phoneNumber"">Pleaseenteryourphonenumber</label></div><divclass=""col-sm-8ef-input-container""><inputtype=""tel""class=""ef-inputform-controlef-input-text-fieldef-input-short""title=""""id=""phoneNumber""name=""phoneNumber""value=""""placeholder=""""pattern=""^(?!(.*-(\s)*-.*))(?!(.*\.(\s)*\..*))(?=.*[\d\)](\s)*$)(?=.*(\d)+.*)(\+(\d){1,3}){0,1}(?=\s*([\d\(]).*)(([\d\s\-\.])|(\(([\d\-\.\s])+\)))*(\s)*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;Pleaseenteryourphonenumber\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""autofocus=""autofocus""0></div></div>"
 	do $$$AssertEquals(returnedHTML,expectedHTML)
 ]]></Implementation>
 </Method>
@@ -3840,41 +3843,8 @@ also an entry point from unit tests</Description>
 
 <Class name="EF.pageController.proweb.testCases.radioButtonsTestCase">
 <Super>EF.ISC.UnitTest.TestCase</Super>
-<TimeChanged>64259,39610</TimeChanged>
+<TimeChanged>64265,58784.505139</TimeChanged>
 <TimeCreated>64204,52760.35415</TimeCreated>
-
-<Method name="TestWithRadioButtons">
-<Implementation><![CDATA[
-	set eventConfiguration = ##class(setup.eventConfiguration.storageMock).createEventConfiguration()
-
-	set contextData = ##class(EF.contextDataRegistrationMock).createMock()
-	set elementIdentifier = "proweb-1"
-	
-	set storage = ##class(sc.facade.prowebItemStorageInputElementMock).createNew()
-	set storage.prowebID = "1"
-	set storage.databaseItemName = "MYRADIO"
-	set storage.inputType = "radiobutton"
-	set storage.labelText = "Please select your option"
-	
-	set alternative = ##class(sc.facade.prowebItemStorageInputElementAlternativeMock).createMock("option 1", "option 1")
-	do storage.listOfAlternatives.Insert( alternative)
-	set alternative = ##class(sc.facade.prowebItemStorageInputElementAlternativeMock).createMock("option 2", "option 2")
-	do storage.listOfAlternatives.Insert( alternative)
-	set alternative = ##class(sc.facade.prowebItemStorageInputElementAlternativeMock).createMock("option 3", "option 3")
-	do storage.listOfAlternatives.Insert( alternative)
-	
-
-	set prowebItem = ##class(sc.facade.prowebItem).createNew(storage)
-	do contextData.listOfProwebItemsToAdd.Insert(prowebItem)
-
-	set pageController = ##class(EF.pageController.pagesFrontend.registration).createNew(contextData,,,eventConfiguration)
-		
-	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(pageController,"renderComponent", "unit test")
-	set returnedHTML = $ZStrip(returnedHTML,"*WC")
-	set expectedHTML = "<divclass=""rowef-proweb-form-row""><divclass=""col-sm-4ef_proweb_form_prompt""><labelid=""ef-display-label-proweb-1""class=""control-labelef-label-text""for=""proweb-1"">Pleaseselectyouroption</label></div><divclass='col-sm-8ef_proweb_form_promptef-proweb-radio-group'><divclass='ef-proweb-radio-button'><labelclass=""ef-btn-defaultef-proweb-radio-buttonactive""id=""proweb-1_1-label""><inputtype=""radio""checkedvalue=""option1""name=""proweb-1""id=""proweb-1_1"">&nbsp;option1</label></div><divclass='ef-proweb-radio-button'><labelclass=""ef-btn-defaultef-proweb-radio-button""id=""proweb-1_2-label""><inputtype=""radio""value=""option2""name=""proweb-1""id=""proweb-1_2"">&nbsp;option2</label></div><divclass='ef-proweb-radio-button'><labelclass=""ef-btn-defaultef-proweb-radio-button""id=""proweb-1_3-label""><inputtype=""radio""value=""option3""name=""proweb-1""id=""proweb-1_3"">&nbsp;option3</label></div></div></div>"
-	do $$$AssertEquals(returnedHTML,expectedHTML)
-]]></Implementation>
-</Method>
 
 <Method name="TestRadioButtonsABI">
 <Implementation><![CDATA[
@@ -3907,7 +3877,40 @@ also an entry point from unit tests</Description>
 		
 	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(pageController,"renderComponent", "unit test")
 	set returnedHTML = $ZStrip(returnedHTML,"*WC")
-	set expectedHTML = "<divclass=""rowef-proweb-form-row""><divclass=""col-sm-4ef_proweb_form_prompt""><labelid=""ef-display-label-proweb-1""class=""control-labelef-label-text""for=""proweb-1"">Pleaseselectyouroption</label></div><divclass='col-sm-8ef_proweb_form_promptef-proweb-radio-group'><divclass='ef-proweb-radio-button'><labelclass=""ef-btn-defaultef-proweb-radio-buttonactive""id=""proweb-1_1-label""><inputtype=""radio""checkedvalue=""option1""name=""proweb-1""id=""proweb-1_1"">&nbsp;option1&nbsp;<spanclass=""ef-proweb-ABI-price"">£666.00</span&nbsp;</label></div><divclass='ef-proweb-radio-button'><labelclass=""ef-btn-defaultef-proweb-radio-button""id=""proweb-1_2-label""><inputtype=""radio""value=""option2""name=""proweb-1""id=""proweb-1_2"">&nbsp;option2</label></div><divclass='ef-proweb-radio-button'><labelclass=""ef-btn-defaultef-proweb-radio-button""id=""proweb-1_3-label""><inputtype=""radio""value=""option3""name=""proweb-1""id=""proweb-1_3"">&nbsp;option3</label></div></div></div>"
+	set expectedHTML = "<divclass=""rowef-form-row""><divclass=""col-sm-4ef-label-containeref-label-container-vertical-group""><labelid=""ef-display-label-MYRADIO""class=""control-labelef-control-label""for=""MYRADIO"">Pleaseselectyouroption</label></div><divclass=""col-sm-8ef-input-containeref-radio-group""><divclass=""ef-input""><divclass=""ef-radio-button""><labelclass=""ef-control-labelactive""class=""ef-radio-button""id=""MYRADIO_1-label""><inputtype=""radio""checkedclass=""ef-radio-button""value=""option1""name=""MYRADIO""id=""MYRADIO_1"">&nbsp;option1&nbsp;&nbsp;</label></div><divclass=""ef-radio-button""><labelclass=""ef-control-label""class=""ef-radio-button""id=""MYRADIO_2-label""><inputtype=""radio""class=""ef-radio-button""value=""option2""name=""MYRADIO""id=""MYRADIO_2"">&nbsp;option2</label></div><divclass=""ef-radio-button""><labelclass=""ef-control-label""class=""ef-radio-button""id=""MYRADIO_3-label""><inputtype=""radio""class=""ef-radio-button""value=""option3""name=""MYRADIO""id=""MYRADIO_3"">&nbsp;option3</label></div></div></div></div>"
+	do $$$AssertEquals(returnedHTML,expectedHTML)
+]]></Implementation>
+</Method>
+
+<Method name="TestWithRadioButtons">
+<Implementation><![CDATA[
+	set eventConfiguration = ##class(setup.eventConfiguration.storageMock).createEventConfiguration()
+
+	set contextData = ##class(EF.contextDataRegistrationMock).createMock()
+	set elementIdentifier = "proweb-1"
+	
+	set storage = ##class(sc.facade.prowebItemStorageInputElementMock).createNew()
+	set storage.prowebID = "1"
+	set storage.databaseItemName = "MYRADIO"
+	set storage.inputType = "radiobutton"
+	set storage.labelText = "Please select your option"
+	
+	set alternative = ##class(sc.facade.prowebItemStorageInputElementAlternativeMock).createMock("option 1", "option 1")
+	do storage.listOfAlternatives.Insert( alternative)
+	set alternative = ##class(sc.facade.prowebItemStorageInputElementAlternativeMock).createMock("option 2", "option 2")
+	do storage.listOfAlternatives.Insert( alternative)
+	set alternative = ##class(sc.facade.prowebItemStorageInputElementAlternativeMock).createMock("option 3", "option 3")
+	do storage.listOfAlternatives.Insert( alternative)
+	
+
+	set prowebItem = ##class(sc.facade.prowebItem).createNew(storage)
+	do contextData.listOfProwebItemsToAdd.Insert(prowebItem)
+
+	set pageController = ##class(EF.pageController.pagesFrontend.registration).createNew(contextData,,,eventConfiguration)
+		
+	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(pageController,"renderComponent", "unit test")
+	set returnedHTML = $ZStrip(returnedHTML,"*WC")
+	set expectedHTML = "<divclass=""rowef-form-row""><divclass=""col-sm-4ef-label-containeref-label-container-vertical-group""><labelid=""ef-display-label-MYRADIO""class=""control-labelef-control-label""for=""MYRADIO"">Pleaseselectyouroption</label></div><divclass=""col-sm-8ef-input-containeref-radio-group""><divclass=""ef-input""><divclass=""ef-radio-button""><labelclass=""ef-control-labelactive""class=""ef-radio-button""id=""MYRADIO_1-label""><inputtype=""radio""checkedclass=""ef-radio-button""value=""option1""name=""MYRADIO""id=""MYRADIO_1"">&nbsp;option1</label></div><divclass=""ef-radio-button""><labelclass=""ef-control-label""class=""ef-radio-button""id=""MYRADIO_2-label""><inputtype=""radio""class=""ef-radio-button""value=""option2""name=""MYRADIO""id=""MYRADIO_2"">&nbsp;option2</label></div><divclass=""ef-radio-button""><labelclass=""ef-control-label""class=""ef-radio-button""id=""MYRADIO_3-label""><inputtype=""radio""class=""ef-radio-button""value=""option3""name=""MYRADIO""id=""MYRADIO_3"">&nbsp;option3</label></div></div></div></div>"
 	do $$$AssertEquals(returnedHTML,expectedHTML)
 ]]></Implementation>
 </Method>
@@ -3916,7 +3919,7 @@ also an entry point from unit tests</Description>
 
 <Class name="EF.pageController.proweb.testCases.textAreaTestCase">
 <Super>EF.ISC.UnitTest.TestCase</Super>
-<TimeChanged>64259,40809.111778</TimeChanged>
+<TimeChanged>64265,59409.002907</TimeChanged>
 <TimeCreated>64204,52770.974784</TimeCreated>
 
 <Method name="TestTextArea">
@@ -3942,7 +3945,7 @@ also an entry point from unit tests</Description>
 	
 	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(pageController,"renderComponent", "unit test")
 	set returnedHTML = $ZStrip(returnedHTML,"*WC")
-	set expectedHTML = "<divclass=""rowef-form-row""><divclass=""col-sm-4ef-label-container""><labelid=""ef-display-label-proweb-1""class=""control-labelef-control-label""for=""proweb-1"">Pleaseenteryouressay</label></div><divclass=""col-sm-8ef-input-container""><textareatype=""text""class=""ef-inputform-controlef-input-text-area""title=""""id=""proweb-1""name=""proweb-1""rows=""""placeholder="""">LOREMIPSUM</textArea></div></div>"
+	set expectedHTML = "<divclass=""rowef-form-row""><divclass=""col-sm-4ef-label-container""><labelid=""ef-display-label-mytext""class=""control-labelef-control-label""for=""mytext"">Pleaseenteryouressay</label></div><divclass=""col-sm-8ef-input-container""><textareatype=""text""class=""ef-inputform-controlef-input-text-area""title=""""id=""mytext""name=""mytext""rows=""""placeholder="""">LOREMIPSUM</textArea></div></div>"
 	do $$$AssertEquals(returnedHTML,expectedHTML)
 ]]></Implementation>
 </Method>
@@ -3983,7 +3986,7 @@ also an entry point from unit tests</Description>
 
 <Class name="EF.pageController.proweb.testCases.textInputTestCase">
 <Super>EF.ISC.UnitTest.TestCase</Super>
-<TimeChanged>64259,41430.862171</TimeChanged>
+<TimeChanged>64265,59696.717712</TimeChanged>
 <TimeCreated>64204,52795.592181</TimeCreated>
 
 <Method name="TestbasicInputField">
@@ -4034,7 +4037,7 @@ also an entry point from unit tests</Description>
 	
 	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(pageController,"renderComponent", "unit test")
 	set returnedHTML = $ZStrip(returnedHTML,"*WC")
-	set expectedHTML = "<divclass=""rowef-form-row""><divclass=""col-sm-4ef-label-container""><labelid=""ef-display-label-proweb-1""class=""control-labelef-control-label""for=""proweb-1"">Pleaseenteryourname</label></div><divclass=""col-sm-8ef-input-container""><inputtype=""text""class=""ef-inputform-controlef-input-text-field""title=""""id=""proweb-1""name=""proweb-1""value=""""placeholder=""""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;Pleaseenteryourname\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""autofocus=""autofocus""><spanclass=""glyphiconglyphicon-question-signef-help-icon""title=""Helpme!""></span></div></div>"
+	set expectedHTML = "<divclass=""rowef-form-row""><divclass=""col-sm-4ef-label-container""><labelid=""ef-display-label-name""class=""control-labelef-control-label""for=""name"">Pleaseenteryourname</label></div><divclass=""col-sm-8ef-input-container""><inputtype=""text""class=""ef-inputform-controlef-input-text-field""title=""""id=""name""name=""name""value=""""placeholder=""""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;Pleaseenteryourname\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""autofocus=""autofocus""0><spanclass=""glyphiconglyphicon-question-signef-help-icon""title=""Helpme!""></span></div></div>"
 	do $$$AssertEquals(returnedHTML,expectedHTML)
 ]]></Implementation>
 </Method>
@@ -4060,7 +4063,7 @@ also an entry point from unit tests</Description>
 	
 	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(pageController,"renderComponent", "unit test")
 	set returnedHTML = $ZStrip(returnedHTML,"*WC")
-	set expectedHTML = "<divclass=""rowef-form-row""><divclass=""col-sm-4ef-label-container""></div><divclass=""col-sm-8ef-input-container""><inputtype=""text""class=""ef-inputform-controlef-input-text-field""title=""""id=""proweb-1""name=""proweb-1""value=""""placeholder=""""aria-label=""name""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""autofocus=""autofocus""></div></div>"
+	set expectedHTML = "<divclass=""rowef-form-row""><divclass=""col-sm-4ef-label-container""></div><divclass=""col-sm-8ef-input-container""><inputtype=""text""class=""ef-inputform-controlef-input-text-field""title=""""id=""name""name=""name""value=""""placeholder=""""aria-label=""name""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""autofocus=""autofocus""0></div></div>"
 	do $$$AssertEquals(returnedHTML,expectedHTML)
 ]]></Implementation>
 </Method>
@@ -4086,7 +4089,7 @@ also an entry point from unit tests</Description>
 	
 	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(pageController,"renderComponent", "unit test")
 	set returnedHTML = $ZStrip(returnedHTML,"*WC")
-	set expectedHTML = "<divclass=""rowef-form-row""><divclass=""col-sm-4ef-label-container""><labelid=""ef-display-label-proweb-1""class=""control-labelef-control-labelef-required-field""for=""proweb-1"">Pleaseenteryourname</label></div><divclass=""col-sm-8ef-input-container""><inputtype=""text""class=""ef-inputform-controlef-input-text-field""title=""""id=""proweb-1""name=""proweb-1""value=""""placeholder=""""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;Pleaseenteryourname\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""autofocus=""autofocus""></div></div>"
+	set expectedHTML = "<divclass=""rowef-form-row""><divclass=""col-sm-4ef-label-container""><labelid=""ef-display-label-name""class=""control-labelef-control-labelef-required-field""for=""name"">Pleaseenteryourname</label></div><divclass=""col-sm-8ef-input-container""><inputtype=""text""class=""ef-inputform-controlef-input-text-field""title=""""id=""name""name=""name""value=""""placeholder=""""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;Pleaseenteryourname\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""autofocus=""autofocus""0></div></div>"
 	do $$$AssertEquals(returnedHTML,expectedHTML)
 ]]></Implementation>
 </Method>
@@ -4114,7 +4117,7 @@ also an entry point from unit tests</Description>
 	
 	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(pageController,"renderComponent", "unit test")
 	set returnedHTML = $ZStrip(returnedHTML,"*WC")
-	set expectedHTML = "<divclass=""rowef-form-row""><divclass=""col-sm-4ef-label-container""><labelid=""ef-display-label-proweb-1""class=""control-labelef-control-labelef-required-field""for=""proweb-1"">Pleaseenteryourname</label></div><divclass=""col-sm-8ef-input-container""><inputtype=""text""class=""ef-inputform-controlef-input-text-fieldef-admin-only""title=""""id=""proweb-1""name=""proweb-1""value=""""placeholder=""(Adminportalonly)""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;Pleaseenteryourname\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""autofocus=""autofocus""></div></div>"
+	set expectedHTML = "<divclass=""rowef-form-row""><divclass=""col-sm-4ef-label-container""><labelid=""ef-display-label-name""class=""control-labelef-control-labelef-required-field""for=""name"">Pleaseenteryourname</label></div><divclass=""col-sm-8ef-input-container""><inputtype=""text""class=""ef-inputform-controlef-input-text-fieldef-admin-only""title=""""id=""name""name=""name""value=""""placeholder=""(Adminportalonly)""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;Pleaseenteryourname\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""autofocus=""autofocus""0></div></div>"
 	do $$$AssertEquals(returnedHTML,expectedHTML)
 ]]></Implementation>
 </Method>
@@ -4169,7 +4172,7 @@ also an entry point from unit tests</Description>
 	
 	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(pageController,"renderComponent", "unit test")
 	set returnedHTML = $ZStrip(returnedHTML,"*WC")
-	set expectedHTML = "<divclass=""rowef-draggable-divef-form-rowef-form-row-editable""id=""ef-field-proweb-1""data-proweb-id=""1""data-proweb-list-id=""""data-ui-component-type=""textInput""data-proweb-allowed-types=""Text""><divclass=""col-sm-4ef-label-container""><labelid=""ef-display-label-proweb-1""class=""control-labelef-control-label""for=""proweb-1"">Pleaseenteryourname</label><divclass=""ef-proweb-direct-label-edit""style=""display:none;""id=""ef-edit-label-input-proweb-1""data-proweb-id=""1""><inputclass=""ef-control-label""id=""quick-edit-proweb-1""type=""text""value=""Pleaseenteryourname""></div></div><divclass=""col-sm-8ef-input-container""><inputtype=""text""class=""ef-inputform-controlef-input-text-fieldef-admin-only""title=""""id=""proweb-1""name=""proweb-1""value=""""placeholder=""(Adminportalonly)""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;Pleaseenteryourname\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""></div></div>"
+	set expectedHTML = "<divclass=""rowef-draggable-divef-form-rowef-form-row-editable""id=""ef-field-proweb-1""data-proweb-id=""1""data-proweb-list-id=""""data-ui-component-type=""textInput""data-proweb-allowed-types=""Text""><divclass=""col-sm-4ef-label-container""><labelid=""ef-display-label-name""class=""control-labelef-control-label""for=""name"">Pleaseenteryourname</label><divclass=""ef-proweb-direct-label-edit""style=""display:none;""id=""ef-edit-label-input-name""data-proweb-id=""1""><inputclass=""ef-control-label""id=""quick-edit-name""type=""text""value=""Pleaseenteryourname""></div></div><divclass=""col-sm-8ef-input-container""><inputtype=""text""class=""ef-inputform-controlef-input-text-fieldef-admin-only""title=""""id=""name""name=""name""value=""""placeholder=""(Adminportalonly)""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;Pleaseenteryourname\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""0></div></div>"
 	do $$$AssertEquals(returnedHTML,expectedHTML)
 ]]></Implementation>
 </Method>
@@ -4194,7 +4197,7 @@ also an entry point from unit tests</Description>
 	
 	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(pageController,"renderComponent", "unit test")
 	set returnedHTML = $ZStrip(returnedHTML,"*WC")
-	set expectedHTML = "<divclass=""rowef-form-row""><divclass=""col-sm-4ef-label-container""><labelid=""ef-display-label-proweb-1""class=""control-labelef-control-label""for=""proweb-1"">Pleaseenteryourname</label></div><divclass=""col-sm-8ef-input-container""><inputtype=""text""class=""ef-inputform-controlef-input-text-field""disabled='disabled'title=""""id=""proweb-1""name=""proweb-1""value=""""placeholder=""""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;Pleaseenteryourname\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""autofocus=""autofocus""></div></div>"
+	set expectedHTML = "<divclass=""rowef-form-row""><divclass=""col-sm-4ef-label-container""><labelid=""ef-display-label-name""class=""control-labelef-control-label""for=""name"">Pleaseenteryourname</label></div><divclass=""col-sm-8ef-input-container""><inputtype=""text""class=""ef-inputform-controlef-input-text-field""disabled='disabled'title=""""id=""name""name=""name""value=""""placeholder=""""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;Pleaseenteryourname\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""autofocus=""autofocus""0></div></div>"
 	do $$$AssertEquals(returnedHTML,expectedHTML)
 ]]></Implementation>
 </Method>
@@ -4219,7 +4222,7 @@ also an entry point from unit tests</Description>
 	
 	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(pageController,"renderComponent", "unit test")
 	set returnedHTML = $ZStrip(returnedHTML,"*WC")
-	set expectedHTML = "<divclass=""rowef-proweb-form-row""><divclass=""col-sm-4ef_proweb_form_prompt""><labelid=""ef-display-label-proweb-1""class=""control-labelef-label-text""for=""proweb-1"">Pleaseenteryourname</label></div><divclass=""col-sm-8ef_proweb_form_prompt""><inputtype=""text""class=""form-controlef-proweb-input-element""title=""""id=""proweb-1""name=""proweb-1""value=""""placeholder=""""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;Pleaseenteryourname\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""autofocus=""autofocus""></div></div>"
+	set expectedHTML = "<divclass=""rowef-form-row""><divclass=""col-sm-4ef-label-container""><labelid=""ef-display-label-name""class=""control-labelef-control-label""for=""name"">Pleaseenteryourname</label></div><divclass=""col-sm-8ef-input-container""><inputtype=""text""class=""ef-inputform-controlef-input-text-field""title=""""id=""name""name=""name""value=""""placeholder=""""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;Pleaseenteryourname\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""autofocus=""autofocus""0></div></div>"
 	do $$$AssertEquals(returnedHTML,expectedHTML)
 ]]></Implementation>
 </Method>
@@ -4694,7 +4697,7 @@ this is for version 1 of proweb</Description>
 <Class name="EF.pages.frontend.baseProweb">
 <ProcedureBlock>0</ProcedureBlock>
 <Super>EF.pages.frontend.base</Super>
-<TimeChanged>64265,52707.901169</TimeChanged>
+<TimeChanged>64266,42850.387904</TimeChanged>
 <TimeCreated>64191,31442.531402</TimeCreated>
 
 <Parameter name="ENCODED">
@@ -19080,11 +19083,8 @@ FRRE RULE
 	set %session.Data("selectItem")=%request.Get("selectItem")
 	
 	set pageID = ##class(shared.pageMethods).getPageID()
-	s x=$I(^xfg)
-	s ^xfg(x,"pgaeID in start.csp")=pageID
 	set CspFileName = ##class(sc.xModules.objPage).getTemplateFilenameForAnyProwebVersion(pageID)
 	
-	s ^xfg(x,"CspFileName")=CspFileName
 	if CspFileName'="" {
 		set URL=CspFileName_"?pageID="_pageID
 		if %session.Get("memberID") set URL=URL_"&memberID="_%session.Get("memberID")_"&surveyID="_%request.Get("surveyID")_"&mode="_%session.Get("mode")_"&version="_%session.Get("version")
@@ -23028,7 +23028,7 @@ Looks for "style.css" file to update "templateCSSFile" with</Description>
 <ClassType>persistent</ClassType>
 <ProcedureBlock>1</ProcedureBlock>
 <Super>%Library.Persistent,shared.timeStamp</Super>
-<TimeChanged>64265,52185.539921</TimeChanged>
+<TimeChanged>64266,42304.116055</TimeChanged>
 <TimeCreated>60782,60196.270659</TimeCreated>
 <Inheritance>right</Inheritance>
 
@@ -28203,7 +28203,7 @@ The data type that represents a a page level in the hierachy.
 <ClassType>persistent</ClassType>
 <ProcedureBlock>1</ProcedureBlock>
 <Super>sc.objData</Super>
-<TimeChanged>64260,51112.1021</TimeChanged>
+<TimeChanged>64266,42516.21263</TimeChanged>
 <TimeCreated>58926,57261</TimeCreated>
 
 <Parameter name="EXTENTSIZE">
@@ -28384,14 +28384,14 @@ return the static URL for this page if it has been compiled and it is a static p
 <FormalSpec>pageID:%Integer</FormalSpec>
 <ReturnType>%String</ReturnType>
 <Implementation><![CDATA[
+	if 'pageID {
+		throw ##class(shared.exceptions.generalException).%New("PageID is missing")	
+	}
 	set eventID = ..getEventID(pageID)
+	if 'eventID {
+			throw ##class(shared.exceptions.generalException).%New("eventID is missing")	
+	}
 	set prowebTemplateCSPFile = ..getTemplateFile(pageID)
-	s x=$I(^xfg)
-	s ^xfg("in getTemplateFilenameForAnyProwebVersion","pageID")=pageID
-	s ^xfg("in getTemplateFilenameForAnyProwebVersion","prowebTemplateCSPFile")=prowebTemplateCSPFile
-	s ^xfg("in getTemplateFilenameForAnyProwebVersion","lookupTemplateFilenameOldToNew")=##class(EF.pages.frontend.baseProweb).lookupTemplateFilenameOldToNew(prowebTemplateCSPFile)
-	s ^xfg("in getTemplateFilenameForAnyProwebVersion","isEventUsingProweb2")=##class(setup.objEvent).isEventUsingProweb2(eventID)
-
 	if prowebTemplateCSPFile = "" {
 		throw ##class(shared.exceptions.generalSQLException).%New("No template found on database for pageID: "_pageID)	
 	}
@@ -29088,6 +29088,9 @@ Gets the description without the language modifier</Description>
 <ReturnType>%Integer</ReturnType>
 <Implementation><![CDATA[
 	set page = ..%OpenId(sourcePageID)
+	if '$IsObject(page) {
+		throw ##class(shared.exceptions.generalException).%New("Failed to open sourcePageID:"_sourcePageID)	
+	}
 	
 	set rsPages = ##class(%ResultSet).%New("sc.xModules.objPage:qPagesByTemplateEventLanguage")
 	do rsPages.Execute(languageID, page.objEvent.%Id(), page.objTemplate.%Id() )
@@ -32731,17 +32734,17 @@ Returns the correct style of the button depending on what mode are available and
 <Class name="shared.pageMethods">
 <Description><![CDATA[
 <!-- ;vc;-
-;vc;    Object: shared.pageMethods.CLS/EV.180
+;vc;    Object: shared.pageMethods.CLS/EV.183
 ;vc; Component: CLS.shared.pageMethods
 ;vc;  Location: LargeDev
-;vc; Date/Time: 27-Oct-16 12:05
+;vc; Date/Time: 14-Dec-16 10:53
 ;vc;      User: FredG
-;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>shared.pageMethods.CLS/EV.180</td><td>CLS.shared.pageMethods</td><td>LargeDev</td><td style='white-space: nowrap;'>27-Oct-16 12:05</td><td>FredG</td></tr></table>
+;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>shared.pageMethods.CLS/EV.183</td><td>CLS.shared.pageMethods</td><td>LargeDev</td><td style='white-space: nowrap;'>14-Dec-16 10:53</td><td>FredG</td></tr></table>
 ]]></Description>
 <Abstract>1</Abstract>
 <ClassType/>
 <ProcedureBlock>1</ProcedureBlock>
-<TimeChanged>64265,37897.392416</TimeChanged>
+<TimeChanged>64266,43387.356583</TimeChanged>
 <TimeCreated>60747,44410.590792</TimeCreated>
 
 <Method name="prePartOne">
@@ -33238,10 +33241,25 @@ clean the passed in URL to make sure only allow an internal redirection</Descrip
 <ClassMethod>1</ClassMethod>
 <ReturnType>%String</ReturnType>
 <Implementation><![CDATA[
-	set pageID = +%request.Get("pageID")
-	if 'pageID {
-		set pageID=%session.Get("pageID") 
+	#dim isEventUsingProweb2 as %Boolean = 0
+	#dim contextData as EF.contextDataFrontend = ##class(EF.contextDataFrontend).createFromFrontendCSPSession()
+	
+	if 'contextData.eventID {
+		set contextData = ##class(EF.contextDataFrontend).createFromBackendCSPSession()	// this will be the case when doing the very first instie page editing after a backend login
 	}
+	
+	set pageID=""
+	if contextData.eventID > 0 {
+		set isEventUsingProweb2 = ##class(setup.objEvent).isEventUsingProweb2(contextData.eventID)
+	} else {
+		throw ##class(shared.exceptions.generalException).%New("No eventID found in contextData")
+	}
+
+	if (..doesPageHaveAProwebPageID(%request.PageName)) ! (isEventUsingProweb2) {
+		set pageID=+%request.Get("pageID")
+		if 'pageID set pageID=%session.Get("pageID") 
+	} 
+		
 	return pageID
 ]]></Implementation>
 </Method>
@@ -34365,7 +34383,14 @@ sets up the session variables based on the xWorkLangID. If that is not found, we
 <Method name="doesPageHaveAProwebPageID">
 <ClassMethod>1</ClassMethod>
 <FormalSpec>pageName</FormalSpec>
-<Implementation><![CDATA[	return 1
+<Implementation><![CDATA[
+	set pageName=$ZCVT(pageName,"L")
+	if pageName="start.csp" {
+		return 1
+	} elseif ##class(sc.objTemplate).isPageNameProwebTemplate(pageName) {
+		return 1
+	}
+	return 0
 ]]></Implementation>
 </Method>
 

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.2 (Build 736U)" ts="2016-12-14 16:08:00">
+<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.2 (Build 736U)" ts="2016-12-14 16:45:35">
 <Class name="EF.contextDataFrontend">
 <Description><![CDATA[
 <!-- ;vc;-
@@ -359,7 +359,7 @@ if website is private, this will be set to the cod.objPerson.ID of that logged i
 ;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>EF.pageController.containerElement.CLS/EV.20</td><td>CLS.EF.pageController.containerElement</td><td>LargeDev</td><td style='white-space: nowrap;'>14-Dec-16 13:52</td><td>MindaugasL</td></tr></table>
 ]]></Description>
 <Super>EF.pageController.element</Super>
-<TimeChanged>64266,58065.0249</TimeChanged>
+<TimeChanged>64266,58675.704465</TimeChanged>
 <TimeCreated>63372,47273.826383</TimeCreated>
 
 <Property name="getContentsMethod">
@@ -578,13 +578,18 @@ This is a list of all the elements that are updated by the processGetContents me
 <FormalSpec>identifier:%String,description:%String,value1="",value2="",isReadOnly=0,fromDescription="from",toDescription="to"</FormalSpec>
 <ReturnType>EF.pageController.inputElements.textInput</ReturnType>
 <Implementation><![CDATA[
+	set fromLabel = description_" "_fromDescription
+	set toLabel = description_" "_toDescription
 	set element = ##class(EF.pageController.inputElements.dateRange).addElementToParent($this, identifier, description, "", isReadOnly)
+	set element.uiComponent.validator.fromFieldName = """"_fromLabel_""""
+	set element.uiComponent.validator.toFieldName = """"_toLabel_""""
 	set element.uiComponent.containerClasses = "row"
-	set dateElementFrom = ##class(EF.pageController.inputElements.datePicker).addElementToParent(element, identifier_"-value1", description_" "_fromDescription_":", value1, isReadOnly)
-	set dateElementFrom.uiComponent.validator.fieldName = """"_description_" "_fromDescription_""""
-	set dateElementTo = ##class(EF.pageController.inputElements.datePicker).addElementToParent(element, identifier_"-value2", description_" "_toDescription_":", value2, isReadOnly)
 	
-	set dateElementTo.uiComponent.validator.fieldName = """"_description_" "_toDescription_""""
+	set dateElementFrom = ##class(EF.pageController.inputElements.datePicker).addElementToParent(element, identifier_"-value1", fromLabel_":", value1, isReadOnly)
+	set dateElementFrom.uiComponent.validator.fieldName = """"_fromLabel_""""
+	set dateElementTo = ##class(EF.pageController.inputElements.datePicker).addElementToParent(element, identifier_"-value2", toLabel_":", value2, isReadOnly)
+	set dateElementTo.uiComponent.validator.fieldName = """"_toLabel_""""
+	
 	set dateElementFrom.uiComponent.containerClasses = dateElementFrom.uiComponent.containerClasses_" col-sm-6"
 	set dateElementTo.uiComponent.containerClasses = dateElementTo.uiComponent.containerClasses_" col-sm-6"
 	set dateElementFrom.uiComponent.classes = dateElementFrom.uiComponent.classes_" ef-backend-input-element-short"
@@ -615,16 +620,21 @@ This is a list of all the elements that are updated by the processGetContents me
 </Method>
 
 <Method name="addTimeRange">
-<FormalSpec>identifier:%String,description:%String,value1="",value2="",isReadOnly=0,fromDescription="From",toDescription="To"</FormalSpec>
+<FormalSpec>identifier:%String,description:%String,value1="",value2="",isReadOnly=0,fromDescription="from",toDescription="to"</FormalSpec>
 <ReturnType>EF.pageController.inputElements.textInput</ReturnType>
 <Implementation><![CDATA[
+	set fromLabel = description_" "_fromDescription
+	set toLabel = description_" "_toDescription
 	set element = ##class(EF.pageController.inputElements.timeRange).addElementToParent($this, identifier, description, "", isReadOnly)
 	set element.uiComponent.containerClasses = "row"
-	set timeElementFrom = ##class(EF.pageController.inputElements.timePicker).addElementToParent(element, identifier_"-value1", fromDescription_":", value1, isReadOnly)
-	set timeElementFrom.uiComponent.validator.fieldName = """"_description_""" """_fromDescription_""""
-	set timeElementTo = ##class(EF.pageController.inputElements.timePicker).addElementToParent(element, identifier_"-value2", toDescription_":", value2, isReadOnly)
+	set element.uiComponent.validator.fromFieldName = """"_fromLabel_""""
+	set element.uiComponent.validator.toFieldName = """"_toLabel_""""
 	
-	set timeElementTo.uiComponent.validator.fieldName = """"_description_""" """_toDescription_""""
+	set timeElementFrom = ##class(EF.pageController.inputElements.timePicker).addElementToParent(element, identifier_"-value1", fromLabel_":", value1, isReadOnly)
+	set timeElementFrom.uiComponent.validator.fieldName = """"_fromLabel_""""
+	set timeElementTo = ##class(EF.pageController.inputElements.timePicker).addElementToParent(element, identifier_"-value2", toLabel_":", value2, isReadOnly)
+	set timeElementTo.uiComponent.validator.fieldName = """"_toLabel_""""
+	
 	set timeElementFrom.uiComponent.containerClasses = timeElementFrom.uiComponent.containerClasses_" col-sm-6"
 	set timeElementTo.uiComponent.containerClasses = timeElementTo.uiComponent.containerClasses_" col-sm-6"
 	set timeElementFrom.uiComponent.classes = timeElementFrom.uiComponent.classes_" ef-backend-input-element-short"
@@ -4623,7 +4633,7 @@ this is for version 1 of proweb</Description>
 <Class name="EF.pages.frontend.baseProweb">
 <ProcedureBlock>0</ProcedureBlock>
 <Super>EF.pages.frontend.base</Super>
-<TimeChanged>64266,42850.387904</TimeChanged>
+<TimeChanged>64266,58917.010867</TimeChanged>
 <TimeCreated>64191,31442.531402</TimeCreated>
 
 <Parameter name="ENCODED">
@@ -4852,7 +4862,7 @@ this is for version 1 of proweb</Description>
 <ClassMethod>1</ClassMethod>
 <Implementation><![CDATA[
 	&html<
-		<form id="#(..#efFormID)#" name="#(..getFormName())#" method="POST" action="#(..Link(..getFormAction()))#" class="form-horizontal ef-form" autocomplete="on">
+		<form id="#(..#efFormID)#" name="#(..getFormName())#" method="POST" action="#(..Link(..getFormAction()))#" class="form-inline ef-form" autocomplete="on">
 			<input type="hidden" name="pageID" value="#(contextData.pageID)#">
 			<input type="hidden" id="efSubmitButtonIdentifier" name="efSubmitButtonIdentifier" value="">
 			<input type="hidden" id="efDeleteButtonIdentifier" name="efDeleteButtonIdentifier" value="">
@@ -7334,7 +7344,7 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 
 <Class name="EF.ui.components.frontend.prowebBase">
 <Super>EF.ui.components.base</Super>
-<TimeChanged>64259,33983.837242</TimeChanged>
+<TimeChanged>64266,59950.361926</TimeChanged>
 <TimeCreated>64183,41819.123112</TimeCreated>
 
 <Property name="isProwebEditMode">
@@ -7373,6 +7383,7 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 			data-ui-component-type="#(..encodeForHTMLAttribute(uiComponentType))#"
 			data-proweb-allowed-types="#(..encodeForHTMLAttribute(allowedElementTypes))#"
 			>
+			<div class="form-group">
 		>
 		
 	} else {
@@ -7411,7 +7422,7 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 </Method>
 
 <Method name="renderRowClosing">
-<Implementation><![CDATA[		write "</div>"
+<Implementation><![CDATA[		write "</div></div>"
 ]]></Implementation>
 </Method>
 

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.2 (Build 736U)" ts="2016-12-14 13:55:59">
+<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.2 (Build 736U)" ts="2016-12-14 14:01:10">
 <Class name="EF.contextDataFrontend">
 <Description><![CDATA[
 <!-- ;vc;-
@@ -2602,7 +2602,7 @@ Should have a one-to-one relationship with sc.objList</Description>
 
 <Class name="EF.pageController.proweb.page">
 <Super>EF.pageController.page</Super>
-<TimeChanged>64264,59831.326342</TimeChanged>
+<TimeChanged>64266,50456.326119</TimeChanged>
 <TimeCreated>64189,51696.559047</TimeCreated>
 
 <Property name="contextData">
@@ -2664,7 +2664,7 @@ Should have a one-to-one relationship with sc.objList</Description>
 		set dataType = rsComponents.Get("dataType")
 		set className = rsComponents.Get("listType")
 		if '$Length(className) {
-			set className = "listWithQuestionsRegistration"	// ##### I don't think the default should allow questions /Fred ###################
+			set className = "listWithQuestionsRegistration"	
 		}
 		if dataType = "objList" {	
 			set listElement = $ClassMethod("EF.pageController.proweb."_className, "addElementToParent", $this, componentName, "")
@@ -7245,7 +7245,7 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 
 <Class name="EF.ui.components.frontend.panel">
 <Super>EF.ui.components.frontend.prowebBase,EF.ui.components.panel</Super>
-<TimeChanged>64247,43068.154074</TimeChanged>
+<TimeChanged>64266,50360.096473</TimeChanged>
 <TimeCreated>64204,36543.176151</TimeCreated>
 
 <Property name="guestNumber">
@@ -7254,7 +7254,6 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 
 <Method name="renderStart">
 <Implementation><![CDATA[
-	;set guestNumber = 1 // ######################
 	&html<
 			<div class="ef-panel ef-draggable-div"   #(..rawHTML(..getExtraAttributes()))#>
 	            <div class="ef-panel-heading" id="">#(..encodeForHTML(##class(shared.pCSP).out("Guest")))#
@@ -7372,7 +7371,7 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 
 <Class name="EF.ui.components.frontend.progressBar">
 <Super>EF.ui.components.frontend.prowebBase</Super>
-<TimeChanged>64246,56977.058219</TimeChanged>
+<TimeChanged>64266,50391.950273</TimeChanged>
 <TimeCreated>64246,45739.42717</TimeCreated>
 
 <Method name="render">
@@ -7381,8 +7380,6 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 	if (contextData.isTestMode) ! (##class(setup.objEventSetting).getParameter("reg pages","hide progress bar",..contextData.eventID) ) {
 		quit
 	}
-	
-	// #################### needs refactoring #############
 	set pageName = "tregistration.csp" 
 	set tmpProgress = ##class(setup.objPageNav).getProgress(pageName, contextData.pageID , contextData.sessionID , contextData.eventID, contextData.languageID)
 	set value = $Piece(tmpProgress,"|",2)/$Piece(tmpProgress,"|",1)*100\5*5
@@ -21829,7 +21826,7 @@ The basic frontend default stuff</Description>
 <Abstract>1</Abstract>
 <ClassType/>
 <ProcedureBlock>1</ProcedureBlock>
-<TimeChanged>64257,39812.299891</TimeChanged>
+<TimeChanged>64266,50401.170258</TimeChanged>
 <TimeCreated>61075,71223.195943</TimeCreated>
 
 <Method name="reloadAll">
@@ -22913,7 +22910,6 @@ Checks if the passed in namespace is in the list of clients using Single Event D
 			return ##class(layout.objTemplate).getIDfromIntDesc("EF_THEME_default_design_21") // this is the Gen 2 iFrame template
 		} else {
 			return regularTemplateID  // This is the wrong behaviour as it will show menu in popup but we don't want to change this now (as part of responsive project).
-			//return ##class(layout.objTemplate).getIDfromIntDesc("IFRAME") // this is the Gen 1 iFrame template (blank design) - ### Leave this commented line for now ####
 		}
 	}
 	return popupTemplateID

@@ -182,6 +182,7 @@ turn off setting in template upload (temporary)
 
 
 --- iceboxing it ---
+the editor panel and the quick edit are not using form-line/form-group
 improve the way we preview/edit for specific attendee categories
 move out all the inpage javascripts from frontJS.csp to real JS files
 rewrite frontendHTTPheader/frontednStyles/frontendJS

@@ -1,0 +1,1056 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.2 (Build 736U)" ts="2016-12-15 09:38:48">
+<Class name="EF.pageController.proweb.testCases.checkboxGroupTestCase">
+<Super>EF.ISC.UnitTest.TestCase</Super>
+<TimeChanged>64265,58060.908718</TimeChanged>
+<TimeCreated>64204,52598.182886</TimeCreated>
+
+<Method name="TestWithMulticheckboxNoneSelected">
+<Implementation><![CDATA[
+
+	set eventConfiguration = ##class(setup.eventConfiguration.storageMock).createEventConfiguration()
+
+	set contextData = ##class(EF.contextDataRegistrationMock).createMock()
+	set elementIdentifier = "proweb-1"
+	
+	set storage = ##class(sc.facade.prowebItemStorageInputElementMock).createNew()
+	set storage.prowebID = "1"
+	set storage.databaseItemName = "my multi check"
+	set storage.inputType = "multibox"
+	set storage.labelText = "Please select your options"
+	
+	set alternative = ##class(sc.facade.prowebItemStorageInputElementAlternative).%New()
+	set alternative.value = "option 1"
+	set alternative.displayText = "option 1"
+	do storage.listOfAlternatives.Insert( alternative)
+	
+	set alternative = ##class(sc.facade.prowebItemStorageInputElementAlternative).%New()
+	set alternative.value = "option 2"
+	set alternative.displayText = "option 2"
+	do storage.listOfAlternatives.Insert( alternative)
+
+	set alternative = ##class(sc.facade.prowebItemStorageInputElementAlternative).%New()
+	set alternative.value = "option 2"
+	set alternative.displayText = "option 2"
+	do storage.listOfAlternatives.Insert( alternative)
+	
+
+	set prowebItem = ##class(sc.facade.prowebItem).createNew(storage)
+	do contextData.listOfProwebItemsToAdd.Insert(prowebItem)
+
+	set pageController = ##class(EF.pageController.pagesFrontend.registration).createNew(contextData,,,eventConfiguration)
+		
+	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(pageController,"renderComponent", "unit test")
+	set returnedHTML = $ZStrip(returnedHTML,"*WC")
+	set expectedHTML = "<divclass=""rowef-form-row""><divclass=""form-group""><divclass=""col-sm-4ef-label-containeref-label-container-vertical-group""><labelid=""ef-display-label-mymulticheck""class=""control-labelef-control-label""for=""mymulticheck"">Pleaseselectyouroptions</label></div><divclass=""col-sm-8ef-checkbox-container""><div><divclass=""inputs-listef-proweb-input-elementef-checkbox-group""><labelclass=""ef-control-label""><inputtype=""checkbox""value=""1""id=""mymulticheck-1""class=""ef-control-labelef-check-box""name=""mymulticheck-1""title="""">option1&nbsp;</label><br/><labelclass=""ef-control-label""><inputtype=""checkbox""value=""1""id=""mymulticheck-2""class=""ef-control-labelef-check-box""name=""mymulticheck-2""title="""">option2&nbsp;</label><br/><labelclass=""ef-control-label""><inputtype=""checkbox""value=""1""id=""mymulticheck-3""class=""ef-control-labelef-check-box""name=""mymulticheck-3""title="""">option2&nbsp;</label><br/></div></div></div></div>"
+	do $$$AssertEquals(returnedHTML,expectedHTML)
+]]></Implementation>
+</Method>
+</Class>
+
+
+<Class name="EF.pageController.proweb.testCases.datePIckerTestCase">
+<Super>EF.ISC.UnitTest.TestCase</Super>
+<TimeChanged>64265,57903.534787</TimeChanged>
+<TimeCreated>64204,52627.550246</TimeCreated>
+
+<Method name="TestDatePicker">
+<Implementation><![CDATA[
+	set eventConfiguration = ##class(setup.eventConfiguration.storageMock).createEventConfiguration()
+	
+	set contextData = ##class(EF.contextDataRegistrationMock).createMock()
+	set contextData.isBackendBooking = 1
+	set contextData.prowebMode = "preview"
+	
+	set storage = ##class(sc.facade.prowebItemStorageInputElementMock).createNew()
+	set storage.prowebID = "1"
+	set storage.databaseItemName = "My date picker"
+	set storage.inputType = "date"
+	set storage.labelText = "Please enter your DOB"
+	
+	
+	set prowebItem = ##class(sc.facade.prowebItem).createNew(storage)
+	do contextData.listOfProwebItemsToAdd.Insert(prowebItem)
+	
+	set pageController = ##class(EF.pageController.pagesFrontend.registration).createNew(contextData,,,eventConfiguration)
+		
+	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(pageController,"renderComponent","unit test")
+	set returnedHTML = $ZStrip(returnedHTML,"*WC")
+	set expectedHTML = "<divclass=""rowef-form-row""><divclass=""form-group""><divclass=""col-sm-4ef-label-container""><labelid=""ef-display-label-Mydatepicker""class=""control-labelef-control-label""for=""Mydatepicker"">PleaseenteryourDOB</label></div><divclass=""col-sm-8ef-input-container""><divstyle=""width:40%""class=""ef-inputef-date-pickeref-kendo-form-control""><inputtype=""date""class=""ef-date-pickeref-kendo-form-controlefDatePicker""title=""""id=""Mydatepicker""name=""Mydatepicker""value=""""placeholder=""DD/MM/YYYY""efKendoDateFormat=""dd/MM/yyyy""></div></div></div>"
+	do $$$AssertEquals(returnedHTML,expectedHTML)
+]]></Implementation>
+</Method>
+</Class>
+
+
+<Class name="EF.pageController.proweb.testCases.dateRangeTestCase">
+<Super>EF.ISC.UnitTest.TestCase</Super>
+<TimeChanged>64265,57942.507952</TimeChanged>
+<TimeCreated>64204,52642.759507</TimeCreated>
+
+<Method name="TestDateRange">
+<Implementation><![CDATA[
+	set eventConfiguration = ##class(setup.eventConfiguration.storageMock).createEventConfiguration()
+	
+	set contextData = ##class(EF.contextDataRegistrationMock).createMock()
+	set contextData.isBackendBooking = 1
+	set contextData.prowebMode = "preview"
+	
+	set storage = ##class(sc.facade.prowebItemStorageInputElementMock).createNew()
+	set storage.prowebID = "1"
+	set storage.databaseItemName = "My date ranger"
+	set storage.inputType = "dateRange"
+	set storage.labelText = "Please enter your date span"
+	
+	
+	set prowebItem = ##class(sc.facade.prowebItem).createNew(storage)
+	do contextData.listOfProwebItemsToAdd.Insert(prowebItem)
+	
+	set pageController = ##class(EF.pageController.pagesFrontend.registration).createNew(contextData,,,eventConfiguration)
+		
+	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(pageController,"renderComponent", "unit test")
+	set returnedHTML = $ZStrip(returnedHTML,"*WC")
+	set expectedHTML = "<divclass=""rowef-form-row""><divclass=""form-group""><divclass=""col-sm-4ef-label-container""><labelid=""ef-display-label-Mydateranger""class=""control-labelef-control-label""for=""Mydateranger"">Pleaseenteryourdatespan</label></div><divclass=""col-sm-8ef-input-container""><divclass=""ef-input-short""><inputtype=""date""class=""ef-date-pickeref-kendo-form-controlefDateRangeStartefDatePicker""title=""""id=""Mydateranger-startDate""name=""Mydateranger-startDate""value=""""placeholder=""DD/MM/YYYY""efdaterangeendid=""Mydateranger-endDate""efKendoDateFormat=""dd/MM/yyyy""></div><divstyle='float:left;text-align:left;margin-left:15px;margin-right:15px;'>to</div><divclass=""ef-input-short""><inputtype=""date""class=""ef-date-pickeref-kendo-form-controlefDateRangeEndefDatePicker""title=""""id=""Mydateranger-endDate""name=""Mydateranger-endDate""value=""""placeholder=""DD/MM/YYYY""efdaterangestartid=""Mydateranger-startDate""efKendoDateFormat=""dd/MM/yyyy""></div></div></div>"
+	do $$$AssertEquals(returnedHTML,expectedHTML)
+]]></Implementation>
+</Method>
+</Class>
+
+
+<Class name="EF.pageController.proweb.testCases.dropdownTestCase">
+<Super>EF.ISC.UnitTest.TestCase</Super>
+<TimeChanged>64265,58145.415886</TimeChanged>
+<TimeCreated>64204,52666.398429</TimeCreated>
+
+<Method name="TestPageWithDropdown">
+<Implementation><![CDATA[
+
+	set eventConfiguration = ##class(setup.eventConfiguration.storageMock).createEventConfiguration()
+
+	set contextData = ##class(EF.contextDataRegistrationMock).createMock()
+	set contextData.isBackendBooking = 1
+	set contextData.prowebMode = "preview"
+
+	set storage = ##class(sc.facade.prowebItemStorageInputElementMock).createNew()
+	set storage.prowebID = "1"
+	set storage.databaseItemName = "My dropdown"
+	set storage.inputType = "dropdown"
+	set storage.labelText = "Please choose your weapon"
+
+	set alternative = ##class(sc.facade.prowebItemStorageInputElementAlternative).%New()
+	set alternative.value = "option 1"
+	set alternative.displayText = "option 1"
+	do storage.listOfAlternatives.Insert( alternative)
+
+	set alternative = ##class(sc.facade.prowebItemStorageInputElementAlternative).%New()
+	set alternative.value = "option 2"
+	set alternative.displayText = "option 2"
+	do storage.listOfAlternatives.Insert( alternative)
+
+	set alternative = ##class(sc.facade.prowebItemStorageInputElementAlternative).%New()
+	set alternative.value = "option 2"
+	set alternative.displayText = "option 2"
+	do storage.listOfAlternatives.Insert( alternative)
+
+
+	set prowebItem = ##class(sc.facade.prowebItem).createNew(storage)
+	do contextData.listOfProwebItemsToAdd.Insert(prowebItem)
+
+	set pageController = ##class(EF.pageController.pagesFrontend.registration).createNew(contextData,,,eventConfiguration)
+		
+	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(pageController,"renderComponent", "unit test")
+	set returnedHTML = $ZStrip(returnedHTML,"*WC")
+	set expectedHTML = "<divclass=""rowef-form-row""><divclass=""form-group""><divclass=""col-sm-4ef-label-container""><labelid=""ef-display-label-Mydropdown""class=""control-labelef-control-label""for=""Mydropdown"">Pleasechooseyourweapon</label></div><divclass=""col-sm-8ef-input-container""><selectclass=""form-controlef-inputef-dropdown-list""name=""Mydropdown""id=""Mydropdown""title=""""><optionvalue=""option1""class="""">option1</option><optionvalue=""option2""class="""">option2</option><optionvalue=""option2""class="""">option2</option></select></div></div>"
+	                    <divclass=""rowef-form-row""><divclass=""form-group""><divclass=""form-group""><divclass=""col-sm-4ef-label-container""><labelid=""ef-display-label-Mydropdown""class=""control-labelef-control-label""for=""Mydropdown"">Pleasechooseyourweapon</label></div><divclass=""col-sm-8ef-input-container""><selectclass=""form-controlef-inputef-dropdown-list""name=""Mydropdown""id=""Mydropdown""title=""""><optionvalue=""option1""class="""">option1</option><optionvalue=""option2""class="""">option2</option><optionvalue=""option2""class="""">option2</option></select></div></div></div>
+	do $$$AssertEquals(returnedHTML,expectedHTML)
+]]></Implementation>
+</Method>
+
+<Method name="TestPageWithDropdownMandatory">
+<Implementation><![CDATA[
+	set eventConfiguration = ##class(setup.eventConfiguration.storageMock).createEventConfiguration()
+	
+	set contextData = ##class(EF.contextDataRegistrationMock).createMock()
+	set contextData.isBackendBooking = 1
+	set contextData.prowebMode = "preview"
+	
+	set storage = ##class(sc.facade.prowebItemStorageInputElementMock).createNew()
+	set storage.prowebID = "1"
+	set storage.databaseItemName = "My dropdown"
+	set storage.inputType = "dropdown"
+	set storage.labelText = "Please choose your weapon"
+	set storage.isMandatory = 1
+	
+	set alternative = ##class(sc.facade.prowebItemStorageInputElementAlternative).%New()
+	set alternative.value = "option 1"
+	set alternative.displayText = "option 1"
+	do storage.listOfAlternatives.Insert( alternative)
+	
+	set alternative = ##class(sc.facade.prowebItemStorageInputElementAlternative).%New()
+	set alternative.value = "option 2"
+	set alternative.displayText = "option 2"
+	do storage.listOfAlternatives.Insert( alternative)
+
+	set alternative = ##class(sc.facade.prowebItemStorageInputElementAlternative).%New()
+	set alternative.value = "option 2"
+	set alternative.displayText = "option 2"
+	do storage.listOfAlternatives.Insert( alternative)
+		
+	
+	set prowebItem = ##class(sc.facade.prowebItem).createNew(storage)
+	do contextData.listOfProwebItemsToAdd.Insert(prowebItem)
+	
+	set pageController = ##class(EF.pageController.pagesFrontend.registration).createNew(contextData,,,eventConfiguration)
+		
+	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(pageController,"renderComponent", "unit test")	
+	set returnedHTML = $ZStrip(returnedHTML,"*WC")
+	set expectedHTML = "<divclass=""rowef-form-row""><divclass=""form-group""><divclass=""col-sm-4ef-label-container""><labelid=""ef-display-label-Mydropdown""class=""control-labelef-control-labelef-required-field""for=""Mydropdown"">Pleasechooseyourweapon</label></div><divclass=""col-sm-8ef-input-container""><selectclass=""form-controlef-inputef-dropdown-list""name=""Mydropdown""id=""Mydropdown""title=""""><optionvalue=''selecteddisabled>Chooseone...</option><optionvalue=""option1""class="""">option1</option><optionvalue=""option2""class="""">option2</option><optionvalue=""option2""class="""">option2</option></select></div></div></div>"
+	do $$$AssertEquals(returnedHTML,expectedHTML)
+]]></Implementation>
+</Method>
+
+<Method name="TestPageWithDropdownPreSelected">
+<Implementation><![CDATA[
+	set eventConfiguration = ##class(setup.eventConfiguration.storageMock).createEventConfiguration()
+	
+	set contextData = ##class(EF.contextDataRegistrationMock).createMock()
+	set contextData.isBackendBooking = 1
+	set contextData.prowebMode = "preview"
+	
+	set storage = ##class(sc.facade.prowebItemStorageInputElementMock).createNew()
+	set storage.prowebID = "1"
+	set storage.databaseItemName = "My dropdown"
+	set storage.inputType = "dropdown"
+	set storage.labelText = "Please choose your weapon"
+	set storage.testValue = "option 1"
+	
+	set alternative = ##class(sc.facade.prowebItemStorageInputElementAlternative).%New()
+	set alternative.value = "option 1"
+	set alternative.displayText = "option 1"
+	do storage.listOfAlternatives.Insert( alternative)
+	
+	set alternative = ##class(sc.facade.prowebItemStorageInputElementAlternative).%New()
+	set alternative.value = "option 2"
+	set alternative.displayText = "option 2"
+	do storage.listOfAlternatives.Insert( alternative)
+
+	set alternative = ##class(sc.facade.prowebItemStorageInputElementAlternative).%New()
+	set alternative.value = "option 2"
+	set alternative.displayText = "option 2"
+	do storage.listOfAlternatives.Insert( alternative)
+	
+	
+	set prowebItem = ##class(sc.facade.prowebItem).createNew(storage)
+	do contextData.listOfProwebItemsToAdd.Insert(prowebItem)
+	
+	set pageController = ##class(EF.pageController.pagesFrontend.registration).createNew(contextData,,,eventConfiguration)
+		
+	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(pageController,"renderComponent", "unit test")	
+	set returnedHTML = $ZStrip(returnedHTML,"*WC")
+	set expectedHTML = "<divclass=""rowef-form-row""><divclass=""form-group""><divclass=""col-sm-4ef-label-container""><labelid=""ef-display-label-Mydropdown""class=""control-labelef-control-label""for=""Mydropdown"">Pleasechooseyourweapon</label></div><divclass=""col-sm-8ef-input-container""><selectclass=""form-controlef-inputef-dropdown-list""name=""Mydropdown""id=""Mydropdown""title=""""><optionselected=""""value=""option1""class="""">option1</option><optionvalue=""option2""class="""">option2</option><optionvalue=""option2""class="""">option2</option></select></div></div></div>"
+	do $$$AssertEquals(returnedHTML,expectedHTML)
+]]></Implementation>
+</Method>
+</Class>
+
+
+<Class name="EF.pageController.proweb.testCases.emailInputMultiTestCase">
+<Super>EF.ISC.UnitTest.TestCase</Super>
+<TimeChanged>64265,58341.883034</TimeChanged>
+<TimeCreated>64204,52684.401246</TimeCreated>
+
+<Method name="TestMultiEmail">
+<Implementation><![CDATA[
+	set eventConfiguration = ##class(setup.eventConfiguration.storageMock).createEventConfiguration()
+	
+	set contextData = ##class(EF.contextDataRegistrationMock).createMock()
+	set contextData.isBackendBooking = 1
+	set contextData.prowebMode = "preview"
+	
+	set storage = ##class(sc.facade.prowebItemStorageInputElementMock).createNew()
+	set storage.prowebID = "1"
+	set storage.databaseItemName = "email"
+	set storage.inputType = "multiEmailAddress"
+	set storage.labelText = "Please enter all your email addresses"
+	
+	
+	set prowebItem = ##class(sc.facade.prowebItem).createNew(storage)
+	do contextData.listOfProwebItemsToAdd.Insert(prowebItem)
+
+	set pageController = ##class(EF.pageController.pagesFrontend.registration).createNew(contextData,,,eventConfiguration)
+	
+	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(pageController,"renderComponent","unit test")
+	set returnedHTML = $ZStrip(returnedHTML,"*WC")
+	set expectedHTML = "<divclass=""rowef-form-row""><divclass=""form-group""><divclass=""col-sm-4ef-label-container""><labelid=""ef-display-label-email""class=""control-labelef-control-label""for=""email"">Pleaseenterallyouremailaddresses</label></div><divclass=""col-sm-8ef-input-container""><inputtype=""email""class=""ef-inputform-controlef-input-text-field""title=""""id=""email""name=""email""value=""""placeholder=""""pattern=""^(([a-zA-Z0-9_\-\.&#39;]+)(\+[a-zA-Z0-9_\-\.&#39;]+){0,1}@(([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([a-zA-Z0-9\-]+\.)+))([a-zA-Z]{2,63}|[0-9]{1,3}))(\s*[;,]\s*(([a-zA-Z0-9_\-\.&#39;]+)(\+[a-zA-Z0-9_\-\.&#39;]+){0,1}@(([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([a-zA-Z0-9\-]+\.)+))([a-zA-Z]{2,63}|[0-9]{1,3})))*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;Pleaseenterallyouremailaddresses\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""autofocus=""autofocus""0></div></div></div>"
+	do $$$AssertEquals(returnedHTML,expectedHTML)
+]]></Implementation>
+</Method>
+</Class>
+
+
+<Class name="EF.pageController.proweb.testCases.emailInputTestCase">
+<Super>EF.ISC.UnitTest.TestCase</Super>
+<TimeChanged>64265,58390.723572</TimeChanged>
+<TimeCreated>64204,52696.984856</TimeCreated>
+
+<Method name="TestEmail">
+<Implementation><![CDATA[
+	set eventConfiguration = ##class(setup.eventConfiguration.storageMock).createEventConfiguration()
+	
+	set contextData = ##class(EF.contextDataRegistrationMock).createMock()
+	set contextData.isBackendBooking = 1
+	set contextData.prowebMode = "preview"
+	
+	set storage = ##class(sc.facade.prowebItemStorageInputElementMock).createNew()
+	set storage.prowebID = "1"
+	set storage.databaseItemName = "email"
+	set storage.inputType = "emailAddress"
+	set storage.labelText = "Please enter your email address"
+	
+	
+	set prowebItem = ##class(sc.facade.prowebItem).createNew(storage)
+	do contextData.listOfProwebItemsToAdd.Insert(prowebItem)
+
+	set pageController = ##class(EF.pageController.pagesFrontend.registration).createNew(contextData,,,eventConfiguration)
+	
+	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(pageController,"renderComponent", "unit test")
+	set returnedHTML = $ZStrip(returnedHTML,"*WC")
+	set expectedHTML = "<divclass=""rowef-form-row""><divclass=""form-group""><divclass=""col-sm-4ef-label-container""><labelid=""ef-display-label-email""class=""control-labelef-control-label""for=""email"">Pleaseenteryouremailaddress</label></div><divclass=""col-sm-8ef-input-container""><inputtype=""email""class=""ef-inputform-controlef-input-text-field""title=""""id=""email""name=""email""value=""""placeholder=""""pattern=""^(([a-zA-Z0-9_\-\.&#39;]+)(\+[a-zA-Z0-9_\-\.&#39;]+){0,1}@(([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([a-zA-Z0-9\-]+\.)+))([a-zA-Z]{2,63}|[0-9]{1,3}))$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;Pleaseenteryouremailaddress\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""autofocus=""autofocus""0></div></div></div>"
+	do $$$AssertEquals(returnedHTML,expectedHTML)
+]]></Implementation>
+</Method>
+</Class>
+
+
+<Class name="EF.pageController.proweb.testCases.fileUploadInputTestCase">
+<Super>EF.ISC.UnitTest.TestCase</Super>
+<TimeChanged>64266,50628.336907</TimeChanged>
+<TimeCreated>64209,55088.607809</TimeCreated>
+
+<Method name="TestFileUpload">
+<Implementation><![CDATA[
+	/* commented out until we implment the uploader for real
+	set eventConfiguration = ##class(setup.eventConfiguration.storageMock).createEventConfiguration()
+	
+	set contextData = ##class(EF.contextDataRegistrationMock).createMock()
+	set contextData.isBackendBooking = 1
+	set contextData.prowebMode = "preview"
+	
+	set storage = ##class(sc.facade.prowebItemStorageFileUploadMock).createNew()
+	set storage.prowebID = "1"
+	set storage.databaseItemName = "file"
+	set storage.inputType = "fileUpload"
+	set storage.labelText = "Please upload your photo"
+	
+	
+	set prowebItem = ##class(sc.facade.prowebItem).createNew(storage)
+	do contextData.listOfProwebItemsToAdd.Insert(prowebItem)
+
+	set pageController = ##class(EF.pageController.pagesFrontend.registration).createNew(contextData,,,eventConfiguration)
+	
+	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(pageController,"renderComponent", "unit test")
+	set returnedHTML = $ZStrip(returnedHTML,"*WC")
+	set expectedHTML = "<divclass=""rowef-form-row""><divclass=""form-group""><divclass=""col-sm-4ef-label-container""><labelid=""ef-display-label-proweb-1""class=""control-labelef-control-label""for=""proweb-1"">Pleaseuploadyourphoto</label></div><divclass=""col-sm-8ef-input-container""><scriptid='fileTemplate_fileUpload'type='text/x-kendo-template'><divclass='ef_frontend_file_upload_progress_container'><divclass='k-progress'></div><divclass='ef_file_wrapper'><spanstyle='width:50%;'class='blackbold12px'>#=name##=ef_uploader_show_file_size(size)#</span><spanstyle='width:50%;float:right;'class='blackbold12px'id='ef-kendo-uploader-processing'></span></div></div></script><scriptlanguage='javascript'>varef=ef||{};ef.fileUploader=ef.fileUploader||{};$(document).ready(function(){varuploaderInput=$(""#fileUpload"");uploaderInput.kendoUpload({complete:onComplete,upload:onUpload,success:onSuccess,error:onError,progress:onProgress,showFileList:true,multiple:false,localization:{select:'Upload…'},async:{},template:kendo.template($('#fileTemplate_fileUpload').html())});functiononSuccess(e){if(e.response.status=='ok'){$('.k-upload-status').remove();$('.k-upload-files').remove();varuploadedFileDiv='<trid=""ef_uploaded_file_'+e.response.fileItem.objectID+'""class=""ef_file_wrapper""><tdclass=""black10px""><atarget=""_blank""href=""'+e.response.fileItem.openURL+'"">'+e.response.fileItem.name+'</a>'+Math.floor(e.response.fileItem.size/1024)+'kB</td><tdclass=""black9px"">'+e.response.fileItem.formattedDate+''+e.response.fileItem.formattedTime+'</td><tdclass=""black9px""><aclass=""noWarn""href=""'+e.response.fileItem.deleteURL+'"">remove</a></td></tr>'$('#fileUpload_1').append(uploadedFileDiv);}else{$('.k-upload-files').remove();alert(e.response.errorMsg)}}functiononError(e){alert('Therewasaproblemuploadingyourfile');$('.k-upload-files').remove();}functiononComplete(e){if(typeofef.fileUploader.onCompleteCallback===""function""){ef.fileUploader.onCompleteCallback()}}functiononUpload(e){if(typeofef.fileUploader.onUploadCallback===""function""){ef.fileUploader.onUploadCallback()}}functiononProgress(e){}});</script><divid=""fileUpload_container""class=""ef_frontend_file_uploaderk-content""><inputtype=""file""name=""fileUpload""id=""fileUpload""title=""Upload""></div></div></div></div>"
+	do $$$AssertEquals(returnedHTML,expectedHTML)
+	*/
+]]></Implementation>
+</Method>
+</Class>
+
+
+<Class name="EF.pageController.proweb.testCases.integerInputTestCase">
+<Super>EF.ISC.UnitTest.TestCase</Super>
+<TimeChanged>64265,58438.786366</TimeChanged>
+<TimeCreated>64204,52712.809439</TimeCreated>
+
+<Method name="TestInteger">
+<Implementation><![CDATA[
+	set eventConfiguration = ##class(setup.eventConfiguration.storageMock).createEventConfiguration()
+	
+	set contextData = ##class(EF.contextDataRegistrationMock).createMock()
+	set contextData.isBackendBooking = 1
+	set contextData.prowebMode = "preview"
+	
+	set storage = ##class(sc.facade.prowebItemStorageInputElementMock).createNew()
+	set storage.prowebID = "1"
+	set storage.databaseItemName = "my int"
+	set storage.inputType = "integer"
+	set storage.labelText = "Please enter your height in cm"
+	
+	
+	set prowebItem = ##class(sc.facade.prowebItem).createNew(storage)
+	do contextData.listOfProwebItemsToAdd.Insert(prowebItem)
+
+	set pageController = ##class(EF.pageController.pagesFrontend.registration).createNew(contextData,,,eventConfiguration)
+	
+	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(pageController, "renderComponent", "unit test")
+	set returnedHTML = $ZStrip(returnedHTML,"*WC")
+	set expectedHTML = "<divclass=""rowef-form-row""><divclass=""form-group""><divclass=""col-sm-4ef-label-container""><labelid=""ef-display-label-myint""class=""control-labelef-control-label""for=""myint"">Pleaseenteryourheightincm</label></div><divclass=""col-sm-8ef-input-container""><inputtype=""number""class=""form-controlef-inputef-input-shortef-input-short""title=""""id=""myint""name=""myint""value=""""placeholder=""""pattern=""^([\+\-]){0,1}\d+$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;Pleaseenteryourheightincm\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""autofocus=""autofocus""0></div></div></div>"
+	do $$$AssertEquals(returnedHTML,expectedHTML)
+]]></Implementation>
+</Method>
+</Class>
+
+
+<Class name="EF.pageController.proweb.testCases.numericInputTestCase">
+<Super>EF.ISC.UnitTest.TestCase</Super>
+<TimeChanged>64265,58473.920177</TimeChanged>
+<TimeCreated>64204,52723.013439</TimeCreated>
+
+<Method name="TestNumeric">
+<Implementation><![CDATA[
+	set eventConfiguration = ##class(setup.eventConfiguration.storageMock).createEventConfiguration()
+	
+	set contextData = ##class(EF.contextDataRegistrationMock).createMock()
+	set contextData.isBackendBooking = 1
+	set contextData.prowebMode = "preview"
+	
+	set storage = ##class(sc.facade.prowebItemStorageInputElementMock).createNew()
+	set storage.prowebID = "1"
+	set storage.databaseItemName = "my floating point number"
+	set storage.inputType = "floatingPointNumber"
+	set storage.labelText = "Please enter your height in kilometers"
+	
+	
+	set prowebItem = ##class(sc.facade.prowebItem).createNew(storage)
+	do contextData.listOfProwebItemsToAdd.Insert(prowebItem)
+
+	set pageController = ##class(EF.pageController.pagesFrontend.registration).createNew(contextData,,,eventConfiguration)
+	
+	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(pageController,"renderComponent","unit test")
+	set returnedHTML = $ZStrip(returnedHTML,"*WC")
+	set expectedHTML = "<divclass=""rowef-form-row""><divclass=""form-group""><divclass=""col-sm-4ef-label-container""><labelid=""ef-display-label-myfloatingpointnumber""class=""control-labelef-control-label""for=""myfloatingpointnumber"">Pleaseenteryourheightinkilometers</label></div><divclass=""col-sm-8ef-input-container""><inputtype=""text""class=""form-controlef-inputef-input-short""title=""""id=""myfloatingpointnumber""name=""myfloatingpointnumber""value=""""placeholder=""""pattern=""^[+-]?((0)|([1-9][0-9]*?))?(\.[0-9]{1,2})?$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;Pleaseenteryourheightinkilometers\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""autofocus=""autofocus""0></div></div></div>"
+	do $$$AssertEquals(returnedHTML,expectedHTML)
+]]></Implementation>
+</Method>
+</Class>
+
+
+<Class name="EF.pageController.proweb.testCases.pageTestCase">
+<Super>EF.ISC.UnitTest.TestCase</Super>
+<TimeChanged>64266,51722.288706</TimeChanged>
+<TimeCreated>64189,44993.632692</TimeCreated>
+
+<Method name="TestEditModeHTML">
+<Implementation><![CDATA[
+	set floatingMenu = ##class(EF.ui.components.frontend.floatingMenu).%New()
+	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(floatingMenu,"outputFloatingMenuHTML")
+	set returnedHTML = $ZStrip(returnedHTML,"*WC")
+	set expectedHTML = "<divid=""myFloater""class=""form-inlineef-proweb-menu-handle""style=""display:none;""><divclass=""ef-editor-floater-button-group""><buttontype=""button""id=""efProwebEditLink""class=""btnbtn-default""><spanclass=""glyphiconglyphicon-pencil""></span></button><buttontype=""button""id=""efProwebDeleteLink""class=""btnbtn-default""style=""float:left;""><spanclass=""glyphiconglyphicon-trash""></span></button><buttontype=""button""id=""efProwebDropdownLink""class=""btnbtn-defaultdropdown-toggle""data-toggle=""dropdown""><spanclass=""glyphiconglyphicon-plus""></span><spanclass=""caret""></span></button><ulclass=""dropdown-menu""role=""menu""><li><aclass=""ef-proweb-dropdown-link""id=""efProwebInsertQuestionBelowLink""tabindex=""-1""href=""#"">Question</a></li><li><aclass=""ef-proweb-dropdown-link""id=""efProwebInsertABIBelowLink""tabindex=""-1""href=""#"">ABI</a></li><li><aclass=""ef-proweb-dropdown-link""id=""efProwebInsertQBIBelowLink""tabindex=""-1""href=""#"">QBI</a></li><li><aclass=""ef-proweb-dropdown-link""id=""efProwebInsertTextBlockBelowLink""href=""#"">Text</a></li><li><aclass=""ef-proweb-dropdown-link""id=""efProwebInsertDividerBelowLink""href=""#"">Divider</a></li><li><aclass=""ef-proweb-dropdown-link""id=""efProwebInsertRegPromptCollectionBelowLink""tabindex=""-1""href=""#"">Collection</a></li><li><aclass=""ef-proweb-dropdown-link""id=""efProwebInsertFileUploadBelowLink""href=""#"">Fileupload</a></li><li><aclass=""ef-proweb-dropdown-link""id=""efProwebInsertYouTubeVideoBelowLink""href=""#"">Video</a></li></ul></div></div><divclass=""ef-Quick-Edit-Panel""style=""display:none;padding:5px;""><divid=""topButtonsQuickEdit""><buttontype=""button""id=""quickEditSave""class=""glyphiconglyphicon-ok""></button><buttontype=""button""id=""quickEditClose""class=""glyphiconglyphicon-remove""></button><divstyle=""float:right;""><buttontype=""button""id=""quickEditAdvanced"">Advanced…</button></div></div><divid=""quickEditPanelMain"">[EDITPANEL]</div></div>"
+	do $$$AssertEquals(returnedHTML,expectedHTML)
+]]></Implementation>
+</Method>
+
+<Method name="TestGuestPromptsPanel">
+<Implementation><![CDATA[
+	#dim page as EF.pageController.proweb.page
+	#dim element as EF.pageController.proweb.textInput
+	#dim storage as sc.facade.prowebItemStorageInputElementMock
+	#dim contextData as EF.contextDataRegistrationMock
+	#dim pageController as EF.pageController.pagesFrontend.t4Registration
+	
+	set eventConfiguration = ##class(setup.eventConfiguration.storageMock).createEventConfiguration()
+	
+	set contextData = ##class(EF.contextDataRegistrationMock).createMock()
+	set contextData.maxGuests=2
+	set eventConfiguration.storage.maxGuests = 2
+	
+	set storage = ##class(sc.facade.prowebItemStorageInputElementMock).createNew()
+	set storage.prowebID = "1"
+	set storage.databaseItemName = "Firstname"
+	set storage.inputType = "text"
+	set storage.labelText = "Attendee First Name"
+	set storage.isMandatory = 1
+	set prowebItem = ##class(sc.facade.prowebItem).createNew(storage)
+	do contextData.listOfProwebItemsToAdd.Insert(prowebItem)
+
+	set storage = ##class(sc.facade.prowebItemStorageInputElementMock).createNew()
+	set storage.prowebID = "2"
+	set storage.databaseItemName = "Lastname"
+	set storage.inputType = "text"
+	set storage.labelText = "Attendee Last Name"
+	set storage.isMandatory = 1
+	set prowebItem = ##class(sc.facade.prowebItem).createNew(storage)
+	do contextData.listOfProwebItemsToAdd.Insert(prowebItem)
+
+
+	set storage = ##class(sc.facade.prowebItemStorageInputElementMock).createNew()
+	set storage.prowebID = "1"
+	set storage.databaseItemName = "Firstname"
+	set storage.inputType = "text"
+	set storage.labelText = "Guest First Name"
+	set storage.isGuest = 1
+	set storage.isMandatory = 1
+	set prowebItem = ##class(sc.facade.prowebItem).createNew(storage)
+	do contextData.listOfProwebItemsToAdd.Insert(prowebItem)
+
+	set storage = ##class(sc.facade.prowebItemStorageInputElementMock).createNew()
+	set storage.prowebID = "2"
+	set storage.databaseItemName = "Lastname"
+	set storage.inputType = "text"
+	set storage.labelText = "Guest Last Name"
+	set storage.isGuest = 1
+	set storage.isMandatory = 1
+	set prowebItem = ##class(sc.facade.prowebItem).createNew(storage)
+	do contextData.listOfProwebItemsToAdd.Insert(prowebItem)
+
+
+	set pageController = ##class(EF.pageController.pagesFrontend.registration).createNew(contextData,,,eventConfiguration)
+	
+	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(pageController,"renderComponent","unit test")
+	set returnedHTML = $ZStrip(returnedHTML,"*WC")
+	set expectedHTML = "<divclass=""rowef-proweb-form-row""><divclass=""col-sm-4ef_proweb_form_prompt""><labelid=""ef-display-label-proweb-1""class=""control-labelef-label-textef-required-field""for=""proweb-1"">AttendeeFirstName</label></div><divclass=""col-sm-8ef_proweb_form_prompt""><inputtype=""text""class=""form-controlef-proweb-input-element""title=""""id=""proweb-1""name=""proweb-1""value=""""placeholder=""""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;AttendeeFirstName\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""autofocus=""autofocus""></div></div><divclass=""rowef-proweb-form-row""><divclass=""col-sm-4ef_proweb_form_prompt""><labelid=""ef-display-label-proweb-2""class=""control-labelef-label-textef-required-field""for=""proweb-2"">AttendeeLastName</label></div><divclass=""col-sm-8ef_proweb_form_prompt""><inputtype=""text""class=""form-controlef-proweb-input-element""title=""""id=""proweb-2""name=""proweb-2""value=""""placeholder=""""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;AttendeeLastName\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""></div></div><divclass=""rowef-proweb-form-row""><divclass=""col-sm-4ef_proweb_form_prompt""><labelid=""ef-display-label-proweb-1-1""class=""control-labelef-label-textef-required-field""for=""proweb-1-1"">GuestFirstName</label></div><divclass=""col-sm-8ef_proweb_form_prompt""><inputtype=""text""class=""form-controlef-proweb-input-element""title=""""id=""proweb-1-1""name=""proweb-1-1""value=""""placeholder=""""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;GuestFirstName\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""></div></div><divclass=""rowef-proweb-form-row""><divclass=""col-sm-4ef_proweb_form_prompt""><labelid=""ef-display-label-proweb-2-1""class=""control-labelef-label-textef-required-field""for=""proweb-2-1"">GuestLastName</label></div><divclass=""col-sm-8ef_proweb_form_prompt""><inputtype=""text""class=""form-controlef-proweb-input-element""title=""""id=""proweb-2-1""name=""proweb-2-1""value=""""placeholder=""""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;GuestLastName\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""></div></div>"
+	do $$$AssertEquals(returnedHTML,expectedHTML)
+]]></Implementation>
+</Method>
+</Class>
+
+
+<Class name="EF.pageController.proweb.testCases.passwordInputTestCase">
+<Super>EF.ISC.UnitTest.TestCase</Super>
+<TimeChanged>64265,58534.883538</TimeChanged>
+<TimeCreated>64208,51641.871984</TimeCreated>
+
+<Method name="TestPasswordInput">
+<Implementation><![CDATA[
+
+	set eventConfiguration = ##class(setup.eventConfiguration.storageMock).createEventConfiguration()
+	
+	set contextData = ##class(EF.contextDataRegistrationMock).createMock()
+	set contextData.isBackendBooking = 1
+	set contextData.prowebMode = "preview"
+	
+	set storage = ##class(sc.facade.prowebItemStorageInputElementMock).createNew()
+	set storage.prowebID = "1"
+	set storage.databaseItemName = "Password"
+	set storage.inputType = "password"
+	set storage.labelText = "Please enter your password"
+	
+	
+	set prowebItem = ##class(sc.facade.prowebItem).createNew(storage)
+	do contextData.listOfProwebItemsToAdd.Insert(prowebItem)
+
+	set pageController = ##class(EF.pageController.pagesFrontend.registration).createNew(contextData,,,eventConfiguration)
+	
+	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(pageController,"renderComponent","unit test")
+	set returnedHTML = $ZStrip(returnedHTML,"*WC")
+	set expectedHTML = "<divclass=""rowef-form-row""><divclass=""form-group""><divclass=""col-sm-4ef-label-container""><labelid=""ef-display-label-Password""class=""control-labelef-control-label""for=""Password"">Pleaseenteryourpassword</label></div><divclass=""col-sm-8ef-input-container""><inputtype=""password""class=""ef-inputform-controlef-input-text-field""title=""""id=""Password""name=""Password""value=""""placeholder=""""autofocus=""autofocus""0></div></div></div>"
+	do $$$AssertEquals(returnedHTML,expectedHTML)
+]]></Implementation>
+</Method>
+</Class>
+
+
+<Class name="EF.pageController.proweb.testCases.phoneNumberTestCase">
+<Super>EF.ISC.UnitTest.TestCase</Super>
+<TimeChanged>64265,58619.941455</TimeChanged>
+<TimeCreated>64204,52750.117876</TimeCreated>
+
+<Method name="TestPhoneNumber">
+<Implementation><![CDATA[
+	set eventConfiguration = ##class(setup.eventConfiguration.storageMock).createEventConfiguration()
+	
+	set contextData = ##class(EF.contextDataRegistrationMock).createMock()
+	set contextData.isBackendBooking = 1
+	set contextData.prowebMode = "preview"
+	
+	set storage = ##class(sc.facade.prowebItemStorageInputElementMock).createNew()
+	set storage.prowebID = "1"
+	set storage.databaseItemName = "phoneNumber"
+	set storage.inputType = "phoneNumber"
+	set storage.labelText = "Please enter your phone number"
+	
+	
+	set prowebItem = ##class(sc.facade.prowebItem).createNew(storage)
+	do contextData.listOfProwebItemsToAdd.Insert(prowebItem)
+
+	set pageController = ##class(EF.pageController.pagesFrontend.registration).createNew(contextData,,,eventConfiguration)
+	
+	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(pageController,"renderComponent","unit test")
+	set returnedHTML = $ZStrip(returnedHTML,"*WC")
+	set expectedHTML = "<divclass=""rowef-form-row""><divclass=""form-group""><divclass=""col-sm-4ef-label-container""><labelid=""ef-display-label-phoneNumber""class=""control-labelef-control-label""for=""phoneNumber"">Pleaseenteryourphonenumber</label></div><divclass=""col-sm-8ef-input-container""><inputtype=""tel""class=""ef-inputform-controlef-input-text-fieldef-input-short""title=""""id=""phoneNumber""name=""phoneNumber""value=""""placeholder=""""pattern=""^(?!(.*-(\s)*-.*))(?!(.*\.(\s)*\..*))(?=.*[\d\)](\s)*$)(?=.*(\d)+.*)(\+(\d){1,3}){0,1}(?=\s*([\d\(]).*)(([\d\s\-\.])|(\(([\d\-\.\s])+\)))*(\s)*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;Pleaseenteryourphonenumber\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""autofocus=""autofocus""0></div></div></div>"
+	do $$$AssertEquals(returnedHTML,expectedHTML)
+]]></Implementation>
+</Method>
+</Class>
+
+
+<Class name="EF.pageController.proweb.testCases.radioButtonsTestCase">
+<Super>EF.ISC.UnitTest.TestCase</Super>
+<TimeChanged>64265,58784.505139</TimeChanged>
+<TimeCreated>64204,52760.35415</TimeCreated>
+
+<Method name="TestRadioButtonsABI">
+<Implementation><![CDATA[
+	#dim eventConfiguration as setup.eventConfiguration.storageDatabase
+	#dim contextData as EF.contextDataRegistrationMock
+	
+	set eventConfiguration = ##class(setup.eventConfiguration.storageMock).createEventConfiguration()
+	
+	set contextData = ##class(EF.contextDataRegistrationMock).createMock()
+	set contextData.currencyID = 1
+	set elementIdentifier = "proweb-1"
+	
+	set storage = ##class(sc.facade.prowebItemStorageInputElementMock).createNew()
+	set storage.prowebID = "1"
+	set storage.databaseItemName = "MYRADIO"
+	set storage.inputType = "radiobutton"
+	set storage.labelText = "Please select your option"
+	
+	set alternative = ##class(sc.facade.prowebItemStorageInputElementAlternativeMock).createMock("option 1", "option 1",1,666)
+	do storage.listOfAlternatives.Insert( alternative)
+	set alternative = ##class(sc.facade.prowebItemStorageInputElementAlternativeMock).createMock("option 2", "option 2")
+	do storage.listOfAlternatives.Insert( alternative)
+	set alternative = ##class(sc.facade.prowebItemStorageInputElementAlternativeMock).createMock("option 3", "option 3")
+	do storage.listOfAlternatives.Insert( alternative)
+	
+	set prowebItem = ##class(sc.facade.prowebItem).createNew(storage)
+	do contextData.listOfProwebItemsToAdd.Insert(prowebItem)
+
+	set pageController = ##class(EF.pageController.pagesFrontend.registration).createNew(contextData,,,eventConfiguration)
+		
+	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(pageController,"renderComponent", "unit test")
+	set returnedHTML = $ZStrip(returnedHTML,"*WC")
+	set expectedHTML = "<divclass=""rowef-form-row""><divclass=""form-group""><divclass=""col-sm-4ef-label-containeref-label-container-vertical-group""><labelid=""ef-display-label-MYRADIO""class=""control-labelef-control-label""for=""MYRADIO"">Pleaseselectyouroption</label></div><divclass=""col-sm-8ef-input-containeref-radio-group""><divclass=""ef-input""><divclass=""ef-radio-button""><labelclass=""ef-control-labelactive""class=""ef-radio-button""id=""MYRADIO_1-label""><inputtype=""radio""checkedclass=""ef-radio-button""value=""option1""name=""MYRADIO""id=""MYRADIO_1"">&nbsp;option1&nbsp;&nbsp;</label></div><divclass=""ef-radio-button""><labelclass=""ef-control-label""class=""ef-radio-button""id=""MYRADIO_2-label""><inputtype=""radio""class=""ef-radio-button""value=""option2""name=""MYRADIO""id=""MYRADIO_2"">&nbsp;option2</label></div><divclass=""ef-radio-button""><labelclass=""ef-control-label""class=""ef-radio-button""id=""MYRADIO_3-label""><inputtype=""radio""class=""ef-radio-button""value=""option3""name=""MYRADIO""id=""MYRADIO_3"">&nbsp;option3</label></div></div></div></div></div>"
+	do $$$AssertEquals(returnedHTML,expectedHTML)
+]]></Implementation>
+</Method>
+
+<Method name="TestWithRadioButtons">
+<Implementation><![CDATA[
+	set eventConfiguration = ##class(setup.eventConfiguration.storageMock).createEventConfiguration()
+
+	set contextData = ##class(EF.contextDataRegistrationMock).createMock()
+	set elementIdentifier = "proweb-1"
+	
+	set storage = ##class(sc.facade.prowebItemStorageInputElementMock).createNew()
+	set storage.prowebID = "1"
+	set storage.databaseItemName = "MYRADIO"
+	set storage.inputType = "radiobutton"
+	set storage.labelText = "Please select your option"
+	
+	set alternative = ##class(sc.facade.prowebItemStorageInputElementAlternativeMock).createMock("option 1", "option 1")
+	do storage.listOfAlternatives.Insert( alternative)
+	set alternative = ##class(sc.facade.prowebItemStorageInputElementAlternativeMock).createMock("option 2", "option 2")
+	do storage.listOfAlternatives.Insert( alternative)
+	set alternative = ##class(sc.facade.prowebItemStorageInputElementAlternativeMock).createMock("option 3", "option 3")
+	do storage.listOfAlternatives.Insert( alternative)
+	
+
+	set prowebItem = ##class(sc.facade.prowebItem).createNew(storage)
+	do contextData.listOfProwebItemsToAdd.Insert(prowebItem)
+
+	set pageController = ##class(EF.pageController.pagesFrontend.registration).createNew(contextData,,,eventConfiguration)
+		
+	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(pageController,"renderComponent", "unit test")
+	set returnedHTML = $ZStrip(returnedHTML,"*WC")
+	set expectedHTML = "<divclass=""rowef-form-row""><divclass=""form-group""><divclass=""col-sm-4ef-label-containeref-label-container-vertical-group""><labelid=""ef-display-label-MYRADIO""class=""control-labelef-control-label""for=""MYRADIO"">Pleaseselectyouroption</label></div><divclass=""col-sm-8ef-input-containeref-radio-group""><divclass=""ef-input""><divclass=""ef-radio-button""><labelclass=""ef-control-labelactive""class=""ef-radio-button""id=""MYRADIO_1-label""><inputtype=""radio""checkedclass=""ef-radio-button""value=""option1""name=""MYRADIO""id=""MYRADIO_1"">&nbsp;option1</label></div><divclass=""ef-radio-button""><labelclass=""ef-control-label""class=""ef-radio-button""id=""MYRADIO_2-label""><inputtype=""radio""class=""ef-radio-button""value=""option2""name=""MYRADIO""id=""MYRADIO_2"">&nbsp;option2</label></div><divclass=""ef-radio-button""><labelclass=""ef-control-label""class=""ef-radio-button""id=""MYRADIO_3-label""><inputtype=""radio""class=""ef-radio-button""value=""option3""name=""MYRADIO""id=""MYRADIO_3"">&nbsp;option3</label></div></div></div></div></div>"
+	do $$$AssertEquals(returnedHTML,expectedHTML)
+]]></Implementation>
+</Method>
+</Class>
+
+
+<Class name="EF.pageController.proweb.testCases.textAreaTestCase">
+<Super>EF.ISC.UnitTest.TestCase</Super>
+<TimeChanged>64265,59409.002907</TimeChanged>
+<TimeCreated>64204,52770.974784</TimeCreated>
+
+<Method name="TestTextArea">
+<Implementation><![CDATA[
+	set eventConfiguration = ##class(setup.eventConfiguration.storageMock).createEventConfiguration()
+	
+	set contextData = ##class(EF.contextDataRegistrationMock).createMock()
+	set contextData.isBackendBooking = 1
+	set contextData.prowebMode = "preview"
+	
+	set storage = ##class(sc.facade.prowebItemStorageInputElementMock).createNew()
+	set storage.prowebID = "1"
+	set storage.databaseItemName = "mytext"
+	set storage.inputType = "textarea"
+	set storage.labelText = "Please enter your essay"
+	set storage.testValue = "LOREM IPSUM"
+	
+	
+	set prowebItem = ##class(sc.facade.prowebItem).createNew(storage)
+	do contextData.listOfProwebItemsToAdd.Insert(prowebItem)
+
+	set pageController = ##class(EF.pageController.pagesFrontend.registration).createNew(contextData,,,eventConfiguration)
+	
+	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(pageController,"renderComponent", "unit test")
+	set returnedHTML = $ZStrip(returnedHTML,"*WC")
+	set expectedHTML = "<divclass=""rowef-form-row""><divclass=""form-group""><divclass=""col-sm-4ef-label-container""><labelid=""ef-display-label-mytext""class=""control-labelef-control-label""for=""mytext"">Pleaseenteryouressay</label></div><divclass=""col-sm-8ef-input-container""><textareatype=""text""class=""ef-inputform-controlef-input-text-area""title=""""id=""mytext""name=""mytext""rows=""""placeholder="""">LOREMIPSUM</textArea></div></div></div>"
+	do $$$AssertEquals(returnedHTML,expectedHTML)
+]]></Implementation>
+</Method>
+</Class>
+
+
+<Class name="EF.pageController.proweb.testCases.textBlockTestCase">
+<Super>EF.ISC.UnitTest.TestCase</Super>
+<TimeChanged>64259,40849.82255</TimeChanged>
+<TimeCreated>64204,52784.358512</TimeCreated>
+
+<Method name="TestBasicPageWithTextBlock">
+<Implementation><![CDATA[
+	set eventConfiguration = ##class(setup.eventConfiguration.storageMock).createEventConfiguration()
+	
+	set contextData = ##class(EF.contextDataRegistrationMock).createMock()
+	set contextData.isBackendBooking = 1
+	set contextData.prowebMode = "preview"
+	
+	set storage = ##class(sc.facade.prowebItemStorageTextBlockMock).createNew()
+	set storage.prowebID = "1"
+	set storage.text = "LOREM IPSUM"
+	
+	
+	set prowebItem = ##class(sc.facade.prowebItem).createNew(storage)
+	do contextData.listOfProwebItemsToAdd.Insert(prowebItem)
+
+	set pageController = ##class(EF.pageController.pagesFrontend.registration).createNew(contextData,,,eventConfiguration)
+	
+	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(pageController,"renderComponent", "unit test")
+	set returnedHTML = $ZStrip(returnedHTML,"*WC")
+	set expectedHTML = "<divclass=""rowef-form-row""><divclass=""form-group""><divclass=""col-sm-12""><divclass=""ef-text-block"">LOREMIPSUM</div></div></div></div>"
+	do $$$AssertEquals(returnedHTML,expectedHTML)
+]]></Implementation>
+</Method>
+</Class>
+
+
+<Class name="EF.pageController.proweb.testCases.textInputTestCase">
+<Super>EF.ISC.UnitTest.TestCase</Super>
+<TimeChanged>64266,50767.916796</TimeChanged>
+<TimeCreated>64204,52795.592181</TimeCreated>
+
+<Method name="TestbasicInputField">
+<Implementation><![CDATA[
+	set eventConfiguration = ##class(setup.eventConfiguration.storageMock).createEventConfiguration()
+	
+	set contextData = ##class(EF.contextDataRegistrationMock).createMock()
+	set contextData.prowebMode = "preview"
+	
+	set storage = ##class(sc.facade.prowebItemStorageInputElementMock).createNew()
+	set storage.prowebID = "1"
+	set storage.databaseItemName = "name"
+	set storage.inputType = "text"
+	set storage.labelText = "Please enter your name"
+	
+	
+	set prowebItem = ##class(sc.facade.prowebItem).createNew(storage)
+	do contextData.listOfProwebItemsToAdd.Insert(prowebItem)
+
+	set pageController = ##class(EF.pageController.pagesFrontend.registration).createNew(contextData,,,eventConfiguration)
+	
+	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(pageController,"renderComponent", "unit test")
+	set returnedHTML = $ZStrip(returnedHTML,"*WC")
+	set expectedHTML = "<divclass=""rowef-form-row""><divclass=""form-group""><divclass=""col-sm-4ef-label-container""><labelid=""ef-display-label-name""class=""control-labelef-control-label""for=""name"">Pleaseenteryourname</label></div><divclass=""col-sm-8ef-input-container""><inputtype=""text""class=""ef-inputform-controlef-input-text-field""title=""""id=""name""name=""name""value=""""placeholder=""""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;Pleaseenteryourname\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""autofocus=""autofocus""0></div></div></div>"
+	do $$$AssertEquals(returnedHTML,expectedHTML)
+]]></Implementation>
+</Method>
+
+<Method name="TestHelpText">
+<Implementation><![CDATA[
+	set eventConfiguration = ##class(setup.eventConfiguration.storageMock).createEventConfiguration()
+	
+	set contextData = ##class(EF.contextDataRegistrationMock).createMock()
+	set contextData.prowebMode = "preview"
+	
+	set storage = ##class(sc.facade.prowebItemStorageInputElementMock).createNew()
+	set storage.prowebID = "1"
+	set storage.databaseItemName = "name"
+	set storage.inputType = "text"
+	set storage.labelText = "Please enter your name"
+	set storage.helpText = "Help me!"
+	
+	
+	set prowebItem = ##class(sc.facade.prowebItem).createNew(storage)
+	do contextData.listOfProwebItemsToAdd.Insert(prowebItem)
+
+	set pageController = ##class(EF.pageController.pagesFrontend.registration).createNew(contextData,,,eventConfiguration)
+	
+	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(pageController,"renderComponent", "unit test")
+	set returnedHTML = $ZStrip(returnedHTML,"*WC")
+	set expectedHTML = "<divclass=""rowef-form-row""><divclass=""form-group""><divclass=""col-sm-4ef-label-container""><labelid=""ef-display-label-name""class=""control-labelef-control-label""for=""name"">Pleaseenteryourname</label></div><divclass=""col-sm-8ef-input-container""><inputtype=""text""class=""ef-inputform-controlef-input-text-field""title=""""id=""name""name=""name""value=""""placeholder=""""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;Pleaseenteryourname\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""autofocus=""autofocus""0><spanclass=""glyphiconglyphicon-question-signef-help-icon""title=""Helpme!""></span></div></div></div>"
+	do $$$AssertEquals(returnedHTML,expectedHTML)
+]]></Implementation>
+</Method>
+
+<Method name="TestAriaLabel">
+<Implementation><![CDATA[
+	set eventConfiguration = ##class(setup.eventConfiguration.storageMock).createEventConfiguration()
+	
+	set contextData = ##class(EF.contextDataRegistrationMock).createMock()
+	set contextData.prowebMode = "preview"
+	
+	set storage = ##class(sc.facade.prowebItemStorageInputElementMock).createNew()
+	set storage.prowebID = "1"
+	set storage.databaseItemName = "name"
+	set storage.inputType = "text"
+	set storage.labelText = ""
+
+	
+	set prowebItem = ##class(sc.facade.prowebItem).createNew(storage)
+	do contextData.listOfProwebItemsToAdd.Insert(prowebItem)
+
+	set pageController = ##class(EF.pageController.pagesFrontend.registration).createNew(contextData,,,eventConfiguration)
+	
+	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(pageController,"renderComponent", "unit test")
+	set returnedHTML = $ZStrip(returnedHTML,"*WC")
+	set expectedHTML = "<divclass=""rowef-form-row""><divclass=""form-group""><divclass=""col-sm-4ef-label-container""></div><divclass=""col-sm-8ef-input-container""><inputtype=""text""class=""ef-inputform-controlef-input-text-field""title=""""id=""name""name=""name""value=""""placeholder=""""aria-label=""name""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""autofocus=""autofocus""0></div></div></div>"
+	do $$$AssertEquals(returnedHTML,expectedHTML)
+]]></Implementation>
+</Method>
+
+<Method name="TestBasicPageWithMandatoryTextField">
+<Implementation><![CDATA[
+	set eventConfiguration = ##class(setup.eventConfiguration.storageMock).createEventConfiguration()
+	
+	set contextData = ##class(EF.contextDataRegistrationMock).createMock()
+	set contextData.prowebMode = "preview"
+	
+	set storage = ##class(sc.facade.prowebItemStorageInputElementMock).createNew()
+	set storage.prowebID = "1"
+	set storage.databaseItemName = "name"
+	set storage.inputType = "text"
+	set storage.labelText = "Please enter your name"
+	set storage.isMandatory = 1
+	
+	set prowebItem = ##class(sc.facade.prowebItem).createNew(storage)
+	do contextData.listOfProwebItemsToAdd.Insert(prowebItem)
+
+	set pageController = ##class(EF.pageController.pagesFrontend.registration).createNew(contextData,,,eventConfiguration)
+	
+	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(pageController,"renderComponent", "unit test")
+	set returnedHTML = $ZStrip(returnedHTML,"*WC")
+	set expectedHTML = "<divclass=""rowef-form-row""><divclass=""form-group""><divclass=""col-sm-4ef-label-container""><labelid=""ef-display-label-name""class=""control-labelef-control-labelef-required-field""for=""name"">Pleaseenteryourname</label></div><divclass=""col-sm-8ef-input-container""><inputtype=""text""class=""ef-inputform-controlef-input-text-field""title=""""id=""name""name=""name""value=""""placeholder=""""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;Pleaseenteryourname\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""autofocus=""autofocus""0></div></div></div>"
+	do $$$AssertEquals(returnedHTML,expectedHTML)
+]]></Implementation>
+</Method>
+
+<Method name="TestBackendOnlyFieldAsBackendBooking">
+<Implementation><![CDATA[
+	set eventConfiguration = ##class(setup.eventConfiguration.storageMock).createEventConfiguration()
+	
+	set contextData = ##class(EF.contextDataRegistrationMock).createMock()
+	set contextData.isBackendBooking = 1
+	set contextData.prowebMode = "preview"
+	
+	set storage = ##class(sc.facade.prowebItemStorageInputElementMock).createNew()
+	set storage.prowebID = "1"
+	set storage.databaseItemName = "name"
+	set storage.inputType = "text"
+	set storage.labelText = "Please enter your name"
+	set storage.isMandatory = 1
+	set storage.isBackendOnly = 1
+	
+	set prowebItem = ##class(sc.facade.prowebItem).createNew(storage)
+	do contextData.listOfProwebItemsToAdd.Insert(prowebItem)
+
+	set pageController = ##class(EF.pageController.pagesFrontend.registration).createNew(contextData,,,eventConfiguration)
+	
+	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(pageController,"renderComponent", "unit test")
+	set returnedHTML = $ZStrip(returnedHTML,"*WC")
+	set expectedHTML = "<divclass=""rowef-form-row""><divclass=""form-group""><divclass=""col-sm-4ef-label-container""><labelid=""ef-display-label-name""class=""control-labelef-control-labelef-required-field""for=""name"">Pleaseenteryourname</label></div><divclass=""col-sm-8ef-input-container""><inputtype=""text""class=""ef-inputform-controlef-input-text-fieldef-admin-only""title=""""id=""name""name=""name""value=""""placeholder=""(Adminportalonly)""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;Pleaseenteryourname\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""autofocus=""autofocus""0></div></div></div>"
+	do $$$AssertEquals(returnedHTML,expectedHTML)
+]]></Implementation>
+</Method>
+
+<Method name="TestBackendOnlyFieldAsFrontendBooking">
+<Implementation><![CDATA[
+	set eventConfiguration = ##class(setup.eventConfiguration.storageMock).createEventConfiguration()
+	
+	set contextData = ##class(EF.contextDataRegistrationMock).createMock()
+	set contextData.isBackendBooking = 0
+	set contextData.prowebMode = "preview"
+	
+	set storage = ##class(sc.facade.prowebItemStorageInputElementMock).createNew()
+	set storage.prowebID = "1"
+	set storage.databaseItemName = "name"
+	set storage.inputType = "text"
+	set storage.labelText = "Please enter your name"
+	set storage.isMandatory = 1
+	set storage.isBackendOnly = 1
+	
+	set prowebItem = ##class(sc.facade.prowebItem).createNew(storage)
+	do contextData.listOfProwebItemsToAdd.Insert(prowebItem)
+
+	set pageController = ##class(EF.pageController.pagesFrontend.registration).createNew(contextData,,,eventConfiguration)
+	
+	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(pageController,"renderComponent", "unit test")
+	set returnedHTML = $ZStrip(returnedHTML,"*WC")
+	set expectedHTML = ""
+	do $$$AssertEquals(returnedHTML,expectedHTML)
+]]></Implementation>
+</Method>
+
+<Method name="TestBackendOnlyFieldInEditMode">
+<Implementation><![CDATA[
+	set eventConfiguration = ##class(setup.eventConfiguration.storageMock).createEventConfiguration()
+	
+	set contextData = ##class(EF.contextDataRegistrationMock).createMock()
+	set contextData.isBackendBooking = 0
+	set contextData.prowebMode = "edit"
+
+	set storage = ##class(sc.facade.prowebItemStorageInputElementMock).createNew()
+	set storage.prowebID = "1"
+	set storage.databaseItemName = "name"
+	set storage.inputType = "text"
+	set storage.labelText = "Please enter your name"
+	set storage.isBackendOnly = 1
+	
+	set prowebItem = ##class(sc.facade.prowebItem).createNew(storage)
+	do contextData.listOfProwebItemsToAdd.Insert(prowebItem)
+
+	set pageController = ##class(EF.pageController.pagesFrontend.registration).createNew(contextData,,,eventConfiguration)
+	
+	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(pageController,"renderComponent", "unit test")
+	set returnedHTML = $ZStrip(returnedHTML,"*WC")
+	set expectedHTML = "<divclass=""rowef-draggable-divef-form-rowef-form-row-editable""id=""ef-field-proweb-1""data-proweb-id=""1""data-proweb-list-id=""""data-ui-component-type=""textInput""data-proweb-allowed-types=""Text""><divclass=""col-sm-4ef-label-container""><labelid=""ef-display-label-name""class=""control-labelef-control-label""for=""name"">Pleaseenteryourname</label><divclass=""ef-proweb-direct-label-edit""style=""display:none;""id=""ef-edit-label-input-name""data-proweb-id=""1""><inputclass=""ef-control-label""id=""quick-edit-name""type=""text""value=""Pleaseenteryourname""></div></div><divclass=""col-sm-8ef-input-container""><inputtype=""text""class=""ef-inputform-controlef-input-text-fieldef-admin-only""title=""""id=""name""name=""name""value=""""placeholder=""(Adminportalonly)""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;Pleaseenteryourname\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""0></div></div></div>"
+	do $$$AssertEquals(returnedHTML,expectedHTML)
+]]></Implementation>
+</Method>
+
+<Method name="TestReadOnlyField">
+<Implementation><![CDATA[
+	set eventConfiguration = ##class(setup.eventConfiguration.storageMock).createEventConfiguration()
+	
+	set contextData = ##class(EF.contextDataRegistrationMock).createMock()
+
+	set storage = ##class(sc.facade.prowebItemStorageInputElementMock).createNew()
+	set storage.prowebID = "1"
+	set storage.databaseItemName = "name"
+	set storage.inputType = "text"
+	set storage.labelText = "Please enter your name"
+	set storage.isReadOnly = 1
+	
+	set prowebItem = ##class(sc.facade.prowebItem).createNew(storage)
+	do contextData.listOfProwebItemsToAdd.Insert(prowebItem)
+
+	set pageController = ##class(EF.pageController.pagesFrontend.registration).createNew(contextData,,,eventConfiguration)
+	
+	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(pageController,"renderComponent", "unit test")
+	set returnedHTML = $ZStrip(returnedHTML,"*WC")
+	set expectedHTML = "<divclass=""rowef-form-row""><divclass=""form-group""><divclass=""col-sm-4ef-label-container""><labelid=""ef-display-label-name""class=""control-labelef-control-label""for=""name"">Pleaseenteryourname</label></div><divclass=""col-sm-8ef-input-container""><inputtype=""text""class=""ef-inputform-controlef-input-text-field""disabled='disabled'title=""""id=""name""name=""name""value=""""placeholder=""""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;Pleaseenteryourname\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""autofocus=""autofocus""0></div></div></div>"
+	do $$$AssertEquals(returnedHTML,expectedHTML)
+]]></Implementation>
+</Method>
+
+<Method name="TestDefaultvalue">
+<Implementation><![CDATA[
+	set eventConfiguration = ##class(setup.eventConfiguration.storageMock).createEventConfiguration()
+	
+	set contextData = ##class(EF.contextDataRegistrationMock).createMock()
+
+	set storage = ##class(sc.facade.prowebItemStorageInputElementMock).createNew()
+	set storage.prowebID = "1"
+	set storage.databaseItemName = "name"
+	set storage.inputType = "text"
+	set storage.labelText = "Please enter your name"
+	set storage.defaultValue = "Elvis, of course!"
+	
+	set prowebItem = ##class(sc.facade.prowebItem).createNew(storage)
+	do contextData.listOfProwebItemsToAdd.Insert(prowebItem)
+
+	set pageController = ##class(EF.pageController.pagesFrontend.registration).createNew(contextData,,,eventConfiguration)
+	
+	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(pageController,"renderComponent", "unit test")
+	set returnedHTML = $ZStrip(returnedHTML,"*WC")
+	set expectedHTML = "<divclass=""rowef-form-row""><divclass=""form-group""><divclass=""col-sm-4ef-label-container""><labelid=""ef-display-label-name""class=""control-labelef-control-label""for=""name"">Pleaseenteryourname</label></div><divclass=""col-sm-8ef-input-container""><inputtype=""text""class=""ef-inputform-controlef-input-text-field""title=""""id=""name""name=""name""value=""""placeholder=""""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;Pleaseenteryourname\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""autofocus=""autofocus""0></div></div></div>"
+	do $$$AssertEquals(returnedHTML,expectedHTML)
+]]></Implementation>
+</Method>
+</Class>
+
+
+<Class name="EF.pageController.proweb.testCases.timeInputTestCase">
+<Super>EF.ISC.UnitTest.TestCase</Super>
+<TimeChanged>64266,50862.242017</TimeChanged>
+<TimeCreated>64204,52806.787409</TimeCreated>
+
+<Method name="TestTime">
+<Implementation><![CDATA[
+	set eventConfiguration = ##class(setup.eventConfiguration.storageMock).createEventConfiguration()
+	
+	set contextData = ##class(EF.contextDataRegistrationMock).createMock()
+
+	set storage = ##class(sc.facade.prowebItemStorageInputElementMock).createNew()
+	set storage.prowebID = "1"
+	set storage.databaseItemName = "name"
+	set storage.inputType = "time"
+	set storage.labelText = "Please enter your time"
+
+	
+	set prowebItem = ##class(sc.facade.prowebItem).createNew(storage)
+	do contextData.listOfProwebItemsToAdd.Insert(prowebItem)
+
+	set pageController = ##class(EF.pageController.pagesFrontend.registration).createNew(contextData,,,eventConfiguration)
+	
+	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(pageController,"renderComponent", "unit test")
+	set returnedHTML = $ZStrip(returnedHTML,"*WC")
+	set expectedHTML = "<divclass=""rowef-form-row""><divclass=""form-group""><divclass=""col-sm-4ef-label-container""><labelid=""ef-display-label-name""class=""control-labelef-control-label""for=""name"">Pleaseenteryourtime</label></div><divclass=""col-sm-8ef-input-container""><divstyle=""width:40%""class=""ef-time-pickeref_proweb_form_field_container_type_timeef-kendo-form-control""><inputtype=""text""class=""ef-time-pickeref_proweb_form_field_container_type_timeef-kendo-form-controlefTimePicker""title=""""id=""name""name=""name""value=""""placeholder=""HH:MM24hour""autofocus=""autofocus""efKendoTimeFormat=""24""efKendoTimeInterval=15style=""width:100%;""></div></div></div>"
+	do $$$AssertEquals(returnedHTML,expectedHTML)
+]]></Implementation>
+</Method>
+</Class>
+
+
+<Class name="EF.pageController.proweb.testCases.webAddressTestCase">
+<Super>EF.ISC.UnitTest.TestCase</Super>
+<TimeChanged>64266,50886.721998</TimeChanged>
+<TimeCreated>64204,51604.334511</TimeCreated>
+
+<Method name="TestWebAddress">
+<Implementation><![CDATA[
+	set eventConfiguration = ##class(setup.eventConfiguration.storageMock).createEventConfiguration()
+	
+	set contextData = ##class(EF.contextDataRegistrationMock).createMock()
+
+	set storage = ##class(sc.facade.prowebItemStorageInputElementMock).createNew()
+	set storage.prowebID = "1"
+	set storage.databaseItemName = "url"
+	set storage.inputType = "webAddress"
+	set storage.labelText = "Please enter your URL"
+
+	
+	set prowebItem = ##class(sc.facade.prowebItem).createNew(storage)
+	do contextData.listOfProwebItemsToAdd.Insert(prowebItem)
+
+	set pageController = ##class(EF.pageController.pagesFrontend.registration).createNew(contextData,,,eventConfiguration)
+	
+	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(pageController,"renderComponent", "unit test")
+	set returnedHTML = $ZStrip(returnedHTML,"*WC")
+	set expectedHTML = "<divclass=""rowef-form-row""><divclass=""form-group""><divclass=""col-sm-4ef-label-container""><labelid=""ef-display-label-url""class=""control-labelef-control-label""for=""url"">PleaseenteryourURL</label></div><divclass=""col-sm-8ef-input-container""><inputtype=""url""class=""ef-inputform-controlef-input-text-field""title=""""id=""url""name=""url""value=""""placeholder=""""pattern=""^(?:https?:\/\/)?(?:\S+(?::\S*)?@)?(?:(?:[1-9]\d?|1\d\d|2[01]\d|22[0-3])(?:\.(?:1?\d{1,2}|2[0-4]\d|25[0-5])){2}(?:\.(?:[1-9]\d?|1\d\d|2[0-4]\d|25[0-4]))|(?:(?:[a-z\u00a1-\uffff0-9]+-?)*[a-z\u00a1-\uffff0-9]+)(?:\.(?:[a-z\u00a1-\uffff0-9]+-?)*[a-z\u00a1-\uffff0-9]+)*(?:\.(?:[a-z\u00a1-\uffff]{2,})))(?::\d{2,5})?(?:\/.*)?$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;PleaseenteryourURL\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""autofocus=""autofocus""0></div></div></div>"
+	do $$$AssertEquals(returnedHTML,expectedHTML)
+]]></Implementation>
+</Method>
+</Class>
+
+
+<Class name="EF.pageController.proweb.testCases.youTubeVideoTestCase">
+<Super>EF.ISC.UnitTest.TestCase</Super>
+<TimeChanged>64259,41518.456643</TimeChanged>
+<TimeCreated>64208,59801.380137</TimeCreated>
+
+<Method name="TestYouTubeVideo">
+<Implementation><![CDATA[
+	set eventConfiguration = ##class(setup.eventConfiguration.storageMock).createEventConfiguration()
+	
+	set contextData = ##class(EF.contextDataRegistrationMock).createMock()
+
+	set storage = ##class(sc.facade.prowebItemStorageYouTubeVideoMock).createNew()
+	set storage.prowebID = "1"
+	
+	set prowebItem = ##class(sc.facade.prowebItem).createNew(storage)
+	do contextData.listOfProwebItemsToAdd.Insert(prowebItem)
+
+	set pageController = ##class(EF.pageController.pagesFrontend.registration).createNew(contextData,,,eventConfiguration)
+	
+	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(pageController,"renderComponent", "unit test")
+	set returnedHTML = $ZStrip(returnedHTML,"*WC")
+	set expectedHTML = "<divclass=""rowef-form-row""><divclass=""form-group""><divclass=""col-sm-12""><divclass=""ef-video""><objectclassid=""clsid:D27CDB6E-AE6D-11cf-96B8-444553540000""codebase=""//download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=5,0,0,0""width=800height=600><paramname=movievalue=""https://www.youtube.com/watch?feature=player_embedded&v=sJ363mnyHEk""><paramname=qualityvalue=high><paramname=wmodevalue=transparent><paramname=""LOOP""value=""1""><paramname=""menu""value=""false""><embedsrc=""//www.youtube.com/v/sJ363mnyHEk?fs=1&amp;hl=en_GB""wmode=transparentquality=highpluginspage=""//www.macromedia.com/shockwave/download/index.cgi?P1_Prod_Version=ShockwaveFlash""type=""application/x-shockwave-flash""loop=""true""width=600height=360></embed></object></div></div></div></div>"
+	do $$$AssertEquals(returnedHTML,expectedHTML)
+]]></Implementation>
+</Method>
+</Class>
+</Export>

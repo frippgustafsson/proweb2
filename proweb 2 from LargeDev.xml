@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.2 (Build 736U)" ts="2016-12-15 11:23:54">
+<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.2 (Build 736U)" ts="2017-01-04 14:08:55">
 <Class name="EF.contextDataFrontend">
 <Description><![CDATA[
 <!-- ;vc;-
@@ -9174,7 +9174,7 @@ function changeLang(newLangID) {
 	
 	do ##class(sc.methods).updateBackendVariablesFromPageID(pageID)
 	
-	do ##class(sc.proweb2methods).savePassedInDesiredPositionToSession()
+	do ##class(sc.objData).saveDesiredPositionFromRequestToSession()
 	set groupID=##class(sc.objData).getParentID(pageID)
 	
 	// switch to the org data to enable edit when having multi-stage workflow
@@ -9786,15 +9786,10 @@ function loadItem(itemNameID) {
 								<td class="black10px" colspan="3" style="padding-left: 2px;">
 									<textarea name="txtPrompt" class="black10px" style="width: 292px; height: 40px; padding-left: 4px; padding-top: 4px;">#(..encodeHTMLContentForTinyMCETextarea(prompt))#</textarea>
 								</td><td valign="top">
-									<script language="cache" runat="server">
-										set allowHtmlEditing = 0
-									</script>
-									<csp:if condition=(allowHtmlEditing)>
-										<csp:if condition=((itemNameID="NEW")!(itemNameID="CREATE"))>
-											<img src="../../media/images/English/Default/backend/advanced.gif" alt="advanced"  border="0" style="filter: alpha(opacity=35); opacity: 0.35;" title="You must save the database item before you can edit the question text.">
-										<csp:else>
-											<a href="javascript: popup('question');"><img src="../../media/images/English/Default/backend/advanced.gif" alt="advanced" border="0"></a>
-										</csp:if>
+									<csp:if condition=((itemNameID="NEW")!(itemNameID="CREATE"))>
+										<img src="../../media/images/English/Default/backend/advanced.gif" alt="advanced"  border="0" style="filter: alpha(opacity=35); opacity: 0.35;" title="You must save the database item before you can edit the question text.">
+									<csp:else>
+										<a href="javascript: popup('question');"><img src="../../media/images/English/Default/backend/advanced.gif" alt="advanced" border="0"></a>
 									</csp:if>
 								</td>
 							</tr>
@@ -12709,7 +12704,7 @@ function saveSameAs(categoryID) {
 				&SQL(UPDATE sc_xModules.objCODitem SET displayOrder = :lastPos + 1 WHERE ID = :dataID)
 			}
 		} else {
-			do ##class(sc.proweb2methods).moveNewElementToDesiredPosition(dataID)				
+			do ##class(sc.objData).moveNewElementToDesiredPosition(dataID)				
 		}
 		
 
@@ -14157,7 +14152,7 @@ function saveSameAs(categoryID) {
 	}
 	set %session.Data("dataID")=dataID
 	
-	do ##class(sc.proweb2methods).savePassedInDesiredPositionToSession()
+	do ##class(sc.objData).saveDesiredPositionFromRequestToSession()
 	
 	set templateURL=%request.Get("templateURL")	
 	if templateURL="" set templateURL=%session.Get("templateURL")
@@ -15213,7 +15208,7 @@ function popup(type) {
 				&SQL(UPDATE sc_xModules.objFileUpload SET displayOrder = :lastPos + 1 WHERE ID = :dataID)
 			}
 		} else {
-			do ##class(sc.proweb2methods).moveNewElementToDesiredPosition(dataID)	
+			do ##class(sc.objData).moveNewElementToDesiredPosition(dataID)	
 		}
 	} else {  
 		// existing objData
@@ -15312,7 +15307,7 @@ function popup(type) {
 	if dataID="" set dataID=%session.Get("dataID")
 	set %session.Data("dataID")=dataID
 	
-	do ##class(sc.proweb2methods).savePassedInDesiredPositionToSession()
+	do ##class(sc.objData).saveDesiredPositionFromRequestToSession()
 	
 	set orgDataID=%request.Get("orgDataID") // used when creating a new version of a data item
 	if orgDataID="" set orgDataID=%session.Get("orgDataID")
@@ -15860,7 +15855,7 @@ function cancelUpdate() {
 		 set comments="created"
 		 &SQL(INSERT INTO sc.objAuditTrail (description,objData,objUser) VALUES (:comments,:dataID,:userID))
 			
-    	 do ##class(sc.proweb2methods).moveNewElementToDesiredPosition(dataID)	
+    	 do ##class(sc.objData).moveNewElementToDesiredPosition(dataID)	
 		 
 	} else {
 		// open existing
@@ -15977,9 +15972,9 @@ function cancelUpdate() {
 <CSP name="backEnd/proweb/formDivider.csp" application="/largedevsrc/" default="1"><![CDATA[
 <csp:class encoded="1" private="1">
 <script language="CACHE" method="OnPreHTTPafter" arguments="" returntype="%Boolean">
-	do ##class(sc.proweb2methods).savePassedInDesiredPositionToSession()
+	do ##class(sc.objData).saveDesiredPositionFromRequestToSession()
 	set dataID = ##class(sc.xModules.objFormDivider).add(%request.Get("parent"),%request.Get("position"))
-	do ##class(sc.proweb2methods).moveNewElementToDesiredPosition(dataID)
+	do ##class(sc.objData).moveNewElementToDesiredPosition(dataID)
 	set %response.Redirect="../../proweb/frontend/start.csp?mode=edit&version=current&pageID="_$G(%session.Data("pageID"))			
 				
 	quit 0
@@ -16214,7 +16209,7 @@ function cancelUpdate() {
 	kill %session.Data("moxieDataID")
 	kill %session.Data("isCOD")
 	
-	do ##class(sc.proweb2methods).savePassedInDesiredPositionToSession()
+	do ##class(sc.objData).saveDesiredPositionFromRequestToSession(%request, %session)
 	&SQL(SELECT layoutObjTemplate->styleSource INTO :styleSource FROM setup.objEvent WHERE ID = :xEventID)
 	
 	set dataID=%request.Get("dataID")
@@ -16908,7 +16903,7 @@ function updateAlts(codPromptID) {
 	}
 
 	do objData.%Close()	
-	do ##class(sc.proweb2methods).moveNewElementToDesiredPosition(dataID)
+	do ##class(sc.objData).moveNewElementToDesiredPosition(dataID)
 
 	// kill all category links and save
 	// - do this in method so it can compile without class
@@ -18075,18 +18070,20 @@ function updateAlts(codPromptID) {
 <link href="../../media/templates/ALL_CLIENTS/EF_theme_standard_design-v2-08/template-styles.css" rel="stylesheet">
   [[ef_header]]
 <div class="container ef-template-container">
-		<div class="jumbotron" role="banner">
-			[[ef_banner]]
-		</div><!-- /.jumbotron -->
-		<div class="row" role="navigation">
+		<div class="row ef-template-navigation" role="navigation">
         	<div class="col-sm-12">
 				[[ef_menu]]
 			</div>
 		</div>
-		<div class="row" role="main">
+		<div class="jumbotron" role="banner">
+			[[ef_banner]]
+		</div>
+		<div class="row ef-template-main" role="main">
         	<div class="col-sm-12">
 				[[ef_main_progress]]
-				[[ef_main_header]]
+				<div class="ef-page-peader">
+					[[ef_main_header]]
+				</div>
 				[[ef_main_content]]
 				[[ef_main_buttons]]
 			</div>
@@ -18106,9 +18103,21 @@ function updateAlts(codPromptID) {
 
 
 /* Navigation */
+.ef-menu-block-button {
+    padding-left: 40px;   
+}
+
+// position the small viewfinder dropdown menu
+.ef-menu-block-ul-xs {
+    margin-left: 30px;
+    margin-top: 0px;
+    padding: 0px;
+}
+
+// format the large viewfinder menu
 .ef-menu-block-ul {
     font-size: 0;
-    padding: 0;
+    padding-left: 40px;
     margin: 0;
     border: 0;
     list-style: none;
@@ -24627,7 +24636,7 @@ Returns true if the template is custom made</Description>
 </Class>
 
 
-<Project name="proweb 2" LastModified="2016-12-14 17:13:45.492731" Target="largedevsrc/backEnd/home/login.csp" TargetType="3">
+<Project name="proweb 2" LastModified="2016-12-23 09:03:58.823784" Target="largedevsrc/backEnd/home/login.csp" TargetType="3">
   <Items>
     <ProjectItem name="EF.contextDataFrontend" type="CLS"></ProjectItem>
     <ProjectItem name="EF.contextDataRegistration" type="CLS"></ProjectItem>
@@ -26741,18 +26750,18 @@ Index for property description</Description>
 <Description><![CDATA[
 Please note that this class will be the super class of all underlying data items.
 <!-- ;vc;
-;vc;    Object: sc.objData.CLS/EV.36
+;vc;    Object: sc.objData.CLS/EV.38
 ;vc; Component: CLS.sc.objData
 ;vc;  Location: LargeDev
-;vc; Date/Time: 27-Oct-16 11:33
+;vc; Date/Time: 21-Dec-16 10:30
 ;vc;      User: FredG
-;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>sc.objData.CLS/EV.36</td><td>CLS.sc.objData</td><td>LargeDev</td><td style='white-space: nowrap;'>27-Oct-16 11:33</td><td>FredG</td></tr></table>
+;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>sc.objData.CLS/EV.38</td><td>CLS.sc.objData</td><td>LargeDev</td><td style='white-space: nowrap;'>21-Dec-16 10:30</td><td>FredG</td></tr></table>
 ]]></Description>
 <ClassType>persistent</ClassType>
 <IncludeCode>EF.common.macros</IncludeCode>
 <ProcedureBlock>1</ProcedureBlock>
 <Super>%Library.Persistent,shared.timeStamp</Super>
-<TimeChanged>64218,41814.093411</TimeChanged>
+<TimeChanged>64287,50701.53939</TimeChanged>
 <TimeCreated>59148,67793</TimeCreated>
 <Inheritance>right</Inheritance>
 
@@ -27932,6 +27941,78 @@ note that this must be a classmethod or you will a compile error as the property
 ]]></Implementation>
 </Method>
 
+<Method name="moveNewElementToDesiredPosition">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>dataID:%Integer</FormalSpec>
+<Implementation><![CDATA[
+	#dim targetPosition as %Integer = ""
+	#dim beforeOrAfter as %Integer = $Get(%session.Data("eventsforce","backend","proweb page","insert proweb item","beforeOrAfter"))
+	#dim selectedProwebID As %Integer = $Get(%session.Data("eventsforce","backend","proweb page","insert proweb item","selectedProwebID"))
+
+	if (beforeOrAfter = "after") {
+		set targetPosition = ##class(sc.objData).getDisplayOrder(selectedProwebID)
+	}
+	
+	if targetPosition {
+		do ..moveChildToPosition(dataID, targetPosition)
+	}
+	
+	kill %session.Data("eventsforce","backend","proweb page")
+]]></Implementation>
+</Method>
+
+<Method name="moveChildToPosition">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>childProwebID:%Integer,targetPosition:%Integer</FormalSpec>
+<Implementation><![CDATA[
+	set child = ##class(sc.objData).%OpenId(childProwebID)
+	
+	if '$IsObject(child)   {
+		throw ##class(shared.exceptions.generalException).%New("Could not open child object ID: "_childProwebID)
+	}
+	if 'child.parent.%IsA("sc.xModules.objList") {
+		throw ##class(shared.exceptions.generalException).%New("Passsed in childID is not a a child of an objList")
+	}
+
+	set currentDisplayOrder = child.displayOrder
+	set listID = child.parent.%Id()
+	
+	set difference = $Select(targetPosition < currentDisplayOrder:+1, 1:-1)
+
+	&SQL(UPDATE sc.objData 
+		 SET displayOrder = (displayOrder + :difference) 
+		 WHERE (parent = :listID) 
+		 AND (displayOrder <= :targetPosition) 
+		 AND (ID <> :childProwebID)
+	 )
+	
+	set child.displayOrder = targetPosition
+	set status = child.%Save()
+	if 'status {
+		throw ##class(shared.exceptions.generalStatusException).CreateFromStatus(status)
+	}
+]]></Implementation>
+</Method>
+
+<Method name="saveDesiredPositionFromRequestToSession">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>requestObject:%CSP.Request,sessionObject:%CSP.Session</FormalSpec>
+<Implementation><![CDATA[
+	if ((requestObject.Get("selectedProwebID") '= "") && (requestObject.Get("beforeOrAfter") '= "")) {
+		do ..setDesiredPositionToSession(sessionObject, requestObject.Get("selectedProwebID"), requestObject.Get("beforeOrAfter")) 
+	}
+]]></Implementation>
+</Method>
+
+<Method name="setDesiredPositionToSession">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>sessionObject:%CSP.Session,selectedProwebID:%Integer,beforeOrAfter:%String</FormalSpec>
+<Implementation><![CDATA[
+	set sessionObject.Data("eventsforce","backend","proweb page","insert proweb item","selectedProwebID") = selectedProwebID
+	set sessionObject.Data("eventsforce","backend","proweb page","insert proweb item","beforeOrAfter") = beforeOrAfter
+]]></Implementation>
+</Method>
+
 <Query name="qGetChildren">
 <Type>%SQLQuery</Type>
 <FormalSpec>parentID:%String=""</FormalSpec>
@@ -28062,85 +28143,6 @@ note that this must be a classmethod or you will a compile error as the property
 <Selectivity>4.7619%</Selectivity>
 </Property>
 </Storage>
-</Class>
-
-
-<Class name="sc.proweb2methods">
-<Super>%RegisteredObject</Super>
-<TimeChanged>64243,50322.459983</TimeChanged>
-<TimeCreated>64218,41830.065131</TimeCreated>
-
-<Method name="moveNewElementToDesiredPosition">
-<ClassMethod>1</ClassMethod>
-<FormalSpec>dataID:%Integer</FormalSpec>
-<Implementation><![CDATA[
-	#dim targetPosition as %Integer = ""
-	#dim beforeOrAfter as %Integer = $Get(%session.Data("eventsforce", "backend", "proweb page", "insert proweb item", "beforeOrAfter"))
-	#dim selectedProwebID As %Integer = $Get(%session.Data("eventsforce", "backend", "proweb page", "insert proweb item", "selectedProwebID"))
-
-	if (beforeOrAfter = "after") {
-		set targetPosition = ##class(sc.objData).getDisplayOrder(selectedProwebID)
-	}
-	
-	if targetPosition {
-		do ..moveChildToPosition(dataID, targetPosition)
-	}
-	
-	kill %session.Data("eventsforce", "backend", "proweb page")
-]]></Implementation>
-</Method>
-
-<Method name="savePassedInDesiredPositionToSession">
-<ClassMethod>1</ClassMethod>
-<Implementation><![CDATA[
-	if ((%request.Get("selectedProwebID") '= "") && (%request.Get("beforeOrAfter") '= "")) {
-		set %session.Data("eventsforce", "backend", "proweb page", "insert proweb item", "selectedProwebID") = %request.Get("selectedProwebID")
-		set %session.Data("eventsforce", "backend", "proweb page", "insert proweb item", "beforeOrAfter") = %request.Get("beforeOrAfter")
-	}
-]]></Implementation>
-</Method>
-
-<Method name="setDesiredPositionToSession">
-<ClassMethod>1</ClassMethod>
-<FormalSpec>selectedProwebID,beforeOrAfter</FormalSpec>
-<Implementation><![CDATA[
-	set %session.Data("eventsforce", "backend", "proweb page", "insert proweb item", "selectedProwebID") = selectedProwebID
-	set %session.Data("eventsforce", "backend", "proweb page", "insert proweb item", "beforeOrAfter") = beforeOrAfter
-]]></Implementation>
-</Method>
-
-<Method name="moveChildToPosition">
-<ClassMethod>1</ClassMethod>
-<FormalSpec>childProwebID:%Integer,targetPosition:%Integer</FormalSpec>
-<Implementation><![CDATA[
-	set child = ##class(sc.objData).%OpenId(childProwebID)
-	
-	if '$IsObject(child)   {
-		throw ##class(shared.exceptions.generalException).%New("Could not open child object ID: "_childProwebID)
-	}
-	if 'child.parent.%IsA("sc.xModules.objList") {
-		throw ##class(shared.exceptions.generalException).%New("Passsed in childID is not a a child of an objList")
-	}
-
-	set currentDisplayOrder = child.displayOrder
-	set listID = child.parent.%Id()
-	
-	set difference = $Select(targetPosition < currentDisplayOrder:+1, 1:-1)
-
-	&SQL(UPDATE sc.objData 
-		 SET displayOrder = (displayOrder + :difference) 
-		 WHERE (parent = :listID) 
-		 AND (displayOrder <= :targetPosition) 
-		 AND (ID <> :childProwebID)
-	 )
-	
-	set child.displayOrder = targetPosition
-	set status = child.%Save()
-	if 'status {
-		throw ##class(shared.exceptions.generalStatusException).CreateFromStatus(status)
-	}
-]]></Implementation>
-</Method>
 </Class>
 
 
@@ -30956,19 +30958,19 @@ please note that you must escape any ampersands in the data</Description>
 <Class name="setup.eventCreationMethods">
 <Description><![CDATA[
 <!-- ;vc;-
-;vc;    Object: setup.eventCreationMethods.CLS/EV.111
+;vc;    Object: setup.eventCreationMethods.CLS/EV.112
 ;vc; Component: CLS.setup.eventCreationMethods
 ;vc;  Location: LargeDev
-;vc; Date/Time: 07-Dec-16 17:51
-;vc;      User: FredG
-;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>setup.eventCreationMethods.CLS/EV.111</td><td>CLS.setup.eventCreationMethods</td><td>LargeDev</td><td style='white-space: nowrap;'>07-Dec-16 17:51</td><td>FredG</td></tr></table>
+;vc; Date/Time: 04-Jan-17 14:03
+;vc;      User: MindaugasL
+;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>setup.eventCreationMethods.CLS/EV.112</td><td>CLS.setup.eventCreationMethods</td><td>LargeDev</td><td style='white-space: nowrap;'>04-Jan-17 14:03</td><td>MindaugasL</td></tr></table>
 ]]></Description>
 <Abstract>1</Abstract>
 <ClassType/>
 <IncludeCode>EF.common.macros</IncludeCode>
 <ProcedureBlock>1</ProcedureBlock>
 <Super>%Persistent</Super>
-<TimeChanged>64259,64732.079359</TimeChanged>
+<TimeChanged>64287,50590</TimeChanged>
 <TimeCreated>61908,40601.453382</TimeCreated>
 
 <Method name="createEventPages">
@@ -32834,17 +32836,17 @@ Returns the correct style of the button depending on what mode are available and
 <Class name="shared.pageMethods">
 <Description><![CDATA[
 <!-- ;vc;-
-;vc;    Object: shared.pageMethods.CLS/EV.183
+;vc;    Object: shared.pageMethods.CLS/EV.186
 ;vc; Component: CLS.shared.pageMethods
 ;vc;  Location: LargeDev
-;vc; Date/Time: 14-Dec-16 10:53
-;vc;      User: FredG
-;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>shared.pageMethods.CLS/EV.183</td><td>CLS.shared.pageMethods</td><td>LargeDev</td><td style='white-space: nowrap;'>14-Dec-16 10:53</td><td>FredG</td></tr></table>
+;vc; Date/Time: 21-Dec-16 11:49
+;vc;      User: JeremyW
+;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>shared.pageMethods.CLS/EV.186</td><td>CLS.shared.pageMethods</td><td>LargeDev</td><td style='white-space: nowrap;'>21-Dec-16 11:49</td><td>JeremyW</td></tr></table>
 ]]></Description>
 <Abstract>1</Abstract>
 <ClassType/>
 <ProcedureBlock>1</ProcedureBlock>
-<TimeChanged>64266,43387.356583</TimeChanged>
+<TimeChanged>64273,42613.531253</TimeChanged>
 <TimeCreated>60747,44410.590792</TimeCreated>
 
 <Method name="prePartOne">
@@ -34142,9 +34144,19 @@ Ends current session and clears down cookies
 				}
 			}
 			
-			if %request.Method="GET" {		
-				if %request.Get(sharedPageM)[$C(13) set crossScriptingAttack=1
-				if %request.Get(sharedPageM)[$C(10) set crossScriptingAttack=1
+			if ##class(setup.objSetting).getParameter("owasp","stop CRLF injection") {
+				set querystring = %request.GetCgiEnv("QUERY_STRING")
+				do ##class(EF.net.url).querystringToArray(querystring, .querystringArray)
+				// CRLF injection only a problem when parameters are on the URL, can be a GET or a POST as POST URLs can have parameters too
+				if $Data(querystringArray(sharedPageM))	 {
+					if %request.Get(sharedPageM)[$Char(13) set crossScriptingAttack=1
+					if %request.Get(sharedPageM)[$Char(10) set crossScriptingAttack=1
+				}
+			} else {
+				if %request.Method="GET" {		
+					if %request.Get(sharedPageM)[$C(13) set crossScriptingAttack=1
+					if %request.Get(sharedPageM)[$C(10) set crossScriptingAttack=1
+				}
 			}
  		}
  		

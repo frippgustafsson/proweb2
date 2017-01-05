@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.2 (Build 736U)" ts="2017-01-04 14:08:55">
+<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.2 (Build 736U)" ts="2017-01-05 15:52:11">
 <Class name="EF.contextDataFrontend">
 <Description><![CDATA[
 <!-- ;vc;-
@@ -1936,12 +1936,12 @@ Should be run if any of the sub-classes are deleted</Description>
 
 <Class name="EF.pageController.proweb.hiddenInput">
 <Super>EF.pageController.proweb.inputElement</Super>
-<TimeChanged>64236,39032.625056</TimeChanged>
+<TimeChanged>64288,56399.467316</TimeChanged>
 <TimeCreated>64236,39000.847923</TimeCreated>
 
 <Method name="getDefaultUIComponent">
 <ReturnType>EF.ui.components.hiddenInput</ReturnType>
-<Implementation><![CDATA[	quit ##class(EF.ui.components.hiddenInput).%New(..identifier)
+<Implementation><![CDATA[	quit ##class(EF.ui.components.frontend.hiddenInput).%New(..identifier)
 ]]></Implementation>
 </Method>
 
@@ -2082,7 +2082,7 @@ Should be run if any of the sub-classes are deleted</Description>
 <Description>
 Should have a one-to-one relationship with sc.objList</Description>
 <Super>EF.pageController.containerElement</Super>
-<TimeChanged>64264,60018.026345</TimeChanged>
+<TimeChanged>64288,56588.325686</TimeChanged>
 <TimeCreated>64231,55587.036042</TimeCreated>
 
 <Property name="prowebListID">
@@ -2109,6 +2109,7 @@ refers to sc.xModules.objList</Description>
 <Implementation><![CDATA[
 	#dim prowebItem As sc.facade.prowebItem
 	#dim guestPanel As EF.pageController.proweb.guestPanel = ""
+	
 	set rsProwebItems = ##class(%ResultSet).%New("sc.xModules.objList:qGetChildren")
 	do rsProwebItems.Execute(..prowebListID)
 	while rsProwebItems.Next() {
@@ -2467,7 +2468,7 @@ refers to sc.xModules.objList</Description>
 	} elseif nameOfListClass = "EF.pageController.proweb.listOfSingleElement" {
 		return "Text"	
 		
-	} elseif nameOfListClass = "EF.pageController.proweb.listWithQuestionsRegistration" {
+	} elseif (nameOfListClass = "EF.pageController.proweb.listWithQuestionsRegistration") ! (nameOfListClass = "EF.pageController.proweb.guestPanel") {
 		return "Question,ABI,QBI,Collection,Divider,Text,File upload,Video"	
 	}
 	
@@ -2604,7 +2605,7 @@ Should have a one-to-one relationship with sc.objList</Description>
 
 <Class name="EF.pageController.proweb.page">
 <Super>EF.pageController.page</Super>
-<TimeChanged>64266,50456.326119</TimeChanged>
+<TimeChanged>64288,54528.033114</TimeChanged>
 <TimeCreated>64189,51696.559047</TimeCreated>
 
 <Property name="contextData">
@@ -2700,14 +2701,33 @@ Should have a one-to-one relationship with sc.objList</Description>
 <Implementation><![CDATA[
 	#dim key as %Integer = ""
 	#dim componentName as %String = "unit test"
+	#dim guestPanel As EF.pageController.proweb.guestPanel
+	#dim fakeProwebID as %Integer = 999
+	#dim guestNumber as %Integer = 1
 	
 	set listElement = ##class(EF.pageController.proweb.list).addElementToParent($this, componentName , "")
 	set listElement.prowebListID = -1
+
+	if ..contextData.maxGuests > 0 {
+		set guestPanel = ##class(EF.pageController.proweb.guestPanel).addElementToParent(listElement, "GuestPanel-"_fakeProwebID_"-"_guestNumber, "Guest")	
+		set guestPanel.guestNumber = guestNumber
+		set guestPanel.showHideDependencyList = ##class(EF.ui.components.dependencyList).createNew("ef-is-guest-active-"_guestNumber,1)
+		do listElement.listOfControllerIDsSorted.Insert(guestPanel.identifier)
+		set parent = guestPanel
+	} else {
+		set parent = listElement	
+	}
+
 	
 	for  {
 		set prowebItem = ..contextData.listOfProwebItemsToAdd.GetNext(.key)	
 		if key = "" quit
-		do listElement.addElementForProwebItem(prowebItem)
+
+		if parent.%Extends("EF.pageController.proweb.guestPanel") {
+			do parent.addElementForProwebItem(prowebItem, guestNumber)
+		} else {
+			do parent.addElementForProwebItem(prowebItem)
+		}
 	}
 ]]></Implementation>
 </Method>
@@ -2796,7 +2816,6 @@ Should have a one-to-one relationship with sc.objList</Description>
 <FormalSpec>prowebItem:sc.facade.prowebItem,optionalGuestNumber:%Integer=""</FormalSpec>
 <ReturnType>%String</ReturnType>
 <Implementation><![CDATA[
-	;set identifier = "proweb-"_prowebItem.storage.prowebID
 	try {
 		set identifier = prowebItem.storage.databaseItemName
 	} catch {
@@ -2999,6 +3018,11 @@ also an entry point from unit tests</Description>
 	} else {
 		set pageID = ..contextData.pageID	
 	}
+	
+	if $Get(%session.Data("pageID")) = "" {
+		set %session.Data("pageID") = pageID
+	}
+	
 	return pageID
 ]]></Implementation>
 </Method>
@@ -3630,7 +3654,7 @@ also an entry point from unit tests</Description>
 
 <Class name="EF.pageController.proweb.testCases.pageTestCase">
 <Super>EF.ISC.UnitTest.TestCase</Super>
-<TimeChanged>64266,51722.288706</TimeChanged>
+<TimeChanged>64288,57007.8948</TimeChanged>
 <TimeCreated>64189,44993.632692</TimeCreated>
 
 <Method name="TestEditModeHTML">
@@ -3654,7 +3678,7 @@ also an entry point from unit tests</Description>
 	set eventConfiguration = ##class(setup.eventConfiguration.storageMock).createEventConfiguration()
 	
 	set contextData = ##class(EF.contextDataRegistrationMock).createMock()
-	set contextData.maxGuests=2
+	set contextData.maxGuests = 2
 	set eventConfiguration.storage.maxGuests = 2
 	
 	set storage = ##class(sc.facade.prowebItemStorageInputElementMock).createNew()
@@ -3676,32 +3700,13 @@ also an entry point from unit tests</Description>
 	do contextData.listOfProwebItemsToAdd.Insert(prowebItem)
 
 
-	set storage = ##class(sc.facade.prowebItemStorageInputElementMock).createNew()
-	set storage.prowebID = "1"
-	set storage.databaseItemName = "Firstname"
-	set storage.inputType = "text"
-	set storage.labelText = "Guest First Name"
-	set storage.isGuest = 1
-	set storage.isMandatory = 1
-	set prowebItem = ##class(sc.facade.prowebItem).createNew(storage)
-	do contextData.listOfProwebItemsToAdd.Insert(prowebItem)
-
-	set storage = ##class(sc.facade.prowebItemStorageInputElementMock).createNew()
-	set storage.prowebID = "2"
-	set storage.databaseItemName = "Lastname"
-	set storage.inputType = "text"
-	set storage.labelText = "Guest Last Name"
-	set storage.isGuest = 1
-	set storage.isMandatory = 1
-	set prowebItem = ##class(sc.facade.prowebItem).createNew(storage)
-	do contextData.listOfProwebItemsToAdd.Insert(prowebItem)
-
+	
 
 	set pageController = ##class(EF.pageController.pagesFrontend.registration).createNew(contextData,,,eventConfiguration)
 	
 	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(pageController,"renderComponent","unit test")
 	set returnedHTML = $ZStrip(returnedHTML,"*WC")
-	set expectedHTML = "<divclass=""rowef-proweb-form-row""><divclass=""col-sm-4ef_proweb_form_prompt""><labelid=""ef-display-label-proweb-1""class=""control-labelef-label-textef-required-field""for=""proweb-1"">AttendeeFirstName</label></div><divclass=""col-sm-8ef_proweb_form_prompt""><inputtype=""text""class=""form-controlef-proweb-input-element""title=""""id=""proweb-1""name=""proweb-1""value=""""placeholder=""""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;AttendeeFirstName\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""autofocus=""autofocus""></div></div><divclass=""rowef-proweb-form-row""><divclass=""col-sm-4ef_proweb_form_prompt""><labelid=""ef-display-label-proweb-2""class=""control-labelef-label-textef-required-field""for=""proweb-2"">AttendeeLastName</label></div><divclass=""col-sm-8ef_proweb_form_prompt""><inputtype=""text""class=""form-controlef-proweb-input-element""title=""""id=""proweb-2""name=""proweb-2""value=""""placeholder=""""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;AttendeeLastName\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""></div></div><divclass=""rowef-proweb-form-row""><divclass=""col-sm-4ef_proweb_form_prompt""><labelid=""ef-display-label-proweb-1-1""class=""control-labelef-label-textef-required-field""for=""proweb-1-1"">GuestFirstName</label></div><divclass=""col-sm-8ef_proweb_form_prompt""><inputtype=""text""class=""form-controlef-proweb-input-element""title=""""id=""proweb-1-1""name=""proweb-1-1""value=""""placeholder=""""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;GuestFirstName\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""></div></div><divclass=""rowef-proweb-form-row""><divclass=""col-sm-4ef_proweb_form_prompt""><labelid=""ef-display-label-proweb-2-1""class=""control-labelef-label-textef-required-field""for=""proweb-2-1"">GuestLastName</label></div><divclass=""col-sm-8ef_proweb_form_prompt""><inputtype=""text""class=""form-controlef-proweb-input-element""title=""""id=""proweb-2-1""name=""proweb-2-1""value=""""placeholder=""""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;GuestLastName\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""></div></div>"
+	set expectedHTML = "<divclass=""ef-panelef-draggable-div""data-show-hide-dependency-list=""{&quot;logic&quot;:&quot;and&quot;,&quot;dependencies&quot;:[{&quot;parentName&quot;:&quot;ef-is-guest-active-1&quot;,&quot;operator&quot;:&quot;eq&quot;,&quot;value&quot;:&quot;1&quot;}]}""><divclass=""ef-panel-heading""id="""">Guest<divclass=""ef-delete-guest-button""data-ef-guest-number=""1""><spanclass=""glyphiconglyphicon-trash""/></div></div><divclass=""ef-panel-bodyef-proweb-reorderable-guest""><divclass=""rowef-form-row""><divclass=""form-group""><divclass=""col-sm-4ef-label-container""><labelid=""ef-display-label-Firstname-1""class=""control-labelef-control-labelef-required-field""for=""Firstname-1"">AttendeeFirstName</label></div><divclass=""col-sm-8ef-input-container""><inputtype=""text""class=""ef-inputform-controlef-input-text-field""title=""""id=""Firstname-1""name=""Firstname-1""value=""""placeholder=""""data-enable-disable-dependency-list=""{&quot;logic&quot;:&quot;and&quot;,&quot;dependencies&quot;:[{&quot;parentName&quot;:&quot;ef-is-guest-active-1&quot;,&quot;operator&quot;:&quot;eq&quot;,&quot;value&quot;:&quot;1&quot;}]}""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;AttendeeFirstName\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""autofocus=""autofocus""0></div></div></div><divclass=""rowef-form-row""><divclass=""form-group""><divclass=""col-sm-4ef-label-container""><labelid=""ef-display-label-Lastname-1""class=""control-labelef-control-labelef-required-field""for=""Lastname-1"">AttendeeLastName</label></div><divclass=""col-sm-8ef-input-container""><inputtype=""text""class=""ef-inputform-controlef-input-text-field""title=""""id=""Lastname-1""name=""Lastname-1""value=""""placeholder=""""data-enable-disable-dependency-list=""{&quot;logic&quot;:&quot;and&quot;,&quot;dependencies&quot;:[{&quot;parentName&quot;:&quot;ef-is-guest-active-1&quot;,&quot;operator&quot;:&quot;eq&quot;,&quot;value&quot;:&quot;1&quot;}]}""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;AttendeeLastName\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""0></div></div></div></div></div>"
 	do $$$AssertEquals(returnedHTML,expectedHTML)
 ]]></Implementation>
 </Method>
@@ -4447,17 +4452,17 @@ also an entry point from unit tests</Description>
 <Description><![CDATA[
 Common page that all frontend pages could/should inherit from.
 <!-- ;vc;
-;vc;    Object: EF.pages.frontend.base.CLS/EV.10
+;vc;    Object: EF.pages.frontend.base.CLS/EV.11
 ;vc; Component: CLS.EF.pages.frontend.base
 ;vc;  Location: LargeDev
-;vc; Date/Time: 25-Oct-16 12:29
-;vc;      User: FredG
-;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>EF.pages.frontend.base.CLS/EV.10</td><td>CLS.EF.pages.frontend.base</td><td>LargeDev</td><td style='white-space: nowrap;'>25-Oct-16 12:29</td><td>FredG</td></tr></table>
+;vc; Date/Time: 04-Jan-17 16:22
+;vc;      User: AdrianM2
+;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>EF.pages.frontend.base.CLS/EV.11</td><td>CLS.EF.pages.frontend.base</td><td>LargeDev</td><td style='white-space: nowrap;'>04-Jan-17 16:22</td><td>AdrianM2</td></tr></table>
 ]]></Description>
 <Language>cache</Language>
 <ProcedureBlock>0</ProcedureBlock>
 <Super>shared.pCSPmanage</Super>
-<TimeChanged>64224,48769.793991</TimeChanged>
+<TimeChanged>64287,59052.953854</TimeChanged>
 <TimeCreated>63635,40114.778424</TimeCreated>
 
 <Parameter name="showRegistrationProgressBar">
@@ -4529,6 +4534,7 @@ Common page that all frontend pages could/should inherit from.
 		}
  	}
  	do ##class(layout.objTemplate).writeBit("{{ef_main_progress}}","{{ef_main_header}}")
+ 	do ..OnPagePageHeader()
  	do ##class(layout.objTemplate).writeBit("{{ef_main_header}}", "{{ef_main_content}}")
 ]]></Implementation>
 </Method>
@@ -4560,6 +4566,10 @@ Common page that all frontend pages could/should inherit from.
 	Write !,!,"</body>"
 	Write !,"</html>",!
 ]]></Implementation>
+</Method>
+
+<Method name="OnPagePageHeader">
+<ClassMethod>1</ClassMethod>
 </Method>
 
 <Method name="OnPagePageContent">
@@ -4979,8 +4989,12 @@ this is for version 1 of proweb</Description>
 
 <Class name="EF.pages.frontend.registrationProcessProweb">
 <Super>EF.pages.frontend.baseProweb</Super>
-<TimeChanged>64258,40897.778785</TimeChanged>
+<TimeChanged>64287,54982.228489</TimeChanged>
 <TimeCreated>64258,38909.998566</TimeCreated>
+
+<Parameter name="showRegistrationProgressBar">
+<Default>1</Default>
+</Parameter>
 
 <Method name="verifyValidPage">
 <ClassMethod>1</ClassMethod>
@@ -6652,6 +6666,37 @@ this is for version 1 of proweb</Description>
 </Class>
 
 
+<Class name="EF.ui.components.frontend.hiddenInput">
+<Super>EF.ui.components.hiddenInput,EF.ui.components.frontend.prowebBase</Super>
+<TimeChanged>64288,56192.109892</TimeChanged>
+<TimeCreated>64288,56191.627065</TimeCreated>
+
+<Storage name="Default">
+<Type>%Library.CacheStorage</Type>
+<DefaultData>hiddenInputDefaultData</DefaultData>
+<Data name="hiddenInputDefaultData">
+<Structure>listnode</Structure>
+<Subscript>"hiddenInput"</Subscript>
+<Value name="1">
+<Value>isProwebEditMode</Value>
+</Value>
+<Value name="2">
+<Value>prowebItemID</Value>
+</Value>
+<Value name="3">
+<Value>prowebItem</Value>
+</Value>
+<Value name="4">
+<Value>contextData</Value>
+</Value>
+<Value name="5">
+<Value>nameOfControllerListClass</Value>
+</Value>
+</Data>
+</Storage>
+</Class>
+
+
 <Class name="EF.ui.components.frontend.inputElement">
 <Super>EF.ui.components.frontend.prowebBase,EF.ui.components.inputBase</Super>
 <TimeChanged>64267,36931.60838</TimeChanged>
@@ -7186,7 +7231,7 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 
 <Class name="EF.ui.components.frontend.panel">
 <Super>EF.ui.components.frontend.prowebBase,EF.ui.components.panel</Super>
-<TimeChanged>64266,50360.096473</TimeChanged>
+<TimeChanged>64288,54734.719594</TimeChanged>
 <TimeCreated>64204,36543.176151</TimeCreated>
 
 <Property name="guestNumber">
@@ -7199,7 +7244,7 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 			<div class="ef-panel ef-draggable-div"   #(..rawHTML(..getExtraAttributes()))#>
 	            <div class="ef-panel-heading" id="">#(..encodeForHTML(##class(shared.pCSP).out("Guest")))#
 					<div class="ef-delete-guest-button"  data-ef-guest-number="#(..guestNumber)#" >
-						<span class="glyphicon glyphicon-trash">
+						<span class="glyphicon glyphicon-trash"/>
 					</div>
 	            </div>
 				<div class="ef-panel-body ef-proweb-reorderable-guest">
@@ -9174,7 +9219,7 @@ function changeLang(newLangID) {
 	
 	do ##class(sc.methods).updateBackendVariablesFromPageID(pageID)
 	
-	do ##class(sc.objData).saveDesiredPositionFromRequestToSession()
+	do ##class(sc.objData).saveDesiredPositionFromRequestToSession(%request, %session)
 	set groupID=##class(sc.objData).getParentID(pageID)
 	
 	// switch to the org data to enable edit when having multi-stage workflow
@@ -14152,7 +14197,7 @@ function saveSameAs(categoryID) {
 	}
 	set %session.Data("dataID")=dataID
 	
-	do ##class(sc.objData).saveDesiredPositionFromRequestToSession()
+	do ##class(sc.objData).saveDesiredPositionFromRequestToSession(%request, %session)
 	
 	set templateURL=%request.Get("templateURL")	
 	if templateURL="" set templateURL=%session.Get("templateURL")
@@ -15307,7 +15352,7 @@ function popup(type) {
 	if dataID="" set dataID=%session.Get("dataID")
 	set %session.Data("dataID")=dataID
 	
-	do ##class(sc.objData).saveDesiredPositionFromRequestToSession()
+	do ##class(sc.objData).saveDesiredPositionFromRequestToSession(%request, %session)
 	
 	set orgDataID=%request.Get("orgDataID") // used when creating a new version of a data item
 	if orgDataID="" set orgDataID=%session.Get("orgDataID")
@@ -15972,7 +16017,7 @@ function cancelUpdate() {
 <CSP name="backEnd/proweb/formDivider.csp" application="/largedevsrc/" default="1"><![CDATA[
 <csp:class encoded="1" private="1">
 <script language="CACHE" method="OnPreHTTPafter" arguments="" returntype="%Boolean">
-	do ##class(sc.objData).saveDesiredPositionFromRequestToSession()
+	do ##class(sc.objData).saveDesiredPositionFromRequestToSession(%request, %session)
 	set dataID = ##class(sc.xModules.objFormDivider).add(%request.Get("parent"),%request.Get("position"))
 	do ##class(sc.objData).moveNewElementToDesiredPosition(dataID)
 	set %response.Redirect="../../proweb/frontend/start.csp?mode=edit&version=current&pageID="_$G(%session.Data("pageID"))			
@@ -17152,7 +17197,6 @@ function updateAlts(codPromptID) {
 
 <CSP name="frontEnd/reg/home.csp" application="/largedevsrc/" default="1"><![CDATA[
 <csp:class super="EF.pages.frontend.baseProweb">
-<csp:parameter name="showRegistrationProgressBar" value="0">
 
 
 <script language="cache" runat="server">
@@ -17237,7 +17281,6 @@ function updateAlts(codPromptID) {
 
 <CSP name="frontEnd/reg/registration.csp" application="/largedevsrc/" default="1"><![CDATA[
 <csp:class super="EF.pages.frontend.registrationProcessProweb">
-<csp:parameter name="showRegistrationProgressBar" value="1">
 <csp:parameter name="pageNavProceedKey" value="codFormSave.csp">
 
 <script language="cache" runat="server">
@@ -19035,10 +19078,10 @@ FRRE RULE
 	set %session.Data("selectItem")=%request.Get("selectItem")
 	
 	set pageID = ##class(shared.pageMethods).getPageID()
-	set CspFileName = ##class(sc.xModules.objPage).getTemplateFilenameForAnyProwebVersion(pageID)
+	set cspFileName = ##class(sc.xModules.objPage).getTemplateFilenameForAnyProwebVersion(pageID)
 	
-	if CspFileName'="" {
-		set URL=CspFileName_"?pageID="_pageID
+	if cspFileName'="" {
+		set URL=cspFileName_"?pageID="_pageID
 		if %session.Get("memberID") set URL=URL_"&memberID="_%session.Get("memberID")_"&surveyID="_%request.Get("surveyID")_"&mode="_%session.Get("mode")_"&version="_%session.Get("version")
 
 		// store the referer in the session to be picked up, stored and killed by logPageHit() in objLog
@@ -19084,17 +19127,17 @@ session pageID=#(%session.Get("pageID"))#
 <Class name="layout.cssDefaultMethods">
 <Description><![CDATA[
 <!-- ;vc;-
-;vc;    Object: layout.cssDefaultMethods.CLS/EV.79
+;vc;    Object: layout.cssDefaultMethods.CLS/EV.81
 ;vc; Component: CLS.layout.cssDefaultMethods
 ;vc;  Location: LargeDev
-;vc; Date/Time: 16-Nov-16 09:14
-;vc;      User: FredG
-;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>layout.cssDefaultMethods.CLS/EV.79</td><td>CLS.layout.cssDefaultMethods</td><td>LargeDev</td><td style='white-space: nowrap;'>16-Nov-16 09:14</td><td>FredG</td></tr></table>
+;vc; Date/Time: 04-Jan-17 17:34
+;vc;      User: AdrianM2
+;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>layout.cssDefaultMethods.CLS/EV.81</td><td>CLS.layout.cssDefaultMethods</td><td>LargeDev</td><td style='white-space: nowrap;'>04-Jan-17 17:34</td><td>AdrianM2</td></tr></table>
 ]]></Description>
 <Abstract>1</Abstract>
 <ClassType/>
 <ProcedureBlock>1</ProcedureBlock>
-<TimeChanged>64183,34581</TimeChanged>
+<TimeChanged>64287,63410.463022</TimeChanged>
 <TimeCreated>63046,56232.897117</TimeCreated>
 
 <Method name="outputDefaultCSS">
@@ -19123,6 +19166,12 @@ session pageID=#(%session.Get("pageID"))#
 		do ##class(layout.cssOverrideMethods).outputDynamicCSS(xEventID)
 	}
 	w !,"</style>",!
+	if ##class(layout.objTemplate).isTemplateGen3(layoutTemplateID)	{
+		&html<
+			<!-- ====== Default generation 4 frontend base styles ============= -->
+			<link rel="stylesheet" href="../../media/stylesheets/frontend/gen3/ef-website-responsive-agenda.css" type="text/css" />
+		>	
+	}
 ]]></Implementation>
 </Method>
 
@@ -24636,7 +24685,7 @@ Returns true if the template is custom made</Description>
 </Class>
 
 
-<Project name="proweb 2" LastModified="2016-12-23 09:03:58.823784" Target="largedevsrc/backEnd/home/login.csp" TargetType="3">
+<Project name="proweb 2" LastModified="2017-01-05 15:41:58.669021" Target="largedevsrc/backEnd/home/login.csp" TargetType="3">
   <Items>
     <ProjectItem name="EF.contextDataFrontend" type="CLS"></ProjectItem>
     <ProjectItem name="EF.contextDataRegistration" type="CLS"></ProjectItem>
@@ -24821,6 +24870,7 @@ Returns true if the template is custom made</Description>
     <ProjectItem name="setup.bookingLevelCounterFrontendSession" type="CLS"></ProjectItem>
     <ProjectItem name="setup.eventCreationMethods" type="CLS"></ProjectItem>
     <ProjectItem name="shared.pageMethods" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.ui.components.frontend.hiddenInput" type="CLS"></ProjectItem>
   </Items>
   <BreakPoints>
     <BreakPoint Routine="cspRealEV.frontend.reg.pagecontrollerstandardsave.CLS" Offset="OnPreHTTPafter+28"></BreakPoint>
@@ -26559,7 +26609,7 @@ move all objData from list called "Bottom List" to "Main List"</Description>
 <ClassType>persistent</ClassType>
 <ProcedureBlock>1</ProcedureBlock>
 <Super>%Library.Persistent,shared.timeStamp</Super>
-<TimeChanged>64233,52949.200856</TimeChanged>
+<TimeChanged>64287,53430.075739</TimeChanged>
 <TimeCreated>58926,57258</TimeCreated>
 <Inheritance>right</Inheritance>
 
@@ -26593,9 +26643,10 @@ move all objData from list called "Bottom List" to "Main List"</Description>
 <Parameter name="MINVAL" value="10"/>
 </Property>
 
-<Property name="type">
+<Property name="componentType">
 <Type>%String</Type>
 <Parameter name="MAXLEN" value="255"/>
+<Parameter name="VALUELIST" value=",text,listWithQuestionsRegistration,listWithQuestions,listOfSingleElement"/>
 </Property>
 
 <Index name="descriptionIndex">
@@ -26610,11 +26661,16 @@ Index for property description</Description>
 
 <Method name="add">
 <ClassMethod>1</ClassMethod>
-<FormalSpec>description:%String,templateID:%String,listID:%String,type:%String=""</FormalSpec>
+<FormalSpec>description:%String,templateID:%String,listID:%String,componentType:%String=""</FormalSpec>
 <ReturnType>%String</ReturnType>
 <Implementation><![CDATA[
-	&SQL(INSERT INTO sc.objComponent (description, objTemplate, objData, type) VALUES (:description, :templateID, :listID, :type))
-	quit %ROWID
+	&SQL(INSERT INTO sc.objComponent (description, objTemplate, objData, componentType) VALUES (:description, :templateID, :listID, :componentType))
+	
+	if +SQLCODE = 0 {
+		return %ROWID
+	} else {
+		throw ##class(shared.exceptions.generalSQLException).CreateFromSQLCODE(SQLCODE, "Failed to add objComponent of type: "_componentType)	
+	}
 ]]></Implementation>
 </Method>
 
@@ -26671,7 +26727,7 @@ Index for property description</Description>
 <Query name="qComponentsByPageID">
 <Type>%SQLQuery</Type>
 <FormalSpec>pageID:%Integer</FormalSpec>
-<SqlQuery><![CDATA[	SELECT description,objData AS listID,objData->dataType, type As listType 
+<SqlQuery><![CDATA[	SELECT description,objData AS listID,objData->dataType, componentType As listType 
 	FROM  sc.objComponent 
 	where objData->parent = :pageID]]></SqlQuery>
 </Query>
@@ -26716,6 +26772,9 @@ Index for property description</Description>
 </Value>
 <Value name="9">
 <Value>type</Value>
+</Value>
+<Value name="10">
+<Value>componentType</Value>
 </Value>
 </Data>
 <Property name="description">
@@ -30970,7 +31029,7 @@ please note that you must escape any ampersands in the data</Description>
 <IncludeCode>EF.common.macros</IncludeCode>
 <ProcedureBlock>1</ProcedureBlock>
 <Super>%Persistent</Super>
-<TimeChanged>64287,50590</TimeChanged>
+<TimeChanged>64287,53723.142469</TimeChanged>
 <TimeCreated>61908,40601.453382</TimeCreated>
 
 <Method name="createEventPages">
@@ -31056,6 +31115,9 @@ Returns 1 if OK otherwise it'll be an error</Description>
 		set eventLoginPagesGroupID=##class(setup.objEventDetails).addNewGroup("Event Login Pages",eventGroupID,eventID)
 		set externalEventLoginPagesGroupID=##class(setup.objEventDetails).addNewGroup("External Event Login Pages",eventGroupID,eventID)
 		set requestPasswordGroupID=##class(setup.objEventDetails).addNewGroup("Request Password Pages",eventGroupID,eventID)
+		set resetPasswordGroupID = ##class(setup.objEventDetails).addNewGroup("Reset Password Pages", eventGroupID, eventID)
+		set agendaWebsiteGroupID=##class(setup.objEventDetails).addNewGroup("Agenda View Website Pages",eventGroupID,eventID)
+		set agendaRegistrationGroupID=##class(setup.objEventDetails).addNewGroup("Agenda View Registration Pages", eventGroupID, eventID)
 	
 		if $D(%objlasterror),'%objlasterror quit %objlasterror   // **** ERROR ****
 		
@@ -31101,7 +31163,9 @@ Returns 1 if OK otherwise it'll be an error</Description>
 		&SQL(SELECT ID INTO :eventLoginPagesGroupID FROM sc_xModules.objGroup WHERE (parent = :eventGroupID) AND (active=1) AND (description = 'Event Login Pages'))
 		&SQL(SELECT ID INTO :externalEventLoginPagesGroupID FROM sc_xModules.objGroup WHERE (parent = :eventGroupID) AND (active=1) AND (description = 'External Event Login Pages'))
 		&SQL(SELECT ID INTO :requestPasswordGroupID FROM sc_xModules.objGroup WHERE (parent = :eventGroupID) AND (active=1) AND (description = 'Request Password Pages'))
-	
+		&SQL(SELECT ID INTO :resetPasswordGroupID FROM sc_xModules.objGroup WHERE (parent = :eventGroupID) AND (active = 1) AND (description = 'Reset Password Pages'))
+		set agendaRegistrationGroupID = ##class(sc.xModules.objGroup).findGroupID("Agenda View Registration Pages",eventGroupID)
+		set agendaWebsiteGroupID = ##class(sc.xModules.objGroup).findGroupID("Agenda View Website Pages",eventGroupID)
 	}
 	
 	set desciptionModifier=""
@@ -31199,13 +31263,26 @@ Returns 1 if OK otherwise it'll be an error</Description>
 	set requestPasswordPageID=##class(setup.objEventDetails).addNewPage("Request Password Pages","Request Password Pages"_desciptionModifier,requestPasswordGroupID,eventID,langID)
 	do ##class(setup.objEventSetting).setParameter("bookings","Request Password PageID"_desciptionModifier,requestPasswordPageID,eventID)
 	
+	// Reset Password pages
+	set resetPasswordPageID = ##class(setup.objEventDetails).addNewPage("Reset Password Pages", "Reset Password Pages"_desciptionModifier, resetPasswordGroupID, eventID, langID)
+	do ##class(setup.objEventSetting).setParameter("bookings", "Reset Password PageID"_desciptionModifier, resetPasswordPageID, eventID)
+	
 	// Basket New pages
 	set basketPageID=##class(setup.objEventDetails).addNewPage("Basket Pages","Basket Pages"_desciptionModifier,basketGroupID,eventID,langID)
 	do ##class(setup.objEventSetting).setParameter("bookings","Basket PageID"_desciptionModifier,basketPageID,eventID)
 	
 	//Daily Agenda pages
+	set pageID=##class(setup.objEventDetails).addNewPage("Agenda View Website Pages","Agenda View Website Page"_desciptionModifier,agendaRegistrationGroupID,eventID,langID)
+	do ##class(setup.objEventSetting).setParameter("Agenda","Agenda View Website PageID"_desciptionModifier,pageID,eventID)
+	set pageID=##class(setup.objEventDetails).addNewPage("Agenda View Registration Pages","Agenda View Registration Page"_desciptionModifier,agendaRegistrationGroupID,eventID,langID)
+	do ##class(setup.objEventSetting).setParameter("Agenda","Agenda View Registration PageID"_desciptionModifier,pageID,eventID)		
+	
 	set dailyAgendaGridviewPageID=##class(setup.objEventDetails).addNewPage("Daily Agenda Gridview Pages","Daily Agenda Gridview Pages"_desciptionModifier,dailyAgendaGridviewGroupID,eventID,langID)
 	set dailyAgendaListviewPageID=##class(setup.objEventDetails).addNewPage("Daily Agenda Listview Pages","Daily Agenda Listview Pages"_desciptionModifier,dailyAgendaListviewGroupID,eventID,langID)
+	
+	
+	
+	
 	// create abstract pages
 	set documentPageID=##class(setup.objEventDetails).addNewPage("Abstract Document Pages","Abstract Submission Details"_desciptionModifier,abstractGroupID,eventID,langID)
 	set documentTextPageID=##class(setup.objEventDetails).addNewPage("Abstract Document Text Pages","Abstract Submission Content"_desciptionModifier,abstractGroupID,eventID,langID)

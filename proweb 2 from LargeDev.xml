@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.2 (Build 736U)" ts="2017-01-11 17:41:07">
+<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.2 (Build 736U)" ts="2017-01-12 10:13:33">
 <Class name="EF.contextDataFrontend">
 <Description><![CDATA[
 <!-- ;vc;-
@@ -11,7 +11,7 @@
 ;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>EF.contextDataFrontend.CLS/EV.5</td><td>CLS.EF.contextDataFrontend</td><td>LargeDev</td><td style='white-space: nowrap;'>11-Jan-17 11:27</td><td>AdrianM2</td></tr></table>
 ]]></Description>
 <Super>EF.contextData</Super>
-<TimeChanged>64294,49187.744429</TimeChanged>
+<TimeChanged>64295,36685.425873</TimeChanged>
 <TimeCreated>63755,56082.660879</TimeCreated>
 
 <Property name="loggedInPersonID">
@@ -64,7 +64,8 @@ if website is private, this will be set to the cod.objPerson.ID of that logged i
 	set contextData = ..%New()
 	set eventID = $Get(%session.Data("eventsforce","frontend","xEventID"))
 	if 'eventID {
-		set eventID = $Get(%session.Data("eventsforce","backend","xEventID"))	
+		set eventID = $Get(%session.Data("eventsforce","backend","xEventID"))
+		set %session.Data("eventsforce","frontend","xEventID") = eventID	
 	}	
 	set contextData.eventID = eventID
 	set contextData.loggedInPersonID = ##class(EF.security.websiteAccessHandler).getAuthenticatedWebsitePersonID(contextData.eventID)
@@ -19569,7 +19570,7 @@ session pageID=#(%session.Get("pageID"))#
 <Abstract>1</Abstract>
 <ClassType/>
 <ProcedureBlock>1</ProcedureBlock>
-<TimeChanged>64287,63410.463022</TimeChanged>
+<TimeChanged>64295,36643.36924</TimeChanged>
 <TimeCreated>63046,56232.897117</TimeCreated>
 
 <Method name="outputDefaultCSS">
@@ -23617,7 +23618,7 @@ Looks for "style.css" file to update "templateCSSFile" with</Description>
 <ClassType>persistent</ClassType>
 <ProcedureBlock>1</ProcedureBlock>
 <Super>%Library.Persistent,shared.timeStamp</Super>
-<TimeChanged>64294,59108.261342</TimeChanged>
+<TimeChanged>64295,36584.976928</TimeChanged>
 <TimeCreated>60782,60196.270659</TimeCreated>
 <Inheritance>right</Inheritance>
 
@@ -25025,7 +25026,7 @@ Returns true if the template is custom made</Description>
 <FormalSpec>eventID:%Integer,pageName:%String</FormalSpec>
 <ReturnType>%Boolean</ReturnType>
 <Implementation><![CDATA[
-	if (##class(setup.objEvent).isEventUsingProweb2(eventID)) && (##class(sc.methods).isPageConvertedToProweb2(pageName)) {
+	if (##class(setup.objEvent).isEventUsingProweb2(eventID)) && (##class(sc.objTemplate).isPageNameProweb2(pageName)) {
 		return 1
 	} else {
 		return 0
@@ -28816,7 +28817,7 @@ The data type that represents a a page level in the hierachy.
 <ClassType>persistent</ClassType>
 <ProcedureBlock>1</ProcedureBlock>
 <Super>sc.objData</Super>
-<TimeChanged>64294,46764.739263</TimeChanged>
+<TimeChanged>64295,34800.844222</TimeChanged>
 <TimeCreated>58926,57261</TimeCreated>
 
 <Parameter name="EXTENTSIZE">
@@ -28997,51 +28998,18 @@ return the static URL for this page if it has been compiled and it is a static p
 <FormalSpec>pageID:%Integer</FormalSpec>
 <ReturnType>%String</ReturnType>
 <Implementation><![CDATA[
-	set prowebTemplateCSPFile = ..getLegacyTemplateFileName(pageID)
+	set pageUrl = ""
+	set objPage = ..%OpenId(pageID)
+	do objPage.%Reload()
 	set eventID = ..getEventID(pageID)
-	if ($Length(prowebTemplateCSPFile)) && (eventID) && (##class(setup.objEvent).isEventUsingProweb2(eventID)) {
-		return ..getProweb2FileNameFromLegacyFileName(prowebTemplateCSPFile)
+	if (eventID) && (##class(setup.objEvent).isEventUsingProweb2(eventID)) {
+		set pageUrl = objPage.objTemplate.getProweb2PageUrl()
 		
-	} else {
-		return prowebTemplateCSPFile
 	}
-]]></Implementation>
-</Method>
-
-<Method name="getLegacyTemplateFileName">
-<Description>
-returns the template filename</Description>
-<ClassMethod>1</ClassMethod>
-<FormalSpec>pageID:%String=""</FormalSpec>
-<Private>1</Private>
-<ReturnType>%String</ReturnType>
-<Implementation><![CDATA[
-	 set out=""
-	 &SQL(SELECT objTemplate->filename INTO :tmp FROM sc_xModules.objPage WHERE ID = :pageID)
-	 if +SQLCODE=0 set out=tmp
-	 quit out
-]]></Implementation>
-</Method>
-
-<Method name="getProweb2FileNameFromLegacyFileName">
-<ClassMethod>1</ClassMethod>
-<FormalSpec>legacyTemplateFileName:%String</FormalSpec>
-<Private>1</Private>
-<ReturnType>%String</ReturnType>
-<Implementation><![CDATA[
-	set legacyTemplateFileName = $ZCVT(legacyTemplateFileName, "U")
-	set path = $Piece(legacyTemplateFileName, "/", 1, $Length(legacyTemplateFileName,"/")-1) 
-	set fileName = $Piece(legacyTemplateFileName, "/" , $Length(legacyTemplateFileName,"/") )
-	
-	if fileName = "TREGISTRATION.CSP" {
-		return path_"/"_"registration.csp"	
+	if '$Length(pageUrl) {
+		set pageUrl = objPage.objTemplate.filename
 	}
-	
-	if fileName = "THOME.CSP" {
-		return path_"/"_"home.csp"	
-	}
-	
-	return legacyTemplateFileName
+	return pageUrl
 ]]></Implementation>
 </Method>
 

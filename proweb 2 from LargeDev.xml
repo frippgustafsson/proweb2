@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.2 (Build 736U)" ts="2017-01-12 10:13:33">
+<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.2 (Build 736U)" ts="2017-01-12 17:49:24">
 <Class name="EF.contextDataFrontend">
 <Description><![CDATA[
 <!-- ;vc;-
 ;vc;    Object: EF.contextDataFrontend.CLS/EV.5
 ;vc; Component: CLS.EF.contextDataFrontend
 ;vc;  Location: LargeDev
-;vc; Date/Time: 11-Jan-17 11:27
-;vc;      User: AdrianM2
-;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>EF.contextDataFrontend.CLS/EV.5</td><td>CLS.EF.contextDataFrontend</td><td>LargeDev</td><td style='white-space: nowrap;'>11-Jan-17 11:27</td><td>AdrianM2</td></tr></table>
+;vc; Date/Time: 12-Jan-17 14:59
+;vc;      User: FredG
+;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>EF.contextDataFrontend.CLS/EV.5</td><td>CLS.EF.contextDataFrontend</td><td>LargeDev</td><td style='white-space: nowrap;'>12-Jan-17 14:59</td><td>FredG</td></tr></table>
 ]]></Description>
 <Super>EF.contextData</Super>
-<TimeChanged>64295,36685.425873</TimeChanged>
+<TimeChanged>64295,57188.822239</TimeChanged>
 <TimeCreated>63755,56082.660879</TimeCreated>
 
 <Property name="loggedInPersonID">
@@ -32,19 +32,6 @@ if website is private, this will be set to the cod.objPerson.ID of that logged i
 <Property name="isTestMode">
 <Type>%Boolean</Type>
 <InitialExpression>0</InitialExpression>
-</Property>
-
-<Property name="pageID">
-<Type>%Integer</Type>
-</Property>
-
-<Property name="listID">
-<Type>%Integer</Type>
-</Property>
-
-<Property name="prowebComponentName">
-<Type>%String</Type>
-<Parameter name="MAXLEN" value="255"/>
 </Property>
 
 <Property name="eventWebsiteLanguage">
@@ -68,42 +55,53 @@ if website is private, this will be set to the cod.objPerson.ID of that logged i
 		set %session.Data("eventsforce","frontend","xEventID") = eventID	
 	}	
 	set contextData.eventID = eventID
-	set contextData.loggedInPersonID = ##class(EF.security.websiteAccessHandler).getAuthenticatedWebsitePersonID(contextData.eventID)
 	
 	Do contextData.setControllerID()
-	set contextData.pageID=%request.Get("pageID")
-	if 'contextData.pageID {
-		set contextData.pageID=%session.Get("pageID")
-	}
 	
 	set contextData.languageID = $G(%session.Data("eventsforce","frontend","xPrefLangID"))
 	if contextData.languageID = "" {
 		 set contextData.languageID=$G(%session.Data("eventsforce","frontend","xLangID"))
-	}
-	if contextData.pageID {
-		set contextData.languageID = ##class(sc.xModules.objPage).getLanguageIDFromPageID(contextData.pageID)	
 	} 
 	
 	set contextData.sessionID = %session.SessionId
 	
-	set contextData.backendPersonID = $G(%session.Data("eventsforce","backend","xPersonID"))
+	
 	
 	set contextData.prowebMode = %session.Get("mode")
 	
-	do contextData.setAuditPersonIDfromBackend()
-	if 'contextData.auditPersonID {
-		do contextData.setAuditPersonIDfromFrontend()
-	}
-	if contextData.loggedInPersonID {
-		// this will be used to restrict the categories of sessions in the daily agenda before registration
-		set contextData.attendeeCategoryID=##class(links.lnkPersonEventCategory).getPreSelectedAttendeeCategoryID(contextData.eventID,contextData.loggedInPersonID)
-	}
+	do contextData.populatePersonDataFromSession()
 	
 	set eventDetails = ##class(setup.eventConfiguration).createForEventID(contextData.eventID)
 	set objLanguage = ##class(shared.objLanguage).%OpenId(contextData.languageID)
 	set contextData.eventWebsiteLanguage = ##class(setup.eventWebsiteLanguage).createNew(eventDetails, objLanguage)
 	
 	return contextData
+]]></Implementation>
+</Method>
+
+<Method name="populatePersonDataFromSession">
+<Implementation><![CDATA[
+	set ..backendPersonID = $Get(%session.Data("eventsforce","backend","xPersonID"))
+	do ..populateLoggedInPersonID()
+	do ..setAuditPersonIDfromBackend()
+	if '..auditPersonID {
+		do ..setAuditPersonIDfromFrontend()
+	}
+	do ..populateAttendeeCategoryID()
+]]></Implementation>
+</Method>
+
+<Method name="populateLoggedInPersonID">
+<Implementation><![CDATA[	set ..loggedInPersonID = ##class(EF.security.websiteAccessHandler).getAuthenticatedWebsitePersonID(..eventID)
+]]></Implementation>
+</Method>
+
+<Method name="populateAttendeeCategoryID">
+<Implementation><![CDATA[
+	if ..loggedInPersonID {
+		// this will be used to restrict the categories of sessions in the daily agenda before registration
+		set ..attendeeCategoryID = ##class(links.lnkPersonEventCategory).getPreSelectedAttendeeCategoryID(..eventID, ..loggedInPersonID)
+	}
 ]]></Implementation>
 </Method>
 
@@ -124,12 +122,12 @@ if website is private, this will be set to the cod.objPerson.ID of that logged i
 ;vc;    Object: EF.contextDataRegistration.CLS/EV.9
 ;vc; Component: CLS.EF.contextDataRegistration
 ;vc;  Location: LargeDev
-;vc; Date/Time: 11-Jan-17 14:59
-;vc;      User: AdrianM2
-;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>EF.contextDataRegistration.CLS/EV.9</td><td>CLS.EF.contextDataRegistration</td><td>LargeDev</td><td style='white-space: nowrap;'>11-Jan-17 14:59</td><td>AdrianM2</td></tr></table>
+;vc; Date/Time: 12-Jan-17 15:02
+;vc;      User: FredG
+;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>EF.contextDataRegistration.CLS/EV.9</td><td>CLS.EF.contextDataRegistration</td><td>LargeDev</td><td style='white-space: nowrap;'>12-Jan-17 15:02</td><td>FredG</td></tr></table>
 ]]></Description>
 <Super>EF.contextDataFrontend</Super>
-<TimeChanged>64294,59359.230972</TimeChanged>
+<TimeChanged>64295,54121</TimeChanged>
 <TimeCreated>63755,56082.660879</TimeCreated>
 
 <Property name="tempPurchaseID">
@@ -188,36 +186,51 @@ if website is private, this will be set to the cod.objPerson.ID of that logged i
 <ClassMethod>1</ClassMethod>
 <ReturnType>EF.contextDataRegistration</ReturnType>
 <Implementation><![CDATA[
-	#dim sessionID as %String = %session.SessionId
 	#dim contextData as EF.contextDataRegistration
 	
 	set contextData = ##super()
-	
-	set contextData.tempPersonID=$G(%session.Data("eventsforce","frontend","currentPersonID"))
-	set contextData.loggedInPersonID=$G(%session.Data("eventsforce","xtfrontend","MyAccount","personID"))
-	set contextData.attendeeCategoryID=##class(eCom.tempPurchase).getEventCategory(sessionID,contextData.tempPersonID)
-	if contextData.attendeeCategoryID="" {
-		if contextData.loggedInPersonID {
-			// this will be used to restrict the categories of sessions in the daily agenda before registration
-			set contextData.attendeeCategoryID=##class(links.lnkPersonEventCategory).getPreSelectedAttendeeCategoryID(contextData.eventID,contextData.loggedInPersonID)
-		} else {
-			set contextData.attendeeCategoryID = ##class(setup.lnkCategoryEvent).getDefault(contextData.eventID)	
-		}
-	}
-	set contextData.currencyID=+##class(eCom.tempPurchase).getCurrencyID(sessionID)
-	set contextData.isAmendment=+$G(%session.Data("eventsforce","frontend","amend"))
-	
-	set contextData.tempPurchaseID = ##class(eCom.tempPurchase).getTempPurchaseFromSessionID(sessionID)
-	
-	set contextData.isBackendBooking=##class(eCom.tempPurchase).isBackendBooking(sessionID)
-	set contextData.pricingHorologUTC=##class(eCom.tempPurchase).getPriceHorologUTC(contextData.tempPurchaseID)	
-	
-	set contextData.tempBookerID = ##class(eCom.tempPerson).getBookerIDfromTempPurchaseID(contextData.tempPurchaseID)
-	set contextData.isBackendSuperUser=##class(eCom.tempPurchase).isBackendSuperUser(sessionID)
-		
-
+	do contextData.populateTempPurchaseDataFromSession()
 		
 	return contextData
+]]></Implementation>
+</Method>
+
+<Method name="populatePersonDataFromSession">
+<Implementation><![CDATA[
+	set ..tempPersonID=$Get(%session.Data("eventsforce","frontend","currentPersonID"))
+	set ..tempBookerID = ##class(eCom.tempPerson).getBookerIDfromTempPurchaseID(..tempPurchaseID)
+	set ..isBackendSuperUser=##class(eCom.tempPurchase).isBackendSuperUser(..sessionID)
+	do ##super()
+]]></Implementation>
+</Method>
+
+<Method name="populateTempPurchaseDataFromSession">
+<Implementation><![CDATA[
+	set ..isAmendment = +$Get(%session.Data("eventsforce","frontend","amend"))
+	set ..currencyID = +##class(eCom.tempPurchase).getCurrencyID(..sessionID)
+	set ..tempPurchaseID = ##class(eCom.tempPurchase).getTempPurchaseFromSessionID(..sessionID)
+	
+	set ..isBackendBooking = ##class(eCom.tempPurchase).isBackendBooking(..sessionID)
+	set ..pricingHorologUTC = ##class(eCom.tempPurchase).getPriceHorologUTC(..tempPurchaseID)
+]]></Implementation>
+</Method>
+
+<Method name="populateLoggedInPersonID">
+<Implementation><![CDATA[	set ..loggedInPersonID = ##class(EF.security.websiteAccessHandler).getCurrentRegistrationPersonID(..eventID)
+]]></Implementation>
+</Method>
+
+<Method name="populateAttendeeCategoryID">
+<Implementation><![CDATA[
+	set ..attendeeCategoryID=##class(eCom.tempPurchase).getEventCategory(..sessionID,..tempPersonID)
+	if ..attendeeCategoryID="" {
+		if ..loggedInPersonID {
+			// this will be used to restrict the categories of sessions in the daily agenda before registration
+			set ..attendeeCategoryID=##class(links.lnkPersonEventCategory).getPreSelectedAttendeeCategoryID(..eventID,..loggedInPersonID)
+		} else {
+			set ..attendeeCategoryID = ##class(setup.lnkCategoryEvent).getDefault(..eventID)	
+		}
+	}
 ]]></Implementation>
 </Method>
 
@@ -360,77 +373,6 @@ if website is private, this will be set to the cod.objPerson.ID of that logged i
 </Class>
 
 
-<Class name="EF.mvcHandler.base">
-<Super>%CSP.Page,EF.htmlGenerator</Super>
-<TimeChanged>64294,63524.857494</TimeChanged>
-<TimeCreated>64292,52804.615476</TimeCreated>
-
-<Parameter name="contextDataClass">
-<Type>%String</Type>
-</Parameter>
-
-<Parameter name="mvcHandlerClass">
-<Type>%String</Type>
-</Parameter>
-
-<Method name="OnPreHTTP">
-<ClassMethod>1</ClassMethod>
-<ReturnType>%Boolean</ReturnType>
-<Implementation><![CDATA[
-	#dim %zPage as EF.mvcHandler.page // This is a percent variable to make it available to the OnPageCSPROOT too
-	
-	// create an instance of a page manually because %CSP.Page dosn't
-	// the instance is stored in a percent variable so that it can be accessed from anywhere during the page loading/rendering process 
-	set %zPage = $ClassMethod(..#mvcHandlerClass, "createNew")
-	
-	if '$IsObject(%zPage) {
-		throw ##class(shared.exceptions.generalException).%New("Failed to create %zPage object")
-	}
-	
-	set %zPage.pageClass = $ClassName()
-
-	set %zPage.contextData = ..getContextData()
-	
-	if '$IsObject(%zPage.contextData) {
-			throw ##class(shared.exceptions.generalException).%New("Failed to create contextData in page")
-	}
-
-	set %zPage.contextData.request = %request
-	set %zPage.pageDataClassName = ..getPageDataClassName()
-	set %zPage.controller = %zPage.getController()
-	
-	return %zPage.isOkToRenderPage
-]]></Implementation>
-</Method>
-
-<Method name="OnPageCSPROOT">
-<ClassMethod>1</ClassMethod>
-<ReturnType>%Boolean</ReturnType>
-<Implementation><![CDATA[
-	if $IsObject(%zPage) {
-		do %zPage.renderView()
-	} else {
-		throw ##class(shared.exceptions.generalException).%New("No %zPage object present in OnPageCSPROOT")
-	}
-]]></Implementation>
-</Method>
-
-<Method name="getPageDataClassName">
-<ClassMethod>1</ClassMethod>
-<ReturnType>%String</ReturnType>
-<Implementation><![CDATA[	return "EF.pageController.pagesFrontend."_$Piece($Piece(..#CSPFILE, "\", *), ".", 1)
-]]></Implementation>
-</Method>
-
-<Method name="getContextData">
-<ClassMethod>1</ClassMethod>
-<ReturnType>EF.contextData</ReturnType>
-<Implementation><![CDATA[	return $ClassMethod(..#contextDataClass, "createFromFrontendCSPSession")
-]]></Implementation>
-</Method>
-</Class>
-
-
 <Class name="EF.mvcHandler.frontend">
 <Super>EF.mvcHandler.page</Super>
 <TimeChanged>64294,40877.373682</TimeChanged>
@@ -446,12 +388,21 @@ if website is private, this will be set to the cod.objPerson.ID of that logged i
 
 <Class name="EF.mvcHandler.frontendProweb">
 <Super>EF.mvcHandler.frontend</Super>
-<TimeChanged>64294,58358.476689</TimeChanged>
+<TimeChanged>64295,58310.83399</TimeChanged>
 <TimeCreated>64292,52952.708564</TimeCreated>
 
-<Parameter name="showRegistrationProgressBar">
-<Default>0</Default>
-</Parameter>
+<Property name="showRegistrationProgressBar">
+<InitialExpression>0</InitialExpression>
+</Property>
+
+<Property name="isEditMode">
+<Type>%Boolean</Type>
+<InitialExpression>0</InitialExpression>
+</Property>
+
+<Property name="pageID">
+<Type>%Integer</Type>
+</Property>
 
 <Method name="renderView">
 <Implementation><![CDATA[
@@ -473,9 +424,8 @@ if website is private, this will be set to the cod.objPerson.ID of that logged i
 
 <Method name="onEditing">
 <Implementation><![CDATA[
-	if ##class(shared.pageMethods).getEditMode() = "edit" {
+	if ..isEditMode {
 		do ##class(eCom.tempPurchase).clearBackendBooking()
-		kill %session.Data("eventsforce", "backend", "proweb page")
 		set floatingMenu = ##class(EF.ui.components.frontend.floatingMenu).%New()
 		do floatingMenu.outputFloatingMenuHTML()	
 	}
@@ -484,7 +434,6 @@ if website is private, this will be set to the cod.objPerson.ID of that logged i
 
 <Method name="OnPagePageTop">
 <Implementation><![CDATA[
-	
 	write ##class(shared.pageMethods).outputFrontendHeader()
 	Write !,"<head>"
  	
@@ -496,14 +445,14 @@ if website is private, this will be set to the cod.objPerson.ID of that logged i
 	Write !,"</head>"
 	Write !,"<body class=""ef-background-color"">"
 	
-	if ##class(shared.pageMethods).getEditMode() = "edit" {
+	if ..isEditMode {
 		do ##class(EF.ui.components.frontend.editorControlPanel).outputEditorControlPanel()	
 	}	
  	
  	do ##class(layout.objTemplate).writeBit("{{ef_header}}","{{ef_banner}}")
  	do ##class(layout.objTemplate).writeBit("{{ef_banner}}","{{ef_main_progress}}")
  	
- 	if ..#showRegistrationProgressBar {
+ 	if ..showRegistrationProgressBar {
 		Do ..outputProgressBar()
  	}
  	
@@ -515,7 +464,7 @@ if website is private, this will be set to the cod.objPerson.ID of that logged i
 
 <Method name="renderCommonJavascript">
 <Implementation><![CDATA[
-	if ##class(shared.pageMethods).getEditMode() = "edit"  {
+	if ..isEditMode  {
 		&html<
 			<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js"></script>
 			<script type="text/javascript" src="../../media/javascript/distribution/ef-website-admin.min.js"></script>
@@ -595,12 +544,32 @@ if website is private, this will be set to the cod.objPerson.ID of that logged i
 	return URL
 ]]></Implementation>
 </Method>
+
+<Method name="updatePageID">
+<Implementation><![CDATA[
+	set ..pageID = %request.Get("pageID")
+	if '..pageID {
+		set ..pageID=%session.Get("pageID")
+	}
+]]></Implementation>
+</Method>
+
+<Method name="updateLanguageID">
+<Implementation><![CDATA[
+	if ..pageID {
+		set languageIDFromPage = ##class(sc.xModules.objPage).getLanguageIDFromPageID(..pageID)
+		if languageIDFromPage {
+			set ..contextData.languageID = languageIDFromPage
+		}
+	}
+]]></Implementation>
+</Method>
 </Class>
 
 
 <Class name="EF.mvcHandler.frontendProwebRegistration">
 <Super>EF.mvcHandler.frontendProweb</Super>
-<TimeChanged>64294,55112.973627</TimeChanged>
+<TimeChanged>64295,58347.895089</TimeChanged>
 <TimeCreated>64293,33205.393133</TimeCreated>
 
 <Property name="efFormID">
@@ -646,7 +615,7 @@ if website is private, this will be set to the cod.objPerson.ID of that logged i
 <Implementation><![CDATA[
 	&html<
 		<form id="#(..efFormID)#" name="#(..efFormName)#" method="POST" action="#(..Link(..efFormAction))#" class="form-inline ef-form" autocomplete="on">
-			<input type="hidden" name="pageID" value="#(..contextData.pageID)#">
+			<input type="hidden" name="pageID" value="#(..pageID)#">
 			<input type="hidden" id="efSubmitButtonIdentifier" name="efSubmitButtonIdentifier" value="">
 			<input type="hidden" id="efDeleteButtonIdentifier" name="efDeleteButtonIdentifier" value="">
 			<input type="hidden" id="efSaveAndReloadFormOnly" name="efSaveAndReloadFormOnly" value="">
@@ -664,7 +633,7 @@ if website is private, this will be set to the cod.objPerson.ID of that logged i
 
 <Class name="EF.mvcHandler.page">
 <Super>%RegisteredObject,EF.htmlGenerator</Super>
-<TimeChanged>64294,63569.415289</TimeChanged>
+<TimeChanged>64295,57973.980155</TimeChanged>
 <TimeCreated>64293,52286.415864</TimeCreated>
 
 <Property name="isOkToRenderPage">
@@ -678,6 +647,10 @@ if website is private, this will be set to the cod.objPerson.ID of that logged i
 
 <Property name="controller">
 <Type>EF.pageController.page</Type>
+</Property>
+
+<Property name="pageControllerID">
+<Type>%Integer</Type>
 </Property>
 
 <Property name="pageClass">
@@ -715,21 +688,17 @@ if website is private, this will be set to the cod.objPerson.ID of that logged i
 
 	if pageControllerID { // when reloading the page after an validation error
 		set pageController = ##class(EF.pageController.page).open(pageControllerID, ..contextData)
-		set ..contextData.pageID = pageController.prowebPageID
 
 	} else { // regular loading of a page
-		set ..contextData.pageID = ..contextData.request.Get("pageID")
-		
 		set pageController = $CLASSMETHOD(..pageDataClassName, "createNew", ..contextData, .requestData)
 		set pageController.isReadOnly = 0
-		set pageController.prowebPageID = ..contextData.request.Get("pageID")
 		set pageController.contextData = ..contextData
 		set sc = pageController.%Save()
 		if 'sc {
 			throw ##class(shared.exceptions.generalStatusException).CreateFromStatus(sc)
 		}
 	}
-	set %session.Data("mvcHandler","pageControllerID") = pageController.%Id()
+	set ..pageControllerID = pageController.%Id()
 	return pageController
 ]]></Implementation>
 </Method>
@@ -737,8 +706,18 @@ if website is private, this will be set to the cod.objPerson.ID of that logged i
 <Method name="outputPageControllerTag">
 <Implementation><![CDATA[
 	&html<
-		<input type="hidden" name="prowebPageControllerID" value="#($this.controller.%Id())#">
+		<input type="hidden" name="prowebPageControllerID" value="#(..pageControllerID)#">
 	>
+]]></Implementation>
+</Method>
+
+<Method name="updatePageID">
+<Implementation><![CDATA[	// Overridden in sub-classes
+]]></Implementation>
+</Method>
+
+<Method name="updateLanguageID">
+<Implementation><![CDATA[	// Overridden in sub-classes
 ]]></Implementation>
 </Method>
 
@@ -3010,7 +2989,7 @@ Should have a one-to-one relationship with sc.objList</Description>
 
 <Class name="EF.pageController.proweb.page">
 <Super>EF.pageController.page</Super>
-<TimeChanged>64294,62346.791666</TimeChanged>
+<TimeChanged>64295,62152.859861</TimeChanged>
 <TimeCreated>64189,51696.559047</TimeCreated>
 
 <Property name="contextData">
@@ -3049,7 +3028,7 @@ Should have a one-to-one relationship with sc.objList</Description>
 	if 'pageControllerID {
 		throw ##class(shared.exceptions.generalException).%New("No pageControllerID passed in to the open method")	
 	}
-	set pageController=##class(EF.pageController.page).%OpenId(pageControllerID)
+	set pageController = ##class(EF.pageController.page).%OpenId(pageControllerID)
 	if '$IsObject(pageController) {
 		throw ##class(shared.exceptions.generalSQLException).%New("Failed to open pageController with ID='"_pageControllerID_"'")
 		
@@ -3447,6 +3426,7 @@ also an entry point from unit tests</Description>
 <Private>1</Private>
 <ReturnType>%Integer</ReturnType>
 <Implementation><![CDATA[
+	/*
 	if ..isReload {
 		set pageID = ..prowebPageID
 	} else {
@@ -3456,8 +3436,8 @@ also an entry point from unit tests</Description>
 	if $Get(%session.Data("pageID")) = "" {
 		set %session.Data("pageID") = pageID
 	}
-	
-	return pageID
+	*/
+	return ..pageID
 ]]></Implementation>
 </Method>
 
@@ -4879,6 +4859,78 @@ also an entry point from unit tests</Description>
 </Value>
 </Data>
 </Storage>
+</Class>
+
+
+<Class name="EF.pages.base">
+<Super>%CSP.Page,EF.htmlGenerator</Super>
+<TimeChanged>64295,62095.681008</TimeChanged>
+<TimeCreated>64292,52804.615476</TimeCreated>
+
+<Parameter name="contextDataClass">
+<Type>%String</Type>
+</Parameter>
+
+<Parameter name="mvcHandlerClass">
+<Type>%String</Type>
+</Parameter>
+
+<Method name="OnPreHTTP">
+<ClassMethod>1</ClassMethod>
+<ReturnType>%Boolean</ReturnType>
+<Implementation><![CDATA[
+	#dim %zPage as EF.mvcHandler.page // This is a percent variable to make it available to the OnPageCSPROOT too
+	
+	// create an instance of a page manually because %CSP.Page dosn't
+	// the instance is stored in a percent variable so that it can be accessed from anywhere during the page loading/rendering process 
+	set %zPage = $ClassMethod(..#mvcHandlerClass, "createNew")
+	
+	if '$IsObject(%zPage) {
+		throw ##class(shared.exceptions.generalException).%New("Failed to create %zPage object")
+	}
+	
+	set %zPage.pageClass = $ClassName()
+	do %zPage.updatePageID()
+	set %zPage.contextData = ..getContextData()
+	do %zPage.updateLanguageID()
+	
+	if '$IsObject(%zPage.contextData) {
+			throw ##class(shared.exceptions.generalException).%New("Failed to create contextData in page")
+	}
+
+	set %zPage.contextData.request = %request
+	set %zPage.pageDataClassName = ..getPageDataClassName()
+	set %zPage.controller = %zPage.getController()
+	
+	return %zPage.isOkToRenderPage
+]]></Implementation>
+</Method>
+
+<Method name="OnPageCSPROOT">
+<ClassMethod>1</ClassMethod>
+<ReturnType>%Boolean</ReturnType>
+<Implementation><![CDATA[
+	if $IsObject(%zPage) {
+		do %zPage.renderView()
+	} else {
+		throw ##class(shared.exceptions.generalException).%New("No %zPage object present in OnPageCSPROOT")
+	}
+]]></Implementation>
+</Method>
+
+<Method name="getPageDataClassName">
+<ClassMethod>1</ClassMethod>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[	return "EF.pageController.pagesFrontend."_$Piece($Piece(..#CSPFILE, "\", *), ".", 1)
+]]></Implementation>
+</Method>
+
+<Method name="getContextData">
+<ClassMethod>1</ClassMethod>
+<ReturnType>EF.contextData</ReturnType>
+<Implementation><![CDATA[	return $ClassMethod(..#contextDataClass, "createFromFrontendCSPSession")
+]]></Implementation>
+</Method>
 </Class>
 
 
@@ -13672,863 +13724,6 @@ function saveSameAs(categoryID) {
 ]]></CSP>
 
 
-<CSP name="backEnd/proweb/codQuestionDetails2AJM.csp" application="/largedevsrc/" default="1"><![CDATA[
-<script language="CACHE" method="OnPreHTTPafter" arguments="" returntype="%Boolean">
-	do ##class(shared.pageMethods).createBackendVariables()
-	if xEventID {
-		set eventConfiguration=##class(setup.eventConfiguration).createForEventID(xEventID)	
-	}
-
-	set dataID=%request.Get("dataID")
-	set itemNameID=%request.Get("itemNameID")
-	set parent=%request.Get("parent")
-	set xWorkLangID = $Get(%session.Data("eventsforce","backend","xWorkLangID"))
-	set pageID=%request.Get("pageID")
-	
-	set isQuantityItem=%request.Get("quantityItem")
-	set isAdditionalItem=%request.Get("additional")
-	
-	do ##class(sc.methods).updateBackendVariablesFromPageID(pageID)
-	
-	set newCodQuestionDetailsURL="codQuestionDetails.csp?pageID="_..encodeForURL(pageID)_"&dataID="_..encodeForURL(dataID)_"&quantityItem="_..encodeForURL(isQuantityItem)_"&additional="_..encodeForURL(isAdditionalItem)
-	set codQuestionDetailsURL=newCodQuestionDetailsURL_"&itemNameID="_..encodeForURL(itemNameID)
-	set errorURL=codQuestionDetailsURL
-
-	// get the current values, used to compare against for audit trail purposes
-	set (dependsOnPromptExisting,dependsOnAlternativeExisting,backendOnlyExisting,requiredAnswerExisting,validationErrorMessageExisting,noAmendmentsExisting,readonlyFrontendExisting)=""
-	if dataID	{
-		&SQL(SELECT 
-			dependsOnPrompt,
-			dependsOnAlternative,
-			backendOnly,
-			requiredAnswer,
-			validationErrorMessage,
-			noAmendments,
-			readonlyFrontend
-			INTO 
-			:dependsOnPromptExisting,
-			:dependsOnAlternativeExisting,
-			:backendOnlyExisting,
-			:requiredAnswerExisting,
-			:validationErrorMessageExisting,
-			:noAmendmentsExisting,
-			:readonlyFrontendExisting
-			FROM sc_xModules.objCODitem WHERE ID = :dataID)
-	}
-	set mandatory=%request.Get("chkMandatory")
-	set concealed=+%request.Get("chkConcealed")	
-	
-	set questionText=%request.Get("txtPrompt")
-
-
-	// make any custom created firstname & lastname prompts mandatory, fix the twisted workflow of Organizers (SF CASE #00020967)
-	set alwaysMandatory=0
-	if $ZCVT(%request.Get("txtDescription"),"L")="firstname" set alwaysMandatory=1
-	if $ZCVT(%request.Get("txtDescription"),"L")="lastname" set alwaysMandatory=1
-	if (alwaysMandatory) {
-		set mandatory=1
-	}
-								
-	set (pageName,languageID)=""
-	&SQL(SELECT description,objLanguage INTO :tmp,:tmp2 FROM sc_xModules.objPage WHERE ID = :pageID)
-	if +SQLCODE=0 set pageName=tmp,languageID=tmp2
-
-	if isQuantityItem {
-		set createsAttendees=+%request.Get("chkqCreatesAttendees"),attendeeCategoryID=%request.Get("selqAttendeeCategory")
-		if createsAttendees {
-			//check if accommodation is ON, then, do not allow real attendees to be created.
-			if (##class(setup.objEventSetting).getParameter("bookings","allow accommodation bookings",xEventID)) {
-				set %session.Data("proweb","backend","errMsg")=..out("Real attendees in QBIs cannot be created if the Accommodation module has been activated.")
-				set %response.Redirect=errorURL_"&isCOD="_..encodeForURL(%request.Get("isCOD"))_"&quantityItem=1"
-				quit 0
-			}			
-
-			if ##class(cod.objTicket).anyOtherCreateAttendeeQuestions(xEventID,attendeeCategoryID,dataID,languageID) {
-				set %session.Data("proweb","backend","errMsg")="There is already a question that creates attendees for this attendee category."
-				set %response.Redirect=errorURL_"&isCOD="_..encodeForURL(%request.Get("isCOD"))_"&quantityItem=1"
-				quit 0
-			}
-			if ##class(setup.objEventSetting).getParameter("table bookings","enable frontend",xEventID) {
-				set %session.Data("proweb","backend","errMsg")="Attendees cannot be created for an event with table bookings."
-				set %response.Redirect=errorURL_"&isCOD="_..encodeForURL(%request.Get("isCOD"))_"&quantityItem=1"
-				quit 0
-			}
-		}
-	}
-	
-	set addToTop=%request.Get("addToTop")
-	set addToTop=$S(addToTop="true":1,1:0)
-	set codGroup=%request.Get("codGroup")   
-	set eventHotelID=%request.Get("eventHotelID")     
-	set (isDelegate,isGuest)=""
-	if %request.Get("radDelegateOrGuest")="delegate" set isDelegate=1
-	if %request.Get("radDelegateOrGuest")="guest" set isGuest=1
-	if %request.Get("radDelegateOrGuest")="both" set isDelegate=1,isGuest=1
-	if 'isDelegate,'isGuest {
-		// This should never happen, but has. Set isDelegate=1 and log the details
-		set isDelegate=1
-	}
-
-	// stop them entering only one alternative, can never be right but only if radio (as sometimes needed for drop downs)
-	 if %request.Get("selType")="radiobutton",$L(%request.Get("txtAlternatives"),"|")=2 { 
-		set %session.Data("proweb","backend","errMsg")=..out("You have only entered one alternative, please add more or consider a different question type")
-		set %response.Redirect=errorURL
-		quit 0
-	}
-	
-	// check that any deleted alternatives have not been purchased in this event or any other
-	set hasBeenPurchased=0
-	set delAlts=%request.Get("txtDeletedAlternatives")
-	for i=1:1:$L(delAlts,"|") {
-		set id=$p(delAlts,"|",i)
-		if '##class(cod.objItemAlternatives).canAlternativeBeDeleted(id,.reason) {
-			set %session.Data("proweb","backend","errMsg")=reason
-			set %response.Redirect=errorURL
-			return 0	
-		}
-	}
-	
-	// verify the min and max number of checkboxes
-	if %request.Get("multiCheckboxMax"),%request.Get("multiCheckboxMin"),%request.Get("multiCheckboxMax")<%request.Get("multiCheckboxMin") {
-		set %session.Data("proweb","backend","errMsg")=..out("Maximum number of checked alternatives must be more or the same as the minimum number.")
-		set %response.Redirect=errorURL
-		quit 0
-	}
-	
-	// if dateRange type, make sure we have both end of Range and the range is no longer than 30 days.
-	set minDateRange=""
-	set maxDateRange=""
-	if (%request.Get("selType")="dateRange") {
-		set minDateRange=##class(shared.dateFunctions).multiDate(%request.Get("dateRangeStart"),25,,xUserInputDateFormat)
-		set maxDateRange=##class(shared.dateFunctions).multiDate(%request.Get("dateRangeEnd"),25,,xUserInputDateFormat)
-		if ('$L(minDateRange)) {
-			set %session.Data("proweb","backend","errMsg")=..out("Date range start date is not valid.")
-			set %response.Redirect=errorURL
-			quit 0			
-		} elseif ('$L(maxDateRange)) {
-			set %session.Data("proweb","backend","errMsg")=..out("Date range end date is not valid.")
-			set %response.Redirect=errorURL
-			quit 0				
-		} elseif ($SYSTEM.SQL.DATEDIFF("day",minDateRange,maxDateRange)<0) {
-			set %session.Data("proweb","backend","errMsg")=..out("Date range end date must be after the start date.")
-			set %response.Redirect=errorURL
-			quit 0
-		} elseif ($SYSTEM.SQL.DATEDIFF("day",minDateRange,maxDateRange)>##class(cod.objItemName).#maxDateRangeLength) {
-			set %session.Data("proweb","backend","errMsg")=..out("Date range must be between 1 and {{{VAR01}}} days.",,##class(cod.objItemName).#maxDateRangeLength)
-			set %response.Redirect=errorURL
-			quit 0
-	
-		}
-	}
-	
-	
-	set requiredAnswer=##class(EF.sanitiser).removeRepeatedWhiteSpace(%request.Get("requiredAnswer"))
-	set validationErrorMessage=%request.Get("validationErrorMessage")
-	set okToSave=1
-	if $e(requiredAnswer,1,2)="##" {
-		set okToSave=0
-		// Validate bespoke callouts
-		set callOutMethod=$e(requiredAnswer,3,$l(requiredAnswer))
-		if callOutMethod?1A.AN {
-			set callOutMethod="customCode.codAnswerValidation."_##class(shared.callOuts).classNameForBespokeCode()_"."_callOutMethod
-			if ##class(%MethodDefinition).%OpenId(callOutMethod).ClassMethod {
-				set okToSave=1
-			}
-		}
-		if 'okToSave {
-			set %session.Data("proweb","backend","errMsg")=..out("The custom validation specifies an invalid call out method.")
-		}	
-	}
-	if requiredAnswer?1"#"1.AN {
-		if requiredAnswer="#personRegisteredWithSameAnswer" {
-			if (%request.Get("selType")="multibox") ! (%request.Get("selType")="dateRange") ! (%request.Get("selType")="checkbox") ! (%request.Get("selType")="radiobutton") {
-				set %session.Data("proweb","backend","errMsg")="Custom validation #personRegisteredWithSameAnswer has been removed as it cannot be used with this question type"
-				set okToSave=0	
-			}
-		} else {
-			set %session.Data("proweb","backend","errMsg")=..out("Invalid custom validation, please enter an answer or pattern that must be matched, or a valid custom validation method starting with '#'")
-			set okToSave=0	
-		}
-	}
-	if 'okToSave {
-		set %response.Redirect=errorURL
-		quit 0
-	}	
-	set dependsOnPrompt=%request.Get("selDependsOnDataID")
-	if dependsOnPrompt {
-		if isDelegate {
-			set isDependentParentForGuests=##class(sc.methods).isGuestItem(dependsOnPrompt)
-			if isDependentParentForGuests {
-				set %session.Data("proweb","backend","errMsg")=..out("You cannot make an attendee prompt dependent on a guest prompt")
-				set %response.Redirect=errorURL
-				quit 0
-			}
-		}
-	}
-	set defaultValue=""
-	if $Length(%request.Get("txtAlternatives")) {
-		set defaultValue=%request.Get("defaultValueAlt")	
-	} else {
-		set defaultValue=%request.Get("defaultValueText")
-	}
-	set copyValueFromBooker=%request.Get("chkCopyFromBooker")
-	if copyValueFromBooker set defaultValue=""
-	
-	if $l(defaultValue) {
-		set isDefaultValid=$CASE($ZCVT(%request.Get("selType"),"L"),
-			"emailaddress":##class(EF.utils.dataValidation).isValidEmailAddress(defaultValue),
-			"multiemailaddress":##class(EF.utils.dataValidation).isValidMultiEmailAddress(defaultValue),
-			:1
-		)
-		if 'isDefaultValid {
-			set %session.Data("proweb","backend","errMsg")=..out("Please enter a valid default value.")
-			set %response.Redirect=errorURL
-			quit 0
-		}
-	}
-		
-	// create new proweb item
-	set carryOver=$S(%request.Get("radAnswerAppliesTo")="allEvents":1,1:0)
-			
-	set isQuestionForSingleEvent=$S(%request.Get("radQuestionAvailability")="singleEvent":1,1:0)
-	
-	if carryOver&&isQuestionForSingleEvent {
-		set %session.Data("proweb","backend","errMsg")=..out("You cannot have a single event question with answers that apply to all events")
-		set %response.Redirect=errorURL
-		quit 0
-	}
-	
-	// if %session.Data("proweb","isSurvey") is set, we are entering a survey question. So, just change the codGroup to 'Survey';
-	if $G(%session.Data("proweb","isSurvey"))=1 set codGroup = "Survey"
-	
-	set reportDescription=%request.Get("reportDescription")		
-	
-	set email=##class(cod.objItemData).get($G(%session.Data("eventsforce","backend","xPersonID")),"email")
-	if dataID="NEW" {
-		if isAdditionalItem {
-			kill allRegPageIDs
-			kill alreadyUsedQuestions
-			set ok = ##class(setup.lnkCategoryEvent).getAllRegPages(xEventID, xWorkLangID, 1,, .allRegPageIDs)
-			if ok {
-				do ##class(cod.methods).loadUsedQuestions(pageID,,, .alreadyUsedQuestions, .allRegPageIDs)
-				if $Data(alreadyUsedQuestions(itemNameID)) {
-					set %session.Data("proweb", "backend", "errMsg") = "The changes can't be saved because the additional bookable item already exists on this registration page."
-					kill %session.Data("itemNameID")
-		 			set %response.Redirect = newCodQuestionDetailsURL
-		 			return 0
-				}
-			}
-	 	}
-		if itemNameID="CREATE" {
-			// new data and new cod
-			// create new cod item
-			if codGroup="" set codGroup="Additional"   // optional pass in value now. 
-			set description=%request.Get("txtDescription")
-			
-			if $G(%session.Data("templateURL"))["tAdditionalRegistration.csp"  {
-				// add the page name to the cod prompt if we are doing additional registration pages
-				 &SQL(SELECT description INTO :pageName FROM sc_xModules.objPage WHERE ID = :pageID)				
-				 set description=pageName_"|"_description
-			}
-			if codGroup'="Hotel" set eventHotelID=""  //  only allow the eventHotel link to be created if we're creating a hotel prompt
-			if eventHotelID set description="HOTEL_"_eventHotelID_"_"_description
-			
-			// password field should be stored as a text field in the COD, it's only a display issue. 
-			set tmpType=%request.Get("selType")
-			if tmpType="password" set tmpType="text"
-			if tmpType="1-5 scale" set tmpType="radiobutton"
-			
-			set errMsg=""
-			// ensure that the database name is free from invalid characters.
-			if ##class(cod.objItemName).anyInvalidCharactersInName(description) {
-				set errMsg="Only letters, numbers, underscores and spaces are allowed for the database name. Please try again."
-			}
-			if '$L(errMsg) {
-				// make sure it doesn't exist already
-				if isQuestionForSingleEvent {
-					if '##class(cod.objItemName).isNameValidForNewSingleEventQuestion(description,xEventID,.tmpMsg) {
-						set errMsg=tmpMsg
-					}
-				} else {
-					if '##class(cod.objItemName).isNameValidForNewCrossEventQuestion(description,.tmpMsg) {
-						set errMsg=tmpMsg
-					}	
-				}
-			}
-			
-			if '$L(errMsg) && (tmpType="dateRange")&&('isQuestionForSingleEvent) {
-				set errMsg="Date range questions must only apply to a single event."
-			}
-			if $l(errMsg) {
-				set %session.Data("proweb","backend","errMsg")=errMsg
-				set %response.Redirect=errorURL
-				quit 0		
-			}
-			
-			try {
-				if isQuestionForSingleEvent {
-					set itemNameID=##class(cod.objItemName).addSingleEventQuestion(description,tmpType,codGroup,xEventID)
-				} else {
-					set itemNameID=##class(cod.objItemName).add(description,mandatory,tmpType,codGroup,,,carryOver,eventHotelID)
-				}
-			} catch error {
-				set %session.Data("proweb","backend","errMsg")=error.DisplayString()	
-				set %response.Redirect=errorURL
-				return 0
-			}
-			
-			// log it to the event audit trail
-			if xEventID do ##class(setup.objEventAudit).add(xUserID,xEventID,"Reg Page '"_pageName_"' ("_pageID_"), Added new database item: "_description_", "_tmpType)
-		}	
-			
-		// new data and existing cod item
-		set layout=%request.Get("radLayout")
-		if layout="" set layout="horizontal"
-		
-		
-		// make multiple checkboxes that have a minimum number of checks mandatory
-		if %request.Get("multiCheckboxMin") set mandatory=1
-		
-		if (%request.Get("txtFieldWidth")'?.N) {
-			set %session.Data("proweb","backend","errMsg") = "The changes can't be saved because ""Field width"" must be a number"
-			set %response.Redirect = errorURL
-			return 0
-		}
-		
-		if (%request.Get("txtFieldHeight")'?.N) {
-			set %session.Data("proweb","backend","errMsg") = "The changes can't be saved because ""Height"" must be a number"
-			set %response.Redirect = errorURL
-			return 0
-		}
-
-		set dataID=##class(sc.xModules.objCODitem).add(itemNameID,questionText,parent,email,addToTop,%request.Get("txtHelpText"),%request.Get("selType"),mandatory,layout,%request.Get("txtFieldWidth"),%request.Get("txtFieldHeight"),isDelegate,isGuest,"",isAdditionalItem,,isQuantityItem,reportDescription)
-
-		// log it to the event audit trail
-		set codItemNameDescription=##class(cod.objItemName).getDescFromID(itemNameID)
-		if isAdditionalItem {
-			if xEventID do ##class(setup.objEventAudit).add(xUserID,xEventID,"Reg Page '"_pageName_"' ("_pageID_"), Added new Additional Booking Item: "_questionText_" ("_codItemNameDescription_"), "_%request.Get("selType")_", "_$S(mandatory:"Mandatory",1:"Not Mandatory"))
-		} else {	
-			if xEventID do ##class(setup.objEventAudit).add(xUserID,xEventID,"Reg Page '"_pageName_"' ("_pageID_"), Added new Registration Question: "_questionText_" ("_codItemNameDescription_"), "_%request.Get("selType")_", "_$S(mandatory:"Mandatory",1:"Not Mandatory"))
-		}
-
-		// Add new, dependend children right underneath their parent
-		set dependsOnAlternative=%request.Get("selDependsOnCodAltID")
-		if (dependsOnPrompt&&dependsOnAlternative) { //  only save as dependent if we have both a dependent question and a required answer
-			&SQL(SELECT displayOrder,parent INTO :parentDisplayOrder,:depParentID FROM sc_xModules.objCODitem WHERE ID = :dependsOnPrompt)
-			if +SQLCODE=0,dataID,depParentID'=parent { // Don't update display order if the dependent question list is different from this one.
-				set lastPos=parentDisplayOrder
-				
-				// find the last dependend child
-				&SQL(SELECT displayorder INTO :lastChild FROM sc_xModules.objCODitem WHERE (dependsOnPrompt = :dependsOnPrompt) AND (parent=:parent) ORDER BY displayOrder DESC)
-				if +SQLCODE=0,lastChild set lastPos=lastChild
-				// Also check text blocks
-				&SQL(SELECT displayorder INTO :lastChild FROM sc_xModules.objText WHERE (dependsOnPrompt = :dependsOnPrompt) AND (parent=:parent) ORDER BY displayOrder DESC)
-				if +SQLCODE=0,lastChild>lastPos {
-					set lastPos=lastChild
-				}
-				
-				// move all the subsequent items one step down
-				&SQL(UPDATE sc.objData SET displayOrder = displayOrder+1 WHERE (parent = :parent) AND (displayOrder > :lastPos))
-				
-				// move the new item to right after the parent	
-				&SQL(UPDATE sc_xModules.objCODitem SET displayOrder = :lastPos + 1 WHERE ID = :dataID)
-			}
-		} else {
-			if ##class(sc.methods).isUsingProweb2() {
-				do ##class(sc.proweb2methods).moveNewElementToDesiredPosition(dataID)				
-			}
-		}
-		
-
-
-	} else {  
-		// existing objData
-		if itemNameID="NEW" {
-			// don't allow this
-					
-		} else {
-			// existing cod item
-			set layout=%request.Get("radLayout")
-			if layout="" set layout="horizontal"
-			set mandatory=%request.Get("chkMandatory")
-			// make multiple checkboxes that have a minimum number of checks mandatory
-			if %request.Get("multiCheckboxMin") set mandatory=1	
-
-			do ##class(sc.xModules.objCODitem).update(dataID,questionText,email,%request.Get("txtHelpText"),%request.Get("selType"),mandatory,layout,%request.Get("txtFieldWidth"),%request.Get("txtFieldHeight"),isDelegate,isGuest,"",reportDescription)
-			// log to event audit trail
-			if xEventID do ##class(setup.objEventAudit).add(xUserID,xEventID,"Reg Page '"_pageName_"' ("_pageID_"), Saved Registration Question: "_questionText_", "_%request.Get("selType")_", "_$S(mandatory:"Mandatory",1:"Not Mandatory"))
-		}
-	
-	}
-	
-	set question=##class(sc.xModules.objCODitem).%OpenId(dataID)
-	if $IsObject(question) {
-		do question.%Reload()
-		set question.searchAsYouType = %request.Get("chkSearchAsYouType")
-		do question.%Save()
-		kill question
-	}
-	
-	set codItemNameDescription=##class(cod.objItemName).getDescFromID(itemNameID)
-	&SQL(UPDATE cod.objItemName SET concealed = :concealed WHERE ID = :itemNameID)
-	
-	set itemNameType=##class(cod.objItemName).getTypeById(itemNameID)
-	if itemNameType="dateRange" {
-		set lnkItemNameEvent=##class(cod.lnkItemNameEventDateRange).getLnkItemNameEvent(itemNameID,xEventID)
-		if '$ISOBJECT(lnkItemNameEvent) {
-			set lnkItemNameEvent=##class(cod.lnkItemNameEventDateRange).%New()
-			do lnkItemNameEvent.objEventSetObjectId(xEventID)
-			do lnkItemNameEvent.objItemNameSetObjectId(itemNameID)
-		}
-		set lnkItemNameEvent.minTimeStamp=minDateRange
-		set lnkItemNameEvent.maxTimeStamp=maxDateRange
-		do lnkItemNameEvent.%Save()
-	}
-	
-	// add ticketing
-	if isQuantityItem {
-		
-		set ticketID=##class(cod.objTicket).getTicketIDfromDataID(dataID)
-		set useVatCodes=##class(eCom.objVatCode).isVatCodesEnabled()
-		set priceByAttendeeCategory=+%request.Get("chkPriceByAttendeeCategory")
-		set togglePriceByAttendeeCategory=%request.Get("togglePriceByAttendeeCategory")
-		set createsAttendees=+%request.Get("chkqCreatesAttendees"),attendeeCategoryID=%request.Get("selqAttendeeCategory")
-		
-		set directPrice=%request.Get("txtDirectPrice")
-		set directPrice=$TR(directPrice,",","")
-		set currencyID=%request.Get("selCurrency")
-		set priceDescriptorID=%request.Get("selPriceDescriptor")
-		set showBookingLevel=+%request.Get("chkqShowBookingLevel")
-		set qMin=%request.Get("txtqMin")
-		set qMax=%request.Get("txtqMax")
-		
-		if (qMin'?.N) {
-			set %session.Data("proweb","backend","errMsg") = "The changes can't be saved because ""Optional booking levels - minimum"" must be a number"
-			set %response.Redirect = errorURL
-			return 0
-		}
-		if (qMax'?.N) {
-			set %session.Data("proweb","backend","errMsg") = "The changes can't be saved because ""Optional booking levels - maximum"" must be a number"
-			set %response.Redirect = errorURL
-			return 0
-		}
-		
-		TSTART
-		
-		if ticketID	{
-			do ##class(cod.objTicket).update(ticketID,xEventID,xControllerID,createsAttendees,attendeeCategoryID,showBookingLevel,qMin,qMax,priceByAttendeeCategory)
-		} else {
-			set ticketID=##class(cod.objTicket).add(dataID,xEventID,xControllerID,createsAttendees,attendeeCategoryID,showBookingLevel,qMin,qMax,priceByAttendeeCategory)
-		}
-		if 'createsAttendees {
-			set bookableItemQBI = ##class(setup.eventBookableItemQBI).createNew(eventConfiguration,ticketID)
-			do bookableItemQBI.load()
-			set bookableItemQBI.registrationStatus = %request.Get("selRegistrationStatus")
-			set bookableItemQBI.storedCapacity = %request.Get("txtqCapacity")
-			set bookableItemQBI.hasCapacityNotification = +%request.Get("chkqNotification")
-			set bookableItemQBI.capacityNotificationLevel = %request.Get("txtqNotificationLevel")
-			if 'bookableItemQBI.isValid(.listOfErrorMessages) {
-				set %session.Data("proweb","backend","errMsg") = listOfErrorMessages.GetAt(1)
-				TROLLBACK
-				set %response.Redirect = errorURL
-				return 0
-			}
-			do bookableItemQBI.save()
-		}
-		TCOMMIT
-		
-		// create array of selected discounts
-		set item="chkDiscount"
-		kill checked
-		// get all the checked ones
-		for  {
-			set item=$o(%request.Data(item)) q:item=""!(item'["chkDiscount")
-			set checked($P(item,"_",2),+$P(item,"_",3))=""
-		}
-		
-		// update the price
-		set count=0
-		if priceByAttendeeCategory {
-			set rs=##class(%ResultSet).%New("%Library.DynamicQuery:SQL")
-			do rs.Prepare("SELECT objEventCategory->description,objEventCategory FROM setup.lnkCategoryEvent WHERE (objEvent=?) AND (active=1) AND (langID=?) GROUP BY objEventCategory ORDER BY isDefault DESC,objEventCategory->description")
-			do rs.Execute(xEventID,xLangID)
-			while rs.Next() {
-				set count=count+1
-				set eventCategoryID=rs.Get("objEventCategory")
-				if count=1 set defaultID=eventCategoryID
-				set directPrice=%request.Get("txtDirectPrice_"_eventCategoryID)
-				set directPrice=$TR(directPrice,",","")
-				set currencyID=%request.Get("selCurrency_"_eventCategoryID)
-				set priceDescriptorID=%request.Get("selPriceDescriptor_"_eventCategoryID)
-				set sameAs=%request.Get("selSameAs_"_eventCategoryID)
-				set vatCodeID=%request.Get("selVatCode_"_eventCategoryID)				
-				set basketItemID=##class(links.lnkCategoryItemBasketItem).getTicketLinkedBasketItem(ticketID,eventCategoryID)
-				if basketItemID="",eventCategoryID'=defaultID set sameAs=defaultID
-				// use any existing basketItem if we had one from before or create new one
-				if basketItemID="" {
-					// create new
-					//  Add Property to link objBasketItem to the related object
-					set basketItemID=##class(eCom.objBasketItem).add(priceDescriptorID,xControllerID,"quantityitem",,,ticketID)
-					do ##class(cod.objTicket).updateBasketItem(ticketID,basketItemID,eventCategoryID)
-					set ok=##class(links.lnkCategoryItemBasketItem).updateTicketLink(ticketID,eventCategoryID,sameAs)
-				}
-				if 'togglePriceByAttendeeCategory {
-					set ok=##class(links.lnkCategoryItemBasketItem).updateTicketLink(ticketID,eventCategoryID,sameAs)
-					if eventCategoryID'=%request.Get("updateSameAs") {
-						do ##class(eCom.objBasketItem).updatePrices(.basketItemID,directPrice,priceDescriptorID,currencyID)
-	
-						set rs1=##class(%ResultSet).%New("eCom.objDiscount:qAllDiscounts")
-						do rs1.Execute(xLangID,xControllerID)
-						while rs1.Next() {
-							set discID=rs1.Get("objDiscount")
-							
-							if $D(checked(discID,+eventCategoryID)) { //it's checked
-								if '##class(eCom.lnkItemDiscount).exists(basketItemID,discID) { // it doesn't exist, create it
-									set objLink=##class(eCom.lnkItemDiscount).%New()
-									do objLink.objBasketItemSetObjectId(basketItemID)
-									do objLink.objDiscountSetObjectId(discID)
-									set ok=objLink.%Save()
-								}
-								
-							} else { // it's not checked 
-								if ##class(eCom.lnkItemDiscount).exists(basketItemID,discID) { // it exists, remove it
-									set linkID=##class(eCom.lnkItemDiscount).returnLinkID(basketItemID,discID)
-									do ##class(eCom.lnkItemDiscount).%DeleteId(linkID)
-								}
-							}
-						}
-					}
-					if useVatCodes {
-						&SQL(UPDATE eCom.objBasketItem set objVatCode=:vatCodeID WHERE ID=:basketItemID)
-					}
-				}
-				// update costs
-				set initialCost=%request.Get("initialCost_"_eventCategoryID)
-				set unitCost=%request.Get("unitCost_"_eventCategoryID)
-				&SQL(UPDATE eCom.objBasketItem set unitCost=:unitCost,initialCost=:initialCost WHERE ID=:basketItemID)			
-			}
-		} else {
-			set basketItemID=##class(cod.objTicket).getBasketItemID(ticketID)
-			set directPrice=%request.Get("txtDirectPrice_")
-			set directPrice=$TR(directPrice,",","")
-			set currencyID=%request.Get("selCurrency_")
-			set priceDescriptorID=%request.Get("selPriceDescriptor_")
-			set vatCodeID=%request.Get("selVatCode_")
-			if basketItemID="" {
-				// create new
-				//  Add Property to link objBasketItem to the related object
-				set basketItemID=##class(eCom.objBasketItem).add(priceDescriptorID,xControllerID,"quantityitem",,,ticketID)
-				do ##class(cod.objTicket).updateBasketItem(ticketID,basketItemID,"")
-			}
-			if 'togglePriceByAttendeeCategory {
-				do ##class(eCom.objBasketItem).updatePrices(basketItemID,directPrice,priceDescriptorID,currencyID)
-				set rs1=##class(%ResultSet).%New("eCom.objDiscount:qAllDiscounts")
-				do rs1.Execute(xLangID,xControllerID)
-				while rs1.Next() {
-					set discID=rs1.Get("objDiscount")
-					
-					if $D(checked(discID,0)) { //it's checked
-						if '##class(eCom.lnkItemDiscount).exists(basketItemID,discID) { // it doesn't exist, create it
-							set objLink=##class(eCom.lnkItemDiscount).%New()
-							do objLink.objBasketItemSetObjectId(basketItemID)
-							do objLink.objDiscountSetObjectId(discID)
-							set ok=objLink.%Save()
-						}
-						
-					} else { // it's not checked 
-						if ##class(eCom.lnkItemDiscount).exists(basketItemID,discID) { // it exists, remove it
-							set linkID=##class(eCom.lnkItemDiscount).returnLinkID(basketItemID,discID)
-							do ##class(eCom.lnkItemDiscount).%DeleteId(linkID)
-						}
-					}
-				}
-				// update VAT Code
-				if useVatCodes {
-					&SQL(UPDATE eCom.objBasketItem set objVatCode=:vatCodeID WHERE ID=:basketItemID)
-				}
-			}
-			// update costs
-			set initialCost=%request.Get("initialCost_")
-			set unitCost=%request.Get("unitCost_")
-			&SQL(UPDATE eCom.objBasketItem set unitCost=:unitCost,initialCost=:initialCost WHERE ID=:basketItemID)		
-		}
-		
-		// save the ecternal item codes
-		if ##class(setup.objSystemTypes).isModuleAllowed("External Item Codes") {
-			// save the account codes in all basketItems
-			set extItemCode=%request.Get("txtExtItemCode")
-			set extItemCode2=%request.Get("txtExtItemCode2")
-	
-			// update the main delegate basketItem
-			set basketItemID=""
-			&SQL(SELECT basketItemID INTO :tmp FROM cod.objTicket WHERE ID=:ticketID)
-			if +SQLCODE=0 set basketItemID=tmp
-			&SQL(UPDATE eCom.objBasketItem SET extItemCode=:extItemCode,extItemCode2=:extItemCode2
-				WHERE ID=:basketItemID
-			)
-			// update for attendee categories
-			set rs=##class(%ResultSet).%New("%Library.DynamicQuery:SQL")
-			do rs.Prepare("SELECT * FROM links.lnkCategoryItemBasketItem WHERE (objTicket=?)")
-			do rs.Execute(ticketID)
-			while rs.Next() {
-				set basketItemID=rs.Get("objBasketItem")
-				&SQL(UPDATE eCom.objBasketItem
-					SET extItemCode=:extItemCode,extItemCode2=:extItemCode2
-					WHERE ID=:basketItemID
-				)
-			}
-		}
-		
-		// save the ecternal item codes
-		if ##class(setup.objSystemTypes).isModuleAllowed("Profit & Loss") {
-			// save the account codes in all basketItems
-			set initialCost=%request.Get("initialCost")
-			set unitCost=%request.Get("unitCost")
-	
-			// update the main delegate basketItem
-			set basketItemID=""
-			&SQL(SELECT basketItemID INTO :tmp FROM cod.objTicket WHERE ID=:ticketID)
-			if +SQLCODE=0 set basketItemID=tmp
-			&SQL(UPDATE eCom.objBasketItem SET initialCost=:initialCost,unitCost=:unitCost
-				WHERE ID=:basketItemID
-			)
-			// update for attendee categories
-			set rs=##class(%ResultSet).%New("%Library.DynamicQuery:SQL")
-			do rs.Prepare("SELECT * FROM links.lnkCategoryItemBasketItem WHERE (objTicket=?)")
-			do rs.Execute(ticketID)
-			while rs.Next() {
-				set basketItemID=rs.Get("objBasketItem")
-				&SQL(UPDATE eCom.objBasketItem
-					SET initialCost=:initialCost,unitCost=:unitCost
-					WHERE ID=:basketItemID
-				)
-			}
-		}
-	}
-
-	// store the depencies
-	set dependsOnPrompt=%request.Get("selDependsOnDataID")
-	set dependsOnAlternative=%request.Get("selDependsOnCodAltID")
-	
-	//  only save as dependent if we have both a dependent question and a required answer
-	if ('dependsOnAlternative || 'dependsOnPrompt) {
-		set (dependsOnAlternative,dependsOnPrompt)=""
-	}
-	&SQL(UPDATE sc_xModules.objCODitem SET dependsOnPrompt = :dependsOnPrompt,dependsOnAlternative = :dependsOnAlternative WHERE ID = :dataID)
-	if ((xEventID)&&((dependsOnPrompt'=dependsOnPromptExisting)!(dependsOnAlternative'=dependsOnAlternativeExisting))) {
-		set auditText="Reg Page '"_pageName_"' ("_pageID_"). Dependency changed for question: "_questionText_" ("_codItemNameDescription_"),"
-		if dependsOnAlternative	{
-			set auditText=auditText_" now depends on:"_##class(sc.xModules.objCODitem).getCODItemName(dependsOnPrompt)_" ("_dependsOnPrompt_")"_", alternative:"_##class(cod.objItemAlternatives).getDescriptionByID(dependsOnAlternative)_" ("_dependsOnAlternative_")"
-		} else {
-			set auditText=auditText_" dependency cleared."
-		}
-		do ##class(setup.objEventAudit).add(xUserID,xEventID,auditText)
-	}
-
-	// store the suppressNewLine
-	set suppressNewLine=%request.Get("suppressNewLine")
-	set promptWidth=+%request.Get("promptWidth")
-	&SQL(UPDATE sc_xModules.objCODitem SET promptWidth = :promptWidth,supressNewLine = :suppressNewLine WHERE ID = :dataID)
-	
-	//store the backendOnly flag
-	set backendOnly=+%request.Get("chkBackendOnly")
-	set reportOn=%request.Get("chkReportOn")
-	set readonlyFrontend=+%request.Get("chkReadonlyFrontend")
-	&SQL(UPDATE sc_xModules.objCODitem SET backendOnly = :backendOnly,reportOn = :reportOn,readonlyFrontend = :readonlyFrontend WHERE ID = :dataID)
-	if ((xEventID)&&(backendOnly'=+backendOnlyExisting)) {
-		set auditText="Reg Page '"_pageName_"' ("_pageID_"). Backend only flag changed for question: "_questionText_" ("_codItemNameDescription_"),"
-		set auditText=auditText_" from:"_$S(backendOnlyExisting:"on",1:"off")_" to:"_$S(backendOnly:"on",1:"off")
-		do ##class(setup.objEventAudit).add(xUserID,xEventID,auditText)
-	}
-	if ((xEventID)&&(readonlyFrontend'=+readonlyFrontendExisting)) {
-		set auditText="Reg Page '"_pageName_"' ("_pageID_"). Read only flag changed for question: "_questionText_" ("_codItemNameDescription_"),"
-		set auditText=auditText_" from:"_$S(readonlyFrontendExisting:"on",1:"off")_" to:"_$S(readonlyFrontend:"on",1:"off")
-		do ##class(setup.objEventAudit).add(xUserID,xEventID,auditText)
-	}
-	
-	if ##class(setup.objSystemTypes).isModuleAllowed("Attendee Categories")	{
-		// kill all category links and save
-		// - do this in method so it can compile without class
-		do ##class(links.lnkEventCategoryData).deleteAllForOne(dataID)
-		set item=""
-		set errorOnCategories=""
-		for  {
-			set item=$o(%request.Data(item))
-			if item="" quit
-			if item["chkEventCategory" {
-				set eventCategoryID=$P(item,"_",2)
-				set okToUpdate=1
-				if ((dependsOnPrompt)&&(dependsOnAlternative)) {
-					if '(##class(links.lnkEventCategoryData).allow(eventCategoryID,dependsOnPrompt)) {
-						set errorOnCategories=errorOnCategories_$LISTBUILD(##class(setup.objEventCategory).getDescription(eventCategoryID))
-						set okToUpdate=0
-					}
-				}
-				if okToUpdate {
-					do ##class(links.lnkEventCategoryData).updateAttendeeCategoryRestrictionsRecursive(eventCategoryID,dataID)
-				}
-			}
-		}
-		if ($LISTLENGTH(errorOnCategories)>1) {
-			set tempListStr=$LISTTOSTRING($LIST(errorOnCategories,1,*-1),"', '")_"' and '"_$LIST(errorOnCategories,*)
-			set %session.Data("proweb","backend","errMsg")="The question cannot be restricted to the categories '"_tempListStr_"' because it is linked to another question where it is not allowed"
-		} elseif($LISTLENGTH(errorOnCategories)>0) {
-			set %session.Data("proweb","backend","errMsg")="The question cannot be restricted to the category '"_$LISTTOSTRING(errorOnCategories,",")_"' because it is linked to another question where it is not allowed"
-		}
-		if $G(%session.Data("proweb","backend","errMsg"))'="" {
-			set %response.Redirect=errorURL
-			quit 0
-		}
-	}
-	
-	// store the required answer and maxCharacters
-	if (%request.Get("maxCharacters")'?.N) {
-		set %session.Data("proweb","backend","errMsg") = "The changes can't be saved because ""Max length of answer"" must be a number"
-		set %response.Redirect = errorURL
-		return 0
-	}
-	set maxCharacters=%request.Get("maxCharacters")
-	set maxWords=""
-	if %request.Get("radCharsOrWords")="words" {
-		set maxWords=maxCharacters
-		set maxCharacters=""
-	}
-	set noAmendments=+%request.Get("chkNoAmendments")
-
-	do ##class(sc.xModules.objCODitem).updateRequiredAnswer(dataID,requiredAnswer)
-	do ##class(sc.xModules.objCODitem).updateValidationErrorMessage(dataID,validationErrorMessage)
-	do ##class(sc.xModules.objCODitem).updateMaxCharacters(dataID,maxCharacters)
-	do ##class(sc.xModules.objCODitem).updateMaxWords(dataID,maxWords)
-	do ##class(sc.xModules.objCODitem).updateMultiCheckboxMin(dataID,%request.Get("multiCheckboxMin"))
-	do ##class(sc.xModules.objCODitem).updateMultiCheckboxMax(dataID,%request.Get("multiCheckboxMax"))
-	do ##class(sc.xModules.objCODitem).updateDefaultValue(dataID,defaultValue)
-	do ##class(sc.xModules.objCODitem).updateCopyValueFromBooker(dataID,copyValueFromBooker)
-	do ##class(sc.xModules.objCODitem).updateNoAmendments(dataID,+%request.Get("chkNoAmendments"))
-	
-	if ((xEventID)&&(requiredAnswer'=requiredAnswerExisting)) {
-		set auditText="Reg Page '"_pageName_"' ("_pageID_"). Custom validation changed for question: "_questionText_" ("_codItemNameDescription_"),"
-		set auditText=auditText_" from:"_requiredAnswerExisting_" to:"_requiredAnswer
-		do ##class(setup.objEventAudit).add(xUserID,xEventID,auditText)
-	}
-	if validationErrorMessage'=validationErrorMessageExisting {
-		set auditText="Reg Page '"_pageName_"' ("_pageID_"). Validation error message changed for question: "_questionText_" ("_codItemNameDescription_"),"
-		set auditText=auditText_" from:"_validationErrorMessageExisting_" to:"_validationErrorMessage
-		do ##class(setup.objEventAudit).add(xUserID,xEventID,auditText)
-	}
-	if ((xEventID)&&(noAmendments'=+noAmendmentsExisting)) {
-		set auditText="Reg Page '"_pageName_"' ("_pageID_"). No amendments changed for question: "_questionText_" ("_codItemNameDescription_"),"
-		set auditText=auditText_" from:"_$S(noAmendmentsExisting:"on",1:"off")_" to:"_$S(noAmendments:"on",1:"off")
-		do ##class(setup.objEventAudit).add(xUserID,xEventID,auditText)
-	}
-	
-	// always make it published if we are doing document manamenmt
-	if %session.Data("proweb","isDOC") {
-		set step=##class(sc.objStep).getFinalLevel()
-		do ##class(sc.objData).approve(dataID,step)
-	}
-	
-	// count the list of alternatives
-	set alts=%request.Get("txtAlternatives")
-	if $IsObject(alts) {
-		set alts=%request.Get("txtAlternatives").Read($$$maxStringLength)	
-	}
-	
-	set oldCount=##class(cod.objItemAlternatives).getAlternativesCountForCodItem(itemNameID)
-	set oldString=""
-	if oldCount<15 {
-		set oldString=""
-		set rsOC=##class(cod.objItemAlternatives).getAlternativesForCodItemAsResultSet(itemNameID)
-		while rsOC.Next() {
-			set oldString=oldString_$S($L(oldString):" | ",1:"")_rsOC.Get("description")
-		}
-	}
-	// update the list of alternatives
-	kill questArr
-	for altCount=1:1:($L(alts,"|")-1) {
-		set itemAlternativeID=$p($p(alts,"|",altCount),"~",1)
-		set desc=##class(cod.objItemAlternatives).sanitiseDescription($p($p(alts,"|",altCount),"~",2))
-		set code=$p($p(alts,"|",altCount),"~",3)
-		if itemAlternativeID["NEW" {
-			set itemAlternativeID=##class(cod.objItemAlternatives).create(itemNameID,desc,code,altCount)
-			if (defaultValue="NEW|") {
-				do ##class(sc.xModules.objCODitem).updateDefaultValue(dataID,desc)
-			}
-		} else {
-			do ##class(cod.objItemAlternatives).update(itemAlternativeID,desc,code,altCount)
-		}
-		if %request.Get("additional") {
-			//  Setup the ABI
-			set extrasID=##class(cod.objAlternativeExtras).findExtra(itemAlternativeID,dataID)
-			if 'extrasID {
-				set extrasID=##class(cod.objAlternativeExtras).add(itemAlternativeID,dataID)
-				//  Add Property to link objBasketItem to the related object
-				set basketItemID=##class(eCom.objBasketItem).add(,xControllerID,"additional",extrasID)
-				// And assign the basket Item
-				do ##class(cod.objAlternativeExtras).updateBasketItem(extrasID,basketItemID,"")
-			}
-		}
-		// Update any for any other events which may be using this as an ABI (even if this event is not uising it as an ABI, others might)
-		do ##class(cod.objAlternativeExtras).updateAlternatives(itemAlternativeID, .questArr)
-	}
-	// log to event audit trail
-	if xEventID {
-		if altCount<15 {
-			set newString=""			
-			for altCount=1:1:($L(alts,"|")-1) {
-				set desc=$p($p(alts,"|",altCount),"~",2)
-				set newString=newString_$S($L(newString):" | ",1:"")_desc
-			}
-			if newString'=oldString,$L(newString) {
-				do ##class(setup.objEventAudit).add(xUserID,xEventID,"Reg Page '"_pageName_"' ("_pageID_"), Changed List of Alternatives from: "_oldString_"  to:  "_newString)
-			}
-		} else {
-			if oldCount'=altCount {
-				do ##class(setup.objEventAudit).add(xUserID,xEventID,"Reg Page '"_pageName_"' ("_pageID_"), Changed Number of Alternatives from: "_oldCount_"  to:  "_altCount)
-			}
-		}
-	}
-	
-	if (##class(sc.xModules.objPage).isAbstractDocumentPage(pageID)) && (##class(sc.objComponent).getComponentName(parent) = "Document List") {
-		set value =  +%request.Get("chkAbsShowToReviewers")
-		
-		if ##class(cod.lnkItemNameEvent).getShowToReviewers(itemNameID,xEventID) '= value {
-			do ##class(setup.objEventAudit).add(xUserID,xEventID,"updated 'showToReviewers' for '"_##class(cod.objItemName).getDescFromID(itemNameID)_"' - new value: "_value)	
-		}
-		do ##class(cod.lnkItemNameEvent).setShowToReviewers(itemNameID,value,xEventID)	
-	}
-	
-	
-	// delete alternatives
-	set delAlts=%request.Get("txtDeletedAlternatives")
-	for i=1:1:$L(delAlts,"|") {
-		set id=$p(delAlts,"|",i)
-		do ##class(cod.objItemAlternatives).deleteAlternative(id,xUserID)
-	}
-	
-	set %response.Redirect=%request.Get("templateURL")
-	 set %response.Redirect="../../proweb/frontend/start.csp?mode=edit&version=current&pageID="_$G(%session.Data("pageID"))
-	
-	if %request.Get("gotoCodQuestionCSV") {
-		set %response.Redirect=codQuestionDetailsURL_"&gotoCodQuestionCSV=1"
-		quit 0
-	}
-	
-	if %request.Get("gotoPage")'="" {
-		set %response.Redirect=%request.Get("gotoPage") // used from codQuestionDetails.csp
-	}
-	if %request.Get("backPage")'="" set %response.Redirect=%request.Get("backPage") // used from eventsForce/registraionDetails.csp
-	
-	if %request.Get("updateSameAs")!%request.Get("togglePriceByAttendeeCategory") {
-		set %response.Redirect=codQuestionDetailsURL
-	}
-	
-	set %response.Redirect=%response.Redirect_$S(%response.Redirect["?":"&",1:"?")_"mode=edit"
-	
-	quit 0
-</script>
-]]></CSP>
-
-
 <CSP name="backEnd/proweb/deleteListItem.csp" application="/largedevsrc/" default="1"><![CDATA[
 <script language="CACHE" method="OnPreHTTPafter" arguments="" returntype="%Boolean">
 	set xEventID=$G(%session.Data("eventsforce","backend","xEventID"))
@@ -17612,7 +16807,7 @@ function updateAlts(codPromptID) {
 
 	if 'noStyleTags w "</style>",!
 	
-	if ##class(layout.objTemplate).useProweb2(xEventID,%request.PageName) {
+	if (##class(layout.objTemplate).isTemplateUsingProweb2(layoutTemplateID)) && (##class(sc.objTemplate).isProweb2ImplementedForPageName(%request.PageName)) {
 		if ##class(shared.pageMethods).getEditMode() = "edit" {
 			&html<
 				<!-- ====== Proweb2 editor styles ============= -->
@@ -17625,7 +16820,7 @@ function updateAlts(codPromptID) {
 
 
 <CSP name="frontEnd/reg/home.csp" application="/largedevsrc/" default="1"><![CDATA[
-<csp:class super="EF.mvcHandler.base">
+<csp:class super="EF.pages.base">
 <csp:parameter name="contextDataClass" value="EF.contextDataFrontend">
 <csp:parameter name="mvcHandlerClass" value="EF.mvcHandler.frontendProweb">
 
@@ -17711,7 +16906,7 @@ function updateAlts(codPromptID) {
 
 
 <CSP name="frontEnd/reg/registration.csp" application="/largedevsrc/" default="1"><![CDATA[
-<csp:class super="EF.mvcHandler.base">
+<csp:class super="EF.pages.base">
 <csp:parameter name="contextDataClass" value="EF.contextDataRegistration">
 <csp:parameter name="mvcHandlerClass" value="EF.mvcHandler.frontendProwebRegistration">
 <csp:parameter name="pageNavProceedKey" value="codFormSave.csp">
@@ -19563,14 +18758,14 @@ session pageID=#(%session.Get("pageID"))#
 ;vc;    Object: layout.cssDefaultMethods.CLS/EV.81
 ;vc; Component: CLS.layout.cssDefaultMethods
 ;vc;  Location: LargeDev
-;vc; Date/Time: 04-Jan-17 17:34
-;vc;      User: AdrianM2
-;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>layout.cssDefaultMethods.CLS/EV.81</td><td>CLS.layout.cssDefaultMethods</td><td>LargeDev</td><td style='white-space: nowrap;'>04-Jan-17 17:34</td><td>AdrianM2</td></tr></table>
+;vc; Date/Time: 12-Jan-17 12:50
+;vc;      User: FredG
+;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>layout.cssDefaultMethods.CLS/EV.81</td><td>CLS.layout.cssDefaultMethods</td><td>LargeDev</td><td style='white-space: nowrap;'>12-Jan-17 12:50</td><td>FredG</td></tr></table>
 ]]></Description>
 <Abstract>1</Abstract>
 <ClassType/>
 <ProcedureBlock>1</ProcedureBlock>
-<TimeChanged>64295,36643.36924</TimeChanged>
+<TimeChanged>64295,46246</TimeChanged>
 <TimeCreated>63046,56232.897117</TimeCreated>
 
 <Method name="outputDefaultCSS">
@@ -19601,7 +18796,7 @@ session pageID=#(%session.Get("pageID"))#
 	w !,"</style>",!
 	if ##class(layout.objTemplate).isTemplateGen3(layoutTemplateID)	{
 		&html<
-			<!-- ====== Default generation 4 frontend base styles ============= -->
+
 			<link rel="stylesheet" href="../../media/stylesheets/frontend/gen3/ef-website-responsive-agenda.css" type="text/css" />
 		>	
 	}
@@ -23618,7 +22813,7 @@ Looks for "style.css" file to update "templateCSSFile" with</Description>
 <ClassType>persistent</ClassType>
 <ProcedureBlock>1</ProcedureBlock>
 <Super>%Library.Persistent,shared.timeStamp</Super>
-<TimeChanged>64295,36584.976928</TimeChanged>
+<TimeChanged>64295,39630.341535</TimeChanged>
 <TimeCreated>60782,60196.270659</TimeCreated>
 <Inheritance>right</Inheritance>
 
@@ -24186,18 +23381,11 @@ outputs each section of code doing the banner, menu and footer when needed
 	// 	 set bits("[[ef_main_buttons]]")=""
 	// 	 set bits("[[ef_footer]]")=""
 	//
-	new contextData,okToWrite,rs,sqltext,menuPageID,homePageID,bannerPageID,secondaryBannerPageID,layoutTemplateID,sectionID,before,after,curPageName,isSurvey,surveyID,curPageID,externalLoginPage,standardDesingID
+	new contextData,okToWrite,rs,sqltext,menuPageID,homePageID,bannerPageID,secondaryBannerPageID,layoutTemplateID,sectionID,before,after,curPageName,isSurvey,surveyID,curPageID,externalLoginPage,standardDesingID,isUsingProweb2
 	set xEventID=$G(%session.Data("eventsforce","backend","xEventID"))
 	
 	
-	if ##class(setup.objEvent).isEventUsingProweb2(xEventID) { 
-		
-		set pageControllerID = $Get(%session.Data("mvcHandler","pageControllerID")) 
-		set pageController = ##class(EF.pageController.proweb.page).open(pageControllerID)
-		if '$IsObject(pageController) {
-			throw ##class(shared.exceptions.generalSQLException).%New("Failed to open pageController with ID = '"_pageControllerID_"'")
-		}
-	}
+	
 	if from["{{" set from=$TR(from,"{","[")
 	if from["}}" set from=$TR(from,"}","]")
 	if to["{{" set to=$TR(to,"{","[")
@@ -24344,6 +23532,15 @@ outputs each section of code doing the banner, menu and footer when needed
 		set quitNow=1
 	}
 	if quitNow quit	
+	set isUsingProweb2 = 0
+	if (..isTemplateUsingProweb2(layoutTemplateID)) && (##class(sc.objTemplate).isProweb2ImplementedForPageName(%request.PageName)) { 
+		set isUsingProweb2 = 1
+		set pageControllerID = $Get(%session.Data("mvcHandler","pageControllerID")) 
+		set pageController = ##class(EF.pageController.proweb.page).open(pageControllerID)
+		if '$IsObject(pageController) {
+			throw ##class(shared.exceptions.generalSQLException).%New("Failed to open pageController with ID = '"_pageControllerID_"'")
+		}
+	}
 	
 	// pick up the preferred language if they have clicked on a flag or we are coming in edit mode
 	if $G(%session.Data("eventsforce","frontend","xPrefLangID")) set xLangID=%session.Data("eventsforce","frontend","xPrefLangID")
@@ -24371,7 +23568,7 @@ outputs each section of code doing the banner, menu and footer when needed
 		if to=before set okToWrite=0   // stop writing if the item we've got to is the one we want to stop at
 		if okToWrite	{
 			if before="" {
-				if ..useProweb2(xEventID,%request.PageName) { 
+				if isUsingProweb2 { 
 					do ##class(layout.cssDefaultMethods).outputComponentCSS()
 					
 					&html<
@@ -24472,7 +23669,7 @@ outputs each section of code doing the banner, menu and footer when needed
 			}
 			if before="[[ef_banner]]",'##class(eCom.tempPurchase).isBackendBooking(%session.SessionId),'isSurvey {
 				//do banner
-				if ..useProweb2(xEventID,%request.PageName) { 
+				if isUsingProweb2 { 
 					set parentListElement = pageController.getElementByIdentifier("banner page")
 					write !,"<div class=""ef-banner-section"">"
 					do parentListElement.renderElements()
@@ -24549,7 +23746,7 @@ outputs each section of code doing the banner, menu and footer when needed
 			
 			if before="[[ef_menu]]",'##class(eCom.tempPurchase).isBackendBooking(%session.SessionId),'isSurvey {
 				//do menu
-				if ..useProweb2(xEventID,%request.PageName) { 
+				if isUsingProweb2 { 
 					set parentListElement = pageController.getElementByIdentifier("navigation bar page")
 					write !,"<div class=""ef-navigation-section"">"
 					do parentListElement.renderElements()
@@ -24595,7 +23792,7 @@ outputs each section of code doing the banner, menu and footer when needed
 				}
 			}
 			if before="[[ef_right]]",'##class(eCom.tempPurchase).isBackendBooking(%session.SessionId),'isSurvey {
-				if ..useProweb2(xEventID,%request.PageName) { 
+				if isUsingProweb2 { 
 					set parentListElement = pageController.getElementByIdentifier("sponsor page")
 					write !,"<div class=""ef-sponsors-section"">"
 					do parentListElement.renderElements()
@@ -24633,7 +23830,7 @@ outputs each section of code doing the banner, menu and footer when needed
 			}
 			if before="[[ef_footer]]",'##class(eCom.tempPurchase).isBackendBooking(%session.SessionId),'isSurvey {
 				//do footer
-				if ..useProweb2(xEventID,%request.PageName) { 
+				if isUsingProweb2 { 
 					set parentListElement = pageController.getElementByIdentifier("footer page")
 					write !,"<div class=""ef-footer-section"">"
 					do parentListElement.renderElements()
@@ -25021,19 +24218,6 @@ Returns true if the template is custom made</Description>
 ]]></Implementation>
 </Method>
 
-<Method name="useProweb2">
-<ClassMethod>1</ClassMethod>
-<FormalSpec>eventID:%Integer,pageName:%String</FormalSpec>
-<ReturnType>%Boolean</ReturnType>
-<Implementation><![CDATA[
-	if (##class(setup.objEvent).isEventUsingProweb2(eventID)) && (##class(sc.objTemplate).isPageNameProweb2(pageName)) {
-		return 1
-	} else {
-		return 0
-	}
-]]></Implementation>
-</Method>
-
 <Storage name="Default">
 <Type>%Library.CacheStorage</Type>
 <DataLocation>^layout.objTemplateD</DataLocation>
@@ -25129,11 +24313,15 @@ Returns true if the template is custom made</Description>
 </Class>
 
 
-<Project name="proweb 2" LastModified="2017-01-11 17:38:08.635957" Target="largedevsrc/backEnd/home/login.csp" TargetType="3">
+<Project name="proweb 2" LastModified="2017-01-12 17:17:14.79234" Target="largedevsrc/backEnd/home/login.csp" TargetType="3">
   <Items>
     <ProjectItem name="EF.contextDataFrontend" type="CLS"></ProjectItem>
     <ProjectItem name="EF.contextDataRegistration" type="CLS"></ProjectItem>
     <ProjectItem name="EF.contextDataRegistrationMock" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.mvcHandler.frontend" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.mvcHandler.frontendProweb" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.mvcHandler.frontendProwebRegistration" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.mvcHandler.page" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.containerElement" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.element" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.pagesFrontend.home" type="CLS"></ProjectItem>
@@ -25193,8 +24381,10 @@ Returns true if the template is custom made</Description>
     <ProjectItem name="EF.pageController.proweb.timeInput" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.proweb.webAddress" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.proweb.youTubeVideo" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.pages.base" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pages.frontend.base" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pages.frontend.baseProweb" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.pages.frontend.mvcHandler" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pages.frontend.registrationProcessProweb" type="CLS"></ProjectItem>
     <ProjectItem name="EF.ui.components.attribute" type="CLS"></ProjectItem>
     <ProjectItem name="EF.ui.components.backend.panel" type="CLS"></ProjectItem>
@@ -25252,7 +24442,6 @@ Returns true if the template is custom made</Description>
     <ProjectItem name="largedevsrc/backEnd/Home/regPages.csp" type="CSP"></ProjectItem>
     <ProjectItem name="largedevsrc/backEnd/proweb/codQuestionDetails.csp" type="CSP"></ProjectItem>
     <ProjectItem name="largedevsrc/backEnd/proweb/codQuestionDetails2.csp" type="CSP"></ProjectItem>
-    <ProjectItem name="largedevsrc/backEnd/proweb/codQuestionDetails2AJM.csp" type="CSP"></ProjectItem>
     <ProjectItem name="largedevsrc/backEnd/proweb/deleteListItem.csp" type="CSP"></ProjectItem>
     <ProjectItem name="largedevsrc/backEnd/proweb/editItem.csp" type="CSP"></ProjectItem>
     <ProjectItem name="largedevsrc/backEnd/proweb/fileUploadDetails.csp" type="CSP"></ProjectItem>
@@ -25315,22 +24504,16 @@ Returns true if the template is custom made</Description>
     <ProjectItem name="setup.bookingLevelCounterFrontendSession" type="CLS"></ProjectItem>
     <ProjectItem name="setup.eventCreationMethods" type="CLS"></ProjectItem>
     <ProjectItem name="shared.pageMethods" type="CLS"></ProjectItem>
-    <ProjectItem name="EF.pages.frontend.mvcHandler" type="CLS"></ProjectItem>
-    <ProjectItem name="EF.mvcHandler.base" type="CLS"></ProjectItem>
-    <ProjectItem name="EF.mvcHandler.frontend" type="CLS"></ProjectItem>
-    <ProjectItem name="EF.mvcHandler.frontendProweb" type="CLS"></ProjectItem>
-    <ProjectItem name="EF.mvcHandler.frontendProwebRegistration" type="CLS"></ProjectItem>
-    <ProjectItem name="EF.mvcHandler.page" type="CLS"></ProjectItem>
   </Items>
   <BreakPoints>
+    <BreakPoint Routine="EF.mvcHandler.base.1.INT" Offset="15"></BreakPoint>
+    <BreakPoint Routine="cspRealEV.frontend.reg.home.1.INT" Offset="6"></BreakPoint>
+    <BreakPoint Routine="cspRealEV.frontend.reg.home.CLS" Offset="OnPage+1"></BreakPoint>
     <BreakPoint Routine="cspRealEV.frontend.reg.pagecontrollerstandardsave.CLS" Offset="OnPreHTTPafter+28"></BreakPoint>
     <BreakPoint Routine="cspRealEV.system.proweb.start.CLS" Offset="OnPreHTTPafter+2"></BreakPoint>
     <BreakPoint Routine="cspRealEV.system.proweb.start.CLS" Offset="OnPreHTTPafter+23"></BreakPoint>
     <BreakPoint Routine="setup.eventCreationMethods.CLS" Offset="addDefaultMenuItems+2"></BreakPoint>
     <BreakPoint Routine="shared.pageMethodsFrontend.CLS" Offset="setRedirectPageFromHomepage+14"></BreakPoint>
-    <BreakPoint Routine="cspRealEV.frontend.reg.home.CLS" Offset="OnPage+1"></BreakPoint>
-    <BreakPoint Routine="EF.mvcHandler.base.1.INT" Offset="15"></BreakPoint>
-    <BreakPoint Routine="cspRealEV.frontend.reg.home.1.INT" Offset="6"></BreakPoint>
   </BreakPoints>
 </Project>
 
@@ -26113,36 +25296,8 @@ to make sure group bookers can't see already existing data of attendees</Descrip
 ]]></Description>
 <Abstract>1</Abstract>
 <ProcedureBlock>1</ProcedureBlock>
-<TimeChanged>64257,49868.088893</TimeChanged>
+<TimeChanged>64295,58076.764366</TimeChanged>
 <TimeCreated>61845,54770.681958</TimeCreated>
-
-<Method name="isPageConvertedToProweb2">
-<ClassMethod>1</ClassMethod>
-<FormalSpec>pageName:%String</FormalSpec>
-<ReturnType>%Boolean</ReturnType>
-<Implementation><![CDATA[
-	set pageName = $ZCVT(pageName, "L")
-	set pageName = $Piece(pageName, ".", 1)
-
-	if (pageName = "tregistration") ! (pageName = "registration")  return 1
-	if (pageName = "thome") ! (pageName = "home")  return 1
-	
-	/*
-	if pageName = "formdivider" return 1
-	if pageName = "codquestiondetails" return 1
-	if pageName = "codquestiondetails2" return 1
-	if pageName = "fileuploaddetails" return 1
-	if pageName = "fileuploaddetails2" return 1
-	if pageName = "flashdetails" return 1
-	if pageName = "flashdetails2" return 1
-	if pageName = "textdetailsmoxie" return 1
-	if pageName = "textdetailsmoxie2" return 1
-	if pageName = "regpromptcollectiondetails" return 1
-	if pageName = "regpromptcollectiondetails2" return 1
-	*/
-	return 0
-]]></Implementation>
-</Method>
 
 <Method name="changeURL">
 <Description>
@@ -28817,7 +27972,7 @@ The data type that represents a a page level in the hierachy.
 <ClassType>persistent</ClassType>
 <ProcedureBlock>1</ProcedureBlock>
 <Super>sc.objData</Super>
-<TimeChanged>64295,34800.844222</TimeChanged>
+<TimeChanged>64295,40561.160917</TimeChanged>
 <TimeCreated>58926,57261</TimeCreated>
 
 <Parameter name="EXTENTSIZE">
@@ -29645,6 +28800,22 @@ Gets the description without the language modifier</Description>
 				"tbooker.csp":1,
 				"tregistration.csp":1,
 	 		:0)
+]]></Implementation>
+</Method>
+
+<Method name="isPageIDValidForEvent">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>eventID,pageID</FormalSpec>
+<ReturnType>%Boolean</ReturnType>
+<Implementation><![CDATA[
+	set isAllowed = 1
+	set pageEventID = ##class(sc.methods).getEventIDfromPageID(pageID)
+	if pageEventID {
+		if eventID'=pageEventID {
+			set isAllowed = 0
+		}
+	}
+	return isAllowed
 ]]></Implementation>
 </Method>
 
@@ -31401,16 +30572,16 @@ please note that you must escape any ampersands in the data</Description>
 ;vc;    Object: setup.eventCreationMethods.CLS/EV.114
 ;vc; Component: CLS.setup.eventCreationMethods
 ;vc;  Location: LargeDev
-;vc; Date/Time: 11-Jan-17 12:08
+;vc; Date/Time: 12-Jan-17 17:46
 ;vc;      User: AdrianM2
-;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>setup.eventCreationMethods.CLS/EV.114</td><td>CLS.setup.eventCreationMethods</td><td>LargeDev</td><td style='white-space: nowrap;'>11-Jan-17 12:08</td><td>AdrianM2</td></tr></table>
+;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>setup.eventCreationMethods.CLS/EV.114</td><td>CLS.setup.eventCreationMethods</td><td>LargeDev</td><td style='white-space: nowrap;'>12-Jan-17 17:46</td><td>AdrianM2</td></tr></table>
 ]]></Description>
 <Abstract>1</Abstract>
 <ClassType/>
 <IncludeCode>EF.common.macros</IncludeCode>
 <ProcedureBlock>1</ProcedureBlock>
 <Super>%Persistent</Super>
-<TimeChanged>64294,55144.224896</TimeChanged>
+<TimeChanged>64295,63976</TimeChanged>
 <TimeCreated>61908,40601.453382</TimeCreated>
 
 <Method name="createEventPages">
@@ -31885,7 +31056,7 @@ Returns 1 if OK otherwise it'll be an error</Description>
 	// now check if to see if any data items exist with the objList as their parent,
 	// if not then this is first time in the page so auto create the defaults
 	if listID	{
-		set homePageID=##class(setup.objEventSetting).getParameter("abstract management pages","homePageID",xEventID)
+		set homePageID = ##class(setup.pageIDmethods).getEventHomePage(xEventID, langID)
 		set URLbit="/"_$ZCVT(^%ZCSPAPPS($ZNSPACE),"L")   // JAW 03MAY2007 - so that it works for no framesets too - should always be absolute (without domain)
 		
 		// find the group name
@@ -31920,6 +31091,7 @@ Returns 1 if OK otherwise it'll be an error</Description>
 		
 		} elseif groupName="Abstract Management" {
 			// create the menu for the abstract website				
+			set homePageID=##class(setup.objEventSetting).getParameter("abstract management pages","homePageID",xEventID)
 			set documentPageID=##class(setup.objEventSetting).getParameter("abstract management pages","documentPageID",xEventID)
 			set topicListPageID=##class(setup.objEventSetting).getParameter("abstract management pages","topicListPageID",xEventID)
 

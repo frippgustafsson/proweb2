@@ -182,6 +182,7 @@ turn off setting in template upload (temporary)
 
 
 --- iceboxing it ---
+add upgrade code to populate the 'listYpe' property in sc.objComponent
 the editor panel and the quick edit are not using form-line/form-group
 the buttons are misplaced in small viewfinder
 improve the way we preview/edit for specific attendee categories

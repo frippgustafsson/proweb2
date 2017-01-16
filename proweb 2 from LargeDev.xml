@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.2 (Build 736U)" ts="2017-01-16 14:34:41">
+<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.2 (Build 736U)" ts="2017-01-16 15:02:48">
 <Class name="EF.contextDataFrontend">
 <Description><![CDATA[
 <!-- ;vc;-
@@ -388,7 +388,7 @@ if website is private, this will be set to the cod.objPerson.ID of that logged i
 
 <Class name="EF.mvcHandler.frontendProweb">
 <Super>EF.mvcHandler.frontend</Super>
-<TimeChanged>64299,48374.615258</TimeChanged>
+<TimeChanged>64299,54114.751541</TimeChanged>
 <TimeCreated>64292,52952.708564</TimeCreated>
 
 <Property name="showRegistrationProgressBar">
@@ -566,10 +566,10 @@ if website is private, this will be set to the cod.objPerson.ID of that logged i
 <Method name="outputEndOfPageJS">
 <Implementation><![CDATA[
 	write !,"<script language=""javascript"">"
-	do ##class(EF.pageController.javascriptMethods).renderEfGetElement($this)
+	do ##class(EF.pageController.javascriptMethods).renderEfGetElement(..controller)
 	write !,"</script>"
-	do ##class(EF.pageController.javascriptMethods).renderJSForElements($this)
-	do ##class(EF.pageController.javascriptMethods).outputGetElement($this)
+	do ##class(EF.pageController.javascriptMethods).renderJSForElements(..controller)
+	do ##class(EF.pageController.javascriptMethods).outputGetElement(..controller)
 ]]></Implementation>
 </Method>
 
@@ -655,7 +655,7 @@ if website is private, this will be set to the cod.objPerson.ID of that logged i
 
 <Class name="EF.mvcHandler.frontendProwebRegistration">
 <Super>EF.mvcHandler.frontendProweb</Super>
-<TimeChanged>64295,58347.895089</TimeChanged>
+<TimeChanged>64299,53694.305215</TimeChanged>
 <TimeCreated>64293,33205.393133</TimeCreated>
 
 <Property name="efFormID">
@@ -712,6 +712,27 @@ if website is private, this will be set to the cod.objPerson.ID of that logged i
 
 <Method name="outputFormEnding">
 <Implementation><![CDATA[	write !,"</form>"
+]]></Implementation>
+</Method>
+
+<Method name="OnPagePageBottom">
+<Implementation><![CDATA[
+	&html< 
+		<div class="row">
+			<div class="col-sm-6 ef-button-container-left">
+	 >
+	set cancelButton = ##class(EF.ui.components.frontend.buttonLink).createNew("Back", ..Link("####################..getBackButtonURL()") )
+	do cancelButton.render()
+	
+	&html< 
+		</div>
+		<div class="col-sm-6 ef-button-container-right">
+	>
+	set proceedButton = ##class(EF.ui.components.frontend.buttonSubmit).createNew("Proceed","submit")
+	do proceedButton.render()
+	&html< </div></div> >
+	
+	do ##super()
 ]]></Implementation>
 </Method>
 </Class>
@@ -5470,7 +5491,7 @@ this is for version 1 of proweb</Description>
 
 <Class name="EF.pages.frontend.registrationProcessProweb">
 <Super>EF.pages.frontend.baseProweb</Super>
-<TimeChanged>64294,51786.760142</TimeChanged>
+<TimeChanged>64299,53074.00354</TimeChanged>
 <TimeCreated>64258,38909.998566</TimeCreated>
 
 <Parameter name="showRegistrationProgressBar">
@@ -5489,29 +5510,6 @@ this is for version 1 of proweb</Description>
 	 	set %response.Redirect="registerNew.csp"
 	 	quit 0
  	}
-]]></Implementation>
-</Method>
-
-<Method name="outputButtons">
-<ClassMethod>1</ClassMethod>
-<Implementation><![CDATA[
-	w 1/0 // I don't think this method is needed anymore
-	/*
-	&html< 
-		<div class="row">
-			<div class="col-sm-6 ef-button-container-left">
-	 >
-	set cancelButton = ##class(EF.ui.components.frontend.buttonLink).createNew("Back", ..Link(..getBackButtonURL()) )
-	do cancelButton.render()
-	
-	&html< 
-		</div>
-		<div class="col-sm-6 ef-button-container-right">
-	>
-	set proceedButton = ##class(EF.ui.components.frontend.buttonSubmit).createNew("Proceed","submit")
-	do proceedButton.render()
-	&html< </div></div> >
-	*/
 ]]></Implementation>
 </Method>
 </Class>
@@ -5802,7 +5800,7 @@ this is for version 1 of proweb</Description>
 
 <Class name="EF.ui.components.frontend.buttonAddGuest">
 <Super>EF.ui.components.buttonBase,EF.ui.components.frontend.prowebBase</Super>
-<TimeChanged>64254,63064.141496</TimeChanged>
+<TimeChanged>64299,53548.739003</TimeChanged>
 <TimeCreated>64183,40678.260093</TimeCreated>
 
 <Property name="maximumNumberOfGuests">
@@ -5863,6 +5861,9 @@ this is for version 1 of proweb</Description>
 <Value name="8">
 <Value>nameOfControllerListClass</Value>
 </Value>
+<Value name="9">
+<Value>mvcPage</Value>
+</Value>
 </Data>
 </Storage>
 </Class>
@@ -5870,7 +5871,7 @@ this is for version 1 of proweb</Description>
 
 <Class name="EF.ui.components.frontend.buttonDeleteGuest">
 <Super>EF.ui.components.buttonBase,EF.ui.components.frontend.prowebBase</Super>
-<TimeChanged>64254,63064.137439</TimeChanged>
+<TimeChanged>64299,53548.808332</TimeChanged>
 <TimeCreated>64183,40678.260093</TimeCreated>
 
 <Property name="guestNumber">
@@ -5928,6 +5929,9 @@ this is for version 1 of proweb</Description>
 </Value>
 <Value name="7">
 <Value>nameOfControllerListClass</Value>
+</Value>
+<Value name="8">
+<Value>mvcPage</Value>
 </Value>
 </Data>
 </Storage>
@@ -6024,7 +6028,7 @@ this is for version 1 of proweb</Description>
 
 <Class name="EF.ui.components.frontend.checkbox">
 <Super>EF.ui.components.checkbox,EF.ui.components.frontend.inputElement,EF.ui.components.frontend.alternativeABI</Super>
-<TimeChanged>64254,63064.303398</TimeChanged>
+<TimeChanged>64299,53548.912575</TimeChanged>
 <TimeCreated>63355,62572.097775</TimeCreated>
 
 <Property name="price">
@@ -6144,6 +6148,9 @@ this is for version 1 of proweb</Description>
 <Value name="19">
 <Value>nameOfControllerListClass</Value>
 </Value>
+<Value name="20">
+<Value>mvcPage</Value>
+</Value>
 </Data>
 </Storage>
 </Class>
@@ -6260,7 +6267,7 @@ this is for version 1 of proweb</Description>
 ;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>EF.ui.components.backend.datePicker.CLS/EV.3</td><td>CLS.EF.ui.components.backend.datePicker</td><td>LargeDev</td><td style='white-space: nowrap;'>02-Feb-16 12:32</td><td>AdrianM2</td></tr></table>
 ]]></Description>
 <Super>EF.ui.components.textInput,EF.ui.components.frontend.inputElement</Super>
-<TimeChanged>64254,63064.303633</TimeChanged>
+<TimeChanged>64299,53548.977148</TimeChanged>
 <TimeCreated>63384,38215.518113</TimeCreated>
 
 <Parameter name="typeAttribute">
@@ -6368,6 +6375,9 @@ this is for version 1 of proweb</Description>
 <Value name="13">
 <Value>nameOfControllerListClass</Value>
 </Value>
+<Value name="14">
+<Value>mvcPage</Value>
+</Value>
 </Data>
 </Storage>
 </Class>
@@ -6384,7 +6394,7 @@ this is for version 1 of proweb</Description>
 ;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>EF.ui.components.backend.datePicker.CLS/EV.3</td><td>CLS.EF.ui.components.backend.datePicker</td><td>LargeDev</td><td style='white-space: nowrap;'>02-Feb-16 12:32</td><td>AdrianM2</td></tr></table>
 ]]></Description>
 <Super>EF.ui.components.textInput,EF.ui.components.frontend.inputElement</Super>
-<TimeChanged>64259,32987.53991</TimeChanged>
+<TimeChanged>64299,53548.976689</TimeChanged>
 <TimeCreated>63384,38215.518113</TimeCreated>
 
 <Parameter name="typeAttribute">
@@ -6495,6 +6505,9 @@ this is for version 1 of proweb</Description>
 <Value name="13">
 <Value>nameOfControllerListClass</Value>
 </Value>
+<Value name="14">
+<Value>mvcPage</Value>
+</Value>
 </Data>
 </Storage>
 </Class>
@@ -6523,7 +6536,7 @@ this is for version 1 of proweb</Description>
 
 <Class name="EF.ui.components.frontend.dropdown">
 <Super>EF.ui.components.listInput,EF.ui.components.frontend.inputElement</Super>
-<TimeChanged>64254,63064.481569</TimeChanged>
+<TimeChanged>64299,53549.102659</TimeChanged>
 <TimeCreated>63355,56609.363142</TimeCreated>
 
 <Property name="isPersistent">
@@ -6723,6 +6736,9 @@ this is for version 1 of proweb</Description>
 </Value>
 <Value name="14">
 <Value>nameOfControllerListClass</Value>
+</Value>
+<Value name="15">
+<Value>mvcPage</Value>
 </Value>
 </Data>
 </Storage>
@@ -6966,7 +6982,7 @@ this is for version 1 of proweb</Description>
 
 <Class name="EF.ui.components.frontend.fileUpload">
 <Super>EF.ui.components.textInput,EF.ui.components.frontend.inputElement</Super>
-<TimeChanged>64254,63064.476705</TimeChanged>
+<TimeChanged>64299,53549.107569</TimeChanged>
 <TimeCreated>63357,57620.613738</TimeCreated>
 
 <Method name="getDefaultClasses">
@@ -7033,6 +7049,9 @@ this is for version 1 of proweb</Description>
 </Value>
 <Value name="13">
 <Value>nameOfControllerListClass</Value>
+</Value>
+<Value name="14">
+<Value>mvcPage</Value>
 </Value>
 </Data>
 </Storage>
@@ -7194,7 +7213,7 @@ this is for version 1 of proweb</Description>
 
 <Class name="EF.ui.components.frontend.hiddenInput">
 <Super>EF.ui.components.hiddenInput,EF.ui.components.frontend.prowebBase</Super>
-<TimeChanged>64288,56192.109892</TimeChanged>
+<TimeChanged>64299,53549.136288</TimeChanged>
 <TimeCreated>64288,56191.627065</TimeCreated>
 
 <Storage name="Default">
@@ -7217,6 +7236,9 @@ this is for version 1 of proweb</Description>
 </Value>
 <Value name="5">
 <Value>nameOfControllerListClass</Value>
+</Value>
+<Value name="6">
+<Value>mvcPage</Value>
 </Value>
 </Data>
 </Storage>
@@ -8064,7 +8086,7 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 
 <Class name="EF.ui.components.frontend.radioGroup">
 <Super>EF.ui.components.listInput,EF.ui.components.frontend.inputElement</Super>
-<TimeChanged>64254,63064.642158</TimeChanged>
+<TimeChanged>64299,53549.282274</TimeChanged>
 <TimeCreated>63356,39686.205586</TimeCreated>
 
 <Method name="getDefaultClasses">
@@ -8189,6 +8211,9 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 <Value name="9">
 <Value>nameOfControllerListClass</Value>
 </Value>
+<Value name="10">
+<Value>mvcPage</Value>
+</Value>
 </Data>
 </Storage>
 </Class>
@@ -8196,7 +8221,7 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 
 <Class name="EF.ui.components.frontend.textArea">
 <Super>EF.ui.components.textInput,EF.ui.components.frontend.inputElement</Super>
-<TimeChanged>64254,63064.641515</TimeChanged>
+<TimeChanged>64299,53549.378579</TimeChanged>
 <TimeCreated>63357,57620.613738</TimeCreated>
 
 <Parameter name="html5Validation">
@@ -8290,6 +8315,9 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 <Value name="13">
 <Value>nameOfControllerListClass</Value>
 </Value>
+<Value name="14">
+<Value>mvcPage</Value>
+</Value>
 </Data>
 </Storage>
 </Class>
@@ -8332,7 +8360,7 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 
 <Class name="EF.ui.components.frontend.textInput">
 <Super>EF.ui.components.textInput,EF.ui.components.frontend.inputElement</Super>
-<TimeChanged>64265,56970.777717</TimeChanged>
+<TimeChanged>64299,53549.414541</TimeChanged>
 <TimeCreated>63357,57620.613738</TimeCreated>
 
 <Parameter name="typeAttribute">
@@ -8470,6 +8498,9 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 </Value>
 <Value name="14">
 <Value>nameOfControllerListClass</Value>
+</Value>
+<Value name="15">
+<Value>mvcPage</Value>
 </Value>
 </Data>
 </Storage>
@@ -24362,7 +24393,7 @@ Returns true if the template is custom made</Description>
 </Class>
 
 
-<Project name="proweb 2" LastModified="2017-01-16 13:23:32.391107" Target="largedevsrc/backEnd/home/login.csp" TargetType="3">
+<Project name="proweb 2" LastModified="2017-01-16 14:58:27.793702" Target="largedevsrc/backEnd/home/login.csp" TargetType="3">
   <Items>
     <ProjectItem name="EF.contextDataFrontend" type="CLS"></ProjectItem>
     <ProjectItem name="EF.contextDataRegistration" type="CLS"></ProjectItem>
@@ -24551,6 +24582,7 @@ Returns true if the template is custom made</Description>
     <ProjectItem name="shared.pageMethods" type="CLS"></ProjectItem>
   </Items>
   <BreakPoints>
+    <BreakPoint Routine="EF.mvcHandler.frontendProwebRegistration.1.INT" Offset="77"></BreakPoint>
     <BreakPoint Routine="EF.pageController.proweb.listWithQuestionsRegistration.1.INT" Offset="771"></BreakPoint>
     <BreakPoint Routine="EF.pageController.proweb.listWithQuestionsRegistration.1.INT" Offset="774"></BreakPoint>
   </BreakPoints>

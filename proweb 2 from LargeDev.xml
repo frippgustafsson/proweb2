@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.2 (Build 736U)" ts="2017-01-16 09:28:21">
+<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.2 (Build 736U)" ts="2017-01-16 14:34:41">
 <Class name="EF.contextDataFrontend">
 <Description><![CDATA[
 <!-- ;vc;-
@@ -388,7 +388,7 @@ if website is private, this will be set to the cod.objPerson.ID of that logged i
 
 <Class name="EF.mvcHandler.frontendProweb">
 <Super>EF.mvcHandler.frontend</Super>
-<TimeChanged>64296,47213.018278</TimeChanged>
+<TimeChanged>64299,48374.615258</TimeChanged>
 <TimeCreated>64292,52952.708564</TimeCreated>
 
 <Property name="showRegistrationProgressBar">
@@ -422,6 +422,7 @@ if website is private, this will be set to the cod.objPerson.ID of that logged i
 	do page.updatePageID()
 	do page.updateEditFlag()
 	
+	
 	return page
 ]]></Implementation>
 </Method>
@@ -445,13 +446,17 @@ if website is private, this will be set to the cod.objPerson.ID of that logged i
 	} else { // regular loading of a page
 		set pageController = ##class(EF.pageController.proweb.page).%New()
 		set pageController.contextData = ..contextData
-		do pageController.load($this) // pass in the parent ot the child
+		set objEvent = ##class(setup.objEvent).%OpenId(..contextData.eventID)
+		set pageController.objEvent = objEvent
+		
+		do pageController.load($this) 
 		set sc = pageController.%Save()
 		if 'sc {
 			throw ##class(shared.exceptions.generalStatusException).CreateFromStatus(sc)
 		}
 	}
 	set ..pageControllerID = pageController.%Id()
+	set %session.Data("mvcHandler","pageControllerID") = ..pageControllerID // ####### This can be removed once we refactor objTemplate.writeBit ##############
 	set ..controller = pageController
 	return pageController
 ]]></Implementation>
@@ -499,7 +504,7 @@ if website is private, this will be set to the cod.objPerson.ID of that logged i
 	Write !,"<body class=""ef-background-color"">"
 	
 	if ..isEditMode {
-		do ##class(EF.ui.components.frontend.editorControlPanel).outputEditorControlPanel()	
+		do ##class(EF.ui.components.frontend.editorControlPanel).outputEditorControlPanel($this)	
 	}	
  	
  	do ##class(layout.objTemplate).writeBit("{{ef_header}}","{{ef_banner}}")
@@ -591,7 +596,7 @@ if website is private, this will be set to the cod.objPerson.ID of that logged i
 	set URL = ##class(EF.htmlGenerator).addParameterToURL(URL,"displayOrder",0)
 	set URL = ##class(EF.htmlGenerator).addParameterToURL(URL,"addToTop","true")
 	set URL = ##class(EF.htmlGenerator).addParameterToURL(URL,"isCOD",1)
-	set URL = ##class(EF.htmlGenerator).addParameterToURL(URL,"pageID",$this.contextData.pageID)
+	set URL = ##class(EF.htmlGenerator).addParameterToURL(URL,"pageID", ..pageID)
 	set URL = ##class(EF.htmlGenerator).addParameterToURL(URL,"itemNameID","NEW")
 	
 	return URL
@@ -2482,7 +2487,7 @@ Should be run if any of the sub-classes are deleted</Description>
 <Description>
 Should have a one-to-one relationship with sc.objList</Description>
 <Super>EF.pageController.containerElement</Super>
-<TimeChanged>64296,42163.146322</TimeChanged>
+<TimeChanged>64299,44245.081215</TimeChanged>
 <TimeCreated>64231,55587.036042</TimeCreated>
 
 <Property name="prowebListID">
@@ -2509,7 +2514,11 @@ refers to sc.xModules.objList</Description>
 <Implementation><![CDATA[
 	#dim prowebItem As sc.facade.prowebItem
 	#dim guestPanel As EF.pageController.proweb.guestPanel = ""
-	
+
+	if '$isObject(..page) {
+		throw ##class(shared.exceptions.generalException).%New("The 'page' property is not set for the list object")	
+	}
+		
 	set rsProwebItems = ##class(%ResultSet).%New("sc.xModules.objList:qGetChildren")
 	do rsProwebItems.Execute(..prowebListID)
 	while rsProwebItems.Next() {
@@ -2557,6 +2566,31 @@ refers to sc.xModules.objList</Description>
 	if $IsObject(guestPanel) {
 		do guestPanel.copyGuestPanelForEachGuest()
 	}
+]]></Implementation>
+</Method>
+
+<Method name="addElementToParent">
+<Description>
+This method overrides the one in element because the parent of a list, which is a page, cannot have the 'page' property set. It would be cyclical.</Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec>page:EF.pageController.proweb.page,identifier:%String,description:%String</FormalSpec>
+<ReturnType>EF.pageController.element</ReturnType>
+<Implementation><![CDATA[
+	set element = ..%New(identifier,description)
+	set element.elementParent = page
+	if page.getElementByIdentifier(element.identifier) {
+ 		throw ##class(shared.exceptions.generalException).%New("Element identifier must be unique for page ID="_element.identifier)
+	}
+	set element.page = page
+	if page.isPageReadOnly {
+		set element.isReadOnly=1	
+	}
+	
+	do page.elementChildren.Insert(element)
+	
+	do page.allPageElements.SetAt(element,element.identifier)
+	
+	return element
 ]]></Implementation>
 </Method>
 
@@ -2932,11 +2966,14 @@ Should have a one-to-one relationship with sc.objList</Description>
 
 <Class name="EF.pageController.proweb.listWithQuestionsRegistration">
 <Super>EF.pageController.proweb.listWithQuestions</Super>
-<TimeChanged>64296,42784.108506</TimeChanged>
+<TimeChanged>64299,44267.447931</TimeChanged>
 <TimeCreated>64233,52209.241492</TimeCreated>
 
 <Method name="loadProwebListElementsFromDatabase">
 <Implementation><![CDATA[
+	if '$isObject(..page) {
+		throw ##class(shared.exceptions.generalException).%New("The 'page' property is missing from the listWithQuestions object")	
+	}
 	for guestNumber = 1:1:..page.getEventConfiguration().getMaxGuestsPerAttendee() {
 		if (..page.mvcpage.isEditMode) {
 			if guestNumber = 1 {
@@ -3005,7 +3042,7 @@ Should have a one-to-one relationship with sc.objList</Description>
 
 <Class name="EF.pageController.proweb.page">
 <Super>EF.pageController.page</Super>
-<TimeChanged>64296,41525.402579</TimeChanged>
+<TimeChanged>64299,46698.637498</TimeChanged>
 <TimeCreated>64189,51696.559047</TimeCreated>
 
 <Property name="mvcPage">
@@ -3065,6 +3102,13 @@ Should have a one-to-one relationship with sc.objList</Description>
 		set elem.text = elem.text_..errorMessages.GetAt(i)
 	}
 	do elem.render()
+]]></Implementation>
+</Method>
+
+<Method name="getEventConfiguration">
+<Implementation><![CDATA[
+	set ..eventConfiguration=##class(setup.eventConfiguration).createForEventID(..mvcPage.contextData.eventID) 
+	return ..eventConfiguration
 ]]></Implementation>
 </Method>
 
@@ -4865,7 +4909,7 @@ also an entry point from unit tests</Description>
 
 <Class name="EF.pages.base">
 <Super>%CSP.Page,EF.htmlGenerator</Super>
-<TimeChanged>64296,39053.411076</TimeChanged>
+<TimeChanged>64299,37049.086165</TimeChanged>
 <TimeCreated>64292,52804.615476</TimeCreated>
 
 <Parameter name="contextDataClass">
@@ -4880,6 +4924,9 @@ also an entry point from unit tests</Description>
 <ClassMethod>1</ClassMethod>
 <ReturnType>%Boolean</ReturnType>
 <Implementation><![CDATA[
+	kill ^xfg
+	merge ^xfg("%request.Data")=%request.Data
+	
 	#dim %zPage as EF.mvcHandler.page // This is a percent variable to make it available to the OnPageCSPROOT too
 	
 	// create an instance of a page manually because %CSP.Page dosn't
@@ -6684,18 +6731,19 @@ this is for version 1 of proweb</Description>
 
 <Class name="EF.ui.components.frontend.editorControlPanel">
 <Super>shared.pCSPmanage</Super>
-<TimeChanged>64294,51641.395656</TimeChanged>
+<TimeChanged>64299,48550.112491</TimeChanged>
 <TimeCreated>64203,40625.329831</TimeCreated>
 
 <Method name="outputEditorControlPanel">
 <ClassMethod>1</ClassMethod>
+<FormalSpec>mvcPage:EF.mvcHandler.frontendProweb</FormalSpec>
 <Implementation><![CDATA[
 	#dim contextData as EF.contextDataFrontend = ##class(EF.contextDataFrontend).createFromFrontendCSPSession()
 	
 	set newPageURL = ..Link("../../system/proweb/start.csp?z=1")
 	set attendeeCategoryID = contextData.attendeeCategoryID
 	if attendeeCategoryID = "" {
-		set attendeeCategoryID = ##class(setup.lnkCategoryEvent).getAttendeeCategoryIDFromRegistrationPageID(contextData.pageID)	
+		set attendeeCategoryID = ##class(setup.lnkCategoryEvent).getAttendeeCategoryIDFromRegistrationPageID(mvcPage.pageID)	
 	}	
 
 	&html<
@@ -6729,7 +6777,7 @@ this is for version 1 of proweb</Description>
 								
 								if pageID {
 									&html<
-										<option value=#(..encodeForHTMLAttribute(pageID))# #( $Select(pageID = contextData.pageID:"SELECTED",1:"") )#>
+										<option value=#(..encodeForHTMLAttribute(pageID))# #( $Select(pageID = mvcPage.pageID:"SELECTED",1:"") )#>
 											#(..encodeForHTML(pageName) )#
 										</option>
 									>
@@ -6759,7 +6807,7 @@ this is for version 1 of proweb</Description>
 								set languageID = $Order(languageArray(languageID))
 								if languageID = "" quit
 								
-								set targetPageID = ..getEquivalentPageIDForLanguageID(contextData.pageID, languageID)
+								set targetPageID = ..getEquivalentPageIDForLanguageID(mvcPage.pageID, languageID)
 								&html<
 									<option value="#(..encodeForHTMLAttribute(targetPageID))#" #( $Select(languageID = contextData.languageID:"SELECTED",1:"") )#>
 										#(..encodeForHTML(languageArray(languageID)))#
@@ -6792,7 +6840,7 @@ this is for version 1 of proweb</Description>
 							for  {
 								set attendeeCategory = listOfCategoryObjects.GetNext(.key)
 								if key = "" quit	
-								set targetPageID = ..getEquivalentPageIDForAttendeeCategoryID(contextData.pageID, attendeeCategory.eventCategoryID)
+								set targetPageID = ..getEquivalentPageIDForAttendeeCategoryID(mvcPage.pageID, attendeeCategory.eventCategoryID)
 								if targetPageID > 0 {
 									&html<
 										<option value="#(..encodeForHTMLAttribute(targetPageID))#" #( $Select(attendeeCategory.eventCategoryID = attendeeCategoryID:"SELECTED",1:"") )#>
@@ -7872,7 +7920,7 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 
 <Class name="EF.ui.components.frontend.prowebBase">
 <Super>EF.ui.components.base</Super>
-<TimeChanged>64267,36856.473198</TimeChanged>
+<TimeChanged>64299,47988.084053</TimeChanged>
 <TimeCreated>64183,41819.123112</TimeCreated>
 
 <Property name="isProwebEditMode">
@@ -7895,6 +7943,10 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 
 <Property name="nameOfControllerListClass">
 <Type>%String</Type>
+</Property>
+
+<Property name="mvcPage">
+<Type>EF.mvcHandler.frontendProweb</Type>
 </Property>
 
 <Method name="renderRowOpening">
@@ -8001,6 +8053,9 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 </Value>
 <Value name="6">
 <Value>nameOfControllerListClass</Value>
+</Value>
+<Value name="7">
+<Value>mvcPage</Value>
 </Value>
 </Data>
 </Storage>
@@ -24307,7 +24362,7 @@ Returns true if the template is custom made</Description>
 </Class>
 
 
-<Project name="proweb 2" LastModified="2017-01-13 13:13:14.338378" Target="largedevsrc/backEnd/home/login.csp" TargetType="3">
+<Project name="proweb 2" LastModified="2017-01-16 13:23:32.391107" Target="largedevsrc/backEnd/home/login.csp" TargetType="3">
   <Items>
     <ProjectItem name="EF.contextDataFrontend" type="CLS"></ProjectItem>
     <ProjectItem name="EF.contextDataRegistration" type="CLS"></ProjectItem>
@@ -24496,16 +24551,27 @@ Returns true if the template is custom made</Description>
     <ProjectItem name="shared.pageMethods" type="CLS"></ProjectItem>
   </Items>
   <BreakPoints>
-    <BreakPoint Routine="EF.mvcHandler.base.1.INT" Offset="15"></BreakPoint>
-    <BreakPoint Routine="EF.pageController.proweb.page.CLS" Offset="load+10"></BreakPoint>
-    <BreakPoint Routine="cspRealEV.frontend.reg.home.1.INT" Offset="6"></BreakPoint>
-    <BreakPoint Routine="cspRealEV.frontend.reg.home.CLS" Offset="OnPage+1"></BreakPoint>
-    <BreakPoint Routine="cspRealEV.frontend.reg.pagecontrollerstandardsave.CLS" Offset="OnPreHTTPafter+28"></BreakPoint>
-    <BreakPoint Routine="cspRealEV.system.proweb.start.CLS" Offset="OnPreHTTPafter+2"></BreakPoint>
-    <BreakPoint Routine="cspRealEV.system.proweb.start.CLS" Offset="OnPreHTTPafter+23"></BreakPoint>
-    <BreakPoint Routine="setup.eventCreationMethods.CLS" Offset="addDefaultMenuItems+2"></BreakPoint>
-    <BreakPoint Routine="shared.pageMethodsFrontend.CLS" Offset="setRedirectPageFromHomepage+14"></BreakPoint>
+    <BreakPoint Routine="EF.pageController.proweb.listWithQuestionsRegistration.1.INT" Offset="771"></BreakPoint>
+    <BreakPoint Routine="EF.pageController.proweb.listWithQuestionsRegistration.1.INT" Offset="774"></BreakPoint>
   </BreakPoints>
+  <WatchVariables>
+    <WatchVariable Variable="pageController.page" Pane="1"></WatchVariable>
+    <WatchVariable Variable="pageController" Pane="1"></WatchVariable>
+    <WatchVariable Variable="..page" Pane="1"></WatchVariable>
+    <WatchVariable Variable="$rhis" Pane="1"></WatchVariable>
+    <WatchVariable Variable="element.identifier" Pane="1"></WatchVariable>
+    <WatchVariable Variable="element" Pane="1"></WatchVariable>
+    <WatchVariable Variable="%zPage.pageID" Pane="1"></WatchVariable>
+    <WatchVariable Variable="%request.Data(&quot;pageID&quot;,1)" Pane="1"></WatchVariable>
+    <WatchVariable Variable="%request.Get(&quot;pageID&quot;)" Pane="1"></WatchVariable>
+    <WatchVariable Variable="%request.Data" Pane="1"></WatchVariable>
+    <WatchVariable Variable="%request" Pane="1"></WatchVariable>
+    <WatchVariable Variable="page.pageID" Pane="1"></WatchVariable>
+    <WatchVariable Variable="..pageID" Pane="1"></WatchVariable>
+    <WatchVariable Variable="..isEditMode" Pane="1"></WatchVariable>
+    <WatchVariable Variable="page" Pane="1"></WatchVariable>
+    <WatchVariable Variable="$this" Pane="1"></WatchVariable>
+  </WatchVariables>
 </Project>
 
 

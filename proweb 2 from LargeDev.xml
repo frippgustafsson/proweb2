@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.2 (Build 736U)" ts="2017-01-12 17:49:24">
+<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.2 (Build 736U)" ts="2017-01-16 09:28:21">
 <Class name="EF.contextDataFrontend">
 <Description><![CDATA[
 <!-- ;vc;-
@@ -388,7 +388,7 @@ if website is private, this will be set to the cod.objPerson.ID of that logged i
 
 <Class name="EF.mvcHandler.frontendProweb">
 <Super>EF.mvcHandler.frontend</Super>
-<TimeChanged>64295,58310.83399</TimeChanged>
+<TimeChanged>64296,47213.018278</TimeChanged>
 <TimeCreated>64292,52952.708564</TimeCreated>
 
 <Property name="showRegistrationProgressBar">
@@ -400,9 +400,62 @@ if website is private, this will be set to the cod.objPerson.ID of that logged i
 <InitialExpression>0</InitialExpression>
 </Property>
 
+<Property name="isTestMode">
+<Type>%Boolean</Type>
+<InitialExpression>0</InitialExpression>
+</Property>
+
+<Property name="eventWebsiteLanguage">
+<Type>setup.eventWebsiteLanguage</Type>
+</Property>
+
 <Property name="pageID">
 <Type>%Integer</Type>
 </Property>
+
+<Method name="createNew">
+<ClassMethod>1</ClassMethod>
+<ReturnType>EF.pages.base</ReturnType>
+<Implementation><![CDATA[
+	set page = ..%New()
+	
+	do page.updatePageID()
+	do page.updateEditFlag()
+	
+	return page
+]]></Implementation>
+</Method>
+
+<Method name="loadData">
+<Implementation><![CDATA[
+	#dim pageController as EF.pageController.proweb.page
+	
+	set ..isOkToRenderPage = 1 // ##### insert security handler here ###########
+	
+	if '$IsObject(..contextData) {
+			throw ##class(shared.exceptions.generalException).%New("No contextData found in page")
+	}
+	
+	set pageControllerID = ..contextData.request.Get("prowebPageControllerID") 
+	merge requestData = ..contextData.request.Data
+
+	if pageControllerID { // when reloading the page after an validation error
+		set pageController = ##class(EF.pageController.page).open(pageControllerID, ..contextData)
+
+	} else { // regular loading of a page
+		set pageController = ##class(EF.pageController.proweb.page).%New()
+		set pageController.contextData = ..contextData
+		do pageController.load($this) // pass in the parent ot the child
+		set sc = pageController.%Save()
+		if 'sc {
+			throw ##class(shared.exceptions.generalStatusException).CreateFromStatus(sc)
+		}
+	}
+	set ..pageControllerID = pageController.%Id()
+	set ..controller = pageController
+	return pageController
+]]></Implementation>
+</Method>
 
 <Method name="renderView">
 <Implementation><![CDATA[
@@ -462,6 +515,14 @@ if website is private, this will be set to the cod.objPerson.ID of that logged i
 ]]></Implementation>
 </Method>
 
+<Method name="outputPageHeader">
+<Implementation><![CDATA[
+	set efRulesTempParams("prowebcomponentname")="header"
+ 	set efRulesTempParams("componenttype")="text"
+	do ..controller.renderHTMLControlFromTag(.efRulesTempParams)
+]]></Implementation>
+</Method>
+
 <Method name="renderCommonJavascript">
 <Implementation><![CDATA[
 	if ..isEditMode  {
@@ -489,14 +550,6 @@ if website is private, this will be set to the cod.objPerson.ID of that logged i
 	    <meta name="efProwebGetAlternativesURL" content="#(..encodeForHTMLAttribute(..Link("../../frontend/reg/getCoditemAlternativesJSON.csp")))#">
 	    
 	>
-]]></Implementation>
-</Method>
-
-<Method name="outputPageHeader">
-<Implementation><![CDATA[
-	set efRulesTempParams("prowebcomponentname")="header"
- 	set efRulesTempParams("componenttype")="text"
-	do ..controller.renderHTMLControlFromTag(.efRulesTempParams)
 ]]></Implementation>
 </Method>
 
@@ -548,7 +601,7 @@ if website is private, this will be set to the cod.objPerson.ID of that logged i
 <Method name="updatePageID">
 <Implementation><![CDATA[
 	set ..pageID = %request.Get("pageID")
-	if '..pageID {
+	if '..pageID { // fallback to previous page if called without pageID
 		set ..pageID=%session.Get("pageID")
 	}
 ]]></Implementation>
@@ -562,6 +615,34 @@ if website is private, this will be set to the cod.objPerson.ID of that logged i
 			set ..contextData.languageID = languageIDFromPage
 		}
 	}
+]]></Implementation>
+</Method>
+
+<Method name="updateEventID">
+<Implementation><![CDATA[
+	if ..contextData.eventID = "" {
+		set ..contextData.eventID = ##class(sc.xModules.objPage).getEventID(..pageID)
+		Do ..contextData.setControllerID()	
+	}
+]]></Implementation>
+</Method>
+
+<Method name="updateEditFlag">
+<Implementation><![CDATA[
+	#dim isEditMode as %Boolean = 0
+	
+	set requestValue = $ZConvert( %request.Get("mode"), "L")
+	set sessionValue = $ZConvert( $Get(%session.Data("mode")), "L")
+	
+	if (sessionValue = "edit") && (requestValue '= "preview") {
+		set isEditMode = 1	
+	}
+	
+	if (requestValue = "edit") {
+		set isEditMode = 1	
+	}
+	
+	set ..isEditMode = isEditMode
 ]]></Implementation>
 </Method>
 </Class>
@@ -633,16 +714,15 @@ if website is private, this will be set to the cod.objPerson.ID of that logged i
 
 <Class name="EF.mvcHandler.page">
 <Super>%RegisteredObject,EF.htmlGenerator</Super>
-<TimeChanged>64295,57973.980155</TimeChanged>
+<TimeChanged>64296,38945.472845</TimeChanged>
 <TimeCreated>64293,52286.415864</TimeCreated>
 
-<Property name="isOkToRenderPage">
-<Type>%Boolean</Type>
-<InitialExpression>0</InitialExpression>
+<Property name="pageClass">
+<Type>%String</Type>
 </Property>
 
-<Property name="redirectPage">
-<Type>%String</Type>
+<Property name="contextData">
+<Type>EF.contextData</Type>
 </Property>
 
 <Property name="controller">
@@ -653,53 +733,24 @@ if website is private, this will be set to the cod.objPerson.ID of that logged i
 <Type>%Integer</Type>
 </Property>
 
-<Property name="pageClass">
-<Type>%String</Type>
+<Property name="isOkToRenderPage">
+<Type>%Boolean</Type>
+<InitialExpression>0</InitialExpression>
 </Property>
 
-<Property name="pageDataClassName">
+<Property name="redirectPage">
 <Type>%String</Type>
-</Property>
-
-<Property name="contextData">
-<Type>EF.contextData</Type>
 </Property>
 
 <Method name="createNew">
 <ClassMethod>1</ClassMethod>
-<ReturnType>EF.mvcHandler.base</ReturnType>
+<ReturnType>EF.pages.base</ReturnType>
 <Implementation><![CDATA[	return ..%New()
 ]]></Implementation>
 </Method>
 
-<Method name="getController">
-<ReturnType>EF.pageController.page</ReturnType>
-<Implementation><![CDATA[
-	#dim pageController as EF.pageController.proweb.page
-	
-	set ..isOkToRenderPage = 1 // ##### insert security handler here ###########
-	
-	if '$IsObject(..contextData) {
-			throw ##class(shared.exceptions.generalException).%New("No contextData found in page")
-	}
-	
-	set pageControllerID = ..contextData.request.Get("prowebPageControllerID") 
-	merge requestData = ..contextData.request.Data
-
-	if pageControllerID { // when reloading the page after an validation error
-		set pageController = ##class(EF.pageController.page).open(pageControllerID, ..contextData)
-
-	} else { // regular loading of a page
-		set pageController = $CLASSMETHOD(..pageDataClassName, "createNew", ..contextData, .requestData)
-		set pageController.isReadOnly = 0
-		set pageController.contextData = ..contextData
-		set sc = pageController.%Save()
-		if 'sc {
-			throw ##class(shared.exceptions.generalStatusException).CreateFromStatus(sc)
-		}
-	}
-	set ..pageControllerID = pageController.%Id()
-	return pageController
+<Method name="loadData">
+<Implementation><![CDATA[	// overridden in sub classes
 ]]></Implementation>
 </Method>
 
@@ -717,6 +768,11 @@ if website is private, this will be set to the cod.objPerson.ID of that logged i
 </Method>
 
 <Method name="updateLanguageID">
+<Implementation><![CDATA[	// Overridden in sub-classes
+]]></Implementation>
+</Method>
+
+<Method name="updateEventID">
 <Implementation><![CDATA[	// Overridden in sub-classes
 ]]></Implementation>
 </Method>
@@ -1769,46 +1825,6 @@ Should be run if any of the sub-classes are deleted</Description>
 </Class>
 
 
-<Class name="EF.pageController.pagesFrontend.home">
-<Super>EF.pageController.proweb.page</Super>
-<TimeChanged>64257,52979.865449</TimeChanged>
-<TimeCreated>64176,58073.730326</TimeCreated>
-
-<Method name="loadData">
-</Method>
-
-<Method name="validate">
-</Method>
-
-<Method name="saveData">
-</Method>
-
-<Storage name="Default">
-<Type>%Library.CacheStorage</Type>
-</Storage>
-</Class>
-
-
-<Class name="EF.pageController.pagesFrontend.registration">
-<Super>EF.pageController.proweb.page</Super>
-<TimeChanged>64257,38422.443857</TimeChanged>
-<TimeCreated>64176,58073.730326</TimeCreated>
-
-<Method name="loadData">
-</Method>
-
-<Method name="validate">
-</Method>
-
-<Method name="saveData">
-</Method>
-
-<Storage name="Default">
-<Type>%Library.CacheStorage</Type>
-</Storage>
-</Class>
-
-
 <Class name="EF.pageController.proweb.buttonAddGuest">
 <Description><![CDATA[
 <!-- ;vc;-
@@ -2190,7 +2206,7 @@ Should be run if any of the sub-classes are deleted</Description>
 
 <Class name="EF.pageController.proweb.guestPanel">
 <Super>EF.pageController.proweb.panel</Super>
-<TimeChanged>64266,52141.039452</TimeChanged>
+<TimeChanged>64296,42622.055824</TimeChanged>
 <TimeCreated>63372,47064.603748</TimeCreated>
 
 <Property name="guestNumber">
@@ -2270,7 +2286,7 @@ Should be run if any of the sub-classes are deleted</Description>
 	#dim maxGuests as %Integer = ..page.getEventConfiguration().getMaxGuestsPerAttendee()
 	#dim prowebID = $Piece(..identifier,"-",2)
 	
-	if ..page.contextData.isTestMode {
+	if ..page.mvcPage.isTestMode {
 		set maxGuests = ..page.contextData.maxGuests
 	}
 	for guestNumber = 2:1:maxGuests {
@@ -2343,7 +2359,7 @@ Should be run if any of the sub-classes are deleted</Description>
 
 <Class name="EF.pageController.proweb.inputElement">
 <Super>EF.pageController.inputElement,EF.pageController.proweb.prowebBase</Super>
-<TimeChanged>64232,49007.803798</TimeChanged>
+<TimeChanged>64296,42703.766798</TimeChanged>
 <TimeCreated>64189,53012.909524</TimeCreated>
 
 <Property name="guestNumber">
@@ -2379,7 +2395,7 @@ Should be run if any of the sub-classes are deleted</Description>
 	set isOkToRender = ##super()
 	
 	if isOkToRender {
-		if (..prowebItem.storage.isBackendOnly) && (..uiComponent.contextData.isBackendBooking = 0) && (..uiComponent.contextData.prowebMode ="preview") {
+		if (..prowebItem.storage.isBackendOnly) && (..uiComponent.contextData.isBackendBooking = 0) && ('..page.mvcPage.isEditMode) {
 			set isOkToRender = 0	
 		}
 	}
@@ -2466,7 +2482,7 @@ Should be run if any of the sub-classes are deleted</Description>
 <Description>
 Should have a one-to-one relationship with sc.objList</Description>
 <Super>EF.pageController.containerElement</Super>
-<TimeChanged>64288,56588.325686</TimeChanged>
+<TimeChanged>64296,42163.146322</TimeChanged>
 <TimeCreated>64231,55587.036042</TimeCreated>
 
 <Property name="prowebListID">
@@ -2608,7 +2624,7 @@ refers to sc.xModules.objList</Description>
 		if element.%Extends("EF.pageController.proweb.list") {
 			do element.renderElements()	
 		} elseif element.isOkToRender() {
-			if (hasRenderedAtLeastOne = 0) && (element.uiComponent.%Extends("EF.ui.components.frontend.textInput")) && (..page.contextData.prowebMode '= "edit"){
+			if (hasRenderedAtLeastOne = 0) && (element.uiComponent.%Extends("EF.ui.components.frontend.textInput")) && ('..page.mvcPage.isEditMode){
 				set element.uiComponent.hasAutoFocus = 1 	
 			}
 			set element.uiComponent.nameOfControllerListClass = $ClassName($this)
@@ -2693,12 +2709,12 @@ refers to sc.xModules.objList</Description>
 <ReturnType>%String</ReturnType>
 <Implementation><![CDATA[
 	#dim itemName as %String = prowebItem.storage.databaseItemName
-	if ..page.contextData.isTestMode {
+	if ..page.mvcPage.isTestMode {
 		return prowebItem.storage.testValue
 	}
 	
 	if optionalGuestNumber  {
-		if ..page.contextData.prowebMode = "edit" {
+		if ..page.mvcPage.isEditMode {
 			set tempPersonID = "n/a"
 		} else {
 			set tempPersonID = ..page.getTempPersonIdForGuestNumber(optionalGuestNumber)	
@@ -2788,10 +2804,10 @@ refers to sc.xModules.objList</Description>
 	#dim currencyID as %Integer = ..page.contextData.currencyID
 	#dim eventID as %Integer = ..page.contextData.eventID
 	
-	if ..page.contextData.prowebMode = "edit" {
+	if ..page.mvcPage.isEditMode {
 		set currencyID = ##class(setup.objEvent).getBaseCurrency(eventID)
 	}
-	if ..page.contextData.isTestMode {
+	if ..page.mvcPage.isTestMode {
 		set price = 0
 	} else {
 		set price = ##class(sc.xModules.objCODitem).getPrice(alternative.alternativeID, prowebItem.storage.prowebID , eventID, currencyID)
@@ -2826,7 +2842,7 @@ refers to sc.xModules.objList</Description>
 
 <Method name="renderEmptyListHTML">
 <Implementation><![CDATA[
-	if ..page.contextData.prowebMode = "edit" {
+	if ..page.mvcpage.isEditMode {
 		set allowedElementTypes = ..getAllowedElementTypesForThisListType( $CLASSNAME($this) )
 		&HTML<
 			<div class="row ef-draggable-div ef-form-row ef-form-row-editable ef-empty-list" 
@@ -2916,13 +2932,13 @@ Should have a one-to-one relationship with sc.objList</Description>
 
 <Class name="EF.pageController.proweb.listWithQuestionsRegistration">
 <Super>EF.pageController.proweb.listWithQuestions</Super>
-<TimeChanged>64240,63466.278886</TimeChanged>
+<TimeChanged>64296,42784.108506</TimeChanged>
 <TimeCreated>64233,52209.241492</TimeCreated>
 
 <Method name="loadProwebListElementsFromDatabase">
 <Implementation><![CDATA[
 	for guestNumber = 1:1:..page.getEventConfiguration().getMaxGuestsPerAttendee() {
-		if (..page.contextData.prowebMode = "edit") {
+		if (..page.mvcpage.isEditMode) {
 			if guestNumber = 1 {
 				set isActive = 1
 			} else {
@@ -2989,24 +3005,26 @@ Should have a one-to-one relationship with sc.objList</Description>
 
 <Class name="EF.pageController.proweb.page">
 <Super>EF.pageController.page</Super>
-<TimeChanged>64295,62152.859861</TimeChanged>
+<TimeChanged>64296,41525.402579</TimeChanged>
 <TimeCreated>64189,51696.559047</TimeCreated>
 
-<Property name="contextData">
-<Type>EF.contextDataRegistration</Type>
+<Property name="mvcPage">
+<Type>EF.mvcHandler.frontendProweb</Type>
 </Property>
 
-<Property name="prowebPageID">
-<Type>%Integer</Type>
+<Property name="contextData">
+<Type>EF.contextDataFrontend</Type>
 </Property>
 
 <Method name="load">
+<FormalSpec>mvcPage:EF.mvcHandler.frontendProweb</FormalSpec>
 <Implementation><![CDATA[
-	if '$IsObject(..contextData) {
-		throw ##class(shared.exceptions.generalException).%New("contextData missing from pageController")	
+	if '$IsObject(mvcPage) {
+		throw ##class(shared.exceptions.generalException).%New("mvcPage missing")	
 	}
+	set ..mvcPage = mvcPage
 	
-	if ..contextData.isTestMode {
+	if ..mvcPage.isTestMode {
 		do ..insertMockProwebItems()	
 	
 	} else {
@@ -3030,7 +3048,7 @@ Should have a one-to-one relationship with sc.objList</Description>
 	}
 	set pageController = ##class(EF.pageController.page).%OpenId(pageControllerID)
 	if '$IsObject(pageController) {
-		throw ##class(shared.exceptions.generalSQLException).%New("Failed to open pageController with ID='"_pageControllerID_"'")
+		throw ##class(shared.exceptions.generalException).%New("Failed to open pageController with ID='"_pageControllerID_"'")
 		
 	}	
 	return pageController
@@ -3073,7 +3091,7 @@ Should have a one-to-one relationship with sc.objList</Description>
 <Private>1</Private>
 <Implementation><![CDATA[
 	set rsComponents = ##class(%ResultSet).%New("sc.objComponent:qComponentsByPageID")
-	do rsComponents.Execute( ..getPageID() )
+	do rsComponents.Execute( ..mvcPage.pageID )
 	while rsComponents.Next() {
 		set componentName = rsComponents.Get("description")
 		set prowebID = rsComponents.Get("listID")
@@ -3152,7 +3170,7 @@ Should have a one-to-one relationship with sc.objList</Description>
 	#dim counter as %Integer = 0
 	#define fakeTempPersonID -1
 
-	if ..contextData.isTestMode {
+	if ..mvcPage.isTestMode {
 		return $$$fakeTempPersonID
 	}
 	
@@ -3176,7 +3194,7 @@ Should have a one-to-one relationship with sc.objList</Description>
 	#define notDelegate 0
 	#define isGuest 1
 	
-	set tempPersonGuestID = ##class(eCom.tempPerson).add(%session.%Id(), $$$notBooker, $$$notDelegate, $$$isGuest, ..contextData.tempPersonID)
+	set tempPersonGuestID = ##class(eCom.tempPerson).add(%session.%Id(), $$$notBooker, $$$notDelegate, $$$isGuest, ..contextData.tempPersonID) // ######### remove %session
 	if 'tempPersonGuestID {
 		throw ##class(shared.exceptions.generalException).%New("Failed to create a new tempPerson for guest")
 	}
@@ -3247,10 +3265,10 @@ Should have a one-to-one relationship with sc.objList</Description>
 	#dim componentName as %String = attrs("prowebcomponentname")
 	#dim componentType as %String = attrs("componenttype")
 	
-	if '..contextData.pageID {
-		throw ##class(shared.exceptions.generalException).%New("contextData.pageID was missing from contextData when attempting to render Proweb tag")
+	if '..mvcPage.pageID {
+		throw ##class(shared.exceptions.generalException).%New("pageID was missing when attempting to render Proweb tag")
 	}
-	set ..contextData.prowebComponentName = componentName 
+	//set ..contextData.prowebComponentName = componentName // #### should not be in context, do we need it all?
 	
 	if ..hasError {
 		do ..renderErrorMessages()
@@ -3268,27 +3286,27 @@ also an entry point from unit tests</Description>
 	if $IsObject(parentListElement) {
 		do parentListElement.renderElements()
 	} else {
-		do ..initialiseComponent(componentType)	
+		do ..initialiseComponent(componentType, componentName)	
 	}
 ]]></Implementation>
 </Method>
 
 <Method name="initialiseComponent">
-<FormalSpec>componentType:%String</FormalSpec>
+<FormalSpec>componentType:%String,componentName:%String</FormalSpec>
 <Private>1</Private>
 <Implementation><![CDATA[
-	if '..contextData.isTestMode {
+	if '..mvcPage.isTestMode {
 		if componentType = "text" {
-			set prowebID = ##class(sc.xModules.objText).add(..contextData.pageID, ..contextData.prowebComponentName)
+			set prowebID = ##class(sc.xModules.objText).add(..mvcPage.pageID, ..contextData.prowebComponentName)
 		} else {
-			set prowebID = ##class(sc.xModules.objList).add(..contextData.pageID)	
+			set prowebID = ##class(sc.xModules.objList).add(..mvcPage.pageID)	
 		}
 		
 		if 'prowebID {
 			throw ##class(shared.exceptions.generalException).%New("Failed to create new proweb object of type: "_componentType)	
 		}
-		set templateID = ##class(sc.pageMethods).getTemplateIDfromPageID(..contextData.pageID)
-		set componentID = ##class(sc.objComponent).add(..contextData.prowebComponentName, templateID, prowebID, componentType)
+		set templateID = ##class(sc.pageMethods).getTemplateIDfromPageID(..mvcPage.pageID)
+		set componentID = ##class(sc.objComponent).add(componentName, templateID, prowebID, componentType)
 		if 'componentID {
 			throw ##class(shared.exceptions.generalException).%New("Failed to create new objComponent")
 		}
@@ -3331,13 +3349,12 @@ also an entry point from unit tests</Description>
 						do prowebElement.%Save()
 						
 						if (oldDisplayOrder '= newDisplayOrder) {
-							set xUserID = $Get(%session.Data("eventsforce","backend","xPersonID"))
 							set eventID = prowebElement.objEvent.%Id()
 							set pageID = ##class(sc.xModules.objCODitem).getPageIDforQuestion(prowebElement.%Id())
 							set pageName = ##class(sc.xModules.objPage).getDescription(pageID)
 							set prowebItemDescription = ##class(sc.xModules.objCODitem).getCODItemName(prowebElement.%Id())
 							if (prowebElement.%Id() && pageID) {
-								do ##class(setup.objEventAudit).add(xUserID, eventID, "Reg Page '"_pageName_"' ("_pageID_"), Changed '"_prowebItemDescription_"' Registration Question Order: "_newDisplayOrder_" (New Value) - "_oldDisplayOrder_" (Old Value)")
+								do ##class(setup.objEventAudit).add(..contextData.auditPersonID, eventID, "Reg Page '"_pageName_"' ("_pageID_"), Changed '"_prowebItemDescription_"' Registration Question Order: "_newDisplayOrder_" (New Value) - "_oldDisplayOrder_" (Old Value)")
 							}
 						}
 					}
@@ -3417,27 +3434,8 @@ also an entry point from unit tests</Description>
 		merge tmpArray=multiCheckboxData(prowbItemName)
 		
 		set value = ##class(cod.methods).formatMultiCheckBox(..contextData.eventID, prowbItemName, .tmpArray)
-		do ##class(eCom.tempCodData).set(tempPersonID, prowbItemName, value, ..contextData.pageID, ..contextData.eventID)
+		do ##class(eCom.tempCodData).set(tempPersonID, prowbItemName, value, ..mvcPage.pageID, ..contextData.eventID)
 	}
-]]></Implementation>
-</Method>
-
-<Method name="getPageID">
-<Private>1</Private>
-<ReturnType>%Integer</ReturnType>
-<Implementation><![CDATA[
-	/*
-	if ..isReload {
-		set pageID = ..prowebPageID
-	} else {
-		set pageID = ..contextData.pageID	
-	}
-	
-	if $Get(%session.Data("pageID")) = "" {
-		set %session.Data("pageID") = pageID
-	}
-	*/
-	return ..pageID
 ]]></Implementation>
 </Method>
 
@@ -3457,6 +3455,9 @@ also an entry point from unit tests</Description>
 </Value>
 <Value name="4">
 <Value>prowebPageID</Value>
+</Value>
+<Value name="5">
+<Value>mvcPage</Value>
 </Value>
 </Data>
 </Storage>
@@ -4864,7 +4865,7 @@ also an entry point from unit tests</Description>
 
 <Class name="EF.pages.base">
 <Super>%CSP.Page,EF.htmlGenerator</Super>
-<TimeChanged>64295,62095.681008</TimeChanged>
+<TimeChanged>64296,39053.411076</TimeChanged>
 <TimeCreated>64292,52804.615476</TimeCreated>
 
 <Parameter name="contextDataClass">
@@ -4890,8 +4891,10 @@ also an entry point from unit tests</Description>
 	}
 	
 	set %zPage.pageClass = $ClassName()
-	do %zPage.updatePageID()
+	
+	// the order of the lines below is extremely important
 	set %zPage.contextData = ..getContextData()
+	do %zPage.updateEventID()
 	do %zPage.updateLanguageID()
 	
 	if '$IsObject(%zPage.contextData) {
@@ -4899,8 +4902,9 @@ also an entry point from unit tests</Description>
 	}
 
 	set %zPage.contextData.request = %request
-	set %zPage.pageDataClassName = ..getPageDataClassName()
-	set %zPage.controller = %zPage.getController()
+	
+	// load all the data
+	do %zPage.loadData()
 	
 	return %zPage.isOkToRenderPage
 ]]></Implementation>
@@ -4915,13 +4919,6 @@ also an entry point from unit tests</Description>
 	} else {
 		throw ##class(shared.exceptions.generalException).%New("No %zPage object present in OnPageCSPROOT")
 	}
-]]></Implementation>
-</Method>
-
-<Method name="getPageDataClassName">
-<ClassMethod>1</ClassMethod>
-<ReturnType>%String</ReturnType>
-<Implementation><![CDATA[	return "EF.pageController.pagesFrontend."_$Piece($Piece(..#CSPFILE, "\", *), ".", 1)
 ]]></Implementation>
 </Method>
 
@@ -18755,17 +18752,17 @@ session pageID=#(%session.Get("pageID"))#
 <Class name="layout.cssDefaultMethods">
 <Description><![CDATA[
 <!-- ;vc;-
-;vc;    Object: layout.cssDefaultMethods.CLS/EV.81
+;vc;    Object: layout.cssDefaultMethods.CLS/EV.82
 ;vc; Component: CLS.layout.cssDefaultMethods
 ;vc;  Location: LargeDev
-;vc; Date/Time: 12-Jan-17 12:50
-;vc;      User: FredG
-;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>layout.cssDefaultMethods.CLS/EV.81</td><td>CLS.layout.cssDefaultMethods</td><td>LargeDev</td><td style='white-space: nowrap;'>12-Jan-17 12:50</td><td>FredG</td></tr></table>
+;vc; Date/Time: 13-Jan-17 16:20
+;vc;      User: AdrianM2
+;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>layout.cssDefaultMethods.CLS/EV.82</td><td>CLS.layout.cssDefaultMethods</td><td>LargeDev</td><td style='white-space: nowrap;'>13-Jan-17 16:20</td><td>AdrianM2</td></tr></table>
 ]]></Description>
 <Abstract>1</Abstract>
 <ClassType/>
 <ProcedureBlock>1</ProcedureBlock>
-<TimeChanged>64295,46246</TimeChanged>
+<TimeChanged>64296,58842.100865</TimeChanged>
 <TimeCreated>63046,56232.897117</TimeCreated>
 
 <Method name="outputDefaultCSS">
@@ -18774,6 +18771,12 @@ session pageID=#(%session.Get("pageID"))#
 <ReturnType>%String</ReturnType>
 <Implementation><![CDATA[
 	do ..outputComponentCSS()
+	if ##class(layout.objTemplate).isTemplateGen3(layoutTemplateID)	{
+		&html<
+
+			<link rel="stylesheet" href="../../media/stylesheets/frontend/gen3/ef-website-responsive-agenda.css" type="text/css" />
+		>	
+	}
 	w "<style>",!
 	
 	do ..outputFonts()
@@ -18794,12 +18797,6 @@ session pageID=#(%session.Get("pageID"))#
 		do ##class(layout.cssOverrideMethods).outputDynamicCSS(xEventID)
 	}
 	w !,"</style>",!
-	if ##class(layout.objTemplate).isTemplateGen3(layoutTemplateID)	{
-		&html<
-
-			<link rel="stylesheet" href="../../media/stylesheets/frontend/gen3/ef-website-responsive-agenda.css" type="text/css" />
-		>	
-	}
 ]]></Implementation>
 </Method>
 
@@ -20963,14 +20960,14 @@ The basic frontend default stuff</Description>
 ;vc;    Object: layout.cssOverrideMethods.CLS/EV.28
 ;vc; Component: CLS.layout.cssOverrideMethods
 ;vc;  Location: LargeDev
-;vc; Date/Time: 26-Oct-16 15:11
-;vc;      User: FredG
-;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>layout.cssOverrideMethods.CLS/EV.28</td><td>CLS.layout.cssOverrideMethods</td><td>LargeDev</td><td style='white-space: nowrap;'>26-Oct-16 15:11</td><td>FredG</td></tr></table>
+;vc; Date/Time: 13-Jan-17 16:51
+;vc;      User: AdrianM2
+;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>layout.cssOverrideMethods.CLS/EV.28</td><td>CLS.layout.cssOverrideMethods</td><td>LargeDev</td><td style='white-space: nowrap;'>13-Jan-17 16:51</td><td>AdrianM2</td></tr></table>
 ]]></Description>
 <Abstract>1</Abstract>
 <ClassType/>
 <ProcedureBlock>1</ProcedureBlock>
-<TimeChanged>64264,60444.615625</TimeChanged>
+<TimeChanged>64296,61994.442515</TimeChanged>
 <TimeCreated>63046,56108.531536</TimeCreated>
 
 <Method name="outputDynamicCSS">
@@ -21021,7 +21018,7 @@ The basic frontend default stuff</Description>
 		}		
 		
 		.ef_proweb_menu_ul, .ef_proweb_menu_ul a, .dropdown .btn,
-		.select2-container--default .select2-results__option--highlighted[aria-selected]  {
+		.select2-container--default .select2-results__option--highlighted[aria-selected], .ef-agenda-time-block  {
 			background-color: #(efwscolor1)#;	
 			color: #(menuTextColor)#;
 		}
@@ -21130,11 +21127,7 @@ The basic frontend default stuff</Description>
 		.k-calendar td.ef-date-picker-event-day .k-link {
 			color: #(##class(layout.eventColorMethods).getInputFieldTextColor(xEventID))#;
 		}
-		.ef-proweb-guest-panel .panel-heading {
-			background-color: #(##class(layout.eventColorMethods).getTableHeaderBgColor(xEventID))#;
-			color: #(##class(layout.eventColorMethods).getTableHeaderTextColor(xEventID))#;
-		}
-		
+
 	>
 	// CSS direct child selector doesn't work in &html tag. Bloody cache compiler
 	w "		.ef_frontend_help_text_content>pre { color: "_##class(layout.eventColorMethods).getHelpTextTextColor(xEventID)_"}"
@@ -21364,10 +21357,13 @@ The basic frontend default stuff</Description>
 </Method>
 
 <Method name="outputWebsiteAppearanceCSS">
+<Description>
+This is only used by proweb 2</Description>
 <ClassMethod>1</ClassMethod>
 <FormalSpec>eventID:%Integer</FormalSpec>
 <Implementation><![CDATA[
 	write !,"<!-- ========= CSS styles defined in Website Appearance ======= -->"
+	set greaterThan = ">"
 	&html<
 		<style>
 			body {
@@ -21395,7 +21391,7 @@ The basic frontend default stuff</Description>
 			.ef-panel-heading,
 			.ef-progress-bar-filled,
 			.ef-form-divider,
-			.ef-menu-block-ul-xs li a, >write "			.open>.dropdown-toggle.btn-primary,"	&html<
+			.ef-menu-block-ul-xs li a,#(".open"_greaterThan_".dropdown-toggle.btn-primary")#,
 			.ef-table-header {
 				background-color: #(##class(layout.eventColorMethods).getWebsiteColor1(eventID))#;
 				color: #(##class(layout.eventColorMethods).getMenuTextColor(eventID))#;
@@ -21405,9 +21401,7 @@ The basic frontend default stuff</Description>
 				font-family: #(..getFontFamilyOtherText(eventID))#;	
 			}
 			
-			.ef-panel-heading {
-				#(..getFontCSS(eventID,"headings"))#;
-			}
+			#(".ef-panel-heading { "_..getFontCSS(eventID,"headings")_" }")#
 
 			.ef-help-icon {
 				background-color: #(##class(layout.eventColorMethods).getMenuTextColor(eventID))#;
@@ -21427,8 +21421,8 @@ The basic frontend default stuff</Description>
 			
 			.ef-panel-body, 
 			.ef-panel {
-				color: #(##class(layout.eventColorMethods).getButtonHoverTextColor(eventID))#;
-				background-color: #(##class(layout.eventColorMethods).getButtonHoverBgColor(eventID))#;
+				color: #(##class(layout.eventColorMethods).getPanelTextColor(eventID))#;
+				background-color: #(##class(layout.eventColorMethods).getPanelBgColor(eventID))#;
 			}
 			
 			.ef-admin-only {
@@ -24313,7 +24307,7 @@ Returns true if the template is custom made</Description>
 </Class>
 
 
-<Project name="proweb 2" LastModified="2017-01-12 17:17:14.79234" Target="largedevsrc/backEnd/home/login.csp" TargetType="3">
+<Project name="proweb 2" LastModified="2017-01-13 13:13:14.338378" Target="largedevsrc/backEnd/home/login.csp" TargetType="3">
   <Items>
     <ProjectItem name="EF.contextDataFrontend" type="CLS"></ProjectItem>
     <ProjectItem name="EF.contextDataRegistration" type="CLS"></ProjectItem>
@@ -24324,9 +24318,6 @@ Returns true if the template is custom made</Description>
     <ProjectItem name="EF.mvcHandler.page" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.containerElement" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.element" type="CLS"></ProjectItem>
-    <ProjectItem name="EF.pageController.pagesFrontend.home" type="CLS"></ProjectItem>
-    <ProjectItem name="EF.pageController.pagesFrontend.registration" type="CLS"></ProjectItem>
-    <ProjectItem name="EF.pageController.pagesFrontend.t4Registration" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.proweb.buttonAddGuest" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.proweb.buttonDeleteGuest" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.proweb.checkbox" type="CLS"></ProjectItem>
@@ -24384,7 +24375,6 @@ Returns true if the template is custom made</Description>
     <ProjectItem name="EF.pages.base" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pages.frontend.base" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pages.frontend.baseProweb" type="CLS"></ProjectItem>
-    <ProjectItem name="EF.pages.frontend.mvcHandler" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pages.frontend.registrationProcessProweb" type="CLS"></ProjectItem>
     <ProjectItem name="EF.ui.components.attribute" type="CLS"></ProjectItem>
     <ProjectItem name="EF.ui.components.backend.panel" type="CLS"></ProjectItem>
@@ -24507,6 +24497,7 @@ Returns true if the template is custom made</Description>
   </Items>
   <BreakPoints>
     <BreakPoint Routine="EF.mvcHandler.base.1.INT" Offset="15"></BreakPoint>
+    <BreakPoint Routine="EF.pageController.proweb.page.CLS" Offset="load+10"></BreakPoint>
     <BreakPoint Routine="cspRealEV.frontend.reg.home.1.INT" Offset="6"></BreakPoint>
     <BreakPoint Routine="cspRealEV.frontend.reg.home.CLS" Offset="OnPage+1"></BreakPoint>
     <BreakPoint Routine="cspRealEV.frontend.reg.pagecontrollerstandardsave.CLS" Offset="OnPreHTTPafter+28"></BreakPoint>
@@ -30569,19 +30560,19 @@ please note that you must escape any ampersands in the data</Description>
 <Class name="setup.eventCreationMethods">
 <Description><![CDATA[
 <!-- ;vc;-
-;vc;    Object: setup.eventCreationMethods.CLS/EV.114
+;vc;    Object: setup.eventCreationMethods.CLS/EV.115
 ;vc; Component: CLS.setup.eventCreationMethods
 ;vc;  Location: LargeDev
-;vc; Date/Time: 12-Jan-17 17:46
-;vc;      User: AdrianM2
-;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>setup.eventCreationMethods.CLS/EV.114</td><td>CLS.setup.eventCreationMethods</td><td>LargeDev</td><td style='white-space: nowrap;'>12-Jan-17 17:46</td><td>AdrianM2</td></tr></table>
+;vc; Date/Time: 13-Jan-17 09:17
+;vc;      User: MindaugasL
+;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>setup.eventCreationMethods.CLS/EV.115</td><td>CLS.setup.eventCreationMethods</td><td>LargeDev</td><td style='white-space: nowrap;'>13-Jan-17 09:17</td><td>MindaugasL</td></tr></table>
 ]]></Description>
 <Abstract>1</Abstract>
 <ClassType/>
 <IncludeCode>EF.common.macros</IncludeCode>
 <ProcedureBlock>1</ProcedureBlock>
 <Super>%Persistent</Super>
-<TimeChanged>64295,63976</TimeChanged>
+<TimeChanged>64296,33510.557938</TimeChanged>
 <TimeCreated>61908,40601.453382</TimeCreated>
 
 <Method name="createEventPages">
@@ -31089,15 +31080,6 @@ Returns 1 if OK otherwise it'll be an error</Description>
 			set menuItemID=##class(layout.objMenuItem).add(dataID,"Agenda",URLbit_"/frontEnd/reg/dailyAgenda.csp","_self","","","","","")
 
 		
-		} elseif groupName="Abstract Management" {
-			// create the menu for the abstract website				
-			set homePageID=##class(setup.objEventSetting).getParameter("abstract management pages","homePageID",xEventID)
-			set documentPageID=##class(setup.objEventSetting).getParameter("abstract management pages","documentPageID",xEventID)
-			set topicListPageID=##class(setup.objEventSetting).getParameter("abstract management pages","topicListPageID",xEventID)
-
-			set ok=##class(sc.xModules.objImage).createButton(listID,"  Home Page",URLbit_"/system/proweb/start.csp?pageID="_homePageID,"")
-			set ok=##class(sc.xModules.objImage).createButton(listID,"  Submit Abstracts",URLbit_"/system/proweb/start.csp?userType=submitter&pageID="_topicListPageID,"")
-			set ok=##class(sc.xModules.objImage).createButton(listID,"  Review Abstracts",URLbit_"/frontend/reg/absLogin.csp?isReviewer=1","",125)
 		}
 	}
 ]]></Implementation>
@@ -31447,6 +31429,7 @@ get a list of all the active links for an event - used in drop-downs for nice UR
 			set linkArray($I(linkArray),"Main: Registration Start (External Login)")="{{EVENTPAGELINK:"_eventID_"|REGISTER|SSO}}"
 			set linkArray($I(linkArray),"Main: Amendment Start (External Login)")="{{EVENTPAGELINK:"_eventID_"|AMEND|SSO}}"
 		}
+		set linkArray($I(linkArray),"Main: Password Reset Link") = "{{PasswordResetLink}}"
 		set linkArray($I(linkArray),"Main: Decline Start")="{{EVENTPAGELINK:"_eventID_"|"_declinePageID_"}}"
 		set linkArray($I(linkArray),"Main: Daily Agenda")="{{EVENTPAGELINK:"_eventID_"|"_dailyAgendaPageID_"}}"
 		set linkArray($I(linkArray),"Main: Personal Event Link")="{{PersonalEventLink}}"

@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.2 (Build 736U)" ts="2017-01-16 15:02:48">
+<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.2 (Build 736U)" ts="2017-01-17 14:42:30">
 <Class name="EF.contextDataFrontend">
 <Description><![CDATA[
 <!-- ;vc;-
-;vc;    Object: EF.contextDataFrontend.CLS/EV.5
+;vc;    Object: EF.contextDataFrontend.CLS/EV.6
 ;vc; Component: CLS.EF.contextDataFrontend
 ;vc;  Location: LargeDev
-;vc; Date/Time: 12-Jan-17 14:59
+;vc; Date/Time: 16-Jan-17 15:41
 ;vc;      User: FredG
-;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>EF.contextDataFrontend.CLS/EV.5</td><td>CLS.EF.contextDataFrontend</td><td>LargeDev</td><td style='white-space: nowrap;'>12-Jan-17 14:59</td><td>FredG</td></tr></table>
+;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>EF.contextDataFrontend.CLS/EV.6</td><td>CLS.EF.contextDataFrontend</td><td>LargeDev</td><td style='white-space: nowrap;'>16-Jan-17 15:41</td><td>FredG</td></tr></table>
 ]]></Description>
 <Super>EF.contextData</Super>
-<TimeChanged>64295,57188.822239</TimeChanged>
+<TimeChanged>64299,56669.713628</TimeChanged>
 <TimeCreated>63755,56082.660879</TimeCreated>
 
 <Property name="loggedInPersonID">
@@ -62,11 +62,11 @@ if website is private, this will be set to the cod.objPerson.ID of that logged i
 	if contextData.languageID = "" {
 		 set contextData.languageID=$G(%session.Data("eventsforce","frontend","xLangID"))
 	} 
+	if contextData.languageID = "" {
+		 set contextData.languageID = ##class(shared.objLanguage).getDefaultLangIDForEvent(eventID)
+	} 
 	
 	set contextData.sessionID = %session.SessionId
-	
-	
-	
 	set contextData.prowebMode = %session.Get("mode")
 	
 	do contextData.populatePersonDataFromSession()
@@ -388,7 +388,7 @@ if website is private, this will be set to the cod.objPerson.ID of that logged i
 
 <Class name="EF.mvcHandler.frontendProweb">
 <Super>EF.mvcHandler.frontend</Super>
-<TimeChanged>64299,54114.751541</TimeChanged>
+<TimeChanged>64299,54752.868882</TimeChanged>
 <TimeCreated>64292,52952.708564</TimeCreated>
 
 <Property name="showRegistrationProgressBar">
@@ -449,7 +449,7 @@ if website is private, this will be set to the cod.objPerson.ID of that logged i
 		set objEvent = ##class(setup.objEvent).%OpenId(..contextData.eventID)
 		set pageController.objEvent = objEvent
 		
-		do pageController.load($this) 
+		do pageController.load($this) // this is the main loading point of all data for the page
 		set sc = pageController.%Save()
 		if 'sc {
 			throw ##class(shared.exceptions.generalStatusException).CreateFromStatus(sc)
@@ -2508,7 +2508,7 @@ Should be run if any of the sub-classes are deleted</Description>
 <Description>
 Should have a one-to-one relationship with sc.objList</Description>
 <Super>EF.pageController.containerElement</Super>
-<TimeChanged>64299,44245.081215</TimeChanged>
+<TimeChanged>64300,42011.14255</TimeChanged>
 <TimeCreated>64231,55587.036042</TimeCreated>
 
 <Property name="prowebListID">
@@ -2597,6 +2597,11 @@ This method overrides the one in element because the parent of a list, which is 
 <FormalSpec>page:EF.pageController.proweb.page,identifier:%String,description:%String</FormalSpec>
 <ReturnType>EF.pageController.element</ReturnType>
 <Implementation><![CDATA[
+	s x=$I(^xfg)
+	s ^xfg(x,"page")=page
+	s ^xfg(x,"identifier")=identifier
+	s ^xfg(x,"description")=description
+	
 	set element = ..%New(identifier,description)
 	set element.elementParent = page
 	if page.getElementByIdentifier(element.identifier) {
@@ -2897,7 +2902,7 @@ This method overrides the one in element because the parent of a list, which is 
 
 <Method name="renderEmptyListHTML">
 <Implementation><![CDATA[
-	if ..page.mvcpage.isEditMode {
+	if ..page.mvcPage.isEditMode {
 		set allowedElementTypes = ..getAllowedElementTypesForThisListType( $CLASSNAME($this) )
 		&HTML<
 			<div class="row ef-draggable-div ef-form-row ef-form-row-editable ef-empty-list" 
@@ -3063,7 +3068,7 @@ Should have a one-to-one relationship with sc.objList</Description>
 
 <Class name="EF.pageController.proweb.page">
 <Super>EF.pageController.page</Super>
-<TimeChanged>64299,46698.637498</TimeChanged>
+<TimeChanged>64300,52864.591617</TimeChanged>
 <TimeCreated>64189,51696.559047</TimeCreated>
 
 <Property name="mvcPage">
@@ -3080,6 +3085,13 @@ Should have a one-to-one relationship with sc.objList</Description>
 	if '$IsObject(mvcPage) {
 		throw ##class(shared.exceptions.generalException).%New("mvcPage missing")	
 	}
+	if '$IsObject(..contextData) {
+		throw ##class(shared.exceptions.generalException).%New("context data missing")	
+	}
+	if '$IsObject(..contextData.eventWebsiteLanguage) {
+		throw ##class(shared.exceptions.generalException).%New("..contextData.eventWebsiteLanguage missing")	
+	}
+
 	set ..mvcPage = mvcPage
 	
 	if ..mvcPage.isTestMode {
@@ -3144,7 +3156,7 @@ Should have a one-to-one relationship with sc.objList</Description>
 	set prowebListID = ##class(sc.xModules.objList).getListIDFromPageIDAndComponentName(pageID, "INDEXLIST")
 	
 	if 'prowebListID {
-		throw ##class(shared.exceptions.generalException).%New("No prowebListID for include page found, listName='"_listName_"'")
+		do ..initialiseComponent(pageID, "listOfSingleElement", listName)
 	}
 	
 	set list.prowebListID = prowebListID
@@ -3351,35 +3363,41 @@ also an entry point from unit tests</Description>
 	if $IsObject(parentListElement) {
 		do parentListElement.renderElements()
 	} else {
-		do ..initialiseComponent(componentType, componentName)	
+		do ..initialiseComponent(..mvcPage.pageID, componentType, componentName)	// ######### remove this if the call from the load bit works
 	}
 ]]></Implementation>
 </Method>
 
 <Method name="initialiseComponent">
-<FormalSpec>componentType:%String,componentName:%String</FormalSpec>
+<FormalSpec>pageID:%Integer="",componentType:%String="",componentName:%String=""</FormalSpec>
 <Private>1</Private>
 <Implementation><![CDATA[
+	if ('pageID) ! (componentType = "") ! (componentName = "") {
+		throw ##class(shared.exceptions.generalException).%New("Parameter(s) missing when attempting to initisalise a component of type: '"_componentType_"' - name: '"_componentName_"' - pageID: "_pageID)	
+	}
+
 	if '..mvcPage.isTestMode {
 		if componentType = "text" {
-			set prowebID = ##class(sc.xModules.objText).add(..mvcPage.pageID, ..contextData.prowebComponentName)
+			set prowebID = ##class(sc.xModules.objText).add(pageID, componentName)
 		} else {
-			set prowebID = ##class(sc.xModules.objList).add(..mvcPage.pageID)	
+			set prowebID = ##class(sc.xModules.objList).add(pageID)	
 		}
-		
 		if 'prowebID {
 			throw ##class(shared.exceptions.generalException).%New("Failed to create new proweb object of type: "_componentType)	
 		}
-		set templateID = ##class(sc.pageMethods).getTemplateIDfromPageID(..mvcPage.pageID)
+		set templateID = ##class(sc.pageMethods).getTemplateIDfromPageID(pageID)
+
 		set componentID = ##class(sc.objComponent).add(componentName, templateID, prowebID, componentType)
 		if 'componentID {
 			throw ##class(shared.exceptions.generalException).%New("Failed to create new objComponent")
 		}
+		/*
 		&html<
 			<script language="javascript">
 				location.reload(true);
 			</script>
 		>
+		*/
 	}
 ]]></Implementation>
 </Method>
@@ -4930,7 +4948,7 @@ also an entry point from unit tests</Description>
 
 <Class name="EF.pages.base">
 <Super>%CSP.Page,EF.htmlGenerator</Super>
-<TimeChanged>64299,37049.086165</TimeChanged>
+<TimeChanged>64299,57740.125308</TimeChanged>
 <TimeCreated>64292,52804.615476</TimeCreated>
 
 <Parameter name="contextDataClass">
@@ -4945,9 +4963,6 @@ also an entry point from unit tests</Description>
 <ClassMethod>1</ClassMethod>
 <ReturnType>%Boolean</ReturnType>
 <Implementation><![CDATA[
-	kill ^xfg
-	merge ^xfg("%request.Data")=%request.Data
-	
 	#dim %zPage as EF.mvcHandler.page // This is a percent variable to make it available to the OnPageCSPROOT too
 	
 	// create an instance of a page manually because %CSP.Page dosn't
@@ -18838,17 +18853,17 @@ session pageID=#(%session.Get("pageID"))#
 <Class name="layout.cssDefaultMethods">
 <Description><![CDATA[
 <!-- ;vc;-
-;vc;    Object: layout.cssDefaultMethods.CLS/EV.82
+;vc;    Object: layout.cssDefaultMethods.CLS/EV.84
 ;vc; Component: CLS.layout.cssDefaultMethods
 ;vc;  Location: LargeDev
-;vc; Date/Time: 13-Jan-17 16:20
-;vc;      User: AdrianM2
-;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>layout.cssDefaultMethods.CLS/EV.82</td><td>CLS.layout.cssDefaultMethods</td><td>LargeDev</td><td style='white-space: nowrap;'>13-Jan-17 16:20</td><td>AdrianM2</td></tr></table>
+;vc; Date/Time: 17-Jan-17 11:07
+;vc;      User: MindaugasL
+;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>layout.cssDefaultMethods.CLS/EV.84</td><td>CLS.layout.cssDefaultMethods</td><td>LargeDev</td><td style='white-space: nowrap;'>17-Jan-17 11:07</td><td>MindaugasL</td></tr></table>
 ]]></Description>
 <Abstract>1</Abstract>
 <ClassType/>
 <ProcedureBlock>1</ProcedureBlock>
-<TimeChanged>64296,58842.100865</TimeChanged>
+<TimeChanged>64300,40084.826273</TimeChanged>
 <TimeCreated>63046,56232.897117</TimeCreated>
 
 <Method name="outputDefaultCSS">
@@ -18857,12 +18872,6 @@ session pageID=#(%session.Get("pageID"))#
 <ReturnType>%String</ReturnType>
 <Implementation><![CDATA[
 	do ..outputComponentCSS()
-	if ##class(layout.objTemplate).isTemplateGen3(layoutTemplateID)	{
-		&html<
-
-			<link rel="stylesheet" href="../../media/stylesheets/frontend/gen3/ef-website-responsive-agenda.css" type="text/css" />
-		>	
-	}
 	w "<style>",!
 	
 	do ..outputFonts()
@@ -18880,6 +18889,11 @@ session pageID=#(%session.Get("pageID"))#
 	if ##class(layout.objTemplate).isTemplateGen3(layoutTemplateID)	{
 		do ..outputGen2and3Defaults()
 		do ..outputGen3Defaults()
+		w !,"</style>",!
+		&html<
+			<link rel="stylesheet" href="../../media/stylesheets/frontend/gen3/ef-website-responsive-agenda.css" type="text/css" />
+		>
+		w "<style>",!
 		do ##class(layout.cssOverrideMethods).outputDynamicCSS(xEventID)
 	}
 	w !,"</style>",!
@@ -19288,6 +19302,12 @@ yellow red grey etc. Used for ALL templates below gen3</Description>
 	&html<
 		/* ======= outputGen3Defaults() ======= */
 		.ef-custom-content-section img {
+		  display: block;
+		  max-width: 100%;
+		  height: auto;
+		}
+		
+		.ef-registration-section img {
 		  display: block;
 		  max-width: 100%;
 		  height: auto;
@@ -24393,7 +24413,7 @@ Returns true if the template is custom made</Description>
 </Class>
 
 
-<Project name="proweb 2" LastModified="2017-01-16 14:58:27.793702" Target="largedevsrc/backEnd/home/login.csp" TargetType="3">
+<Project name="proweb 2" LastModified="2017-01-17 11:44:03.632915" Target="largedevsrc/backEnd/home/login.csp" TargetType="3">
   <Items>
     <ProjectItem name="EF.contextDataFrontend" type="CLS"></ProjectItem>
     <ProjectItem name="EF.contextDataRegistration" type="CLS"></ProjectItem>
@@ -24583,10 +24603,19 @@ Returns true if the template is custom made</Description>
   </Items>
   <BreakPoints>
     <BreakPoint Routine="EF.mvcHandler.frontendProwebRegistration.1.INT" Offset="77"></BreakPoint>
+    <BreakPoint Routine="EF.pageController.proweb.page.1.INT" Offset="1392"></BreakPoint>
+    <BreakPoint Routine="EF.pageController.proweb.page.1.INT" Offset="1393"></BreakPoint>
+    <BreakPoint Routine="EF.pageController.proweb.page.1.INT" Offset="1400"></BreakPoint>
     <BreakPoint Routine="EF.pageController.proweb.listWithQuestionsRegistration.1.INT" Offset="771"></BreakPoint>
     <BreakPoint Routine="EF.pageController.proweb.listWithQuestionsRegistration.1.INT" Offset="774"></BreakPoint>
+    <BreakPoint Routine="EF.pageController.proweb.list.1.INT" Offset="1378"></BreakPoint>
   </BreakPoints>
   <WatchVariables>
+    <WatchVariable Variable="..page.mvcPage.isEditMode" Pane="1"></WatchVariable>
+    <WatchVariable Variable="..page.mvcPage" Pane="1"></WatchVariable>
+    <WatchVariable Variable="..contextData.eventWebsiteLanguage.getFooterPageID()" Pane="1"></WatchVariable>
+    <WatchVariable Variable="..contextData.eventWebsiteLanguage.languageID" Pane="1"></WatchVariable>
+    <WatchVariable Variable="..contextData.eventWebsiteLanguage" Pane="1"></WatchVariable>
     <WatchVariable Variable="pageController.page" Pane="1"></WatchVariable>
     <WatchVariable Variable="pageController" Pane="1"></WatchVariable>
     <WatchVariable Variable="..page" Pane="1"></WatchVariable>
@@ -32547,17 +32576,17 @@ Returns the correct style of the button depending on what mode are available and
 <Class name="shared.pageMethods">
 <Description><![CDATA[
 <!-- ;vc;-
-;vc;    Object: shared.pageMethods.CLS/EV.186
+;vc;    Object: shared.pageMethods.CLS/EV.185
 ;vc; Component: CLS.shared.pageMethods
 ;vc;  Location: LargeDev
-;vc; Date/Time: 21-Dec-16 11:49
+;vc; Date/Time: 17-Jan-17 12:05
 ;vc;      User: JeremyW
-;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>shared.pageMethods.CLS/EV.186</td><td>CLS.shared.pageMethods</td><td>LargeDev</td><td style='white-space: nowrap;'>21-Dec-16 11:49</td><td>JeremyW</td></tr></table>
+;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>shared.pageMethods.CLS/EV.185</td><td>CLS.shared.pageMethods</td><td>LargeDev</td><td style='white-space: nowrap;'>17-Jan-17 12:05</td><td>JeremyW</td></tr></table>
 ]]></Description>
 <Abstract>1</Abstract>
 <ClassType/>
 <ProcedureBlock>1</ProcedureBlock>
-<TimeChanged>64273,42613.531253</TimeChanged>
+<TimeChanged>64273,39836</TimeChanged>
 <TimeCreated>60747,44410.590792</TimeCreated>
 
 <Method name="prePartOne">
@@ -33052,28 +33081,15 @@ clean the passed in URL to make sure only allow an internal redirection</Descrip
 <Description>
  method to be used to get pageID to make sure it's "clean"</Description>
 <ClassMethod>1</ClassMethod>
+<FormalSpec>fromRequest=1</FormalSpec>
 <ReturnType>%String</ReturnType>
 <Implementation><![CDATA[
-	#dim isEventUsingProweb2 as %Boolean = 0
-	#dim contextData as EF.contextDataFrontend = ##class(EF.contextDataFrontend).createFromFrontendCSPSession()
-	
-	if 'contextData.eventID {
-		set contextData = ##class(EF.contextDataFrontend).createFromBackendCSPSession()	// this will be the case when doing the very first instie page editing after a backend login
-	}
-	
 	set pageID=""
-	if contextData.eventID > 0 {
-		set isEventUsingProweb2 = ##class(setup.objEvent).isEventUsingProweb2(contextData.eventID)
-	} else {
-		throw ##class(shared.exceptions.generalException).%New("No eventID found in contextData")
-	}
-
-	if (..doesPageHaveAProwebPageID(%request.PageName)) ! (isEventUsingProweb2) {
-		set pageID=+%request.Get("pageID")
+	if ..doesPageHaveAProwebPageID(%request.PageName) {
+		if fromRequest set pageID=+%request.Get("pageID")
 		if 'pageID set pageID=%session.Get("pageID") 
-	} 
-		
-	return pageID
+	}
+	quit pageID
 ]]></Implementation>
 </Method>
 

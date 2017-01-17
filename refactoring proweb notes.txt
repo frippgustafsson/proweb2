@@ -182,9 +182,12 @@ turn off setting in template upload (temporary)
 
 
 --- iceboxing it ---
+adding contents to footer in new event fails
+rename and restore the templates
 add upgrade code to populate the 'listYpe' property in sc.objComponent
 the editor panel and the quick edit are not using form-line/form-group
 the buttons are misplaced in small viewfinder
+multi column multicheck boxes
 improve the way we preview/edit for specific attendee categories
 move out all the inpage javascripts from frontJS.csp to real JS files
 rewrite frontendHTTPheader/frontednStyles/frontendJS
@@ -207,5 +210,6 @@ replace most contextDataRegistration with contextDataFrontend
 QBIs
 warning before leaving the page
 table bookings
+remove objSteps
 add integration test where we create the whole shebang
 remove proweb version 1.5 code

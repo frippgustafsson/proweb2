@@ -178,7 +178,10 @@ look at form-horizontal isseuas
 turn off setting in template upload (temporary)
 
 ===============================================================================
-
+- footer text can't be saved (double lists?)
+- sometimes get a session time out when switching pages
+- the banner is not on grey background
+- should the empty list alway be grey
 
 
 --- iceboxing it ---

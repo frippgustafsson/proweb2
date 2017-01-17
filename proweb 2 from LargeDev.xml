@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.2 (Build 736U)" ts="2017-01-17 14:42:30">
+<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.2 (Build 736U)" ts="2017-01-17 17:02:15">
 <Class name="EF.contextDataFrontend">
 <Description><![CDATA[
 <!-- ;vc;-
@@ -11,7 +11,7 @@
 ;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>EF.contextDataFrontend.CLS/EV.6</td><td>CLS.EF.contextDataFrontend</td><td>LargeDev</td><td style='white-space: nowrap;'>16-Jan-17 15:41</td><td>FredG</td></tr></table>
 ]]></Description>
 <Super>EF.contextData</Super>
-<TimeChanged>64299,56669.713628</TimeChanged>
+<TimeChanged>64300,61102.81592</TimeChanged>
 <TimeCreated>63755,56082.660879</TimeCreated>
 
 <Property name="loggedInPersonID">
@@ -49,12 +49,13 @@ if website is private, this will be set to the cod.objPerson.ID of that logged i
 	#dim sessionID as %String = %session.SessionId
 	
 	set contextData = ..%New()
-	set eventID = $Get(%session.Data("eventsforce","frontend","xEventID"))
+
+	set eventID = %request.Get("eventID")	
 	if 'eventID {
-		set eventID = $Get(%session.Data("eventsforce","backend","xEventID"))
-		set %session.Data("eventsforce","frontend","xEventID") = eventID	
-	}	
+		throw ##class(shared.exceptions.generalException).%New("eventID is missing from %request")	
+	}
 	set contextData.eventID = eventID
+	set %session.Data("eventsforce","frontend","xEventID") = eventID
 	
 	Do contextData.setControllerID()
 	
@@ -388,7 +389,7 @@ if website is private, this will be set to the cod.objPerson.ID of that logged i
 
 <Class name="EF.mvcHandler.frontendProweb">
 <Super>EF.mvcHandler.frontend</Super>
-<TimeChanged>64299,54752.868882</TimeChanged>
+<TimeChanged>64300,58707.016554</TimeChanged>
 <TimeCreated>64292,52952.708564</TimeCreated>
 
 <Property name="showRegistrationProgressBar">
@@ -446,6 +447,8 @@ if website is private, this will be set to the cod.objPerson.ID of that logged i
 	} else { // regular loading of a page
 		set pageController = ##class(EF.pageController.proweb.page).%New()
 		set pageController.contextData = ..contextData
+		s x=$I(^xfg)
+		s ^xfg(x,"assign context data to pageController. EventID=")=..contextData.eventID
 		set objEvent = ##class(setup.objEvent).%OpenId(..contextData.eventID)
 		set pageController.objEvent = objEvent
 		
@@ -655,7 +658,7 @@ if website is private, this will be set to the cod.objPerson.ID of that logged i
 
 <Class name="EF.mvcHandler.frontendProwebRegistration">
 <Super>EF.mvcHandler.frontendProweb</Super>
-<TimeChanged>64299,53694.305215</TimeChanged>
+<TimeChanged>64300,61279.748807</TimeChanged>
 <TimeCreated>64293,33205.393133</TimeCreated>
 
 <Property name="efFormID">
@@ -721,7 +724,7 @@ if website is private, this will be set to the cod.objPerson.ID of that logged i
 		<div class="row">
 			<div class="col-sm-6 ef-button-container-left">
 	 >
-	set cancelButton = ##class(EF.ui.components.frontend.buttonLink).createNew("Back", ..Link("####################..getBackButtonURL()") )
+	set cancelButton = ##class(EF.ui.components.frontend.buttonLink).createNew("Back", ..getBackButtonURL() )
 	do cancelButton.render()
 	
 	&html< 
@@ -733,6 +736,16 @@ if website is private, this will be set to the cod.objPerson.ID of that logged i
 	&html< </div></div> >
 	
 	do ##super()
+]]></Implementation>
+</Method>
+
+<Method name="getBackButtonURL">
+<Private>1</Private>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	set backforward=##class(setup.objPageNav).goWhere(..pageID, , ..contextData.tempPersonID)
+	set URL = $Piece(backforward,"|",1)  // go back
+	return URL
 ]]></Implementation>
 </Method>
 </Class>
@@ -3068,7 +3081,7 @@ Should have a one-to-one relationship with sc.objList</Description>
 
 <Class name="EF.pageController.proweb.page">
 <Super>EF.pageController.page</Super>
-<TimeChanged>64300,52864.591617</TimeChanged>
+<TimeChanged>64300,61304.547217</TimeChanged>
 <TimeCreated>64189,51696.559047</TimeCreated>
 
 <Property name="mvcPage">
@@ -3101,8 +3114,17 @@ Should have a one-to-one relationship with sc.objList</Description>
 		do ..loadIncludePage(..contextData.eventWebsiteLanguage.getBannerPageID() , "banner page")
 		do ..loadIncludePage(..contextData.eventWebsiteLanguage.getMenuPageID() , "navigation bar page")
 		do ..loadAllProwebListsForPage()
-		do ..loadIncludePage(..contextData.eventWebsiteLanguage.getSponsorPageID(), "sponsor page") 
-		do ..loadIncludePage(..contextData.eventWebsiteLanguage.getFooterPageID(), "footer page")
+		do ..loadIncludePage(..contextData.eventWebsiteLanguage.getSponsorPageID(), "sponsor page")
+		
+		set footerPageID = ##class(setup.objEventSetting).getParameter("mainpages","footerPageID", ..contextData.eventID)
+		
+		s x=$I(^xfg)
+		set ^xfg(x,"before loading footer page")=footerPageID
+		set ^xfg(x,"eventID from page")=##class(sc.objData).getEventID(footerPageID)
+		set ^xfg(x,"eventID from context")=..contextData.eventID
+
+		do ..loadIncludePage(footerPageID, "footer page") 
+		//do ..loadIncludePage(..contextData.eventWebsiteLanguage.getFooterPageID(), "footer page")
 	}
 	do ..updateUIComponents()
 ]]></Implementation>
@@ -3156,7 +3178,7 @@ Should have a one-to-one relationship with sc.objList</Description>
 	set prowebListID = ##class(sc.xModules.objList).getListIDFromPageIDAndComponentName(pageID, "INDEXLIST")
 	
 	if 'prowebListID {
-		do ..initialiseComponent(pageID, "listOfSingleElement", listName)
+		do ..initialiseComponent(pageID, "listOfSingleElement", "INDEXLIST")
 	}
 	
 	set list.prowebListID = prowebListID
@@ -3345,7 +3367,6 @@ Should have a one-to-one relationship with sc.objList</Description>
 	if '..mvcPage.pageID {
 		throw ##class(shared.exceptions.generalException).%New("pageID was missing when attempting to render Proweb tag")
 	}
-	//set ..contextData.prowebComponentName = componentName // #### should not be in context, do we need it all?
 	
 	if ..hasError {
 		do ..renderErrorMessages()
@@ -3377,10 +3398,14 @@ also an entry point from unit tests</Description>
 	}
 
 	if '..mvcPage.isTestMode {
+		s x=$I(^xfg)
+		s ^xfg(x,"adding list/text and component for pageID")=pageID_" eventID="_##class(sc.objData).getEventID(pageID)
 		if componentType = "text" {
 			set prowebID = ##class(sc.xModules.objText).add(pageID, componentName)
+			s ^xfg(x,"created new text item")=prowebID_"|"_componentName
 		} else {
 			set prowebID = ##class(sc.xModules.objList).add(pageID)	
+			s ^xfg(x,"created new list item")=prowebID
 		}
 		if 'prowebID {
 			throw ##class(shared.exceptions.generalException).%New("Failed to create new proweb object of type: "_componentType)	
@@ -3391,6 +3416,7 @@ also an entry point from unit tests</Description>
 		if 'componentID {
 			throw ##class(shared.exceptions.generalException).%New("Failed to create new objComponent")
 		}
+		s ^xfg(x,"created new component")=componentID_"|"_componentName_"|"_componentType
 		/*
 		&html<
 			<script language="javascript">
@@ -4948,7 +4974,7 @@ also an entry point from unit tests</Description>
 
 <Class name="EF.pages.base">
 <Super>%CSP.Page,EF.htmlGenerator</Super>
-<TimeChanged>64299,57740.125308</TimeChanged>
+<TimeChanged>64300,58832.905464</TimeChanged>
 <TimeCreated>64292,52804.615476</TimeCreated>
 
 <Parameter name="contextDataClass">
@@ -4977,6 +5003,10 @@ also an entry point from unit tests</Description>
 	
 	// the order of the lines below is extremely important
 	set %zPage.contextData = ..getContextData()
+
+		s x=$I(^xfg)
+		s ^xfg(x,"assign context data to mvcPage. EventID=")=%zPage.contextData.eventID
+
 	do %zPage.updateEventID()
 	do %zPage.updateLanguageID()
 	
@@ -32576,17 +32606,17 @@ Returns the correct style of the button depending on what mode are available and
 <Class name="shared.pageMethods">
 <Description><![CDATA[
 <!-- ;vc;-
-;vc;    Object: shared.pageMethods.CLS/EV.185
+;vc;    Object: shared.pageMethods.CLS/EV.187
 ;vc; Component: CLS.shared.pageMethods
 ;vc;  Location: LargeDev
-;vc; Date/Time: 17-Jan-17 12:05
-;vc;      User: JeremyW
-;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>shared.pageMethods.CLS/EV.185</td><td>CLS.shared.pageMethods</td><td>LargeDev</td><td style='white-space: nowrap;'>17-Jan-17 12:05</td><td>JeremyW</td></tr></table>
+;vc; Date/Time: 17-Jan-17 16:30
+;vc;      User: FredG
+;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>shared.pageMethods.CLS/EV.187</td><td>CLS.shared.pageMethods</td><td>LargeDev</td><td style='white-space: nowrap;'>17-Jan-17 16:30</td><td>FredG</td></tr></table>
 ]]></Description>
 <Abstract>1</Abstract>
 <ClassType/>
 <ProcedureBlock>1</ProcedureBlock>
-<TimeChanged>64273,39836</TimeChanged>
+<TimeChanged>64300,59497.799343</TimeChanged>
 <TimeCreated>60747,44410.590792</TimeCreated>
 
 <Method name="prePartOne">
@@ -33227,6 +33257,7 @@ newEventID can be blank </Description>
 	if newEventID do ..addToLastEventSelected(xPersonID,newEventID)
 	if newEventID do ..addToMRU(xPersonID,newEventID)
 	do ..clearBackendMenuCache()
+	kill %session.Data("eventsforce","frontend")
 	quit
 ]]></Implementation>
 </Method>

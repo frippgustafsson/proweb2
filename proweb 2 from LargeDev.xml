@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.2 (Build 736U)" ts="2017-01-18 14:47:57">
+<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.2 (Build 736U)" ts="2017-01-18 17:02:37">
 <Class name="EF.contextDataFrontend">
 <Description><![CDATA[
 <!-- ;vc;-
@@ -392,7 +392,7 @@ if website is private, this will be set to the cod.objPerson.ID of that logged i
 
 <Class name="EF.mvcHandler.frontendProweb">
 <Super>EF.mvcHandler.frontend</Super>
-<TimeChanged>64301,40857.003493</TimeChanged>
+<TimeChanged>64301,56759.70002</TimeChanged>
 <TimeCreated>64292,52952.708564</TimeCreated>
 
 <Property name="showRegistrationProgressBar">
@@ -550,6 +550,7 @@ if website is private, this will be set to the cod.objPerson.ID of that logged i
 <Method name="outputMetaTags">
 <Implementation><![CDATA[
 	 &html<
+	 	<meta name="efIsProweb2" content="1">
 	 	<meta name="efProwebConfirmDeleteURL" content="#(..encodeForHTMLAttribute(..Link("../../backend/proweb/deleteListItem.csp?zz=1")))#">
 	    <meta name="efProwebEditBaseURL" content="#(..encodeForHTMLAttribute(..Link("../../backend/proweb/editItem.csp")))#">
 	    <meta name="efProwebAddQuestionBaseURL" content="#(..encodeForHTMLAttribute(..Link(..getInitialURL("../../backend/proweb/codQuestionDetails.csp"))))#">
@@ -665,7 +666,7 @@ if website is private, this will be set to the cod.objPerson.ID of that logged i
 
 <Class name="EF.mvcHandler.frontendProwebRegistration">
 <Super>EF.mvcHandler.frontendProweb</Super>
-<TimeChanged>64301,53142.537306</TimeChanged>
+<TimeChanged>64301,57581.15826</TimeChanged>
 <TimeCreated>64293,33205.393133</TimeCreated>
 
 <Property name="efFormID">
@@ -739,7 +740,11 @@ if website is private, this will be set to the cod.objPerson.ID of that logged i
 <Private>1</Private>
 <ReturnType>%String</ReturnType>
 <Implementation><![CDATA[
-	set backforward=##class(setup.objPageNav).goWhere(..pageID, , ..contextData.tempPersonID)
+	s x=$i(^xfg)
+	s ^xfg(x,"..contextData.tempPersonID")=..contextData.tempPersonID
+	s ^xfg(x,"..pageID")=..pageID
+	set backforward = ##class(setup.objPageNav).goWhere(..pageID, , ..contextData.tempPersonID)
+	s ^xfg(x,"backforward")=backforward
 	set URL = $Piece(backforward,"|",1)  // go back
 	return URL
 ]]></Implementation>
@@ -3076,7 +3081,7 @@ Should have a one-to-one relationship with sc.objList</Description>
 
 <Class name="EF.pageController.proweb.page">
 <Super>EF.pageController.page</Super>
-<TimeChanged>64301,50615.353612</TimeChanged>
+<TimeChanged>64301,54576.279715</TimeChanged>
 <TimeCreated>64189,51696.559047</TimeCreated>
 
 <Property name="mvcPage">
@@ -3410,6 +3415,8 @@ also an entry point from unit tests</Description>
 	}
 
 	if '..isTestMode {
+		s x=$I(^xfg)
+		s ^xfg(x,"adding list to page")=pageID
 		if componentType = "text" {
 			set prowebID = ##class(sc.xModules.objText).add(pageID, componentName)
 		} else {
@@ -17000,9 +17007,6 @@ function updateAlts(codPromptID) {
 	set pageNavProceedKey = %request.Get("pageNavProceedKey") 
 	set backforward=##class(setup.objPageNav).goWhere(pageNavProceedKey, , contextData.tempPersonID, %request.Get("pageID")) 
 	set redirectURL = $Piece(backforward,"|",2)
-	s ^xfg("pageNavProceedKey")=pageNavProceedKey
-	s ^xfg("backforward")=backforward
-	
 
 	set pageController.submitButtonClickedIdentifier=%request.Get("efSubmitButtonIdentifier")
 	
@@ -26512,7 +26516,7 @@ move all objData from list called "Bottom List" to "Main List"</Description>
 <ClassType>persistent</ClassType>
 <ProcedureBlock>1</ProcedureBlock>
 <Super>%Library.Persistent,shared.timeStamp</Super>
-<TimeChanged>64287,53430.075739</TimeChanged>
+<TimeChanged>64301,56443.320027</TimeChanged>
 <TimeCreated>58926,57258</TimeCreated>
 <Inheritance>right</Inheritance>
 
@@ -26549,7 +26553,7 @@ move all objData from list called "Bottom List" to "Main List"</Description>
 <Property name="componentType">
 <Type>%String</Type>
 <Parameter name="MAXLEN" value="255"/>
-<Parameter name="VALUELIST" value=",text,listWithQuestionsRegistration,listWithQuestions,listOfSingleElement"/>
+<Parameter name="VALUELIST" value=",text,list,listWithQuestionsRegistration,listWithQuestions,listOfSingleElement"/>
 </Property>
 
 <Index name="descriptionIndex">

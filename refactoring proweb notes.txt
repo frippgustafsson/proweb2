@@ -178,9 +178,10 @@ look at form-horizontal isseuas
 turn off setting in template upload (temporary)
 - footer text can't be saved (double lists?)
 - undo the changes that extempt the top level element (page) from having a link to itself
+- fix CR issues
 
 ===============================================================================
-- fix CR issues
+- fix saving the country causes errors
 - discuss if we can enforce the eventID in all URLs
 - sometimes get a session timeout when switching pages
 - the banner is not on grey background

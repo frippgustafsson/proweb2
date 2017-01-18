@@ -180,6 +180,8 @@ turn off setting in template upload (temporary)
 
 ===============================================================================
 - fix CR issues
+- discuss if we can enforce the eventID in all URLs
+- undo the changes that extempt the top level element (page) from having a link to itself
 - sometimes get a session timeout when switching pages
 - the banner is not on grey background
 - should the empty list alway be grey

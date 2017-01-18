@@ -176,12 +176,14 @@ search for ########
 restore the unit tests
 look at form-horizontal isseuas
 turn off setting in template upload (temporary)
+- footer text can't be saved (double lists?)
 
 ===============================================================================
-- footer text can't be saved (double lists?)
-- sometimes get a session time out when switching pages
+- fix CR issues
+- sometimes get a session timeout when switching pages
 - the banner is not on grey background
 - should the empty list alway be grey
+- rpoweb1 reg pages alignment issues
 
 
 --- iceboxing it ---

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.2 (Build 736U)" ts="2017-01-17 17:02:15">
+<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.2 (Build 736U)" ts="2017-01-18 09:26:42">
 <Class name="EF.contextDataFrontend">
 <Description><![CDATA[
 <!-- ;vc;-
@@ -11,7 +11,7 @@
 ;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>EF.contextDataFrontend.CLS/EV.6</td><td>CLS.EF.contextDataFrontend</td><td>LargeDev</td><td style='white-space: nowrap;'>16-Jan-17 15:41</td><td>FredG</td></tr></table>
 ]]></Description>
 <Super>EF.contextData</Super>
-<TimeChanged>64300,61102.81592</TimeChanged>
+<TimeChanged>64301,33406.667406</TimeChanged>
 <TimeCreated>63755,56082.660879</TimeCreated>
 
 <Property name="loggedInPersonID">
@@ -52,7 +52,7 @@ if website is private, this will be set to the cod.objPerson.ID of that logged i
 
 	set eventID = %request.Get("eventID")	
 	if 'eventID {
-		throw ##class(shared.exceptions.generalException).%New("eventID is missing from %request")	
+		throw ##class(shared.exceptions.generalException).%New("eventID is missing from %request, make sure it is included in the URL parameters.")	
 	}
 	set contextData.eventID = eventID
 	set %session.Data("eventsforce","frontend","xEventID") = eventID
@@ -7701,7 +7701,7 @@ eventid</Description>
 
 <Class name="EF.ui.components.frontend.menuBlock">
 <Super>EF.ui.components.frontend.prowebBase</Super>
-<TimeChanged>64258,66109.135373</TimeChanged>
+<TimeChanged>64301,33889.733223</TimeChanged>
 <TimeCreated>64183,38661.128484</TimeCreated>
 
 <Method name="render">
@@ -7736,8 +7736,17 @@ eventid</Description>
 	set menuCount = ..prowebItem.storage.listOfMenuItems.Count()
 	for i = 1:1:menuCount {
 		set menuItem = ..prowebItem.storage.listOfMenuItems.GetAt(i)
+		
+		set targetURL = menuItem.linkURL
+		if targetURL["?" {
+			set targetURL = targetURL_"&"
+		} else {
+			set targetURL = targetURL_"?"
+		}
+		set targetURL = targetURL_"eventID="_..contextData.eventID
+		
 		write !,"<li>"
-		write "		<a href=""",..encodeForHTMLAttribute(menuItem.linkURL),""" target=""",menuItem.linkTarget,""">",..encodeForHTML(menuItem.text),"</a>"
+		write "		<a href=""",..encodeForHTMLAttribute(##class(shared.pCSP).Link(targetURL)),""" target=""",menuItem.linkTarget,""">",..encodeForHTML(menuItem.text),"</a>"
 		write !,"</li>"
 	}
 ]]></Implementation>
@@ -15865,7 +15874,7 @@ function cancelUpdate() {
 			<select name="dependsOnParent" id="dependsOnParent" class="form-control ef-input" onChange="ef_updateAlternatives(#(pageID)#, this.value)"  style="width: 35%; float: left;">
 				<option value=""></option>
 				<script language="cache" runat="server">
-					set rsQuestions = ##class(%ResultSet).%New("sc.xModules.objCODitem:qQuestionsThatCanBeDependencyParents")
+					set rsQuestions = ##class(%ResultSet).%New("sc.codItemMethods:qQuestionsThatCanBeDependencyParents")
 					do rsQuestions.Execute(pageID)
 					while rsQuestions.Next() {
 						set altProwebID = rsQuestions.Get("prowebID")
@@ -24443,7 +24452,7 @@ Returns true if the template is custom made</Description>
 </Class>
 
 
-<Project name="proweb 2" LastModified="2017-01-17 11:44:03.632915" Target="largedevsrc/backEnd/home/login.csp" TargetType="3">
+<Project name="proweb 2" LastModified="2017-01-17 17:11:27.982928" Target="largedevsrc/backEnd/home/login.csp" TargetType="3">
   <Items>
     <ProjectItem name="EF.contextDataFrontend" type="CLS"></ProjectItem>
     <ProjectItem name="EF.contextDataRegistration" type="CLS"></ProjectItem>
@@ -24630,6 +24639,8 @@ Returns true if the template is custom made</Description>
     <ProjectItem name="setup.bookingLevelCounterFrontendSession" type="CLS"></ProjectItem>
     <ProjectItem name="setup.eventCreationMethods" type="CLS"></ProjectItem>
     <ProjectItem name="shared.pageMethods" type="CLS"></ProjectItem>
+    <ProjectItem name="sc.codItemMethods" type="CLS"></ProjectItem>
+    <ProjectItem name="sc.xModules.objCODitem" type="CLS"></ProjectItem>
   </Items>
   <BreakPoints>
     <BreakPoint Routine="EF.mvcHandler.frontendProwebRegistration.1.INT" Offset="77"></BreakPoint>
@@ -24664,6 +24675,139 @@ Returns true if the template is custom made</Description>
     <WatchVariable Variable="$this" Pane="1"></WatchVariable>
   </WatchVariables>
 </Project>
+
+
+<Class name="sc.codItemMethods">
+<Description><![CDATA[
+methods dealing with sc.xModules.objCODitem stuff
+<!-- ;vc;
+;vc;    Object: sc.codItemMethods.CLS/EV.13
+;vc; Component: CLS.sc.codItemMethods
+;vc;  Location: LargeDev
+;vc; Date/Time: 17-Jan-17 17:09
+;vc;      User: FredG
+;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>sc.codItemMethods.CLS/EV.13</td><td>CLS.sc.codItemMethods</td><td>LargeDev</td><td style='white-space: nowrap;'>17-Jan-17 17:09</td><td>FredG</td></tr></table>
+]]></Description>
+<Abstract>1</Abstract>
+<TimeChanged>64300,61753.923294</TimeChanged>
+<TimeCreated>63006,56247.192197</TimeCreated>
+
+<Method name="isSimpleInputTextDataType">
+<Description>
+Is this data type a simple HTML text input type?</Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec>dataType:%String</FormalSpec>
+<ReturnType>%Boolean</ReturnType>
+<Implementation><![CDATA[
+	Set ret=0
+	
+	If (	(dataType="text")
+		!	(dataType="time")
+		!	(dataType="textarea")
+		!	(dataType="emailAddress")
+		!	(dataType="multiEmailAddress")
+		!	(dataType="phoneNumber")
+		!	(dataType="integer")
+		!	(dataType="floatingPointNumber")
+		!	(dataType="webAddress")
+	) {
+		Set ret=1
+	}
+
+	Quit ret
+]]></Implementation>
+</Method>
+
+<Method name="outputHelpTextForDataID">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>dataID:%String,dataType:%String=""</FormalSpec>
+<Implementation><![CDATA[
+	Set helpText=""
+	If (dataType="fileUpload") {
+		&SQL(SELECT helpText INTO :tmpHelpText FROM sc_xModules.objFileUpload WHERE ID=:dataID)
+	} else {
+		&SQL(SELECT helpText INTO :tmpHelpText FROM sc_xModules.objCODitem WHERE ID=:dataID)
+	}
+	
+	If (+SQLCODE=0) {
+		Set helpText=tmpHelpText
+		If ($LENGTH(helpText)) {
+			Do ..outputHelpTextHTML(helpText)
+		}
+	}
+]]></Implementation>
+</Method>
+
+<Method name="outputHelpTextHTML">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>helpTextIn:%String</FormalSpec>
+<Implementation><![CDATA[
+	if $Length(helpTextIn)>0 {
+		Set helpTextID="helpTextIcon_"_$TR(##class(%SYSTEM.Util).CreateGUID(),"-","")
+			
+		&html<
+			<div id="#(helpTextID)#" class="ef_frontend_help_text_icon">?</div>
+			<div id="#(helpTextID)#_content" class="ef_frontend_help_text_content" style="display: none;"><pre>#(##class(%CSP.Page).EscapeHTML(helpTextIn))#</pre></div>
+			<script language="javascript">
+			$(document).ready(function(){
+				ef_create_help_text_qtip('#(helpTextID)#');
+			});
+			</script>
+		>
+	}
+]]></Implementation>
+</Method>
+
+<Method name="getPageID">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>dataID</FormalSpec>
+<Implementation><![CDATA[
+	set pageID=""
+	&SQL(SELECT parent->parent INTO :tmp FROM sc_xModules.objCodItem WHERE ID=:dataID)
+	if +SQLCODE=0 {
+		set pageID=tmp
+	}
+	quit pageID
+]]></Implementation>
+</Method>
+
+<Method name="correctTypeForCodItem">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>itemName</FormalSpec>
+<Implementation><![CDATA[
+	set itemNameID=##class(cod.objItemName).getIDFromDescriptionNoEvent(itemName)
+	if 'itemNameID {
+		throw ##class(shared.exceptions.generalException).%New("item does not exist")	
+	}
+	set newType=##class(cod.objItemName).getTypeById(itemNameID)
+	if ($ZCVT(newType,"L")'=$ZCVT("date","L"))&&($ZCVT(newType,"L")'=$ZCVT("emailAddress","L"))&&($ZCVT(newType,"L")'=$ZCVT("phoneNumber","L")) {
+		throw ##class(shared.exceptions.generalException).%New("Method does not support type: "_type)	
+	}
+	set qry="SELECT ID,description,type FROM sc_xModules.objCodItem WHERE objItemName = ?"
+	set rs=##class(%ResultSet).%New()
+	do rs.Prepare(qry)
+	do rs.Execute(itemNameID)
+	while rs.Next() {
+		set codItemID=rs.Get("ID")
+		set oldType=rs.Get("type")
+		if $ZCVT(newType,"L")'=$ZCVT(oldType,"L") {
+			write "Updating type sc.xModules.objCodItem ID = ",codItemID,", itemName = '",itemName,"' description = '",rs.Get("description"),"', old type = '",oldType,"', new type = '",newType,"'",!
+			&SQL(UPDATE sc_xModules.objCodItem SET type = :newType WHERE ID = :codItemID)
+		}
+	}
+]]></Implementation>
+</Method>
+
+<Query name="qQuestionsThatCanBeDependencyParents">
+<Type>%SQLQuery</Type>
+<FormalSpec>pageID:%Integer</FormalSpec>
+<SqlQuery>	SELECT prowebID, labelText
+	FROM sc.viewActiveQuestions 
+	WHERE (pageID = :pageID) 
+	AND (questionType IN ('dropdown', 'radiobutton')) 
+	ORDER BY displayOrder</SqlQuery>
+</Query>
+</Class>
 
 
 <Class name="sc.facade.prowebItem">
@@ -27956,6 +28100,1766 @@ note that this must be a classmethod or you will a compile error as the property
 </Property>
 <Property name="xMOuserID">
 <Selectivity>4.7619%</Selectivity>
+</Property>
+</Storage>
+</Class>
+
+
+<Class name="sc.xModules.objCODitem">
+<Description><![CDATA[
+link to a OCD item. Provides a facility for adding questions about COD item in a proweb form
+<!-- ;vc;
+;vc;    Object: sc.xModules.objCODitem.CLS/EV.68
+;vc; Component: CLS.sc.xModules.objCODitem
+;vc;  Location: LargeDev
+;vc; Date/Time: 17-Jan-17 17:10
+;vc;      User: JeremyW
+;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>sc.xModules.objCODitem.CLS/EV.68</td><td>CLS.sc.xModules.objCODitem</td><td>LargeDev</td><td style='white-space: nowrap;'>17-Jan-17 17:10</td><td>JeremyW</td></tr></table>
+]]></Description>
+<ClassType>persistent</ClassType>
+<IncludeCode>EF.common.macros</IncludeCode>
+<ProcedureBlock>1</ProcedureBlock>
+<Super>sc.objData</Super>
+<TimeChanged>64236,36874</TimeChanged>
+<TimeCreated>59478,65593.453</TimeCreated>
+
+<Property name="maxAltsChecked">
+<Description>
+Only used for multiple check boxes</Description>
+<Type>%String</Type>
+<Parameter name="TRUNCATE" value="1"/>
+</Property>
+
+<Property name="minAltsChecked">
+<Description>
+Only used for multiple check boxes</Description>
+<Type>%String</Type>
+<Parameter name="TRUNCATE" value="1"/>
+</Property>
+
+<Parameter name="EXTENTSIZE">
+<Default>40158</Default>
+</Parameter>
+
+<Property name="description">
+<Description>
+this is the question prompt, might be in HTML</Description>
+<Type>%String</Type>
+<Parameter name="MAXLEN" value="30000"/>
+<Parameter name="TRUNCATE" value="1"/>
+</Property>
+
+<Property name="type">
+<Description>
+this type overrides the type set on the coditem itself
+Controls the type of windows control that should be used for</Description>
+<Type>%Library.String</Type>
+<InitialExpression>"text"</InitialExpression>
+<Parameter name="TRUNCATE" value="1"/>
+<Parameter name="VALUELIST" value=",text,textarea,radiobutton,checkbox,dropdown,password,multibox,date,dateRange,time,emailAddress,multiEmailAddress,phoneNumber,integer,floatingPointNumber,webAddress"/>
+</Property>
+
+<Property name="objItemName">
+<Description>
+Link to cod.objItemName which is a COD item such as "email" or "first name"</Description>
+<Type>cod.objItemName</Type>
+<Required>1</Required>
+</Property>
+
+<Property name="readonlyFrontend">
+<Type>%Boolean</Type>
+</Property>
+
+<Property name="readonlyAmendment">
+<Description>
+added for 3.5 JAW but not used yet - will be so that amendments are not allowed on this question</Description>
+<Type>%Boolean</Type>
+</Property>
+
+<Property name="mandatory">
+<Type>%Boolean</Type>
+</Property>
+
+<Property name="fieldHeight">
+<Type>%Integer</Type>
+</Property>
+
+<Property name="fieldWidth">
+<Type>%Integer</Type>
+</Property>
+
+<Property name="helpText">
+<Type>%String</Type>
+<Parameter name="MAXLEN" value="30000"/>
+<Parameter name="TRUNCATE" value="1"/>
+</Property>
+
+<Property name="layout">
+<Description>
+Determines if the prompt should be on the left and the input field on the right OR if they should be on top of each other</Description>
+<Type>%String</Type>
+<Parameter name="TRUNCATE" value="1"/>
+</Property>
+
+<Property name="dataType">
+<Description>
+Used for identifying the class of the object withour having to call
+cache mysterious APIs.</Description>
+<Type>%Library.String</Type>
+<InitialExpression>"objCODitem"</InitialExpression>
+<Parameter name="TRUNCATE" value="1"/>
+</Property>
+
+<Property name="isDelegate">
+<Description>
+indicates if the property should be used for storing delegate details or guest details</Description>
+<Type>%Boolean</Type>
+</Property>
+
+<Property name="isGuest">
+<Type>%Boolean</Type>
+</Property>
+
+<Property name="reportOn">
+<Type>%Boolean</Type>
+</Property>
+
+<Property name="backendOnly">
+<Description>
+will hide this question for the normal punters, used for setting delegateType etc.</Description>
+<Type>%Boolean</Type>
+</Property>
+
+<Property name="courseID">
+<Description>
+used for course specific questions in the attendee reg page. Will only be displayed for the course with this ID</Description>
+<Type>%String</Type>
+<Parameter name="TRUNCATE" value="1"/>
+</Property>
+
+<Property name="dependsOnPrompt">
+<Description>
+Dependencies are handled by refferring to another questions answer
+Please note that it is pointing to a code object rather than an sc object because there are no sc objects for alternatives
+it is a string rather than a real object because of cross namespace compability issues</Description>
+<Type>%String</Type>
+<Parameter name="TRUNCATE" value="1"/>
+</Property>
+
+<Property name="dependsOnAlternative">
+<Type>%String</Type>
+<Parameter name="TRUNCATE" value="1"/>
+</Property>
+
+<Property name="isAdditionalItem">
+<Description>
+Flag controlling if an item can have a price and capacity or not</Description>
+<Type>%Boolean</Type>
+</Property>
+
+<Property name="isQuantityItem">
+<Description>
+Flag controlling if an item is a ticketing type of item</Description>
+<Type>%Boolean</Type>
+</Property>
+
+<Property name="promptWidth">
+<Description>
+Only used with supressNewLine. Controls the width of the first column of the line.</Description>
+<Type>%String</Type>
+<Parameter name="TRUNCATE" value="1"/>
+</Property>
+
+<Property name="reportDescription">
+<Description>
+an alternative name of this item. used in reporting.</Description>
+<Type>%String</Type>
+<Parameter name="MAXLEN" value="250"/>
+<Parameter name="TRUNCATE" value="1"/>
+</Property>
+
+<Property name="requiredAnswer">
+<Type>%String</Type>
+<Parameter name="MAXLEN" value="250"/>
+<Parameter name="TRUNCATE" value="1"/>
+</Property>
+
+<Property name="validationErrorMessage">
+<Type>%String</Type>
+<Parameter name="MAXLEN" value="250"/>
+</Property>
+
+<Property name="supressNewLine">
+<Description>
+Will ignore the TR if set. Must be set on both Firstname and Lastname to get them on the same line</Description>
+<Type>%Boolean</Type>
+<InitialExpression>0</InitialExpression>
+</Property>
+
+<Property name="maxCharacters">
+<Description>
+The maximum number of characters allowed in a text field</Description>
+<Type>%Integer</Type>
+</Property>
+
+<Property name="maxWords">
+<Description>
+The maximum number of words allowed in a text field</Description>
+<Type>%Integer</Type>
+</Property>
+
+<Property name="defaultValue">
+<Description>
+The default Value</Description>
+<Type>%Library.String</Type>
+<Parameter name="MAXLEN" value="32000"/>
+<Parameter name="TRUNCATE" value="1"/>
+</Property>
+
+<Property name="noAmendments">
+<Type>%Boolean</Type>
+<InitialExpression>0</InitialExpression>
+</Property>
+
+<Property name="copyValueFromBooker">
+<Type>%Boolean</Type>
+<InitialExpression>0</InitialExpression>
+</Property>
+
+<Property name="searchAsYouType">
+<Type>%Boolean</Type>
+<InitialExpression>0</InitialExpression>
+</Property>
+
+<Index name="objItemNameIndex">
+<Properties>objItemName</Properties>
+</Index>
+
+<Index name="dependsOnPromptIndex">
+<Properties>dependsOnPrompt</Properties>
+</Index>
+
+<Index name="dependsOnAlternativeIndex">
+<Properties>dependsOnAlternative</Properties>
+</Index>
+
+<Index name="isAdditionalItemIndex">
+<Properties>isAdditionalItem</Properties>
+</Index>
+
+<Index name="isQuantityItemIndex">
+<Properties>isQuantityItem</Properties>
+</Index>
+
+<Method name="add">
+<Description>
+adds a new cod item to a list</Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec>itemNameID:%String,description:%String="",parent:%String="",user:%String="",addToTop:%String=0,helpText:%String="",type:%String="",mandatory:%Boolean=0,pageLayout:%String="",fieldWidth:%Integer,fieldHeight:%Integer,isDelegate:%Boolean=0,isGuest:%Boolean=0,reportOn:%Boolean=0,isAdditionalItem:%Boolean=0,backendOnly:%Boolean=0,isQuantityItem:%Boolean=0,reportDescription=""</FormalSpec>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	if '##class(cod.objItemName).%ExistsId(itemNameID) {
+		throw ##class(shared.exceptions.generalException).%New("cod.objItemName item does not exist")	
+	}
+	// new displayOrder,firstLevel,tmp
+	set isGuest=+isGuest,isDelegate=+isDelegate,reportOn=+reportOn
+	// we never want both isGuest and isDelegate to be unset.
+	if (('isGuest) && ('isDelegate)) {
+		set isDelegate=1	
+	}
+	//default field width
+	if fieldWidth="",type="textarea" set fieldWidth=$$$defaultTextFieldWidthPx
+	if fieldWidth="",type="dropdown" set fieldWidth=$$$defaultDropdownWidthPx
+	if fieldWidth="" set fieldWidth=$$$defaultTextFieldWidthPx
+	
+	// find displayOrder
+	set displayOrder=0,ok=0
+	if addToTop {
+		set displayOrder=1
+		&SQL(UPDATE sc.objData SET displayOrder = displayOrder+1 WHERE parent = :parent )
+	} else {
+		&SQL(SELECT TOP 1 displayOrder INTO :displayOrder FROM sc.objData WHERE parent = :parent ORDER BY displayOrder DESC)
+		set displayOrder=displayOrder+1
+	}
+			
+	// find the first approval level
+	set firstLevel=""
+	&SQL(SELECT ID INTO :tmp FROM sc.objStep WHERE stepOrder = 1)
+	if +SQLCODE=0 set firstLevel=tmp
+	
+
+	if (firstLevel'="")&(parent) {
+		set is1to5=0
+		if type="1-5 scale" set type="radiobutton",is1to5=1
+		
+		// CREATE NEW OBJECT
+		&SQL(
+			INSERT INTO sc_xModules.objCODitem 
+			(objItemName,description,parent,creator,displayOrder,objStep,helpText,active,type,mandatory,fieldWidth,fieldHeight,layout,isDelegate,isGuest,reportOn,isAdditionalItem,backendOnly,isQuantityItem,reportDescription) 
+			VALUES 
+			(:itemNameID,:description,:parent,:user,:displayOrder,:firstLevel,:helpText,1,:type,:mandatory,:fieldWidth,:fieldHeight,:pageLayout,:isDelegate,:isGuest,:reportOn,:isAdditionalItem,:backendOnly,:isQuantityItem,:reportDescription)
+		)
+		if +SQLCODE = 0 set ok = %ROWID
+		
+		if is1to5 {
+			for i=1:1:5 do ##class(cod.objItemAlternatives).create(itemNameID,i)	
+		}
+		
+	}
+	quit ok
+]]></Implementation>
+</Method>
+
+<Method name="update">
+<Description>
+updates a cod item</Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec>dataID:%String,description:%String="",user:%String="",helpText:%String="",type:%String="",mandatory:%Boolean=0,layout:%String="horizontal",fieldWidth:%Integer,fieldHeight:%Integer,isDelegate:%Boolean=0,isGuest:%Boolean=0,reportOn:%Boolean=0,reportDescription=""</FormalSpec>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	set isGuest=+isGuest,isDelegate=+isDelegate,reportOn=+reportOn
+	//default field width
+	if fieldWidth="",type="textarea" set fieldWidth=50
+	if fieldWidth="",type="dropdown" set fieldWidth=266
+	if fieldWidth="" set fieldWidth=50
+	// update
+	&SQL(
+	UPDATE sc_xModules.objCODitem  SET 
+	description = :description, creator =:user , helpText = :helpText, type = :type, mandatory = :mandatory, fieldWidth = :fieldWidth, 
+	fieldHeight = :fieldHeight, layout = :layout,isDelegate=:isDelegate,isGuest=:isGuest,reportOn=:reportOn, reportDescription = :reportDescription
+	WHERE ID = :dataID 
+	) 
+	quit SQLCODE
+]]></Implementation>
+</Method>
+
+<Method name="update2">
+<Description>
+updates a cod item - simple</Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec>dataID:%String,description:%String="",helpText:%String="",mandatory:%Boolean=0,isDelegate:%Boolean=0,isGuest:%Boolean=0,reportOn:%Boolean=0</FormalSpec>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	set isGuest=+isGuest,isDelegate=+isDelegate,reportOn=+reportOn
+	// update
+	&SQL(
+	UPDATE sc_xModules.objCODitem  SET 
+	description = :description,  helpText = :helpText, mandatory = :mandatory, isDelegate=:isDelegate, isGuest=:isGuest, reportOn = :reportOn
+	WHERE ID = :dataID 
+	) 
+	quit SQLCODE
+]]></Implementation>
+</Method>
+
+<Method name="updateRequiredAnswer">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>dataID,value</FormalSpec>
+<Implementation><![CDATA[
+	&SQL(UPDATE sc_xModules.objCODitem  SET requiredAnswer = :value WHERE ID = :dataID)	
+	if +SQLCODE'=0 throw ##class(shared.exceptions.generalSQLException).CreateFromSQLCODE(SQLCODE,$GET(%msg))
+]]></Implementation>
+</Method>
+
+<Method name="updateValidationErrorMessage">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>dataID,value</FormalSpec>
+<Implementation><![CDATA[
+	set question=##class(sc.xModules.objCODitem).%OpenId(dataID)
+	do question.%Reload()
+	set question.validationErrorMessage = value
+	do question.%Save()
+]]></Implementation>
+</Method>
+
+<Method name="updateMaxCharacters">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>dataID,value</FormalSpec>
+<Implementation><![CDATA[
+	&SQL(UPDATE sc_xModules.objCODitem  SET maxCharacters = :value WHERE ID = :dataID )	
+	if +SQLCODE'=0 throw ##class(shared.exceptions.generalSQLException).CreateFromSQLCODE(SQLCODE,$GET(%msg))
+]]></Implementation>
+</Method>
+
+<Method name="updateMaxWords">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>dataID,value</FormalSpec>
+<Implementation><![CDATA[
+	&SQL(UPDATE sc_xModules.objCODitem  SET maxWords = :value WHERE ID = :dataID )	
+	if +SQLCODE'=0 throw ##class(shared.exceptions.generalSQLException).CreateFromSQLCODE(SQLCODE,$GET(%msg))
+]]></Implementation>
+</Method>
+
+<Method name="updateMultiCheckboxMin">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>dataID,value</FormalSpec>
+<Implementation><![CDATA[
+	&SQL(UPDATE sc_xModules.objCODitem  SET minAltsChecked = :value WHERE ID = :dataID )	
+	if +SQLCODE'=0 throw ##class(shared.exceptions.generalSQLException).CreateFromSQLCODE(SQLCODE,$GET(%msg))
+]]></Implementation>
+</Method>
+
+<Method name="updateMultiCheckboxMax">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>dataID,value</FormalSpec>
+<Implementation><![CDATA[
+	&SQL(UPDATE sc_xModules.objCODitem  SET maxAltsChecked = :value WHERE ID = :dataID )	
+	if +SQLCODE'=0 throw ##class(shared.exceptions.generalSQLException).CreateFromSQLCODE(SQLCODE,$GET(%msg))
+]]></Implementation>
+</Method>
+
+<Method name="updateDefaultValue">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>dataID,value</FormalSpec>
+<Implementation><![CDATA[
+	&SQL(UPDATE sc_xModules.objCODitem  SET defaultValue = :value WHERE ID = :dataID )	
+	if +SQLCODE'=0 throw ##class(shared.exceptions.generalSQLException).CreateFromSQLCODE(SQLCODE,$GET(%msg))
+]]></Implementation>
+</Method>
+
+<Method name="updateCopyValueFromBooker">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>dataID,value</FormalSpec>
+<Implementation><![CDATA[
+	&SQL(UPDATE sc_xModules.objCODitem  SET copyValueFromBooker = :value WHERE ID = :dataID )	
+	if +SQLCODE'=0 throw ##class(shared.exceptions.generalSQLException).CreateFromSQLCODE(SQLCODE,$GET(%msg))
+]]></Implementation>
+</Method>
+
+<Method name="getCopyValueFromBooker">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>dataID</FormalSpec>
+<ReturnType>%Boolean</ReturnType>
+<Implementation><![CDATA[
+	&SQL(SELECT copyValueFromBooker INTO :copyValueFromBooker FROM sc_xModules.objCODitem  WHERE ID = :dataID )	
+	if +SQLCODE'=0 throw ##class(shared.exceptions.generalSQLException).CreateFromSQLCODE(SQLCODE,$GET(%msg))
+	return +copyValueFromBooker
+]]></Implementation>
+</Method>
+
+<Method name="updateNoAmendments">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>dataID,value</FormalSpec>
+<Implementation><![CDATA[
+	&SQL(UPDATE sc_xModules.objCODitem  SET noAmendments = :value WHERE ID = :dataID )	
+	if +SQLCODE'=0 throw ##class(shared.exceptions.generalSQLException).CreateFromSQLCODE(SQLCODE,$GET(%msg))
+]]></Implementation>
+</Method>
+
+<Method name="getCODItemNameID">
+<Description>
+get codItemNameID from sc.xModules.objCODItem ID</Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec>dataID</FormalSpec>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	set itemNameID=""
+	&SQL(SELECT objItemName INTO :tmp FROM sc_xModules.objCODitem	WHERE (active=1 AND ID = :dataID))
+	if +SQLCODE=0 set itemNameID=tmp
+	quit itemNameID
+]]></Implementation>
+</Method>
+
+<Method name="getCODItemName">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>dataID</FormalSpec>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	set itemName=""
+	&SQL(SELECT objItemName->description INTO :tmp FROM sc_xModules.objCODitem	WHERE (active=1 AND ID = :dataID))
+	if +SQLCODE=0 set itemName=tmp
+	quit itemName
+]]></Implementation>
+</Method>
+
+<Method name="getType">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>dataID</FormalSpec>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	set data=""
+	&SQL(SELECT type INTO :tmp FROM sc_xModules.objCODitem	WHERE (active=1 AND ID = :dataID))
+	if +SQLCODE=0 set data=tmp
+	quit data
+]]></Implementation>
+</Method>
+
+<Method name="getFieldWidth">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>dataID</FormalSpec>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	&SQL(SELECT fieldWidth INTO :tmp FROM sc_xModules.objCODitem	WHERE ID = :dataID)
+	if +SQLCODE=0 {
+		return tmp
+	} else {
+		throw ##class(shared.exceptions.generalSQLException).CreateFromSQLCODE(SQLCODE,$G(%msg))
+	}
+]]></Implementation>
+</Method>
+
+<Method name="setFieldWidth">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>dataID,fieldWidth</FormalSpec>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	&SQL(UPDATE sc_xModules.objCODitem	SET fieldWidth = :fieldWidth WHERE ID = :dataID)
+	if +SQLCODE'=0 {
+		throw ##class(shared.exceptions.generalSQLException).CreateFromSQLCODE(SQLCODE,$G(%msg))
+	}
+]]></Implementation>
+</Method>
+
+<Method name="getPageIDforQuestion">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>dataID</FormalSpec>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	set data=""
+	&SQL(SELECT parent->parent INTO :tmp FROM sc_xModules.objCODitem WHERE (active=1 AND ID = :dataID))
+	if +SQLCODE=0 set data=tmp
+	quit data
+]]></Implementation>
+</Method>
+
+<Method name="getPrefixForQuestionType">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>type</FormalSpec>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	set data=$S(type="radiobutton":"rad",type="checkbox":"chk",type="dropdown":"sel",type="text":"txt",type="password":"txt",type="textarea":"txt",type="multibox":"mul",type="emailAddress":"txt",type="multiEmailAddress":"txt",type="phoneNumber":"txt",type="integer":"txt",type="floatingPointNumber":"txt",type="webAddress":"txt",1:"")
+	quit data
+]]></Implementation>
+</Method>
+
+<Method name="getQuestPrompt">
+<Description><![CDATA[
+get translated description from sc.xModules.objCODItem using dataID (and prefLangID). This works if objItemName<20 and description (question prompt) is the same as database name (objItemName.Description).]]></Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec>dataID,prefLangID:%String=1</FormalSpec>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	set itemNameID="",questPrompt = "", itemNameDesc=""
+	&SQL(SELECT description, objItemName, objItemName->description INTO :tmp,:tmp1,:tmp2 FROM sc_xModules.objCODitem WHERE (active=1 AND ID = :dataID))
+	if +SQLCODE=0 set questPrompt=tmp,itemNameID=tmp1,itemNameDesc=tmp2
+	set translatePhrase=0
+	if ((itemNameID) && (itemNameID<20) && ($ZCVT(questPrompt,"L")=$ZCVT(itemNameDesc,"L"))) {
+		set translatePhrase=1
+	}
+	if $ZCVT(questPrompt,"L")="first name" {
+		set translatePhrase=1	
+	}
+	if $ZCVT(questPrompt,"L")="last name" {
+		set translatePhrase=1	
+	}
+	if translatePhrase {
+		set questPrompt = ##class(translations.objPhraseWebsite).translatePhrase(questPrompt,prefLangID,"","","","")
+	}
+	quit questPrompt
+]]></Implementation>
+</Method>
+
+<Method name="getSCItemDetails">
+<Description>
+gets the displayOrder for a cod item from sc.xModules.objCODItem</Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec>eventID,langID,codItemName</FormalSpec>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	set delim="|"
+	set eventDetailsID=##class(setup.objEventDetails).getDetailsID(eventID,langID)
+	set objEventDetails=##class(setup.objEventDetails).%OpenId(eventDetailsID)
+	set pageID=objEventDetails.registrationPageID
+	set itemNameID=""
+	&SQL(
+		SELECT displayOrder,objItemName INTO :tmp,:tmp2 FROM sc_xModules.objCODitem
+		WHERE (parent->parent = :pageID) 
+		AND (active = 1) 
+		AND (%UPPER(objItemName->description) = %UPPER(:codItemName))
+		AND (isDelegate = 1)
+	)
+	set data=""
+	if +SQLCODE=0 set data=tmp_delim_tmp2
+	
+	quit data
+]]></Implementation>
+</Method>
+
+<Method name="getRegPageItems">
+<Description>
+get the items for the event</Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec>eventID</FormalSpec>
+<ReturnType>%ResultSet</ReturnType>
+<Implementation><![CDATA[
+	set eventGroupID=##class(sc.methods).getEventGroupID(eventID)
+	
+	set rs=##class(%ResultSet).%New("%Library.DynamicQuery:SQL")
+	set query="SELECT ID As scID,description,objItemName As ID,objItemName->description As codName,displayOrder,isDelegate,isGuest,type,parent->parent As pageID,isAdditionalItem,isQuantityItem,reportDescription,objItemName->concealed,COUNT(objItemName->description) AS promptCount "
+	set query=query_"FROM sc_xModules.objCODitem WHERE ((parent->parent->parent->parent=?) OR ((parent->parent->parent->parent->parent=?))) AND (active=1) AND (objEvent=?)"
+	set query = query_" AND (objItemName->description <> 'Password') AND (objItemName->description <> 'Password Re-typed')"
+	set query=query_" GROUP BY objItemName->description ORDER BY parent->parent,displayOrder"
+	set ok=rs.Prepare(query)
+	do rs.Execute(eventGroupID,eventGroupID,eventID)
+	
+	quit rs
+]]></Implementation>
+</Method>
+
+<Method name="getDependendPrompts">
+<Description>
+Recursive method for getting all children that is depending on me. Used in mail tags.</Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec>personID:%String,dataID:%String,data:%String="",resultString:%String,LF:%String="$C(13,10)",pageID:%String,controllerID:%String,questPrompt:%String=""</FormalSpec>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	//check questPrompt first. If the value is 'ND' for No dependents, we do not need to execute this method at all. So, we will quit.
+	set questPromptGet = questPrompt
+	set questPrompt = $p(questPrompt,"|",1)
+	set queryFilterBackEnd = $p(questPromptGet,"|",2)
+		
+	// RQ 22-Jul-2011 PBUG00004044 - Remove the LF added for ND types	
+	// if questPrompt="ND" set resultString=resultString_LF
+	if questPrompt="ND" quit 1 
+	
+	// JAW 24OCT2007 - controllerID missing from cod.objItemData.get() !!?
+	set controllerID=$G(controllerID)
+	// JAW 09NOV206 - added pageID. Otherwise the query to get children will get ALL questions in the database that are set up with that dependancy
+	// find the cod Item name
+	&SQL(SELECT objItemName INTO :itemNameID FROM sc_xModules.objCODitem WHERE ID = :dataID)
+	if +SQLCODE=0 {
+		
+		// find the alternative that correcsponds to the data
+		set answerAltID=##class(cod.objItemAlternatives).getIDFromDescription(itemNameID,data)
+		if answerAltID {
+			
+			// find all the children who depends on the alternative
+			set rs=##class(%ResultSet).%New("%Library.DynamicQuery:SQL")
+			set ok=rs.Prepare("SELECT *,objItemName->description AS itemName FROM sc_xModules.objCODitem WHERE (parent->parent=?) AND (active=1) "_##class(EF.encoders.sql).doNotEncodeString(queryFilterBackEnd)_" AND (dependsOnAlternative=?) ORDER BY displayOrder")
+			do rs.Execute(pageID,answerAltID)
+			while rs.Next() {
+				set newDataID=rs.Get("ID")
+				set prompt=rs.Get("itemName") //default behaviour: show database name.
+				//check if concealed 
+				set isPromptConcealed = ##class(cod.objItemName).isConcealed(prompt)
+				if 'isPromptConcealed {
+					set result=##class(cod.objItemData).get(personID,prompt,controllerID)
+					if rs.Get("type")="checkbox" set result = $S(result="true":"Yes", 1:"No")
+				} else {
+					set result="*****"
+				} 
+				
+				if questPrompt="QP" set prompt=rs.Get("description") //show Question Prompt if questPrompt="QP"
+				if questPrompt="NP" set prompt="" //Do not show any prompt at all.
+				set resultString=resultString_LF_prompt_$select($l(prompt):" = ",1:"")_result_$S($L(LF):"",1:", ")
+				
+				do ..getDependendPrompts(personID,newDataID,data,.resultString,LF,pageID,controllerID,questPrompt)
+			}
+		}
+	}
+	quit 1
+]]></Implementation>
+</Method>
+
+<Method name="getDependsOnPrompt">
+<Description>
+Returns the id of the objData that this item is dependent on.</Description>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[	return ..dependsOnPrompt
+]]></Implementation>
+</Method>
+
+<Method name="findDependentQuestions">
+<Description>
+do we have any dependent questions?
+returns: ID1~description1|ID2~desc2 etc</Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec>dataID</FormalSpec>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	set out=""
+	set rs=##class(%ResultSet).%New("%Library.DynamicQuery:SQL")
+	do rs.Prepare("SELECT ID,description FROM sc_xModules.objCODitem WHERE (dependsOnPrompt=?) AND (active=1)")
+	do rs.Execute(dataID)
+	while rs.Next() {
+		set out=out_$S($L(out):"|",1:"")_rs.Get("ID")_"~"_rs.Get("description")
+	}
+		
+	quit out
+]]></Implementation>
+</Method>
+
+<Method name="findDependentTextBlocks">
+<Description>
+do we have any dependent text blocks?
+returns: textblockID1~pageID1|textblockID2~pageID2 etc</Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec>dataID</FormalSpec>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	set out=""
+	set rs=##class(%ResultSet).%New("%Library.DynamicQuery:SQL")
+	do rs.Prepare("SELECT ID, parent->parent FROM sc_xModules.objText WHERE (dependsOnPrompt=?) AND (active=1)")
+	do rs.Execute(dataID)
+	while rs.Next() {
+		set out=out_$S($L(out):"|",1:"")_rs.Get("ID")_"~"_rs.Get("parent")
+	}
+		
+	quit out
+]]></Implementation>
+</Method>
+
+<Method name="getDependsOnAlternativeValue">
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	set out=##class(cod.objItemAlternatives).getDescriptionByID(..dependsOnAlternative)
+	quit out
+]]></Implementation>
+</Method>
+
+<Method name="areDependenciesSatisfiedForTempPerson">
+<FormalSpec>tempPersonID</FormalSpec>
+<ReturnType>%Boolean</ReturnType>
+<Implementation><![CDATA[
+	set out=1
+	if $l(..dependsOnPrompt) {
+		set pageID=..getPageID(..dependsOnPrompt)
+		set codItemName=..getCODItemName(..dependsOnPrompt)
+		set tempPersonToCheckID=tempPersonID
+		if ##class(sc.xModules.objPage).isBookerPage(pageID) {
+			set tempPurchaseID=##class(eCom.tempPerson).getTempPurchaseID(tempPersonID)
+			set tempPersonToCheckID=##class(eCom.tempPerson).getBookerIDfromTempPurchaseID(tempPurchaseID)
+		}
+		if $ZCVT(##class(eCom.tempCodData).get(tempPersonToCheckID,codItemName),"L")'=$ZCVT(..getDependsOnAlternativeValue(),"L") {
+			set out=0
+		}
+	}
+	quit out
+]]></Implementation>
+</Method>
+
+<Method name="getBackendOnlyColour">
+<ClassMethod>1</ClassMethod>
+<Implementation><![CDATA[	return "#F5DEB3"
+]]></Implementation>
+</Method>
+
+<Method name="getMaxWords">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>objData,isAccessible</FormalSpec>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	// get input limits if specified
+	set maxWords=objData.maxWords
+	if (isAccessible) {
+		// use server-side code for accessible templates
+		set (maxWords)=""
+	}
+	return maxWords
+]]></Implementation>
+</Method>
+
+<Method name="getMaxCharacters">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>objData,isAccessible</FormalSpec>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	// get input limits if specified
+	set maxChars=objData.maxCharacters	
+	if (isAccessible) {
+		// use server-side code for accessible templates
+		set (maxChars)=""
+	}
+	return maxChars
+]]></Implementation>
+</Method>
+
+<Method name="getFieldNameExtra">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>objData,displayOrder,isAbstract,isAbsPerson,coAuthorNo,guestID,tempPersonID,personID</FormalSpec>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	// put info about guest item onto the field name
+	set fieldNameExtra=""
+	if objData.isGuest set $P(fieldNameExtra,"_",2)="guest"
+
+	// and add an extra bit to the field name if it's a repeated guest item
+	if displayOrder#1 set $P(fieldNameExtra,"_",3)=$p(displayOrder#1,".",2)
+	if $g(isAbstract) {
+		set $P(fieldNameExtra,"_",2)="absDocument"	
+	}
+	if $g(isAbsPerson) {
+		if $g(coAuthorNo) {
+			set $P(fieldNameExtra,"_",2)="coAuthor"
+			set $P(fieldNameExtra,"_",3)=coAuthorNo
+		} else {
+			set $P(fieldNameExtra,"_",2)="mainAuthor"
+		}
+	}
+
+	// add the guestID to the fieldName
+	if objData.isGuest,guestID set $p(fieldNameExtra,"_",4)=guestID
+	
+	// add tempPersonID now (added to allow smartbook to show lots of peoples questions on one page)
+	if ($ZCONVERT(tempPersonID,"U")'="NEW") {
+		if $L(tempPersonID) {
+			set tempPersonID=+tempPersonID  // force to numeric (to help avoid XSS attack when constructing the javascript in codItem.csp - although it is now encoded on output)
+		}
+		if (tempPersonID=0) {
+			set tempPersonID=""
+		}
+	}
+	set $P(fieldNameExtra,"_",5)=tempPersonID
+
+	if $g(isAbsPerson) {
+		set $P(fieldNameExtra,"_",5)=personID
+	}
+	return fieldNameExtra
+]]></Implementation>
+</Method>
+
+<Method name="getPrice">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>itemAlternativeID,dataID,xEventID,currencyID</FormalSpec>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	set eventCategoryID=""
+	
+
+	if ##class(setup.objSystemTypes).isModuleAllowed("Attendee Categories")	{
+		if (%session.Get("mode")="preview")!($G(%session.Data("inSitePageEditing")))	{
+			if $G(%session.Data("eventsforce","frontend","currentPersonID"))	{
+				set tempPersonID=$G(%session.Data("eventsforce","frontend","currentPersonID"))
+				// get the categoryID - may be null
+				set eventCategoryID=##class(eCom.tempPurchase).getEventCategory(%session.SessionId,tempPersonID)
+			} else { 
+				// When a new attendee is added through 'Add another attendee' button on Basket page. We will assume the booker's attendee category to be 
+				// the attendee category for the new attendee. Otherwise, system fails to pick up prices when 'Price by attendee category' switch is turned ON.
+				set bookerID=##class(eCom.tempPerson).getBookerID(%session.SessionId)
+				set eventCategoryID=##class(eCom.tempPurchase).getEventCategory(%session.SessionId,bookerID)
+			}				
+		} else {
+			// get the default
+			set eventCategoryID=##class(setup.lnkCategoryEvent).getDefault(xEventID)
+		}
+	}
+	set tmpBasketItemID=##class(cod.objAlternativeExtras).findBasketItem(itemAlternativeID,dataID,eventCategoryID)
+	set price=##class(eCom.objBasketItem).getPrice(xEventID,tmpBasketItemID,,currencyID,0,0)
+	quit price
+]]></Implementation>
+</Method>
+
+<Method name="isDatabaseItemOnPage">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>pageID,codItemNameID</FormalSpec>
+<ReturnType>%Boolean</ReturnType>
+<Implementation><![CDATA[
+	&SQL(SELECT ID FROM sc_xModules.objCODitem WHERE (objItemName = :codItemNameID) AND (parent->parent = :pageID) AND (active=1))
+	return +SQLCODE=0
+]]></Implementation>
+</Method>
+
+<Method name="isDatabaseItemOnAnyRegPage">
+<Description>
+is the database on any of the pages EXCEPT the payment method pages</Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec>eventID,codItemNameID</FormalSpec>
+<ReturnType>%Boolean</ReturnType>
+<Implementation><![CDATA[
+	set groupID=##class(sc.xModules.objGroup).getGroupIDfromEventIDandGroupName(eventID,"Payment Method Instructions")	
+	&SQL(SELECT ID INTO :tmp FROM sc_xModules.objCODitem WHERE (objItemName = :codItemNameID) AND (parent->parent->parent <> :groupID) AND (active=1) AND (objEvent = :eventID) )
+	return +SQLCODE=0
+]]></Implementation>
+</Method>
+
+<Method name="isABI">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>dataID</FormalSpec>
+<ReturnType>%Boolean</ReturnType>
+<Implementation><![CDATA[
+	&SQL(SELECT isAdditionalItem INTO :isAdditionalItem FROM sc_xModules.objCODitem WHERE ID = :dataID)		
+	if +SQLCODE=0 {
+		return +isAdditionalItem
+	} else {
+		throw ##class(shared.exceptions.generalSQLException).CreateFromSQLCODE(SQLCODE,$G(%msg))	
+	}
+]]></Implementation>
+</Method>
+
+<Method name="isQBI">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>dataID</FormalSpec>
+<ReturnType>%Boolean</ReturnType>
+<Implementation><![CDATA[
+	&SQL(SELECT isQuantityItem INTO :isQuantityItem FROM sc_xModules.objCODitem WHERE ID = :dataID)		
+	if +SQLCODE=0 {
+		return +isQuantityItem
+	} else {
+		throw ##class(shared.exceptions.generalSQLException).CreateFromSQLCODE(SQLCODE,$G(%msg))	
+	}
+]]></Implementation>
+</Method>
+
+<Method name="isQuestionRelatedToAnyPrice">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>dataID</FormalSpec>
+<ReturnType>%Boolean</ReturnType>
+<Implementation><![CDATA[
+	if ..isABI(dataID) {
+		set eventID=##class(sc.objData).getEventID(dataID) 
+		set codItemNameID=##class(sc.xModules.objCODitem).getCODItemNameID(dataID)
+		set rsAlts=##class(%ResultSet).%New("cod.objItemAlternatives:qAlternativesForCodItem")
+		do rsAlts.Execute(codItemNameID)	
+		while rsAlts.Next() {
+			set altID=rsAlts.Get("ID")
+			set extrasID=##class(cod.objAlternativeExtras).findExtra(altID,dataID)
+			set rsBasketItems=##class(%ResultSet).%New("%Library.DynamicQuery:SQL")
+			do rsBasketItems.Prepare("SELECT ID FROM eCom.objBasketItem WHERE (objAlternativeExtra = ?) AND (objEvent = ?)")
+			do rsBasketItems.Execute(extrasID,eventID)	
+			while rsBasketItems.Next() {
+				set basketItemID=rsBasketItems.Get("ID")
+				if ##class(eCom.objBasketItem).hasAnyPrice(basketItemID,eventID) {
+					return 1					
+				} 
+			}
+		}
+	} elseif ..isQBI(dataID) {
+		set ticketID=##class(cod.objTicket).getTicketIDfromDataID(dataID)
+		if ##class(cod.objTicket).hasAnyPrice(ticketID) {
+			return 1
+		}
+	} 
+	return 0
+]]></Implementation>
+</Method>
+
+<Method name="isRelatedToAnyDiscounts">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>dataID</FormalSpec>
+<ReturnType>%Boolean</ReturnType>
+<Implementation><![CDATA[
+	set eventID=##class(sc.objData).getEventID(dataID)
+	set controllerID=##class(setup.objEvent).getControllerID(eventID)
+	set codItemName=##class(sc.xModules.objCODitem).getCODItemName(dataID)
+	
+	&SQL(SELECT COUNT(ID) INTO :count 
+		FROM eCom.objDiscount 
+		WHERE (active=1)
+		AND (objController = :controllerID)
+		AND (
+			(codItem = :codItemName) OR (codItem2 = :codItemName) OR (codItem3 = :codItemName)
+		)
+	)
+	if +SQLCODE=0 {
+		return count>0	
+	} else {
+		throw ##class(shared.exceptions.generalSQLException).CreateFromSQLCODE(SQLCODE,$G(%msg))
+	}
+]]></Implementation>
+</Method>
+
+<Method name="isRelatedToAnyPaymentMethods">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>dataID</FormalSpec>
+<ReturnType>%Boolean</ReturnType>
+<Implementation><![CDATA[
+	set eventID=##class(sc.objData).getEventID(dataID)
+	set codItemID=##class(sc.xModules.objCODitem).getCODItemNameID(dataID)
+	
+	&SQL(SELECT ID FROM links.lnkEventPaymentMethod WHERE (objEvent = :eventID) AND (criteriaCODid = :codItemID))
+	if +SQLCODE=0 {
+		return 1	
+	} else {
+		return 0
+	}
+]]></Implementation>
+</Method>
+
+<Method name="isQuestionOnAnyPageForBookers">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>eventID,langID,codItemNameID</FormalSpec>
+<ReturnType>%Boolean</ReturnType>
+<Implementation><![CDATA[
+	
+	do ..getArrayOfBookerPages(eventID, langID, .bookersPages)
+	set counter=""
+	for  {
+		set counter=$O(bookersPages(counter))
+		if counter="" quit
+		set pageID=bookersPages(counter)
+		if ..isDatabaseItemOnPage(pageID,codItemNameID) return 1
+	}
+	
+	return 0
+]]></Implementation>
+</Method>
+
+<Method name="getArrayOfBookerQuestions">
+<ClassMethod>1</ClassMethod>
+<FormalSpec><![CDATA[eventID,langID,&returnArray]]></FormalSpec>
+<Implementation><![CDATA[
+	do ..getArrayOfBookerPages(eventID, langID, .bookersPages)
+	set counter=""
+	for  {
+		set counter=$O(bookersPages(counter))
+		if counter="" quit
+		set pageID=bookersPages(counter)
+		set rsQuestions=##class(%ResultSet).%New("sc.xModules.objPage:qQuestionsByPageID")
+		do rsQuestions.Execute(pageID)
+		while rsQuestions.Next() {
+			set scCodItemID=rsQuestions.Get("ID")
+			set codItemNameID=rsQuestions.Get("objItemName")
+			set returnArray(pageID,scCodItemID)=codItemNameID
+		}
+	}
+]]></Implementation>
+</Method>
+
+<Method name="getArrayOfBookerPages">
+<ClassMethod>1</ClassMethod>
+<FormalSpec><![CDATA[eventID,langID,&bookersPages]]></FormalSpec>
+<Implementation><![CDATA[
+	kill bookersPages
+	set counter=1
+	set bookersPageID=##class(sc.xModules.objPage).getBookerPageID(eventID,langID)	
+	
+	set bookersPages(counter)=bookersPageID
+	set rsPaymentMethodPages=##class(%ResultSet).%New("eCom.objPaymentMethod:qAllPaymentMethodPages")
+	do rsPaymentMethodPages.Execute(eventID)
+	while rsPaymentMethodPages.Next() {
+		set counter=counter+1
+		set paymentmethodPageID=rsPaymentMethodPages.Get("instructionPageID")
+		set bookersPages(counter)=paymentmethodPageID
+	}
+]]></Implementation>
+</Method>
+
+<Method name="isBasketItemIDRelatedToABookersQuestion">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>eventID,langID,basketItemID</FormalSpec>
+<ReturnType>%Boolean</ReturnType>
+<Implementation><![CDATA[
+	set foundBookerQuestionMatch=0
+	set scCodItemIDForIncomingBasketItemID=..getScIDfromBasketItemID(basketItemID)
+	
+	kill bookerQuestions
+	do ..getArrayOfBookerQuestions(eventID,langID,.bookerQuestions)
+	set loopPageID=""
+	for  {
+		set loopPageID=$O(bookerQuestions(loopPageID))
+		if loopPageID="" quit
+		
+		set loopScCodItemID=""
+		for  {
+			set loopScCodItemID=$O(bookerQuestions(loopPageID,loopScCodItemID))
+			if loopScCodItemID="" quit
+			
+			if (scCodItemIDForIncomingBasketItemID=loopScCodItemID) {
+				set foundBookerQuestionMatch=1
+				quit
+			}
+		}
+	}
+	return foundBookerQuestionMatch
+]]></Implementation>
+</Method>
+
+<Method name="getScIDfromBasketItemID">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>basketItemID</FormalSpec>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	set scCodItemID=""
+	
+	// is it an ABI?
+	set alternativeExtrasID=##class(cod.objAlternativeExtras).getExtrasIDfromBasketItemID(basketItemID)
+	if (alternativeExtrasID) {
+		// get the scID?
+		set scCodItemID=##class(cod.objAlternativeExtras).getDataIDfromAlternativeExtrasID(alternativeExtrasID)
+	}
+	
+	// is it a QBI?
+	set ticketID=##class(cod.objTicket).getTicketIDfromBasketItemID(basketItemID)
+	if (ticketID) {
+		// get the scID?
+		set scCodItemID=##class(cod.objTicket).getDataIDfromTicketID(ticketID)
+	}
+	
+	return scCodItemID
+]]></Implementation>
+</Method>
+
+<Method name="checkAllowed">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>extrasID</FormalSpec>
+<ReturnType>%Boolean</ReturnType>
+<Implementation><![CDATA[
+	set eventCategoryID="",allowedToSee=1 
+
+	if ##class(setup.objSystemTypes).isModuleAllowed("Attendee Categories")	{
+		if %session.Get("mode")="preview"	{
+			if %request.Get("hideButtons") {
+				// preview mode
+				if %request.Get("eventCategoryID") {
+					set allowedToSee=+##class(links.lnkEventCategoryAltExtras).allow(%request.Get("eventCategoryID"),extrasID)
+				}
+			} else {
+				if $G(%session.Data("eventsforce","frontend","currentPersonID"))	{
+					set tempPersonID=$G(%session.Data("eventsforce","frontend","currentPersonID"))
+					// get the categoryID - may be null
+					set eventCategoryID=##class(eCom.tempPurchase).getEventCategory(%session.SessionId,tempPersonID)
+					if eventCategoryID {
+						set allowedToSee=+##class(links.lnkEventCategoryAltExtras).allow(eventCategoryID,extrasID)
+					}
+				}
+				// if I've get the categoryID from above then that overrides the original MyAccount categories (as a person can theoretically be assigned to more than one category in the links.lnkPersonEventCategory)
+				if 'eventCategoryID	{
+					set personID=$G(%session.Data("eventsforce","xtfrontend","MyAccount","personID"))
+					// check logged in
+					if personID {
+						set eventID=$G(%session.Data("eventsforce","frontend","xEventID"))
+						// can this person see this dataID (based on the links.lnkPersonEventCategory)
+						set allowedToSee=+##class(links.lnkEventCategoryAltExtras).allowMyAccount(eventID,personID,extrasID)
+					}
+				}
+			}
+		}
+	}
+	quit allowedToSee
+]]></Implementation>
+</Method>
+
+<Method name="removePlaceOnSameLine">
+<Description>
+split up all questions on registration pages that are placed on the same line as part of phasing out this functionality</Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec>eventID</FormalSpec>
+<Implementation><![CDATA[	&SQL(UPDATE sc_xModules.objCODitem SET supressNewLine=0 WHERE (supressNewLine=1) AND (objEvent = :eventID))
+]]></Implementation>
+</Method>
+
+<Method name="getLanguageID">
+<Implementation><![CDATA[
+	set languageID=""
+	set objPage=..parent.parent
+	set objLanguage=objPage.objLanguage
+	if $IsObject(objLanguage) {
+		set languageID=objLanguage.%Id()	
+	}
+	return languageID
+]]></Implementation>
+</Method>
+
+<Method name="doCustomValidation">
+<FormalSpec><![CDATA[value,&errString,&store]]></FormalSpec>
+<Implementation><![CDATA[
+	#dim ok as %Boolean = 1
+	#dim errDelim as %String ="|"
+	if $l(..getBespokeValidationMethod()) {
+		set ok=1
+	} elseif ($E(..requiredAnswer,1)="?") ! ($E(..requiredAnswer,1,2)="'?") {
+		set ok=##class(cod.objItemName).patternMatch(value,..requiredAnswer)
+	} elseif ..requiredAnswer?1"#"2.AN {
+		if ..requiredAnswer="#personRegisteredWithSameAnswer" {
+			do ..validatePersonRegisteredWithSameAnswer(value,.errString,.store)
+		} else {
+			set ok=-1			
+		}
+	} else { // direct string comparasion
+		if $zcvt(value,"u")'=$zcvt(..requiredAnswer,"U") set ok=0
+	}
+	
+	if 'ok {
+		if $l($p(ok,"|",2)) {
+			set errString=errString_$S($L(errString):errDelim,1:"")_$p(ok,"|",2)
+		} else {
+			do ..addValidationFailureMessage(.errString)
+		}
+		set store=0
+	}
+	if ok=-1 {
+		set errString=errString_$S($L(errString):errDelim,1:"")_##class(shared.pCSP).out("The question")_" '"_..description_"' "_##class(shared.pCSP).out("has a validation error")
+		set store=0
+	}
+]]></Implementation>
+</Method>
+
+<Method name="hasPromptPassedBespokeValidationForTempPerson">
+<FormalSpec>tempPersonID</FormalSpec>
+<ReturnType>%Boolean</ReturnType>
+<Implementation><![CDATA[
+	set methodName=..getBespokeValidationMethod()
+	if $l(methodName) {
+		set codItemName=..objItemName.description
+		set data=##class(eCom.tempCodData).get(tempPersonID,codItemName)
+		set className="customCode.codAnswerValidation."_##class(shared.callOuts).classNameForBespokeCode()
+		return $CLASSMETHOD(className,methodName,codItemName,data,tempPersonID)
+	}
+	return 1
+]]></Implementation>
+</Method>
+
+<Method name="doBespokeValidationForTempPerson">
+<ClassMethod>1</ClassMethod>
+<FormalSpec><![CDATA[tempPersonID,listOfQuestions:%ListOfDataTypes,&arrayOfMandatoryQuestions,&errString]]></FormalSpec>
+<Implementation><![CDATA[
+	#dim question as sc.xModules.objCODitem
+	#dim errDelim as %String ="|"
+	for ind=1:1:listOfQuestions.Count() {
+		set question=listOfQuestions.GetAt(ind)
+		set ok=question.hasPromptPassedBespokeValidationForTempPerson(tempPersonID)
+		if 'ok {
+			set errMsg=$p(ok,"|",2)
+			if $l(errMsg) {
+				set errString=errString_$S($L(errString):errDelim,1:"")_errMsg
+			} else {
+				do question.addValidationFailureMessage(.errString)
+			}
+			set data=$G(mandatoryItems(question.objItemName.%Id()))
+			// If mandatorty set to the original otherwise blank
+			do ##class(eCom.tempCodData).set(tempPersonID,question.objItemName.description,data,question.getPageIDforQuestion(question.%Id()),question.objEvent.%Id())	
+		}
+	}
+]]></Implementation>
+</Method>
+
+<Method name="getBespokeValidationMethod">
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	if $E(..requiredAnswer,1,2)="##" {
+		set callOutMethod=$e(..requiredAnswer,3,$l(..requiredAnswer))
+		if callOutMethod?1A.AN {
+			return callOutMethod	
+		}
+	}
+	return ""
+]]></Implementation>
+</Method>
+
+<Method name="validatePersonRegisteredWithSameAnswer">
+<FormalSpec><![CDATA[value,&errString,&store]]></FormalSpec>
+<Private>1</Private>
+<Implementation><![CDATA[
+	if ..type="time" {
+		set value = ##class(shared.timeFunctions).getHorologTime(value)	
+	} elseif ..type="date" {
+		set value=##class(shared.dateFunctions).multiDate(value,1)	
+	}
+	if ##class(cod.objItemData).findSingleForEvent(..objItemName.description,value,..objEvent.%Id()) {
+		// Found a person with this data
+		
+	} else {
+		do ..addValidationFailureMessage(.errString)
+		set store=0
+	}
+]]></Implementation>
+</Method>
+
+<Method name="addValidationFailureMessage">
+<FormalSpec><![CDATA[&errString]]></FormalSpec>
+<Private>1</Private>
+<Implementation><![CDATA[
+	#dim errDelim as %String ="|"
+	
+	if ..validationErrorMessage="" {
+		set errString=errString_$S($L(errString):errDelim,1:"")_##class(shared.pCSP).out("The question")_" '"_..description_"' "_##class(shared.pCSP).out("was not answered correctly")
+	} else {
+		set errString=errString_$S($L(errString):errDelim,1:"")_..validationErrorMessage
+	}
+]]></Implementation>
+</Method>
+
+<Method name="tempRemoveMe">
+<ClassMethod>1</ClassMethod>
+<Implementation><![CDATA[	return 1
+]]></Implementation>
+</Method>
+
+<Method name="getQuestionForCodItemNameIDAndPageID">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>pageID,itemNameID,attendeeCategoryID="",isGuest=0</FormalSpec>
+<ReturnType>sc.xModules.objCODitem</ReturnType>
+<Implementation><![CDATA[
+	set dataID=""
+	set rsQuestions=##class(%ResultSet).%New("sc.xModules.objCODitem:qSCitemsByCODitem")
+	do rsQuestions.Execute(pageID,itemNameID)
+	while rsQuestions.Next() {
+		set dataID=rsQuestions.Get("ID")
+		if (isGuest)&&('rsQuestions.Data("isGuest")) {
+			continue
+		}
+		if ('isGuest)&&('rsQuestions.Data("isDelegate")) {
+			continue
+		}
+		if (attendeeCategoryID)&&('##class(links.lnkEventCategoryData).allow(attendeeCategoryID,dataID)) {
+			continue
+		}
+		set question=##class(sc.xModules.objCODitem).%OpenId(dataID)
+		do question.%Reload()
+		return question
+	}
+	return ""
+]]></Implementation>
+</Method>
+
+<Method name="getPromptNameForErrorMessage">
+<Implementation><![CDATA[
+	set tmpDesc=..description
+	set tmpDesc=##class(shared.stringFunctions).removeHTML(tmpDesc) 
+	set tmpLength = $L(tmpDesc)
+	if tmpLength > 50 set tmpDesc = $E(tmpDesc, 1, 40)_"..."_$E(tmpDesc, tmpLength-7, tmpLength)
+	set tmpDesc=$TR(tmpDesc,$C(13)_$C(10),"") // remove CRLF that can cause JS error
+	set tmpDesc = ##class(shared.stringFunctions).hyperTranslate(tmpDesc,"\","\\")
+	set tmpDesc = ##class(shared.stringFunctions).hyperTranslate(tmpDesc,"'","\'")
+	set tmpDesc = ##class(shared.stringFunctions).hyperTranslate(tmpDesc,"""","\""")
+	return tmpDesc
+]]></Implementation>
+</Method>
+
+<Method name="hasSurroundingTable">
+<ReturnType>%Boolean</ReturnType>
+<Implementation><![CDATA[
+	// do we need a surrounding table
+	set surroundingTable=0
+	if (..promptWidth)!(..dependsOnAlternative) set surroundingTable=1
+	if ..supressNewLine set surroundingTable=0
+	if $IsObject(%session) {
+		if %session.Get("mode") = "edit" {
+			set surroundingTable = 0
+		}
+	}
+	return surroundingTable
+]]></Implementation>
+</Method>
+
+<Method name="getGeneratorName">
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	if ..type="text" {
+		return "textField"
+		
+	} elseif ..type="textarea" {
+		return "textArea"
+		
+	} elseif ..type="radiobutton" {
+		return "radioButtons" 	
+		
+	} elseif ..type="checkbox" {
+		return "checkBox" 	
+		
+	} elseif ..type="dropdown" {
+		return "dropDown" 	
+		
+	} elseif ..type="password" {
+		return "passwordField" 	
+		
+	} elseif ..type="multibox" {
+		return "multiCheckBoxes" 	
+		
+	} elseif ..type="date" {
+		return "dateField" 	
+		
+	} elseif ..type="dateRange" {
+		return "dateRange" 	
+		
+	} elseif ..type="time" {
+		return "timeField" 	
+		
+	} elseif ..type="outputOnly" {
+		return "outputOnly"
+			
+	} elseif ..type="private" {
+		return "privateField"
+			
+	} else {
+		return "textField" 	
+	}
+]]></Implementation>
+</Method>
+
+<Query name="qReportItems">
+<Description>
+this will show all the cod items used in reg page for guests and deles with no overlaps
+ie if guest and dele have used firstname, only one firstname will appear in this query as
+it is using GROUP BY objItemName</Description>
+<Type>%SQLQuery</Type>
+<FormalSpec>regPageID:%String</FormalSpec>
+<SqlQuery><![CDATA[SELECT ID As scID,description,objItemName As ID,objItemName->description As codName,displayOrder 
+FROM sc_xModules.objCODitem 
+WHERE (parent->parent = :regPageID) AND (reportOn = 1) AND (active=1)
+GROUP BY objItemName 
+ORDER BY description]]></SqlQuery>
+<Parameter name="CONTAINID" value="1"/>
+</Query>
+
+<Query name="qReportItemsDelegate">
+<Type>%SQLQuery</Type>
+<FormalSpec>regPageID:%String</FormalSpec>
+<SqlQuery><![CDATA[SELECT ID As scID,description,objItemName As ID,objItemName->description As codName,displayOrder 
+FROM sc_xModules.objCODitem 
+WHERE (parent->parent = :regPageID) AND (reportOn = 1) AND (isDelegate = 1) AND (active=1)
+ORDER BY displayOrder]]></SqlQuery>
+<Parameter name="CONTAINID" value="1"/>
+</Query>
+
+<Query name="qReportItemsGuest">
+<Type>%SQLQuery</Type>
+<FormalSpec>regPageID:%String</FormalSpec>
+<SqlQuery><![CDATA[SELECT ID As scID,description,objItemName As ID,objItemName->description As codName,displayOrder 
+FROM sc_xModules.objCODitem 
+WHERE (parent->parent = :regPageID) AND (reportOn = 1) AND (isGuest = 1) AND (active=1)
+ORDER BY displayOrder]]></SqlQuery>
+<Parameter name="CONTAINID" value="1"/>
+</Query>
+
+<Query name="qItemsByPage">
+<Type>%SQLQuery</Type>
+<FormalSpec>pageID:%String</FormalSpec>
+<SqlQuery><![CDATA[SELECT ID As scID,description,objItemName As ID,objItemName->description As codName,displayOrder,isDelegate,isGuest
+FROM sc_xModules.objCODitem 
+WHERE (parent->parent = :pageID) AND (active=1)
+ORDER BY displayOrder]]></SqlQuery>
+<Parameter name="CONTAINID" value="1"/>
+</Query>
+
+<Query name="qQuestionsByGroupID">
+<Type>%SQLQuery</Type>
+<FormalSpec>groupID:%String</FormalSpec>
+<SqlQuery><![CDATA[SELECT ID As scID,description,objItemName As codItemID,objItemName->description As codName
+FROM sc_xModules.objCODitem 
+WHERE (parent->parent->parent = :groupID) AND (active=1)
+ORDER BY parent->parent,displayOrder]]></SqlQuery>
+<Parameter name="CONTAINID" value="1"/>
+</Query>
+
+<Query name="qAdditionalItemsByPage">
+<Type>%SQLQuery</Type>
+<FormalSpec>pageID:%String</FormalSpec>
+<SqlQuery><![CDATA[SELECT ID As scID, description, objItemName As itemNameID, objItemName->description As codName, displayOrder, isDelegate, isGuest 
+FROM sc_xModules.objCODitem 
+WHERE (parent->parent = :pageID) AND (isAdditionalItem = 1) AND (active=1)
+ORDER BY displayOrder]]></SqlQuery>
+<Parameter name="CONTAINID" value="1"/>
+</Query>
+
+<Query name="qQBIsByPage">
+<Type>%SQLQuery</Type>
+<FormalSpec>pageID:%String</FormalSpec>
+<SqlQuery><![CDATA[SELECT ID As scID, description, objItemName As itemNameID, objItemName->description As codName, displayOrder, isDelegate, isGuest 
+FROM sc_xModules.objCODitem 
+WHERE (parent->parent = :pageID) AND (isQuantityItem = 1) AND (active=1)
+ORDER BY displayOrder]]></SqlQuery>
+<Parameter name="CONTAINID" value="1"/>
+</Query>
+
+<Query name="qSCitemsByCODitem">
+<Description>
+get a list of these sc items that relate to a cod item</Description>
+<Type>%SQLQuery</Type>
+<FormalSpec>regPageID:%String,codItemNameID</FormalSpec>
+<SqlQuery><![CDATA[SELECT ID,description,isDelegate,isGuest,type,displayOrder,mandatory
+FROM sc_xModules.objCODitem 
+WHERE (parent->parent = :regPageID) AND (objItemName = :codItemNameID) AND (active=1)
+ORDER BY objItemName->codGroup DESC,displayOrder]]></SqlQuery>
+<Parameter name="CONTAINID" value="1"/>
+</Query>
+
+<Method name="getQuestionIDFromPageAndCodItem">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>pageID,itemNameID,isGuest=0</FormalSpec>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	set dataID=""
+	set rsQuestions=##class(%ResultSet).%New("sc.xModules.objCODitem:qSCitemsByCODitem")
+	do rsQuestions.Execute(pageID,itemNameID)
+	while rsQuestions.Next() { 
+		if (isGuest&&rsQuestions.Data("isGuest")) {
+			set dataID=rsQuestions.Data("ID")
+			quit
+		}
+		if ('isGuest&&rsQuestions.Data("isDelegate")) {
+			set dataID=rsQuestions.Data("ID")
+			quit
+		}
+	}
+	return dataID
+]]></Implementation>
+</Method>
+
+<Method name="isQuestionABackendOnlyQuestion">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>dataID</FormalSpec>
+<ReturnType>%Boolean</ReturnType>
+<Implementation><![CDATA[
+	set backend=0
+	&SQL(SELECT backendOnly INTO :tmp FROM sc_xModules.objCODitem WHERE ID=:dataID)
+	if ((+SQLCODE=0)&&(tmp)) set backend=1
+	return backend
+]]></Implementation>
+</Method>
+
+<Method name="getPromptTextJSsafe">
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	#dim result = ""
+	set result=##class(EF.conversions.htmlToText).stripHTML(..description)
+	
+	set result=$TR(result,$C(13)_$C(10)," ") // remove CRLF that can cause JS error
+	set result = $replace(result,"\","\\")
+	set result = $replace(result,"'","\'")
+	set result = $replace(result,"""","\""")
+	
+	#dim tmpLength = $L(result)
+	if tmpLength > 50 set result = $E(result, 1, 40)_"..."_$E(result, tmpLength-7, tmpLength)
+	
+	return result
+]]></Implementation>
+</Method>
+
+<Storage name="Default">
+<Type>%Library.CacheStorage</Type>
+<DefaultData>objCODitemDefaultData</DefaultData>
+<Data name="objCODitemDefaultData">
+<Subscript>"objCODitem"</Subscript>
+<Value name="1">
+<Value>objItemName</Value>
+</Value>
+<Value name="2">
+<Value>description</Value>
+</Value>
+<Value name="3">
+<Value>fieldHeight</Value>
+</Value>
+<Value name="4">
+<Value>fieldWidth</Value>
+</Value>
+<Value name="5">
+<Value>helptText</Value>
+</Value>
+<Value name="6">
+<Value>layout</Value>
+</Value>
+<Value name="7">
+<Value>mandatory</Value>
+</Value>
+<Value name="8">
+<Value>type</Value>
+</Value>
+<Value name="9">
+<Value>helpText</Value>
+</Value>
+<Value name="10">
+<Value>isDelegate</Value>
+</Value>
+<Value name="11">
+<Value>isGuest</Value>
+</Value>
+<Value name="12">
+<Value>reportOn</Value>
+</Value>
+<Value name="13">
+<Value>backendOnly</Value>
+</Value>
+<Value name="14">
+<Value>courseID</Value>
+</Value>
+<Value name="15">
+<Value>dependsOn</Value>
+</Value>
+<Value name="16">
+<Value>dependsOnAlternative</Value>
+</Value>
+<Value name="17">
+<Value>dependsOnPrompt</Value>
+</Value>
+<Value name="18">
+<Value>isAddtionalItem</Value>
+</Value>
+<Value name="19">
+<Value>isAdditionalItem</Value>
+</Value>
+<Value name="20">
+<Value>requiredAnswer</Value>
+</Value>
+<Value name="21">
+<Value>supressNewLine</Value>
+</Value>
+<Value name="22">
+<Value>promptWidth</Value>
+</Value>
+<Value name="23">
+<Value>isQuantityItem</Value>
+</Value>
+<Value name="24">
+<Value>readonlyFrontend</Value>
+</Value>
+<Value name="25">
+<Value>reportDescription</Value>
+</Value>
+<Value name="26">
+<Value>readonlyAmendment</Value>
+</Value>
+<Value name="27">
+<Value>maxCharacters</Value>
+</Value>
+<Value name="28">
+<Value>maxWords</Value>
+</Value>
+<Value name="29">
+<Value>maxAltsChecked</Value>
+</Value>
+<Value name="30">
+<Value>minAltsChecked</Value>
+</Value>
+<Value name="31">
+<Value>defaultValue</Value>
+</Value>
+<Value name="32">
+<Value>noAmendments</Value>
+</Value>
+<Value name="33">
+<Value>dependsOnPromptPage</Value>
+</Value>
+<Value name="34">
+<Value>minTimestamp</Value>
+</Value>
+<Value name="35">
+<Value>maxTimestamp</Value>
+</Value>
+<Value name="36">
+<Value>copyValueFromRegistrationContact</Value>
+</Value>
+<Value name="37">
+<Value>copyValueFromBooker</Value>
+</Value>
+<Value name="38">
+<Value>validationErrorMessage</Value>
+</Value>
+<Value name="39">
+<Value>searchAsYouType</Value>
+</Value>
+</Data>
+<Property name="active">
+<Selectivity>49.9998%</Selectivity>
+</Property>
+<Property name="afterItem">
+<Selectivity>99.9991%</Selectivity>
+</Property>
+<Property name="afterRow">
+<Selectivity>99.9991%</Selectivity>
+</Property>
+<Property name="backendOnly">
+<Selectivity>33.3332%</Selectivity>
+</Property>
+<Property name="beforeItem">
+<Selectivity>99.9991%</Selectivity>
+</Property>
+<Property name="beforeRow">
+<Selectivity>99.9991%</Selectivity>
+</Property>
+<Property name="courseID">
+<Selectivity>99.9991%</Selectivity>
+</Property>
+<Property name="creator">
+<Selectivity>7.1429%</Selectivity>
+</Property>
+<Property name="dataType">
+<Selectivity>99.9991%</Selectivity>
+</Property>
+<Property name="dependsOnAlternative">
+<Selectivity>6.2500%</Selectivity>
+</Property>
+<Property name="dependsOnPrompt">
+<Selectivity>4.5455%</Selectivity>
+</Property>
+<Property name="description">
+<Selectivity>0.6444%</Selectivity>
+</Property>
+<Property name="displayOrder">
+<Selectivity>1.2187%</Selectivity>
+</Property>
+<Property name="fieldHeight">
+<Selectivity>33.3332%</Selectivity>
+</Property>
+<Property name="fieldWidth">
+<Selectivity>8.3333%</Selectivity>
+</Property>
+<Property name="helpText">
+<Selectivity>49.9998%</Selectivity>
+</Property>
+<Property name="isAdditionalItem">
+<Selectivity>49.9998%</Selectivity>
+</Property>
+<Property name="isDelegate">
+<Selectivity>99.9991%</Selectivity>
+</Property>
+<Property name="isGuest">
+<Selectivity>99.9991%</Selectivity>
+</Property>
+<Property name="isQuantityItem">
+<Selectivity>49.9998%</Selectivity>
+</Property>
+<Property name="layout">
+<Selectivity>99.9991%</Selectivity>
+</Property>
+<Property name="mandatory">
+<Selectivity>33.3332%</Selectivity>
+</Property>
+<Property name="nextVersion">
+<Selectivity>99.9991%</Selectivity>
+</Property>
+<Property name="objItemName">
+<Selectivity>0.6682%</Selectivity>
+</Property>
+<Property name="objStep">
+<Selectivity>99.9991%</Selectivity>
+</Property>
+<Property name="parent">
+<Selectivity>0.0488%</Selectivity>
+</Property>
+<Property name="previousVersion">
+<Selectivity>99.9991%</Selectivity>
+</Property>
+<Property name="promptWidth">
+<Selectivity>99.9991%</Selectivity>
+</Property>
+<Property name="publishAt">
+<Selectivity>99.9991%</Selectivity>
+</Property>
+<Property name="readonlyAmendment">
+<Selectivity>99.9991%</Selectivity>
+</Property>
+<Property name="readonlyFrontend">
+<Selectivity>49.9998%</Selectivity>
+</Property>
+<Property name="reportDescription">
+<Selectivity>99.9991%</Selectivity>
+</Property>
+<Property name="reportOn">
+<Selectivity>33.3332%</Selectivity>
+</Property>
+<Property name="requiredAnswer">
+<Selectivity>99.9991%</Selectivity>
+</Property>
+<Property name="sourceID">
+<Selectivity>99.9991%</Selectivity>
+</Property>
+<Property name="supressNewLine">
+<Selectivity>49.9998%</Selectivity>
+</Property>
+<Property name="type">
+<Selectivity>10.0000%</Selectivity>
+</Property>
+<Property name="xCRstamp">
+<Selectivity>0.2194%</Selectivity>
+</Property>
+<Property name="xCRuserID">
+<Selectivity>5.2632%</Selectivity>
+</Property>
+<Property name="xMOstamp">
+<Selectivity>0.0535%</Selectivity>
+</Property>
+<Property name="xMOuserID">
+<Selectivity>4.5455%</Selectivity>
 </Property>
 </Storage>
 </Class>

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.2 (Build 736U)" ts="2017-01-19 09:04:47">
+<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.2 (Build 736U)" ts="2017-01-19 16:32:00">
 <Class name="EF.contextDataFrontend">
 <Description><![CDATA[
 <!-- ;vc;-
@@ -379,20 +379,18 @@ if website is private, this will be set to the cod.objPerson.ID of that logged i
 
 <Class name="EF.mvcHandler.frontend">
 <Super>EF.mvcHandler.page</Super>
-<TimeChanged>64294,40877.373682</TimeChanged>
+<TimeChanged>64302,55011.409988</TimeChanged>
 <TimeCreated>64292,52936.290297</TimeCreated>
 
 <Method name="outputTemplateSectionHTML">
 <FormalSpec>startTag:%String,endTag:%String</FormalSpec>
-<Implementation><![CDATA[	// jeremy, please copy in logic from objTemplate.writeBit() here
-]]></Implementation>
 </Method>
 </Class>
 
 
 <Class name="EF.mvcHandler.frontendProweb">
 <Super>EF.mvcHandler.frontend</Super>
-<TimeChanged>64302,32563.749412</TimeChanged>
+<TimeChanged>64302,58386.891618</TimeChanged>
 <TimeCreated>64292,52952.708564</TimeCreated>
 
 <Property name="showRegistrationProgressBar">
@@ -426,7 +424,6 @@ if website is private, this will be set to the cod.objPerson.ID of that logged i
 	do page.updatePageID()
 	do page.updateEditFlag()
 	
-	
 	return page
 ]]></Implementation>
 </Method>
@@ -434,8 +431,6 @@ if website is private, this will be set to the cod.objPerson.ID of that logged i
 <Method name="loadData">
 <Implementation><![CDATA[
 	#dim pageController as EF.pageController.proweb.page
-	
-	set ..isOkToRenderPage = 1 // ##### insert security handler here ###########
 	
 	if '$IsObject(..contextData) {
 			throw ##class(shared.exceptions.generalException).%New("No contextData found in page")
@@ -453,6 +448,11 @@ if website is private, this will be set to the cod.objPerson.ID of that logged i
 		set pageController.sessionID = ..contextData.sessionID
 		set pageController.pageID = ..pageID
 		set pageController.page = pageController
+		if $Data(%session.Data("eventsforce","backend")) {
+			set pageController.securityHandler = ##class(EF.mvcHandler.securityHandlers.frontendProwebWithBackend).createNew(..contextData)
+		} else {
+			set pageController.securityHandler = ##class(EF.mvcHandler.securityHandlers.frontendProweb).createNew(..contextData)
+		}
 
 		set objEvent = ##class(setup.objEvent).%OpenId(..contextData.eventID)
 		set pageController.objEvent = objEvent
@@ -614,6 +614,19 @@ if website is private, this will be set to the cod.objPerson.ID of that logged i
 ]]></Implementation>
 </Method>
 
+<Method name="performSecurityChecks">
+<Implementation><![CDATA[
+	do ..controller.securityHandler.validateUrlParameters()
+	// add stuff about user roles here
+	
+	set ..isOkToRenderPage = ..controller.securityHandler.isOkToRenderPage
+	if '..isOkToRenderPage {
+		set ..reasonForRedirect = ..controller.securityHandler.reasonForRedirect	
+		set ..redirectPage = ..controller.securityHandler.redirectPage	
+	}
+]]></Implementation>
+</Method>
+
 <Method name="updatePageID">
 <Implementation><![CDATA[
 	set ..pageID = %request.Get("pageID")
@@ -755,7 +768,7 @@ if website is private, this will be set to the cod.objPerson.ID of that logged i
 
 <Class name="EF.mvcHandler.page">
 <Super>%RegisteredObject,EF.htmlGenerator</Super>
-<TimeChanged>64301,53136.520333</TimeChanged>
+<TimeChanged>64302,50095.204665</TimeChanged>
 <TimeCreated>64293,52286.415864</TimeCreated>
 
 <Property name="pageClass">
@@ -784,6 +797,10 @@ if website is private, this will be set to the cod.objPerson.ID of that logged i
 </Property>
 
 <Property name="redirectPage">
+<Type>%String</Type>
+</Property>
+
+<Property name="reasonForRedirect">
 <Type>%String</Type>
 </Property>
 
@@ -828,6 +845,115 @@ if website is private, this will be set to the cod.objPerson.ID of that logged i
 <ReturnType>%String</ReturnType>
 <ServerOnly>1</ServerOnly>
 <Implementation><![CDATA[	return ##class(%CSP.Page).Link(link, .query, addQ)
+]]></Implementation>
+</Method>
+</Class>
+
+
+<Class name="EF.mvcHandler.securityHandlers.base">
+<Super>%RegisteredObject</Super>
+<TimeChanged>64302,59106.618997</TimeChanged>
+<TimeCreated>64302,56184.665265</TimeCreated>
+
+<Property name="isOkToRenderPage">
+<Type>%Boolean</Type>
+<InitialExpression>1</InitialExpression>
+</Property>
+
+<Property name="redirectPage">
+<Type>%String</Type>
+<InitialExpression>"errorLoadingPage.csp"</InitialExpression>
+</Property>
+
+<Property name="reasonForRedirect">
+<Type>%String</Type>
+</Property>
+
+<Property name="contextData">
+<Type>EF.contextData</Type>
+</Property>
+</Class>
+
+
+<Class name="EF.mvcHandler.securityHandlers.frontendProweb">
+<Super>EF.mvcHandler.securityHandlers.base</Super>
+<TimeChanged>64302,59291.870316</TimeChanged>
+<TimeCreated>64302,56720.653792</TimeCreated>
+
+<Method name="createNew">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>contextData:EF.contextData</FormalSpec>
+<ReturnType>EF.mvcHandler.securityHandlers.frontendProweb</ReturnType>
+<Implementation><![CDATA[
+	set securityHandler = ..%New()
+	set securityHandler.contextData = contextData
+	set securityHandler.isOkToRenderPage = 1
+	return securityHandler
+]]></Implementation>
+</Method>
+
+<Method name="validateUrlParameters">
+<Implementation><![CDATA[
+	do ..verifyThatEventIdFromUrlMatchesEventIdInSession()		
+	if ..isOkToRenderPage=0 quit
+
+	do ..verifyThatPageIdMatchesEventId()
+]]></Implementation>
+</Method>
+
+<Method name="verifyThatEventIdFromUrlMatchesEventIdInSession">
+<Private>1</Private>
+<Implementation><![CDATA[
+	set eventIdFromUrl = ##class(shared.pageMethods).requestGetEventID()
+	set frontendEventIdFromSession = $Get(%session.Data("eventsforce","frontend","xEventID")) 
+
+	if eventIdFromUrl '= frontendEventIdFromSession {
+		set ..isOkToRenderPage = 0
+		set ..reasonForRedirect = "EventID in the URL doesn't match the eventID in the frontend session"
+	}
+]]></Implementation>
+</Method>
+
+<Method name="verifyThatPageIdMatchesEventId">
+<Private>1</Private>
+<Implementation><![CDATA[
+	set eventIdFromUrl = ##class(shared.pageMethods).requestGetEventID()
+	set pageIdFromUrl = ..contextData.request.Get("pageID")
+	
+	set eventIdFromPageId = ##class(sc.xModules.objPage).getEventID(pageIdFromUrl)
+	if eventIdFromUrl '= eventIdFromPageId {
+		set ..isOkToRenderPage = 0
+		set ..reasonForRedirect = "EventID in the URL doesn't match the eventID of the passed in pageID"
+	}
+]]></Implementation>
+</Method>
+</Class>
+
+
+<Class name="EF.mvcHandler.securityHandlers.frontendProwebWithBackend">
+<Super>EF.mvcHandler.securityHandlers.frontendProweb</Super>
+<TimeChanged>64302,59300.588435</TimeChanged>
+<TimeCreated>64302,56296.393809</TimeCreated>
+
+<Method name="validateUrlParameters">
+<Implementation><![CDATA[
+	do ..verifyThatEventIdFromUrlMatchesEventIdInBackend()
+	if ..isOkToRenderPage=0 quit
+	
+	do ##super()
+]]></Implementation>
+</Method>
+
+<Method name="verifyThatEventIdFromUrlMatchesEventIdInBackend">
+<Private>1</Private>
+<Implementation><![CDATA[
+	set eventIdFromUrl = ##class(shared.pageMethods).requestGetEventID()
+	set backendEventIdFromSession = $Get(%session.Data("eventsforce","backend","xEventID")) 
+
+	if eventIdFromUrl '= backendEventIdFromSession  {
+		set ..isOkToRenderPage = 0
+		set ..reasonForRedirect = "EventID in the URL doesn't match eventID in the backend session"
+	}
 ]]></Implementation>
 </Method>
 </Class>
@@ -3082,7 +3208,7 @@ Should have a one-to-one relationship with sc.objList</Description>
 
 <Class name="EF.pageController.proweb.page">
 <Super>EF.pageController.page</Super>
-<TimeChanged>64301,54576.279715</TimeChanged>
+<TimeChanged>64302,56354.892428</TimeChanged>
 <TimeCreated>64189,51696.559047</TimeCreated>
 
 <Property name="mvcPage">
@@ -3091,6 +3217,10 @@ Should have a one-to-one relationship with sc.objList</Description>
 
 <Property name="contextData">
 <Type>EF.contextDataFrontend</Type>
+</Property>
+
+<Property name="securityHandler">
+<Type>EF.mvcHandler.securityHandlers.base</Type>
 </Property>
 
 <Property name="pageID">
@@ -3416,8 +3546,6 @@ also an entry point from unit tests</Description>
 	}
 
 	if '..isTestMode {
-		s x=$I(^xfg)
-		s ^xfg(x,"adding list to page")=pageID
 		if componentType = "text" {
 			set prowebID = ##class(sc.xModules.objText).add(pageID, componentName)
 		} else {
@@ -3432,6 +3560,13 @@ also an entry point from unit tests</Description>
 		if 'componentID {
 			throw ##class(shared.exceptions.generalException).%New("Failed to create new objComponent")
 		}
+		
+		// refresh the page to make the new list visible
+		&html<
+  			<script language="javascript">		
+  				location.reload(true);	
+  			</script>		  			
+  		>		  		
 	}
 ]]></Implementation>
 </Method>
@@ -3581,6 +3716,9 @@ also an entry point from unit tests</Description>
 </Value>
 <Value name="7">
 <Value>isTestMode</Value>
+</Value>
+<Value name="8">
+<Value>securityHandler</Value>
 </Value>
 </Data>
 </Storage>
@@ -4988,7 +5126,7 @@ also an entry point from unit tests</Description>
 
 <Class name="EF.pages.base">
 <Super>%CSP.Page,EF.htmlGenerator</Super>
-<TimeChanged>64301,53244.304277</TimeChanged>
+<TimeChanged>64302,59216.906589</TimeChanged>
 <TimeCreated>64292,52804.615476</TimeCreated>
 
 <Parameter name="contextDataClass">
@@ -5032,8 +5170,14 @@ also an entry point from unit tests</Description>
 	set %zPage.contextData.request = %request
 	set %zPage.pageNavProceedKey = ..#pageNavProceedKey
 	
-	// load all the data
+	// load all the data and populate the security handler
 	do %zPage.loadData()
+
+	do %zPage.performSecurityChecks()
+	if '%zPage.isOkToRenderPage {
+		set %response.Redirect = %zPage.redirectPage_"?reasonForRedirect="_..encodeURLParameter(%zPage.reasonForRedirect)
+		return 0	
+	}
 	
 	return %zPage.isOkToRenderPage
 ]]></Implementation>
@@ -13904,7 +14048,7 @@ function saveSameAs(categoryID) {
 		// log to the event audit trail
 		if (xEventID && ok) do ##class(setup.objEventAudit).add(xUserID,xEventID,"Reg Page '"_pageName_"' ("_pageID_")"_description)		
 	}
-	set %response.Redirect="../../proweb/frontend/start.csp?mode=edit&version=current&pageID="_$G(%session.Data("pageID"))
+	set %response.Redirect="../../proweb/frontend/start.csp?mode=edit&version=current&pageID="_##class(sc.objData).getPageID(dataID)
 	quit 0
 </script>
 ]]></CSP>
@@ -16843,6 +16987,34 @@ function updateAlts(codPromptID) {
 	}
 	write " }"
 </script>
+]]></CSP>
+
+
+<CSP name="frontEnd/reg/errorLoadingPage.csp" application="/largedevsrc/" default="1"><![CDATA[
+<script language="cache" runat="server">w ##class(shared.pageMethods).outputFrontendHeader()</script>
+<head>
+<layout:section from="" to="{{ef_header}}">
+<csp:include page="frontendHTTPheader.csp">
+<csp:include page="colourScheme.csp">
+</head>
+<body class="bodyBackground">
+
+<layout:section from="{{ef_header}}" to="{{ef_banner}}">
+<layout:section from="{{ef_banner}}" to="{{ef_main_progress}}">
+<layout:section from="{{ef_main_progress}}" to="{{ef_main_header}}">
+<layout:section from="{{ef_main_header}}" to="{{ef_main_content}}">
+	<h1>
+		<tx>Error in loading page</tx>
+	</h1>
+	<p>
+		<h3>#(%request.Get("reasonForRedirect"))#</h3>
+	</p>
+
+<layout:section from="{{ef_main_content}}" to="{{ef_main_buttons}}">
+<layout:section from="{{ef_main_buttons}}" to="{{ef_footer}}">
+<layout:section from="{{ef_footer}}" to="">
+</body>
+</html>
 ]]></CSP>
 
 
@@ -22956,17 +23128,17 @@ Looks for "style.css" file to update "templateCSSFile" with</Description>
 <Class name="layout.objTemplate">
 <Description><![CDATA[
 <!-- ;vc;-
-;vc;    Object: layout.objTemplate.CLS/EV.51
+;vc;    Object: layout.objTemplate.CLS/EV.52
 ;vc; Component: CLS.layout.objTemplate
 ;vc;  Location: LargeDev
-;vc; Date/Time: 16-Nov-16 09:12
+;vc; Date/Time: 19-Jan-17 12:05
 ;vc;      User: FredG
-;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>layout.objTemplate.CLS/EV.51</td><td>CLS.layout.objTemplate</td><td>LargeDev</td><td style='white-space: nowrap;'>16-Nov-16 09:12</td><td>FredG</td></tr></table>
+;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>layout.objTemplate.CLS/EV.52</td><td>CLS.layout.objTemplate</td><td>LargeDev</td><td style='white-space: nowrap;'>19-Jan-17 12:05</td><td>FredG</td></tr></table>
 ]]></Description>
 <ClassType>persistent</ClassType>
 <ProcedureBlock>1</ProcedureBlock>
 <Super>%Library.Persistent,shared.timeStamp</Super>
-<TimeChanged>64295,39630.341535</TimeChanged>
+<TimeChanged>64302,43612.879912</TimeChanged>
 <TimeCreated>60782,60196.270659</TimeCreated>
 <Inheritance>right</Inheritance>
 
@@ -23114,7 +23286,7 @@ to store the style.css stream in order to avoid having to get it via FTP from a 
 	&SQL(SELECT objStandardDesign->description INTO :designName FROM layout.objTemplate WHERE ID = :templateID)	
 	if +SQLCODE=0 {
 		if designName="Default Design" set designName="Non-responsive Standard Design" //renamed July 2016
-		if designName="Responsive Standard Design" set designName="Standard Design 1.0" //renamed Dec 2016
+		// commented out until release of proweb2 // if designName="Responsive Standard Design" set designName="Standard Design 1.0" //renamed Dec 2016
 		return designName
 	} else {
 		throw ##class(shared.exceptions.generalException).%New("no such template found") 	
@@ -24466,7 +24638,7 @@ Returns true if the template is custom made</Description>
 </Class>
 
 
-<Project name="proweb 2" LastModified="2017-01-18 14:47:57.881017" Target="largedevsrc/backEnd/home/login.csp" TargetType="3">
+<Project name="proweb 2" LastModified="2017-01-19 16:32:00.054018" Target="largedevsrc/backEnd/home/login.csp" TargetType="3">
   <Items>
     <ProjectItem name="EF.contextDataFrontend" type="CLS"></ProjectItem>
     <ProjectItem name="EF.contextDataRegistration" type="CLS"></ProjectItem>
@@ -24655,6 +24827,12 @@ Returns true if the template is custom made</Description>
     <ProjectItem name="shared.pageMethods" type="CLS"></ProjectItem>
     <ProjectItem name="sc.codItemMethods" type="CLS"></ProjectItem>
     <ProjectItem name="sc.xModules.objCODitem" type="CLS"></ProjectItem>
+    <ProjectItem name="setup.objPageNav" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.pages.securityHandlerFrontendProweb" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.mvcHandler.securityHandlers.base" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.mvcHandler.securityHandlers.frontendProwebWithBackend" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.mvcHandler.securityHandlers.frontendProweb" type="CLS"></ProjectItem>
+    <ProjectItem name="largedevsrc/frontEnd/reg/errorLoadingPage.csp" type="CSP"></ProjectItem>
   </Items>
   <BreakPoints>
     <BreakPoint Routine="cspRealEV.frontend.reg.pagecontrollerstandardsave.CLS" Offset="OnPreHTTPafter+35"></BreakPoint>
@@ -34515,20 +34693,3851 @@ Returns the correct style of the button depending on what mode are available and
 </Class>
 
 
+<Class name="setup.objPageNav">
+<Description><![CDATA[
+<!-- ;vc;-
+;vc;    Object: setup.objPageNav.CLS/EV.121
+;vc; Component: CLS.setup.objPageNav
+;vc;  Location: LargeDev
+;vc; Date/Time: 19-Jan-17 10:10
+;vc;      User: FredG
+;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>setup.objPageNav.CLS/EV.121</td><td>CLS.setup.objPageNav</td><td>LargeDev</td><td style='white-space: nowrap;'>19-Jan-17 10:10</td><td>FredG</td></tr></table>
+]]></Description>
+<Abstract>1</Abstract>
+<ClassType/>
+<ProcedureBlock>0</ProcedureBlock>
+<TimeChanged>64302,36978.339254</TimeChanged>
+<TimeCreated>60342,57889.659835</TimeCreated>
+
+<Method name="goWhere">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>pagename:%String,overrideForward:%String,tempPersonID:%String,extraPageID:%String</FormalSpec>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	
+	// THIS METHOD IS USED ON ALL REGISTRATION PAGES IN THE FRONTEND TO DETERMINE WHAT SHOULD BE ON THE BACK BUTTON AND FORWARD/PROCEED/REDIRECT BUTTONS
+	
+	// pagename = the current csp page or pageID - if pageID then it is converted into template filename
+	// overrideForward = if we using a tabbed browsing then this will be used to jump straight to a page after saving current one
+	// tempPersonID = passed in to get some optional info from temp structure. Also to put onto the end of some URLs (possibly).
+	// extraPageID = if we are in codformsave then we do not know which reg pageID we were just in, so it is passed in here
+	
+	// page order is:
+	//     registerNew
+	//     registerStart
+	//     (tSelectBookingMode)
+	//     (tSelectPersonCategory)  - if not used below
+	//     (selectCategorySave) - if not used above
+	//  booker:
+	//     registerEmail
+	//     (tBooker)
+	//     (bookerSave)
+	//  delegate:
+	//     (tDelegateUID)
+	//     (tSelectPersonCategory) - if not used above
+	//     (selectCategorySave) - if not used above
+	//     tRegistration   } loop between for as many reg pages as there are for a category
+	//     codFormSave     }
+	//     tChooseDays
+	//     chooseDays2
+	//     tChooseItems
+	//     chooseItems2  
+	//     tVenueSummary
+	//     accomSaveVenueID
+	//     tHotelBooking
+	//     hotelBookingSave
+	//     tTableGuests
+	//     tableGuestSave
+	// other:
+	//     tbasket
+	//     payments
+
+
+
+	
+	new backpage,forwardpage,pageID,backforward,tempPurchaseID,loggedInPersonID, eventConfiguration
+	
+	set pagename=$G(pagename)
+	if pagename="" quit ""
+	set pagename=$ZCVT(pagename,"L")
+	// if proweb page, extract just the pageID from the url
+	if pagename["pageID=" set pagename=$P($P(pagename,"pageID=",2),"&",1)
+
+	// this is used to force going to a certain page (for example if we have tabbed browsing)
+	set overrideForward=$G(overrideForward)
+	set tempPersonID=$G(tempPersonID)
+	
+	set sessionID=%session.SessionId
+	set tempPurchaseID=##class(eCom.tempPurchase).getID(sessionID)
+	
+	// get the eventID
+	set xEventID=$G(%session.Data("eventsforce","frontend","xEventID"))
+	set xLangID=$G(%session.Data("eventsforce","frontend","xPrefLangID"))
+	if xLangID="" set xLangID=$G(%session.Data("eventsforce","frontend","xLangID"))
+	if 'xEventID set xEventID=$G(%session.Data("eventsforce","backend","xEventID"))
+	if 'xLangID set xLangID=$G(%session.Data("eventsforce","backend","xLangID"))
+	set extraBit=""
+	if xLangID'=1 set extraBit=" - "_##class(shared.objLanguage).getLanguageDesc(xLangID)
+	set eventConfiguration = ##class(setup.eventConfiguration).createForEventID(xEventID)
+	set websiteLanguage = eventConfiguration.websiteLanguages.getWebsiteLanguage(xLangID)
+	
+
+	// is this a backend booking
+	set backendBooking=+##class(eCom.tempPurchase).isBackendBooking(sessionID)
+	// is this an amendment (all amendments use this flag)
+	set amendMode=+$G(%session.Data("eventsforce","frontend","amend"))
+	
+	// this should replace the use of "amendMode". As soon as someone has seen the basket, then page nav is like amendments
+	set seenBasket=0,awardsBooking=0
+	&SQL(SELECT seenBasket,isAwards INTO :tmp,:tmp2 FROM eCom.tempPurchase WHERE sessionID = :sessionID)
+	if +SQLCODE=0 set seenBasket=+tmp,awardsBooking=tmp2
+
+	set (menuPageID,homePageID,bannerPageID)=""
+	&SQL(SELECT menuPageID,homePageID,bannerPageID INTO :tmp,:tmp2,:tmp3 FROM setup.objEventDetails WHERE (objEvent = :xEventID) AND (objLanguage = :xLangID) )	
+	if +SQLCODE=0 set menuPageID=tmp,homePageID=tmp2,bannerPageID=tmp3
+
+	set selectBookingModePageID=##class(setup.objEventSetting).getParameter("bookings","selectBookingModePageID"_extraBit,xEventID)
+	set bookersPageID=##class(setup.objEventSetting).getParameter("bookings","bookerRegPageID"_extraBit,xEventID)
+	set delegateUIDPageID=##class(setup.objEventSetting).getParameter("bookings","delegateUIDPageID"_extraBit,xEventID)
+	set selectCategoryPageID=##class(setup.objEventSetting).getParameter("bookings","SelectPersonCategoryPageID"_extraBit,xEventID)
+	set tableBookingPageID=##class(setup.objEventSetting).getParameter("bookings","Table Guests PageID"_extraBit,xEventID)
+	
+	set chooseDaysPageID=##class(setup.objEventSetting).getParameter("bookings","Choose Days PageID"_extraBit,xEventID)
+	
+	if eventConfiguration.getAgendaViewUseInRegistrationProcess() {
+		set chooseSessionsPageID = websiteLanguage.getAgendaViewRegistrationPageID()
+	} else {
+		set chooseSessionsPageID=##class(setup.objEventSetting).getParameter("bookings","Choose Sessions PageID"_extraBit,xEventID)
+	}
+	set registerEmailAmendPageID=##class(setup.objEventSetting).getParameter("bookings","Register Email Amend PageID"_extraBit,xEventID)
+	set registerEmailNewPageID=##class(setup.objEventSetting).getParameter("bookings","Register Email New PageID"_extraBit,xEventID)
+	set basketPageID=##class(setup.objEventSetting).getParameter("bookings","Basket PageID"_extraBit,xEventID)
+	set meetManLoginPageID=##class(setup.objEventSetting).getParameter("meeting manager pages","Login PageID"_extraBit,xEventID)
+	set eventHotelID=$G(%session.Data("eventsforce","frontend","hotel","eventHotelID"))   // stored in the session in accomSaveVenueID.csp
+	set eventHotelPageID=""
+	if eventHotelID set eventHotelPageID=##class(accom.objEventHotel).getHotelBookingPageID(eventHotelID)
+	set bookingSummaryPageID=##class(setup.objEventSetting).getParameter("Booking Summary","bookingSummaryPageID"_extraBit,xEventID)
+	
+	
+	set multiCategoryPerBooking=+##class(setup.objEventSetting).getParameter("bookings","allow multi categories per booking",xEventID)
+	// get all the pages for each category
+	kill allRegPages,allRegPageIDs
+	set showMeetingProfilePages=0
+	if ##class(setup.objEventSetting).getParameter("event setup","allow meeting manager",xEventID) {
+		if '##class(cod.objCondition).conditionMetForTempPerson("meetingOptOutIf",tempPersonID,xEventID) {
+			set showMeetingProfilePages=1
+		}
+	}
+	set ok=##class(setup.lnkCategoryEvent).getAllRegPages(xEventID,xLangID,backendBooking,.allRegPages,.allRegPageIDs,,showMeetingProfilePages,tempPersonID)
+	
+	// gets (or determines and sets) the booking mode  (make lowercase to avoid any issues)
+	set selectBookingMode=$ZCVT(##class(eCom.tempPurchase).getBookingMode(sessionID),"L")
+
+	// get the category (gets it from person or purchase or creates or returns blank if we will show the page to ask for it)
+	set eventCategoryID=##class(eCom.tempPurchase).getEventCategory(sessionID,tempPersonID,xLangID)  // this sets it too if it can
+	set preSelectedEventCategory=0
+	// Set a flag if the category is invitation only as this should then skip the attendee category page
+	if ##class(setup.objSystemTypes).isModuleAllowed("Attendee Categories - Invitation Only") {
+		if eventCategoryID {
+			if ##class(setup.lnkAttendeeCategoryDetailsEvent).isInvitationOnly(xEventID,eventCategoryID) {
+				set preSelectedEventCategory=1
+			}
+		}
+	}
+	
+	// is the current person the booker?
+	set personIsBooker=0
+	if tempPersonID	{
+		&SQL(SELECT isBooker INTO :tmp FROM eCom.tempPerson WHERE ID=:tempPersonID )
+		if +SQLCODE=0 set personIsBooker=+tmp
+	}
+	
+	// are we doing hotel bookings for this event? (and do we have any venues setup for this event)
+	set firstVenuePageID="",isAccom=0
+	if ##class(setup.objEventSetting).getParameter("bookings","allow accommodation bookings",xEventID)	{
+		// get the first venuepageID (the rest will also be displayed in this page)
+		set firstVenuePageID=##class(accom.objEventHotel).getFirstVenuePageID(xEventID)
+		if firstVenuePageID set isAccom=1
+	}
+	set accomOnlyEvent=0
+	if ##class(setup.objEventSetting).getParameter("bookings","only accommodation bookings",xEventID) set accomOnlyEvent=1
+	set (showAccom,newAccomEvent,hasAccom)=0
+	set (accomChooseDatesPageID,accomHotelListPageID,accomGuestPageID,accomEditPageID)=""
+	if isAccom {
+		set newAccomEvent=##class(setup.objEventSetting).getParameter("bookings","use new accommodation page flow",xEventID)
+		if newAccomEvent {
+			set accomChooseDatesPageID=##class(setup.objEventSetting).getParameter("accommodation pages","Accom Choose Dates PageID"_extraBit,xEventID)
+			set accomHotelListPageID=##class(setup.objEventSetting).getParameter("accommodation pages","Accom Hotel List PageID"_extraBit,xEventID)
+			set accomGuestPageID=##class(setup.objEventSetting).getParameter("accommodation pages","Accom Guest PageID"_extraBit,xEventID)
+			set accomEditPageID=##class(setup.objEventSetting).getParameter("accommodation pages","Accom Edit PageID"_extraBit,xEventID)
+			// showAccom zero accom is switched off for delegate or booker
+
+			// only run on delegate page
+			set showAccom=##class(cod.objCondition).conditionMetForTempPerson("bookAccomIf",tempPersonID,xEventID,1)
+			if ##class(setup.objEventSetting).getParameter("accommodation","only backend users can book accommodation",xEventID) {
+				if '##class(eCom.tempPurchase).isBackendBooking(%session.SessionId) {
+					set showAccom=0
+				}
+			}
+			&SQL(SELECT ID INTO :tmp FROM accom.tempPersonBooking WHERE tempPerson = :tempPersonID AND active=1)
+			if +SQLCODE=0,tmp set hasAccom=1
+		}
+	}
+
+	set anyAccomBookingsForPerson=0
+	if isAccom,tempPersonID	{
+		// do we have any accom bookings for the current person?	
+		&SQL(SELECT roomTypeInstanceID INTO :tmp FROM accom.tempRoomTypeBooking WHERE (tempPersonBooking->active=1) AND (tempPersonBooking->tempPerson=:tempPersonID) )
+		if +SQLCODE=0 {
+			// get the eventHotel and store in session and var so we know where to go to
+			set roomTypeInstanceID=tmp
+			set roomData=##class(accom.objRoomTypeInstance).getVenueRoomAndDateIDs(roomTypeInstanceID)
+			set eventHotelID=$p(roomData,"|",4)
+			set %session.Data("eventsforce","frontend","hotel","eventHotelID")=eventHotelID
+			if eventHotelID {
+				set eventHotelPageID=##class(accom.objEventHotel).getHotelBookingPageID(eventHotelID)
+				set anyAccomBookingsForPerson=1
+			}
+		}
+	}
+	
+	// are we doing table bookings?
+	set isTableBooking=0
+	if ##class(setup.objEventSetting).getParameter("table bookings","enable frontend",xEventID) set isTableBooking=1
+	
+	// is this a session event?
+	set (sessionBookingMode,count,freebie)=0
+	set sessionAmendmentMode="basket"
+	set eventConfiguration=##class(setup.eventConfiguration).createForEventID(xEventID)
+	if (eventConfiguration.areSessionsAllowed()) && ('backendBooking) {
+		new dayNumber // dynamic scope is screwing up agenda page
+		// add switch to select which page to see first during amendment
+		 if ##class(setup.objEventSetting).getParameter("system","session amendment mode",xEventID)="session selection" set sessionAmendmentMode="session selection"
+		
+		// not reliable enough a check - need to check for system/internal/active sessions
+		set sqlStatement=##class(%SQL.Statement).%New()
+		kill sqlParams
+		set query="SELECT ID, objItem->dayNumber FROM setup.objItemDetails"
+		set query=query_" WHERE (objItem->active = '1') AND ((objItem->guestCanBook = 1) OR (objItem->delegateCanBook = 1))"
+		if (xLangID) {
+			set query=query_"AND (objLanguage = ?)"
+			set sqlParams($I(sqlParams))=xLangID
+		}
+		set query=query_" AND (objItem->objEvent = ?) AND (objItem->objSessionType->isSystem = 0) "
+		set sqlParams($I(sqlParams))=xEventID
+		if '$G(%session.Data("eventsforce","frontend","xUserID")) set query=query_" AND (objItem->internalOnly <> 1) "
+		set sc=sqlStatement.%Prepare(query)
+		set rs=sqlStatement.%Execute(sqlParams...)
+		while rs.%Next()	{
+			set itemID=rs.%Get("ID")
+			set dayNumber=rs.%Get("dayNumber")
+			set allowedToSee=1
+			if (allowedToSee) {
+				// check the day item too (as that will override all)
+				set tmpDayItemID=##class(setup.objItem).getDayItemID(xEventID,dayNumber)
+				set allowedToSee=+##class(setup.lnkEventCategoryItem).allowMyAccount(xEventID,tempPersonID,tmpDayItemID)
+			}
+			if (allowedToSee) {
+				set count=$I(count)
+			
+				//now check if the session has prices or discounts attached
+				//this data is used in the event that the booking amendment period is closed but session amendment period is open
+				set delegateBasketItemID=##class(setup.objItem).getDelegateBasketItemID(itemID,eventCategoryID)
+				set currencyID=+##class(eCom.tempPurchase).getCurrencyID(sessionID)
+				&SQL(SELECT * FROM ecom.lnkItemDiscount WHERE objBasketItem = :delegateBasketItemID)
+				if ( (+($ZSTRIP(##class(eCom.objBasketItem).getPrice(xEventID,delegateBasketItemID,,currencyID,1,1),"*E'N")=0))!(+SQLCODE=100)){
+					set freebie=$I(freebie)
+				}
+			}
+		}
+		if (count) {
+			// event has sessions - can we amend them
+			set sessionBookingMode=1
+			
+			if ($G(%session.Data("eventsforce","frontend","amend"))) {
+				// amend mode - check we're allowed to amend session bookings
+				// first check reg amendment
+				if ('##class(setup.eventBookingMethods).areFrontendAmendmentsAllowed(xEventID)) {
+					// no reg amendment - can we do limited session amendment?
+					if (##class(setup.eventBookingMethods).areFrontendSessionAmendmentsAllowed(xEventID)) {
+							// yes, we can!
+							// but only if no prices or discounts attached...
+						if (freebie=0) {
+							set sessionBookingMode=0
+						}
+					} else {
+						set sessionBookingMode=0
+					}
+				}
+			}
+		}
+	}
+	
+	
+	
+	
+	// ################################################################################################
+	// ################################################################################################
+	//            These parameters decide which of the frontend flow diagrams we are using
+	set isSSOSAML2=0
+	if ##class(setup.webSSOmethods).isWebSSOAllowedForFrontend(xEventID) {
+		if ##class(setup.webSSOmethods).isUsingSSOForThisRegistration() {
+			set isSSOSAML2=1
+		}
+	}
+
+	set isTicketingPersonMode=+##class(cod.objTicket).isTicketingPersonMode(xEventID)
+	set isGroupBookings=+##class(setup.objEventSetting).getParameter("bookings","allow group bookings",xEventID)
+	set isAnonymousMode=+##class(setup.objEventSetting).getParameter("system","do not use email",xEventID)
+	set singleEmailPerEvent=0
+	if isAnonymousMode {
+		//New mode - singleEmailPerEvent - like anonymous but with unique email address per event. Page flow should include tRegisterEmailNew.csp
+		set singleEmailPerEvent=##class(setup.objEventSetting).getParameter("system","anonymous - single email per event",xEventID)
+	}
+	// multicatregpages = do we have more than one category to ask the delegate
+	//  - NOT do we have more than one reg page per category as that's always allowed
+	set isMultiCategoryRegPages=+(##class(setup.lnkCategoryEvent).numCategories(xEventID,xLangID,+backendBooking)>1)
+	// If we have an invitation only category then the pages should act as though in single categroy mode
+	if (preSelectedEventCategory) && ('backendBooking) set isMultiCategoryRegPages=0
+	
+	set isAwards=+awardsBooking
+	set diagram=""
+	if (isGroupBookings=0)&(isMultiCategoryRegPages=0) set diagram="A"	// based on event settings
+	if (isGroupBookings=1)&(isMultiCategoryRegPages=0) set diagram="B"	// based on event settings
+	if (isGroupBookings=0)&(isMultiCategoryRegPages=1) set diagram="C"	// based on event settings
+	if (isGroupBookings=1)&(isMultiCategoryRegPages=1) set diagram="D"	// based on event settings
+	if isAwards=1 {
+		set diagram="E"					// regular awards
+		if ##class(setup.objEventSetting).getParameter("awards","use sections",xEventID) set diagram="H" // the US/UK awards with sections
+	}
+	if accomOnlyEvent=1,isAccom set diagram="G"				// based on event setting
+	if isTableBooking {
+		set diagram="I"
+	}
+	if isTicketingPersonMode,isGroupBookings set diagram="J"  // can only do this using bookers page
+	if accomOnlyEvent=1,newAccomEvent set diagram="K" // new accommodation page flow
+	
+	set loggedInPersonID=##class(EF.security.websiteAccessHandler).getCurrentRegistrationPersonID(xEventID)
+	// ################################################################################################
+	// ################################################################################################
+	set prowebRoot=..getProwebRoot()
+	set normalRoot="../../frontend/reg/"
+	// if numeric pagename, it will be a pageID, so determine which template and also change the root to jump up one more level
+	set originalPageID=""
+	if pagename	{
+		set tmpTemplate=##class(sc.xModules.objPage).getTemplateFile(pagename)
+		set originalPageID=pagename,pagename=$ZCVT($P(tmpTemplate,"/",$L(tmpTemplate,"/")),"L")
+		set normalRoot="../../frontend/reg/"
+	}
+	
+	if ##class(setup.objEvent).isEventUsingProweb2(xEventID) {
+		set pagename = ..convertProceedKeyFromProweb2ToProweb1(pagename,originalPageID)	
+	}
+	
+	// if the override is numeric then make it a proweb link
+	if overrideForward set overrideForward=prowebRoot_overrideForward
+	set overridePersonID=""
+	set backforward=..goWhere2()
+	// allow for the methods lower down to change the tempPersonID - for example if new person after bookers page
+	if $L(overridePersonID) set tempPersonID=overridePersonID
+	if $L(tempPersonID)	{
+		// should ignore if backpage=""
+		if $P(backforward,"|",1)'="" {
+			set $P(backforward,"|",1)=$P(backforward,"|",1)_$S($P(backforward,"|",1)["?":"&",1:"?")_"tempPersonID="_tempPersonID
+		}
+		set $P(backforward,"|",2)=$P(backforward,"|",2)_$S($P(backforward,"|",2)["?":"&",1:"?")_"tempPersonID="_tempPersonID
+	}
+	set ^xPageNav(+$H,%session.SessionId,$I(^xPageNav(+$H,%session.SessionId)),"diagram")=diagram
+	set ^xPageNav(+$H,%session.SessionId,^xPageNav(+$H,%session.SessionId),"pagename")=pagename
+	set ^xPageNav(+$H,%session.SessionId,^xPageNav(+$H,%session.SessionId),"back")=$P(backforward,"|",1)
+	set ^xPageNav(+$H,%session.SessionId,^xPageNav(+$H,%session.SessionId),"forward")=$P(backforward,"|",2)
+	quit backforward
+]]></Implementation>
+</Method>
+
+<Method name="goWhere2">
+<ClassMethod>1</ClassMethod>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	new okToBook
+
+	// ########################################################################
+	// ########################################################################
+	// #####                                                            #######
+	// #####          NOW FOR THE ACTUAL PAGE NAVIGATION CODE           #######
+	// #####                                                            #######
+	// ########################################################################
+	// ########################################################################
+	if (pagename="registernew.csp")!(pagename="chooselanguage.csp") {
+		set forwardpage=""
+		// do all the registration allowed checks here now instead of in registerEmailNew
+
+		set controllerID=##class(setup.objEvent).getControllerID(xEventID)
+		set objEvent=##class(setup.objEvent).%OpenId(xEventID)
+
+		// old style - can see website but cannot reg unless on pre-reg
+		set isPrivateEvent=objEvent.privateEvent
+		// new style - eventPIN cannot see website unless logged in; one eventPIN=one person and one event only; have to be on preReg
+		set isPrivateWebsitePIN=##class(setup.objEventSetting).getParameter("website","private website my account",xEventID)
+		// anonymous code entry: set up a code in event settings and enter it to see website (semi-restricted access but not personal)
+		set isPrivateWebsiteCODE=##class(setup.objEventSetting).getParameter("website","private website",xEventID)
+		
+		// if logged in then have to do this check here as we do not go to registerEmailNew2
+		if loggedInPersonID	{
+			// has this person already registered for THIS EVENT?
+			set purchaseID=##class(setup.objEvent).isBooked(xEventID,loggedInPersonID,sessionID)
+			set isAwards=##class(eCom.tempPurchase).isAwardsBooking(sessionID)
+		
+			if purchaseID	{
+				// we must ignore any tempPersonID created by registerNew
+				set tempPersonID=""
+				
+				// check if we are allowed to amend today
+				set allowAmend=0
+				set curdate=+$H
+				if ##class(setup.eventBookingMethods).areFrontendAmendmentsAllowed(xEventID) set allowAmend=1
+				if ##class(setup.objEventSetting).getParameter("my registration pages","show my registration pages",xEventID) set allowAmend=1
+				if allowAmend {
+					// Redirect them to the amend page
+					set forwardpage="registerAmend.csp"
+				} else {
+					set forwardpage="registrationEnded.csp?er=alreadybooked&errTextOnly=1"
+				}
+			}
+		}
+		
+		// check if we are allowed to register
+		if forwardpage=""	{
+			if '##class(eCom.tempPurchase).isBackendBooking(sessionID) {
+				if '##class(setup.eventBookingMethods).areFrontendRegistrationsAllowed(xEventID) {
+					set forwardpage="registrationEnded.csp?er=date"
+				}
+			}
+		}
+
+		// is the event full or any day available for booking?
+		if forwardpage=""	{
+			set okToBook=##class(setup.eventBookingMethods).isOKToStartNewBooking(eventConfiguration,tempPurchaseID)
+			if 'okToBook {
+				set forwardpage=..getNextPageFromOKToBookStatus(okToBook)
+			}
+		}	
+
+		// check if we have access to any registration pages and if not then stop now to avoid a crash later
+		if forwardpage=""	{
+			set noRegPages=0
+			// exclude awards becuase they might not have any active categories
+			if '$D(allRegPages) set noRegPages=1
+			if noRegPages	{
+				set forwardpage="registrationEnded.csp?er=noregpages"
+			}
+		}
+		
+		if (forwardpage="")&&(isSSOSAML2) {
+			set forwardpage="registerEmailNew2.csp"
+		}
+
+		if diagram="A"	{
+			set backpage=prowebRoot_homePageID
+			if eventCategoryID="" quit ..quitIfNoAttCat()
+
+			if forwardpage="",loggedInPersonID	{
+				// go to the first (and only category) reg page
+				set forwardpage=..getFirstRegistrationPage(eventCategoryID,.allRegPages)
+
+				// load up the data we have into the tempPerson (also stores personID)
+				set personID=loggedInPersonID
+				do ##class(eCom.tempPerson).getCODdata(sessionID,xEventID,personID,tempPersonID)
+				set okToBook=..isOKToStartWithPreselectedCategory(eventConfiguration,tempPersonID,xLangID)
+				if 'okToBook {
+					if 'okToBook {
+						set forwardpage=..getNextPageFromOKToBookStatus(okToBook)
+					}
+				}
+			}
+			 
+			if forwardpage="",isAnonymousMode,'singleEmailPerEvent	{
+				// go to the first (and only category) reg page
+				set forwardpage=..getFirstRegistrationPage(eventCategoryID,.allRegPages)
+			}
+			
+			if forwardpage="" set forwardpage=prowebRoot_registerEmailNewPageID
+		}
+		if diagram="B"	{
+			set backpage=prowebRoot_homePageID
+			if forwardpage="" set forwardpage=prowebRoot_selectBookingModePageID
+		}
+		if diagram="C"	{
+			set backpage=prowebRoot_homePageID
+
+			if forwardpage="",loggedInPersonID	{
+				set forwardpage=prowebRoot_selectCategoryPageID
+
+				// load up the data we have into the tempPerson (also stores personID)
+				set personID=loggedInPersonID
+				do ##class(eCom.tempPerson).getCODdata(sessionID,xEventID,personID,tempPersonID)
+				
+				// If we are already assigned to a invitation only attendee category, we should go to the first registration page (like diagram A)
+				set eventCategoryID=##class(eCom.tempPurchase).getEventCategory(sessionID,tempPersonID,xLangID)
+				if eventCategoryID {
+					set forwardpage=..getFirstRegistrationPage(eventCategoryID,.allRegPages)
+				}
+				
+				set okToBook=..isOKToStartWithPreselectedCategory(eventConfiguration,tempPersonID,xLangID)
+				if 'okToBook {
+					set forwardpage=..getNextPageFromOKToBookStatus(okToBook)
+				}
+			}
+	
+			if forwardpage="",isAnonymousMode,'singleEmailPerEvent	{
+				set forwardpage=prowebRoot_selectCategoryPageID
+			}
+
+			if forwardpage="" set forwardpage=prowebRoot_registerEmailNewPageID
+		}
+		if diagram="D"	{
+			set backpage=prowebRoot_homePageID
+			if forwardpage="" set forwardpage=prowebRoot_selectBookingModePageID
+		}
+		if (diagram="E")!(diagram="H")	{
+			if forwardpage="",loggedInPersonID	{
+				set forwardpage=prowebRoot_##class(setup.objEventSetting).getParameter("awards","awardClientPageID",xEventID)
+
+				// load up the data we have into the tempPerson (also stores personID)
+				set personID=loggedInPersonID
+				do ##class(eCom.tempPerson).getCODdata(sessionID,xEventID,personID,tempPersonID)
+			}
+			set backpage=prowebRoot_homePageID 
+			if forwardpage="",isAnonymousMode,'singleEmailPerEvent	{
+				set forwardpage=prowebRoot_##class(setup.objEventSetting).getParameter("awards","awardClientPageID",xEventID)
+			}
+			if forwardpage="" set forwardpage=prowebRoot_registerEmailNewPageID
+		}
+		if diagram="G"	{
+			set backpage=prowebRoot_homePageID 
+			if forwardpage="" set forwardpage=prowebRoot_firstVenuePageID
+		}
+		if diagram="I"	{
+			set backpage=prowebRoot_homePageID
+
+			if forwardpage="",loggedInPersonID	{
+				set forwardpage=prowebRoot_bookersPageID
+
+				// load up the data we have into the tempPerson (also stores personID)
+				set personID=loggedInPersonID
+				do ##class(eCom.tempPerson).getCODdata(sessionID,xEventID,personID,tempPersonID)
+			}
+	
+			if forwardpage="",isAnonymousMode,'singleEmailPerEvent	{
+				set forwardpage=prowebRoot_bookersPageID
+			}
+
+			if forwardpage="" set forwardpage=prowebRoot_registerEmailNewPageID
+
+		}
+		if diagram="J"	{
+			set backpage=prowebRoot_homePageID
+			if forwardpage="" {
+				if loggedInPersonID	{
+					set forwardpage=prowebRoot_bookersPageID
+
+					// load up the data we have into the tempPerson (also stores personID)
+					set personID=loggedInPersonID
+					do ##class(eCom.tempPerson).getCODdata(sessionID,xEventID,personID,tempPersonID)
+				} elseif isAnonymousMode,'singleEmailPerEvent	{
+					set forwardpage=prowebRoot_bookersPageID
+				} else {				
+					set forwardpage=prowebRoot_registerEmailNewPageID
+				}
+			}
+		}
+		if diagram="K"	{
+			set backpage=prowebRoot_homePageID
+			if forwardpage="" {
+				if isMultiCategoryRegPages {
+					set forwardpage=prowebRoot_selectCategoryPageID
+				} else {
+					set forwardpage=prowebRoot_accomChooseDatesPageID
+				}
+			}
+		}
+		if pagename'="chooselanguage.csp" {
+				if ##class(setup.objSystemTypes).isModuleAllowed("Multi Lingual Frontend"),##class(eCom.tempPurchase).isBackendBooking(sessionID) {
+				set rs=##class(%ResultSet).%New("%Library.DynamicQuery:SQL")
+				do rs.Prepare("SELECT * FROM shared.objLanguage WHERE active = 1")
+				do rs.Execute()
+				set count=0
+				while rs.Next() {
+					if ##class(setup.objEventSetting).getParameter("frontend languages",rs.Get("description"),xEventID)  {
+						set count=count+1
+					}
+				}
+				if count>1 set forwardpage="chooseLanguage.csp"
+			}
+		}
+		
+		
+		quit backpage_"|"_forwardpage
+
+	} elseif pagename="registeramend.csp"	{
+		set forwardpage="",backpage=""
+		
+		if (forwardpage="")&&(isSSOSAML2) {
+			set forwardpage="registerEmailAmend2.csp"
+		}
+		if forwardpage="" {
+			if diagram="A"	{
+				set backpage=prowebRoot_homePageID
+				if ##class(setup.objEventSetting).getParameter("event setup","allow meeting manager",xEventID),$G(%session.Data("eventsforce","frontend","meetingManOnly")) {
+					set forwardpage=prowebRoot_meetManLoginPageID
+				} else {
+					set forwardpage=prowebRoot_registerEmailAmendPageID
+				}
+			}
+			if diagram="B"	{
+				set backpage=prowebRoot_homePageID 
+				set forwardpage=prowebRoot_registerEmailAmendPageID
+			}
+			if diagram="C"	{
+				set backpage=prowebRoot_homePageID 
+				if ##class(setup.objEventSetting).getParameter("event setup","allow meeting manager",xEventID),$G(%session.Data("eventsforce","frontend","meetingManOnly")) {
+					set forwardpage=prowebRoot_meetManLoginPageID
+				} else {
+					set forwardpage=prowebRoot_registerEmailAmendPageID
+				}
+			}
+			if diagram="D"	{
+				set backpage=prowebRoot_homePageID 
+				set forwardpage=prowebRoot_registerEmailAmendPageID
+			}
+			if (diagram="E")!(diagram="H")	{
+				set backpage=prowebRoot_homePageID 
+				set forwardpage=prowebRoot_registerEmailAmendPageID
+			}
+			if diagram="G"	{
+				set backpage=prowebRoot_homePageID 
+				set forwardpage=prowebRoot_registerEmailAmendPageID
+			}
+			if diagram="I" {
+				set backpage=prowebRoot_homePageID 
+				set forwardpage=prowebRoot_registerEmailAmendPageID
+			}
+			if diagram="J" {
+				set backpage=prowebRoot_homePageID 
+				set forwardpage=prowebRoot_registerEmailAmendPageID
+			}
+			if diagram="K" {
+				set backpage=prowebRoot_homePageID 
+				set forwardpage=prowebRoot_registerEmailAmendPageID
+			}
+		}
+		quit backpage_"|"_forwardpage
+
+	} elseif pagename="amendpreparesession.csp"	{ 
+		set myRegDetailsPage=##class(setup.objEventSetting).getParameter("my registration pages","show my registration pages",xEventID)
+		if diagram="A"	{
+			set backpage=""
+			if myRegDetailsPage,'backendBooking {
+				set forwardpage=prowebRoot_bookingSummaryPageID
+			} elseif (sessionBookingMode) {
+				if sessionAmendmentMode="session selection" {
+					set forwardpage=normalRoot_"tChooseItems.csp"
+				} else {
+					set forwardpage=prowebRoot_basketPageID
+				}
+			} else {
+				set forwardpage=prowebRoot_basketPageID
+			}
+		}
+		if diagram="B"	{
+			set backpage=""
+			if (sessionBookingMode) {
+				if sessionAmendmentMode="session selection" {
+					set forwardpage=normalRoot_"tChooseItems.csp"
+				} else {
+					set forwardpage=prowebRoot_basketPageID
+				}
+			} elseif myRegDetailsPage,'backendBooking {
+				set forwardpage=prowebRoot_bookingSummaryPageID
+			} else {
+				set forwardpage=prowebRoot_basketPageID
+			}
+		}
+		if diagram="C"	{
+			set backpage=""
+			if myRegDetailsPage,'backendBooking {
+				set forwardpage=prowebRoot_bookingSummaryPageID
+			} elseif (sessionBookingMode) {
+				if sessionAmendmentMode="session selection" {
+					set forwardpage=normalRoot_"tChooseItems.csp"
+				} else {
+					set forwardpage=prowebRoot_basketPageID
+				}
+			}  else {
+				set forwardpage=prowebRoot_basketPageID
+			}
+		}
+		
+		if diagram="D"	{
+			set backpage=""
+			if (sessionBookingMode) {
+				if sessionAmendmentMode="session selection" {
+					set forwardpage=normalRoot_"tChooseItems.csp"
+				} else {
+					set forwardpage=prowebRoot_basketPageID
+				}
+			} elseif myRegDetailsPage,'backendBooking {
+				set forwardpage=prowebRoot_bookingSummaryPageID
+			} else {
+				set forwardpage=prowebRoot_basketPageID
+			}
+		}
+		if (diagram="E")!(diagram="H")	{
+			set backpage=""
+			set forwardpage=prowebRoot_##class(setup.objEventSetting).getParameter("awards","summaryPageID",xEventID)
+
+		}
+		if diagram="G"	{
+			set backpage=""
+			if (sessionBookingMode) {
+				if sessionAmendmentMode="session selection" {
+					set forwardpage=normalRoot_"tChooseItems.csp"
+				} else {
+					set forwardpage=prowebRoot_basketPageID
+				}
+			} else {
+				set forwardpage=prowebRoot_basketPageID
+			}
+		}
+		if diagram="I"	{
+			set backpage=""
+			if (sessionBookingMode) {
+				if sessionAmendmentMode="session selection" {
+					set forwardpage=normalRoot_"tChooseItems.csp"
+				} else {
+					set forwardpage=prowebRoot_basketPageID
+				}
+			} else {
+				set forwardpage=prowebRoot_basketPageID
+			}
+		}
+		if diagram="J"	{
+			set backpage=""
+			if (sessionBookingMode) {
+				if sessionAmendmentMode="session selection" {
+					set forwardpage=normalRoot_"tChooseItems.csp"
+				} else {
+					set forwardpage=prowebRoot_basketPageID
+				}
+			} else {
+				set forwardpage=prowebRoot_basketPageID
+			}
+		}
+		if diagram="K"	{
+			set backpage=""
+			if (sessionBookingMode) {
+				if sessionAmendmentMode="session selection" {
+					set forwardpage=normalRoot_"tChooseItems.csp"
+				} else {
+					set forwardpage=prowebRoot_basketPageID
+				}
+			} else {
+				set forwardpage=prowebRoot_basketPageID
+			}
+		}
+		quit backpage_"|"_forwardpage
+
+	} elseif pagename="tselectbookingmode.csp"	{
+		if diagram="A"	{
+			set backpage=""
+			set forwardpage=""
+		}
+		if diagram="B"	{
+			set backpage=prowebRoot_homePageID
+			set forwardpage=normalRoot_"bookingmodesave.csp"
+		}
+		if diagram="C"	{
+			set backpage=""
+			set forwardpage=""
+		}
+		if diagram="D"	{
+			set backpage=prowebRoot_homePageID
+			set forwardpage=normalRoot_"bookingmodesave.csp"
+		}
+		if (diagram="E")!(diagram="H")	{
+			set backpage=""
+			set forwardpage=""
+		}
+		if diagram="G"	{
+			set backpage=""
+			set forwardpage=""
+		}
+		if diagram="I"	{
+			set backpage=""
+			set forwardpage=""
+		}
+		quit backpage_"|"_forwardpage
+		
+	} elseif pagename="bookingmodesave.csp"	{
+		if diagram="A"	{
+			set backpage=""
+			set forwardpage=""
+		}
+		if diagram="B"	{
+			set backpage=prowebRoot_selectBookingModePageID
+			if loggedInPersonID	{
+				set forwardpage=prowebRoot_bookersPageID
+
+				// load up the data we have into the tempPerson (also stores personID)
+				set personID=loggedInPersonID
+				do ##class(eCom.tempPerson).getCODdata(sessionID,xEventID,personID,tempPersonID)
+			} elseif isAnonymousMode,'singleEmailPerEvent	{
+				set forwardpage=prowebRoot_bookersPageID
+			} else {
+				if $G(%session.Data("eventsforce","frontend","single sign on","External Person ID"))'="" {
+					set forwardpage=normalRoot_"registerEmailNew2.csp"
+				} else {
+					set forwardpage=prowebRoot_registerEmailNewPageID
+				}
+			}
+		}
+		if diagram="C"	{
+			set backpage=""
+			set forwardpage=""
+		}
+		if diagram="D"	{
+			set backpage=prowebRoot_selectBookingModePageID
+			if multiCategoryPerBooking {
+				if loggedInPersonID	{
+					set forwardpage=prowebRoot_bookersPageID
+
+					// load up the data we have into the tempPerson (also stores personID)
+					set personID=loggedInPersonID
+					do ##class(eCom.tempPerson).getCODdata(sessionID,xEventID,personID,tempPersonID)
+				} elseif isAnonymousMode,'singleEmailPerEvent	{
+					set forwardpage=prowebRoot_bookersPageID
+				} else {
+					if $G(%session.Data("eventsforce","frontend","single sign on","External Person ID"))'="" {
+						set forwardpage=normalRoot_"registerEmailNew2.csp"
+					} else {
+						set forwardpage=prowebRoot_registerEmailNewPageID
+					}
+				}
+			} else {
+				set forwardpage=prowebRoot_selectCategoryPageID
+			}
+		}
+		if (diagram="E")!(diagram="H")	{
+			set backpage=""
+			set forwardpage=""
+		}
+		if diagram="G"	{
+			set backpage=""
+			set forwardpage=""
+		}
+		quit backpage_"|"_forwardpage
+		
+	} elseif pagename="tselectpersoncategory.csp"	{
+
+		
+		if diagram="A"	{
+			set backpage=""
+			set forwardpage=""
+		}
+		if diagram="B"	{
+			set backpage=""
+			set forwardpage=""
+		}
+		if diagram="C"	{
+			if isAnonymousMode,'singleEmailPerEvent	{
+				set backpage=prowebRoot_homePageID 
+			} else {
+				set backpage=prowebRoot_registerEmailNewPageID
+			}
+			set forwardpage=normalRoot_"selectcategorysave.csp"
+		}
+		if diagram="D"	{
+			set forwardpage=normalRoot_"selectcategorysave.csp"
+			if multiCategoryPerBooking	{  // we are in the delegate loop 
+				// is this person the booker? if so then we can go back to the bookers page
+				if (personIsBooker)&((selectBookingMode="single")!(selectBookingMode="singleandothers"))	{
+					set backpage=prowebRoot_bookersPageID
+				} elseif ##class(setup.objEventSetting).getParameter("bookings","do not show delegateUID page",xEventID)	{
+					set backpage=prowebRoot_bookersPageID
+				} else {
+					set backpage=prowebRoot_delegateUIDPageID
+				}
+			} else {
+				set backpage=prowebRoot_selectBookingModePageID
+			}
+		}
+		if (diagram="E")!(diagram="H")	{
+			set backpage=""
+			set forwardpage=""
+		}
+		if diagram="G"	{
+			set backpage=""
+			set forwardpage=""
+		}
+		if diagram="K"	{
+			set backpage=prowebRoot_homePageID
+			set forwardpage=normalRoot_"selectcategorysave.csp"
+		}
+		
+		quit backpage_"|"_forwardpage
+		
+	} elseif pagename="selectcategorysave.csp"	{
+		if diagram="A"	{
+			set backpage=""
+			set forwardpage=""
+		}
+		if diagram="B"	{
+			set backpage=""
+			set forwardpage=""
+		}
+		if diagram="C"	{
+			set backpage=prowebRoot_selectCategoryPageID
+			if eventCategoryID="" {
+				set forwardpage=backpage  // if they don't go back to tSelectPersonCategory they don't see the error message
+			} else {
+				// get first page of the eventcategory registration page
+				set displayOrder=$O(allRegPages(eventCategoryID,""))
+				if displayOrder="" {
+					set forwardpage=backpage
+				} else {
+					set pageID=allRegPages(eventCategoryID,displayOrder)
+					set forwardpage=prowebRoot_pageID
+				}
+			}
+		}
+		if diagram="D"	{
+			set backpage=prowebRoot_selectCategoryPageID
+			if eventCategoryID="" {
+				set forwardpage=backpage  // if they don't go back to tSelectPersonCategory they don't see the error message	
+			} elseif multiCategoryPerBooking	{  // we are in the delegate loop 
+				if eventCategoryID="" quit ..quitIfNoAttCat()
+				// get first page of the eventcategory registration page
+				set displayOrder=$O(allRegPages(eventCategoryID,""))
+				if displayOrder="" {
+					set forwardpage=backpage
+				} else {
+					set pageID=allRegPages(eventCategoryID,displayOrder)
+					set forwardpage=prowebRoot_pageID
+				}
+			} else {
+				if loggedInPersonID	{
+					set forwardpage=prowebRoot_bookersPageID
+
+					// load up the data we have into the tempPerson (also stores personID)
+					set personID=loggedInPersonID
+					do ##class(eCom.tempPerson).getCODdata(sessionID,xEventID,personID,tempPersonID)
+				} elseif isAnonymousMode,'singleEmailPerEvent	{
+					set forwardpage=prowebRoot_bookersPageID
+				} else {
+					set forwardpage=prowebRoot_registerEmailNewPageID
+				}
+			}
+		}
+		if (diagram="E")!(diagram="H")	{
+			set backpage=""
+			set forwardpage=""
+		}
+		if diagram="G"	{
+			set backpage=""
+			set forwardpage=""
+		}
+		if diagram="K"	{
+			set backpage=prowebRoot_selectCategoryPageID
+			set forwardpage=prowebRoot_accomChooseDatesPageID
+		}
+		quit backpage_"|"_forwardpage
+		
+	} elseif pagename="tregisteremailnew.csp"	{
+		if diagram="A"	{
+			set backpage=""
+			set forwardpage=normalRoot_"registeremailnew2.csp"
+		}
+		if diagram="B"	{
+			set backpage=prowebRoot_selectBookingModePageID
+			set forwardpage=normalRoot_"registeremailnew2.csp"
+		}
+		if diagram="C"	{
+			set backpage=""
+			set forwardpage=normalRoot_"registeremailnew2.csp"
+		}
+		if diagram="D"	{
+			set forwardpage=normalRoot_"registeremailnew2.csp"
+			if multiCategoryPerBooking	{  // then the select person category page will be lower down so we will go to the select booking mode
+				set backpage=prowebRoot_selectBookingModePageID
+			} else {
+				set backpage=prowebRoot_selectCategoryPageID
+			}
+		}
+		if (diagram="E")!(diagram="H")!(diagram="J")	{
+			set backpage=""
+			set forwardpage=normalRoot_"registeremailnew2.csp"
+		}
+		if diagram="G"	{
+			set backpage=prowebRoot_eventHotelPageID
+			set forwardpage=normalRoot_"registeremailnew2.csp"
+		}
+		if diagram="I"	{
+			set backpage=""
+			set forwardpage=normalRoot_"registeremailnew2.csp"
+		}
+		if diagram="K"	{
+			set backpage=prowebRoot_eventHotelPageID
+			set forwardpage=normalRoot_"registeremailnew2.csp"
+		}
+		quit backpage_"|"_forwardpage
+		
+	} elseif pagename="registeremailnew2.csp"	{
+		set forwardpage=""
+
+		if diagram="A"	{
+			set backpage=prowebRoot_registerEmailNewPageID
+			if eventCategoryID="" quit ..quitIfNoAttCat()
+			// go to the first (and only category) reg page
+			set forwardpage=..getFirstRegistrationPage(eventCategoryID,.allRegPages)
+		}
+		if diagram="B"	{
+			set backpage=prowebRoot_registerEmailNewPageID
+			
+			if forwardpage="" set forwardpage=prowebRoot_bookersPageID
+		}
+		if diagram="C"	{
+			set backpage=prowebRoot_registerEmailNewPageID
+
+			if forwardpage="" set forwardpage=prowebRoot_selectCategoryPageID
+		}
+		if diagram="D"	{
+			set backpage=prowebRoot_registerEmailNewPageID
+			
+			if forwardpage="" set forwardpage=prowebRoot_bookersPageID
+		}
+		if (diagram="E")!(diagram="H")	{
+			set backpage=prowebRoot_registerEmailNewPageID
+
+			if forwardpage="" {
+				if ##class(setup.objEventSetting).getParameter("awards","use category interest screen",xEventID) {
+					set forwardpage=prowebRoot_##class(setup.objEventSetting).getParameter("awards","categoryInterestPageID",xEventID)
+				} else {
+					set forwardpage=prowebRoot_##class(setup.objEventSetting).getParameter("awards","awardClientPageID",xEventID)
+				}
+			}
+		}
+		if diagram="G"	{
+			set backpage=prowebRoot_registerEmailNewPageID
+			
+			if eventCategoryID="" quit ..quitIfNoAttCat()
+			// go to the first (and only category) reg page
+			set forwardpage=..getFirstRegistrationPage(eventCategoryID,.allRegPages)
+		}
+		if diagram="I"	{
+			set backpage=prowebRoot_registerEmailNewPageID
+			
+			if forwardpage="" set forwardpage=prowebRoot_bookersPageID
+		}
+		if diagram="J"	{
+			set backpage=prowebRoot_registerEmailNewPageID
+			if forwardpage="" set forwardpage=prowebRoot_bookersPageID
+		}
+		if diagram="K"	{
+			set backpage=prowebRoot_registerEmailNewPageID
+			if eventCategoryID="" quit ..quitIfNoAttCat()
+			// go to the first (and only category) reg page
+			set forwardpage=..getFirstRegistrationPage(eventCategoryID,.allRegPages)
+		}
+		quit backpage_"|"_forwardpage
+		
+	} elseif pagename="fplookup.csp"	{  // sandwiched between registeremailnew and registeremailnew2
+		if diagram="A"	{
+			set backpage=prowebRoot_registerEmailNewPageID
+			set forwardpage=normalRoot_"registeremailnew2.csp?comeFromFPLookup=1"
+		}
+		if diagram="B"	{
+			set backpage=prowebRoot_registerEmailNewPageID
+			set forwardpage=normalRoot_"registeremailnew2.csp?comeFromFPLookup=1"
+		}
+		if diagram="C"	{
+			set backpage=prowebRoot_registerEmailNewPageID
+			set forwardpage=normalRoot_"registeremailnew2.csp?comeFromFPLookup=1"
+		}
+		if diagram="D"	{
+			set backpage=prowebRoot_registerEmailNewPageID
+			set forwardpage=normalRoot_"registeremailnew2.csp?comeFromFPLookup=1"
+		}
+		if (diagram="E")!(diagram="H")!(diagram="J")	{
+			set backpage=prowebRoot_registerEmailNewPageID
+			set forwardpage=normalRoot_"registeremailnew2.csp?comeFromFPLookup=1"
+		}
+		if diagram="G"	{
+			set backpage=""
+			set forwardpage=""
+		}
+		if diagram="I"	{
+			set backpage=prowebRoot_registerEmailNewPageID
+			set forwardpage=prowebRoot_bookersPageID
+		}
+		quit backpage_"|"_forwardpage
+		
+	} elseif pagename="enterregcode.csp"	{
+		if diagram="A"	{
+			set backpage=""
+			set forwardpage=normalRoot_"enterregcode2.csp"
+		}
+		if diagram="B"	{
+			set backpage=""
+			set forwardpage=normalRoot_"enterregcode2.csp"
+		}
+		if diagram="C"	{
+			set backpage=""
+			set forwardpage=normalRoot_"enterregcode2.csp"
+		}
+		if diagram="D"	{
+			set forwardpage=""
+			set forwardpage=normalRoot_"enterregcode2.csp"
+		}
+		if (diagram="E")!(diagram="H")	{
+			set backpage=""
+			set forwardpage=normalRoot_"enterregcode2.csp"
+		}
+		if diagram="G"	{
+			set backpage=""
+			set forwardpage=""
+		}
+		quit backpage_"|"_forwardpage
+
+	} elseif pagename="enterregcode2.csp"	{
+		if diagram="A"	{
+			set backpage=normalRoot_"enterregcode.csp"
+			set forwardpage=prowebRoot_registerEmailNewPageID
+		}
+		if diagram="B"	{
+			set backpage=normalRoot_"enterregcode.csp"
+			set forwardpage=prowebRoot_registerEmailNewPageID
+		}
+		if diagram="C"	{
+			set backpage=normalRoot_"enterregcode.csp"
+			set forwardpage=prowebRoot_registerEmailNewPageID
+		}
+		if diagram="D"	{
+			set backpage=normalRoot_"enterregcode.csp"
+			set forwardpage=prowebRoot_registerEmailNewPageID
+		}
+		if (diagram="E")!(diagram="H")	{
+			set backpage=normalRoot_"enterregcode.csp"
+			set forwardpage=prowebRoot_registerEmailNewPageID
+		}
+		if diagram="G"	{
+			set backpage=""
+			set forwardpage=""
+		}
+		quit backpage_"|"_forwardpage
+
+	} elseif pagename="trequestpassword.csp"	{
+		if diagram="A"	{
+			set backpage=normalRoot_"registernew.csp"
+			set forwardpage=normalRoot_"registernew.csp" 
+			if amendMode {
+				set backpage=normalRoot_"registeramend.csp"
+				set forwardpage=normalRoot_"registeramend.csp"
+			}
+		}
+		if diagram="B"	{
+			set backpage=normalRoot_"registernew.csp"
+			set forwardpage=normalRoot_"registernew.csp" 
+			if amendMode {
+				set backpage=normalRoot_"registeramend.csp"
+				set forwardpage=normalRoot_"registeramend.csp"
+			}
+		}
+		if diagram="C"	{
+			set backpage=normalRoot_"registernew.csp"
+			set forwardpage=normalRoot_"registernew.csp" 
+			if amendMode {
+				set backpage=normalRoot_"registeramend.csp"
+				set forwardpage=normalRoot_"registeramend.csp"
+			}
+		}
+		if diagram="D"	{
+			set backpage=normalRoot_"registernew.csp"
+			set forwardpage=normalRoot_"registernew.csp" 
+			if amendMode {
+				set backpage=normalRoot_"registeramend.csp"
+				set forwardpage=normalRoot_"registeramend.csp"
+			}
+		}
+		if diagram="E"	{
+			set backpage=normalRoot_"registernew.csp"
+			set forwardpage=normalRoot_"registernew.csp" 
+			if amendMode {
+				set backpage=normalRoot_"registeramend.csp"
+				set forwardpage=normalRoot_"registeramend.csp"
+			}
+		}
+		if diagram="G"	{
+			set backpage=prowebRoot_homePageID
+			set forwardpage=prowebRoot_homePageID 
+			if amendMode {
+				set backpage=prowebRoot_homePageID
+				set forwardpage=prowebRoot_homePageID
+			}
+		}
+		if diagram="H"	{
+			set backpage=normalRoot_"registernew.csp"
+			set forwardpage=normalRoot_"registernew.csp" 
+			if amendMode {
+				set backpage=normalRoot_"registeramend.csp"
+				set forwardpage=normalRoot_"registeramend.csp"
+			}
+		}
+		if diagram="I"	{
+			set backpage=normalRoot_"registernew.csp"
+			set forwardpage=normalRoot_"registernew.csp" 
+			if amendMode {
+				set backpage=normalRoot_"registeramend.csp"
+				set forwardpage=normalRoot_"registeramend.csp"
+			}
+		}
+		if diagram="J"	{
+			set backpage=normalRoot_"registernew.csp"
+			set forwardpage=normalRoot_"registernew.csp" 
+			if amendMode {
+				set backpage=normalRoot_"registeramend.csp"
+				set forwardpage=normalRoot_"registeramend.csp"
+			}
+		}
+		if diagram="K"	{
+			set backpage=prowebRoot_homePageID
+			set forwardpage=prowebRoot_homePageID 
+			if amendMode {
+				set backpage=prowebRoot_homePageID
+				set forwardpage=prowebRoot_homePageID
+			}
+		}
+		quit backpage_"|"_forwardpage
+
+	} elseif pagename="tregisteremailamend.csp"	{
+		if diagram="A"	{
+			set backpage=prowebRoot_homePageID 
+			set forwardpage=normalRoot_"registeremailamend2.csp"
+		}
+		if diagram="B"	{
+			set backpage=prowebRoot_homePageID 
+			set forwardpage=normalRoot_"registeremailamend2.csp"
+		}
+		if diagram="C"	{
+			set backpage=prowebRoot_homePageID 
+			set forwardpage=normalRoot_"registeremailamend2.csp"
+		}
+		if diagram="D"	{
+			set backpage=prowebRoot_homePageID 
+			set forwardpage=normalRoot_"registeremailamend2.csp"
+		}
+		if (diagram="E")!(diagram="H")	{
+			set backpage=prowebRoot_homePageID 
+			set forwardpage=normalRoot_"registeremailamend2.csp"
+		}
+		if diagram="G"	{
+			set backpage=prowebRoot_homePageID 
+			set forwardpage=normalRoot_"registeremailamend2.csp"
+		}
+		if diagram="I"	{
+			set backpage=prowebRoot_homePageID 
+			set forwardpage=normalRoot_"registeremailamend2.csp"
+		}
+		if diagram="J"	{
+			set backpage=prowebRoot_homePageID 
+			set forwardpage=normalRoot_"registeremailamend2.csp"
+		}
+		if diagram="K"	{
+			set backpage=prowebRoot_homePageID 
+			set forwardpage=normalRoot_"registeremailamend2.csp"
+		}
+		quit backpage_"|"_forwardpage
+		
+	} elseif pagename="registeremailamend2.csp"	{
+		if diagram="A"	{
+			set backpage=prowebRoot_registerEmailAmendPageID
+			set forwardpage=normalRoot_"amendpreparesession.csp"
+			}
+		if diagram="B"	{
+			set backpage=prowebRoot_registerEmailAmendPageID
+			set forwardpage=normalRoot_"amendpreparesession.csp"
+		}
+		if diagram="C"	{
+			set backpage=prowebRoot_registerEmailAmendPageID
+			set forwardpage=normalRoot_"amendpreparesession.csp"
+		}
+		if diagram="D"	{
+			set backpage=prowebRoot_registerEmailAmendPageID
+			set forwardpage=normalRoot_"amendpreparesession.csp"
+		}
+		if (diagram="E")!(diagram="H")	{
+			set backpage=prowebRoot_registerEmailAmendPageID
+			set forwardpage=normalRoot_"amendpreparesession.csp"
+		}
+		if diagram="G"	{
+			set backpage=prowebRoot_registerEmailAmendPageID
+			set forwardpage=normalRoot_"amendpreparesession.csp"
+		}
+		if diagram="I"	{
+			set backpage=prowebRoot_registerEmailAmendPageID
+			set forwardpage=normalRoot_"amendpreparesession.csp"
+		}
+		if diagram="J"	{
+			set backpage=prowebRoot_registerEmailAmendPageID
+			set forwardpage=normalRoot_"amendpreparesession.csp"
+		}
+		if diagram="K"	{
+			set backpage=prowebRoot_registerEmailAmendPageID
+			set forwardpage=normalRoot_"amendpreparesession.csp"
+		}
+		
+		quit backpage_"|"_forwardpage
+		
+	} elseif pagename="tbookingsummary.csp"	{
+		// this is currently only compatible with diagrams A,B,C and D
+		set objEvent=##class(setup.objEvent).%OpenId(xEventID)
+		set allowAmendment=##class(setup.eventBookingMethods).areFrontendAmendmentsAllowed(xEventID)
+		if diagram="A"	{
+			set backpage=prowebRoot_registerEmailAmendPageID
+			if allowAmendment {
+				set forwardpage=prowebRoot_basketPageID
+			} else {
+				set forwardpage=""
+			}
+		}
+		if diagram="B"	{
+			set backpage=prowebRoot_registerEmailAmendPageID
+			if allowAmendment {
+				set forwardpage=prowebRoot_basketPageID
+			} else {
+				set forwardpage=""
+			}
+		}
+		if diagram="C"	{
+			set backpage=prowebRoot_registerEmailAmendPageID
+			if allowAmendment {
+				set forwardpage=prowebRoot_basketPageID
+			} else {
+				set forwardpage=""
+			}
+		}
+		if diagram="D"	{
+			set backpage=prowebRoot_registerEmailAmendPageID
+			if allowAmendment {
+				set forwardpage=prowebRoot_basketPageID
+			} else {
+				set forwardpage=""
+			}
+		}
+		if (diagram="E")!(diagram="H")	{
+			set backpage=""
+			set forwardpage=""
+		}
+		if diagram="G"	{
+			set backpage=""
+			set forwardpage=""
+		}
+		if diagram="I"	{
+			set backpage=""
+			set forwardpage=""
+		}
+		if diagram="J"	{
+			set backpage=""
+			set forwardpage=""
+		}
+		quit backpage_"|"_forwardpage
+		
+	} elseif pagename="tawardsclient.csp"	{
+		if diagram="A"	{
+			set backpage=""
+			set forwardpage=""
+		}
+		if diagram="B"	{
+			set backpage=""
+			set forwardpage=""
+		}
+		if diagram="C"	{
+			set backpage=""
+			set forwardpage=""
+		}
+		if diagram="D"	{
+			set backpage=""
+			set forwardpage=""
+		}
+		if (diagram="E")!(diagram="H")	{
+			if isAnonymousMode,'singleEmailPerEvent {
+				set backpage=prowebRoot_homePageID 
+			} else {
+				if ##class(setup.objEventSetting).getParameter("awards","use category interest screen",xEventID) {
+					set backpage=prowebRoot_##class(setup.objEventSetting).getParameter("awards","categoryInterestPageID",xEventID)
+				} else {
+					set backpage=prowebRoot_registerEmailNewPageID
+				}
+			}
+
+			set forwardpage=normalRoot_"bookersave.csp"
+			// override if amending
+			if seenBasket {
+				set backpage=prowebRoot_basketPageID
+			}
+			if $G(%session.Data("eventsforce","frontend","fromAwardsSummary")) {
+					set backpage=prowebRoot_##class(setup.objEventSetting).getParameter("awards","summaryPageID",xEventID)
+			}
+		}
+		if diagram="G"	{
+			set backpage=""
+			set forwardpage=""
+		}
+		quit backpage_"|"_forwardpage
+		
+	} elseif pagename="tawardscategoryinterest.csp" {
+		set backpage=""
+		set forwardpage=""
+		if (diagram="E")!(diagram="H")	{
+			//Not compatible with anonymous mode
+			if 'isAnonymousMode,'singleEmailPerEvent {
+				set backpage=prowebRoot_registerEmailNewPageID
+				set forwardpage=prowebRoot_##class(setup.objEventSetting).getParameter("awards","awardClientPageID",xEventID)
+			}
+		}
+			
+		quit backpage_"|"_forwardpage
+	} elseif pagename="tbooker.csp"	{
+		if diagram="A"	{
+			set backpage=""
+			set forwardpage=""
+		}
+		if diagram="B"	{
+			if isAnonymousMode,'singleEmailPerEvent {
+				set backpage=prowebRoot_selectBookingModePageID
+			} else {
+				set backpage=prowebRoot_registerEmailNewPageID
+			}
+			set forwardpage=normalRoot_"bookersave.csp"
+			// override if amending
+			if seenBasket {
+				set backpage=prowebRoot_basketPageID
+			}
+		}
+		if diagram="C"	{
+			set backpage=""
+			set forwardpage=""
+		}
+		if diagram="D"	{
+			if isAnonymousMode,'singleEmailPerEvent	{
+				if multiCategoryPerBooking	{  // then the select person category page will be lower down so we will go to the select booking mode
+					set backpage=prowebRoot_selectBookingModePageID
+				} else {
+					set backpage=prowebRoot_selectCategoryPageID
+				}
+			} else {
+				set backpage=prowebRoot_registerEmailNewPageID
+			}
+
+			set forwardpage=normalRoot_"bookersave.csp"
+			// override if amending
+			if seenBasket {
+				set backpage=prowebRoot_basketPageID
+			}
+		}
+		if (diagram="E")!(diagram="H")	{
+			set backpage=""
+			set forwardpage=""
+		}
+		if diagram="G"	{
+			set backpage=""
+			set forwardpage=""
+		}
+		if diagram="I"	{
+			set forwardpage=normalRoot_"bookersave.csp"
+			set backpage=prowebRoot_registerEmailNewPageID
+			// override if amending
+			if seenBasket {
+				set backpage=prowebRoot_basketPageID
+			}
+		}
+		if diagram="J"	{
+			if isAnonymousMode,'singleEmailPerEvent {
+				set backpage=prowebRoot_homePageID 
+			} else {
+				set backpage=prowebRoot_registerEmailNewPageID
+			}
+			set forwardpage=normalRoot_"bookersave.csp"
+			// override if amending
+			if seenBasket {
+				set backpage=prowebRoot_basketPageID
+			}
+		}
+		quit backpage_"|"_forwardpage
+		
+	} elseif pagename="bookersave.csp"	{
+		if diagram="A"	{
+			set backpage=""
+			set forwardpage=""
+		}
+		if diagram="B"	{
+			set backpage=prowebRoot_bookersPageID
+			// is this person the booker? if so then we can go back to the bookers page
+			if (selectBookingMode="single")!(selectBookingMode="singleandothers")	{
+				if eventCategoryID="" quit ..quitIfNoAttCat()
+				// get first page of the eventcategory registration page
+				set displayOrder=$O(allRegPages(eventCategoryID,""))
+				set pageID=allRegPages(eventCategoryID,displayOrder)
+				set forwardpage=prowebRoot_pageID
+			} elseif ##class(setup.objEventSetting).getParameter("bookings","do not show delegateUID page",xEventID)	{
+				// if in here then I must be in the "others" booking mode so I need to force a new delegate
+				set forwardpage="addDelegate.csp?clearBookedSession=1"
+				set overridePersonID="NEW"
+			} else {
+				// goto delegateUID page
+				set forwardpage=prowebRoot_delegateUIDPageID
+			}
+			// override if tableBooking
+			if isTableBooking {
+				//only show table booking page if we have something available to book
+				set (seatsAvailable,tablesAvailable,show)=0
+				if ((##class(setup.objEventSetting).getParameter("table bookings","enable frontend",xEventID))!(##class(eCom.tempPurchase).isBackendBooking(sessionID))){
+					// table bookings enabled in front-end or is a back-end booking
+					set backendSQLParam = $S(##class(eCom.tempPurchase).isBackendBooking(sessionID):1,1:0)
+					
+					// check for available seats
+					&SQL(SELECT COUNT(ID) INTO :tmp FROM setup.objSeat WHERE (objTable->objEvent = :xEventID) AND (objTable->sellIndividualSeats = 1) AND ((objTable->backendOnly BETWEEN 0 AND :backendSQLParam) OR (objTable->backendOnly IS NULL)) AND ((bookedBy='') OR (bookedBy IS NULL)))
+					if ((+SQLCODE=0)&&(tmp>0)) {
+						set seatsAvailable=1
+					}
+					
+					// check for available tables
+					if (##class(setup.objEventSetting).getParameter("table bookings","enable entire tables",xEventID)){
+						set rs=##class(%ResultSet).%New("%Library.DynamicQuery:SQL")
+						do rs.Prepare("SELECT ID FROM setup.objTable WHERE (objEvent = ?) AND ((backendOnly BETWEEN 0 AND ?) OR (backendOnly IS NULL)) AND ((bookedBy='') OR (bookedBy IS NULL))")
+						do rs.Execute(xEventID,backendSQLParam)
+						while (rs.Next()&&(tablesAvailable=0)) {
+							if (##class(setup.objTable).isTableAvailable(rs.Get("ID"),xEventID)) {
+								set tablesAvailable=1	
+							}
+						}
+					}	
+					if ((seatsAvailable)!(tablesAvailable)) {
+						set show=1
+					}	
+					
+					if (show=0) { // check if any table bookings made in this purchase - need to add/amend table guest names if so
+						&SQL(SELECT COUNT(ID) INTO :tmp FROM eCom.tempSeat WHERE tempTable->tempPurchase->sessionID = :sessionID)
+						if (+SQLCODE=0 && tmp > 0) {
+							set show=1	
+						}
+						
+						&SQL(SELECT COUNT(ID) INTO :tmp FROM eCom.tempTable WHERE tempPurchase->sessionID = :sessionID)
+						if (+SQLCODE=0 && tmp > 0) {
+							set show=1	
+						}
+					}			
+				}
+				
+				
+				if (show) {
+					set forwardpage=prowebRoot_tableBookingPageID
+				}	
+			}
+			// override if amending
+			if seenBasket {
+				set forwardpage=prowebRoot_basketPageID
+			}
+		}
+		if diagram="C"	{
+			set backpage=""
+			set forwardpage=""
+		}
+		if diagram="D"	{
+			set backpage=prowebRoot_bookersPageID
+			if (selectBookingMode="single")!(selectBookingMode="singleandothers")	{
+				if multiCategoryPerBooking	{
+					set forwardpage=prowebRoot_selectCategoryPageID
+				} else {
+					if eventCategoryID="" quit ..quitIfNoAttCat()
+					// get first page of the eventcategory registration page
+					set displayOrder=$O(allRegPages(eventCategoryID,""))
+					set pageID=allRegPages(eventCategoryID,displayOrder)
+					set forwardpage=prowebRoot_pageID
+				}
+			} elseif ##class(setup.objEventSetting).getParameter("bookings","do not show delegateUID page",xEventID)	{
+				// if in here then I must be in the "others" booking mode so I need to force a new delegate
+				set forwardpage="addDelegate.csp?clearBookedSession=1"
+				set overridePersonID="NEW"
+			} else {
+				// goto delegateUID page
+				set forwardpage=prowebRoot_delegateUIDPageID
+			}
+			// override if tableBooking
+			if isTableBooking {
+				// pjc 2009-12-30 only show table booking page if we have something available to book
+				set (seatsAvailable,tablesAvailable,show)=0
+				if ((##class(setup.objEventSetting).getParameter("table bookings","enable frontend",xEventID))!(##class(eCom.tempPurchase).isBackendBooking(sessionID))){
+					// table bookings enabled in front-end or is a back-end booking
+					set backendSQLParam = $S(##class(eCom.tempPurchase).isBackendBooking(sessionID):1,1:0)
+					
+					// check for available seats
+					&SQL(SELECT COUNT(ID) INTO :tmp FROM setup.objSeat WHERE (objTable->objEvent = :xEventID) AND (objTable->sellIndividualSeats = 1) AND ((objTable->backendOnly BETWEEN 0 AND :backendSQLParam) OR (objTable->backendOnly IS NULL)) AND ((bookedBy='') OR (bookedBy IS NULL)))
+					if ((+SQLCODE=0)&&(tmp>0)) {
+						set seatsAvailable=1
+					}
+					
+					// check for available tables
+					if (##class(setup.objEventSetting).getParameter("table bookings","enable entire tables",xEventID)){
+						set rs=##class(%ResultSet).%New("%Library.DynamicQuery:SQL")
+						do rs.Prepare("SELECT ID FROM setup.objTable WHERE (objEvent = ?) AND ((backendOnly BETWEEN 0 AND ?) OR (backendOnly IS NULL)) AND ((bookedBy='') OR (bookedBy IS NULL))")
+						do rs.Execute(xEventID,backendSQLParam)
+						while (rs.Next()&&(tablesAvailable=0)) {
+							if (##class(setup.objTable).isTableAvailable(rs.Get("ID"),xEventID)) {
+								set tablesAvailable=1	
+							}
+						}
+					}	
+					if ((seatsAvailable)!(tablesAvailable)) {
+						set show=1
+					}	
+					
+					if (show=0) { // check if any table bookings made in this purchase - need to add/amend table guest names if so
+						&SQL(SELECT COUNT(ID) INTO :tmp FROM eCom.tempSeat WHERE tempTable->tempPurchase->sessionID = :sessionID)
+						if (+SQLCODE=0 && tmp > 0) {
+							set show=1	
+						}
+						
+						&SQL(SELECT COUNT(ID) INTO :tmp FROM eCom.tempTable WHERE tempPurchase->sessionID = :sessionID)
+						if (+SQLCODE=0 && tmp > 0) {
+							set show=1	
+						}
+					}				
+				}
+				
+				
+				if (show) {
+					set forwardpage=prowebRoot_tableBookingPageID
+				}	
+			}
+			// override if amending
+			if seenBasket {
+				set forwardpage=prowebRoot_basketPageID
+			}
+		}
+		if (diagram="E") ! (diagram="H")	{
+			set backpage=prowebRoot_##class(setup.objEventSetting).getParameter("awards","awardClientPageID",xEventID)
+			// From the awards summary page
+			if $G(%session.Data("eventsforce","frontend","fromAwardsSummary")) {
+				set forwardpage="awardsSummary2.csp"
+			} elseif seenBasket {
+				set forwardpage=prowebRoot_basketPageID	
+			} else {
+				set forwardpage=prowebRoot_##class(setup.objEventSetting).getParameter("awards","summaryPageID",xEventID)
+			}
+		}
+		if diagram="G"	{
+			set backpage=""
+			set forwardpage=""
+		}
+
+		if diagram="I"	{
+			set backpage=prowebRoot_bookersPageID
+			set forwardpage=prowebRoot_basketPageID
+			// override if amending
+			if seenBasket {
+				set forwardpage=prowebRoot_basketPageID
+			}
+			// override if tableBooking
+			if isTableBooking {
+				// only show table booking page if we have something available to book
+				set (seatsAvailable,tablesAvailable,show)=0
+				if ((##class(setup.objEventSetting).getParameter("table bookings","enable frontend",xEventID))!(##class(eCom.tempPurchase).isBackendBooking(sessionID))){
+					// table bookings enabled in front-end or is a back-end booking
+					set backendSQLParam = $S(##class(eCom.tempPurchase).isBackendBooking(sessionID):1,1:0)
+					
+					// check for available seats
+					&SQL(SELECT COUNT(ID) INTO :tmp FROM setup.objSeat WHERE (objTable->objEvent = :xEventID) AND (objTable->sellIndividualSeats = 1) AND ((objTable->backendOnly BETWEEN 0 AND :backendSQLParam) OR (objTable->backendOnly IS NULL)) AND ((bookedBy='') OR (bookedBy IS NULL)))
+					if ((+SQLCODE=0)&&(tmp>0)) {
+						set seatsAvailable=1
+					}
+					
+					// check for available tables
+					if (##class(setup.objEventSetting).getParameter("table bookings","enable entire tables",xEventID)){
+						set rs=##class(%ResultSet).%New("%Library.DynamicQuery:SQL")
+						do rs.Prepare("SELECT ID FROM setup.objTable WHERE (objEvent = ?) AND ((backendOnly BETWEEN 0 AND ?) OR (backendOnly IS NULL)) AND ((bookedBy='') OR (bookedBy IS NULL))")
+						do rs.Execute(xEventID,backendSQLParam)
+						while (rs.Next()&&(tablesAvailable=0)) {
+							if (##class(setup.objTable).isTableAvailable(rs.Get("ID"),xEventID)) {
+								set tablesAvailable=1	
+							}
+						}
+					}	
+					if ((seatsAvailable)!(tablesAvailable)) {
+						set show=1
+					}	
+					
+					if (show=0) { // check if any table bookings made in this purchase - need to add/amend table guest names if so
+						&SQL(SELECT COUNT(ID) INTO :tmp FROM eCom.tempSeat WHERE tempTable->tempPurchase->sessionID = :sessionID)
+						if (+SQLCODE=0 && tmp > 0) {
+							set show=1	
+						}
+						
+						&SQL(SELECT COUNT(ID) INTO :tmp FROM eCom.tempTable WHERE tempPurchase->sessionID = :sessionID)
+						if (+SQLCODE=0 && tmp > 0) {
+							set show=1	
+						}
+					}	
+				}
+				
+				
+				if (show) {
+					set forwardpage=prowebRoot_tableBookingPageID
+				}	
+			}
+		}
+		if diagram="J"	{
+			set backpage=prowebRoot_bookersPageID
+			// get first page of the eventcategory registration page
+			set eventCategoryID=$O(allRegPages(""))
+			if eventCategoryID="" quit ..quitIfNoAttCat()
+			set displayOrder=$O(allRegPages(eventCategoryID,""))
+			set pageID=allRegPages(eventCategoryID,displayOrder)
+			set forwardpage=prowebRoot_pageID
+			// always creating delegates seperate to the booker in this mode so get the first delegate created
+			&SQL(SELECT ID INTO :tmp FROM eCom.tempPerson WHERE (isDelegate=1) AND (active=1) AND (tempPurchase->sessionID=:sessionID) ORDER BY ID )
+			set overridePersonID="NEW"
+			if +SQLCODE=0 set overridePersonID=tmp
+			
+			if (##class(eCom.tempPurchase).getCompletedAttendeeCount(tempPurchaseID))&&(seenBasket) {
+				set forwardpage=prowebRoot_basketPageID
+			}
+		}
+		quit backpage_"|"_forwardpage
+
+	} elseif pagename="ttableguests.csp"	{
+		if diagram="B"	{
+			if seenBasket {
+				set backpage=prowebRoot_basketPageID
+			} else {
+				set backpage=prowebRoot_bookersPageID
+			}
+			set forwardpage=normalRoot_"tableGuestSave.csp"
+		}
+		if diagram="D"	{
+			if seenBasket {
+				set backpage=prowebRoot_basketPageID
+			} else {
+				set backpage=prowebRoot_bookersPageID
+			}
+			set forwardpage=normalRoot_"tableGuestSave.csp"
+		}
+		if diagram="I"	{
+			if seenBasket {
+				set backpage=prowebRoot_basketPageID
+			} else {
+				set backpage=prowebRoot_bookersPageID
+			}
+			set forwardpage=normalRoot_"tableGuestSave.csp"
+		}
+
+		quit backpage_"|"_forwardpage	
+
+	} elseif pagename="tableguestsave.csp"	{
+		if diagram="B"	{
+			set backpage=prowebRoot_tableBookingPageID
+			// is this person the booker? if so then we can go back to the bookers page
+			if (selectBookingMode="single")!(selectBookingMode="singleandothers")	{
+				if eventCategoryID="" quit ..quitIfNoAttCat()
+				// get first page of the eventcategory registration page
+				set displayOrder=$O(allRegPages(eventCategoryID,""))
+				set pageID=allRegPages(eventCategoryID,displayOrder)
+				set forwardpage=prowebRoot_pageID
+			} elseif ##class(setup.objEventSetting).getParameter("bookings","do not show delegateUID page",xEventID)	{
+				// if in here then I must be in the "others" booking mode so I need to force a new delegate
+				if eventCategoryID="" quit ..quitIfNoAttCat()
+				// get first page of the eventcategory registration page
+				set displayOrder=$O(allRegPages(eventCategoryID,""))
+				set pageID=allRegPages(eventCategoryID,displayOrder)
+				set forwardpage=prowebRoot_pageID
+				set overridePersonID="NEW"
+			} else {
+				// goto delegateUID page
+				set forwardpage=prowebRoot_delegateUIDPageID
+			}
+			// override if amending
+			if seenBasket {
+				set forwardpage=prowebRoot_basketPageID
+			}
+		}
+		if diagram="D"	{
+			set backpage=prowebRoot_tableBookingPageID
+			// is this person the booker? if so then we can go back to the bookers page
+			if (selectBookingMode="single")!(selectBookingMode="singleandothers")	{
+				if multiCategoryPerBooking	{
+					set forwardpage=prowebRoot_selectCategoryPageID
+				} else {
+					if eventCategoryID="" quit ..quitIfNoAttCat()
+					// get first page of the eventcategory registration page
+					set displayOrder=$O(allRegPages(eventCategoryID,""))
+					set pageID=allRegPages(eventCategoryID,displayOrder)
+					set forwardpage=prowebRoot_pageID
+				}
+			} elseif ##class(setup.objEventSetting).getParameter("bookings","do not show delegateUID page",xEventID)	{
+				// if in here then I must be in the "others" booking mode so I need to force a new delegate
+				if multiCategoryPerBooking	{
+					set forwardpage=prowebRoot_selectCategoryPageID
+				} else {
+					if eventCategoryID="" quit ..quitIfNoAttCat()
+					// get first page of the eventcategory registration page
+					set displayOrder=$O(allRegPages(eventCategoryID,""))
+					set pageID=allRegPages(eventCategoryID,displayOrder)
+					set forwardpage=prowebRoot_pageID
+				}
+				set overridePersonID="NEW"
+			} else {
+				// goto delegateUID page
+				set forwardpage=prowebRoot_delegateUIDPageID
+			}
+			// override if amending
+			if seenBasket {
+				set forwardpage=prowebRoot_basketPageID
+			}
+		}
+		if diagram="I"	{
+			set backpage=prowebRoot_tableBookingPageID
+			set forwardpage=normalRoot_"gotoBasket.csp"
+		}
+		quit backpage_"|"_forwardpage			
+
+	} elseif pagename="tawardsentry.csp"	{
+		if diagram="A"	{
+			set backpage=""
+			set forwardpage=""
+		}
+		if diagram="B"	{
+			set backpage=""
+			set forwardpage=""
+		}
+		if diagram="C"	{
+			set backpage=""
+			set forwardpage=""
+		}
+		if diagram="D"	{
+			set backpage=""
+			set forwardpage=""
+		}
+		if diagram="E"	{
+			set (forwardpage,backpage)=prowebRoot_##class(setup.objEventSetting).getParameter("awards","summaryPageID",xEventID)
+		}
+		if diagram="G"	{
+			set backpage=""
+			set forwardpage=""
+		}
+		if diagram="H"	{
+			set (forwardpage,backpage)=prowebRoot_##class(setup.objEventSetting).getParameter("awards","summaryPageID",xEventID)
+		}
+		quit backpage_"|"_forwardpage	
+
+	} elseif pagename="tdelegateuid.csp"	{
+		if diagram="A"	{
+			set backpage=""
+			set forwardpage=""
+		}
+		if diagram="B"	{
+			set backpage=prowebRoot_bookersPageID
+			set forwardpage=normalRoot_"delegateuidsave.csp"
+			if seenBasket {
+				set backpage=prowebRoot_basketPageID
+			}
+		}
+		if diagram="C"	{
+			set backpage=""
+			set forwardpage=""
+		}
+		if diagram="D"	{
+			set backpage=prowebRoot_bookersPageID
+			set forwardpage=normalRoot_"delegateuidsave.csp"
+			if seenBasket {
+				set backpage=prowebRoot_basketPageID
+			}
+		}
+		if (diagram="E")!(diagram="H")	{
+			set backpage=""
+			set forwardpage=""
+		}
+		if diagram="G"	{
+			set backpage=""
+			set forwardpage=""
+		}
+		quit backpage_"|"_forwardpage
+		
+	} elseif pagename="delegateuidsave.csp"	{
+		if diagram="A"	{
+			set backpage=""
+			set forwardpage=""
+		}
+		if diagram="B"	{
+			set backpage=prowebRoot_delegateUIDPageID
+			// go to the first (and only category) reg page
+			if eventCategoryID="" quit ..quitIfNoAttCat()
+			// get first page of the eventcategory registration page
+			set forwardpage=..getFirstRegistrationPage(eventCategoryID,.allRegPages)
+		}
+		if diagram="C"	{
+			set backpage=""
+			set forwardpage=""
+		}
+		if diagram="D"	{
+			set backpage=prowebRoot_delegateUIDPageID
+			if multiCategoryPerBooking	{
+				set forwardpage=prowebRoot_selectCategoryPageID
+			} else {
+				if eventCategoryID="" quit ..quitIfNoAttCat()
+				// get first page of the eventcategory registration page
+				set forwardpage=..getFirstRegistrationPage(eventCategoryID,.allRegPages)
+			}
+
+		}
+		if (diagram="E")!(diagram="H")	{
+			set backpage=""
+			set forwardpage=""
+		}
+		if diagram="G"	{
+			set backpage=""
+			set forwardpage=""
+		}
+		quit backpage_"|"_forwardpage
+	} else {
+		quit ..goWhere3()
+	}
+]]></Implementation>
+</Method>
+
+<Method name="goWhere3">
+<ClassMethod>1</ClassMethod>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	
+
+	if pagename="tregistration.csp"	{
+		// if I'm in here, it could be any one of the proweb registration pages for any category
+		
+		do ##class(setup.objEvent).showChooseDays(xEventID,sessionID,tempPersonID) // This reserves a place if show day page is not shown
+		if diagram="A"	{
+			if eventCategoryID="" quit ..quitIfNoAttCat()
+			// use my pageID to determine where to go next
+			set currentDisplayOrder=$P(allRegPageIDs(eventCategoryID,originalPageID),"|",1)
+			set backpage=$O(allRegPages(eventCategoryID,currentDisplayOrder),-1)
+			if backpage="" {
+				if isAnonymousMode,'singleEmailPerEvent	{
+					set backpage=prowebRoot_homePageID 
+				} else {
+					set backpage=prowebRoot_registerEmailNewPageID
+				}
+
+				// we only want to go back to the basket if we've seen the basket already
+				if seenBasket set backpage=prowebRoot_basketPageID
+			} else {
+				// go back to the previous registration page for this category
+				set backpage=prowebRoot_allRegPages(eventCategoryID,backpage)
+			}
+			// If they have gone directly to this page they should go straight back to the basket
+			if $G(%session.Data("eventsforce","frontend","Go Directly to Page")) {
+				set backpage=prowebRoot_basketPageID
+			}
+			set forwardpage=normalRoot_"codformsave.csp"
+
+		}
+		if diagram="B"	{
+			if eventCategoryID="" quit ..quitIfNoAttCat()
+			// use my pageID to determine where to go next
+			set currentDisplayOrder=$P(allRegPageIDs(eventCategoryID,originalPageID),"|",1)
+			set backpage=$O(allRegPages(eventCategoryID,currentDisplayOrder),-1)
+			if backpage="" {
+				// is this person the booker? if so then we can go back to the bookers page
+				if (personIsBooker)&((selectBookingMode="single")!(selectBookingMode="singleandothers"))	{
+					set backpage=prowebRoot_bookersPageID
+				} elseif ##class(setup.objEventSetting).getParameter("bookings","do not show delegateUID page",xEventID)	{
+					set backpage=prowebRoot_bookersPageID
+				} else {
+					set backpage=prowebRoot_delegateUIDPageID
+				}
+				// go back to table booking
+				if isTableBooking set backpage=prowebRoot_tableBookingPageID
+				
+				// we only want to go back to the basket if we've seen the basket already
+				if seenBasket set backpage=prowebRoot_basketPageID
+			} else {
+				// go back to the previous registration page for this category
+				set backpage=prowebRoot_allRegPages(eventCategoryID,backpage)
+			}
+			// If they have gone directly to this page they should go straight back to the basket
+			if $G(%session.Data("eventsforce","frontend","Go Directly to Page")) {
+				set backpage=prowebRoot_basketPageID
+			}
+			set forwardpage=normalRoot_"codformsave.csp"
+
+		}
+		if diagram="C"	{
+			set forwardpage=normalRoot_"codformsave.csp"
+			if eventCategoryID="" quit ..quitIfNoAttCat()
+			// use my pageID to determine where to go next
+			set currentDisplayOrder=$P(allRegPageIDs(eventCategoryID,originalPageID),"|",1)
+			set backpage=$O(allRegPages(eventCategoryID,currentDisplayOrder),-1)
+			if backpage="" {
+				set backpage=prowebRoot_selectCategoryPageID
+				// we only want to go back to the basket if in amendmode
+				if seenBasket set backpage=prowebRoot_basketPageID
+			} else {
+				// go back to the previous registration page for this category
+				set backpage=prowebRoot_allRegPages(eventCategoryID,backpage)
+			}
+			// If they have gone directly to this page they should go straight back to the basket
+			if $G(%session.Data("eventsforce","frontend","Go Directly to Page")) {
+				set backpage=prowebRoot_basketPageID
+			}
+
+		}
+		if diagram="D"	{
+			set forwardpage=normalRoot_"codformsave.csp"
+			if eventCategoryID="" quit ..quitIfNoAttCat()
+			// use my pageID to determine where to go next
+			set currentDisplayOrder=$P(allRegPageIDs(eventCategoryID,originalPageID),"|",1)
+			set backpage=$O(allRegPages(eventCategoryID,currentDisplayOrder),-1)
+			if backpage="" {
+				if multiCategoryPerBooking {
+					set backpage=prowebRoot_selectCategoryPageID
+				} else {
+					// is this person the booker? if so then we can go back to the bookers page
+					if (personIsBooker)&((selectBookingMode="single")!(selectBookingMode="singleandothers"))	{
+						set backpage=prowebRoot_bookersPageID
+					} elseif ##class(setup.objEventSetting).getParameter("bookings","do not show delegateUID page",xEventID)	{
+						set backpage=prowebRoot_bookersPageID
+					} else {
+						set backpage=prowebRoot_delegateUIDPageID
+					}
+				}
+				// go back to table booking
+				if isTableBooking set backpage=prowebRoot_tableBookingPageID
+
+				// we only want to go back to the basket if in amendmode
+				if seenBasket set backpage=prowebRoot_basketPageID
+			} else {
+				// go back to the previous registration page for this category
+				set backpage=prowebRoot_allRegPages(eventCategoryID,backpage)
+			}
+			// If they have gone directly to this page they should go straight back to the basket
+			if $G(%session.Data("eventsforce","frontend","Go Directly to Page")) {
+				set backpage=prowebRoot_basketPageID
+			}
+
+		}
+		if (diagram="E")!(diagram="H")	{
+			set backpage=""
+			set forwardpage=""
+		}
+		if diagram="G"	{
+			// use my pageID to determine where to go next
+			if eventCategoryID="" quit ..quitIfNoAttCat()
+			set currentDisplayOrder=$P(allRegPageIDs(eventCategoryID,originalPageID),"|",1)
+			set backpage=$O(allRegPages(eventCategoryID,currentDisplayOrder),-1)
+			if backpage="" {
+				set backpage=prowebRoot_eventHotelPageID
+			} else {
+				// go back to the previous registration page for this category
+				set backpage=prowebRoot_allRegPages(eventCategoryID,backpage)
+			}
+			set forwardpage=normalRoot_"codformsave.csp"
+		}
+		if diagram="J"	{
+			set backpage=prowebRoot_bookersPageID
+			set forwardpage=normalRoot_"codformsave.csp"
+			// override if amending
+			if seenBasket set backpage=prowebRoot_basketPageID
+		}
+		if diagram="K"	{
+			set forwardpage=normalRoot_"codformsave.csp"
+			if eventCategoryID="" quit ..quitIfNoAttCat()
+			// use my pageID to determine where to go next
+			set currentDisplayOrder=$P(allRegPageIDs(eventCategoryID,originalPageID),"|",1)
+			set backpage=$O(allRegPages(eventCategoryID,currentDisplayOrder),-1)
+			if backpage="" {
+				set backpage=prowebRoot_selectCategoryPageID
+				// we only want to go back to the basket if in amendmode
+				if seenBasket {
+					set backpage=prowebRoot_basketPageID
+				} elseif ##class(setup.objEventSetting).getParameter("accommodation","get guest names",xEventID) {
+					set backpage=prowebRoot_accomGuestPageID
+				} else {
+					set backpage=prowebRoot_accomHotelListPageID
+				}
+			} else {
+				// go back to the previous registration page for this category
+				set backpage=prowebRoot_allRegPages(eventCategoryID,backpage)
+			}
+
+		}
+		quit backpage_"|"_forwardpage
+		
+	} elseif pagename="codformsave.csp"	{
+		// if I'm in here, it could be any one of the proweb registration pages for any category
+		// the pageID I've just been in will be in the parameter extraPageID
+		
+		if diagram="A"	{
+			// just been in this page so this is where I'm going back to
+			set backpage=prowebRoot_extraPageID
+			if eventCategoryID="" quit ..quitIfNoAttCat()
+			// use my pageID to determine where to go next
+			set currentDisplayOrder=$P(allRegPageIDs(eventCategoryID,extraPageID),"|",1)
+			set forwardpage=$O(allRegPages(eventCategoryID,currentDisplayOrder))
+			if forwardpage="" {
+				// then this is the last of the registration pages for this person and category
+				// go to the day selection
+				if ##class(setup.objEvent).showChooseDays(xEventID,sessionID,tempPersonID) { // if switched on in eventDetails
+					set forwardpage=prowebRoot_chooseDaysPageID
+				} elseif ##class(setup.objItem).anyItemsToChoose(eventConfiguration,sessionID,tempPersonID) { // if sessions are defined
+					set forwardpage=prowebRoot_chooseSessionsPageID
+				} elseif newAccomEvent,'hasAccom,showAccom {
+					set forwardpage=prowebRoot_accomChooseDatesPageID
+				} elseif isAccom,'newAccomEvent {
+					set forwardpage=prowebRoot_firstVenuePageID
+					if anyAccomBookingsForPerson set forwardpage=prowebRoot_eventHotelPageID
+				} else {
+					set forwardpage=normalRoot_"gotoBasket.csp"
+				}
+			} else {
+				set forwardpage=prowebRoot_allRegPages(eventCategoryID,forwardpage)
+			}
+			// If they have gone directly to this page they should go straight back to the basket
+			if $G(%session.Data("eventsforce","frontend","Go Directly to Page")) {
+				set forwardpage=normalRoot_"gotoBasket.csp"
+			}
+		}
+		if diagram="B"	{
+			// just been in this page so this is where I'm going back to
+			set backpage=prowebRoot_extraPageID
+			if eventCategoryID="" quit ..quitIfNoAttCat()
+			// use my pageID to determine where to go next
+			set currentDisplayOrder=$P(allRegPageIDs(eventCategoryID,extraPageID),"|",1)
+			set forwardpage=$O(allRegPages(eventCategoryID,currentDisplayOrder))
+			if forwardpage="" {
+				// then this is the last of the registration pages for this person and category
+				// go to the day selection
+				if ##class(setup.objEvent).showChooseDays(xEventID,sessionID,tempPersonID) { // if switched on in eventDetails
+					set forwardpage=prowebRoot_chooseDaysPageID
+				} elseif ##class(setup.objItem).anyItemsToChoose(eventConfiguration,sessionID,tempPersonID) { // if sessions are defined
+					set forwardpage=prowebRoot_chooseSessionsPageID
+				} elseif newAccomEvent,'hasAccom,showAccom {
+					set forwardpage=prowebRoot_accomChooseDatesPageID
+				} elseif isAccom,'newAccomEvent {
+					set forwardpage=prowebRoot_firstVenuePageID
+					if anyAccomBookingsForPerson set forwardpage=prowebRoot_eventHotelPageID
+				} else {
+					set forwardpage=normalRoot_"gotoBasket.csp"
+				}
+			} else {
+				set forwardpage=prowebRoot_allRegPages(eventCategoryID,forwardpage)
+			}
+			// If they have gone directly to this page they should go straight back to the basket
+			if $G(%session.Data("eventsforce","frontend","Go Directly to Page")) {
+				set forwardpage=normalRoot_"gotoBasket.csp"
+			}
+		}
+		if diagram="C"	{
+			// just been in this page so this is where I'm going back to
+			set backpage=prowebRoot_extraPageID
+			if eventCategoryID="" quit ..quitIfNoAttCat()
+			// use my pageID to determine where to go next
+			set currentDisplayOrder=$P(allRegPageIDs(eventCategoryID,extraPageID),"|",1)
+			set forwardpage=$O(allRegPages(eventCategoryID,currentDisplayOrder))
+			if forwardpage="" {
+				// then this is the last of the registration pages for this person and category
+				// go to the day selection
+				if ##class(setup.objEvent).showChooseDays(xEventID,sessionID,tempPersonID) { // if switched on in eventDetails
+					set forwardpage=prowebRoot_chooseDaysPageID
+				} elseif ##class(setup.objItem).anyItemsToChoose(eventConfiguration,sessionID,tempPersonID) { // if sessions are defined
+					set forwardpage=prowebRoot_chooseSessionsPageID
+				} elseif newAccomEvent,'hasAccom,showAccom {
+					set forwardpage=prowebRoot_accomChooseDatesPageID
+				} elseif isAccom,'newAccomEvent {
+					set forwardpage=prowebRoot_firstVenuePageID
+					if anyAccomBookingsForPerson set forwardpage=prowebRoot_eventHotelPageID
+				} else {
+					set forwardpage=normalRoot_"gotoBasket.csp"
+				}
+
+			} else {
+				set forwardpage=prowebRoot_allRegPages(eventCategoryID,forwardpage)
+			}
+			// If they have gone directly to this page they should go straight back to the basket
+			if $G(%session.Data("eventsforce","frontend","Go Directly to Page")) {
+				set forwardpage=normalRoot_"gotoBasket.csp"
+			}
+		}
+		if diagram="D"	{
+			// just been in this page so this is where I'm going back to
+			set backpage=prowebRoot_extraPageID
+			if eventCategoryID="" quit ..quitIfNoAttCat()
+			// use my pageID to determine where to go next
+			set currentDisplayOrder=$P(allRegPageIDs(eventCategoryID,extraPageID),"|",1)
+			set forwardpage=$O(allRegPages(eventCategoryID,currentDisplayOrder))
+			if forwardpage="" {
+				// then this is the last of the registration pages for this person and category
+				// go to the day selection
+				if ##class(setup.objEvent).showChooseDays(xEventID,sessionID,tempPersonID) { // if switched on in eventDetails
+					set forwardpage=prowebRoot_chooseDaysPageID
+				} elseif ##class(setup.objItem).anyItemsToChoose(eventConfiguration,sessionID,tempPersonID) { // if sessions are defined
+					set forwardpage=prowebRoot_chooseSessionsPageID
+				} elseif newAccomEvent,'hasAccom,showAccom {
+					set forwardpage=prowebRoot_accomChooseDatesPageID
+				} elseif isAccom,'newAccomEvent {
+					set forwardpage=prowebRoot_firstVenuePageID
+					if anyAccomBookingsForPerson set forwardpage=prowebRoot_eventHotelPageID
+				} else {
+					set forwardpage=normalRoot_"gotoBasket.csp"
+				}
+			} else {
+				set forwardpage=prowebRoot_allRegPages(eventCategoryID,forwardpage)
+			}
+			// If they have gone directly to this page they should go straight back to the basket
+			if $G(%session.Data("eventsforce","frontend","Go Directly to Page")) {
+				set forwardpage=normalRoot_"gotoBasket.csp"
+			}
+		}
+		if (diagram="E")!(diagram="H")	{
+			set backpage=""
+			set forwardpage=""
+		}
+		if diagram="G"	{
+			// just been in this page so this is where I'm going back to
+			set backpage=prowebRoot_extraPageID
+			if eventCategoryID="" quit ..quitIfNoAttCat()
+			// use my pageID to determine where to go next
+			set currentDisplayOrder=$P(allRegPageIDs(eventCategoryID,extraPageID),"|",1)
+			set forwardpage=$O(allRegPages(eventCategoryID,currentDisplayOrder))
+			if forwardpage="" {
+				// then this is the last of the registration pages for this person and category
+				// go to the day selection
+				set forwardpage=normalRoot_"gotoBasket.csp"
+				//if seenBasket set forwardpage=prowebRoot_firstVenuePageID
+			} else {
+				set forwardpage=prowebRoot_allRegPages(eventCategoryID,forwardpage)
+			}
+		}
+		if diagram="J"	{
+			set backpage=prowebRoot_extraPageID
+			set forwardpage=normalRoot_"gotoBasket.csp"
+		}
+		if diagram="K"	{
+			// just been in this page so this is where I'm going back to
+			set backpage=prowebRoot_extraPageID
+			if eventCategoryID="" quit ..quitIfNoAttCat()
+			// use my pageID to determine where to go next
+			set currentDisplayOrder=$P(allRegPageIDs(eventCategoryID,extraPageID),"|",1)
+			set forwardpage=$O(allRegPages(eventCategoryID,currentDisplayOrder))
+			if forwardpage="" {
+				// then this is the last of the registration pages for this person and category
+				// go to the day selection
+				set forwardpage=normalRoot_"gotoBasket.csp"
+			} else {
+				set forwardpage=prowebRoot_allRegPages(eventCategoryID,forwardpage)
+			}
+		}
+		quit backpage_"|"_forwardpage
+		
+	} elseif pagename="tchoosedays.csp"	{
+		if eventCategoryID="" quit ..quitIfNoAttCat()
+		if diagram="A"	{
+			set forwardpage=normalRoot_"choosedays2.csp"
+			// get last page of the eventcategory registration page
+			set displayOrder=$O(allRegPages(eventCategoryID,""),-1)
+			set pageID=allRegPages(eventCategoryID,displayOrder)
+			set backpage=prowebRoot_pageID
+		}
+		if diagram="B"	{
+			set forwardpage=normalRoot_"choosedays2.csp"
+			// get last page of the eventcategory registration page
+			set displayOrder=$O(allRegPages(eventCategoryID,""),-1)
+			set pageID=allRegPages(eventCategoryID,displayOrder)
+			set backpage=prowebRoot_pageID
+		}
+		if diagram="C"	{
+			set forwardpage=normalRoot_"choosedays2.csp"
+
+			// get last page of the eventcategory registration page
+			set displayOrder=$O(allRegPages(eventCategoryID,""),-1)
+			set pageID=allRegPages(eventCategoryID,displayOrder)
+			set backpage=prowebRoot_pageID
+
+		}
+		if diagram="D"	{
+			set forwardpage=normalRoot_"choosedays2.csp"
+
+			// get last page of the eventcategory registration page
+			set displayOrder=$O(allRegPages(eventCategoryID,""),-1)
+			set pageID=allRegPages(eventCategoryID,displayOrder)
+			set backpage=prowebRoot_pageID
+
+		}
+		if (diagram="E")!(diagram="H")	{
+			set backpage=""
+			set forwardpage=""
+		}
+		if diagram="G"	{
+			set backpage=""
+			set forwardpage=""
+		}
+		quit backpage_"|"_forwardpage
+		
+	} elseif pagename="choosedays2.csp"	{
+		if diagram="A"	{
+			set backpage=prowebRoot_chooseDaysPageID
+			if ##class(setup.objItem).anyItemsToChoose(eventConfiguration,sessionID,tempPersonID) { // if sessions are defined
+				set forwardpage=prowebRoot_chooseSessionsPageID
+			} elseif newAccomEvent,'hasAccom,showAccom {
+				set forwardpage=prowebRoot_accomChooseDatesPageID
+			} elseif isAccom,'newAccomEvent {
+				set forwardpage=prowebRoot_firstVenuePageID
+				if anyAccomBookingsForPerson set forwardpage=prowebRoot_eventHotelPageID
+			} else {
+				set forwardpage=normalRoot_"gotoBasket.csp"
+			}
+		}
+		if diagram="B"	{
+			set backpage=prowebRoot_chooseDaysPageID
+			if ##class(setup.objItem).anyItemsToChoose(eventConfiguration,sessionID,tempPersonID) { // if sessions are defined
+				set forwardpage=prowebRoot_chooseSessionsPageID
+			} elseif newAccomEvent,'hasAccom,showAccom {
+				set forwardpage=prowebRoot_accomChooseDatesPageID
+			} elseif isAccom,'newAccomEvent {
+				set forwardpage=prowebRoot_firstVenuePageID
+				if anyAccomBookingsForPerson set forwardpage=prowebRoot_eventHotelPageID
+			} else {
+				set forwardpage=normalRoot_"gotoBasket.csp"
+			}
+		}
+		if diagram="C"	{
+			set backpage=prowebRoot_chooseDaysPageID
+			if ##class(setup.objItem).anyItemsToChoose(eventConfiguration,sessionID,tempPersonID) { // if sessions are defined
+				set forwardpage=prowebRoot_chooseSessionsPageID
+			} elseif newAccomEvent,'hasAccom,showAccom {
+				set forwardpage=prowebRoot_accomChooseDatesPageID
+			} elseif isAccom,'newAccomEvent {
+				set forwardpage=prowebRoot_firstVenuePageID
+				if anyAccomBookingsForPerson set forwardpage=prowebRoot_eventHotelPageID
+			} else {
+				set forwardpage=normalRoot_"gotoBasket.csp"
+			}
+		}
+		if diagram="D"	{
+			set backpage=prowebRoot_chooseDaysPageID
+			if ##class(setup.objItem).anyItemsToChoose(eventConfiguration,sessionID,tempPersonID) { // if sessions are defined
+				set forwardpage=prowebRoot_chooseSessionsPageID
+			} elseif newAccomEvent,'hasAccom,showAccom {
+				set forwardpage=prowebRoot_accomChooseDatesPageID
+			} elseif isAccom,'newAccomEvent {
+				set forwardpage=prowebRoot_firstVenuePageID
+				if anyAccomBookingsForPerson set forwardpage=prowebRoot_eventHotelPageID
+			} else {
+				set forwardpage=normalRoot_"gotoBasket.csp"
+			}
+		}
+		if (diagram="E")!(diagram="H")	{
+			set backpage=""
+			set forwardpage=""
+		}
+		if diagram="G"	{
+			set backpage=""
+			set forwardpage=""
+		}
+		quit backpage_"|"_forwardpage
+		
+	} elseif (pagename="tchooseitems.csp") || (pagename="tagendaregistration.csp")	{
+		if eventCategoryID="" quit ..quitIfNoAttCat()
+		// just amending the sessions, so back page should go to the basket
+		set editSessionsOnly=$G(%session.Data("eventsforce","frontend","editSessionsOnly"))
+		if diagram="A"	{
+			set forwardpage=normalRoot_"chooseitems2.csp"
+
+			if editSessionsOnly {
+				set backpage=prowebRoot_basketPageID
+			} elseif ##class(setup.objEvent).showChooseDays(xEventID,sessionID,tempPersonID) { // if switched on in eventDetails
+				set backpage=prowebRoot_chooseDaysPageID
+			} else {
+				// get last page of the eventcategory registration page
+				set displayOrder=$O(allRegPages(eventCategoryID,""),-1)
+				set pageID=allRegPages(eventCategoryID,displayOrder)
+				set backpage=prowebRoot_pageID
+			}
+		}
+		if diagram="B"	{
+			set forwardpage=normalRoot_"chooseitems2.csp"
+
+			if editSessionsOnly {
+				set backpage=prowebRoot_basketPageID
+			} elseif ##class(setup.objEvent).showChooseDays(xEventID,sessionID,tempPersonID) { // if switched on in eventDetails
+				set backpage=prowebRoot_chooseDaysPageID
+			} else {
+				// get last page of the eventcategory registration page
+				set displayOrder=$O(allRegPages(eventCategoryID,""),-1)
+				set pageID=allRegPages(eventCategoryID,displayOrder)
+				set backpage=prowebRoot_pageID
+			}
+		}
+		if diagram="C"	{
+			set forwardpage=normalRoot_"chooseitems2.csp"
+
+			if editSessionsOnly {
+				set backpage=prowebRoot_basketPageID
+			} elseif ##class(setup.objEvent).showChooseDays(xEventID,sessionID,tempPersonID) { // if switched on in eventDetails
+				set backpage=prowebRoot_chooseDaysPageID
+			} else {
+				// get last page of the eventcategory registration page
+				set displayOrder=$O(allRegPages(eventCategoryID,""),-1)
+				set pageID=allRegPages(eventCategoryID,displayOrder)
+				set backpage=prowebRoot_pageID
+			}
+		}
+		if diagram="D"	{
+			set forwardpage=normalRoot_"chooseitems2.csp"
+
+			if editSessionsOnly {
+				set backpage=prowebRoot_basketPageID
+			} elseif ##class(setup.objEvent).showChooseDays(xEventID,sessionID,tempPersonID) { // if switched on in eventDetails
+				set backpage=prowebRoot_chooseDaysPageID
+			} else {
+				// get last page of the eventcategory registration page
+				set displayOrder=$O(allRegPages(eventCategoryID,""),-1)
+				set pageID=allRegPages(eventCategoryID,displayOrder)
+				set backpage=prowebRoot_pageID
+			}
+		}
+		if (diagram="E")!(diagram="H")	{
+			set backpage=""
+			set forwardpage=""
+		}
+		if diagram="G"	{
+			set backpage=""
+			set forwardpage=""
+		}
+		quit backpage_"|"_forwardpage
+		
+	} elseif pagename="chooseitems2.csp"	{
+		if diagram="A"	{
+			set backpage=prowebRoot_chooseSessionsPageID
+			if newAccomEvent,'hasAccom,showAccom {
+				set forwardpage=prowebRoot_accomChooseDatesPageID
+			} elseif isAccom,'newAccomEvent {
+				set forwardpage=prowebRoot_firstVenuePageID
+				if anyAccomBookingsForPerson set forwardpage=prowebRoot_eventHotelPageID
+			} else {
+				set forwardpage=normalRoot_"gotoBasket.csp"
+			}
+		}
+		if diagram="B"	{
+			set backpage=prowebRoot_chooseSessionsPageID
+			if newAccomEvent,'hasAccom,showAccom {
+				set forwardpage=prowebRoot_accomChooseDatesPageID
+			} elseif isAccom,'newAccomEvent {
+				set forwardpage=prowebRoot_firstVenuePageID
+				if anyAccomBookingsForPerson set forwardpage=prowebRoot_eventHotelPageID
+			} else {
+				set forwardpage=normalRoot_"gotoBasket.csp"
+			}
+		}
+		if diagram="C"	{
+			set backpage=prowebRoot_chooseSessionsPageID
+			if newAccomEvent,'hasAccom,showAccom {
+				set forwardpage=prowebRoot_accomChooseDatesPageID
+			} elseif isAccom,'newAccomEvent {
+				set forwardpage=prowebRoot_firstVenuePageID
+				if anyAccomBookingsForPerson set forwardpage=prowebRoot_eventHotelPageID
+			} else {
+				set forwardpage=normalRoot_"gotoBasket.csp"
+			}
+		}
+		if diagram="D"	{
+			set backpage=prowebRoot_chooseSessionsPageID
+			if newAccomEvent,'hasAccom,showAccom {
+				set forwardpage=prowebRoot_accomChooseDatesPageID
+			} elseif isAccom,'newAccomEvent {
+				set forwardpage=prowebRoot_firstVenuePageID
+				if anyAccomBookingsForPerson set forwardpage=prowebRoot_eventHotelPageID
+			} else {
+				set forwardpage=normalRoot_"gotoBasket.csp"
+			}
+		}
+		if (diagram="E")!(diagram="H")	{
+			set backpage=""
+			set forwardpage=""
+		}
+		if diagram="G"	{
+			set backpage=""
+			set forwardpage=""
+		}
+		quit backpage_"|"_forwardpage
+		
+	} elseif pagename="tvenuesummary.csp"	{
+		if diagram="A"	{
+			set forwardpage=normalRoot_"accomsavevenueid.csp"
+
+			if ##class(setup.objItem).anyItemsToChoose(eventConfiguration,sessionID,tempPersonID) { // if sessions are defined
+				set backpage=prowebRoot_chooseSessionsPageID
+			} elseif ##class(setup.objEvent).showChooseDays(xEventID,sessionID,tempPersonID) { // if switched on in eventDetails
+				set backpage=prowebRoot_chooseDaysPageID
+			} else {
+				if eventCategoryID="" quit ..quitIfNoAttCat()
+				// get last page of the eventcategory registration page
+				set displayOrder=$O(allRegPages(eventCategoryID,""),-1)
+				set pageID=allRegPages(eventCategoryID,displayOrder)
+				set backpage=prowebRoot_pageID
+			}
+		}
+		if diagram="B"	{
+			set forwardpage=normalRoot_"accomsavevenueid.csp"
+
+			if ##class(setup.objItem).anyItemsToChoose(eventConfiguration,sessionID,tempPersonID) { // if sessions are defined
+				set backpage=prowebRoot_chooseSessionsPageID
+			} elseif ##class(setup.objEvent).showChooseDays(xEventID,sessionID,tempPersonID) { // if switched on in eventDetails
+				set backpage=prowebRoot_chooseDaysPageID
+			} else {
+				if eventCategoryID="" quit ..quitIfNoAttCat()
+				// get last page of the eventcategory registration page
+				set displayOrder=$O(allRegPages(eventCategoryID,""),-1)
+				set pageID=allRegPages(eventCategoryID,displayOrder)
+				set backpage=prowebRoot_pageID
+			}
+		}
+		if diagram="C"	{
+			set forwardpage=normalRoot_"accomsavevenueid.csp"
+
+			if ##class(setup.objItem).anyItemsToChoose(eventConfiguration,sessionID,tempPersonID) { // if sessions are defined
+				set backpage=prowebRoot_chooseSessionsPageID
+			} elseif ##class(setup.objEvent).showChooseDays(xEventID,sessionID,tempPersonID) { // if switched on in eventDetails
+				set backpage=prowebRoot_chooseDaysPageID
+			} else {
+				if eventCategoryID="" quit ..quitIfNoAttCat()
+				// get last page of the eventcategory registration page
+				set displayOrder=$O(allRegPages(eventCategoryID,""),-1)
+				set pageID=allRegPages(eventCategoryID,displayOrder)
+				set backpage=prowebRoot_pageID
+			}
+		}
+		if diagram="D"	{
+			set forwardpage=normalRoot_"accomsavevenueid.csp"
+
+			if ##class(setup.objItem).anyItemsToChoose(eventConfiguration,sessionID,tempPersonID) { // if sessions are defined
+				set backpage=prowebRoot_chooseSessionsPageID
+			} elseif ##class(setup.objEvent).showChooseDays(xEventID,sessionID,tempPersonID) { // if switched on in eventDetails
+				set backpage=prowebRoot_chooseDaysPageID
+			} else {
+				if eventCategoryID="" quit ..quitIfNoAttCat()
+				// get last page of the eventcategory registration page
+				set displayOrder=$O(allRegPages(eventCategoryID,""),-1)
+				set pageID=allRegPages(eventCategoryID,displayOrder)
+				set backpage=prowebRoot_pageID
+			}
+		}
+		if (diagram="E")!(diagram="H")	{
+			set backpage=""
+			set forwardpage=""
+		}
+		if diagram="G"	{
+			set backpage=prowebRoot_homePageID 
+			set forwardpage=normalRoot_"accomsavevenueid.csp"
+			if seenBasket {
+				set backpage=normalRoot_"gotoBasket.csp"
+			}
+		}
+		quit backpage_"|"_forwardpage
+		
+	} elseif pagename="accomsavevenueid.csp"	{
+		if diagram="A"	{
+			set backpage=prowebRoot_firstVenuePageID
+			set forwardpage=prowebRoot_eventHotelPageID
+		}
+		if diagram="B"	{
+			set backpage=prowebRoot_firstVenuePageID
+			set forwardpage=prowebRoot_eventHotelPageID
+		}
+		if diagram="C"	{
+			set backpage=prowebRoot_firstVenuePageID
+			set forwardpage=prowebRoot_eventHotelPageID
+		}
+		if diagram="D"	{
+			set backpage=prowebRoot_firstVenuePageID
+			set forwardpage=prowebRoot_eventHotelPageID
+		}
+		if (diagram="E")!(diagram="H")	{
+			set backpage=""
+			set forwardpage=""
+		}
+		if diagram="G"	{
+			set backpage=prowebRoot_firstVenuePageID
+			set forwardpage=prowebRoot_eventHotelPageID
+		}
+		quit backpage_"|"_forwardpage
+		
+	} elseif pagename="thotelbooking.csp"	{
+		if diagram="A"	{
+			set backpage=prowebRoot_firstVenuePageID
+			set forwardpage=normalRoot_"hotelbookingsave.csp"
+			if anyAccomBookingsForPerson	{  // if we've got a booking for this person already, don't go back to hotel selection
+				if ##class(setup.objItem).anyItemsToChoose(eventConfiguration,sessionID,tempPersonID) { // if sessions are defined
+					set backpage=prowebRoot_chooseSessionsPageID
+				} elseif ##class(setup.objEvent).showChooseDays(xEventID,sessionID,tempPersonID) { // if switched on in eventDetails
+					set backpage=prowebRoot_chooseDaysPageID
+				} else {
+					if eventCategoryID="" quit ..quitIfNoAttCat()
+					// get last page of the eventcategory registration page
+					set displayOrder=$O(allRegPages(eventCategoryID,""),-1)
+					set pageID=allRegPages(eventCategoryID,displayOrder)
+					set backpage=prowebRoot_pageID
+				}
+			}
+		}
+		if diagram="B"	{
+			set backpage=prowebRoot_firstVenuePageID
+			set forwardpage=normalRoot_"hotelbookingsave.csp"
+			if anyAccomBookingsForPerson	{  // if we've got a booking for this person already, don't go back to hotel selection
+				if ##class(setup.objItem).anyItemsToChoose(eventConfiguration,sessionID,tempPersonID) { // if sessions are defined
+					set backpage=prowebRoot_chooseSessionsPageID
+				} elseif ##class(setup.objEvent).showChooseDays(xEventID,sessionID,tempPersonID) { // if switched on in eventDetails
+					set backpage=prowebRoot_chooseDaysPageID
+				} else {
+					if eventCategoryID="" quit ..quitIfNoAttCat()
+					// get last page of the eventcategory registration page
+					set displayOrder=$O(allRegPages(eventCategoryID,""),-1)
+					set pageID=allRegPages(eventCategoryID,displayOrder)
+					set backpage=prowebRoot_pageID
+				}
+			}
+		}
+		if diagram="C"	{
+			set backpage=prowebRoot_firstVenuePageID
+			set forwardpage=normalRoot_"hotelbookingsave.csp"
+			if anyAccomBookingsForPerson	{  // if we've got a booking for this person already, don't go back to hotel selection
+				if ##class(setup.objItem).anyItemsToChoose(eventConfiguration,sessionID,tempPersonID) { // if sessions are defined
+					set backpage=prowebRoot_chooseSessionsPageID
+				} elseif ##class(setup.objEvent).showChooseDays(xEventID,sessionID,tempPersonID) { // if switched on in eventDetails
+					set backpage=prowebRoot_chooseDaysPageID
+				} else {
+					if eventCategoryID="" quit ..quitIfNoAttCat()
+					// get last page of the eventcategory registration page
+					set displayOrder=$O(allRegPages(eventCategoryID,""),-1)
+					set pageID=allRegPages(eventCategoryID,displayOrder)
+					set backpage=prowebRoot_pageID
+				}
+			}
+		}
+		if diagram="D"	{
+			set backpage=prowebRoot_firstVenuePageID
+			set forwardpage=normalRoot_"hotelbookingsave.csp"
+			if anyAccomBookingsForPerson	{  // if we've got a booking for this person already, don't go back to hotel selection
+				if ##class(setup.objItem).anyItemsToChoose(eventConfiguration,sessionID,tempPersonID) { // if sessions are defined
+					set backpage=prowebRoot_chooseSessionsPageID
+				} elseif ##class(setup.objEvent).showChooseDays(xEventID,sessionID,tempPersonID) { // if switched on in eventDetails
+					set backpage=prowebRoot_chooseDaysPageID
+				} else {
+					if eventCategoryID="" quit ..quitIfNoAttCat()
+					// get last page of the eventcategory registration page
+					set displayOrder=$O(allRegPages(eventCategoryID,""),-1)
+					set pageID=allRegPages(eventCategoryID,displayOrder)
+					set backpage=prowebRoot_pageID
+				}
+			}
+		}
+		if (diagram="E")!(diagram="H")	{
+			set backpage=""
+			set forwardpage=""
+		}
+		if diagram="G"	{
+			set backpage=prowebRoot_firstVenuePageID
+			set forwardpage=normalRoot_"hotelbookingsave.csp"
+		}
+		quit backpage_"|"_forwardpage
+		
+	} elseif pagename="hotelbookingsave.csp"	{
+		if diagram="A"	{
+			set backpage=prowebRoot_eventHotelPageID
+			set forwardpage=normalRoot_"gotoBasket.csp"
+		}
+		if diagram="B"	{
+			set backpage=prowebRoot_eventHotelPageID
+			set forwardpage=normalRoot_"gotoBasket.csp"
+		}
+		if diagram="C"	{
+			set backpage=prowebRoot_eventHotelPageID
+			set forwardpage=normalRoot_"gotoBasket.csp"
+		}
+		if diagram="D"	{
+			set backpage=prowebRoot_eventHotelPageID
+			set forwardpage=normalRoot_"gotoBasket.csp"
+		}
+		if (diagram="E")!(diagram="H")	{
+			set backpage=""
+			set forwardpage=""
+		}
+		if diagram="G"	{
+			set backpage=prowebRoot_eventHotelPageID
+			if eventCategoryID="" quit ..quitIfNoAttCat()
+			// go to the first (and only category) reg page
+			set forwardpage=..getFirstRegistrationPage(eventCategoryID,.allRegPages)
+		}
+		quit backpage_"|"_forwardpage
+		
+	} elseif pagename="taccomchoosedates.csp" {
+		if diagram="A"	{
+			if seenBasket {
+				set backpage=prowebRoot_basketPageID
+			} elseif ##class(setup.objItem).anyItemsToChoose(eventConfiguration,sessionID,tempPersonID) {
+				set backpage=prowebRoot_chooseSessionsPageID
+			} elseif ##class(setup.objEvent).showChooseDays(xEventID,sessionID,tempPersonID) { // if switched on in eventDetails
+				set backpage=prowebRoot_chooseDaysPageID
+			} else {
+				if eventCategoryID="" quit ..quitIfNoAttCat()
+				// get last page of the eventcategory registration page
+				set displayOrder=$O(allRegPages(eventCategoryID,""),-1)
+				set pageID=allRegPages(eventCategoryID,displayOrder)
+				set backpage=prowebRoot_pageID
+			}
+			set forwardpage=normalRoot_"accomChooseDatesSave.csp"
+		}
+		if diagram="B"	{
+			if seenBasket {
+				set backpage=prowebRoot_basketPageID
+			} elseif ##class(setup.objItem).anyItemsToChoose(eventConfiguration,sessionID,tempPersonID) {
+				set backpage=prowebRoot_chooseSessionsPageID
+			} elseif ##class(setup.objEvent).showChooseDays(xEventID,sessionID,tempPersonID) { // if switched on in eventDetails
+				set backpage=prowebRoot_chooseDaysPageID
+			} else {
+				if eventCategoryID="" quit ..quitIfNoAttCat()
+				// get last page of the eventcategory registration page
+				set displayOrder=$O(allRegPages(eventCategoryID,""),-1)
+				set pageID=allRegPages(eventCategoryID,displayOrder)
+				set backpage=prowebRoot_pageID
+			}
+			set forwardpage=normalRoot_"accomChooseDatesSave.csp"
+		}
+		if diagram="C"	{
+			if seenBasket {
+				set backpage=prowebRoot_basketPageID
+			} elseif ##class(setup.objItem).anyItemsToChoose(eventConfiguration,sessionID,tempPersonID) {
+				set backpage=prowebRoot_chooseSessionsPageID
+			} elseif ##class(setup.objEvent).showChooseDays(xEventID,sessionID,tempPersonID) { // if switched on in eventDetails
+				set backpage=prowebRoot_chooseDaysPageID
+			} else {
+				if eventCategoryID="" quit ..quitIfNoAttCat()
+				// get last page of the eventcategory registration page
+				set displayOrder=$O(allRegPages(eventCategoryID,""),-1)
+				set pageID=allRegPages(eventCategoryID,displayOrder)
+				set backpage=prowebRoot_pageID
+			}
+			set forwardpage=normalRoot_"accomChooseDatesSave.csp"
+		}
+		if diagram="D"	{
+			if seenBasket {
+				set backpage=prowebRoot_basketPageID
+			} elseif ##class(setup.objItem).anyItemsToChoose(eventConfiguration,sessionID,tempPersonID) {
+				set backpage=prowebRoot_chooseSessionsPageID
+			} elseif ##class(setup.objEvent).showChooseDays(xEventID,sessionID,tempPersonID) { // if switched on in eventDetails
+				set backpage=prowebRoot_chooseDaysPageID
+			} else {
+				if eventCategoryID="" quit ..quitIfNoAttCat()
+				// get last page of the eventcategory registration page
+				set displayOrder=$O(allRegPages(eventCategoryID,""),-1)
+				set pageID=allRegPages(eventCategoryID,displayOrder)
+				set backpage=prowebRoot_pageID
+			}
+			set forwardpage=normalRoot_"accomChooseDatesSave.csp"
+		}
+		if diagram="K"	{
+			if seenBasket {
+				set backpage=prowebRoot_basketPageID
+			} else {
+				set backpage=prowebRoot_homePageID
+			} 
+			set forwardpage=normalRoot_"accomChooseDatesSave.csp"
+		}
+		quit backpage_"|"_forwardpage
+	} elseif pagename="accomchoosedatessave.csp" {
+		if diagram="A"	{
+			set backpage=prowebRoot_accomChooseDatesPageID 
+			set forwardpage=prowebRoot_accomHotelListPageID
+		}
+		if diagram="B"	{
+			set backpage=prowebRoot_accomChooseDatesPageID 
+			set forwardpage=prowebRoot_accomHotelListPageID
+		}
+		if diagram="C"	{
+			set backpage=prowebRoot_accomChooseDatesPageID 
+			set forwardpage=prowebRoot_accomHotelListPageID
+		}
+		if diagram="D"	{
+			set backpage=prowebRoot_accomChooseDatesPageID 
+			set forwardpage=prowebRoot_accomHotelListPageID
+		}
+		if diagram="K"	{
+			set backpage=prowebRoot_accomChooseDatesPageID 
+			set forwardpage=prowebRoot_accomHotelListPageID
+		}
+		quit backpage_"|"_forwardpage
+	} elseif pagename="taccomhotellist.csp" {
+		if diagram="A"	{
+			set backpage=prowebRoot_accomChooseDatesPageID
+			set forwardpage=normalRoot_"accomHotelListSave.csp"
+		}
+		if diagram="B"	{
+			set backpage=prowebRoot_accomChooseDatesPageID
+			set forwardpage=normalRoot_"accomHotelListSave.csp"
+		}
+		if diagram="C"	{
+			set backpage=prowebRoot_accomChooseDatesPageID
+			set forwardpage=normalRoot_"accomHotelListSave.csp"
+		}
+		if diagram="D"	{
+			set backpage=prowebRoot_accomChooseDatesPageID
+			set forwardpage=normalRoot_"accomHotelListSave.csp"
+		}
+		if diagram="K"	{
+			set backpage=prowebRoot_accomChooseDatesPageID
+			set forwardpage=normalRoot_"accomHotelListSave.csp"
+		}
+		quit backpage_"|"_forwardpage
+	} elseif pagename="accomhotellistsave.csp" {
+		if diagram="A"	{
+			set backpage=prowebRoot_accomHotelListPageID
+			if ##class(setup.objEventSetting).getParameter("accommodation","get guest names",xEventID) {
+				set forwardpage=prowebRoot_accomGuestPageID
+			} else {
+				set forwardpage=normalRoot_"gotoBasket.csp"
+			}
+		}
+		if diagram="B"	{
+			set backpage=prowebRoot_accomHotelListPageID
+			if ##class(setup.objEventSetting).getParameter("accommodation","get guest names",xEventID) {
+				set forwardpage=prowebRoot_accomGuestPageID
+			} else {
+				set forwardpage=normalRoot_"gotoBasket.csp"
+			}
+		}
+		if diagram="C"	{
+			set backpage=prowebRoot_accomHotelListPageID
+			if ##class(setup.objEventSetting).getParameter("accommodation","get guest names",xEventID) {
+				set forwardpage=prowebRoot_accomGuestPageID
+			} else {
+				set forwardpage=normalRoot_"gotoBasket.csp"
+			}
+		}
+		if diagram="D"	{
+			set backpage=prowebRoot_accomHotelListPageID
+			if ##class(setup.objEventSetting).getParameter("accommodation","get guest names",xEventID) {
+				set forwardpage=prowebRoot_accomGuestPageID
+			} else {
+				set forwardpage=normalRoot_"gotoBasket.csp"
+			}
+		}
+		if diagram="K"	{
+			set backpage=prowebRoot_accomHotelListPageID
+			if ##class(setup.objEventSetting).getParameter("accommodation","get guest names",xEventID) {
+				set forwardpage=prowebRoot_accomGuestPageID
+			} else {
+				if seenBasket {
+					// adding an extra room
+					set forwardpage=prowebRoot_basketPageID
+				} else {
+					if eventCategoryID="" quit ..quitIfNoAttCat()
+					// go to the first (and only category) reg page
+					set forwardpage=..getFirstRegistrationPage(eventCategoryID,.allRegPages)
+				}
+			}
+		}
+		quit backpage_"|"_forwardpage
+	} elseif pagename="taccomguest.csp" {
+		if diagram="A"	{
+			set backpage=prowebRoot_accomHotelListPageID
+			set forwardpage=normalRoot_"accomGuestSave.csp"
+		}
+		if diagram="B"	{
+			set backpage=prowebRoot_accomHotelListPageID
+			set forwardpage=normalRoot_"accomGuestSave.csp"
+		}
+		if diagram="C"	{
+			set backpage=prowebRoot_accomHotelListPageID
+			set forwardpage=normalRoot_"accomGuestSave.csp"
+		}
+		if diagram="D"	{
+			set backpage=prowebRoot_accomHotelListPageID
+			set forwardpage=normalRoot_"accomGuestSave.csp"
+		}
+		if diagram="K"	{
+			set backpage=prowebRoot_accomHotelListPageID
+			set forwardpage=normalRoot_"accomGuestSave.csp"
+		}
+		quit backpage_"|"_forwardpage
+	} elseif pagename="accomguestsave.csp" {
+		if diagram="A"	{
+			set backpage=prowebRoot_accomGuestPageID
+			// adding an extra room
+			set forwardpage=normalRoot_"gotoBasket.csp"
+		}
+		if diagram="B"	{
+			set backpage=prowebRoot_accomGuestPageID
+			// adding an extra room
+			set forwardpage=normalRoot_"gotoBasket.csp"
+		}
+		if diagram="C"	{
+			set backpage=prowebRoot_accomGuestPageID
+			// adding an extra room
+			set forwardpage=normalRoot_"gotoBasket.csp"
+		}
+		if diagram="D"	{
+			set backpage=prowebRoot_accomGuestPageID
+			// adding an extra room
+			set forwardpage=normalRoot_"gotoBasket.csp"
+		}
+		if diagram="K"	{
+			set backpage=prowebRoot_accomGuestPageID
+			
+			if seenBasket {
+				// adding an extra room
+				set forwardpage=prowebRoot_basketPageID
+			} else {
+				if eventCategoryID="" quit ..quitIfNoAttCat()
+				// go to the first (and only category) reg page
+				set forwardpage=..getFirstRegistrationPage(eventCategoryID,.allRegPages)
+			}
+		}
+		quit backpage_"|"_forwardpage
+	} elseif pagename="taccomedit.csp" {
+		if diagram="A"	{
+			set backpage=prowebRoot_basketPageID 
+			set forwardpage=normalRoot_"accomEditSave.csp"
+		}
+		if diagram="B"	{
+			set backpage=prowebRoot_basketPageID 
+			set forwardpage=normalRoot_"accomEditSave.csp"
+		}
+		if diagram="C"	{
+			set backpage=prowebRoot_basketPageID 
+			set forwardpage=normalRoot_"accomEditSave.csp"
+		}
+		if diagram="D"	{
+			set backpage=prowebRoot_basketPageID 
+			set forwardpage=normalRoot_"accomEditSave.csp"
+		}
+		if diagram="K"	{
+			set backpage=prowebRoot_basketPageID 
+			set forwardpage=normalRoot_"accomEditSave.csp"
+		}
+		quit backpage_"|"_forwardpage
+	} elseif pagename="accomeditsave.csp" {
+		if diagram="A"	{
+			set backpage=prowebRoot_accomEditPageID
+			set forwardpage=prowebRoot_basketPageID
+		}
+		if diagram="B"	{
+			set backpage=prowebRoot_accomEditPageID
+			set forwardpage=prowebRoot_basketPageID
+		}
+		if diagram="C"	{
+			set backpage=prowebRoot_accomEditPageID
+			set forwardpage=prowebRoot_basketPageID
+		}
+		if diagram="D"	{
+			set backpage=prowebRoot_accomEditPageID
+			set forwardpage=prowebRoot_basketPageID
+		}
+		if diagram="K"	{
+			set backpage=prowebRoot_accomEditPageID
+			set forwardpage=prowebRoot_basketPageID
+		}
+		quit backpage_"|"_forwardpage
+	} elseif pagename="addroom.csp" {
+		if diagram="A"	{
+			set backpage=prowebRoot_homePageID 
+			set forwardpage=prowebRoot_accomChooseDatesPageID
+		}
+		if diagram="B"	{
+			set backpage=prowebRoot_homePageID 
+			set forwardpage=prowebRoot_accomChooseDatesPageID
+		}
+		if diagram="C"	{
+			set backpage=prowebRoot_homePageID 
+			set forwardpage=prowebRoot_accomChooseDatesPageID
+		}
+		if diagram="D"	{
+			set backpage=prowebRoot_homePageID 
+			set forwardpage=prowebRoot_accomChooseDatesPageID
+		}
+		if diagram="K"	{
+			set backpage=prowebRoot_homePageID 
+			set forwardpage=prowebRoot_accomChooseDatesPageID
+		}
+		quit backpage_"|"_forwardpage
+	} elseif pagename="editroom.csp" {
+		if diagram="A"	{
+			set backpage=prowebRoot_homePageID 
+			set forwardpage=prowebRoot_accomEditPageID
+		}
+		if diagram="B"	{
+			set backpage=prowebRoot_homePageID 
+			set forwardpage=prowebRoot_accomEditPageID
+		}
+		if diagram="C"	{
+			set backpage=prowebRoot_homePageID 
+			set forwardpage=prowebRoot_accomEditPageID
+		}
+		if diagram="D"	{
+			set backpage=prowebRoot_homePageID 
+			set forwardpage=prowebRoot_accomEditPageID
+		}
+		if diagram="K"	{
+			set backpage=prowebRoot_homePageID 
+			set forwardpage=prowebRoot_accomEditPageID
+		}
+		quit backpage_"|"_forwardpage
+	} elseif pagename="deleteroom.csp" {
+		if diagram="A"	{
+			set backpage=prowebRoot_homePageID 
+			set forwardpage=prowebRoot_basketPageID
+		}
+		if diagram="B"	{
+			set backpage=prowebRoot_homePageID 
+			set forwardpage=prowebRoot_basketPageID
+		}
+		if diagram="C"	{
+			set backpage=prowebRoot_homePageID 
+			set forwardpage=prowebRoot_basketPageID
+		}
+		if diagram="D"	{
+			set backpage=prowebRoot_homePageID 
+			set forwardpage=prowebRoot_basketPageID
+		}
+		if diagram="K"	{
+			set backpage=prowebRoot_homePageID 
+			set forwardpage=prowebRoot_basketPageID
+		}
+		quit backpage_"|"_forwardpage
+	} elseif pagename="tbasket.csp"	{
+		if diagram="A"	{
+			set forwardpage=normalRoot_"basket2.csp"
+
+			if isAccom {
+				set backpage=prowebRoot_firstVenuePageID
+			} elseif ##class(setup.objItem).anyItemsToChoose(eventConfiguration,sessionID,tempPersonID) { // if sessions are defined
+				set backpage=prowebRoot_chooseSessionsPageID
+			} elseif ##class(setup.objEvent).showChooseDays(xEventID,sessionID,tempPersonID) { // if switched on in eventDetails
+				set backpage=prowebRoot_chooseDaysPageID
+			} else {
+				if eventCategoryID="" quit ..quitIfNoAttCat()
+				// get last page of the eventcategory registration page
+				set displayOrder=$O(allRegPages(eventCategoryID,""),-1)
+				set pageID=allRegPages(eventCategoryID,displayOrder)
+				set backpage=prowebRoot_pageID
+			}
+		}
+		if diagram="B"	{
+			set forwardpage=normalRoot_"basket2.csp"
+			// cannot have a back as we are in group bookings so they can EDIT each delegate unless table booking
+			set backpage=""
+			if isTableBooking {
+				set backpage=prowebRoot_tableBookingPageID	
+			}
+		}
+		if diagram="C"	{
+			set forwardpage=normalRoot_"basket2.csp"
+
+			if isAccom {
+				set backpage=prowebRoot_firstVenuePageID
+			} elseif ##class(setup.objItem).anyItemsToChoose(eventConfiguration,sessionID,tempPersonID) { // if sessions are defined
+				set backpage=prowebRoot_chooseSessionsPageID
+			} elseif ##class(setup.objEvent).showChooseDays(xEventID,sessionID,tempPersonID) { // if switched on in eventDetails
+				set backpage=prowebRoot_chooseDaysPageID
+			} else {
+				if eventCategoryID="" quit ..quitIfNoAttCat()
+				// get last page of the eventcategory registration page
+				set displayOrder=$O(allRegPages(eventCategoryID,""),-1)
+				if displayOrder { // to avoid crash in some scenarios
+					set pageID=allRegPages(eventCategoryID,displayOrder)
+				} else {
+					set pageID=""
+				}
+				set backpage=prowebRoot_pageID
+			}
+		}
+		if diagram="D"	{
+			set forwardpage=normalRoot_"basket2.csp"
+			// cannot have a back as we are in group bookings so they can EDIT each delegate unless table booking
+			set backpage=""
+			if isTableBooking {
+				set backpage=prowebRoot_tableBookingPageID	
+			}
+		}
+		if (diagram="E")!(diagram="H")	{
+			set backpage=prowebRoot_##class(setup.objEventSetting).getParameter("awards","summaryPageID",xEventID)
+			
+			set forwardpage=normalRoot_"basket2.csp"
+		}
+		if diagram="G"	{
+			set backpage=""
+			set forwardpage=""
+		}
+		if diagram="I"	{
+			set backpage=prowebRoot_tableBookingPageID
+			set forwardpage=normalRoot_"basket2.csp"
+		}
+		if diagram="J"	{
+			// get first page of the eventcategory registration page
+			set eventCategoryID=$O(allRegPages(""))
+			set displayOrder=$O(allRegPages(eventCategoryID,""))
+			set pageID=allRegPages(eventCategoryID,displayOrder)
+			set backpage=prowebRoot_pageID
+			// always creating delegates seperate to the booker in this mode so get the first delegate created
+			&SQL(SELECT ID INTO :tmp FROM eCom.tempPerson WHERE (isDelegate=1) AND (active=1) AND (tempPurchase->sessionID=:sessionID) ORDER BY ID )
+			set overridePersonID="NEW"
+			if +SQLCODE=0 set overridePersonID=tmp
+			set forwardpage=""
+		}
+		if diagram="K"	{
+			set backpage=""
+			set forwardpage=""
+		}
+		// **** CURRENTLY ONLY THE BACK PAGE IS USED HERE AS FROM BASKET ONWARDS, PAGENAV IS NOT USED ****
+		set forwardpage=""
+		quit backpage_"|"_forwardpage
+		
+	} elseif pagename="basket2.csp"	{
+		set backpage="asdas"
+		set forwardpage="asdsa"
+		quit backpage_"|"_forwardpage
+
+	} elseif pagename="adddelegate.csp"	{
+		if diagram="A"	{
+			set backpage=""
+			set forwardpage=""
+		}
+		if diagram="B"	{
+			set backpage=prowebRoot_basketPageID
+			if ##class(setup.objEventSetting).getParameter("bookings","do not show delegateUID page",xEventID)	{
+				if eventCategoryID="" quit ..quitIfNoAttCat()
+				// get first page of the eventcategory registration page
+				set displayOrder=$O(allRegPages(eventCategoryID,""))
+				set pageID=allRegPages(eventCategoryID,displayOrder)
+				set forwardpage=prowebRoot_pageID
+			} else {
+				set forwardpage=prowebRoot_delegateUIDPageID
+			}
+		}
+		if diagram="C"	{
+			set backpage=""
+			set forwardpage=""
+		}
+		if diagram="D"	{
+			set backpage=prowebRoot_basketPageID
+			if ##class(setup.objEventSetting).getParameter("bookings","do not show delegateUID page",xEventID)	{
+				if multiCategoryPerBooking	{
+					set forwardpage=prowebRoot_selectCategoryPageID
+				} else {
+					if eventCategoryID="" quit ..quitIfNoAttCat()
+					// get first page of the eventcategory registration page
+					set displayOrder=$O(allRegPages(eventCategoryID,""))
+					set pageID=allRegPages(eventCategoryID,displayOrder)
+					set forwardpage=prowebRoot_pageID
+				}
+			} else {
+				// goto delegateUID page
+				set forwardpage=prowebRoot_delegateUIDPageID
+			}
+		}
+		if (diagram="E")!(diagram="H")	{
+			set backpage=""
+			set forwardpage=""
+		}
+		if diagram="G"	{
+			set backpage=""
+			set forwardpage=""
+		}
+		quit backpage_"|"_forwardpage
+		
+	} elseif pagename="editbooker.csp"	{
+		if diagram="A"	{
+			set backpage=prowebRoot_basketPageID
+			if eventCategoryID="" quit ..quitIfNoAttCat()
+			// get first page of the eventcategory registration page
+			set displayOrder=$O(allRegPages(eventCategoryID,""))
+			set pageID=allRegPages(eventCategoryID,displayOrder)
+			if $G(%session.Data("eventsforce","frontend","Go Directly to Page")) {
+				set pageID=%session.Data("eventsforce","frontend","Go Directly to Page")
+			}
+			set forwardpage=prowebRoot_pageID
+		}
+		if diagram="B"	{
+			set backpage=prowebRoot_basketPageID
+			set forwardpage=prowebRoot_bookersPageID
+		}
+		if diagram="C"	{
+			set backpage=prowebRoot_basketPageID
+			if eventCategoryID="" quit ..quitIfNoAttCat()
+			// get first page of the eventcategory registration page
+			set displayOrder=$O(allRegPages(eventCategoryID,""))
+			set pageID=allRegPages(eventCategoryID,displayOrder)
+			if $G(%session.Data("eventsforce","frontend","Go Directly to Page")) {
+				set pageID=%session.Data("eventsforce","frontend","Go Directly to Page")
+			}
+			set forwardpage=prowebRoot_pageID
+		}
+		if diagram="D"	{
+			set backpage=prowebRoot_basketPageID
+			set forwardpage=prowebRoot_bookersPageID
+		}
+		if (diagram="E")!(diagram="H")	{
+			set backpage=prowebRoot_basketPageID
+			set forwardpage=prowebRoot_##class(setup.objEventSetting).getParameter("awards","awardClientPageID",xEventID)
+		}
+		if diagram="G"	{
+			set backpage=prowebRoot_basketPageID
+			set forwardpage=prowebRoot_firstVenuePageID
+		}
+		if diagram="I"	{
+			set backpage=prowebRoot_basketPageID
+			set forwardpage=prowebRoot_bookersPageID
+		}
+		if diagram="J"	{
+			set backpage=prowebRoot_basketPageID
+			set forwardpage=prowebRoot_bookersPageID
+		}
+		if diagram="K"	{
+			set backpage=prowebRoot_basketPageID
+			if eventCategoryID="" quit ..quitIfNoAttCat()
+			// get first page of the eventcategory registration page
+			set displayOrder=$O(allRegPages(eventCategoryID,""))
+			set pageID=allRegPages(eventCategoryID,displayOrder)
+			set forwardpage=prowebRoot_pageID
+		}
+		quit backpage_"|"_forwardpage
+		
+	} elseif pagename="editdelegate.csp"	{
+		if diagram="A"	{
+			set backpage=prowebRoot_basketPageID
+			if eventCategoryID="" quit ..quitIfNoAttCat()
+			// get first page of the eventcategory registration page
+			set displayOrder=$O(allRegPages(eventCategoryID,""))
+			set pageID=allRegPages(eventCategoryID,displayOrder)
+			if $G(%session.Data("eventsforce","frontend","Go Directly to Page")) {
+				set pageID=%session.Data("eventsforce","frontend","Go Directly to Page")
+			}
+			set forwardpage=prowebRoot_pageID
+		}
+		if diagram="B"	{
+			set backpage=prowebRoot_basketPageID
+			if eventCategoryID="" quit ..quitIfNoAttCat()
+			// get first page of the eventcategory registration page
+			set displayOrder=$O(allRegPages(eventCategoryID,""))
+			set pageID=allRegPages(eventCategoryID,displayOrder)
+			if $G(%session.Data("eventsforce","frontend","Go Directly to Page")) {
+				set pageID=%session.Data("eventsforce","frontend","Go Directly to Page")
+			}
+			set forwardpage=prowebRoot_pageID
+		}
+		if diagram="C"	{
+			set backpage=prowebRoot_basketPageID
+			if eventCategoryID="" quit ..quitIfNoAttCat()
+			// get first page of the eventcategory registration page
+			set displayOrder=$O(allRegPages(eventCategoryID,""))
+			set pageID=allRegPages(eventCategoryID,displayOrder)
+			if $G(%session.Data("eventsforce","frontend","Go Directly to Page")) {
+				set pageID=%session.Data("eventsforce","frontend","Go Directly to Page")
+			}
+			set forwardpage=prowebRoot_pageID
+		}
+		if diagram="D"	{
+			set backpage=prowebRoot_basketPageID
+			if eventCategoryID="" quit ..quitIfNoAttCat()
+			// get first page of the eventcategory registration page
+			set displayOrder=$O(allRegPages(eventCategoryID,""))
+			set pageID=allRegPages(eventCategoryID,displayOrder)
+			if $G(%session.Data("eventsforce","frontend","Go Directly to Page")) {
+				set pageID=%session.Data("eventsforce","frontend","Go Directly to Page")
+			}
+			set forwardpage=prowebRoot_pageID
+		}
+		if (diagram="E")!(diagram="H")	{
+			set backpage=""
+			set forwardpage=""
+		}
+		if diagram="G"	{
+			set backpage=""
+			set forwardpage=""
+		}
+		if diagram="J"	{
+			set backpage=prowebRoot_basketPageID
+			if eventCategoryID="" quit ..quitIfNoAttCat()
+			// get first page of the eventcategory registration page
+			set displayOrder=$O(allRegPages(eventCategoryID,""))
+			set pageID=allRegPages(eventCategoryID,displayOrder)
+			if $G(%session.Data("eventsforce","frontend","Go Directly to Page")) {
+				set pageID=%session.Data("eventsforce","frontend","Go Directly to Page")
+			}
+			set forwardpage=prowebRoot_pageID
+		}
+
+		quit backpage_"|"_forwardpage
+	} elseif pagename="editsession.csp"	{
+		if diagram="A"	{
+			set backpage=prowebRoot_basketPageID
+			// double check we can go to the session page
+			if ##class(setup.objItem).anyItemsToChoose(eventConfiguration,sessionID,tempPersonID) { // if sessions are defined
+				set forwardpage=prowebRoot_chooseSessionsPageID
+			} else { // otherwise back to the basket
+				set forwardpage=prowebRoot_basketPageID
+			}
+		}
+		if diagram="B"	{
+			set backpage=prowebRoot_basketPageID
+			// double check we can go to the session page
+			if ##class(setup.objItem).anyItemsToChoose(eventConfiguration,sessionID,tempPersonID) { // if sessions are defined
+				set forwardpage=prowebRoot_chooseSessionsPageID
+			} else { // otherwise back to the basket
+				set forwardpage=prowebRoot_basketPageID
+			}
+		}
+		if diagram="C"	{
+			set backpage=prowebRoot_basketPageID
+			// double check we can go to the session page
+			if ##class(setup.objItem).anyItemsToChoose(eventConfiguration,sessionID,tempPersonID) { // if sessions are defined
+				set forwardpage=prowebRoot_chooseSessionsPageID
+			} else { // otherwise back to the basket
+				set forwardpage=prowebRoot_basketPageID
+			}
+		}
+		if diagram="D"	{
+			set backpage=prowebRoot_basketPageID
+			// double check we can go to the session page
+			if ##class(setup.objItem).anyItemsToChoose(eventConfiguration,sessionID,tempPersonID) { // if sessions are defined
+				set forwardpage=prowebRoot_chooseSessionsPageID
+			} else { // otherwise back to the basket
+				set forwardpage=prowebRoot_basketPageID
+			}
+		}
+		if (diagram="E")!(diagram="H")	{
+			set backpage=""
+			set forwardpage=""
+		}
+		if diagram="G"	{
+			set backpage=""
+			set forwardpage=""
+		}
+		if diagram="J"	{
+			set backpage=prowebRoot_basketPageID
+			// double check we can go to the session page
+			if ##class(setup.objItem).anyItemsToChoose(eventConfiguration,sessionID,tempPersonID) { // if sessions are defined
+				set forwardpage=prowebRoot_chooseSessionsPageID
+			} else { // otherwise back to the basket
+				set forwardpage=prowebRoot_basketPageID
+			}
+		}
+
+		quit backpage_"|"_forwardpage
+
+	} else {
+		// required for cache 2007.1 to compile but should never happen
+		quit "nowhere|nowhere"	
+	}
+]]></Implementation>
+</Method>
+
+<Method name="getProgress">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>page,pageID,sessionID,xEventID,xLangID</FormalSpec>
+<ProcedureBlock>1</ProcedureBlock>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	/// First work out which diagram I am using
+	
+	set eventConfiguration = ##class(setup.eventConfiguration).createForEventID(xEventID)
+	set isTicketingPersonMode=+##class(cod.objTicket).isTicketingPersonMode(xEventID)
+	set isGroupBookings=+##class(setup.objEventSetting).getParameter("bookings","allow group bookings",xEventID)
+	set isAnonymousMode=+##class(setup.objEventSetting).getParameter("system","do not use email",xEventID)
+	set singleEmailPerEvent=0
+	if isAnonymousMode {
+		// New mode - singleEmailPerEvent - like anonymous but with unique email address per event. Page flow should include tRegisterEmailNew.csp
+		set singleEmailPerEvent=##class(setup.objEventSetting).getParameter("system","anonymous - single email per event",xEventID)
+	}
+	// multicatregpages = do we have more than one category to ask the delegate
+	//  - NOT do we have more than one reg page per category as that's always allowed
+	set backendBooking=+##class(eCom.tempPurchase).isBackendBooking(sessionID)
+	set isMultiCategoryRegPages=+(##class(setup.lnkCategoryEvent).numCategories(xEventID,xLangID,+backendBooking)>1)
+	
+	// are we doing table bookings?
+	set isTableBooking=0
+	if ##class(setup.objEventSetting).getParameter("table bookings","enable frontend",xEventID) set isTableBooking=1
+	
+	set isAwards=+##class(setup.objEventSetting).getParameter("system","isAwardsEvent",xEventID)
+	
+	// are we doing hotel bookings for this event? (and do we have any venues setup for this event)
+	set firstVenuePageID="",isAccom=0
+	if ##class(setup.objEventSetting).getParameter("bookings","allow accommodation bookings",xEventID)	{
+		// get the first venuepageID (the rest will also be displayed in this page)
+		if ##class(accom.objEventHotel).getFirstVenuePageID(xEventID) {
+			set isAccom=1
+		}
+	}
+	set accomOnlyEvent=0
+	if ##class(setup.objEventSetting).getParameter("bookings","only accommodation bookings",xEventID) set accomOnlyEvent=1
+	set (showAccom,newAccomEvent,hasAccom)=0
+	
+	set (accomChooseDatesPageID,accomHotelListPageID,accomGuestPageID,accomEditPageID)=""
+	if isAccom {
+		set newAccomEvent=##class(setup.objEventSetting).getParameter("bookings","use new accommodation page flow",xEventID)
+	}
+	// is this a meeting manager event?
+
+	set diagram=""
+	if (isGroupBookings=0)&(isMultiCategoryRegPages=0) set diagram="A"	// based on event settings
+	if (isGroupBookings=1)&(isMultiCategoryRegPages=0) set diagram="B"	// based on event settings
+	if (isGroupBookings=0)&(isMultiCategoryRegPages=1) set diagram="C"	// based on event settings
+	if (isGroupBookings=1)&(isMultiCategoryRegPages=1) set diagram="D"	// based on event settings
+	if isAwards=1 {
+		set diagram="E"					// regular awards
+		if ##class(setup.objEventSetting).getParameter("awards","use sections",xEventID) set diagram="H" // the US/UK awards with sections
+	}
+	if accomOnlyEvent=1,isAccom set diagram="G"				// based on event setting
+	if isTableBooking {
+		set diagram="I"
+	}
+	if isTicketingPersonMode,isGroupBookings set diagram="J"  // can only do this using bookers page
+	if accomOnlyEvent=1,newAccomEvent set diagram="K" // new accommodation page flow
+	set ok=##class(setup.lnkCategoryEvent).getAllRegPages(xEventID,xLangID,backendBooking,.allRegPages,.allRegPageIDs) 
+	
+	set pageCount=0,thisPageNo="N/A"
+	
+	if diagram="A" {
+		// registerEmailNew/Amend
+		if page["registeremail" set thisPageNo=0
+		
+		// The registration pages (count the maximum)
+		set (eventCategoryID,displayOrder)="",maxPageCount=0
+		for {
+			set eventCategoryID=$O(allRegPages(eventCategoryID))
+			if eventCategoryID="" quit
+			set tmpPageCount=0
+			for {
+				set displayOrder=$O(allRegPages(eventCategoryID,displayOrder))
+				if displayOrder="" quit
+				set tmpPageCount=tmpPageCount+1
+				if pageID=allRegPages(eventCategoryID,displayOrder) set thisPageNo=pageCount+tmpPageCount
+			}
+			if tmpPageCount>maxPageCount set maxPageCount=tmpPageCount
+		}
+		set pageCount=pageCount+maxPageCount
+		// Count the choose days pages
+		if ##class(setup.objEvent).showChooseDays(xEventID,sessionID) { // if switched on in eventDetails
+			set pageCount=pageCount+1
+			if page["choosedays" set thisPageNo=pageCount
+		}
+		// Count the choose sessions pages
+		if ##class(setup.objItem).anyItemsToChoose(eventConfiguration,sessionID) { // if sessions are defined
+			set pageCount=pageCount+1
+			if page["chooseitems" set thisPageNo=pageCount
+		}
+		// Count the new accommodation pages
+		if newAccomEvent {
+			set pageCount=pageCount+1
+			if page["taccomchoosedates" set thisPageNo=pageCount
+			set pageCount=pageCount+1
+			if page["taccomhotellist" set thisPageNo=pageCount
+			if ##class(setup.objEventSetting).getParameter("accommodation","get guest names",xEventID) {
+				set pageCount=pageCount+1
+				if page["taccomguest" set thisPageNo=pageCount
+			}
+		}
+		// Count the old accommodation pages
+		if isAccom,'newAccomEvent {
+			set pageCount=pageCount+1
+			if page["tvenuesummary" set thisPageNo=pageCount
+			set pageCount=pageCount+1
+			if page["thotelbooking" set thisPageNo=pageCount
+		}
+	} elseif diagram="B" {
+		// select booking mode
+		if page["tselectbookingmode" set thisPageNo=0
+		// registerEmailNew/Amend
+		set pageCount=pageCount+1
+		if page["registeremail" set thisPageNo=pageCount
+		// booker page
+		set pageCount=pageCount+1
+		if page["tbooker" set thisPageNo=pageCount
+		if isTableBooking {
+			set pageCount=pageCount+1
+			if page["ttableguests" set thisPageNo=pageCount
+		}
+		// delegate UID page
+		if page["tdelegateuid" set thisPageNo=pageCount
+		
+		// The registration pages (count the maximum)
+		set (eventCategoryID,displayOrder)="",maxPageCount=0
+		for {
+			set eventCategoryID=$O(allRegPages(eventCategoryID))
+			if eventCategoryID="" quit
+			set tmpPageCount=0
+			for {
+				set displayOrder=$O(allRegPages(eventCategoryID,displayOrder))
+				if displayOrder="" quit
+				set tmpPageCount=tmpPageCount+1
+				if pageID=allRegPages(eventCategoryID,displayOrder) set thisPageNo=pageCount+tmpPageCount
+			}
+			if tmpPageCount>maxPageCount set maxPageCount=tmpPageCount
+		}
+		set pageCount=pageCount+maxPageCount
+		
+		// Count the choose days pages
+		if ##class(setup.objEvent).showChooseDays(xEventID,sessionID) { // if switched on in eventDetails
+			set pageCount=pageCount+1
+			if page["choosedays" set thisPageNo=pageCount
+		}
+		// Count the choose sessions pages
+		if ##class(setup.objItem).anyItemsToChoose(eventConfiguration,sessionID) { // if sessions are defined
+			set pageCount=pageCount+1
+			if page["chooseitems" set thisPageNo=pageCount
+		}
+		// Count the new accommodation pages
+		if newAccomEvent {
+			set pageCount=pageCount+1
+			if page["taccomchoosedates" set thisPageNo=pageCount
+			set pageCount=pageCount+1
+			if page["taccomhotellist" set thisPageNo=pageCount
+			if ##class(setup.objEventSetting).getParameter("accommodation","get guest names",xEventID) {
+				set pageCount=pageCount+1
+				if page["taccomguest" set thisPageNo=pageCount
+			}
+		}
+		// Count the old accommodation pages
+		if isAccom,'newAccomEvent {
+			set pageCount=pageCount+1
+			if page["tvenuesummary" set thisPageNo=pageCount
+			set pageCount=pageCount+1
+			if page["thotelbooking" set thisPageNo=pageCount
+		}
+	} elseif diagram="C" {
+		// registerEmailNew/Amend
+		if page["registeremail" set thisPageNo=0
+
+		// Count the select category page 
+		set pageCount=pageCount+1
+		if page["tselectpersoncategory" set thisPageNo=pageCount
+		// The registration pages (count the maximum)
+		set (eventCategoryID,displayOrder)="",maxPageCount=0
+		for {
+			set eventCategoryID=$O(allRegPages(eventCategoryID))
+			if eventCategoryID="" quit
+			set tmpPageCount=0
+			for {
+				set displayOrder=$O(allRegPages(eventCategoryID,displayOrder))
+				if displayOrder="" quit
+				set tmpPageCount=tmpPageCount+1
+				if pageID=allRegPages(eventCategoryID,displayOrder) set thisPageNo=pageCount+tmpPageCount
+			}
+			if tmpPageCount>maxPageCount set maxPageCount=tmpPageCount
+		}
+		set pageCount=pageCount+maxPageCount
+		// Count the choose days pages
+		if ##class(setup.objEvent).showChooseDays(xEventID,sessionID) { // if switched on in eventDetails
+			set pageCount=pageCount+1
+			if page["choosedays" set thisPageNo=pageCount
+		}
+		// Count the choose sessions pages
+		if ##class(setup.objItem).anyItemsToChoose(eventConfiguration,sessionID) { // if sessions are defined
+			set pageCount=pageCount+1
+			if page["chooseitems" set thisPageNo=pageCount
+		}
+		// Count the new accommodation pages
+		if newAccomEvent {
+			set pageCount=pageCount+1
+			if page["taccomchoosedates" set thisPageNo=pageCount
+			set pageCount=pageCount+1
+			if page["taccomhotellist" set thisPageNo=pageCount
+			if ##class(setup.objEventSetting).getParameter("accommodation","get guest names",xEventID) {
+				set pageCount=pageCount+1
+				if page["taccomguest" set thisPageNo=pageCount
+			}
+		}
+		// Count the old accommodation pages
+		if isAccom,'newAccomEvent {
+			set pageCount=pageCount+1
+			if page["taccomchoosedates" set thisPageNo=pageCount
+			set pageCount=pageCount+1
+			if page["thotelbooking" set thisPageNo=pageCount
+		}
+	} elseif diagram="D" {
+		// select booking mode
+		if page["tselectbookingmode" set thisPageNo=0
+		// Count the select category page 
+		set pageCount=pageCount+1
+		if page["tselectpersoncategory" set thisPageNo=pageCount
+		// registerEmailNew/Amend
+		set pageCount=pageCount+1
+		if page["registeremail" set thisPageNo=pageCount
+		// booker page
+		set pageCount=pageCount+1
+		if page["tbooker" set thisPageNo=pageCount
+		if isTableBooking {
+			set pageCount=pageCount+1
+			if page["ttableguests" set thisPageNo=pageCount
+		}
+		// delegate UID page
+		if page["tdelegateuid" set thisPageNo=pageCount
+		
+		// The registration pages (count the maximum)
+		set (eventCategoryID,displayOrder)="",maxPageCount=0
+		for {
+			set eventCategoryID=$O(allRegPages(eventCategoryID))
+			if eventCategoryID="" quit
+			set tmpPageCount=0
+			for {
+				set displayOrder=$O(allRegPages(eventCategoryID,displayOrder))
+				if displayOrder="" quit
+				set tmpPageCount=tmpPageCount+1
+				if pageID=allRegPages(eventCategoryID,displayOrder) set thisPageNo=pageCount+tmpPageCount
+			}
+			if tmpPageCount>maxPageCount set maxPageCount=tmpPageCount
+		}
+		set pageCount=pageCount+maxPageCount
+		// Count the choose days pages
+		if ##class(setup.objEvent).showChooseDays(xEventID,sessionID) { // if switched on in eventDetails
+			set pageCount=pageCount+1
+			if page["choosedays" set thisPageNo=pageCount
+		}
+		// Count the choose sessions pages
+		if ##class(setup.objItem).anyItemsToChoose(eventConfiguration,sessionID) { // if sessions are defined
+			set pageCount=pageCount+1
+			if page["chooseitems" set thisPageNo=pageCount
+		}
+		// Count the new accommodation pages
+		if newAccomEvent {
+			set pageCount=pageCount+1
+			if page["taccomchoosedates" set thisPageNo=pageCount
+			set pageCount=pageCount+1
+			if page["taccomhotellist" set thisPageNo=pageCount
+			if ##class(setup.objEventSetting).getParameter("accommodation","get guest names",xEventID) {
+				set pageCount=pageCount+1
+				if page["taccomguest" set thisPageNo=pageCount
+			}
+		}
+		// Count the old accommodation pages
+		if isAccom,'newAccomEvent {
+			set pageCount=pageCount+1
+			if page["tvenuesummary" set thisPageNo=pageCount
+			set pageCount=pageCount+1
+			if page["thotelbooking" set thisPageNo=pageCount
+		}
+	} elseif (diagram="E")!(diagram="H") { // both diagrams are same for these purposes
+		// registerEmailNew/Amend
+		if page["registeremail" set thisPageNo=0
+		
+		set pageCount=pageCount+1
+		if page["tawardsclient" set thisPageNo=pageCount
+		
+		// Count the choose days pages
+		if ##class(setup.objEvent).showChooseDays(xEventID,sessionID) { // if switched on in eventDetails
+			set pageCount=pageCount+1
+			if page["choosedays" set thisPageNo=pageCount
+		}
+		
+		set pageCount=pageCount+1
+		if page["tchoosesection" set thisPageNo=pageCount
+		
+		set pageCount=pageCount+1
+		if page["tawardsentry" set thisPageNo=pageCount
+		
+		set pageCount=pageCount+1
+		if page["awardsoverview" set thisPageNo=pageCount
+		
+	} elseif diagram="G" {
+		// registerEmailNew/Amend
+		if page["registeremail" set thisPageNo=0
+		
+		
+		// Count the old accommodation pages
+		set pageCount=pageCount+1
+		if page["tvenuesummary" set thisPageNo=pageCount
+		set pageCount=pageCount+1
+		if page["thotelbooking" set thisPageNo=pageCount
+		// Count the registration page
+		set pageCount=pageCount+1
+		if page["tregistration" set thisPageNo=pageCount
+		
+	} elseif diagram="I" {
+		// registerEmailNew/Amend
+		if page["registeremail" set thisPageNo=0
+		// booker page
+		set pageCount=pageCount+1
+		if page["tbooker" set thisPageNo=pageCount
+		// table guest page
+		set pageCount=pageCount+1
+		if page["ttableguests" set thisPageNo=pageCount
+	} elseif diagram="J" {
+		// registerEmailNew/Amend
+		if page["registeremail" set thisPageNo=0
+		// booker page
+		set pageCount=pageCount+1
+		if page["tbooker" set thisPageNo=pageCount
+		// table guest page
+		set pageCount=pageCount+1
+		if page["tregistration" set thisPageNo=pageCount
+	} elseif diagram="K" {
+		// registerEmailNew/Amend
+		if page["registeremail" set thisPageNo=0
+		
+		// Count the old accommodation pages
+		set pageCount=pageCount+1
+		if page["taccomchoosedates" set thisPageNo=pageCount
+		set pageCount=pageCount+1
+		if page["taccomhotellist" set thisPageNo=pageCount
+		set pageCount=pageCount+1
+		if page["taccomguest" set thisPageNo=pageCount
+		// Count the registration page
+		set pageCount=pageCount+1
+		if page["tregistration" set thisPageNo=pageCount
+	}
+	
+	// accommodation edit is always one page away from the basket
+	if page["taccomedit" set thisPageNo=pageCount
+	// Count the basket page
+	set pageCount=pageCount+1
+	if page["basket" set thisPageNo=pageCount
+	
+	// Are there any payment pages?
+	&SQL(SELECT instructionPageID INTO :tmp 
+		FROM links.lnkEventPaymentMethod
+		WHERE (objEvent = :xEventID)
+	)
+	if +SQLCODE=0,tmp {
+		set pageCount=pageCount+1
+	}
+	if page["paymentmethod" set thisPageNo=pageCount
+	
+	// Count the receipt page
+	set pageCount=pageCount+1
+	if page["treceipt" set thisPageNo=pageCount
+	
+	quit pageCount_"|"_thisPageNo
+]]></Implementation>
+</Method>
+
+<Method name="quitIfNoAttCat">
+<ClassMethod>1</ClassMethod>
+<Implementation><![CDATA[
+	// Check that we have an attendee category or it will crash later on. Redirect to start of registration if not. Fred june 2011
+	set backforward="registerNew.csp|registerNew.csp"
+	set ^xPageNav(+$H,%session.SessionId,$I(^xPageNav(+$H,%session.SessionId)),"no attCat")=pagename
+	quit backforward
+]]></Implementation>
+</Method>
+
+<Method name="getFirstRegistrationPage">
+<ClassMethod>1</ClassMethod>
+<FormalSpec><![CDATA[eventCategoryID,&allRegPages]]></FormalSpec>
+<ProcedureBlock>1</ProcedureBlock>
+<Implementation><![CDATA[
+	if '$D(allRegPages) {
+		throw ##class(shared.exceptions.generalException).%New("Must pass in regPages")	
+	}
+	if 'eventCategoryID {
+		throw ##class(shared.exceptions.generalException).%New("No eventCategoryID passed in")	
+	}
+	set displayOrder=$O(allRegPages(eventCategoryID,""))
+	if 'displayOrder {
+		throw ##class(shared.exceptions.generalException).%New("There are no registration pages for this attendee category")	
+	}
+	set pageID=allRegPages(eventCategoryID,displayOrder)
+	set forwardpage=..getProwebRoot()_pageID
+	quit forwardpage
+]]></Implementation>
+</Method>
+
+<Method name="getNextPageFromOKToBookStatus">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>okToBook</FormalSpec>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	set forwardpage=""
+	if 'okToBook {
+		if $p(okToBook,"|",2)=1 {
+			set forwardpage="registrationEnded.csp?er=noMoreBookings"
+		} else {
+			set forwardpage="registrationEnded.csp?er=capacity"
+		}
+	}
+	quit forwardpage
+]]></Implementation>
+</Method>
+
+<Method name="isOKToStartWithPreselectedCategory">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>eventConfiguration:setup.eventConfiguration,tempPersonID,langID</FormalSpec>
+<ProcedureBlock>1</ProcedureBlock>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	set ok=1
+	set tempPurchaseID=##class(eCom.tempPerson).getTempPurchaseID(tempPersonID)
+	if 'tempPurchaseID quit ok
+	set eventID=##class(eCom.tempPurchase).getEventID(tempPurchaseID)
+	
+	// If we are already assigned to a invitation only attendee category, we should go to the first registration page (like diagram A)
+	set eventCategoryID=##class(eCom.tempPurchase).getEventCategory2(tempPurchaseID,tempPersonID,langID)
+	if eventCategoryID {
+		set hasPreselectedCategory=0
+		if ##class(setup.lnkAttendeeCategoryDetailsEvent).isInvitationOnly(eventID,eventCategoryID) set hasPreselectedCategory=1
+		if ##class(setup.objEventSetting).getParameter("preRegistration","pre-select attendee type",eventID) set hasPreselectedCategory=1	
+		
+		set ok=eventConfiguration.getAvailabilityChecker(eventCategoryID,tempPurchaseID, tempPersonID).isOKToBook()
+		
+	}
+	
+	quit ok
+]]></Implementation>
+</Method>
+
+<Method name="getProwebRoot">
+<ClassMethod>1</ClassMethod>
+<ProcedureBlock>1</ProcedureBlock>
+<Implementation><![CDATA[	quit "../../system/proweb/start.csp?pageID="
+]]></Implementation>
+</Method>
+
+<Method name="convertProceedKeyFromProweb2ToProweb1">
+<Description>
+add a 'T' to the proweb2 proceedKey to make it use the same page nav logic as proweb1</Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec>pagename:%String,originalPageID:%String</FormalSpec>
+<Private>1</Private>
+<ProcedureBlock>1</ProcedureBlock>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	if (originalPageID > 0) && (##class(sc.objTemplate).isProweb2ImplementedForPageName(pagename)) {
+		set pagename = "t"_pagename	
+	}
+	return pagename
+]]></Implementation>
+</Method>
+</Class>
+
+
 <Class name="shared.pageMethods">
 <Description><![CDATA[
 <!-- ;vc;-
-;vc;    Object: shared.pageMethods.CLS/EV.187
+;vc;    Object: shared.pageMethods.CLS/EV.185
 ;vc; Component: CLS.shared.pageMethods
 ;vc;  Location: LargeDev
-;vc; Date/Time: 17-Jan-17 16:30
+;vc; Date/Time: 19-Jan-17 11:37
 ;vc;      User: FredG
-;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>shared.pageMethods.CLS/EV.187</td><td>CLS.shared.pageMethods</td><td>LargeDev</td><td style='white-space: nowrap;'>17-Jan-17 16:30</td><td>FredG</td></tr></table>
+;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>shared.pageMethods.CLS/EV.185</td><td>CLS.shared.pageMethods</td><td>LargeDev</td><td style='white-space: nowrap;'>19-Jan-17 11:37</td><td>FredG</td></tr></table>
 ]]></Description>
 <Abstract>1</Abstract>
 <ClassType/>
 <ProcedureBlock>1</ProcedureBlock>
-<TimeChanged>64300,59497.799343</TimeChanged>
+<TimeChanged>64273,39836</TimeChanged>
 <TimeCreated>60747,44410.590792</TimeCreated>
 
 <Method name="prePartOne">
@@ -35169,7 +39178,6 @@ newEventID can be blank </Description>
 	if newEventID do ..addToLastEventSelected(xPersonID,newEventID)
 	if newEventID do ..addToMRU(xPersonID,newEventID)
 	do ..clearBackendMenuCache()
-	kill %session.Data("eventsforce","frontend")
 	quit
 ]]></Implementation>
 </Method>

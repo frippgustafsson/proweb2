@@ -174,34 +174,37 @@ The page header is all wrongly populated
 page header should not be stylable, change editor if ef-page-header
 search for ########
 restore the unit tests
-look at form-horizontal isseuas
 turn off setting in template upload (temporary)
-- footer text can't be saved (double lists?)
-- undo the changes that extempt the top level element (page) from having a link to itself
-- fix CR issues
-- lost session after removing question on first page
-- lost session after adding question on the second reg page
+implement the mvcHandler
+footer text can't be saved (double lists?)
+undo the changes that extempt the top level element (page) from having a link to itself
+fix CR issues
+lost session after removing question on first page
+lost session after adding question on the second reg page
+sometimes get a session timeout when switching pages
+can't add any questions to the second reg page the first time -  needs the refresh to reinstated
+the security logic should fail the page rendering if there is a backend sessions and it has a different eventID
 
 ===============================================================================
-- how should we keep track of the pageID? It's not only for the mvcHandler - edit, deletre and submit needs it too
-- why is "invalidURL.htm" saying 'your session has expired'?
-- what should we call the 'base'?
-- can't add any questions to the second reg page the first time -  needs the refresh to reinstated
-- Switching language gives an empty page
-- fix saving the country causes errors
-- discuss if we can enforce the eventID in all URLs
-- sometimes get a session timeout when switching pages
-- the banner is not on grey background
-- should the empty list alway be grey
-- refactor objLayout-writeBit
 
---- iceboxing it ---
+why is "invalidURL.htm" saying 'your session has expired'?
+Switching language from menu gives an empty page
+switching language from dropdown doesn't update the dropdown
+add getPageID in mvcHandler.frontendProweb (it should get from request and then fallback to getPageID)
+
+fix saving the country causes errors
+implement the page security
+the banner is not on grey background
+should the empty list alway be grey
+refactor objLayout-writeBit
+
 adding contents to footer in new event fails
 rename and restore the templates
 add upgrade code to populate the 'listYpe' property in sc.objComponent
 the editor panel and the quick edit are not using form-line/form-group
 the buttons are misplaced in small viewfinder
 multi column multicheck boxes
+look at form-horizontal isseuas
 improve the way we preview/edit for specific attendee categories
 move out all the inpage javascripts from frontJS.csp to real JS files
 rewrite frontendHTTPheader/frontednStyles/frontendJS
@@ -222,6 +225,7 @@ alignments are off in narrow viewport
 test multiple list on a page
 replace most contextDataRegistration with contextDataFrontend
 QBIs
+refactor deleteListItem.csp to be more secure
 warning before leaving the page
 table bookings
 remove objSteps

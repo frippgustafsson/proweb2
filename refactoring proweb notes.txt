@@ -179,14 +179,20 @@ turn off setting in template upload (temporary)
 - footer text can't be saved (double lists?)
 - undo the changes that extempt the top level element (page) from having a link to itself
 - fix CR issues
+- lost session after removing question on first page
+- lost session after adding question on the second reg page
 
 ===============================================================================
+- how should we keep track of the pageID? It's not only for the mvcHandler - edit, deletre and submit needs it too
+- why is "invalidURL.htm" saying 'your session has expired'?
+- what should we call the 'base'?
+- can't add any questions to the second reg page the first time -  needs the refresh to reinstated
+- Switching language gives an empty page
 - fix saving the country causes errors
 - discuss if we can enforce the eventID in all URLs
 - sometimes get a session timeout when switching pages
 - the banner is not on grey background
 - should the empty list alway be grey
-- proweb1 reg pages alignment issues
 - refactor objLayout-writeBit
 
 --- iceboxing it ---
@@ -221,3 +227,4 @@ table bookings
 remove objSteps
 add integration test where we create the whole shebang
 remove proweb version 1.5 code
+an easier way of adding a link to another language in the menu is need

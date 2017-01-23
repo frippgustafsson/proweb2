@@ -184,16 +184,14 @@ lost session after adding question on the second reg page
 sometimes get a session timeout when switching pages
 can't add any questions to the second reg page the first time -  needs the refresh to reinstated
 the security logic should fail the page rendering if there is a backend sessions and it has a different eventID
-
-===============================================================================
-
+implement the page security
+add getPageID in mvcHandler.frontendProweb (it should get from request and then fallback to getPageID)
 why is "invalidURL.htm" saying 'your session has expired'?
 Switching language from menu gives an empty page
 switching language from dropdown doesn't update the dropdown
-add getPageID in mvcHandler.frontendProweb (it should get from request and then fallback to getPageID)
 
+===============================================================================
 fix saving the country causes errors
-implement the page security
 the banner is not on grey background
 should the empty list alway be grey
 refactor objLayout-writeBit

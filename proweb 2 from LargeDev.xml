@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.2 (Build 736U)" ts="2017-01-19 16:32:00">
+<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.2 (Build 736U)" ts="2017-01-23 11:00:49">
 <Class name="EF.contextDataFrontend">
 <Description><![CDATA[
 <!-- ;vc;-
@@ -390,7 +390,7 @@ if website is private, this will be set to the cod.objPerson.ID of that logged i
 
 <Class name="EF.mvcHandler.frontendProweb">
 <Super>EF.mvcHandler.frontend</Super>
-<TimeChanged>64302,58386.891618</TimeChanged>
+<TimeChanged>64306,39308.11595</TimeChanged>
 <TimeCreated>64292,52952.708564</TimeCreated>
 
 <Property name="showRegistrationProgressBar">
@@ -423,6 +423,7 @@ if website is private, this will be set to the cod.objPerson.ID of that logged i
 	
 	do page.updatePageID()
 	do page.updateEditFlag()
+	do page.updateLanguageID()
 	
 	return page
 ]]></Implementation>
@@ -629,10 +630,8 @@ if website is private, this will be set to the cod.objPerson.ID of that logged i
 
 <Method name="updatePageID">
 <Implementation><![CDATA[
-	set ..pageID = %request.Get("pageID")
-	if '..pageID { // fallback to previous page if called without pageID
-		set ..pageID = %session.Get("pageID")
-	}
+	#define getFromRequestFirst 1
+	set ..pageID = ##class(shared.pageMethods).getPageID($$$getFromRequestFirst)
 	set %session.Data("pageID") = ..pageID
 ]]></Implementation>
 </Method>
@@ -642,7 +641,8 @@ if website is private, this will be set to the cod.objPerson.ID of that logged i
 	if ..pageID {
 		set languageIDFromPage = ##class(sc.xModules.objPage).getLanguageIDFromPageID(..pageID)
 		if languageIDFromPage {
-			set ..contextData.languageID = languageIDFromPage
+			set %session.Data("eventsforce","frontend","xLangID") = languageIDFromPage
+			set %session.Data("eventsforce","frontend","xPrefLangID") = languageIDFromPage
 		}
 	}
 ]]></Implementation>
@@ -5126,7 +5126,7 @@ also an entry point from unit tests</Description>
 
 <Class name="EF.pages.base">
 <Super>%CSP.Page,EF.htmlGenerator</Super>
-<TimeChanged>64302,59216.906589</TimeChanged>
+<TimeChanged>64306,39202.48169</TimeChanged>
 <TimeCreated>64292,52804.615476</TimeCreated>
 
 <Parameter name="contextDataClass">
@@ -5161,7 +5161,6 @@ also an entry point from unit tests</Description>
 	set %zPage.contextData = ..getContextData()
 
 	do %zPage.updateEventID()
-	do %zPage.updateLanguageID()
 	
 	if '$IsObject(%zPage.contextData) {
 			throw ##class(shared.exceptions.generalException).%New("Failed to create contextData in page")

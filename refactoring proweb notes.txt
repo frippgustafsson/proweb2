@@ -189,8 +189,10 @@ add getPageID in mvcHandler.frontendProweb (it should get from request and then 
 why is "invalidURL.htm" saying 'your session has expired'?
 Switching language from menu gives an empty page
 switching language from dropdown doesn't update the dropdown
+the stand page should not be selectable
 
 ===============================================================================
+the manu row in the new template should not scroll
 fix saving the country causes errors
 the banner is not on grey background
 should the empty list alway be grey

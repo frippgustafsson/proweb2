@@ -190,13 +190,22 @@ why is "invalidURL.htm" saying 'your session has expired'?
 Switching language from menu gives an empty page
 switching language from dropdown doesn't update the dropdown
 the stand page should not be selectable
+introduce a max-width in the templates
+the banner is not on grey background
+the menu row in the new template should not scroll
+hide the scrolling under the editor panel
+fix the width issue of the edit control panel in very narrow viewports
+deleting the banner takes me nowhere
 
 ===============================================================================
-the manu row in the new template should not scroll
-fix saving the country causes errors
-the banner is not on grey background
+adding a new banner gives me 'EventID in the URL doesn't match eventID in the backend session'
 should the empty list alway be grey
+rename CSS classes with underscore, e.g. ef_navigation_horizontal
+fix saving the country causes errors
+split up the JS file into smaller chunks
+namespace the javascript methods
 refactor objLayout-writeBit
+namespace the bootstrap classes by copying their definition into our classes (eg. copy btn-large into ef-btn-large)
 
 adding contents to footer in new event fails
 rename and restore the templates

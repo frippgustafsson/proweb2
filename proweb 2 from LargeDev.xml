@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.2 (Build 736U)" ts="2017-01-23 11:37:09">
+<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.2 (Build 736U)" ts="2017-01-24 16:18:31">
 <Class name="EF.contextDataFrontend">
 <Description><![CDATA[
 <!-- ;vc;-
@@ -6951,7 +6951,7 @@ this is for version 1 of proweb</Description>
 
 <Class name="EF.ui.components.frontend.editorControlPanel">
 <Super>shared.pCSPmanage</Super>
-<TimeChanged>64306,41293.724057</TimeChanged>
+<TimeChanged>64307,36915.211928</TimeChanged>
 <TimeCreated>64203,40625.329831</TimeCreated>
 
 <Method name="outputEditorControlPanel">
@@ -6967,114 +6967,116 @@ this is for version 1 of proweb</Description>
 	}	
 
 	&html<
-		<div id="efEditorControlPanel" class="container ef-editor-control-panel">
-			<div class="ef-editor-panel-heading">
-				Website Contents Editor
-				<div style="float: right;">
-					<button type="button" id="pageProperties" class="glyphicon glyphicon-pencil" style="color: black;" onClick="window.location.assign('#(..encodeForURL(..Link("../../backend/proweb/pageProperties.csp")))#');"></button>
+		<div id="efEditorBackground">
+			<div id="efEditorControlPanel" class="container ef-editor-control-panel">
+				<div class="ef-editor-panel-heading">
+					Website Contents Editor
+					<div style="float: right;">
+						<button type="button" id="pageProperties" class="glyphicon glyphicon-pencil" style="color: black;" onClick="window.location.assign('#(..encodeForURL(..Link("../../backend/proweb/pageProperties.csp")))#');"></button>
 
+					</div>
 				</div>
-			</div>
-			<div class="ef-editor-panel-body">
-				<div class="row form-horizontal">
-					<div class="col-sm-1">
-						<label for="selPage" class="control-label">
-							Page:
-						</label>
-					</div>
-					<div class="col-sm-2">
-						<select name="selPage" id="selPage" class="form-control ef-form-control" onChange="window.location.assign('#(newPageURL)#&pageID=' + this.value);">
-							>
-							set eventPageList=##class(sc.eventPageList).createNew(contextData.eventID, contextData.languageID)
-							do eventPageList.getPageArray(.pageArray)
-							set key = ""
-							for  {
-								set key = $Order(pageArray(key))
-								if key = "" quit
-								
-								set pageID = $Piece(pageArray(key), "|", 1)
-								set pageName = $Piece(pageArray(key), "|", 2)
-								
-								if pageID {
-									&html<
-										<option value=#(..encodeForHTMLAttribute(pageID))# #( $Select(pageID = mvcPage.pageID:"SELECTED",1:"") )#>
-											#(..encodeForHTML(pageName) )#
-										</option>
-									>
-								} else {
-									&html<
-										<option value="" style="background-color: rgb(100,100,100); color: white;" disabled="disabled">
-											#(..encodeForHTML(pageName) )#
-										</option>
-									>
-								}
-							}
-							&html<
-						</select>
-					</div>
-
-					<div class="col-sm-1">
-						<label for="selLanguage" class="control-label">
-							Language:
-						</label>
-					</div>
-					<div class="col-sm-2">
-						<select name="selLanguage" id="selPage" class="form-control ef-form-control" onChange="window.location.assign('#(newPageURL)#&pageID=' + this.value);">
-							>
-							do ##class(shared.objLanguage).getLanguagesForEvent(contextData.eventID, .languageArray)
-							set languageID = ""
-							for  {
-								set languageID = $Order(languageArray(languageID))
-								if languageID = "" quit
-								
-								set targetPageID = ..getEquivalentPageIDForLanguageID(mvcPage.pageID, languageID)
-								&html<
-									<option value="#(..encodeForHTMLAttribute(targetPageID))#" #( $Select(languageID = contextData.languageID:"SELECTED",1:"") )#>
-										#(..encodeForHTML(languageArray(languageID)))#
-									</option>
+				<div class="ef-editor-panel-body">
+					<div class="row form-horizontal">
+						<div class="col-sm-1">
+							<label for="selPage" class="control-label">
+								Page:
+							</label>
+						</div>
+						<div class="col-sm-2">
+							<select name="selPage" id="selPage" class="form-control ef-form-control" onChange="window.location.assign('#(newPageURL)#&pageID=' + this.value);">
 								>
-							}
-							&html<
-						</select>
-					</div>
+								set eventPageList=##class(sc.eventPageList).createNew(contextData.eventID, contextData.languageID)
+								do eventPageList.getPageArray(.pageArray)
+								set key = ""
+								for  {
+									set key = $Order(pageArray(key))
+									if key = "" quit
+									
+									set pageID = $Piece(pageArray(key), "|", 1)
+									set pageName = $Piece(pageArray(key), "|", 2)
+									
+									if pageID {
+										&html<
+											<option value=#(..encodeForHTMLAttribute(pageID))# #( $Select(pageID = mvcPage.pageID:"SELECTED",1:"") )#>
+												#(..encodeForHTML(pageName) )#
+											</option>
+										>
+									} else {
+										&html<
+											<option value="" style="background-color: rgb(100,100,100); color: white;" disabled="disabled">
+												#(..encodeForHTML(pageName) )#
+											</option>
+										>
+									}
+								}
+								&html<
+							</select>
+						</div>
 
-					<div class="col-sm-1">
-						<label for="selAttendeeCategory" class="control-label">
-							Category:
-						</label>
-					</div>
-					<div class="col-sm-2">
-						<select name="selAttendeeCategory" 
-							id="selPage" 
-							class="form-control ef-form-control" 
-							#( $Select(attendeeCategoryID="":"DISABLED",1:"") )#
-							onChange="window.location.assign('#(newPageURL)#&pageID=' + this.value);">
-						>
-							if attendeeCategoryID="" {
-								Write !,"<option></option>"	
-							}
-							
-							set eventConfiguration = ##class(setup.eventConfiguration).createForEventID(contextData.eventID)
-							set listOfCategoryObjects = eventConfiguration.eventAttendeeCategories.getActiveCategories()
-							set key = ""
-							for  {
-								set attendeeCategory = listOfCategoryObjects.GetNext(.key)
-								if key = "" quit	
-								set targetPageID = ..getEquivalentPageIDForAttendeeCategoryID(mvcPage.pageID, attendeeCategory.eventCategoryID)
-								if targetPageID > 0 {
+						<div class="col-sm-1">
+							<label for="selLanguage" class="control-label">
+								Language:
+							</label>
+						</div>
+						<div class="col-sm-2">
+							<select name="selLanguage" id="selPage" class="form-control ef-form-control" onChange="window.location.assign('#(newPageURL)#&pageID=' + this.value);">
+								>
+								do ##class(shared.objLanguage).getLanguagesForEvent(contextData.eventID, .languageArray)
+								set languageID = ""
+								for  {
+									set languageID = $Order(languageArray(languageID))
+									if languageID = "" quit
+									
+									set targetPageID = ..getEquivalentPageIDForLanguageID(mvcPage.pageID, languageID)
 									&html<
-										<option value="#(..encodeForHTMLAttribute(targetPageID))#" #( $Select(attendeeCategory.eventCategoryID = attendeeCategoryID:"SELECTED",1:"") )#>
-											#(..encodeForHTML(attendeeCategory.name))#
+										<option value="#(..encodeForHTMLAttribute(targetPageID))#" #( $Select(languageID = contextData.languageID:"SELECTED",1:"") )#>
+											#(..encodeForHTML(languageArray(languageID)))#
 										</option>
 									>
 								}
-							}
-							&html<
-						</select>
-					</div>
+								&html<
+							</select>
+						</div>
 
-					<div class="col-sm-2">
-						<button class="btn btn-secondary">Add Page</button>
+						<div class="col-sm-1">
+							<label for="selAttendeeCategory" class="control-label">
+								Category:
+							</label>
+						</div>
+						<div class="col-sm-2">
+							<select name="selAttendeeCategory" 
+								id="selPage" 
+								class="form-control ef-form-control" 
+								#( $Select(attendeeCategoryID="":"DISABLED",1:"") )#
+								onChange="window.location.assign('#(newPageURL)#&pageID=' + this.value);">
+							>
+								if attendeeCategoryID="" {
+									Write !,"<option></option>"	
+								}
+								
+								set eventConfiguration = ##class(setup.eventConfiguration).createForEventID(contextData.eventID)
+								set listOfCategoryObjects = eventConfiguration.eventAttendeeCategories.getActiveCategories()
+								set key = ""
+								for  {
+									set attendeeCategory = listOfCategoryObjects.GetNext(.key)
+									if key = "" quit	
+									set targetPageID = ..getEquivalentPageIDForAttendeeCategoryID(mvcPage.pageID, attendeeCategory.eventCategoryID)
+									if targetPageID > 0 {
+										&html<
+											<option value="#(..encodeForHTMLAttribute(targetPageID))#" #( $Select(attendeeCategory.eventCategoryID = attendeeCategoryID:"SELECTED",1:"") )#>
+												#(..encodeForHTML(attendeeCategory.name))#
+											</option>
+										>
+									}
+								}
+								&html<
+							</select>
+						</div>
+
+						<div class="col-sm-2">
+							<button class="btn btn-secondary">Add Page</button>
+						</div>
 					</div>
 				</div>
 			</div>
@@ -18080,7 +18082,7 @@ function updateAlts(codPromptID) {
 		<div class="row ef-template-main" role="main">
         	<div class="col-sm-12">
 				[[ef_main_progress]]
-				<div class="ef-page-peader">
+				<div class="ef-page-header">
 					[[ef_main_header]]
 				</div>
 				[[ef_main_content]]
@@ -18104,6 +18106,17 @@ function updateAlts(codPromptID) {
 /* Navigation */
 .ef-menu-block-button {
     padding-left: 40px;   
+}
+
+.ef-template-navigation {
+    position: fixed; // stop it from scrolling
+    z-index: 99; // make sure it stays on top of everything
+    width: 100%; // make the menu bar extension go across the page
+}
+
+.ef-template-container .jumbotron {
+    position: relative;
+    top: 40px;   
 }
 
 // position the small viewfinder dropdown menu
@@ -18142,6 +18155,16 @@ function updateAlts(codPromptID) {
 }
 .ef-menu-block-ul>* {
     font-size: 13px;
+}
+
+// makre sure the page doesn't float out across the entire width of very large screens
+.ef-template-container .jumbotron,
+.ef_nav_horizontal,
+.ef-template-main
+{
+    max-width: 1280px;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 /* non-standard fonts are downloaded from google fonts  */
@@ -19034,6 +19057,12 @@ FRRE RULE
 	set %session.Data("selectItem")=%request.Get("selectItem")
 	
 	set pageID = ##class(shared.pageMethods).getPageID()
+	
+	set eventID = ##class(sc.objData).getEventID(pageID)
+	if (eventID) && (##class(setup.objEvent).isEventUsingProweb2(eventID)) {
+		set pageID = ##class(sc.xModules.objPage).getHomePageIdInsteadOfIncludePageId(pageID) // we should never render an include page on it's own
+	}
+	
 	set cspFileName = ##class(sc.xModules.objPage).getTemplateFile(pageID)
 	
 	if cspFileName'="" {
@@ -19083,17 +19112,17 @@ session pageID=#(%session.Get("pageID"))#
 <Class name="layout.cssDefaultMethods">
 <Description><![CDATA[
 <!-- ;vc;-
-;vc;    Object: layout.cssDefaultMethods.CLS/EV.83
+;vc;    Object: layout.cssDefaultMethods.CLS/EV.85
 ;vc; Component: CLS.layout.cssDefaultMethods
 ;vc;  Location: LargeDev
-;vc; Date/Time: 18-Jan-17 11:27
+;vc; Date/Time: 24-Jan-17 14:16
 ;vc;      User: MindaugasL
-;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>layout.cssDefaultMethods.CLS/EV.83</td><td>CLS.layout.cssDefaultMethods</td><td>LargeDev</td><td style='white-space: nowrap;'>18-Jan-17 11:27</td><td>MindaugasL</td></tr></table>
+;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>layout.cssDefaultMethods.CLS/EV.85</td><td>CLS.layout.cssDefaultMethods</td><td>LargeDev</td><td style='white-space: nowrap;'>24-Jan-17 14:16</td><td>MindaugasL</td></tr></table>
 ]]></Description>
 <Abstract>1</Abstract>
 <ClassType/>
 <ProcedureBlock>1</ProcedureBlock>
-<TimeChanged>64299,61740</TimeChanged>
+<TimeChanged>64307,51404.255518</TimeChanged>
 <TimeCreated>63046,56232.897117</TimeCreated>
 
 <Method name="outputDefaultCSS">
@@ -19122,6 +19151,7 @@ session pageID=#(%session.Get("pageID"))#
 		w !,"</style>",!
 		&html<
 			<link rel="stylesheet" href="../../media/stylesheets/frontend/gen3/ef-website-responsive-agenda.css" type="text/css" />
+			<link rel="stylesheet" href="../../media/stylesheets/frontend/gen3/ef-website-abstract-content.css" type="text/css" />
 		>
 		w "<style>",!
 		do ##class(layout.cssOverrideMethods).outputDynamicCSS(xEventID)
@@ -24637,7 +24667,7 @@ Returns true if the template is custom made</Description>
 </Class>
 
 
-<Project name="proweb 2" LastModified="2017-01-19 16:32:00.054018" Target="largedevsrc/backEnd/home/login.csp" TargetType="3">
+<Project name="proweb 2" LastModified="2017-01-19 16:32:00.053444" Target="largedevsrc/backEnd/home/login.csp" TargetType="3">
   <Items>
     <ProjectItem name="EF.contextDataFrontend" type="CLS"></ProjectItem>
     <ProjectItem name="EF.contextDataRegistration" type="CLS"></ProjectItem>
@@ -24646,6 +24676,9 @@ Returns true if the template is custom made</Description>
     <ProjectItem name="EF.mvcHandler.frontendProweb" type="CLS"></ProjectItem>
     <ProjectItem name="EF.mvcHandler.frontendProwebRegistration" type="CLS"></ProjectItem>
     <ProjectItem name="EF.mvcHandler.page" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.mvcHandler.securityHandlers.base" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.mvcHandler.securityHandlers.frontendProweb" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.mvcHandler.securityHandlers.frontendProwebWithBackend" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.containerElement" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.element" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pageController.proweb.buttonAddGuest" type="CLS"></ProjectItem>
@@ -24706,6 +24739,7 @@ Returns true if the template is custom made</Description>
     <ProjectItem name="EF.pages.frontend.base" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pages.frontend.baseProweb" type="CLS"></ProjectItem>
     <ProjectItem name="EF.pages.frontend.registrationProcessProweb" type="CLS"></ProjectItem>
+    <ProjectItem name="EF.pages.securityHandlerFrontendProweb" type="CLS"></ProjectItem>
     <ProjectItem name="EF.ui.components.attribute" type="CLS"></ProjectItem>
     <ProjectItem name="EF.ui.components.backend.panel" type="CLS"></ProjectItem>
     <ProjectItem name="EF.ui.components.frontend.alternativeABI" type="CLS"></ProjectItem>
@@ -24774,6 +24808,7 @@ Returns true if the template is custom made</Description>
     <ProjectItem name="largedevsrc/backEnd/proweb/textDetailsMoxie.csp" type="CSP"></ProjectItem>
     <ProjectItem name="largedevsrc/backEnd/proweb/textDetailsMoxie2.csp" type="CSP"></ProjectItem>
     <ProjectItem name="largedevsrc/backEnd/proweb/updateLabelText.csp" type="CSP"></ProjectItem>
+    <ProjectItem name="largedevsrc/frontEnd/reg/errorLoadingPage.csp" type="CSP"></ProjectItem>
     <ProjectItem name="largedevsrc/frontEnd/reg/frontendStyles.csp" type="CSP"></ProjectItem>
     <ProjectItem name="largedevsrc/frontEnd/reg/home.csp" type="CSP"></ProjectItem>
     <ProjectItem name="largedevsrc/frontEnd/reg/pageControllerStandardSave.csp" type="CSP"></ProjectItem>
@@ -24797,6 +24832,7 @@ Returns true if the template is custom made</Description>
     <ProjectItem name="layout.disposableMethods" type="CLS"></ProjectItem>
     <ProjectItem name="layout.methods" type="CLS"></ProjectItem>
     <ProjectItem name="layout.objTemplate" type="CLS"></ProjectItem>
+    <ProjectItem name="sc.codItemMethods" type="CLS"></ProjectItem>
     <ProjectItem name="sc.facade.prowebItem" type="CLS"></ProjectItem>
     <ProjectItem name="sc.facade.prowebItemStorage" type="CLS"></ProjectItem>
     <ProjectItem name="sc.facade.prowebItemStorageDivider" type="CLS"></ProjectItem>
@@ -24817,47 +24853,41 @@ Returns true if the template is custom made</Description>
     <ProjectItem name="sc.objData" type="CLS"></ProjectItem>
     <ProjectItem name="sc.proweb2methods" type="CLS"></ProjectItem>
     <ProjectItem name="sc.viewQuestionsByPageID" type="CLS"></ProjectItem>
+    <ProjectItem name="sc.xModules.objCODitem" type="CLS"></ProjectItem>
     <ProjectItem name="sc.xModules.objList" type="CLS"></ProjectItem>
     <ProjectItem name="sc.xModules.objPage" type="CLS"></ProjectItem>
     <ProjectItem name="setup.availabilityCheckerSession" type="CLS"></ProjectItem>
     <ProjectItem name="setup.backendMenu" type="CLS"></ProjectItem>
     <ProjectItem name="setup.bookingLevelCounterFrontendSession" type="CLS"></ProjectItem>
     <ProjectItem name="setup.eventCreationMethods" type="CLS"></ProjectItem>
-    <ProjectItem name="shared.pageMethods" type="CLS"></ProjectItem>
-    <ProjectItem name="sc.codItemMethods" type="CLS"></ProjectItem>
-    <ProjectItem name="sc.xModules.objCODitem" type="CLS"></ProjectItem>
     <ProjectItem name="setup.objPageNav" type="CLS"></ProjectItem>
-    <ProjectItem name="EF.pages.securityHandlerFrontendProweb" type="CLS"></ProjectItem>
-    <ProjectItem name="EF.mvcHandler.securityHandlers.base" type="CLS"></ProjectItem>
-    <ProjectItem name="EF.mvcHandler.securityHandlers.frontendProwebWithBackend" type="CLS"></ProjectItem>
-    <ProjectItem name="EF.mvcHandler.securityHandlers.frontendProweb" type="CLS"></ProjectItem>
-    <ProjectItem name="largedevsrc/frontEnd/reg/errorLoadingPage.csp" type="CSP"></ProjectItem>
+    <ProjectItem name="shared.pageMethods" type="CLS"></ProjectItem>
   </Items>
   <BreakPoints>
     <BreakPoint Routine="cspRealEV.frontend.reg.pagecontrollerstandardsave.CLS" Offset="OnPreHTTPafter+35"></BreakPoint>
   </BreakPoints>
   <WatchVariables>
-    <WatchVariable Variable="..page.mvcPage.isEditMode" Pane="1"></WatchVariable>
-    <WatchVariable Variable="..page.mvcPage" Pane="1"></WatchVariable>
-    <WatchVariable Variable="..contextData.eventWebsiteLanguage.getFooterPageID()" Pane="1"></WatchVariable>
-    <WatchVariable Variable="..contextData.eventWebsiteLanguage.languageID" Pane="1"></WatchVariable>
-    <WatchVariable Variable="..contextData.eventWebsiteLanguage" Pane="1"></WatchVariable>
-    <WatchVariable Variable="pageController.page" Pane="1"></WatchVariable>
-    <WatchVariable Variable="pageController" Pane="1"></WatchVariable>
-    <WatchVariable Variable="..page" Pane="1"></WatchVariable>
     <WatchVariable Variable="$rhis" Pane="1"></WatchVariable>
-    <WatchVariable Variable="element.identifier" Pane="1"></WatchVariable>
-    <WatchVariable Variable="element" Pane="1"></WatchVariable>
-    <WatchVariable Variable="%zPage.pageID" Pane="1"></WatchVariable>
+    <WatchVariable Variable="$this" Pane="1"></WatchVariable>
+    <WatchVariable Variable="%request" Pane="1"></WatchVariable>
+    <WatchVariable Variable="%request.Data" Pane="1"></WatchVariable>
     <WatchVariable Variable="%request.Data(&quot;pageID&quot;,1)" Pane="1"></WatchVariable>
     <WatchVariable Variable="%request.Get(&quot;pageID&quot;)" Pane="1"></WatchVariable>
-    <WatchVariable Variable="%request.Data" Pane="1"></WatchVariable>
-    <WatchVariable Variable="%request" Pane="1"></WatchVariable>
-    <WatchVariable Variable="page.pageID" Pane="1"></WatchVariable>
-    <WatchVariable Variable="..pageID" Pane="1"></WatchVariable>
+    <WatchVariable Variable="%zPage.pageID" Pane="1"></WatchVariable>
+    <WatchVariable Variable="..contextData.eventWebsiteLanguage" Pane="1"></WatchVariable>
+    <WatchVariable Variable="..contextData.eventWebsiteLanguage.getFooterPageID()" Pane="1"></WatchVariable>
+    <WatchVariable Variable="..contextData.eventWebsiteLanguage.languageID" Pane="1"></WatchVariable>
     <WatchVariable Variable="..isEditMode" Pane="1"></WatchVariable>
+    <WatchVariable Variable="..page" Pane="1"></WatchVariable>
+    <WatchVariable Variable="..page.mvcPage" Pane="1"></WatchVariable>
+    <WatchVariable Variable="..page.mvcPage.isEditMode" Pane="1"></WatchVariable>
+    <WatchVariable Variable="..pageID" Pane="1"></WatchVariable>
+    <WatchVariable Variable="element" Pane="1"></WatchVariable>
+    <WatchVariable Variable="element.identifier" Pane="1"></WatchVariable>
     <WatchVariable Variable="page" Pane="1"></WatchVariable>
-    <WatchVariable Variable="$this" Pane="1"></WatchVariable>
+    <WatchVariable Variable="page.pageID" Pane="1"></WatchVariable>
+    <WatchVariable Variable="pageController" Pane="1"></WatchVariable>
+    <WatchVariable Variable="pageController.page" Pane="1"></WatchVariable>
   </WatchVariables>
 </Project>
 
@@ -28294,18 +28324,18 @@ note that this must be a classmethod or you will a compile error as the property
 <Description><![CDATA[
 link to a OCD item. Provides a facility for adding questions about COD item in a proweb form
 <!-- ;vc;
-;vc;    Object: sc.xModules.objCODitem.CLS/EV.68
+;vc;    Object: sc.xModules.objCODitem.CLS/EV.70
 ;vc; Component: CLS.sc.xModules.objCODitem
 ;vc;  Location: LargeDev
-;vc; Date/Time: 17-Jan-17 17:10
-;vc;      User: JeremyW
-;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>sc.xModules.objCODitem.CLS/EV.68</td><td>CLS.sc.xModules.objCODitem</td><td>LargeDev</td><td style='white-space: nowrap;'>17-Jan-17 17:10</td><td>JeremyW</td></tr></table>
+;vc; Date/Time: 24-Jan-17 16:09
+;vc;      User: MindaugasL
+;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>sc.xModules.objCODitem.CLS/EV.70</td><td>CLS.sc.xModules.objCODitem</td><td>LargeDev</td><td style='white-space: nowrap;'>24-Jan-17 16:09</td><td>MindaugasL</td></tr></table>
 ]]></Description>
 <ClassType>persistent</ClassType>
 <IncludeCode>EF.common.macros</IncludeCode>
 <ProcedureBlock>1</ProcedureBlock>
 <Super>sc.objData</Super>
-<TimeChanged>64236,36874</TimeChanged>
+<TimeChanged>64306,61679</TimeChanged>
 <TimeCreated>59478,65593.453</TimeCreated>
 
 <Property name="maxAltsChecked">
@@ -28763,6 +28793,30 @@ get codItemNameID from sc.xModules.objCODItem ID</Description>
 <Implementation><![CDATA[
 	set data=""
 	&SQL(SELECT type INTO :tmp FROM sc_xModules.objCODitem	WHERE (active=1 AND ID = :dataID))
+	if +SQLCODE=0 set data=tmp
+	quit data
+]]></Implementation>
+</Method>
+
+<Method name="getIsDelegate">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>dataID</FormalSpec>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	set data=""
+	&SQL(SELECT isDelegate INTO :tmp FROM sc_xModules.objCODitem	WHERE (active=1 AND ID = :dataID))
+	if +SQLCODE=0 set data=tmp
+	quit data
+]]></Implementation>
+</Method>
+
+<Method name="getIsGuest">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>dataID</FormalSpec>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	set data=""
+	&SQL(SELECT isGuest INTO :tmp FROM sc_xModules.objCODitem	WHERE (active=1 AND ID = :dataID))
 	if +SQLCODE=0 set data=tmp
 	quit data
 ]]></Implementation>
@@ -30199,17 +30253,17 @@ Creates new list object. Should be done the first time the page is loaded</Descr
 <Description><![CDATA[
 The data type that represents a a page level in the hierachy. 
 <!-- ;vc;
-;vc;    Object: sc.xModules.objPage.CLS/EV.37
+;vc;    Object: sc.xModules.objPage.CLS/EV.40
 ;vc; Component: CLS.sc.xModules.objPage
 ;vc;  Location: LargeDev
-;vc; Date/Time: 11-Jan-17 12:50
-;vc;      User: AdrianM2
-;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>sc.xModules.objPage.CLS/EV.37</td><td>CLS.sc.xModules.objPage</td><td>LargeDev</td><td style='white-space: nowrap;'>11-Jan-17 12:50</td><td>AdrianM2</td></tr></table>
+;vc; Date/Time: 24-Jan-17 15:57
+;vc;      User: FredG
+;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>sc.xModules.objPage.CLS/EV.40</td><td>CLS.sc.xModules.objPage</td><td>LargeDev</td><td style='white-space: nowrap;'>24-Jan-17 15:57</td><td>FredG</td></tr></table>
 ]]></Description>
 <ClassType>persistent</ClassType>
 <ProcedureBlock>1</ProcedureBlock>
 <Super>sc.objData</Super>
-<TimeChanged>64295,40561.160917</TimeChanged>
+<TimeChanged>64307,58505.550031</TimeChanged>
 <TimeCreated>58926,57261</TimeCreated>
 
 <Parameter name="EXTENTSIZE">
@@ -31073,6 +31127,27 @@ Gets the description without the language modifier</Description>
 ]]></Implementation>
 </Method>
 
+<Method name="getHomePageIdInsteadOfIncludePageId">
+<Description>
+return the homePageID in case someone is trying to load an include page without the surrounding sc template page</Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec>pageID</FormalSpec>
+<ReturnType>%Integer</ReturnType>
+<Implementation><![CDATA[
+	#dim prowebTemplateFile as %String = ##class(sc.xModules.objPage).getTemplateFile(pageID)
+	
+	set prowebTemplateFile = $Piece(prowebTemplateFile, "/", *)
+	set prowebTemplateFile = $ZConvert(prowebTemplateFile, "U")
+	
+	if (prowebTemplateFile = "TBANNER.CSP") !(prowebTemplateFile = "TFOOTER.CSP") {
+		set eventID = ##class(sc.objData).getEventID(pageID)
+		set langID = ##class(sc.xModules.objPage).getLanguageIDFromPageID(pageID)
+		set pageID = ##class(setup.eventWebMethods).getHomePageID(eventID, langID)	
+	}
+	return pageID
+]]></Implementation>
+</Method>
+
 <Query name="qPagesByTemplateEventLanguage">
 <Description>
 Used for listing corresponding pages in a different language</Description>
@@ -31321,7 +31396,7 @@ Used for listing corresponding pages in a different language</Description>
 ]]></Description>
 <Abstract>1</Abstract>
 <IncludeCode>%occStatus,%occXSLT,EF.common.macros</IncludeCode>
-<TimeChanged>64264,37365.484553</TimeChanged>
+<TimeChanged>64307,58131.058261</TimeChanged>
 <TimeCreated>62734,53934.49686</TimeCreated>
 
 <XData name="backendMenuTree">
@@ -31406,6 +31481,7 @@ please note that you must escape any ampersands in the data</Description>
 			<level3 description="Settings" URL="../../backend/home/eventSettingsAgendaSessions.csp" accessID="SESSSETT" spanEvents="no" requiredModule="Sessions" previewImage="session settings.png"/>
 			<level3 description="Sessions" URL="../../backend/home/itemList.csp"     accessID="SESSDET" spanEvents="no" requiredModule="Sessions" previewImage="session details.png"/>
 			<level3 description="Session Types" URL="../../backend/home/sessionTypeList.csp" accessID="SESSTYP" spanEvents="yes" requiredModule="Sessions" previewImage="session types.png"/>
+			<level3 description="Labels" URL="../../backend/home/sessionLabels.csp" accessID="SESSIONLABELS" spanEvents="NO" requiredModule="Sessions"/>
 			<level3 description="Presenters" URL="../../backend/home/presenterList.csp"      accessID="PRES" spanEvents="no" requiredModule="Sessions" previewImage="presenters.png"/>
 			<level3 description="Locations" URL="../../backend/home/locationList.csp?"       accessID="LOCS" spanEvents="no" requiredModule="Sessions" previewImage="locations.png"/>
 			<level3 description="Icons" URL="../../backend/home/iconList.csp"        accessID="ICONS" spanEvents="no" requiredModule="Sessions" previewImage="icons.png"/>

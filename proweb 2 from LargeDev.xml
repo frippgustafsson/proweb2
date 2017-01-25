@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.2 (Build 736U)" ts="2017-01-25 10:57:35">
+<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.2 (Build 736U)" ts="2017-01-25 11:28:12">
 <Class name="EF.contextDataFrontend">
 <Description><![CDATA[
 <!-- ;vc;-
@@ -390,7 +390,7 @@ if website is private, this will be set to the cod.objPerson.ID of that logged i
 
 <Class name="EF.mvcHandler.frontendProweb">
 <Super>EF.mvcHandler.frontend</Super>
-<TimeChanged>64306,39308.11595</TimeChanged>
+<TimeChanged>64308,41230.443473</TimeChanged>
 <TimeCreated>64292,52952.708564</TimeCreated>
 
 <Property name="showRegistrationProgressBar">
@@ -530,10 +530,18 @@ if website is private, this will be set to the cod.objPerson.ID of that logged i
 </Method>
 
 <Method name="outputPageHeader">
+<Private>1</Private>
 <Implementation><![CDATA[
-	set efRulesTempParams("prowebcomponentname")="header"
- 	set efRulesTempParams("componenttype")="text"
+	set efRulesTempParams("prowebcomponentname") = ..getDefaultPageHeader()
+ 	set efRulesTempParams("componenttype") = "text"
 	do ..controller.renderHTMLControlFromTag(.efRulesTempParams)
+]]></Implementation>
+</Method>
+
+<Method name="getDefaultPageHeader">
+<Private>1</Private>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[	return "Header"
 ]]></Implementation>
 </Method>
 
@@ -680,7 +688,7 @@ if website is private, this will be set to the cod.objPerson.ID of that logged i
 
 <Class name="EF.mvcHandler.frontendProwebRegistration">
 <Super>EF.mvcHandler.frontendProweb</Super>
-<TimeChanged>64301,57581.15826</TimeChanged>
+<TimeChanged>64308,41246.200601</TimeChanged>
 <TimeCreated>64293,33205.393133</TimeCreated>
 
 <Property name="efFormID">
@@ -729,6 +737,13 @@ if website is private, this will be set to the cod.objPerson.ID of that logged i
 ]]></Implementation>
 </Method>
 
+<Method name="getDefaultPageHeader">
+<Private>1</Private>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[	return "Registration"
+]]></Implementation>
+</Method>
+
 <Method name="OnPagePageBottom">
 <Implementation><![CDATA[
 	&html< 
@@ -754,11 +769,7 @@ if website is private, this will be set to the cod.objPerson.ID of that logged i
 <Private>1</Private>
 <ReturnType>%String</ReturnType>
 <Implementation><![CDATA[
-	s x=$i(^xfg)
-	s ^xfg(x,"..contextData.tempPersonID")=..contextData.tempPersonID
-	s ^xfg(x,"..pageID")=..pageID
 	set backforward = ##class(setup.objPageNav).goWhere(..pageID, , ..contextData.tempPersonID)
-	s ^xfg(x,"backforward")=backforward
 	set URL = $Piece(backforward,"|",1)  // go back
 	return URL
 ]]></Implementation>
@@ -19138,7 +19149,7 @@ session pageID=#(%session.Get("pageID"))#
 <Abstract>1</Abstract>
 <ClassType/>
 <ProcedureBlock>1</ProcedureBlock>
-<TimeChanged>64308,39151.620871</TimeChanged>
+<TimeChanged>64308,41043.411716</TimeChanged>
 <TimeCreated>63046,56232.897117</TimeCreated>
 
 <Method name="outputDefaultCSS">
@@ -19163,12 +19174,12 @@ session pageID=#(%session.Get("pageID"))#
 	
 	if ##class(layout.objTemplate).isTemplateGen3(layoutTemplateID)	{
 		do ..outputGen2and3Defaults()
+		do ..outputGen3Defaults()
 		w !,"</style>",!
 		&html<
 			<link rel="stylesheet" href="../../media/stylesheets/frontend/gen3/ef-website-gen1-3-main.css" type="text/css" />
 		>
 		w "<style>",!
-		do ..outputGen3Defaults()
 		do ##class(layout.cssOverrideMethods).outputDynamicCSS(xEventID)
 	}
 	w !,"</style>",!

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.2 (Build 736U)" ts="2017-01-25 11:28:12">
+<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.2 (Build 736U)" ts="2017-01-25 13:52:49">
 <Class name="EF.contextDataFrontend">
 <Description><![CDATA[
 <!-- ;vc;-
@@ -32920,7 +32920,7 @@ please note that you must escape any ampersands in the data</Description>
 <IncludeCode>EF.common.macros</IncludeCode>
 <ProcedureBlock>1</ProcedureBlock>
 <Super>%Persistent</Super>
-<TimeChanged>64308,39268.836725</TimeChanged>
+<TimeChanged>64308,49963.173076</TimeChanged>
 <TimeCreated>61908,40601.453382</TimeCreated>
 
 <Method name="createEventPages">
@@ -33481,6 +33481,7 @@ sets up the default questions for a brand new event on the registration pages (a
 					set width=$G(questions(key,"fieldWidthPx"))
 					if 'width set width=$$$defaultTextFieldWidthPx
 					set descr=questions(key,"label")
+					set descr = ..getTranslatedQuestionLabel(pageID, descr)
 			
 					set ok=##class(sc.xModules.objCODitem).add(itemNameID,descr,listID,"system",0,"",type,mandatory,"horizontal",width,"",1,0,1)
 				}
@@ -33488,6 +33489,19 @@ sets up the default questions for a brand new event on the registration pages (a
 		}
 	}
 	quit
+]]></Implementation>
+</Method>
+
+<Method name="getTranslatedQuestionLabel">
+<Description>
+please note that this will translate the default reg question in old AND new version of proweb becuase the template has not been set yet.</Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec>pageID:%Integer,originalString:%String</FormalSpec>
+<Private>1</Private>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	set langID = ##class(sc.xModules.objPage).getLanguageIDFromPageID(pageID)
+	return ##class(translations.objPhraseWebsite).translatePhrase(originalString, langID)
 ]]></Implementation>
 </Method>
 

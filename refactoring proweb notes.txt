@@ -201,9 +201,10 @@ adding a new banner gives me 'EventID in the URL doesn't match eventID in the ba
 should the empty list alway be grey
 the homepage allows for questions to be added
 change the default page header to "registration" on the reg page
+registration page prompts are not multilingual
+adding contents to footer in new event fails
 
 ===============================================================================
-I can't get rid of the hpageheader on the homepage
 rename CSS classes with underscore, e.g. ef_navigation_horizontal
 fix saving the country causes errors
 split up the JS file into smaller chunks
@@ -214,7 +215,8 @@ make the backend booking mode show banner, menu and indicator
 introduce the new HTML question property
 namespace the bootstrap classes by copying their definition into our classes (eg. copy btn-large into ef-btn-large)
 
-adding contents to footer in new event fails
+It's very hard to edit a header that is set to empty
+The styles shown in moxie is not what the website uses
 rename and restore the templates
 add upgrade code to populate the 'listYpe' property in sc.objComponent
 the editor panel and the quick edit are not using form-line/form-group

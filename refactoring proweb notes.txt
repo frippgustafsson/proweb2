@@ -179,7 +179,7 @@ implement the mvcHandler
 footer text can't be saved (double lists?)
 undo the changes that extempt the top level element (page) from having a link to itself
 fix CR issues
-===== paused ====
+===== xmas break ====
 lost session after removing question on first page
 lost session after adding question on the second reg page
 sometimes get a session timeout when switching pages
@@ -203,6 +203,8 @@ the homepage allows for questions to be added
 change the default page header to "registration" on the reg page
 registration page prompts are not multilingual
 adding contents to footer in new event fails
+make the default page headers multilingual
+the buttons are not translated
 
 ===============================================================================
 rename CSS classes with underscore, e.g. ef_navigation_horizontal
@@ -210,10 +212,10 @@ fix saving the country causes errors
 split up the JS file into smaller chunks
 namespace the javascript methods
 refactor objLayout-writeBit
-make the default page headers multilingual
 make the backend booking mode show banner, menu and indicator
 introduce the new HTML question property
 namespace the bootstrap classes by copying their definition into our classes (eg. copy btn-large into ef-btn-large)
+The header has a very large drag handle
 
 It's very hard to edit a header that is set to empty
 The styles shown in moxie is not what the website uses

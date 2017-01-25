@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.2 (Build 736U)" ts="2017-01-24 16:18:31">
+<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.2 (Build 736U)" ts="2017-01-25 09:00:22">
 <Class name="EF.contextDataFrontend">
 <Description><![CDATA[
 <!-- ;vc;-
@@ -16900,7 +16900,13 @@ function updateAlts(codPromptID) {
 			}
 		}
 	}
-
+	
+	set eventID = ##class(sc.objData).getEventID(dataID)
+	if (eventID) && (##class(setup.objEvent).isEventUsingProweb2(eventID)) {
+		set pageID = ##class(sc.objData).getPageID(dataID)
+		set %response.Redirect = "../../proweb/frontend/start.csp?pageID="_pageID_"&eventID="_eventID
+		quit 0	
+	}
 	
 	// should we go on and publish direct? Always autopublish if we are writing an email
 	if %request.Get("publish")="yes"!(##class(sc.objData).inMail(dataID)) {
@@ -30263,7 +30269,7 @@ The data type that represents a a page level in the hierachy.
 <ClassType>persistent</ClassType>
 <ProcedureBlock>1</ProcedureBlock>
 <Super>sc.objData</Super>
-<TimeChanged>64307,58505.550031</TimeChanged>
+<TimeChanged>64308,31426.837242</TimeChanged>
 <TimeCreated>58926,57261</TimeCreated>
 
 <Parameter name="EXTENTSIZE">
@@ -31139,7 +31145,7 @@ return the homePageID in case someone is trying to load an include page without 
 	set prowebTemplateFile = $Piece(prowebTemplateFile, "/", *)
 	set prowebTemplateFile = $ZConvert(prowebTemplateFile, "U")
 	
-	if (prowebTemplateFile = "TBANNER.CSP") !(prowebTemplateFile = "TFOOTER.CSP") {
+	if (prowebTemplateFile = "TBANNER.CSP") ! (prowebTemplateFile = "TFOOTER.CSP")  ! (prowebTemplateFile = "TMENU.CSP"){
 		set eventID = ##class(sc.objData).getEventID(pageID)
 		set langID = ##class(sc.xModules.objPage).getLanguageIDFromPageID(pageID)
 		set pageID = ##class(setup.eventWebMethods).getHomePageID(eventID, langID)	

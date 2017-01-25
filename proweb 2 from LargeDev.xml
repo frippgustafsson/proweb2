@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.2 (Build 736U)" ts="2017-01-25 14:21:51">
+<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.2 (Build 736U)" ts="2017-01-25 16:19:29">
 <Class name="EF.contextDataFrontend">
 <Description><![CDATA[
 <!-- ;vc;-
@@ -7882,7 +7882,7 @@ eventid</Description>
 
 <Class name="EF.ui.components.frontend.menuBlock">
 <Super>EF.ui.components.frontend.prowebBase</Super>
-<TimeChanged>64301,33889.733223</TimeChanged>
+<TimeChanged>64308,55170.970459</TimeChanged>
 <TimeCreated>64183,38661.128484</TimeCreated>
 
 <Method name="render">
@@ -7892,15 +7892,15 @@ eventid</Description>
 	do ..renderRowOpening()
 		do ..renderCellOpening()
 			&html<
-				<div class="ef_proweb_menu_block ef-menu-block #(..rawHTML(..getProwebExtraAttributes()))#">
+				<div class="ef-menu-block #(..rawHTML(..getProwebExtraAttributes()))#">
 					<div class="dropdown visible-xs-block">
 						<button class="btn btn-primary dropdown-toggle ef-push-button ef-push-button-primary ef-menu-block-button" data-toggle="dropdown" type="button">Menu <span class="caret"></span></button>
-						<ul class="ef_proweb_menu_ul dropdown-menu ef-menu-block-ul-xs">
+						<ul class="dropdown-menu ef-menu-block-ul-xs">
 							#[do ..outputListItems()]#
 						</ul>
 					</div>
-					<div class="ef_nav_horizontal hidden-xs" role="nav">	
-						<ul class="ef_proweb_menu_ul ef-menu-block-ul" >
+					<div class="ef-nav-horizontal hidden-xs" role="nav">	
+						<ul class="ef-menu-block-ul" >
 							#[do ..outputListItems()]#
 						</ul>
 					</div>
@@ -18148,7 +18148,9 @@ function updateAlts(codPromptID) {
 }
 
 .ef-template-container .jumbotron {
+    // move the rest of the page down when in edit mode
     position: relative;
+    margin-bottom: 40px;
     top: 40px;   
 }
 
@@ -18192,7 +18194,7 @@ function updateAlts(codPromptID) {
 
 // makre sure the page doesn't float out across the entire width of very large screens
 .ef-template-container .jumbotron,
-.ef_nav_horizontal,
+.ef-nav-horizontal,
 .ef-template-main
 {
     max-width: 1280px;

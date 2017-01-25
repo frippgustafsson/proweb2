@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.2 (Build 736U)" ts="2017-01-25 10:10:39">
+<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.2 (Build 736U)" ts="2017-01-25 10:57:35">
 <Class name="EF.contextDataFrontend">
 <Description><![CDATA[
 <!-- ;vc;-
@@ -3207,7 +3207,7 @@ Should have a one-to-one relationship with sc.objList</Description>
 
 <Class name="EF.pageController.proweb.page">
 <Super>EF.pageController.page</Super>
-<TimeChanged>64302,56354.892428</TimeChanged>
+<TimeChanged>64308,38672.311323</TimeChanged>
 <TimeCreated>64189,51696.559047</TimeCreated>
 
 <Property name="mvcPage">
@@ -3334,7 +3334,7 @@ opens the pageController without reloading the elements.</Description>
 		set dataType = rsComponents.Get("dataType")
 		set className = rsComponents.Get("listType")
 		if '$Length(className) {
-			set className = "listWithQuestionsRegistration"	
+			set className = ..getDefaultTypeOfList()
 		}
 		if dataType = "objList" {	
 			set listElement = $ClassMethod("EF.pageController.proweb."_className, "addElementToParent", $this, componentName, "")
@@ -3358,13 +3358,17 @@ opens the pageController without reloading the elements.</Description>
 ]]></Implementation>
 </Method>
 
-<Method name="getListComponent">
-<FormalSpec>componentName,listType</FormalSpec>
-<Implementation><![CDATA[	set listElement = ##class(EF.pageController.proweb.list).addElementToParent($this, componentName, "")
+<Method name="getDefaultTypeOfList">
+<Private>1</Private>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	// we may need logic here for defaulting to reg questions in old events but only on the reg pages
+	return "list"
 ]]></Implementation>
 </Method>
 
 <Method name="insertMockProwebItems">
+<Private>1</Private>
 <Implementation><![CDATA[
 	#dim key as %Integer = ""
 	#dim componentName as %String = "unit test"
@@ -17125,6 +17129,13 @@ function updateAlts(codPromptID) {
 		if (##class(layout.objTemplate).isTemplateGen2(tmpTemplateID))	{ // if we are using the new color picker, then output the buttons that use those colors and have a better design
 			do ##class(layout.cssDefaultMethods).outputGen2and3Defaults()
 			do ##class(layout.cssDefaultMethods).outputGen2Defaults()
+		}
+		w !,"</style>",!
+		&html<
+			<link rel="stylesheet" href="../../media/stylesheets/frontend/gen3/ef-website-gen1-3-main.css" type="text/css" />
+		>
+		w "<style>",!
+		if (##class(layout.objTemplate).isTemplateGen2(tmpTemplateID))	{
 			do ##class(layout.cssOverrideMethods).outputDynamicCSS(xEventID)
 		}
 	}
@@ -19127,7 +19138,7 @@ session pageID=#(%session.Get("pageID"))#
 <Abstract>1</Abstract>
 <ClassType/>
 <ProcedureBlock>1</ProcedureBlock>
-<TimeChanged>64307,51404.255518</TimeChanged>
+<TimeChanged>64308,39151.620871</TimeChanged>
 <TimeCreated>63046,56232.897117</TimeCreated>
 
 <Method name="outputDefaultCSS">
@@ -19152,13 +19163,12 @@ session pageID=#(%session.Get("pageID"))#
 	
 	if ##class(layout.objTemplate).isTemplateGen3(layoutTemplateID)	{
 		do ..outputGen2and3Defaults()
-		do ..outputGen3Defaults()
 		w !,"</style>",!
 		&html<
-			<link rel="stylesheet" href="../../media/stylesheets/frontend/gen3/ef-website-responsive-agenda.css" type="text/css" />
-			<link rel="stylesheet" href="../../media/stylesheets/frontend/gen3/ef-website-abstract-content.css" type="text/css" />
+			<link rel="stylesheet" href="../../media/stylesheets/frontend/gen3/ef-website-gen1-3-main.css" type="text/css" />
 		>
 		w "<style>",!
+		do ..outputGen3Defaults()
 		do ##class(layout.cssOverrideMethods).outputDynamicCSS(xEventID)
 	}
 	w !,"</style>",!
@@ -32887,19 +32897,19 @@ please note that you must escape any ampersands in the data</Description>
 <Class name="setup.eventCreationMethods">
 <Description><![CDATA[
 <!-- ;vc;-
-;vc;    Object: setup.eventCreationMethods.CLS/EV.115
+;vc;    Object: setup.eventCreationMethods.CLS/EV.116
 ;vc; Component: CLS.setup.eventCreationMethods
 ;vc;  Location: LargeDev
-;vc; Date/Time: 13-Jan-17 09:17
-;vc;      User: MindaugasL
-;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>setup.eventCreationMethods.CLS/EV.115</td><td>CLS.setup.eventCreationMethods</td><td>LargeDev</td><td style='white-space: nowrap;'>13-Jan-17 09:17</td><td>MindaugasL</td></tr></table>
+;vc; Date/Time: 25-Jan-17 10:53
+;vc;      User: FredG
+;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>setup.eventCreationMethods.CLS/EV.116</td><td>CLS.setup.eventCreationMethods</td><td>LargeDev</td><td style='white-space: nowrap;'>25-Jan-17 10:53</td><td>FredG</td></tr></table>
 ]]></Description>
 <Abstract>1</Abstract>
 <ClassType/>
 <IncludeCode>EF.common.macros</IncludeCode>
 <ProcedureBlock>1</ProcedureBlock>
 <Super>%Persistent</Super>
-<TimeChanged>64296,33510.557938</TimeChanged>
+<TimeChanged>64308,39268.836725</TimeChanged>
 <TimeCreated>61908,40601.453382</TimeCreated>
 
 <Method name="createEventPages">
@@ -33422,7 +33432,7 @@ sets up the default questions for a brand new event on the registration pages (a
 	if 'listID {
 		set listID=##class(sc.xModules.objList).add(pageID)
 		&SQL(SELECT objTemplate INTO :templateID FROM sc_xModules.objPage WHERE (active=1 AND ID = :pageID))		
-		do ##class(sc.objComponent).add(listName,templateID,listID)
+		do ##class(sc.objComponent).add(listName, templateID, listID, "listWithQuestionsRegistration")
 	}
 
 	if listID {

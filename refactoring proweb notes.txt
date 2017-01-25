@@ -199,9 +199,9 @@ fix the width issue of the edit control panel in very narrow viewports
 deleting the banner takes me nowhere
 adding a new banner gives me 'EventID in the URL doesn't match eventID in the backend session'
 should the empty list alway be grey
+the homepage allows for questions to be added
 
 ===============================================================================
-the homepage allows for questions to be added
 I can't get rid om the hpageheader on the homepage
 rename CSS classes with underscore, e.g. ef_navigation_horizontal
 fix saving the country causes errors

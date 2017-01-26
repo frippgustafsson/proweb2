@@ -206,14 +206,19 @@ adding contents to footer in new event fails
 make the default page headers multilingual
 the buttons are not translated
 rename CSS classes with underscore, e.g. ef_navigation_horizontal
-
+<span class="halflings halflings-resize-vertical"></span>
+The header has a very large drag handle
 ===============================================================================
+Getting Invalid Oref in event 6415 when trying to register
+fix unit tests
+delete the proweb base class
+introduce the new HTML question property
 fix saving the country causes errors
 split up the JS file into smaller chunks
 namespace the javascript methods
 refactor objLayout-writeBit
 make the backend booking mode show banner, menu and indicator (after doing the writeBit)
-introduce the new HTML question property
+
 namespace the bootstrap classes by copying their definition into our classes (eg. copy btn-large into ef-btn-large)
 The header has a very large drag handle
 

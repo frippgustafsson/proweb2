@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.2 (Build 736U)" ts="2017-01-25 16:19:29">
+<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.2 (Build 736U)" ts="2017-01-26 18:01:51">
 <Class name="EF.contextDataFrontend">
 <Description><![CDATA[
 <!-- ;vc;-
@@ -123,15 +123,15 @@ if website is private, this will be set to the cod.objPerson.ID of that logged i
 <Class name="EF.contextDataRegistration">
 <Description><![CDATA[
 <!-- ;vc;-
-;vc;    Object: EF.contextDataRegistration.CLS/EV.9
+;vc;    Object: EF.contextDataRegistration.CLS/EV.10
 ;vc; Component: CLS.EF.contextDataRegistration
 ;vc;  Location: LargeDev
-;vc; Date/Time: 12-Jan-17 15:02
+;vc; Date/Time: 26-Jan-17 14:07
 ;vc;      User: FredG
-;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>EF.contextDataRegistration.CLS/EV.9</td><td>CLS.EF.contextDataRegistration</td><td>LargeDev</td><td style='white-space: nowrap;'>12-Jan-17 15:02</td><td>FredG</td></tr></table>
+;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>EF.contextDataRegistration.CLS/EV.10</td><td>CLS.EF.contextDataRegistration</td><td>LargeDev</td><td style='white-space: nowrap;'>26-Jan-17 14:07</td><td>FredG</td></tr></table>
 ]]></Description>
 <Super>EF.contextDataFrontend</Super>
-<TimeChanged>64295,54121</TimeChanged>
+<TimeChanged>64309,52160.588667</TimeChanged>
 <TimeCreated>63755,56082.660879</TimeCreated>
 
 <Property name="tempPurchaseID">
@@ -287,6 +287,7 @@ if website is private, this will be set to the cod.objPerson.ID of that logged i
 <ReturnType>EF.contextDataRegistration</ReturnType>
 <Implementation><![CDATA[
 	#dim mockpersonID as %Integer = 1
+	#dim mockEventID as %Integer = 1
 	
 	set contextData = ..%New()
 	
@@ -303,6 +304,11 @@ if website is private, this will be set to the cod.objPerson.ID of that logged i
 	set contextData.prowebMode="preview"
 	set contextData.sessionID="mockSession"
 	
+	set eventDetails = ##class(setup.eventConfiguration).createForEventID(mockEventID)
+	set objLanguage = ##class(shared.objLanguage).%OpenId($$$efEnglishLangID)
+	set contextData.eventWebsiteLanguage = ##class(setup.eventWebsiteLanguage).createNew(eventDetails, objLanguage)
+	 
+
 	return contextData
 ]]></Implementation>
 </Method>
@@ -982,12 +988,12 @@ if website is private, this will be set to the cod.objPerson.ID of that logged i
 ;vc;    Object: EF.pageController.containerElement.CLS/EV.20
 ;vc; Component: CLS.EF.pageController.containerElement
 ;vc;  Location: LargeDev
-;vc; Date/Time: 14-Dec-16 13:52
-;vc;      User: MindaugasL
-;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>EF.pageController.containerElement.CLS/EV.20</td><td>CLS.EF.pageController.containerElement</td><td>LargeDev</td><td style='white-space: nowrap;'>14-Dec-16 13:52</td><td>MindaugasL</td></tr></table>
+;vc; Date/Time: 26-Jan-17 17:49
+;vc;      User: AdrianM2
+;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>EF.pageController.containerElement.CLS/EV.20</td><td>CLS.EF.pageController.containerElement</td><td>LargeDev</td><td style='white-space: nowrap;'>26-Jan-17 17:49</td><td>AdrianM2</td></tr></table>
 ]]></Description>
 <Super>EF.pageController.element</Super>
-<TimeChanged>64266,58675.704465</TimeChanged>
+<TimeChanged>64266,58675</TimeChanged>
 <TimeCreated>63372,47273.826383</TimeCreated>
 
 <Property name="getContentsMethod">
@@ -2394,7 +2400,7 @@ Should be run if any of the sub-classes are deleted</Description>
 
 <Class name="EF.pageController.proweb.guestPanel">
 <Super>EF.pageController.proweb.panel</Super>
-<TimeChanged>64296,42622.055824</TimeChanged>
+<TimeChanged>64309,56584.50866</TimeChanged>
 <TimeCreated>63372,47064.603748</TimeCreated>
 
 <Property name="guestNumber">
@@ -2474,7 +2480,7 @@ Should be run if any of the sub-classes are deleted</Description>
 	#dim maxGuests as %Integer = ..page.getEventConfiguration().getMaxGuestsPerAttendee()
 	#dim prowebID = $Piece(..identifier,"-",2)
 	
-	if ..page.mvcPage.isTestMode {
+	if ..page.isTestMode {
 		set maxGuests = ..page.contextData.maxGuests
 	}
 	for guestNumber = 2:1:maxGuests {
@@ -2670,7 +2676,7 @@ Should be run if any of the sub-classes are deleted</Description>
 <Description>
 Should have a one-to-one relationship with sc.objList</Description>
 <Super>EF.pageController.containerElement</Super>
-<TimeChanged>64308,34630.133291</TimeChanged>
+<TimeChanged>64309,56601.9108</TimeChanged>
 <TimeCreated>64231,55587.036042</TimeCreated>
 
 <Property name="prowebListID">
@@ -2790,6 +2796,7 @@ This method overrides the one in element because the parent of a list, which is 
 
 	#dim elementIdentifier as %String = ..page.getElementIdentifierForProwebItems(prowebItem)
 	#dim element as EF.pageController.proweb.prowebBase
+	
 	if $$$isInputElement { 
 		set element = ..getNewElementForQuestion(prowebItem, optionalGuestNumber)	
 
@@ -2926,7 +2933,7 @@ This method overrides the one in element because the parent of a list, which is 
 <ReturnType>%String</ReturnType>
 <Implementation><![CDATA[
 	#dim itemName as %String = prowebItem.storage.databaseItemName
-	if ..page.mvcPage.isTestMode {
+	if ..page.isTestMode {
 		return prowebItem.storage.testValue
 	}
 	
@@ -3003,7 +3010,6 @@ This method overrides the one in element because the parent of a list, which is 
 		} else {
 			set childController = element.addAlternative(alternative, ..getPrice(alternative, prowebItem))	
 		} 
-		
 	}
 	
 	if (value = "") && (prowebItem.storage.inputType = "radiobutton" ) && (prowebItem.storage.listOfAlternatives.Count() > 0) {
@@ -3024,7 +3030,7 @@ This method overrides the one in element because the parent of a list, which is 
 	if ..page.mvcPage.isEditMode {
 		set currencyID = ##class(setup.objEvent).getBaseCurrency(eventID)
 	}
-	if ..page.mvcPage.isTestMode {
+	if ..page.isTestMode {
 		set price = 0
 	} else {
 		set price = ##class(sc.xModules.objCODitem).getPrice(alternative.alternativeID, prowebItem.storage.prowebID , eventID, currencyID)
@@ -3224,7 +3230,7 @@ Should have a one-to-one relationship with sc.objList</Description>
 
 <Class name="EF.pageController.proweb.page">
 <Super>EF.pageController.page</Super>
-<TimeChanged>64308,38672.311323</TimeChanged>
+<TimeChanged>64309,54938.70604</TimeChanged>
 <TimeCreated>64189,51696.559047</TimeCreated>
 
 <Property name="mvcPage">
@@ -3241,7 +3247,6 @@ Should have a one-to-one relationship with sc.objList</Description>
 
 <Property name="pageID">
 <Type>%Integer</Type>
-<Required>1</Required>
 </Property>
 
 <Property name="isTestMode">
@@ -3249,14 +3254,26 @@ Should have a one-to-one relationship with sc.objList</Description>
 <InitialExpression>0</InitialExpression>
 </Property>
 
+<Method name="createMock">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>contextData:EF.contextData</FormalSpec>
+<ReturnType>EF.pageController.page</ReturnType>
+<Implementation><![CDATA[
+	set pageController=..%New()
+
+	set pageController.isTestMode = 1
+	set pageController.contextData = contextData
+	set pageController.eventConfiguration = ##class(setup.eventConfiguration.storageMock).createEventConfiguration()
+
+	do pageController.load()
+
+	return pageController
+]]></Implementation>
+</Method>
+
 <Method name="load">
 <FormalSpec>mvcPage:EF.mvcHandler.frontendProweb=""</FormalSpec>
 <Implementation><![CDATA[
-	/* we can't make this mandatory as the save page doesn't have the same mvcHandler as the submit page
-	if '$IsObject(mvcPage) {
-		throw ##class(shared.exceptions.generalException).%New("mvcPage missing")	
-	}
-	*/
 	if '$IsObject(..contextData) {
 		throw ##class(shared.exceptions.generalException).%New("context data missing")	
 	}
@@ -3405,7 +3422,6 @@ opens the pageController without reloading the elements.</Description>
 	} else {
 		set parent = listElement	
 	}
-
 	
 	for  {
 		set prowebItem = ..contextData.listOfProwebItemsToAdd.GetNext(.key)	
@@ -3414,7 +3430,7 @@ opens the pageController without reloading the elements.</Description>
 		if parent.%Extends("EF.pageController.proweb.guestPanel") {
 			do parent.addElementForProwebItem(prowebItem, guestNumber)
 		} else {
-			do parent.addElementForProwebItem(prowebItem)
+			do parent.addElementForProwebItem(prowebItem) 
 		}
 	}
 ]]></Implementation>
@@ -3552,7 +3568,8 @@ also an entry point from unit tests</Description>
 	if $IsObject(parentListElement) {
 		do parentListElement.renderElements()
 	} else {
-		do ..initialiseComponent(..pageID, componentType, componentName)	// ######### remove this if the call from the load bit works
+		// This is done on the very first page load becuase the database have no knowledge of what proweb tags (i.e. components) that are in the page
+		do ..initialiseComponent(..pageID, componentType, componentName)	
 	}
 ]]></Implementation>
 </Method>
@@ -3561,11 +3578,11 @@ also an entry point from unit tests</Description>
 <FormalSpec>pageID:%Integer="",componentType:%String="",componentName:%String=""</FormalSpec>
 <Private>1</Private>
 <Implementation><![CDATA[
-	if ('pageID) ! (componentType = "") ! (componentName = "") {
-		throw ##class(shared.exceptions.generalException).%New("Parameter(s) missing when attempting to initisalise a component of type: '"_componentType_"' - name: '"_componentName_"' - pageID: "_pageID)	
-	}
+	if '..isTestMode  { 
+		if ('pageID) ! (componentType = "") ! (componentName = "") {
+			throw ##class(shared.exceptions.generalException).%New("Parameter(s) missing when attempting to initisalise a component of type: '"_componentType_"' - name: '"_componentName_"' - pageID: "_pageID)	
+		}
 
-	if '..isTestMode {
 		if componentType = "text" {
 			set prowebID = ##class(sc.xModules.objText).add(pageID, componentName)
 		} else {
@@ -3925,14 +3942,11 @@ also an entry point from unit tests</Description>
 
 <Class name="EF.pageController.proweb.testCases.checkboxGroupTestCase">
 <Super>EF.ISC.UnitTest.TestCase</Super>
-<TimeChanged>64267,38601.34411</TimeChanged>
+<TimeChanged>64309,56641.938683</TimeChanged>
 <TimeCreated>64204,52598.182886</TimeCreated>
 
 <Method name="TestWithMulticheckboxNoneSelected">
 <Implementation><![CDATA[
-
-	set eventConfiguration = ##class(setup.eventConfiguration.storageMock).createEventConfiguration()
-
 	set contextData = ##class(EF.contextDataRegistrationMock).createMock()
 	set elementIdentifier = "proweb-1"
 	
@@ -3961,7 +3975,7 @@ also an entry point from unit tests</Description>
 	set prowebItem = ##class(sc.facade.prowebItem).createNew(storage)
 	do contextData.listOfProwebItemsToAdd.Insert(prowebItem)
 
-	set pageController = ##class(EF.pageController.pagesFrontend.registration).createNew(contextData,,,eventConfiguration)
+	set pageController = ##class(EF.pageController.proweb.page).createMock(contextData)
 		
 	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(pageController,"renderComponent", "unit test")
 	set returnedHTML = $ZStrip(returnedHTML,"*WC")
@@ -3974,16 +3988,13 @@ also an entry point from unit tests</Description>
 
 <Class name="EF.pageController.proweb.testCases.datePIckerTestCase">
 <Super>EF.ISC.UnitTest.TestCase</Super>
-<TimeChanged>64267,40023.026353</TimeChanged>
+<TimeChanged>64309,58846.454125</TimeChanged>
 <TimeCreated>64204,52627.550246</TimeCreated>
 
 <Method name="TestDatePicker">
 <Implementation><![CDATA[
-	set eventConfiguration = ##class(setup.eventConfiguration.storageMock).createEventConfiguration()
-	
 	set contextData = ##class(EF.contextDataRegistrationMock).createMock()
 	set contextData.isBackendBooking = 1
-	set contextData.prowebMode = "preview"
 	
 	set storage = ##class(sc.facade.prowebItemStorageInputElementMock).createNew()
 	set storage.prowebID = "1"
@@ -3995,7 +4006,7 @@ also an entry point from unit tests</Description>
 	set prowebItem = ##class(sc.facade.prowebItem).createNew(storage)
 	do contextData.listOfProwebItemsToAdd.Insert(prowebItem)
 	
-	set pageController = ##class(EF.pageController.pagesFrontend.registration).createNew(contextData,,,eventConfiguration)
+	set pageController = ##class(EF.pageController.proweb.page).createMock(contextData)
 		
 	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(pageController,"renderComponent","unit test")
 	set returnedHTML = $ZStrip(returnedHTML,"*WC")
@@ -4008,16 +4019,13 @@ also an entry point from unit tests</Description>
 
 <Class name="EF.pageController.proweb.testCases.dateRangeTestCase">
 <Super>EF.ISC.UnitTest.TestCase</Super>
-<TimeChanged>64267,40053.382058</TimeChanged>
+<TimeChanged>64309,58872.381542</TimeChanged>
 <TimeCreated>64204,52642.759507</TimeCreated>
 
 <Method name="TestDateRange">
 <Implementation><![CDATA[
-	set eventConfiguration = ##class(setup.eventConfiguration.storageMock).createEventConfiguration()
-	
 	set contextData = ##class(EF.contextDataRegistrationMock).createMock()
 	set contextData.isBackendBooking = 1
-	set contextData.prowebMode = "preview"
 	
 	set storage = ##class(sc.facade.prowebItemStorageInputElementMock).createNew()
 	set storage.prowebID = "1"
@@ -4029,8 +4037,7 @@ also an entry point from unit tests</Description>
 	set prowebItem = ##class(sc.facade.prowebItem).createNew(storage)
 	do contextData.listOfProwebItemsToAdd.Insert(prowebItem)
 	
-	set pageController = ##class(EF.pageController.pagesFrontend.registration).createNew(contextData,,,eventConfiguration)
-		
+	set pageController = ##class(EF.pageController.proweb.page).createMock(contextData)		
 	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(pageController,"renderComponent", "unit test")
 	set returnedHTML = $ZStrip(returnedHTML,"*WC")
 	set expectedHTML = "<divclass=""rowef-form-row""><divclass=""form-group""><divclass=""col-sm-4ef-label-container""><labelid=""ef-display-label-Mydateranger""class=""control-labelef-control-label""for=""Mydateranger"">Pleaseenteryourdatespan</label></div><divclass=""col-sm-8ef-input-container""><divclass=""ef-input-short""><inputtype=""date""class=""ef-date-pickeref-kendo-form-controlefDateRangeStartefDatePicker""title=""""id=""Mydateranger-startDate""name=""Mydateranger-startDate""value=""""placeholder=""DD/MM/YYYY""efdaterangeendid=""Mydateranger-endDate""efKendoDateFormat=""dd/MM/yyyy""></div><divstyle='float:left;text-align:left;margin-left:15px;margin-right:15px;'>to</div><divclass=""ef-input-short""><inputtype=""date""class=""ef-date-pickeref-kendo-form-controlefDateRangeEndefDatePicker""title=""""id=""Mydateranger-endDate""name=""Mydateranger-endDate""value=""""placeholder=""DD/MM/YYYY""efdaterangestartid=""Mydateranger-startDate""efKendoDateFormat=""dd/MM/yyyy""></div></div></div></div>"
@@ -4042,17 +4049,13 @@ also an entry point from unit tests</Description>
 
 <Class name="EF.pageController.proweb.testCases.dropdownTestCase">
 <Super>EF.ISC.UnitTest.TestCase</Super>
-<TimeChanged>64267,40183.06961</TimeChanged>
+<TimeChanged>64309,58920.134497</TimeChanged>
 <TimeCreated>64204,52666.398429</TimeCreated>
 
 <Method name="TestPageWithDropdown">
 <Implementation><![CDATA[
-
-	set eventConfiguration = ##class(setup.eventConfiguration.storageMock).createEventConfiguration()
-
 	set contextData = ##class(EF.contextDataRegistrationMock).createMock()
 	set contextData.isBackendBooking = 1
-	set contextData.prowebMode = "preview"
 
 	set storage = ##class(sc.facade.prowebItemStorageInputElementMock).createNew()
 	set storage.prowebID = "1"
@@ -4075,11 +4078,10 @@ also an entry point from unit tests</Description>
 	set alternative.displayText = "option 2"
 	do storage.listOfAlternatives.Insert( alternative)
 
-
 	set prowebItem = ##class(sc.facade.prowebItem).createNew(storage)
 	do contextData.listOfProwebItemsToAdd.Insert(prowebItem)
 
-	set pageController = ##class(EF.pageController.pagesFrontend.registration).createNew(contextData,,,eventConfiguration)
+	set pageController = ##class(EF.pageController.proweb.page).createMock(contextData)
 		
 	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(pageController,"renderComponent", "unit test")
 	set returnedHTML = $ZStrip(returnedHTML,"*WC")
@@ -4090,11 +4092,8 @@ also an entry point from unit tests</Description>
 
 <Method name="TestPageWithDropdownMandatory">
 <Implementation><![CDATA[
-	set eventConfiguration = ##class(setup.eventConfiguration.storageMock).createEventConfiguration()
-	
 	set contextData = ##class(EF.contextDataRegistrationMock).createMock()
 	set contextData.isBackendBooking = 1
-	set contextData.prowebMode = "preview"
 	
 	set storage = ##class(sc.facade.prowebItemStorageInputElementMock).createNew()
 	set storage.prowebID = "1"
@@ -4122,7 +4121,7 @@ also an entry point from unit tests</Description>
 	set prowebItem = ##class(sc.facade.prowebItem).createNew(storage)
 	do contextData.listOfProwebItemsToAdd.Insert(prowebItem)
 	
-	set pageController = ##class(EF.pageController.pagesFrontend.registration).createNew(contextData,,,eventConfiguration)
+	set pageController = ##class(EF.pageController.proweb.page).createMock(contextData)
 		
 	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(pageController,"renderComponent", "unit test")	
 	set returnedHTML = $ZStrip(returnedHTML,"*WC")
@@ -4133,11 +4132,8 @@ also an entry point from unit tests</Description>
 
 <Method name="TestPageWithDropdownPreSelected">
 <Implementation><![CDATA[
-	set eventConfiguration = ##class(setup.eventConfiguration.storageMock).createEventConfiguration()
-	
 	set contextData = ##class(EF.contextDataRegistrationMock).createMock()
 	set contextData.isBackendBooking = 1
-	set contextData.prowebMode = "preview"
 	
 	set storage = ##class(sc.facade.prowebItemStorageInputElementMock).createNew()
 	set storage.prowebID = "1"
@@ -4165,7 +4161,7 @@ also an entry point from unit tests</Description>
 	set prowebItem = ##class(sc.facade.prowebItem).createNew(storage)
 	do contextData.listOfProwebItemsToAdd.Insert(prowebItem)
 	
-	set pageController = ##class(EF.pageController.pagesFrontend.registration).createNew(contextData,,,eventConfiguration)
+	set pageController = ##class(EF.pageController.proweb.page).createMock(contextData)
 		
 	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(pageController,"renderComponent", "unit test")	
 	set returnedHTML = $ZStrip(returnedHTML,"*WC")
@@ -4178,16 +4174,13 @@ also an entry point from unit tests</Description>
 
 <Class name="EF.pageController.proweb.testCases.emailInputMultiTestCase">
 <Super>EF.ISC.UnitTest.TestCase</Super>
-<TimeChanged>64265,58341.883034</TimeChanged>
+<TimeChanged>64309,59163.420373</TimeChanged>
 <TimeCreated>64204,52684.401246</TimeCreated>
 
 <Method name="TestMultiEmail">
 <Implementation><![CDATA[
-	set eventConfiguration = ##class(setup.eventConfiguration.storageMock).createEventConfiguration()
-	
 	set contextData = ##class(EF.contextDataRegistrationMock).createMock()
 	set contextData.isBackendBooking = 1
-	set contextData.prowebMode = "preview"
 	
 	set storage = ##class(sc.facade.prowebItemStorageInputElementMock).createNew()
 	set storage.prowebID = "1"
@@ -4199,7 +4192,7 @@ also an entry point from unit tests</Description>
 	set prowebItem = ##class(sc.facade.prowebItem).createNew(storage)
 	do contextData.listOfProwebItemsToAdd.Insert(prowebItem)
 
-	set pageController = ##class(EF.pageController.pagesFrontend.registration).createNew(contextData,,,eventConfiguration)
+	set pageController = ##class(EF.pageController.proweb.page).createMock(contextData)
 	
 	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(pageController,"renderComponent","unit test")
 	set returnedHTML = $ZStrip(returnedHTML,"*WC")
@@ -4212,16 +4205,13 @@ also an entry point from unit tests</Description>
 
 <Class name="EF.pageController.proweb.testCases.emailInputTestCase">
 <Super>EF.ISC.UnitTest.TestCase</Super>
-<TimeChanged>64265,58390.723572</TimeChanged>
+<TimeChanged>64309,61633.556618</TimeChanged>
 <TimeCreated>64204,52696.984856</TimeCreated>
 
 <Method name="TestEmail">
 <Implementation><![CDATA[
-	set eventConfiguration = ##class(setup.eventConfiguration.storageMock).createEventConfiguration()
-	
 	set contextData = ##class(EF.contextDataRegistrationMock).createMock()
 	set contextData.isBackendBooking = 1
-	set contextData.prowebMode = "preview"
 	
 	set storage = ##class(sc.facade.prowebItemStorageInputElementMock).createNew()
 	set storage.prowebID = "1"
@@ -4233,7 +4223,7 @@ also an entry point from unit tests</Description>
 	set prowebItem = ##class(sc.facade.prowebItem).createNew(storage)
 	do contextData.listOfProwebItemsToAdd.Insert(prowebItem)
 
-	set pageController = ##class(EF.pageController.pagesFrontend.registration).createNew(contextData,,,eventConfiguration)
+	set pageController = ##class(EF.pageController.proweb.page).createMock(contextData)
 	
 	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(pageController,"renderComponent", "unit test")
 	set returnedHTML = $ZStrip(returnedHTML,"*WC")
@@ -4282,16 +4272,13 @@ also an entry point from unit tests</Description>
 
 <Class name="EF.pageController.proweb.testCases.integerInputTestCase">
 <Super>EF.ISC.UnitTest.TestCase</Super>
-<TimeChanged>64265,58438.786366</TimeChanged>
+<TimeChanged>64309,61699.894626</TimeChanged>
 <TimeCreated>64204,52712.809439</TimeCreated>
 
 <Method name="TestInteger">
 <Implementation><![CDATA[
-	set eventConfiguration = ##class(setup.eventConfiguration.storageMock).createEventConfiguration()
-	
 	set contextData = ##class(EF.contextDataRegistrationMock).createMock()
 	set contextData.isBackendBooking = 1
-	set contextData.prowebMode = "preview"
 	
 	set storage = ##class(sc.facade.prowebItemStorageInputElementMock).createNew()
 	set storage.prowebID = "1"
@@ -4303,7 +4290,7 @@ also an entry point from unit tests</Description>
 	set prowebItem = ##class(sc.facade.prowebItem).createNew(storage)
 	do contextData.listOfProwebItemsToAdd.Insert(prowebItem)
 
-	set pageController = ##class(EF.pageController.pagesFrontend.registration).createNew(contextData,,,eventConfiguration)
+	set pageController = ##class(EF.pageController.proweb.page).createMock(contextData) // #### change
 	
 	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(pageController, "renderComponent", "unit test")
 	set returnedHTML = $ZStrip(returnedHTML,"*WC")
@@ -4316,16 +4303,13 @@ also an entry point from unit tests</Description>
 
 <Class name="EF.pageController.proweb.testCases.numericInputTestCase">
 <Super>EF.ISC.UnitTest.TestCase</Super>
-<TimeChanged>64265,58473.920177</TimeChanged>
+<TimeChanged>64309,61746.002591</TimeChanged>
 <TimeCreated>64204,52723.013439</TimeCreated>
 
 <Method name="TestNumeric">
 <Implementation><![CDATA[
-	set eventConfiguration = ##class(setup.eventConfiguration.storageMock).createEventConfiguration()
-	
 	set contextData = ##class(EF.contextDataRegistrationMock).createMock()
 	set contextData.isBackendBooking = 1
-	set contextData.prowebMode = "preview"
 	
 	set storage = ##class(sc.facade.prowebItemStorageInputElementMock).createNew()
 	set storage.prowebID = "1"
@@ -4337,7 +4321,7 @@ also an entry point from unit tests</Description>
 	set prowebItem = ##class(sc.facade.prowebItem).createNew(storage)
 	do contextData.listOfProwebItemsToAdd.Insert(prowebItem)
 
-	set pageController = ##class(EF.pageController.pagesFrontend.registration).createNew(contextData,,,eventConfiguration)
+	set pageController = ##class(EF.pageController.proweb.page).createMock(contextData) // #### change
 	
 	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(pageController,"renderComponent","unit test")
 	set returnedHTML = $ZStrip(returnedHTML,"*WC")
@@ -4411,17 +4395,13 @@ also an entry point from unit tests</Description>
 
 <Class name="EF.pageController.proweb.testCases.passwordInputTestCase">
 <Super>EF.ISC.UnitTest.TestCase</Super>
-<TimeChanged>64265,58534.883538</TimeChanged>
+<TimeChanged>64309,61808.836257</TimeChanged>
 <TimeCreated>64208,51641.871984</TimeCreated>
 
 <Method name="TestPasswordInput">
 <Implementation><![CDATA[
-
-	set eventConfiguration = ##class(setup.eventConfiguration.storageMock).createEventConfiguration()
-	
 	set contextData = ##class(EF.contextDataRegistrationMock).createMock()
 	set contextData.isBackendBooking = 1
-	set contextData.prowebMode = "preview"
 	
 	set storage = ##class(sc.facade.prowebItemStorageInputElementMock).createNew()
 	set storage.prowebID = "1"
@@ -4433,7 +4413,7 @@ also an entry point from unit tests</Description>
 	set prowebItem = ##class(sc.facade.prowebItem).createNew(storage)
 	do contextData.listOfProwebItemsToAdd.Insert(prowebItem)
 
-	set pageController = ##class(EF.pageController.pagesFrontend.registration).createNew(contextData,,,eventConfiguration)
+	set pageController = ##class(EF.pageController.proweb.page).createMock(contextData) // #### change
 	
 	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(pageController,"renderComponent","unit test")
 	set returnedHTML = $ZStrip(returnedHTML,"*WC")
@@ -4446,16 +4426,13 @@ also an entry point from unit tests</Description>
 
 <Class name="EF.pageController.proweb.testCases.phoneNumberTestCase">
 <Super>EF.ISC.UnitTest.TestCase</Super>
-<TimeChanged>64265,58619.941455</TimeChanged>
+<TimeChanged>64309,61894.308212</TimeChanged>
 <TimeCreated>64204,52750.117876</TimeCreated>
 
 <Method name="TestPhoneNumber">
 <Implementation><![CDATA[
-	set eventConfiguration = ##class(setup.eventConfiguration.storageMock).createEventConfiguration()
-	
 	set contextData = ##class(EF.contextDataRegistrationMock).createMock()
 	set contextData.isBackendBooking = 1
-	set contextData.prowebMode = "preview"
 	
 	set storage = ##class(sc.facade.prowebItemStorageInputElementMock).createNew()
 	set storage.prowebID = "1"
@@ -4467,7 +4444,7 @@ also an entry point from unit tests</Description>
 	set prowebItem = ##class(sc.facade.prowebItem).createNew(storage)
 	do contextData.listOfProwebItemsToAdd.Insert(prowebItem)
 
-	set pageController = ##class(EF.pageController.pagesFrontend.registration).createNew(contextData,,,eventConfiguration)
+	set pageController = ##class(EF.pageController.proweb.page).createMock(contextData) // #### change
 	
 	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(pageController,"renderComponent","unit test")
 	set returnedHTML = $ZStrip(returnedHTML,"*WC")
@@ -4480,15 +4457,13 @@ also an entry point from unit tests</Description>
 
 <Class name="EF.pageController.proweb.testCases.radioButtonsTestCase">
 <Super>EF.ISC.UnitTest.TestCase</Super>
-<TimeChanged>64265,58784.505139</TimeChanged>
+<TimeChanged>64309,62059.38508</TimeChanged>
 <TimeCreated>64204,52760.35415</TimeCreated>
 
 <Method name="TestRadioButtonsABI">
 <Implementation><![CDATA[
 	#dim eventConfiguration as setup.eventConfiguration.storageDatabase
 	#dim contextData as EF.contextDataRegistrationMock
-	
-	set eventConfiguration = ##class(setup.eventConfiguration.storageMock).createEventConfiguration()
 	
 	set contextData = ##class(EF.contextDataRegistrationMock).createMock()
 	set contextData.currencyID = 1
@@ -4510,8 +4485,8 @@ also an entry point from unit tests</Description>
 	set prowebItem = ##class(sc.facade.prowebItem).createNew(storage)
 	do contextData.listOfProwebItemsToAdd.Insert(prowebItem)
 
-	set pageController = ##class(EF.pageController.pagesFrontend.registration).createNew(contextData,,,eventConfiguration)
-		
+	set pageController = ##class(EF.pageController.proweb.page).createMock(contextData)
+			
 	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(pageController,"renderComponent", "unit test")
 	set returnedHTML = $ZStrip(returnedHTML,"*WC")
 	set expectedHTML = "<divclass=""rowef-form-row""><divclass=""form-group""><divclass=""col-sm-4ef-label-containeref-label-container-vertical-group""><labelid=""ef-display-label-MYRADIO""class=""control-labelef-control-label""for=""MYRADIO"">Pleaseselectyouroption</label></div><divclass=""col-sm-8ef-input-containeref-radio-group""><divclass=""ef-input""><divclass=""ef-radio-button""><labelclass=""ef-control-labelactive""class=""ef-radio-button""id=""MYRADIO_1-label""><inputtype=""radio""checkedclass=""ef-radio-button""value=""option1""name=""MYRADIO""id=""MYRADIO_1"">&nbsp;option1&nbsp;&nbsp;</label></div><divclass=""ef-radio-button""><labelclass=""ef-control-label""class=""ef-radio-button""id=""MYRADIO_2-label""><inputtype=""radio""class=""ef-radio-button""value=""option2""name=""MYRADIO""id=""MYRADIO_2"">&nbsp;option2</label></div><divclass=""ef-radio-button""><labelclass=""ef-control-label""class=""ef-radio-button""id=""MYRADIO_3-label""><inputtype=""radio""class=""ef-radio-button""value=""option3""name=""MYRADIO""id=""MYRADIO_3"">&nbsp;option3</label></div></div></div></div></div>"
@@ -4521,8 +4496,6 @@ also an entry point from unit tests</Description>
 
 <Method name="TestWithRadioButtons">
 <Implementation><![CDATA[
-	set eventConfiguration = ##class(setup.eventConfiguration.storageMock).createEventConfiguration()
-
 	set contextData = ##class(EF.contextDataRegistrationMock).createMock()
 	set elementIdentifier = "proweb-1"
 	
@@ -4543,8 +4516,8 @@ also an entry point from unit tests</Description>
 	set prowebItem = ##class(sc.facade.prowebItem).createNew(storage)
 	do contextData.listOfProwebItemsToAdd.Insert(prowebItem)
 
-	set pageController = ##class(EF.pageController.pagesFrontend.registration).createNew(contextData,,,eventConfiguration)
-		
+	set pageController = ##class(EF.pageController.proweb.page).createMock(contextData)
+			
 	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(pageController,"renderComponent", "unit test")
 	set returnedHTML = $ZStrip(returnedHTML,"*WC")
 	set expectedHTML = "<divclass=""rowef-form-row""><divclass=""form-group""><divclass=""col-sm-4ef-label-containeref-label-container-vertical-group""><labelid=""ef-display-label-MYRADIO""class=""control-labelef-control-label""for=""MYRADIO"">Pleaseselectyouroption</label></div><divclass=""col-sm-8ef-input-containeref-radio-group""><divclass=""ef-input""><divclass=""ef-radio-button""><labelclass=""ef-control-labelactive""class=""ef-radio-button""id=""MYRADIO_1-label""><inputtype=""radio""checkedclass=""ef-radio-button""value=""option1""name=""MYRADIO""id=""MYRADIO_1"">&nbsp;option1</label></div><divclass=""ef-radio-button""><labelclass=""ef-control-label""class=""ef-radio-button""id=""MYRADIO_2-label""><inputtype=""radio""class=""ef-radio-button""value=""option2""name=""MYRADIO""id=""MYRADIO_2"">&nbsp;option2</label></div><divclass=""ef-radio-button""><labelclass=""ef-control-label""class=""ef-radio-button""id=""MYRADIO_3-label""><inputtype=""radio""class=""ef-radio-button""value=""option3""name=""MYRADIO""id=""MYRADIO_3"">&nbsp;option3</label></div></div></div></div></div>"
@@ -4556,16 +4529,13 @@ also an entry point from unit tests</Description>
 
 <Class name="EF.pageController.proweb.testCases.textAreaTestCase">
 <Super>EF.ISC.UnitTest.TestCase</Super>
-<TimeChanged>64265,59409.002907</TimeChanged>
+<TimeChanged>64309,62154.222185</TimeChanged>
 <TimeCreated>64204,52770.974784</TimeCreated>
 
 <Method name="TestTextArea">
 <Implementation><![CDATA[
-	set eventConfiguration = ##class(setup.eventConfiguration.storageMock).createEventConfiguration()
-	
 	set contextData = ##class(EF.contextDataRegistrationMock).createMock()
 	set contextData.isBackendBooking = 1
-	set contextData.prowebMode = "preview"
 	
 	set storage = ##class(sc.facade.prowebItemStorageInputElementMock).createNew()
 	set storage.prowebID = "1"
@@ -4578,11 +4548,12 @@ also an entry point from unit tests</Description>
 	set prowebItem = ##class(sc.facade.prowebItem).createNew(storage)
 	do contextData.listOfProwebItemsToAdd.Insert(prowebItem)
 
-	set pageController = ##class(EF.pageController.pagesFrontend.registration).createNew(contextData,,,eventConfiguration)
+	set pageController = ##class(EF.pageController.proweb.page).createMock(contextData)
 	
 	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(pageController,"renderComponent", "unit test")
 	set returnedHTML = $ZStrip(returnedHTML,"*WC")
 	set expectedHTML = "<divclass=""rowef-form-row""><divclass=""form-group""><divclass=""col-sm-4ef-label-container""><labelid=""ef-display-label-mytext""class=""control-labelef-control-label""for=""mytext"">Pleaseenteryouressay</label></div><divclass=""col-sm-8ef-input-container""><textareatype=""text""class=""ef-inputform-controlef-input-text-area""title=""""id=""mytext""name=""mytext""rows=""""placeholder="""">LOREMIPSUM</textArea></div></div></div>"
+					 
 	do $$$AssertEquals(returnedHTML,expectedHTML)
 ]]></Implementation>
 </Method>
@@ -4591,16 +4562,13 @@ also an entry point from unit tests</Description>
 
 <Class name="EF.pageController.proweb.testCases.textBlockTestCase">
 <Super>EF.ISC.UnitTest.TestCase</Super>
-<TimeChanged>64267,40392.197278</TimeChanged>
+<TimeChanged>64309,62202.89866</TimeChanged>
 <TimeCreated>64204,52784.358512</TimeCreated>
 
 <Method name="TestBasicPageWithTextBlock">
 <Implementation><![CDATA[
-	set eventConfiguration = ##class(setup.eventConfiguration.storageMock).createEventConfiguration()
-	
 	set contextData = ##class(EF.contextDataRegistrationMock).createMock()
 	set contextData.isBackendBooking = 1
-	set contextData.prowebMode = "preview"
 	
 	set storage = ##class(sc.facade.prowebItemStorageTextBlockMock).createNew()
 	set storage.prowebID = "1"
@@ -4610,14 +4578,11 @@ also an entry point from unit tests</Description>
 	set prowebItem = ##class(sc.facade.prowebItem).createNew(storage)
 	do contextData.listOfProwebItemsToAdd.Insert(prowebItem)
 
-	set pageController = ##class(EF.pageController.pagesFrontend.registration).createNew(contextData,,,eventConfiguration)
+	set pageController = ##class(EF.pageController.proweb.page).createMock(contextData)
 	
 	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(pageController,"renderComponent", "unit test")
 	set returnedHTML = $ZStrip(returnedHTML,"*WC")
 	set expectedHTML = "<divclass=""rowef-form-row""><divclass=""col-sm-12""><divclass=""ef-text-block"">LOREMIPSUM</div></div></div>"
-	k ^xfg
-	s ^xfg("returnedHTML")=returnedHTML
-	s ^xfg("expectedHTML")=expectedHTML
 	do $$$AssertEquals(returnedHTML,expectedHTML)
 ]]></Implementation>
 </Method>
@@ -4626,15 +4591,15 @@ also an entry point from unit tests</Description>
 
 <Class name="EF.pageController.proweb.testCases.textInputTestCase">
 <Super>EF.ISC.UnitTest.TestCase</Super>
-<TimeChanged>64267,40818.722501</TimeChanged>
+<TimeChanged>64309,58832.41665</TimeChanged>
 <TimeCreated>64204,52795.592181</TimeCreated>
 
 <Method name="TestbasicInputField">
 <Implementation><![CDATA[
-	set eventConfiguration = ##class(setup.eventConfiguration.storageMock).createEventConfiguration()
+	;set eventConfiguration = ##class(setup.eventConfiguration.storageMock).createEventConfiguration() // ### change
 	
 	set contextData = ##class(EF.contextDataRegistrationMock).createMock()
-	set contextData.prowebMode = "preview"
+	//set contextData.prowebMode = "preview" // #### change
 	
 	set storage = ##class(sc.facade.prowebItemStorageInputElementMock).createNew()
 	set storage.prowebID = "1"
@@ -4646,7 +4611,7 @@ also an entry point from unit tests</Description>
 	set prowebItem = ##class(sc.facade.prowebItem).createNew(storage)
 	do contextData.listOfProwebItemsToAdd.Insert(prowebItem)
 
-	set pageController = ##class(EF.pageController.pagesFrontend.registration).createNew(contextData,,,eventConfiguration)
+	set pageController = ##class(EF.pageController.proweb.page).createMock(contextData) // #### change
 	
 	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(pageController,"renderComponent", "unit test")
 	set returnedHTML = $ZStrip(returnedHTML,"*WC")
@@ -4657,22 +4622,17 @@ also an entry point from unit tests</Description>
 
 <Method name="TestAriaLabel">
 <Implementation><![CDATA[
-	set eventConfiguration = ##class(setup.eventConfiguration.storageMock).createEventConfiguration()
-	
 	set contextData = ##class(EF.contextDataRegistrationMock).createMock()
-	set contextData.prowebMode = "preview"
-	
 	set storage = ##class(sc.facade.prowebItemStorageInputElementMock).createNew()
 	set storage.prowebID = "1"
 	set storage.databaseItemName = "name"
 	set storage.inputType = "text"
 	set storage.labelText = ""
-
 	
 	set prowebItem = ##class(sc.facade.prowebItem).createNew(storage)
 	do contextData.listOfProwebItemsToAdd.Insert(prowebItem)
 
-	set pageController = ##class(EF.pageController.pagesFrontend.registration).createNew(contextData,,,eventConfiguration)
+	set pageController = ##class(EF.pageController.proweb.page).createMock(contextData)
 	
 	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(pageController,"renderComponent", "unit test")
 	set returnedHTML = $ZStrip(returnedHTML,"*WC")
@@ -4683,11 +4643,8 @@ also an entry point from unit tests</Description>
 
 <Method name="TestBackendOnlyFieldAsBackendBooking">
 <Implementation><![CDATA[
-	set eventConfiguration = ##class(setup.eventConfiguration.storageMock).createEventConfiguration()
-	
 	set contextData = ##class(EF.contextDataRegistrationMock).createMock()
 	set contextData.isBackendBooking = 1
-	set contextData.prowebMode = "preview"
 	
 	set storage = ##class(sc.facade.prowebItemStorageInputElementMock).createNew()
 	set storage.prowebID = "1"
@@ -4700,7 +4657,7 @@ also an entry point from unit tests</Description>
 	set prowebItem = ##class(sc.facade.prowebItem).createNew(storage)
 	do contextData.listOfProwebItemsToAdd.Insert(prowebItem)
 
-	set pageController = ##class(EF.pageController.pagesFrontend.registration).createNew(contextData,,,eventConfiguration)
+	set pageController = ##class(EF.pageController.proweb.page).createMock(contextData)
 	
 	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(pageController,"renderComponent", "unit test")
 	set returnedHTML = $ZStrip(returnedHTML,"*WC")
@@ -4711,10 +4668,7 @@ also an entry point from unit tests</Description>
 
 <Method name="TestBasicPageWithMandatoryTextField">
 <Implementation><![CDATA[
-	set eventConfiguration = ##class(setup.eventConfiguration.storageMock).createEventConfiguration()
-	
 	set contextData = ##class(EF.contextDataRegistrationMock).createMock()
-	set contextData.prowebMode = "preview"
 	
 	set storage = ##class(sc.facade.prowebItemStorageInputElementMock).createNew()
 	set storage.prowebID = "1"
@@ -4726,7 +4680,7 @@ also an entry point from unit tests</Description>
 	set prowebItem = ##class(sc.facade.prowebItem).createNew(storage)
 	do contextData.listOfProwebItemsToAdd.Insert(prowebItem)
 
-	set pageController = ##class(EF.pageController.pagesFrontend.registration).createNew(contextData,,,eventConfiguration)
+	set pageController = ##class(EF.pageController.proweb.page).createMock(contextData)
 	
 	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(pageController,"renderComponent", "unit test")
 	set returnedHTML = $ZStrip(returnedHTML,"*WC")
@@ -4737,11 +4691,8 @@ also an entry point from unit tests</Description>
 
 <Method name="TestBackendOnlyFieldAsFrontendBooking">
 <Implementation><![CDATA[
-	set eventConfiguration = ##class(setup.eventConfiguration.storageMock).createEventConfiguration()
-	
 	set contextData = ##class(EF.contextDataRegistrationMock).createMock()
 	set contextData.isBackendBooking = 0
-	set contextData.prowebMode = "preview"
 	
 	set storage = ##class(sc.facade.prowebItemStorageInputElementMock).createNew()
 	set storage.prowebID = "1"
@@ -4754,7 +4705,7 @@ also an entry point from unit tests</Description>
 	set prowebItem = ##class(sc.facade.prowebItem).createNew(storage)
 	do contextData.listOfProwebItemsToAdd.Insert(prowebItem)
 
-	set pageController = ##class(EF.pageController.pagesFrontend.registration).createNew(contextData,,,eventConfiguration)
+	set pageController = ##class(EF.pageController.proweb.page).createMock(contextData)
 	
 	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(pageController,"renderComponent", "unit test")
 	set returnedHTML = $ZStrip(returnedHTML,"*WC")
@@ -4765,8 +4716,6 @@ also an entry point from unit tests</Description>
 
 <Method name="TestBackendOnlyFieldInEditMode">
 <Implementation><![CDATA[
-	set eventConfiguration = ##class(setup.eventConfiguration.storageMock).createEventConfiguration()
-	
 	set contextData = ##class(EF.contextDataRegistrationMock).createMock()
 	set contextData.isBackendBooking = 0
 	set contextData.prowebMode = "edit"
@@ -4781,7 +4730,7 @@ also an entry point from unit tests</Description>
 	set prowebItem = ##class(sc.facade.prowebItem).createNew(storage)
 	do contextData.listOfProwebItemsToAdd.Insert(prowebItem)
 
-	set pageController = ##class(EF.pageController.pagesFrontend.registration).createNew(contextData,,,eventConfiguration)
+	set pageController = ##class(EF.pageController.proweb.page).createMock(contextData)
 	
 	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(pageController,"renderComponent", "unit test")
 	set returnedHTML = $ZStrip(returnedHTML,"*WC")
@@ -4792,8 +4741,6 @@ also an entry point from unit tests</Description>
 
 <Method name="TestDefaultvalue">
 <Implementation><![CDATA[
-	set eventConfiguration = ##class(setup.eventConfiguration.storageMock).createEventConfiguration()
-	
 	set contextData = ##class(EF.contextDataRegistrationMock).createMock()
 
 	set storage = ##class(sc.facade.prowebItemStorageInputElementMock).createNew()
@@ -4806,7 +4753,7 @@ also an entry point from unit tests</Description>
 	set prowebItem = ##class(sc.facade.prowebItem).createNew(storage)
 	do contextData.listOfProwebItemsToAdd.Insert(prowebItem)
 
-	set pageController = ##class(EF.pageController.pagesFrontend.registration).createNew(contextData,,,eventConfiguration)
+	set pageController = ##class(EF.pageController.proweb.page).createMock(contextData)
 	
 	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(pageController,"renderComponent", "unit test")
 	set returnedHTML = $ZStrip(returnedHTML,"*WC")
@@ -4817,10 +4764,7 @@ also an entry point from unit tests</Description>
 
 <Method name="TestHelpText">
 <Implementation><![CDATA[
-	set eventConfiguration = ##class(setup.eventConfiguration.storageMock).createEventConfiguration()
-	
 	set contextData = ##class(EF.contextDataRegistrationMock).createMock()
-	set contextData.prowebMode = "preview"
 	
 	set storage = ##class(sc.facade.prowebItemStorageInputElementMock).createNew()
 	set storage.prowebID = "1"
@@ -4829,11 +4773,10 @@ also an entry point from unit tests</Description>
 	set storage.labelText = "Please enter your name"
 	set storage.helpText = "Help me!"
 	
-	
 	set prowebItem = ##class(sc.facade.prowebItem).createNew(storage)
 	do contextData.listOfProwebItemsToAdd.Insert(prowebItem)
 
-	set pageController = ##class(EF.pageController.pagesFrontend.registration).createNew(contextData,,,eventConfiguration)
+	set pageController = ##class(EF.pageController.proweb.page).createMock(contextData)
 	
 	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(pageController,"renderComponent", "unit test")
 	set returnedHTML = $ZStrip(returnedHTML,"*WC")
@@ -4844,8 +4787,6 @@ also an entry point from unit tests</Description>
 
 <Method name="TestReadOnlyField">
 <Implementation><![CDATA[
-	set eventConfiguration = ##class(setup.eventConfiguration.storageMock).createEventConfiguration()
-	
 	set contextData = ##class(EF.contextDataRegistrationMock).createMock()
 
 	set storage = ##class(sc.facade.prowebItemStorageInputElementMock).createNew()
@@ -4858,7 +4799,7 @@ also an entry point from unit tests</Description>
 	set prowebItem = ##class(sc.facade.prowebItem).createNew(storage)
 	do contextData.listOfProwebItemsToAdd.Insert(prowebItem)
 
-	set pageController = ##class(EF.pageController.pagesFrontend.registration).createNew(contextData,,,eventConfiguration)
+	set pageController = ##class(EF.pageController.proweb.page).createMock(contextData)
 	
 	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(pageController,"renderComponent", "unit test")
 	set returnedHTML = $ZStrip(returnedHTML,"*WC")
@@ -4871,13 +4812,11 @@ also an entry point from unit tests</Description>
 
 <Class name="EF.pageController.proweb.testCases.timeInputTestCase">
 <Super>EF.ISC.UnitTest.TestCase</Super>
-<TimeChanged>64267,40848.507339</TimeChanged>
+<TimeChanged>64309,62284.186726</TimeChanged>
 <TimeCreated>64204,52806.787409</TimeCreated>
 
 <Method name="TestTime">
 <Implementation><![CDATA[
-	set eventConfiguration = ##class(setup.eventConfiguration.storageMock).createEventConfiguration()
-	
 	set contextData = ##class(EF.contextDataRegistrationMock).createMock()
 
 	set storage = ##class(sc.facade.prowebItemStorageInputElementMock).createNew()
@@ -4890,8 +4829,8 @@ also an entry point from unit tests</Description>
 	set prowebItem = ##class(sc.facade.prowebItem).createNew(storage)
 	do contextData.listOfProwebItemsToAdd.Insert(prowebItem)
 
-	set pageController = ##class(EF.pageController.pagesFrontend.registration).createNew(contextData,,,eventConfiguration)
-	
+	set pageController = ##class(EF.pageController.proweb.page).createMock(contextData)
+
 	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(pageController,"renderComponent", "unit test")
 	set returnedHTML = $ZStrip(returnedHTML,"*WC")
 	set expectedHTML = "<divclass=""rowef-form-row""><divclass=""form-group""><divclass=""col-sm-4ef-label-container""><labelid=""ef-display-label-name""class=""control-labelef-control-label""for=""name"">Pleaseenteryourtime</label></div><divclass=""col-sm-8ef-input-container""><divstyle=""width:40%""class=""ef-time-pickeref_proweb_form_field_container_type_timeef-kendo-form-control""><inputtype=""text""class=""ef-time-pickeref_proweb_form_field_container_type_timeef-kendo-form-controlefTimePicker""title=""""id=""name""name=""name""value=""""placeholder=""HH:MM24hour""autofocus=""autofocus""efKendoTimeFormat=""24""efKendoTimeInterval=15style=""width:100%;""></div></div></div></div>"
@@ -4903,13 +4842,11 @@ also an entry point from unit tests</Description>
 
 <Class name="EF.pageController.proweb.testCases.webAddressTestCase">
 <Super>EF.ISC.UnitTest.TestCase</Super>
-<TimeChanged>64266,50886.721998</TimeChanged>
+<TimeChanged>64309,62332.86746</TimeChanged>
 <TimeCreated>64204,51604.334511</TimeCreated>
 
 <Method name="TestWebAddress">
 <Implementation><![CDATA[
-	set eventConfiguration = ##class(setup.eventConfiguration.storageMock).createEventConfiguration()
-	
 	set contextData = ##class(EF.contextDataRegistrationMock).createMock()
 
 	set storage = ##class(sc.facade.prowebItemStorageInputElementMock).createNew()
@@ -4922,7 +4859,7 @@ also an entry point from unit tests</Description>
 	set prowebItem = ##class(sc.facade.prowebItem).createNew(storage)
 	do contextData.listOfProwebItemsToAdd.Insert(prowebItem)
 
-	set pageController = ##class(EF.pageController.pagesFrontend.registration).createNew(contextData,,,eventConfiguration)
+	set pageController = ##class(EF.pageController.proweb.page).createMock(contextData)
 	
 	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(pageController,"renderComponent", "unit test")
 	set returnedHTML = $ZStrip(returnedHTML,"*WC")
@@ -4935,13 +4872,11 @@ also an entry point from unit tests</Description>
 
 <Class name="EF.pageController.proweb.testCases.youTubeVideoTestCase">
 <Super>EF.ISC.UnitTest.TestCase</Super>
-<TimeChanged>64267,40978.648827</TimeChanged>
+<TimeChanged>64309,62357.594268</TimeChanged>
 <TimeCreated>64208,59801.380137</TimeCreated>
 
 <Method name="TestYouTubeVideo">
 <Implementation><![CDATA[
-	set eventConfiguration = ##class(setup.eventConfiguration.storageMock).createEventConfiguration()
-	
 	set contextData = ##class(EF.contextDataRegistrationMock).createMock()
 
 	set storage = ##class(sc.facade.prowebItemStorageYouTubeVideoMock).createNew()
@@ -4950,7 +4885,7 @@ also an entry point from unit tests</Description>
 	set prowebItem = ##class(sc.facade.prowebItem).createNew(storage)
 	do contextData.listOfProwebItemsToAdd.Insert(prowebItem)
 
-	set pageController = ##class(EF.pageController.pagesFrontend.registration).createNew(contextData,,,eventConfiguration)
+	set pageController = ##class(EF.pageController.proweb.page).createMock(contextData)
 	
 	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(pageController,"renderComponent", "unit test")
 	set returnedHTML = $ZStrip(returnedHTML,"*WC")
@@ -17149,7 +17084,7 @@ function updateAlts(codPromptID) {
 		}
 		w !,"</style>",!
 		&html<
-			<link rel="stylesheet" href="../../media/stylesheets/frontend/gen3/ef-website-gen1-3-main.css" type="text/css" />
+			<link rel="stylesheet" href="../../media/stylesheets/frontend/gen1-3/ef-website-gen1-3-main.css" type="text/css" />
 		>
 		w "<style>",!
 		if (##class(layout.objTemplate).isTemplateGen2(tmpTemplateID))	{
@@ -19157,7 +19092,7 @@ session pageID=#(%session.Get("pageID"))#
 <Abstract>1</Abstract>
 <ClassType/>
 <ProcedureBlock>1</ProcedureBlock>
-<TimeChanged>64308,41043.411716</TimeChanged>
+<TimeChanged>64308,60371.978595</TimeChanged>
 <TimeCreated>63046,56232.897117</TimeCreated>
 
 <Method name="outputDefaultCSS">
@@ -19185,7 +19120,7 @@ session pageID=#(%session.Get("pageID"))#
 		do ..outputGen3Defaults()
 		w !,"</style>",!
 		&html<
-			<link rel="stylesheet" href="../../media/stylesheets/frontend/gen3/ef-website-gen1-3-main.css" type="text/css" />
+			<link rel="stylesheet" href="../../media/stylesheets/frontend/gen1-3/ef-website-gen1-3-main.css" type="text/css" />
 		>
 		w "<style>",!
 		do ##class(layout.cssOverrideMethods).outputDynamicCSS(xEventID)
@@ -28358,18 +28293,18 @@ note that this must be a classmethod or you will a compile error as the property
 <Description><![CDATA[
 link to a OCD item. Provides a facility for adding questions about COD item in a proweb form
 <!-- ;vc;
-;vc;    Object: sc.xModules.objCODitem.CLS/EV.70
+;vc;    Object: sc.xModules.objCODitem.CLS/EV.73
 ;vc; Component: CLS.sc.xModules.objCODitem
 ;vc;  Location: LargeDev
-;vc; Date/Time: 24-Jan-17 16:09
+;vc; Date/Time: 26-Jan-17 10:06
 ;vc;      User: MindaugasL
-;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>sc.xModules.objCODitem.CLS/EV.70</td><td>CLS.sc.xModules.objCODitem</td><td>LargeDev</td><td style='white-space: nowrap;'>24-Jan-17 16:09</td><td>MindaugasL</td></tr></table>
+;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>sc.xModules.objCODitem.CLS/EV.73</td><td>CLS.sc.xModules.objCODitem</td><td>LargeDev</td><td style='white-space: nowrap;'>26-Jan-17 10:06</td><td>MindaugasL</td></tr></table>
 ]]></Description>
 <ClassType>persistent</ClassType>
 <IncludeCode>EF.common.macros</IncludeCode>
 <ProcedureBlock>1</ProcedureBlock>
 <Super>sc.objData</Super>
-<TimeChanged>64306,61679</TimeChanged>
+<TimeChanged>64309,39808.779747</TimeChanged>
 <TimeCreated>59478,65593.453</TimeCreated>
 
 <Property name="maxAltsChecked">
@@ -29319,9 +29254,10 @@ is the database on any of the pages EXCEPT the payment method pages</Description
 		WHERE (active=1)
 		AND (objController = :controllerID)
 		AND (
-			(codItem = :codItemName) OR (codItem2 = :codItemName) OR (codItem3 = :codItemName)
+			(codItem = :codItemName) OR (codItem2 = :codItemName) OR (codItem3 = :codItemName)			
 		)
 	)
+	// Change here for "Discount setup not saving for BMJ" story
 	if +SQLCODE=0 {
 		return count>0	
 	} else {

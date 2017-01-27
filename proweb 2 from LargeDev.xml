@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.2 (Build 736U)" ts="2017-01-27 14:47:42">
+<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.2 (Build 736U)" ts="2017-01-27 15:28:18">
 <Class name="EF.contextDataFrontend">
 <Description><![CDATA[
 <!-- ;vc;-
@@ -2550,7 +2550,7 @@ Should be run if any of the sub-classes are deleted</Description>
 
 <Class name="EF.pageController.proweb.inputElement">
 <Super>EF.pageController.inputElement,EF.pageController.proweb.prowebBase</Super>
-<TimeChanged>64296,42703.766798</TimeChanged>
+<TimeChanged>64310,55576.875824</TimeChanged>
 <TimeCreated>64189,53012.909524</TimeCreated>
 
 <Property name="guestNumber">
@@ -2584,13 +2584,11 @@ Should be run if any of the sub-classes are deleted</Description>
 <ReturnType>%Boolean</ReturnType>
 <Implementation><![CDATA[
 	set isOkToRender = ##super()
-	
 	if isOkToRender {
-		if (..prowebItem.storage.isBackendOnly) && (..uiComponent.contextData.isBackendBooking = 0) && ('..page.mvcPage.isEditMode) {
+		if (..prowebItem.storage.isBackendOnly) && (..page.contextData.isBackendBooking = 0) && (..page.contextData.prowebMode '= "edit") {
 			set isOkToRender = 0	
 		}
 	}
-		
 	return isOkToRender
 ]]></Implementation>
 </Method>
@@ -4595,7 +4593,7 @@ also an entry point from unit tests</Description>
 
 <Class name="EF.pageController.proweb.testCases.textInputTestCase">
 <Super>EF.ISC.UnitTest.TestCase</Super>
-<TimeChanged>64309,58832.41665</TimeChanged>
+<TimeChanged>64310,55680.591549</TimeChanged>
 <TimeCreated>64204,52795.592181</TimeCreated>
 
 <Method name="TestbasicInputField">
@@ -4738,7 +4736,7 @@ also an entry point from unit tests</Description>
 	
 	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(pageController,"renderComponent", "unit test")
 	set returnedHTML = $ZStrip(returnedHTML,"*WC")
-	set expectedHTML = "<divclass=""rowef-draggable-divef-form-rowef-form-row-editable""id=""ef-field-proweb-1""data-proweb-id=""1""data-proweb-list-id=""""data-ui-component-type=""textInput""data-proweb-allowed-types=""Text""><divclass=""form-group""><divclass=""col-sm-4ef-label-container""><labelid=""ef-display-label-name""class=""control-labelef-control-label""for=""name"">Pleaseenteryourname</label><divclass=""ef-proweb-direct-label-edit""style=""display:none;""id=""ef-edit-label-input-name""data-proweb-id=""1""><inputclass=""ef-control-label""id=""quick-edit-name""type=""text""value=""Pleaseenteryourname""></div></div><divclass=""col-sm-8ef-input-container""><inputtype=""text""class=""ef-inputform-controlef-input-text-fieldef-admin-only""title=""""id=""name""name=""name""value=""""placeholder=""(Adminportalonly)""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;Pleaseenteryourname\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""0></div></div></div>"
+	set expectedHTML = "<divclass=""rowef-draggable-divef-form-rowef-form-row-editable""id=""ef-field-proweb-1""data-proweb-id=""1""data-proweb-list-id=""""data-ui-component-type=""textInput""data-proweb-allowed-types=""Question,ABI,QBI,Collection,Divider,Text,Fileupload,Video""><divclass=""form-group""><divclass=""col-sm-4ef-label-container""><labelid=""ef-display-label-name""class=""control-labelef-control-label""for=""name"">Pleaseenteryourname</label><divclass=""ef-proweb-direct-label-edit""style=""display:none;""id=""ef-edit-label-input-name""data-proweb-id=""1""><inputclass=""ef-control-label""id=""quick-edit-name""type=""text""value=""Pleaseenteryourname""></div></div><divclass=""col-sm-8ef-input-container""><inputtype=""text""class=""ef-inputform-controlef-input-text-fieldef-admin-only""title=""""id=""name""name=""name""value=""""placeholder=""(Adminportalonly)""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;Pleaseenteryourname\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""autofocus=""autofocus""0></div></div></div>"
 	do $$$AssertEquals(returnedHTML,expectedHTML)
 ]]></Implementation>
 </Method>

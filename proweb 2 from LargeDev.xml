@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.2 (Build 736U)" ts="2017-01-27 15:28:18">
+<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.2 (Build 736U)" ts="2017-01-27 16:19:33">
 <Class name="EF.contextDataFrontend">
 <Description><![CDATA[
 <!-- ;vc;-
@@ -5083,7 +5083,7 @@ also an entry point from unit tests</Description>
 
 <Class name="EF.pages.base">
 <Super>%CSP.Page,EF.htmlGenerator</Super>
-<TimeChanged>64306,39202.48169</TimeChanged>
+<TimeChanged>64310,57964.851482</TimeChanged>
 <TimeCreated>64292,52804.615476</TimeCreated>
 
 <Parameter name="contextDataClass">
@@ -5102,40 +5102,40 @@ also an entry point from unit tests</Description>
 <ClassMethod>1</ClassMethod>
 <ReturnType>%Boolean</ReturnType>
 <Implementation><![CDATA[
-	#dim %zPage as EF.mvcHandler.page // This is a percent variable to make it available to the OnPageCSPROOT too
+	#dim %zMvcHandler as EF.mvcHandler.page // This is a percent variable to make it available to the OnPageCSPROOT too
 	
 	// create an instance of a page manually because %CSP.Page dosn't
 	// the instance is stored in a percent variable so that it can be accessed from anywhere during the page loading/rendering process 
-	set %zPage = $ClassMethod(..#mvcHandlerClass, "createNew")
+	set %zMvcHandler = $ClassMethod(..#mvcHandlerClass, "createNew")
 	
-	if '$IsObject(%zPage) {
-		throw ##class(shared.exceptions.generalException).%New("Failed to create %zPage object")
+	if '$IsObject(%zMvcHandler) {
+		throw ##class(shared.exceptions.generalException).%New("Failed to create %zMvcHandler object")
 	}
 	
-	set %zPage.pageClass = $ClassName()
+	set %zMvcHandler.pageClass = $ClassName()
 	
 	// the order of the lines below is extremely important
-	set %zPage.contextData = ..getContextData()
+	set %zMvcHandler.contextData = ..getContextData()
 
-	do %zPage.updateEventID()
+	do %zMvcHandler.updateEventID()
 	
-	if '$IsObject(%zPage.contextData) {
+	if '$IsObject(%zMvcHandler.contextData) {
 			throw ##class(shared.exceptions.generalException).%New("Failed to create contextData in page")
 	}
 
-	set %zPage.contextData.request = %request
-	set %zPage.pageNavProceedKey = ..#pageNavProceedKey
+	set %zMvcHandler.contextData.request = %request
+	set %zMvcHandler.pageNavProceedKey = ..#pageNavProceedKey
 	
 	// load all the data and populate the security handler
-	do %zPage.loadData()
+	do %zMvcHandler.loadData()
 
-	do %zPage.performSecurityChecks()
-	if '%zPage.isOkToRenderPage {
-		set %response.Redirect = %zPage.redirectPage_"?reasonForRedirect="_..encodeURLParameter(%zPage.reasonForRedirect)
+	do %zMvcHandler.performSecurityChecks()
+	if '%zMvcHandler.isOkToRenderPage {
+		set %response.Redirect = %zMvcHandler.redirectPage_"?reasonForRedirect="_..encodeURLParameter(%zMvcHandler.reasonForRedirect)
 		return 0	
 	}
 	
-	return %zPage.isOkToRenderPage
+	return %zMvcHandler.isOkToRenderPage
 ]]></Implementation>
 </Method>
 
@@ -5143,10 +5143,10 @@ also an entry point from unit tests</Description>
 <ClassMethod>1</ClassMethod>
 <ReturnType>%Boolean</ReturnType>
 <Implementation><![CDATA[
-	if $IsObject(%zPage) {
-		do %zPage.renderView()
+	if $IsObject(%zMvcHandler) {
+		do %zMvcHandler.renderView()
 	} else {
-		throw ##class(shared.exceptions.generalException).%New("No %zPage object present in OnPageCSPROOT")
+		throw ##class(shared.exceptions.generalException).%New("No %zMvcHandler object present in OnPageCSPROOT")
 	}
 ]]></Implementation>
 </Method>
@@ -18883,26 +18883,29 @@ FRRE RULE
 </csr:RULE>
 
 <csr:RULE name="efPageControllerElement" match="ef-pc-element" empty>
-<csr:ACTION>
-<script language="CACHE" runat="COMPILER">
-   Do ..WriteServer(" kill efRulesTempParams")
-   kill paramsordered
-   do ..GetAttributesOrdered(.paramsordered)
-   set index=""
-   for {
-		set index=$o(paramsordered(index))
-		if index="" quit
-		set attr=$ZCVT($LIST(paramsordered(index),1),"L")
-		set value=..QuoteAttribute(attr)
-		Do ..WriteServer(" set efRulesTempParams"_"("""_attr_""")="_value)
-	}
-</script>
-
-<script language="CACHE" runat="SERVER">
-   Do pageController.renderHTMLControlFromTag(.efRulesTempParams)
-   kill efRulesTempParams
-</script>
-</csr:ACTION>
+	<csr:ACTION>
+		<script language="CACHE" runat="COMPILER">
+		   Do ..WriteServer("	// -- generated from eventsForceRules.csr - 'ef-pc-element' --")
+		   Do ..WriteServer("	kill efRulesTempParams")
+		   kill paramsordered
+		   do ..GetAttributesOrdered(.paramsordered)
+		   set index=""
+		   for {
+				set index=$o(paramsordered(index))
+				if index="" quit
+				set attr=$ZCVT($LIST(paramsordered(index),1),"L")
+				set value=..QuoteAttribute(attr)
+				Do ..WriteServer("	set efRulesTempParams"_"("""_attr_""")="_value)
+			}
+			</script>
+			<script language="CACHE" runat="SERVER">
+			   do %zMvcHandler.controller.renderHTMLControlFromTag(.efRulesTempParams)
+			   kill efRulesTempParams
+			</script>
+			<script language="CACHE" runat="COMPILER">
+			Do ..WriteServer("	// -- end of rule --")
+		</script>
+	</csr:ACTION>
 </csr:RULE>
 
 

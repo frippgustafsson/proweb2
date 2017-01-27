@@ -210,11 +210,11 @@ rename CSS classes with underscore, e.g. ef_navigation_horizontal
 The header has a very large drag handle
 fix guests in runtime mode
 the label is missing from guests prompts
+fix unit tests
+backend bookings crash with UNDEF
 
 ===============================================================================
-fix unit tests
 firstname is not in the list of guest prompts
-
 fix the issues with local dev systems
 Getting Invalid Oref in event 6415 when trying to register
 delete the proweb base class
@@ -224,6 +224,7 @@ split up the JS file into smaller chunks
 namespace the javascript methods
 refactor objLayout-writeBit
 make the backend booking mode show banner, menu and indicator (after doing the writeBit)
+backend booking is lacking in style
 
 namespace the bootstrap classes by copying their definition into our classes (eg. copy btn-large into ef-btn-large)
 The header has a very large drag handle

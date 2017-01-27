@@ -208,9 +208,15 @@ the buttons are not translated
 rename CSS classes with underscore, e.g. ef_navigation_horizontal
 <span class="halflings halflings-resize-vertical"></span>
 The header has a very large drag handle
+fix guests in runtime mode
+the label is missing from guests prompts
+
 ===============================================================================
-Getting Invalid Oref in event 6415 when trying to register
 fix unit tests
+firstname is not in the list of guest prompts
+
+fix the issues with local dev systems
+Getting Invalid Oref in event 6415 when trying to register
 delete the proweb base class
 introduce the new HTML question property
 fix saving the country causes errors
@@ -221,7 +227,7 @@ make the backend booking mode show banner, menu and indicator (after doing the w
 
 namespace the bootstrap classes by copying their definition into our classes (eg. copy btn-large into ef-btn-large)
 The header has a very large drag handle
-
+date range control is missing the end date input
 It's very hard to edit a header that is set to empty
 The styles shown in moxie is not what the website uses
 rename and restore the templates

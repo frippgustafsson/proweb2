@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.2 (Build 736U)" ts="2017-01-26 18:01:51">
+<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.2 (Build 736U)" ts="2017-01-27 14:47:42">
 <Class name="EF.contextDataFrontend">
 <Description><![CDATA[
 <!-- ;vc;-
@@ -332,7 +332,7 @@ if website is private, this will be set to the cod.objPerson.ID of that logged i
 ;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>EF.contextDataRegistration.CLS/EV.4</td><td>CLS.EF.contextDataRegistration</td><td>SmallDev</td><td style='white-space: nowrap;'>02-Sep-16 14:23</td><td>JeremyW</td></tr></table>
 ]]></Description>
 <Super>EF.contextDataRegistration</Super>
-<TimeChanged>64217,62744.214459</TimeChanged>
+<TimeChanged>64310,34518.885761</TimeChanged>
 <TimeCreated>63755,56082.660879</TimeCreated>
 
 <Property name="isTestMode">
@@ -345,11 +345,6 @@ if website is private, this will be set to the cod.objPerson.ID of that logged i
 <Collection>list</Collection>
 </Property>
 
-<Property name="maxGuests">
-<Type>%Integer</Type>
-<InitialExpression>0</InitialExpression>
-</Property>
-
 <Method name="createNew">
 <ClassMethod>1</ClassMethod>
 <ReturnType>EF.contextDataRegistration</ReturnType>
@@ -358,7 +353,6 @@ if website is private, this will be set to the cod.objPerson.ID of that logged i
 	#dim mockBackendUserD as %Integer = 1
 	#dim mockEventID as %Integer = 15235
 	#dim mockPageID as %Integer = 122589
-	
 	
 	set contextData = ..%New()
 	
@@ -985,15 +979,15 @@ if website is private, this will be set to the cod.objPerson.ID of that logged i
 <Class name="EF.pageController.containerElement">
 <Description><![CDATA[
 <!-- ;vc;-
-;vc;    Object: EF.pageController.containerElement.CLS/EV.20
+;vc;    Object: EF.pageController.containerElement.CLS/EV.23
 ;vc; Component: CLS.EF.pageController.containerElement
 ;vc;  Location: LargeDev
-;vc; Date/Time: 26-Jan-17 17:49
+;vc; Date/Time: 27-Jan-17 09:45
 ;vc;      User: AdrianM2
-;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>EF.pageController.containerElement.CLS/EV.20</td><td>CLS.EF.pageController.containerElement</td><td>LargeDev</td><td style='white-space: nowrap;'>26-Jan-17 17:49</td><td>AdrianM2</td></tr></table>
+;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>EF.pageController.containerElement.CLS/EV.23</td><td>CLS.EF.pageController.containerElement</td><td>LargeDev</td><td style='white-space: nowrap;'>27-Jan-17 09:45</td><td>AdrianM2</td></tr></table>
 ]]></Description>
 <Super>EF.pageController.element</Super>
-<TimeChanged>64266,58675</TimeChanged>
+<TimeChanged>64310,51913.663283</TimeChanged>
 <TimeCreated>63372,47273.826383</TimeCreated>
 
 <Property name="getContentsMethod">
@@ -1534,6 +1528,12 @@ Adds a translation button with warning icon which opens an in-form modal</Descri
 ]]></Implementation>
 </Method>
 
+<Method name="addMultiLingualInput">
+<FormalSpec>identifier:%String,label:%String,translatablePhrase:translations.translatablePhrase,translationTitle:%String</FormalSpec>
+<Implementation><![CDATA[	return ##class(EF.pageController.inputElements.multiLingualInput).addMultiLingualInput($this, identifier, label, translatablePhrase, translationTitle)
+]]></Implementation>
+</Method>
+
 <Method name="addTranslatableTextInput">
 <FormalSpec><![CDATA[identifier:%String,label:%String,translatablePhrase:translations.translatablePhrase,translationPageName,translationPageClass,&translationPageRequestData]]></FormalSpec>
 <Implementation><![CDATA[
@@ -1604,7 +1604,7 @@ Adds a translation button with warning icon which opens an in-form modal</Descri
 ]]></Description>
 <IncludeCode>EF.common.macros</IncludeCode>
 <Super>%Library.Persistent,shared.timeStamp</Super>
-<TimeChanged>64301,40977.887201</TimeChanged>
+<TimeChanged>64310,51919.737377</TimeChanged>
 <TimeCreated>63350,63749.535929</TimeCreated>
 
 <Property name="elementParent">
@@ -2400,7 +2400,7 @@ Should be run if any of the sub-classes are deleted</Description>
 
 <Class name="EF.pageController.proweb.guestPanel">
 <Super>EF.pageController.proweb.panel</Super>
-<TimeChanged>64309,56584.50866</TimeChanged>
+<TimeChanged>64310,33647.733122</TimeChanged>
 <TimeCreated>63372,47064.603748</TimeCreated>
 
 <Property name="guestNumber">
@@ -2480,9 +2480,6 @@ Should be run if any of the sub-classes are deleted</Description>
 	#dim maxGuests as %Integer = ..page.getEventConfiguration().getMaxGuestsPerAttendee()
 	#dim prowebID = $Piece(..identifier,"-",2)
 	
-	if ..page.isTestMode {
-		set maxGuests = ..page.contextData.maxGuests
-	}
 	for guestNumber = 2:1:maxGuests {
 		set newGuestPanel = ..createGuestPanel(..elementParent,prowebID, guestNumber)	
 		set key = ""
@@ -2676,7 +2673,7 @@ Should be run if any of the sub-classes are deleted</Description>
 <Description>
 Should have a one-to-one relationship with sc.objList</Description>
 <Super>EF.pageController.containerElement</Super>
-<TimeChanged>64309,56601.9108</TimeChanged>
+<TimeChanged>64310,40661.925742</TimeChanged>
 <TimeCreated>64231,55587.036042</TimeCreated>
 
 <Property name="prowebListID">
@@ -2758,13 +2755,12 @@ refers to sc.xModules.objList</Description>
 ]]></Implementation>
 </Method>
 
-<Method name="addElementToParent">
-<Description>
-This method overrides the one in element because the parent of a list, which is a page, cannot have the 'page' property set. It would be cyclical.</Description>
-<ClassMethod>1</ClassMethod>
-<FormalSpec>page:EF.pageController.proweb.page,identifier:%String,description:%String</FormalSpec>
-<ReturnType>EF.pageController.element</ReturnType>
-<Implementation><![CDATA[
+<UDLText name="T">
+<Content><![CDATA[
+/*
+/// This method overrides the one in element because the parent of a list, which is a page, cannot have the 'page' property set. It would be cyclical.
+ClassMethod xxxaddElementToParent(page As EF.pageController.proweb.page, identifier As %String, description As %String) As EF.pageController.element
+{
 	set element = ..%New(identifier,description)
 	set element.elementParent = page
 	if page.getElementByIdentifier(element.identifier) {
@@ -2780,8 +2776,10 @@ This method overrides the one in element because the parent of a list, which is 
 	do page.allPageElements.SetAt(element,element.identifier)
 	
 	return element
-]]></Implementation>
-</Method>
+}
+*/
+]]></Content>
+</UDLText>
 
 <Method name="addElementForProwebItem">
 <FormalSpec>prowebItem:sc.facade.prowebItem,optionalGuestNumber:%Integer=""</FormalSpec>
@@ -3154,7 +3152,7 @@ Should have a one-to-one relationship with sc.objList</Description>
 
 <Class name="EF.pageController.proweb.listWithQuestionsRegistration">
 <Super>EF.pageController.proweb.listWithQuestions</Super>
-<TimeChanged>64299,44267.447931</TimeChanged>
+<TimeChanged>64310,37796.916971</TimeChanged>
 <TimeCreated>64233,52209.241492</TimeCreated>
 
 <Method name="loadProwebListElementsFromDatabase">
@@ -3163,7 +3161,7 @@ Should have a one-to-one relationship with sc.objList</Description>
 		throw ##class(shared.exceptions.generalException).%New("The 'page' property is missing from the listWithQuestions object")	
 	}
 	for guestNumber = 1:1:..page.getEventConfiguration().getMaxGuestsPerAttendee() {
-		if (..page.mvcpage.isEditMode) {
+		if (..page.mvcPage.isEditMode) {
 			if guestNumber = 1 {
 				set isActive = 1
 			} else {
@@ -3230,7 +3228,7 @@ Should have a one-to-one relationship with sc.objList</Description>
 
 <Class name="EF.pageController.proweb.page">
 <Super>EF.pageController.page</Super>
-<TimeChanged>64309,54938.70604</TimeChanged>
+<TimeChanged>64310,52773.386154</TimeChanged>
 <TimeCreated>64189,51696.559047</TimeCreated>
 
 <Property name="mvcPage">
@@ -3256,7 +3254,7 @@ Should have a one-to-one relationship with sc.objList</Description>
 
 <Method name="createMock">
 <ClassMethod>1</ClassMethod>
-<FormalSpec>contextData:EF.contextData</FormalSpec>
+<FormalSpec>contextData:EF.contextData,maxGuests:%Integer=0</FormalSpec>
 <ReturnType>EF.pageController.page</ReturnType>
 <Implementation><![CDATA[
 	set pageController=..%New()
@@ -3264,7 +3262,8 @@ Should have a one-to-one relationship with sc.objList</Description>
 	set pageController.isTestMode = 1
 	set pageController.contextData = contextData
 	set pageController.eventConfiguration = ##class(setup.eventConfiguration.storageMock).createEventConfiguration()
-
+	set pageController.eventConfiguration.storage.maxGuests = maxGuests
+	set pageController.page = pageController // weird but needed for the when inserting the mock items
 	do pageController.load()
 
 	return pageController
@@ -3408,21 +3407,31 @@ opens the pageController without reloading the elements.</Description>
 	#dim componentName as %String = "unit test"
 	#dim guestPanel As EF.pageController.proweb.guestPanel
 	#dim fakeProwebID as %Integer = 999
-	#dim guestNumber as %Integer = 1
+	#dim guestNumber as %Integer
 	
-	set listElement = ##class(EF.pageController.proweb.list).addElementToParent($this, componentName , "")
+	set listElement = ##class(EF.pageController.proweb.listWithQuestionsRegistration).addElementToParent($this, componentName , "")
 	set listElement.prowebListID = -1
 
-	if ..contextData.maxGuests > 0 {
-		set guestPanel = ##class(EF.pageController.proweb.guestPanel).addElementToParent(listElement, "GuestPanel-"_fakeProwebID_"-"_guestNumber, "Guest")	
-		set guestPanel.guestNumber = guestNumber
-		set guestPanel.showHideDependencyList = ##class(EF.ui.components.dependencyList).createNew("ef-is-guest-active-"_guestNumber,1)
-		do listElement.listOfControllerIDsSorted.Insert(guestPanel.identifier)
-		set parent = guestPanel
+	if ..eventConfiguration.storage.maxGuests > 0 {
+		for guestNumber = 1:1:..eventConfiguration.storage.maxGuests {
+			set guestPanel = ##class(EF.pageController.proweb.guestPanel).addElementToParent(listElement, "GuestPanel-"_fakeProwebID_"-"_guestNumber, "Guest")	
+			set guestPanel.guestNumber = guestNumber
+			set guestPanel.showHideDependencyList = ##class(EF.ui.components.dependencyList).createNew("ef-is-guest-active-"_guestNumber,1)
+			do listElement.listOfControllerIDsSorted.Insert(guestPanel.identifier)
+			set parent = guestPanel
+			do ..addMockElements(parent, guestNumber)
+		}		
 	} else {
 		set parent = listElement	
+		do ..addMockElements(parent)
 	}
-	
+]]></Implementation>
+</Method>
+
+<Method name="addMockElements">
+<FormalSpec>parent:EF.pageController.element,guestNumber:%Integer=0</FormalSpec>
+<Private>1</Private>
+<Implementation><![CDATA[
 	for  {
 		set prowebItem = ..contextData.listOfProwebItemsToAdd.GetNext(.key)	
 		if key = "" quit
@@ -4334,7 +4343,7 @@ also an entry point from unit tests</Description>
 
 <Class name="EF.pageController.proweb.testCases.pageTestCase">
 <Super>EF.ISC.UnitTest.TestCase</Super>
-<TimeChanged>64288,57007.8948</TimeChanged>
+<TimeChanged>64310,53192.860447</TimeChanged>
 <TimeCreated>64189,44993.632692</TimeCreated>
 
 <Method name="TestEditModeHTML">
@@ -4349,17 +4358,15 @@ also an entry point from unit tests</Description>
 
 <Method name="TestGuestPromptsPanel">
 <Implementation><![CDATA[
-	#dim page as EF.pageController.proweb.page
-	#dim element as EF.pageController.proweb.textInput
 	#dim storage as sc.facade.prowebItemStorageInputElementMock
 	#dim contextData as EF.contextDataRegistrationMock
-	#dim pageController as EF.pageController.pagesFrontend.t4Registration
+	#dim pageController as EF.pageController.proweb.page
+	#define maxGuests 2
 	
-	set eventConfiguration = ##class(setup.eventConfiguration.storageMock).createEventConfiguration()
+	;set eventConfiguration = ##class(setup.eventConfiguration.storageMock).createEventConfiguration()
 	
 	set contextData = ##class(EF.contextDataRegistrationMock).createMock()
-	set contextData.maxGuests = 2
-	set eventConfiguration.storage.maxGuests = 2
+	;set eventConfiguration.storage.maxGuests = 2
 	
 	set storage = ##class(sc.facade.prowebItemStorageInputElementMock).createNew()
 	set storage.prowebID = "1"
@@ -4379,14 +4386,11 @@ also an entry point from unit tests</Description>
 	set prowebItem = ##class(sc.facade.prowebItem).createNew(storage)
 	do contextData.listOfProwebItemsToAdd.Insert(prowebItem)
 
-
-	
-
-	set pageController = ##class(EF.pageController.pagesFrontend.registration).createNew(contextData,,,eventConfiguration)
+	set pageController = ##class(EF.pageController.proweb.page).createMock(contextData, $$$maxGuests)
 	
 	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(pageController,"renderComponent","unit test")
 	set returnedHTML = $ZStrip(returnedHTML,"*WC")
-	set expectedHTML = "<divclass=""ef-panelef-draggable-div""data-show-hide-dependency-list=""{&quot;logic&quot;:&quot;and&quot;,&quot;dependencies&quot;:[{&quot;parentName&quot;:&quot;ef-is-guest-active-1&quot;,&quot;operator&quot;:&quot;eq&quot;,&quot;value&quot;:&quot;1&quot;}]}""><divclass=""ef-panel-heading""id="""">Guest<divclass=""ef-delete-guest-button""data-ef-guest-number=""1""><spanclass=""glyphiconglyphicon-trash""/></div></div><divclass=""ef-panel-bodyef-proweb-reorderable-guest""><divclass=""rowef-form-row""><divclass=""form-group""><divclass=""col-sm-4ef-label-container""><labelid=""ef-display-label-Firstname-1""class=""control-labelef-control-labelef-required-field""for=""Firstname-1"">AttendeeFirstName</label></div><divclass=""col-sm-8ef-input-container""><inputtype=""text""class=""ef-inputform-controlef-input-text-field""title=""""id=""Firstname-1""name=""Firstname-1""value=""""placeholder=""""data-enable-disable-dependency-list=""{&quot;logic&quot;:&quot;and&quot;,&quot;dependencies&quot;:[{&quot;parentName&quot;:&quot;ef-is-guest-active-1&quot;,&quot;operator&quot;:&quot;eq&quot;,&quot;value&quot;:&quot;1&quot;}]}""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;AttendeeFirstName\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""autofocus=""autofocus""0></div></div></div><divclass=""rowef-form-row""><divclass=""form-group""><divclass=""col-sm-4ef-label-container""><labelid=""ef-display-label-Lastname-1""class=""control-labelef-control-labelef-required-field""for=""Lastname-1"">AttendeeLastName</label></div><divclass=""col-sm-8ef-input-container""><inputtype=""text""class=""ef-inputform-controlef-input-text-field""title=""""id=""Lastname-1""name=""Lastname-1""value=""""placeholder=""""data-enable-disable-dependency-list=""{&quot;logic&quot;:&quot;and&quot;,&quot;dependencies&quot;:[{&quot;parentName&quot;:&quot;ef-is-guest-active-1&quot;,&quot;operator&quot;:&quot;eq&quot;,&quot;value&quot;:&quot;1&quot;}]}""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;AttendeeLastName\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""0></div></div></div></div></div>"
+	set expectedHTML = "<divclass=""ef-panelef-draggable-div""data-show-hide-dependency-list=""{&quot;logic&quot;:&quot;and&quot;,&quot;dependencies&quot;:[{&quot;parentName&quot;:&quot;ef-is-guest-active-1&quot;,&quot;parentId&quot;:&quot;ef-is-guest-active-1&quot;,&quot;operator&quot;:&quot;eq&quot;,&quot;value&quot;:&quot;1&quot;}]}""><divclass=""ef-panel-heading""id="""">Guest<divclass=""ef-delete-guest-button""data-ef-guest-number=""1""><spanclass=""glyphiconglyphicon-trash""/></div></div><divclass=""ef-panel-bodyef-proweb-reorderable-guest""><divclass=""rowef-form-row""><divclass=""form-group""><divclass=""col-sm-4ef-label-container""><labelid=""ef-display-label-Firstname-1""class=""control-labelef-control-labelef-required-field""for=""Firstname-1"">AttendeeFirstName</label></div><divclass=""col-sm-8ef-input-container""><inputtype=""text""class=""ef-inputform-controlef-input-text-field""title=""""id=""Firstname-1""name=""Firstname-1""value=""""placeholder=""""data-enable-disable-dependency-list=""{&quot;logic&quot;:&quot;and&quot;,&quot;dependencies&quot;:[{&quot;parentName&quot;:&quot;ef-is-guest-active-1&quot;,&quot;parentId&quot;:&quot;ef-is-guest-active-1&quot;,&quot;operator&quot;:&quot;eq&quot;,&quot;value&quot;:&quot;1&quot;}]}""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;AttendeeFirstName\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""autofocus=""autofocus""0></div></div></div><divclass=""rowef-form-row""><divclass=""form-group""><divclass=""col-sm-4ef-label-container""><labelid=""ef-display-label-Lastname-1""class=""control-labelef-control-labelef-required-field""for=""Lastname-1"">AttendeeLastName</label></div><divclass=""col-sm-8ef-input-container""><inputtype=""text""class=""ef-inputform-controlef-input-text-field""title=""""id=""Lastname-1""name=""Lastname-1""value=""""placeholder=""""data-enable-disable-dependency-list=""{&quot;logic&quot;:&quot;and&quot;,&quot;dependencies&quot;:[{&quot;parentName&quot;:&quot;ef-is-guest-active-1&quot;,&quot;parentId&quot;:&quot;ef-is-guest-active-1&quot;,&quot;operator&quot;:&quot;eq&quot;,&quot;value&quot;:&quot;1&quot;}]}""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;AttendeeLastName\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""0></div></div></div></div></div><divclass=""ef-panelef-draggable-div""data-show-hide-dependency-list=""{&quot;logic&quot;:&quot;and&quot;,&quot;dependencies&quot;:[{&quot;parentName&quot;:&quot;ef-is-guest-active-2&quot;,&quot;parentId&quot;:&quot;ef-is-guest-active-2&quot;,&quot;operator&quot;:&quot;eq&quot;,&quot;value&quot;:&quot;1&quot;}]}""><divclass=""ef-panel-heading""id="""">Guest<divclass=""ef-delete-guest-button""data-ef-guest-number=""2""><spanclass=""glyphiconglyphicon-trash""/></div></div><divclass=""ef-panel-bodyef-proweb-reorderable-guest""><divclass=""rowef-form-row""><divclass=""form-group""><divclass=""col-sm-4ef-label-container""><labelid=""ef-display-label-Firstname-2""class=""control-labelef-control-labelef-required-field""for=""Firstname-2"">AttendeeFirstName</label></div><divclass=""col-sm-8ef-input-container""><inputtype=""text""class=""ef-inputform-controlef-input-text-field""title=""""id=""Firstname-2""name=""Firstname-2""value=""""placeholder=""""data-enable-disable-dependency-list=""{&quot;logic&quot;:&quot;and&quot;,&quot;dependencies&quot;:[{&quot;parentName&quot;:&quot;ef-is-guest-active-2&quot;,&quot;parentId&quot;:&quot;ef-is-guest-active-2&quot;,&quot;operator&quot;:&quot;eq&quot;,&quot;value&quot;:&quot;1&quot;}]}""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;AttendeeFirstName\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""autofocus=""autofocus""0></div></div></div><divclass=""rowef-form-row""><divclass=""form-group""><divclass=""col-sm-4ef-label-container""><labelid=""ef-display-label-Lastname-2""class=""control-labelef-control-labelef-required-field""for=""Lastname-2"">AttendeeLastName</label></div><divclass=""col-sm-8ef-input-container""><inputtype=""text""class=""ef-inputform-controlef-input-text-field""title=""""id=""Lastname-2""name=""Lastname-2""value=""""placeholder=""""data-enable-disable-dependency-list=""{&quot;logic&quot;:&quot;and&quot;,&quot;dependencies&quot;:[{&quot;parentName&quot;:&quot;ef-is-guest-active-2&quot;,&quot;parentId&quot;:&quot;ef-is-guest-active-2&quot;,&quot;operator&quot;:&quot;eq&quot;,&quot;value&quot;:&quot;1&quot;}]}""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;AttendeeLastName\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""0></div></div></div></div></div>"
 	do $$$AssertEquals(returnedHTML,expectedHTML)
 ]]></Implementation>
 </Method>
@@ -21289,14 +21293,14 @@ The basic frontend default stuff</Description>
 ;vc;    Object: layout.cssOverrideMethods.CLS/EV.28
 ;vc; Component: CLS.layout.cssOverrideMethods
 ;vc;  Location: LargeDev
-;vc; Date/Time: 13-Jan-17 16:51
-;vc;      User: AdrianM2
-;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>layout.cssOverrideMethods.CLS/EV.28</td><td>CLS.layout.cssOverrideMethods</td><td>LargeDev</td><td style='white-space: nowrap;'>13-Jan-17 16:51</td><td>AdrianM2</td></tr></table>
+;vc; Date/Time: 27-Jan-17 11:17
+;vc;      User: MindaugasL
+;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>layout.cssOverrideMethods.CLS/EV.28</td><td>CLS.layout.cssOverrideMethods</td><td>LargeDev</td><td style='white-space: nowrap;'>27-Jan-17 11:17</td><td>MindaugasL</td></tr></table>
 ]]></Description>
 <Abstract>1</Abstract>
 <ClassType/>
 <ProcedureBlock>1</ProcedureBlock>
-<TimeChanged>64296,61994.442515</TimeChanged>
+<TimeChanged>64296,61994</TimeChanged>
 <TimeCreated>63046,56108.531536</TimeCreated>
 
 <Method name="outputDynamicCSS">
@@ -28304,7 +28308,7 @@ link to a OCD item. Provides a facility for adding questions about COD item in a
 <IncludeCode>EF.common.macros</IncludeCode>
 <ProcedureBlock>1</ProcedureBlock>
 <Super>sc.objData</Super>
-<TimeChanged>64309,39808.779747</TimeChanged>
+<TimeChanged>64310,38055.883253</TimeChanged>
 <TimeCreated>59478,65593.453</TimeCreated>
 
 <Property name="maxAltsChecked">
@@ -29254,10 +29258,9 @@ is the database on any of the pages EXCEPT the payment method pages</Description
 		WHERE (active=1)
 		AND (objController = :controllerID)
 		AND (
-			(codItem = :codItemName) OR (codItem2 = :codItemName) OR (codItem3 = :codItemName)			
+			(objCodItemName->description = :codItemName) OR (objCodItemName2->description = :codItemName) OR (objCodItemName3->description = :codItemName)			
 		)
 	)
-	// Change here for "Discount setup not saving for BMJ" story
 	if +SQLCODE=0 {
 		return count>0	
 	} else {
@@ -34765,7 +34768,7 @@ Returns the correct style of the button depending on what mode are available and
 <Abstract>1</Abstract>
 <ClassType/>
 <ProcedureBlock>0</ProcedureBlock>
-<TimeChanged>64302,36978.339254</TimeChanged>
+<TimeChanged>64310,37453.696686</TimeChanged>
 <TimeCreated>60342,57889.659835</TimeCreated>
 
 <Method name="goWhere">
@@ -35167,7 +35170,7 @@ Returns the correct style of the button depending on what mode are available and
 		
 		// check if we are allowed to register
 		if forwardpage=""	{
-			if '##class(eCom.tempPurchase).isBackendBooking(sessionID) {
+			if '##class(eCom.tempPurchase).isBackendBooking(sessionID) && '$Get(%session.Data("inSitePageEditing")) {
 				if '##class(setup.eventBookingMethods).areFrontendRegistrationsAllowed(xEventID) {
 					set forwardpage="registrationEnded.csp?er=date"
 				}

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.2 (Build 736U)" ts="2017-01-30 13:32:12">
+<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.2 (Build 736U)" ts="2017-01-30 14:21:23">
 <Class name="EF.contextDataFrontend">
 <Description><![CDATA[
 <!-- ;vc;-
@@ -898,7 +898,7 @@ if website is private, this will be set to the cod.objPerson.ID of that logged i
 
 <Class name="EF.mvcHandler.securityHandlers.frontendProweb">
 <Super>EF.mvcHandler.securityHandlers.base</Super>
-<TimeChanged>64302,59291.870316</TimeChanged>
+<TimeChanged>64313,51646.389591</TimeChanged>
 <TimeCreated>64302,56720.653792</TimeCreated>
 
 <Method name="createNew">
@@ -928,7 +928,7 @@ if website is private, this will be set to the cod.objPerson.ID of that logged i
 	set eventIdFromUrl = ##class(shared.pageMethods).requestGetEventID()
 	set frontendEventIdFromSession = $Get(%session.Data("eventsforce","frontend","xEventID")) 
 
-	if eventIdFromUrl '= frontendEventIdFromSession {
+	if (eventIdFromUrl) && (eventIdFromUrl '= frontendEventIdFromSession) {
 		set ..isOkToRenderPage = 0
 		set ..reasonForRedirect = "EventID in the URL doesn't match the eventID in the frontend session"
 	}
@@ -942,7 +942,7 @@ if website is private, this will be set to the cod.objPerson.ID of that logged i
 	set pageIdFromUrl = ..contextData.request.Get("pageID")
 	
 	set eventIdFromPageId = ##class(sc.xModules.objPage).getEventID(pageIdFromUrl)
-	if eventIdFromUrl '= eventIdFromPageId {
+	if (eventIdFromUrl) && (eventIdFromUrl '= eventIdFromPageId) {
 		set ..isOkToRenderPage = 0
 		set ..reasonForRedirect = "EventID in the URL doesn't match the eventID of the passed in pageID"
 	}
@@ -953,7 +953,7 @@ if website is private, this will be set to the cod.objPerson.ID of that logged i
 
 <Class name="EF.mvcHandler.securityHandlers.frontendProwebWithBackend">
 <Super>EF.mvcHandler.securityHandlers.frontendProweb</Super>
-<TimeChanged>64302,59300.588435</TimeChanged>
+<TimeChanged>64313,51573.745794</TimeChanged>
 <TimeCreated>64302,56296.393809</TimeCreated>
 
 <Method name="validateUrlParameters">
@@ -971,7 +971,7 @@ if website is private, this will be set to the cod.objPerson.ID of that logged i
 	set eventIdFromUrl = ##class(shared.pageMethods).requestGetEventID()
 	set backendEventIdFromSession = $Get(%session.Data("eventsforce","backend","xEventID")) 
 
-	if eventIdFromUrl '= backendEventIdFromSession  {
+	if (eventIdFromUrl) && (eventIdFromUrl '= backendEventIdFromSession)  {
 		set ..isOkToRenderPage = 0
 		set ..reasonForRedirect = "EventID in the URL doesn't match eventID in the backend session"
 	}

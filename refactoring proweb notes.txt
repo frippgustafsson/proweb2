@@ -215,12 +215,13 @@ backend bookings crash with UNDEF
 if I do a backend booking followed by an reg page edit, it's stays in backend mode - need to wipe the frontend session
 firstname is not in the list of guest prompts
 the save and cancel button in codQuestionDetails goes wrong
+delete the proweb base class
 
 ===============================================================================
 
 fix the issues with local dev systems
 Getting Invalid Oref in event 6415 when trying to register
-delete the proweb base class
+why is there a grey emoty list onthe reg page?
 introduce the new HTML question property
 fix saving the country causes errors
 split up the JS file into smaller chunks

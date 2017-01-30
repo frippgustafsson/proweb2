@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.2 (Build 736U)" ts="2017-01-30 10:59:46">
+<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.2 (Build 736U)" ts="2017-01-30 13:32:12">
 <Class name="EF.contextDataFrontend">
 <Description><![CDATA[
 <!-- ;vc;-
@@ -390,7 +390,7 @@ if website is private, this will be set to the cod.objPerson.ID of that logged i
 
 <Class name="EF.mvcHandler.frontendProweb">
 <Super>EF.mvcHandler.frontend</Super>
-<TimeChanged>64308,50295.732611</TimeChanged>
+<TimeChanged>64313,48655.486904</TimeChanged>
 <TimeCreated>64292,52952.708564</TimeCreated>
 
 <Property name="showRegistrationProgressBar">
@@ -424,6 +424,10 @@ if website is private, this will be set to the cod.objPerson.ID of that logged i
 	do page.updatePageID()
 	do page.updateEditFlag()
 	do page.updateLanguageID()
+	
+	// some legacy paramters for codQuestionsDetails 
+	set %session.Data("proweb","isForm") = 0 
+	set %session.Data("eventCategoryID") = 1 
 	
 	return page
 ]]></Implementation>
@@ -21326,17 +21330,17 @@ The basic frontend default stuff</Description>
 <Class name="layout.cssOverrideMethods">
 <Description><![CDATA[
 <!-- ;vc;-
-;vc;    Object: layout.cssOverrideMethods.CLS/EV.28
+;vc;    Object: layout.cssOverrideMethods.CLS/EV.30
 ;vc; Component: CLS.layout.cssOverrideMethods
 ;vc;  Location: LargeDev
-;vc; Date/Time: 27-Jan-17 11:17
-;vc;      User: MindaugasL
-;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>layout.cssOverrideMethods.CLS/EV.28</td><td>CLS.layout.cssOverrideMethods</td><td>LargeDev</td><td style='white-space: nowrap;'>27-Jan-17 11:17</td><td>MindaugasL</td></tr></table>
+;vc; Date/Time: 30-Jan-17 12:14
+;vc;      User: AdrianM2
+;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>layout.cssOverrideMethods.CLS/EV.30</td><td>CLS.layout.cssOverrideMethods</td><td>LargeDev</td><td style='white-space: nowrap;'>30-Jan-17 12:14</td><td>AdrianM2</td></tr></table>
 ]]></Description>
 <Abstract>1</Abstract>
 <ClassType/>
 <ProcedureBlock>1</ProcedureBlock>
-<TimeChanged>64296,61994</TimeChanged>
+<TimeChanged>64313,44095.078686</TimeChanged>
 <TimeCreated>63046,56108.531536</TimeCreated>
 
 <Method name="outputDynamicCSS">
@@ -21351,6 +21355,8 @@ The basic frontend default stuff</Description>
 	}
 	
 	do ..outputAbstractDynamicCSS(xEventID)
+	set labels = ##class(setup.objSessionLabel).getAllLabelsForEvent(xEventID)
+	write ##class(setup.objSessionLabel).getLabelCSSForLabels(labels,1)
 	
 	if 'showDynamicCSS quit
 	set efwscolor1=##class(layout.eventColorMethods).getWebsiteColor1(xEventID)

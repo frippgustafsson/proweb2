@@ -213,10 +213,11 @@ the label is missing from guests prompts
 fix unit tests
 backend bookings crash with UNDEF
 if I do a backend booking followed by an reg page edit, it's stays in backend mode - need to wipe the frontend session
+firstname is not in the list of guest prompts
 
 
 ===============================================================================
-firstname is not in the list of guest prompts
+the save and cancel button in codQuestionDetails goes wrong
 fix the issues with local dev systems
 Getting Invalid Oref in event 6415 when trying to register
 delete the proweb base class

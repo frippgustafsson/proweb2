@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.2 (Build 736U)" ts="2017-01-27 16:19:33">
+<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.2 (Build 736U)" ts="2017-01-30 10:59:46">
 <Class name="EF.contextDataFrontend">
 <Description><![CDATA[
 <!-- ;vc;-
@@ -9410,7 +9410,7 @@ table {margin-left:0px;margin-right:0px;}
 						<tx>Registration Contact Details</tx>
 					</td>
 					<td class="black10px" height="20">
-						<a target="frameEdit" href="../../system/proweb/start.csp?pageID=#(bookerPageID)#&mode=edit&hideButtons=1&version=current&eventID=#(xEventID)#"><img id="ef-backend-registration-pages-edit-page-#(..encodeForHTMLAttribute(bookerPageID))#" src="../../media/images/English/Default/backend/edit.gif" width="45" height="17" alt="" border="0" /></a>
+						<a target="frameEdit" href="../../system/proweb/start.csp?pageID=#(bookerPageID)#&mode=edit&hideButtons=1&version=current&eventID=#(xEventID)#&initialiseSession=1"><img id="ef-backend-registration-pages-edit-page-#(..encodeForHTMLAttribute(bookerPageID))#" src="../../media/images/English/Default/backend/edit.gif" width="45" height="17" alt="" border="0" /></a>
 					</td>
 				</tr>
 			   	<systemType:if module="Table Booking">
@@ -9425,7 +9425,7 @@ table {margin-left:0px;margin-right:0px;}
 								<script language="cache" runat="server">
 									set pageID=##class(setup.objEventSetting).getParameter("bookings","Table Guests PageID"_extraBit,xEventID)
 								</script>
-								<a target="frameEdit" href="../../system/proweb/start.csp?pageID=#(pageID)#&mode=edit&hideButtons=1&version=current&eventID=#(xEventID)#"><img id="ef-backend-registration-pages-edit-page-#(..encodeForHTMLAttribute(pageID))#"	src="../../media/images/English/Default/backend/edit.gif" width="45" height="17" alt="" border="0" /></a>
+								<a target="frameEdit" href="../../system/proweb/start.csp?pageID=#(pageID)#&mode=edit&hideButtons=1&version=current&eventID=#(xEventID)#&initialiseSession=1"><img id="ef-backend-registration-pages-edit-page-#(..encodeForHTMLAttribute(pageID))#"	src="../../media/images/English/Default/backend/edit.gif" width="45" height="17" alt="" border="0" /></a>
 							</td>
 					   </tr>
 				   </csp:if>
@@ -9452,7 +9452,7 @@ table {margin-left:0px;margin-right:0px;}
 							<tx>Submitter Details Page</tx>
 						</td>
 						<td class="black10px" height="20">
-							<a target="frameEdit" href="../../system/proweb/start.csp?pageID=#(pageID)#&mode=edit&hideButtons=1&version=current&eventID=#(xEventID)#"><img id="ef-backend-registration-pages-edit-page-#(..encodeForHTMLAttribute(pageID))#" src="../../media/images/English/Default/backend/edit.gif" width="45" height="17" alt="" border="0" /></a>
+							<a target="frameEdit" href="../../system/proweb/start.csp?pageID=#(pageID)#&mode=edit&hideButtons=1&version=current&eventID=#(xEventID)#&initialiseSession=1"><img id="ef-backend-registration-pages-edit-page-#(..encodeForHTMLAttribute(pageID))#" src="../../media/images/English/Default/backend/edit.gif" width="45" height="17" alt="" border="0" /></a>
 						</td>
 					</tr>
 		   		</table>
@@ -9485,7 +9485,7 @@ table {margin-left:0px;margin-right:0px;}
 							<tx>Room Guest Details Page</tx>
 						</td>
 						<td class="black10px" height="20">
-							<a target="frameEdit" href="../../system/proweb/start.csp?pageID=#(pageID)#&mode=edit&hideButtons=1&version=current&eventID=#(xEventID)#"><img id="ef-backend-registration-pages-edit-page-#(..encodeForHTMLAttribute(pageID))#" src="../../media/images/English/Default/backend/edit.gif" width="45" height="17" alt="" border="0" /></a>
+							<a target="frameEdit" href="../../system/proweb/start.csp?pageID=#(pageID)#&mode=edit&hideButtons=1&version=current&eventID=#(xEventID)#&initialiseSession=1"><img id="ef-backend-registration-pages-edit-page-#(..encodeForHTMLAttribute(pageID))#" src="../../media/images/English/Default/backend/edit.gif" width="45" height="17" alt="" border="0" /></a>
 						</td>
 					</tr>
 		   		</table>
@@ -9638,7 +9638,7 @@ table {margin-left:0px;margin-right:0px;}
 							<td class="black10px">
 									<csp:if condition=(sameAs)>
 									<csp:else>
-										<a target="frameEdit" href="../../system/proweb/start.csp?pageID=#(pageID)#&mode=edit&hideButtons=1&version=current&eventID=#(xEventID)#&eventCategoryID=#(eventCategoryID)#"><img id="ef-backend-registration-pages-edit-page-#(..encodeForHTMLAttribute(pageID))#" src="../../media/images/English/Default/backend/edit.gif" width="45" height="17" alt="" border="0" /></a>
+										<a target="frameEdit" href="../../system/proweb/start.csp?pageID=#(pageID)#&mode=edit&hideButtons=1&version=current&eventID=#(xEventID)#&eventCategoryID=#(eventCategoryID)#&initialiseSession=1"><img id="ef-backend-registration-pages-edit-page-#(..encodeForHTMLAttribute(pageID))#" src="../../media/images/English/Default/backend/edit.gif" width="45" height="17" alt="" border="0" /></a>
 									</csp:if>
 							</td>
 							<td class="black10px" align="center">
@@ -17127,7 +17127,7 @@ function updateAlts(codPromptID) {
 
 <csp:section name="PageContent">
    	<div class="row ef-proweb-reorderable" data-ef-reorderable-save-url="#(..encodeForHTMLAttribute(..Link("../../frontend/reg/reorderProwebElements.csp")))#" >
-		<ef-pc-element prowebcomponentname="Main List" componenttype="list" >
+		<ef-proweb2-element prowebcomponentname="Main List" componenttype="list" >
 	</div>
 </csp:section>
 
@@ -17217,7 +17217,7 @@ function updateAlts(codPromptID) {
 
 <csp:section name="PageContent">
    	<div class="row ef-proweb-reorderable" data-ef-reorderable-save-url="#(..encodeForHTMLAttribute(..Link("../../frontend/reg/reorderProwebElements.csp")))#" >
-		<ef-pc-element prowebcomponentname="Main List" componenttype="listWithQuestionsRegistration" >
+		<ef-proweb2-element prowebcomponentname="Main List" componenttype="listWithQuestionsRegistration" >
 	</div>
 </csp:section>
 
@@ -18899,6 +18899,32 @@ FRRE RULE
 			}
 			</script>
 			<script language="CACHE" runat="SERVER">
+			   do pageController.renderHTMLControlFromTag(.efRulesTempParams)
+			   kill efRulesTempParams
+			</script>
+			<script language="CACHE" runat="COMPILER">
+			Do ..WriteServer("	// -- end of rule --")
+		</script>
+	</csr:ACTION>
+</csr:RULE>
+
+<csr:RULE name="efPageControllerElement2" match="ef-proweb2-element" empty>
+	<csr:ACTION>
+		<script language="CACHE" runat="COMPILER">
+		   Do ..WriteServer("	// -- generated from eventsForceRules.csr - 'ef-proweb2-element' --")
+		   Do ..WriteServer("	kill efRulesTempParams")
+		   kill paramsordered
+		   do ..GetAttributesOrdered(.paramsordered)
+		   set index=""
+		   for {
+				set index=$o(paramsordered(index))
+				if index="" quit
+				set attr=$ZCVT($LIST(paramsordered(index),1),"L")
+				set value=..QuoteAttribute(attr)
+				Do ..WriteServer("	set efRulesTempParams"_"("""_attr_""")="_value)
+			}
+			</script>
+			<script language="CACHE" runat="SERVER">
 			   do %zMvcHandler.controller.renderHTMLControlFromTag(.efRulesTempParams)
 			   kill efRulesTempParams
 			</script>
@@ -19011,6 +19037,15 @@ FRRE RULE
 
 <CSP name="system/proweb/start.csp" application="/largedevsrc/" default="1"><![CDATA[
 <script language="CACHE" method="OnPreHTTPafter" arguments="" returntype="%Boolean">	
+	set pageID = ##class(shared.pageMethods).getPageID()
+	set eventID = ##class(sc.objData).getEventID(pageID)
+
+	if (eventID) && (##class(setup.objEvent).isEventUsingProweb2(eventID)) & (%request.Get("initialiseSession") = 1) {
+		kill %session.Data("eventsforce","frontend")
+		set tempPurchaseID=##class(eCom.tempPurchase).getID(%session.SessionId)
+		do ##class(eCom.tempPurchase).delete(tempPurchaseID)
+	}
+	
 	// enforce public mode in normal cases
 	if %request.Get("honorMode")'="yes",$G(%session.Data("mode"))'="edit" {
 		set %session.Data("mode")="preview"
@@ -19031,7 +19066,7 @@ FRRE RULE
 	// capture the flag that's used when selecting items for re-use
 	set %session.Data("selectItem")=%request.Get("selectItem")
 	
-	set pageID = ##class(shared.pageMethods).getPageID()
+	
 	
 	set eventID = ##class(sc.objData).getEventID(pageID)
 	if (eventID) && (##class(setup.objEvent).isEventUsingProweb2(eventID)) {
@@ -24641,7 +24676,7 @@ Returns true if the template is custom made</Description>
 </Class>
 
 
-<Project name="proweb 2" LastModified="2017-01-19 16:32:00.053444" Target="largedevsrc/backEnd/home/login.csp" TargetType="3">
+<Project name="proweb 2" LastModified="2017-01-30 10:59:46.338538" Target="largedevsrc/backEnd/home/login.csp" TargetType="3">
   <Items>
     <ProjectItem name="EF.contextDataFrontend" type="CLS"></ProjectItem>
     <ProjectItem name="EF.contextDataRegistration" type="CLS"></ProjectItem>
@@ -24836,33 +24871,11 @@ Returns true if the template is custom made</Description>
     <ProjectItem name="setup.eventCreationMethods" type="CLS"></ProjectItem>
     <ProjectItem name="setup.objPageNav" type="CLS"></ProjectItem>
     <ProjectItem name="shared.pageMethods" type="CLS"></ProjectItem>
+    <ProjectItem name="largedevsrc/frontEnd/reg/initProweb2Session.csp" type="CSP"></ProjectItem>
   </Items>
   <BreakPoints>
     <BreakPoint Routine="cspRealEV.frontend.reg.pagecontrollerstandardsave.CLS" Offset="OnPreHTTPafter+35"></BreakPoint>
   </BreakPoints>
-  <WatchVariables>
-    <WatchVariable Variable="$rhis" Pane="1"></WatchVariable>
-    <WatchVariable Variable="$this" Pane="1"></WatchVariable>
-    <WatchVariable Variable="%request" Pane="1"></WatchVariable>
-    <WatchVariable Variable="%request.Data" Pane="1"></WatchVariable>
-    <WatchVariable Variable="%request.Data(&quot;pageID&quot;,1)" Pane="1"></WatchVariable>
-    <WatchVariable Variable="%request.Get(&quot;pageID&quot;)" Pane="1"></WatchVariable>
-    <WatchVariable Variable="%zPage.pageID" Pane="1"></WatchVariable>
-    <WatchVariable Variable="..contextData.eventWebsiteLanguage" Pane="1"></WatchVariable>
-    <WatchVariable Variable="..contextData.eventWebsiteLanguage.getFooterPageID()" Pane="1"></WatchVariable>
-    <WatchVariable Variable="..contextData.eventWebsiteLanguage.languageID" Pane="1"></WatchVariable>
-    <WatchVariable Variable="..isEditMode" Pane="1"></WatchVariable>
-    <WatchVariable Variable="..page" Pane="1"></WatchVariable>
-    <WatchVariable Variable="..page.mvcPage" Pane="1"></WatchVariable>
-    <WatchVariable Variable="..page.mvcPage.isEditMode" Pane="1"></WatchVariable>
-    <WatchVariable Variable="..pageID" Pane="1"></WatchVariable>
-    <WatchVariable Variable="element" Pane="1"></WatchVariable>
-    <WatchVariable Variable="element.identifier" Pane="1"></WatchVariable>
-    <WatchVariable Variable="page" Pane="1"></WatchVariable>
-    <WatchVariable Variable="page.pageID" Pane="1"></WatchVariable>
-    <WatchVariable Variable="pageController" Pane="1"></WatchVariable>
-    <WatchVariable Variable="pageController.page" Pane="1"></WatchVariable>
-  </WatchVariables>
 </Project>
 
 
@@ -31370,7 +31383,7 @@ Used for listing corresponding pages in a different language</Description>
 ]]></Description>
 <Abstract>1</Abstract>
 <IncludeCode>%occStatus,%occXSLT,EF.common.macros</IncludeCode>
-<TimeChanged>64307,58131.058261</TimeChanged>
+<TimeChanged>64313,39204.183403</TimeChanged>
 <TimeCreated>62734,53934.49686</TimeCreated>
 
 <XData name="backendMenuTree">
@@ -31731,11 +31744,7 @@ E.g. returns grandParentAccessID|parentAccessID|accessID</Description>
 	if $l($G(menuItem("onClick"))) set onClick="onClick='"_menuItem("onClick")_"'"
 	if $l($G(menuItem("divID"))) set divID="ID='"_menuItem("divID")_"'"
 	
-	if (accessID = "CONMAN") && (##class(setup.objEvent).isEventUsingProweb2(xEventID)) {
-		set pageID = ##class(setup.pageIDmethods).getEventHomePage(xEventID, $$$efEnglishLangID)
-		set URL = "../../system/proweb/start.csp?pageID="_pageID_"&mode=edit"
-		set menuItem("newWindow") = 1
-	}
+
 	
 	if URL'="" {
 		if URL="##PREVIEWURL##" {
@@ -31761,6 +31770,13 @@ E.g. returns grandParentAccessID|parentAccessID|accessID</Description>
 			set href="../../backend/home/backendMenuRedirect.csp?selectedMenuAccessID="_accessID_"&URL="_##class(%CSP.Page).EscapeURL(URL)
 		}
 	}
+	
+	if (accessID = "CONMAN") && (##class(setup.objEvent).isEventUsingProweb2(xEventID)) {
+		set pageID = ##class(setup.pageIDmethods).getEventHomePage(xEventID, $$$efEnglishLangID)
+		set href = "../../system/proweb/start.csp?pageID="_pageID_"&eventID="_xEventID_"&initialiseSession=1"
+		set menuItem("newWindow") = 1
+	}	
+	
 	if href="" set href="#"
 	if $g(menuItem("newWindow")) set target="target='_blank'"
 	

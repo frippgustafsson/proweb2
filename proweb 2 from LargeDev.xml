@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.2 (Build 736U)" ts="2017-01-30 14:41:08">
+<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.2 (Build 736U)" ts="2017-01-31 17:45:41">
 <Class name="EF.contextDataFrontend">
 <Description><![CDATA[
 <!-- ;vc;-
@@ -1608,7 +1608,7 @@ Adds a translation button with warning icon which opens an in-form modal</Descri
 ]]></Description>
 <IncludeCode>EF.common.macros</IncludeCode>
 <Super>%Library.Persistent,shared.timeStamp</Super>
-<TimeChanged>64310,51919.737377</TimeChanged>
+<TimeChanged>64314,41785.841978</TimeChanged>
 <TimeCreated>63350,63749.535929</TimeCreated>
 
 <Property name="elementParent">
@@ -2017,6 +2017,9 @@ Should be run if any of the sub-classes are deleted</Description>
 </Value>
 <Value name="22">
 <Value>isModalTempData</Value>
+</Value>
+<Value name="23">
+<Value>copiedFromID</Value>
 </Value>
 </Data>
 </Storage>
@@ -2675,7 +2678,7 @@ Should be run if any of the sub-classes are deleted</Description>
 <Description>
 Should have a one-to-one relationship with sc.objList</Description>
 <Super>EF.pageController.containerElement</Super>
-<TimeChanged>64310,40661.925742</TimeChanged>
+<TimeChanged>64314,42109.979171</TimeChanged>
 <TimeCreated>64231,55587.036042</TimeCreated>
 
 <Property name="prowebListID">
@@ -2706,7 +2709,6 @@ refers to sc.xModules.objList</Description>
 	if '$isObject(..page) {
 		throw ##class(shared.exceptions.generalException).%New("The 'page' property is not set for the list object")	
 	}
-		
 	set rsProwebItems = ##class(%ResultSet).%New("sc.xModules.objList:qGetChildren")
 	do rsProwebItems.Execute(..prowebListID)
 	while rsProwebItems.Next() {
@@ -15666,7 +15668,7 @@ function cancelUpdate() {
 			</label>
 		</div>	
 		<div class='col-sm-8'>
-			<select name="dependsOnParent" id="dependsOnParent" class="form-control ef-input" onChange="ef_updateAlternatives(#(pageID)#, this.value)"  style="width: 35%; float: left;">
+			<select name="dependsOnParent" id="dependsOnParent" class="form-control ef-input" onChange="ef.proweb2.updateDependentAlternatives(#(pageID)#, this.value)"  style="width: 35%; float: left;">
 				<option value=""></option>
 				<script language="cache" runat="server">
 					set rsQuestions = ##class(%ResultSet).%New("sc.codItemMethods:qQuestionsThatCanBeDependencyParents")
@@ -18799,22 +18801,22 @@ session pageID=#(%session.Get("pageID"))#
 <Class name="layout.cssDefaultMethods">
 <Description><![CDATA[
 <!-- ;vc;-
-;vc;    Object: layout.cssDefaultMethods.CLS/EV.85
+;vc;    Object: layout.cssDefaultMethods.CLS/EV.86
 ;vc; Component: CLS.layout.cssDefaultMethods
 ;vc;  Location: LargeDev
-;vc; Date/Time: 24-Jan-17 14:16
-;vc;      User: MindaugasL
-;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>layout.cssDefaultMethods.CLS/EV.85</td><td>CLS.layout.cssDefaultMethods</td><td>LargeDev</td><td style='white-space: nowrap;'>24-Jan-17 14:16</td><td>MindaugasL</td></tr></table>
+;vc; Date/Time: 31-Jan-17 09:47
+;vc;      User: AdrianM2
+;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>layout.cssDefaultMethods.CLS/EV.86</td><td>CLS.layout.cssDefaultMethods</td><td>LargeDev</td><td style='white-space: nowrap;'>31-Jan-17 09:47</td><td>AdrianM2</td></tr></table>
 ]]></Description>
 <Abstract>1</Abstract>
 <ClassType/>
 <ProcedureBlock>1</ProcedureBlock>
-<TimeChanged>64308,60371.978595</TimeChanged>
+<TimeChanged>64314,35247.114886</TimeChanged>
 <TimeCreated>63046,56232.897117</TimeCreated>
 
 <Method name="outputDefaultCSS">
 <ClassMethod>1</ClassMethod>
-<FormalSpec>xEventID,layoutTemplateID</FormalSpec>
+<FormalSpec>xEventID,layoutTemplateID,xLangID</FormalSpec>
 <ReturnType>%String</ReturnType>
 <Implementation><![CDATA[
 	do ..outputComponentCSS()
@@ -18840,7 +18842,7 @@ session pageID=#(%session.Get("pageID"))#
 			<link rel="stylesheet" href="../../media/stylesheets/frontend/gen1-3/ef-website-gen1-3-main.css" type="text/css" />
 		>
 		w "<style>",!
-		do ##class(layout.cssOverrideMethods).outputDynamicCSS(xEventID)
+		do ##class(layout.cssOverrideMethods).outputDynamicCSS(xEventID, xLangID)
 	}
 	w !,"</style>",!
 ]]></Implementation>
@@ -21013,175 +21015,21 @@ The basic frontend default stuff</Description>
 <Abstract>1</Abstract>
 <ClassType/>
 <ProcedureBlock>1</ProcedureBlock>
-<TimeChanged>64313,44095.078686</TimeChanged>
+<TimeChanged>64314,38333.320109</TimeChanged>
 <TimeCreated>63046,56108.531536</TimeCreated>
 
 <Method name="outputDynamicCSS">
 <ClassMethod>1</ClassMethod>
-<FormalSpec>xEventID</FormalSpec>
+<FormalSpec>xEventID,xLangID:%Integer,pageName:%String=""</FormalSpec>
 <ReturnType>%String</ReturnType>
 <Implementation><![CDATA[
-	set templateID=##class(layout.objTemplate).getLayoutForEvent(xEventID)
-	set showDynamicCSS=0
-	if (##class(layout.methods).canUseStyleOverrides(xEventID))	{ // if we are using the new color picker, then output the buttons that use those colors and have a better design
-		set showDynamicCSS=1
-	}
-	
 	do ..outputAbstractDynamicCSS(xEventID)
 	set labels = ##class(setup.objSessionLabel).getAllLabelsForEvent(xEventID)
-	write ##class(setup.objSessionLabel).getLabelCSSForLabels(labels,1)
+	write ##class(setup.objSessionLabel).getLabelCSSForLabels(labels, xLangID)
 	
-	if 'showDynamicCSS quit
-	set efwscolor1=##class(layout.eventColorMethods).getWebsiteColor1(xEventID)
-	set efwscolor2=##class(layout.eventColorMethods).getWebsiteColor2(xEventID)
-	set efwscolor3=##class(layout.eventColorMethods).getWebsiteColor3(xEventID)
-	set menuTextColor=##class(layout.eventColorMethods).getMenuTextColor(xEventID)
-	set formDividerColor=##class(layout.eventColorMethods).getFormDividerColor(xEventID)
- 
- 	&html<
-		/* outputDynamicCSS() */
-		body, p, h2, h3, td, div, .black10px, .blackbold10px, .black12px, .blackbold12px, .red9px, .whitebold12px,
-		.ef_proweb_menu_ul, .ef_proweb_menu_ul a, .dropdown .btn, .EF_inputBox, .ef_frontend_button,
-		.ef_frontend_file_uploader .k-upload-button, .ef_frontend_button:hover, .ef_frontend_file_uploader .k-upload-button:hover,
-		.ef_frontend_button_proceed, .ef_frontend_button_proceed:hover, td.ef_proweb_form_prompt,
-		.whitebold10px, a.whitebold10px:hover, .yellow, td.yellow, .grey, td.grey,
-		.ef_progress_bar_text, .ef-table th,
-		.ef-registration-section input[type=text],
-		.ef-registration-section input[type=password],
-		.ef-registration-section input[type=number],
-		.ef-registration-section input[type=url],
-		.ef-registration-section input[type=tel],
-		.ef-registration-section textarea, 
-		.ef-registration-section select {
-			#(..getFontCSS(xEventID,"otherText"))#
-		}
-			
-		body {
-			background-color: #(##class(layout.eventColorMethods).getWebsiteBgColor(xEventID))#;
-		}
-		
-		h1, .ef-tinyMCE-header {
-			color: #(##class(layout.eventColorMethods).getHeadingColor(xEventID))#;
-			#(..getFontCSS(xEventID,"headings"))#	
-		}		
-		
-		.ef_proweb_menu_ul, .ef_proweb_menu_ul a, .dropdown .btn,
-		.select2-container--default .select2-results__option--highlighted[aria-selected], .ef-agenda-time-block  {
-			background-color: #(efwscolor1)#;	
-			color: #(menuTextColor)#;
-		}
-		
-		.ef_proweb_menu_ul li:hover, .ef_proweb_menu_ul a:hover, .dropdown .btn:hover, .dropdown .btn:focus,>
-		write ".open>.dropdown-toggle.btn-primary " // note the '>' sign that causes compile issues
-		&html<
-		  {
-			background-color: #(##class(layout.eventColorMethods).getMenuHoverBgColor(xEventID))#;
-			color: #(##class(layout.eventColorMethods).getMenuHoverTextColor(xEventID))#;
-		}
-    	
-		.EF_inputBox, 
-		.ef-registration-section input[type=text],
-		.ef-registration-section input[type=password],
-		.ef-registration-section input[type=number],
-		.ef-registration-section input[type=url],
-		.ef-registration-section input[type=tel],
-		.ef-registration-section textarea, 
-		.ef-registration-section select,
-		.select2-dropdown,
-		.select2-container--default .select2-selection--single .select2-selection__rendered {
-			background-color: #(##class(layout.eventColorMethods).getInputFieldBgColor(xEventID))#; 
-			color: #(##class(layout.eventColorMethods).getInputFieldTextColor(xEventID))#;
-			border-color: #(##class(layout.eventColorMethods).getInputBorderColor(xEventID))#;
-		}
-		
-		.ef_form_divider {
-			color: #(formDividerColor)#;
-			border-color:#(formDividerColor)#;
-			background-color: #(formDividerColor)#;
-		}
-		.ef_progress_bar_progress_div {	
-			background-color:#(##class(layout.eventColorMethods).getProgressBarColor(xEventID))#;
-		}
-		.ef_progress_bar_border_div {	
-			border: 1px solid  #(##class(layout.eventColorMethods).getProgressBarBorderColor(xEventID))#;
-		}
-		.ef_frontend_button, .ef_frontend_file_uploader .k-upload-button {
-			color: #(##class(layout.eventColorMethods).getButtonTextColor(xEventID))#;
-			background-color: #(##class(layout.eventColorMethods).getButtonBgColor(xEventID))#;
-			border: 1px solid #(##class(layout.eventColorMethods).getButtonBorderColor(xEventID))#;
-		}
-		.ef_frontend_button:hover, .ef_frontend_file_uploader .k-upload-button:hover {
-			color: #(##class(layout.eventColorMethods).getButtonHoverTextColor(xEventID))#;
-			background-color: #(##class(layout.eventColorMethods).getButtonHoverBgColor(xEventID))#;
-		}
-		.ef_frontend_button_proceed {
-			color: #(##class(layout.eventColorMethods).getButtonProceedTextColor(xEventID))#;
-			background-color: #(##class(layout.eventColorMethods).getButtonProceedBgColor(xEventID))#;
-			border: 1px solid #(##class(layout.eventColorMethods).getButtonProceedBorderColor(xEventID))#;
-		}
-		.ef_frontend_button_proceed:hover {
-			color: #(##class(layout.eventColorMethods).getButtonProceedHoverTextColor(xEventID))#;
-			background-color: #(##class(layout.eventColorMethods).getButtonProceedHoverBgColor(xEventID))#;
-		}
-		.ef_frontend_file_uploader .k-file-progress .k-progress {
-		    background-color:#(##class(layout.eventColorMethods).getProgressBarColor(xEventID))#
-		}
-		.ef-table-header td, 
-		.ef-table-header th
-		 {
-			background-color: #(##class(layout.eventColorMethods).getTableHeaderBgColor(xEventID))#;
-			color: #(##class(layout.eventColorMethods).getTableHeaderTextColor(xEventID))#;
-		}
-		>
-		if ##class(layout.objTemplate).isTemplateGen3(templateID)	{
-			write ".dropdown .btn, .btn-primary:hover, .btn-primary:focus, .btn-primary:active, .btn-primary.active, .open > .dropdown-toggle.btn-primary {",!
-			write "		border-color: "_##class(layout.eventColorMethods).getDropdownMenuBorderColor(xEventID)_";",!	
-			write "}",!
-		} else {
-			&html<
-				.red {
-					background-color: #(##class(layout.eventColorMethods).getTableHeaderBgColor(xEventID))#;
-				}
-				.whitebold10px, a.whitebold10px:hover {
-					color: #(##class(layout.eventColorMethods).getTableHeaderTextColor(xEventID))#;
-				}				
-			>
-		}
-		&html<
-
-		
-		.ef_frontend_help_text_icon {
-			background-color: #(##class(layout.eventColorMethods).getHelpTextIconBgColor(xEventID))#;
-			color: #(##class(layout.eventColorMethods).getHelpTextIconTextColor(xEventID))#;
-			border-color: #(##class(layout.eventColorMethods).getHelpTextIconBorderColor(xEventID))#;
-		}
-		
-		.ef_frontend_help_text_popover {
-			background-color: #(##class(layout.eventColorMethods).getHelpTextBgColor(xEventID))#;
-			border-color: #(##class(layout.eventColorMethods).getHelpTextBorderColor(xEventID))#;
-		}
-		
-		.ef_frontend_help_text_popover .ui-tooltip-tip, .ef_frontend_help_text_popover .qtip-tip {
-			border-color: #(##class(layout.eventColorMethods).getHelpTextBorderColor(xEventID))#;
-			background-color: #(##class(layout.eventColorMethods).getHelpTextBgColor(xEventID))#;
-		}
-		.ef-table th {
-			background-color:  #(##class(layout.eventColorMethods).getTableHeaderBgColor(xEventID))#;
-			color: #(##class(layout.eventColorMethods).getTableHeaderTextColor(xEventID))#;
-		}
-		.k-calendar td.ef-date-picker-event-day {
-			background-color: #(##class(layout.eventColorMethods).getInputFieldBgColor(xEventID))#; 
-		}
-		.k-calendar td.ef-date-picker-event-day .k-link {
-			color: #(##class(layout.eventColorMethods).getInputFieldTextColor(xEventID))#;
-		}
-
-	>
-	// CSS direct child selector doesn't work in &html tag. Bloody cache compiler
-	w "		.ef_frontend_help_text_content>pre { color: "_##class(layout.eventColorMethods).getHelpTextTextColor(xEventID)_"}"
-		
-	// quit blank so it can be used in #()#
-	quit ""
+	if (##class(layout.methods).canUseStyleOverrides(xEventID)) {
+		do ..outputWebsiteAppearanceCss(xEventID, pageName)
+	}
 ]]></Implementation>
 </Method>
 
@@ -21404,79 +21252,248 @@ The basic frontend default stuff</Description>
 ]]></Implementation>
 </Method>
 
-<Method name="outputWebsiteAppearanceCSS">
+<Method name="outputWebsiteAppearanceCss">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>eventID:%Integer,pageName</FormalSpec>
+<Implementation><![CDATA[
+	set templateID=##class(layout.objTemplate).getLayoutForEvent(eventID)
+	if (pageName '= "") && (##class(layout.objTemplate).isTemplateUsingProweb2(templateID)) && (##class(sc.objTemplate).isProweb2ImplementedForPageName(pageName)) {
+		do ..outputWebsiteAppearanceCssProweb2(eventID)
+	} else {
+		do ..outputWebsiteAppearanceCssProweb1(eventID)
+	}
+]]></Implementation>
+</Method>
+
+<Method name="outputWebsiteAppearanceCssProweb1">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>xEventID:%Integer</FormalSpec>
+<Implementation><![CDATA[
+	set templateID=##class(layout.objTemplate).getLayoutForEvent(xEventID)
+	set efwscolor1=##class(layout.eventColorMethods).getWebsiteColor1(xEventID)
+	set efwscolor2=##class(layout.eventColorMethods).getWebsiteColor2(xEventID)
+	set efwscolor3=##class(layout.eventColorMethods).getWebsiteColor3(xEventID)
+	set menuTextColor=##class(layout.eventColorMethods).getMenuTextColor(xEventID)
+	set formDividerColor=##class(layout.eventColorMethods).getFormDividerColor(xEventID)
+ 
+ 	&html<
+		/* outputDynamicCSS() */
+		body, p, h2, h3, td, div, .black10px, .blackbold10px, .black12px, .blackbold12px, .red9px, .whitebold12px,
+		.ef_proweb_menu_ul, .ef_proweb_menu_ul a, .dropdown .btn, .EF_inputBox, .ef_frontend_button,
+		.ef_frontend_file_uploader .k-upload-button, .ef_frontend_button:hover, .ef_frontend_file_uploader .k-upload-button:hover,
+		.ef_frontend_button_proceed, .ef_frontend_button_proceed:hover, td.ef_proweb_form_prompt,
+		.whitebold10px, a.whitebold10px:hover, .yellow, td.yellow, .grey, td.grey,
+		.ef_progress_bar_text, .ef-table th,
+		.ef-registration-section input[type=text],
+		.ef-registration-section input[type=password],
+		.ef-registration-section input[type=number],
+		.ef-registration-section input[type=url],
+		.ef-registration-section input[type=tel],
+		.ef-registration-section textarea, 
+		.ef-registration-section select {
+			#(..getFontCSS(xEventID,"otherText"))#
+		}
+			
+		body {
+			background-color: #(##class(layout.eventColorMethods).getWebsiteBgColor(xEventID))#;
+		}
+		
+		h1, .ef-tinyMCE-header {
+			color: #(##class(layout.eventColorMethods).getHeadingColor(xEventID))#;
+			#(..getFontCSS(xEventID,"headings"))#	
+		}		
+		
+		.ef_proweb_menu_ul, .ef_proweb_menu_ul a, .dropdown .btn,
+		.select2-container--default .select2-results__option--highlighted[aria-selected], .ef-agenda-time-block  {
+			background-color: #(efwscolor1)#;	
+			color: #(menuTextColor)#;
+		}
+		
+		.ef_proweb_menu_ul li:hover, .ef_proweb_menu_ul a:hover, .dropdown .btn:hover, .dropdown .btn:focus,>
+		write ".open>.dropdown-toggle.btn-primary " // note the '>' sign that causes compile issues
+		&html<
+		  {
+			background-color: #(##class(layout.eventColorMethods).getMenuHoverBgColor(xEventID))#;
+			color: #(##class(layout.eventColorMethods).getMenuHoverTextColor(xEventID))#;
+		}
+    	
+		.EF_inputBox, 
+		.ef-registration-section input[type=text],
+		.ef-registration-section input[type=password],
+		.ef-registration-section input[type=number],
+		.ef-registration-section input[type=url],
+		.ef-registration-section input[type=tel],
+		.ef-registration-section textarea, 
+		.ef-registration-section select,
+		.select2-dropdown,
+		.select2-container--default .select2-selection--single .select2-selection__rendered {
+			background-color: #(##class(layout.eventColorMethods).getInputFieldBgColor(xEventID))#; 
+			color: #(##class(layout.eventColorMethods).getInputFieldTextColor(xEventID))#;
+			border-color: #(##class(layout.eventColorMethods).getInputBorderColor(xEventID))#;
+		}
+		
+		.ef_form_divider {
+			color: #(formDividerColor)#;
+			border-color:#(formDividerColor)#;
+			background-color: #(formDividerColor)#;
+		}
+		.ef_progress_bar_progress_div {	
+			background-color:#(##class(layout.eventColorMethods).getProgressBarColor(xEventID))#;
+		}
+		.ef_progress_bar_border_div {	
+			border: 1px solid  #(##class(layout.eventColorMethods).getProgressBarBorderColor(xEventID))#;
+		}
+		.ef_frontend_button, .ef_frontend_file_uploader .k-upload-button {
+			color: #(##class(layout.eventColorMethods).getButtonTextColor(xEventID))#;
+			background-color: #(##class(layout.eventColorMethods).getButtonBgColor(xEventID))#;
+			border: 1px solid #(##class(layout.eventColorMethods).getButtonBorderColor(xEventID))#;
+		}
+		.ef_frontend_button:hover, .ef_frontend_file_uploader .k-upload-button:hover {
+			color: #(##class(layout.eventColorMethods).getButtonHoverTextColor(xEventID))#;
+			background-color: #(##class(layout.eventColorMethods).getButtonHoverBgColor(xEventID))#;
+		}
+		.ef_frontend_button_proceed {
+			color: #(##class(layout.eventColorMethods).getButtonProceedTextColor(xEventID))#;
+			background-color: #(##class(layout.eventColorMethods).getButtonProceedBgColor(xEventID))#;
+			border: 1px solid #(##class(layout.eventColorMethods).getButtonProceedBorderColor(xEventID))#;
+		}
+		.ef_frontend_button_proceed:hover {
+			color: #(##class(layout.eventColorMethods).getButtonProceedHoverTextColor(xEventID))#;
+			background-color: #(##class(layout.eventColorMethods).getButtonProceedHoverBgColor(xEventID))#;
+		}
+		.ef_frontend_file_uploader .k-file-progress .k-progress {
+		    background-color:#(##class(layout.eventColorMethods).getProgressBarColor(xEventID))#
+		}
+		.ef-table-header td, 
+		.ef-table-header th
+		 {
+			background-color: #(##class(layout.eventColorMethods).getTableHeaderBgColor(xEventID))#;
+			color: #(##class(layout.eventColorMethods).getTableHeaderTextColor(xEventID))#;
+		}
+		>
+		if ##class(layout.objTemplate).isTemplateGen3(templateID)	{
+			write ".dropdown .btn, .btn-primary:hover, .btn-primary:focus, .btn-primary:active, .btn-primary.active, .open > .dropdown-toggle.btn-primary {",!
+			write "		border-color: "_##class(layout.eventColorMethods).getDropdownMenuBorderColor(xEventID)_";",!	
+			write "}",!
+		} else {
+			&html<
+				.red {
+					background-color: #(##class(layout.eventColorMethods).getTableHeaderBgColor(xEventID))#;
+				}
+				.whitebold10px, a.whitebold10px:hover {
+					color: #(##class(layout.eventColorMethods).getTableHeaderTextColor(xEventID))#;
+				}				
+			>
+		}
+		&html<
+
+		
+		.ef_frontend_help_text_icon {
+			background-color: #(##class(layout.eventColorMethods).getHelpTextIconBgColor(xEventID))#;
+			color: #(##class(layout.eventColorMethods).getHelpTextIconTextColor(xEventID))#;
+			border-color: #(##class(layout.eventColorMethods).getHelpTextIconBorderColor(xEventID))#;
+		}
+		
+		.ef_frontend_help_text_popover {
+			background-color: #(##class(layout.eventColorMethods).getHelpTextBgColor(xEventID))#;
+			border-color: #(##class(layout.eventColorMethods).getHelpTextBorderColor(xEventID))#;
+		}
+		
+		.ef_frontend_help_text_popover .ui-tooltip-tip, .ef_frontend_help_text_popover .qtip-tip {
+			border-color: #(##class(layout.eventColorMethods).getHelpTextBorderColor(xEventID))#;
+			background-color: #(##class(layout.eventColorMethods).getHelpTextBgColor(xEventID))#;
+		}
+		.ef-table th {
+			background-color:  #(##class(layout.eventColorMethods).getTableHeaderBgColor(xEventID))#;
+			color: #(##class(layout.eventColorMethods).getTableHeaderTextColor(xEventID))#;
+		}
+		.k-calendar td.ef-date-picker-event-day {
+			background-color: #(##class(layout.eventColorMethods).getInputFieldBgColor(xEventID))#; 
+		}
+		.k-calendar td.ef-date-picker-event-day .k-link {
+			color: #(##class(layout.eventColorMethods).getInputFieldTextColor(xEventID))#;
+		}
+
+	>
+	// CSS direct child selector doesn't work in &html tag. Bloody cache compiler
+	w "		.ef_frontend_help_text_content>pre { color: "_##class(layout.eventColorMethods).getHelpTextTextColor(xEventID)_"}"
+		
+	// quit blank so it can be used in #()#
+	quit ""
+]]></Implementation>
+</Method>
+
+<Method name="outputWebsiteAppearanceCssProweb2">
 <Description>
 This is only used by proweb 2</Description>
 <ClassMethod>1</ClassMethod>
 <FormalSpec>eventID:%Integer</FormalSpec>
 <Implementation><![CDATA[
-	write !,"<!-- ========= CSS styles defined in Website Appearance ======= -->"
 	set greaterThan = ">"
 	&html<
-		<style>
-			body {
-				font-family: #(..getFontFamilyOtherText(eventID))#;
-				background-color: #(##class(layout.eventColorMethods).getWebsiteBgColor(eventID))#;
-			}
-			
-			.ef-input-background, 
-			.ef-push-button-secondary,
-			.form-control, select, .k-input, .select2-container--default .select2-selection--single 
-			{
-				background-color: #(##class(layout.eventColorMethods).getWebsiteColor3(eventID))#;
-				color: #(##class(layout.eventColorMethods).getInputFieldTextColor(eventID))#;
-			}
-			
-			h1, h2, h3, h4, h5,	h6, .ef-page-header {
-				font-family: #(..getFontFamilyHeadings(eventID))#;
-				color: #(##class(layout.eventColorMethods).getHeadingColor(eventID))#;
-			}
-			
-			.ef-menu-block,
-			.ef-menu-block a, 
-			.ef-push-button-primary, 
-			.ef-form-divider,
-			.ef-panel-heading,
-			.ef-progress-bar-filled,
-			.ef-form-divider,
-			.ef-menu-block-ul-xs li a,#(".open"_greaterThan_".dropdown-toggle.btn-primary")#,
-			.ef-table-header {
-				background-color: #(##class(layout.eventColorMethods).getWebsiteColor1(eventID))#;
-				color: #(##class(layout.eventColorMethods).getMenuTextColor(eventID))#;
-			}
+		/*========= CSS styles defined in Website Appearance =======*/
+		body {
+			font-family: #(..getFontFamilyOtherText(eventID))#;
+			background-color: #(##class(layout.eventColorMethods).getWebsiteBgColor(eventID))#;
+		}
+		
+		.ef-input-background, 
+		.ef-push-button-secondary,
+		.form-control, select, .k-input, .select2-container--default .select2-selection--single 
+		{
+			background-color: #(##class(layout.eventColorMethods).getWebsiteColor3(eventID))#;
+			color: #(##class(layout.eventColorMethods).getInputFieldTextColor(eventID))#;
+		}
+		
+		h1, h2, h3, h4, h5,	h6, .ef-page-header {
+			font-family: #(..getFontFamilyHeadings(eventID))#;
+			color: #(##class(layout.eventColorMethods).getHeadingColor(eventID))#;
+		}
+		
+		.ef-menu-block,
+		.ef-menu-block a, 
+		.ef-push-button-primary, 
+		.ef-form-divider,
+		.ef-panel-heading,
+		.ef-progress-bar-filled,
+		.ef-form-divider,
+		.ef-menu-block-ul-xs li a,#(".open"_greaterThan_".dropdown-toggle.btn-primary")#,
+		.ef-table-header {
+			background-color: #(##class(layout.eventColorMethods).getWebsiteColor1(eventID))#;
+			color: #(##class(layout.eventColorMethods).getMenuTextColor(eventID))#;
+		}
 
-			.ef-push-button {
-				font-family: #(..getFontFamilyOtherText(eventID))#;	
-			}
-			
-			#(".ef-panel-heading { "_..getFontCSS(eventID,"headings")_" }")#
+		.ef-push-button {
+			font-family: #(..getFontFamilyOtherText(eventID))#;	
+		}
+		
+		#(".ef-panel-heading { "_..getFontCSS(eventID,"headings")_" }")#
 
-			.ef-help-icon {
-				background-color: #(##class(layout.eventColorMethods).getMenuTextColor(eventID))#;
-				color: #(##class(layout.eventColorMethods).getWebsiteColor1(eventID))#;
-			}
+		.ef-help-icon {
+			background-color: #(##class(layout.eventColorMethods).getMenuTextColor(eventID))#;
+			color: #(##class(layout.eventColorMethods).getWebsiteColor1(eventID))#;
+		}
 
-			.ef-menu-block a:hover, 
-			.ef-push-button.ef-push-button-primary:hover  {
-				background-color: #(##class(layout.eventColorMethods).getMenuHoverBgColor(eventID))#;
-				color: #(##class(layout.eventColorMethods).getMenuHoverTextColor(eventID))#;
-			}
-			
-			.ef-push-button.ef-push-button-secondary:hover {
-				color: #(##class(layout.eventColorMethods).getButtonHoverTextColor(eventID))#;
-				background-color: #(##class(layout.eventColorMethods).getButtonHoverBgColor(eventID))#;
-			}
-			
-			.ef-panel-body, 
-			.ef-panel {
-				color: #(##class(layout.eventColorMethods).getPanelTextColor(eventID))#;
-				background-color: #(##class(layout.eventColorMethods).getPanelBgColor(eventID))#;
-			}
-			
-			.ef-admin-only {
-   				background-color: burlywood;    
-			}
-		</style>
+		.ef-menu-block a:hover, 
+		.ef-push-button.ef-push-button-primary:hover  {
+			background-color: #(##class(layout.eventColorMethods).getMenuHoverBgColor(eventID))#;
+			color: #(##class(layout.eventColorMethods).getMenuHoverTextColor(eventID))#;
+		}
+		
+		.ef-push-button.ef-push-button-secondary:hover {
+			color: #(##class(layout.eventColorMethods).getButtonHoverTextColor(eventID))#;
+			background-color: #(##class(layout.eventColorMethods).getButtonHoverBgColor(eventID))#;
+		}
+		
+		.ef-panel-body, 
+		.ef-panel {
+			color: #(##class(layout.eventColorMethods).getPanelTextColor(eventID))#;
+			background-color: #(##class(layout.eventColorMethods).getPanelBgColor(eventID))#;
+		}
+		
+		.ef-admin-only {
+			background-color: burlywood;    
+		}
 	>
 ]]></Implementation>
 </Method>
@@ -22845,17 +22862,17 @@ Looks for "style.css" file to update "templateCSSFile" with</Description>
 <Class name="layout.objTemplate">
 <Description><![CDATA[
 <!-- ;vc;-
-;vc;    Object: layout.objTemplate.CLS/EV.52
+;vc;    Object: layout.objTemplate.CLS/EV.53
 ;vc; Component: CLS.layout.objTemplate
 ;vc;  Location: LargeDev
-;vc; Date/Time: 19-Jan-17 12:05
-;vc;      User: FredG
-;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>layout.objTemplate.CLS/EV.52</td><td>CLS.layout.objTemplate</td><td>LargeDev</td><td style='white-space: nowrap;'>19-Jan-17 12:05</td><td>FredG</td></tr></table>
+;vc; Date/Time: 30-Jan-17 15:34
+;vc;      User: AdrianM2
+;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>layout.objTemplate.CLS/EV.53</td><td>CLS.layout.objTemplate</td><td>LargeDev</td><td style='white-space: nowrap;'>30-Jan-17 15:34</td><td>AdrianM2</td></tr></table>
 ]]></Description>
 <ClassType>persistent</ClassType>
 <ProcedureBlock>1</ProcedureBlock>
 <Super>%Library.Persistent,shared.timeStamp</Super>
-<TimeChanged>64302,43612.879912</TimeChanged>
+<TimeChanged>64314,37992.579058</TimeChanged>
 <TimeCreated>60782,60196.270659</TimeCreated>
 <Inheritance>right</Inheritance>
 
@@ -23423,7 +23440,7 @@ outputs each section of code doing the banner, menu and footer when needed
 	// 	 set bits("[[ef_main_buttons]]")=""
 	// 	 set bits("[[ef_footer]]")=""
 	//
-	new contextData,okToWrite,rs,sqltext,menuPageID,homePageID,bannerPageID,secondaryBannerPageID,layoutTemplateID,sectionID,before,after,curPageName,isSurvey,surveyID,curPageID,externalLoginPage,standardDesingID,isUsingProweb2
+	new okToWrite,rs,sqltext,menuPageID,homePageID,bannerPageID,secondaryBannerPageID,layoutTemplateID,sectionID,before,after,curPageName,isSurvey,surveyID,curPageID,externalLoginPage,standardDesingID,isUsingProweb2
 	set xEventID=$G(%session.Data("eventsforce","backend","xEventID"))
 	
 	
@@ -23617,13 +23634,12 @@ outputs each section of code doing the banner, menu and footer when needed
 						<!-- ====== Default generation 4 frontend base styles ============= -->
 						<link rel="stylesheet" href="../../media/stylesheets/frontend/gen4/ef-website-gen4-base-styles.css" type="text/css" />
 					>
-					
-					if ##class(layout.methods).canUseWebsiteColorsForEvent(xEventID) {
-						do ##class(layout.cssOverrideMethods).outputWebsiteAppearanceCSS(xEventID)
-					}
+					w "<style>"
+					do ##class(layout.cssOverrideMethods).outputDynamicCSS(xEventID, xLangID ,%request.PageName)
+					w "</style>",!
 					
 				} else {
-					do ##class(layout.cssDefaultMethods).outputDefaultCSS(xEventID,layoutTemplateID)
+					do ##class(layout.cssDefaultMethods).outputDefaultCSS(xEventID,layoutTemplateID, xLangID)
 				}
 			}
 			if before="[[ef_logo]]" {
@@ -24350,6 +24366,9 @@ Returns true if the template is custom made</Description>
 <Value name="27">
 <Value>isUsingProweb2</Value>
 </Value>
+<Value name="28">
+<Value>copiedFromID</Value>
+</Value>
 </Data>
 </Storage>
 </Class>
@@ -24497,6 +24516,7 @@ Returns true if the template is custom made</Description>
     <ProjectItem name="largedevsrc/frontEnd/reg/errorLoadingPage.csp" type="CSP"></ProjectItem>
     <ProjectItem name="largedevsrc/frontEnd/reg/frontendStyles.csp" type="CSP"></ProjectItem>
     <ProjectItem name="largedevsrc/frontEnd/reg/home.csp" type="CSP"></ProjectItem>
+    <ProjectItem name="largedevsrc/frontEnd/reg/initProweb2Session.csp" type="CSP"></ProjectItem>
     <ProjectItem name="largedevsrc/frontEnd/reg/pageControllerStandardSave.csp" type="CSP"></ProjectItem>
     <ProjectItem name="largedevsrc/frontEnd/reg/registration.csp" type="CSP"></ProjectItem>
     <ProjectItem name="largedevsrc/frontEnd/reg/reorderProwebElements.csp" type="CSP"></ProjectItem>
@@ -24548,7 +24568,6 @@ Returns true if the template is custom made</Description>
     <ProjectItem name="setup.eventCreationMethods" type="CLS"></ProjectItem>
     <ProjectItem name="setup.objPageNav" type="CLS"></ProjectItem>
     <ProjectItem name="shared.pageMethods" type="CLS"></ProjectItem>
-    <ProjectItem name="largedevsrc/frontEnd/reg/initProweb2Session.csp" type="CSP"></ProjectItem>
   </Items>
   <BreakPoints>
     <BreakPoint Routine="cspRealEV.frontend.reg.pagecontrollerstandardsave.CLS" Offset="OnPreHTTPafter+35"></BreakPoint>
@@ -26388,7 +26407,7 @@ move all objData from list called "Bottom List" to "Main List"</Description>
 <ClassType>persistent</ClassType>
 <ProcedureBlock>1</ProcedureBlock>
 <Super>%Library.Persistent,shared.timeStamp</Super>
-<TimeChanged>64301,56443.320027</TimeChanged>
+<TimeChanged>64313,62721.506518</TimeChanged>
 <TimeCreated>58926,57258</TimeCreated>
 <Inheritance>right</Inheritance>
 
@@ -26555,6 +26574,9 @@ Index for property description</Description>
 <Value name="10">
 <Value>componentType</Value>
 </Value>
+<Value name="11">
+<Value>copiedFromID</Value>
+</Value>
 </Data>
 <Property name="description">
 <Selectivity>14.2857%</Selectivity>
@@ -26588,18 +26610,18 @@ Index for property description</Description>
 <Description><![CDATA[
 Please note that this class will be the super class of all underlying data items.
 <!-- ;vc;
-;vc;    Object: sc.objData.CLS/EV.38
+;vc;    Object: sc.objData.CLS/EV.41
 ;vc; Component: CLS.sc.objData
 ;vc;  Location: LargeDev
-;vc; Date/Time: 21-Dec-16 10:30
+;vc; Date/Time: 31-Jan-17 17:20
 ;vc;      User: FredG
-;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>sc.objData.CLS/EV.38</td><td>CLS.sc.objData</td><td>LargeDev</td><td style='white-space: nowrap;'>21-Dec-16 10:30</td><td>FredG</td></tr></table>
+;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>sc.objData.CLS/EV.41</td><td>CLS.sc.objData</td><td>LargeDev</td><td style='white-space: nowrap;'>31-Jan-17 17:20</td><td>FredG</td></tr></table>
 ]]></Description>
 <ClassType>persistent</ClassType>
 <IncludeCode>EF.common.macros</IncludeCode>
 <ProcedureBlock>1</ProcedureBlock>
 <Super>%Library.Persistent,shared.timeStamp</Super>
-<TimeChanged>64287,50701.53939</TimeChanged>
+<TimeChanged>64314,62792.476794</TimeChanged>
 <TimeCreated>59148,67793</TimeCreated>
 <Inheritance>right</Inheritance>
 
@@ -27784,12 +27806,9 @@ note that this must be a classmethod or you will a compile error as the property
 <FormalSpec>dataID:%Integer</FormalSpec>
 <Implementation><![CDATA[
 	#dim targetPosition as %Integer = ""
-	#dim beforeOrAfter as %Integer = $Get(%session.Data("eventsforce","backend","proweb page","insert proweb item","beforeOrAfter"))
 	#dim selectedProwebID As %Integer = $Get(%session.Data("eventsforce","backend","proweb page","insert proweb item","selectedProwebID"))
 
-	if (beforeOrAfter = "after") {
-		set targetPosition = ##class(sc.objData).getDisplayOrder(selectedProwebID)
-	}
+	set targetPosition = ##class(sc.objData).getDisplayOrder(selectedProwebID)
 	
 	if targetPosition {
 		do ..moveChildToPosition(dataID, targetPosition)
@@ -27836,18 +27855,16 @@ note that this must be a classmethod or you will a compile error as the property
 <ClassMethod>1</ClassMethod>
 <FormalSpec>requestObject:%CSP.Request,sessionObject:%CSP.Session</FormalSpec>
 <Implementation><![CDATA[
-	if ((requestObject.Get("selectedProwebID") '= "") && (requestObject.Get("beforeOrAfter") '= "")) {
-		do ..setDesiredPositionToSession(sessionObject, requestObject.Get("selectedProwebID"), requestObject.Get("beforeOrAfter")) 
+	if (requestObject.Get("selectedProwebID") '= "") {
+		do ..setDesiredPositionToSession(sessionObject, requestObject.Get("selectedProwebID")) 
 	}
 ]]></Implementation>
 </Method>
 
 <Method name="setDesiredPositionToSession">
 <ClassMethod>1</ClassMethod>
-<FormalSpec>sessionObject:%CSP.Session,selectedProwebID:%Integer,beforeOrAfter:%String</FormalSpec>
-<Implementation><![CDATA[
-	set sessionObject.Data("eventsforce","backend","proweb page","insert proweb item","selectedProwebID") = selectedProwebID
-	set sessionObject.Data("eventsforce","backend","proweb page","insert proweb item","beforeOrAfter") = beforeOrAfter
+<FormalSpec>sessionObject:%CSP.Session,selectedProwebID:%Integer</FormalSpec>
+<Implementation><![CDATA[	set sessionObject.Data("eventsforce","backend","proweb page","insert proweb item","selectedProwebID") = selectedProwebID
 ]]></Implementation>
 </Method>
 
@@ -27936,6 +27953,9 @@ note that this must be a classmethod or you will a compile error as the property
 </Value>
 <Value name="21">
 <Value>objEvent</Value>
+</Value>
+<Value name="22">
+<Value>copiedFromID</Value>
 </Value>
 </Data>
 <Property name="active">

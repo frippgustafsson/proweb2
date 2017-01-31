@@ -216,22 +216,26 @@ if I do a backend booking followed by an reg page edit, it's stays in backend mo
 firstname is not in the list of guest prompts
 the save and cancel button in codQuestionDetails goes wrong
 delete the proweb base class
+namespace the javascript methods
+split up the JS file into smaller chunks
+adding divider crashes
+adding text block ends up in the wrong place
+namespace javawscript functions
 
 ===============================================================================
-
 fix the issues with local dev systems
+drag and drop doesn't save
 Getting Invalid Oref in event 6415 when trying to register
-why is there a grey emoty list onthe reg page?
+why is there a grey empty list onthe reg page?
 introduce the new HTML question property
 fix saving the country causes errors
-split up the JS file into smaller chunks
-namespace the javascript methods
+date fields takes up too much vertical space
+guests give js errors in edit mode
 refactor objLayout-writeBit
 make the backend booking mode show banner, menu and indicator (after doing the writeBit)
 backend booking is lacking in style
 make all pages priavte and encrypted?
 namespace the bootstrap classes by copying their definition into our classes (eg. copy btn-large into ef-btn-large)
-The header has a very large drag handle
 date range control is missing the end date input
 It's very hard to edit a header that is set to empty
 The styles shown in moxie is not what the website uses

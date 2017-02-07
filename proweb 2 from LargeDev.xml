@@ -1,17 +1,122 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.2 (Build 736U)" ts="2017-01-31 17:45:41">
+<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.2 (Build 736U)" ts="2017-02-07 14:04:26">
+<Class name="EF.contextData">
+<Description><![CDATA[
+<!-- ;vc;-
+;vc;    Object: EF.contextData.CLS/EV.6
+;vc; Component: CLS.EF.contextData
+;vc;  Location: LargeDev
+;vc; Date/Time: 10-Jan-17 14:50
+;vc;      User: FredG
+;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>EF.contextData.CLS/EV.6</td><td>CLS.EF.contextData</td><td>LargeDev</td><td style='white-space: nowrap;'>10-Jan-17 14:50</td><td>FredG</td></tr></table>
+]]></Description>
+<IncludeCode>EF.common.macros</IncludeCode>
+<Super>%RegisteredObject</Super>
+<TimeChanged>64317,40629.212422</TimeChanged>
+<TimeCreated>63755,56076.63566</TimeCreated>
+
+<Property name="eventID">
+<Type>%Integer</Type>
+</Property>
+
+<Property name="languageID">
+<Type>%Integer</Type>
+</Property>
+
+<Property name="context">
+<Type>%String</Type>
+<InitialExpression>"none"</InitialExpression>
+<Parameter name="VALUELIST" value=",registration,agenda,none"/>
+</Property>
+
+<Property name="auditPersonID">
+<Type>%String</Type>
+</Property>
+
+<Property name="sessionID">
+<Type>%String</Type>
+</Property>
+
+<Property name="IPaddress">
+<Type>%String</Type>
+<InitialExpression>..getIPaddress()</InitialExpression>
+</Property>
+
+<Property name="controllerID">
+<Type>%Integer</Type>
+</Property>
+
+<Property name="cspRequest">
+<Type>%CSP.Request</Type>
+</Property>
+
+<Method name="setControllerID">
+<Implementation><![CDATA[
+	if (..eventID) {
+		Set ..controllerID=##class(setup.objEvent).getControllerID(..eventID)
+	}
+]]></Implementation>
+</Method>
+
+<Method name="createFromBackendCSPSession">
+<ClassMethod>1</ClassMethod>
+<ReturnType>EF.contextData</ReturnType>
+<Implementation><![CDATA[
+	set contextData = ..%New()	
+	set contextData.eventID=$G(%session.Data("eventsforce","backend","xEventID"))
+	
+	Do contextData.setControllerID()
+
+	set contextData.languageID=$G(%session.Data("eventsforce","backend","xLangID"))
+
+	do contextData.setAuditPersonIDfromBackend()
+	
+	set contextData.sessionID=%session.SessionId
+	return contextData
+]]></Implementation>
+</Method>
+
+<Method name="getIPaddress">
+<ClassMethod>1</ClassMethod>
+<Implementation><![CDATA[
+	if $data(%request) {
+		return %request.GetCgiEnv("REMOTE_ADDR","no ip")
+	} else {
+		return ""
+	}
+]]></Implementation>
+</Method>
+
+<Method name="setAuditPersonIDfromBackend">
+<Implementation><![CDATA[
+	if $data(%session) {
+		set ..auditPersonID = $G(%session.Data("eventsforce","backend","xPersonID")	)
+	}
+]]></Implementation>
+</Method>
+
+<Method name="getPersonDetailsForAuditLine">
+<Implementation><![CDATA[
+	set name = ##class(admin.objUser).getFullName(..auditPersonID)
+	return name_" person ID: "_..auditPersonID
+]]></Implementation>
+</Method>
+</Class>
+
+
 <Class name="EF.contextDataFrontend">
 <Description><![CDATA[
 <!-- ;vc;-
 ;vc;    Object: EF.contextDataFrontend.CLS/EV.6
 ;vc; Component: CLS.EF.contextDataFrontend
 ;vc;  Location: LargeDev
-;vc; Date/Time: 16-Jan-17 15:41
-;vc;      User: FredG
-;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>EF.contextDataFrontend.CLS/EV.6</td><td>CLS.EF.contextDataFrontend</td><td>LargeDev</td><td style='white-space: nowrap;'>16-Jan-17 15:41</td><td>FredG</td></tr></table>
+;vc; Date/Time: 06-Feb-17 10:35
+;vc;      User: AdrianM2
+;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>EF.contextDataFrontend.CLS/EV.6</td><td>CLS.EF.contextDataFrontend</td><td>LargeDev</td><td style='white-space: nowrap;'>06-Feb-17 10:35</td><td>AdrianM2</td></tr></table>
 ]]></Description>
+<IncludeCode>EF.common.macros</IncludeCode>
 <Super>EF.contextData</Super>
-<TimeChanged>64301,48236.923237</TimeChanged>
+<TimeChanged>64320,41050.184191</TimeChanged>
 <TimeCreated>63755,56082.660879</TimeCreated>
 
 <Property name="loggedInPersonID">
@@ -54,31 +159,32 @@ if website is private, this will be set to the cod.objPerson.ID of that logged i
 	if 'eventID {
 		set eventID = ##class(shared.pageMethodsFrontend).getEventID()	
 	}
-	if 'eventID {
-		throw ##class(shared.exceptions.generalException).%New("eventID is missing from %request, make sure it is included in the URL parameters.")	
+	if eventID { // Note this will not exist for surveys
+		set contextData.eventID = eventID
+		set %session.Data("eventsforce","frontend","xEventID") = eventID
+	
+		Do contextData.setControllerID()
 	}
-	set contextData.eventID = eventID
-	set %session.Data("eventsforce","frontend","xEventID") = eventID
-	
-	Do contextData.setControllerID()
-	
 	set contextData.languageID = $G(%session.Data("eventsforce","frontend","xPrefLangID"))
 	if contextData.languageID = "" {
-		 set contextData.languageID=$G(%session.Data("eventsforce","frontend","xLangID"))
+		 set contextData.languageID = $G(%session.Data("eventsforce","frontend","xLangID"))
 	} 
-	if contextData.languageID = "" {
+	if (contextData.languageID = "") && (eventID) {
 		 set contextData.languageID = ##class(shared.objLanguage).getDefaultLangIDForEvent(eventID)
-	} 
+	}
+	if 'contextData.languageID {
+		set contextData.languageID = $$$efEnglishLangID	
+	}
 	
 	set contextData.sessionID = %session.SessionId
 	set contextData.prowebMode = %session.Get("mode")
 	
 	do contextData.populatePersonDataFromSession()
-	
-	set eventDetails = ##class(setup.eventConfiguration).createForEventID(contextData.eventID)
-	set objLanguage = ##class(shared.objLanguage).%OpenId(contextData.languageID)
-	set contextData.eventWebsiteLanguage = ##class(setup.eventWebsiteLanguage).createNew(eventDetails, objLanguage)
-	
+	if contextData.eventID {
+		set eventDetails = ##class(setup.eventConfiguration).createForEventID(contextData.eventID)
+		set objLanguage = ##class(shared.objLanguage).%OpenId(contextData.languageID)
+		set contextData.eventWebsiteLanguage = ##class(setup.eventWebsiteLanguage).createNew(eventDetails, objLanguage)
+	}
 	return contextData
 ]]></Implementation>
 </Method>
@@ -91,7 +197,9 @@ if website is private, this will be set to the cod.objPerson.ID of that logged i
 	if '..auditPersonID {
 		do ..setAuditPersonIDfromFrontend()
 	}
-	do ..populateAttendeeCategoryID()
+	if ..eventID {
+		do ..populateAttendeeCategoryID()
+	}
 ]]></Implementation>
 </Method>
 
@@ -131,7 +239,7 @@ if website is private, this will be set to the cod.objPerson.ID of that logged i
 ;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>EF.contextDataRegistration.CLS/EV.10</td><td>CLS.EF.contextDataRegistration</td><td>LargeDev</td><td style='white-space: nowrap;'>26-Jan-17 14:07</td><td>FredG</td></tr></table>
 ]]></Description>
 <Super>EF.contextDataFrontend</Super>
-<TimeChanged>64309,52160.588667</TimeChanged>
+<TimeChanged>64317,41681.103949</TimeChanged>
 <TimeCreated>63755,56082.660879</TimeCreated>
 
 <Property name="tempPurchaseID">
@@ -304,9 +412,9 @@ if website is private, this will be set to the cod.objPerson.ID of that logged i
 	set contextData.prowebMode="preview"
 	set contextData.sessionID="mockSession"
 	
-	set eventDetails = ##class(setup.eventConfiguration).createForEventID(mockEventID)
+	set eventConfiguration = ##class(setup.eventConfiguration).createForEventID(mockEventID)
 	set objLanguage = ##class(shared.objLanguage).%OpenId($$$efEnglishLangID)
-	set contextData.eventWebsiteLanguage = ##class(setup.eventWebsiteLanguage).createNew(eventDetails, objLanguage)
+	set contextData.eventWebsiteLanguage = ##class(setup.eventWebsiteLanguage).createNew(eventConfiguration, objLanguage)
 	 
 
 	return contextData
@@ -332,7 +440,7 @@ if website is private, this will be set to the cod.objPerson.ID of that logged i
 ;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>EF.contextDataRegistration.CLS/EV.4</td><td>CLS.EF.contextDataRegistration</td><td>SmallDev</td><td style='white-space: nowrap;'>02-Sep-16 14:23</td><td>JeremyW</td></tr></table>
 ]]></Description>
 <Super>EF.contextDataRegistration</Super>
-<TimeChanged>64310,34518.885761</TimeChanged>
+<TimeChanged>64317,41768.699461</TimeChanged>
 <TimeCreated>63755,56082.660879</TimeCreated>
 
 <Property name="isTestMode">
@@ -350,7 +458,7 @@ if website is private, this will be set to the cod.objPerson.ID of that logged i
 <ReturnType>EF.contextDataRegistration</ReturnType>
 <Implementation><![CDATA[
 	#dim mockTempPersonID as %Integer = 100
-	#dim mockBackendUserD as %Integer = 1
+	#dim mockBackendUserID as %Integer = 1
 	#dim mockEventID as %Integer = 15235
 	#dim mockPageID as %Integer = 122589
 	
@@ -361,7 +469,7 @@ if website is private, this will be set to the cod.objPerson.ID of that logged i
 	set contextData.pageID = mockPageID
 	set contextData.languageID=1
 	set contextData.tempPersonID = mockTempPersonID
-	set contextData.loggedInPersonID = mockBackendUserD
+	set contextData.loggedInPersonID = mockBackendUserID
 	set contextData.attendeeCategoryID=1
 	set contextData.currencyID=1
 	set contextData.isAmendment=0
@@ -390,7 +498,7 @@ if website is private, this will be set to the cod.objPerson.ID of that logged i
 
 <Class name="EF.mvcHandler.frontendProweb">
 <Super>EF.mvcHandler.frontend</Super>
-<TimeChanged>64313,48655.486904</TimeChanged>
+<TimeChanged>64317,40841.185376</TimeChanged>
 <TimeCreated>64292,52952.708564</TimeCreated>
 
 <Property name="showRegistrationProgressBar">
@@ -441,8 +549,8 @@ if website is private, this will be set to the cod.objPerson.ID of that logged i
 			throw ##class(shared.exceptions.generalException).%New("No contextData found in page")
 	}
 	
-	set pageControllerID = ..contextData.request.Get("prowebPageControllerID") 
-	merge requestData = ..contextData.request.Data
+	set pageControllerID = ..contextData.cspRequest.Get("prowebPageControllerID") 
+	merge requestData = ..contextData.cspRequest.Data
 
 	if pageControllerID { // when reloading the page after an validation error
 		set pageController = ##class(EF.pageController.page).open(pageControllerID, ..contextData)
@@ -898,7 +1006,7 @@ if website is private, this will be set to the cod.objPerson.ID of that logged i
 
 <Class name="EF.mvcHandler.securityHandlers.frontendProweb">
 <Super>EF.mvcHandler.securityHandlers.base</Super>
-<TimeChanged>64313,51646.389591</TimeChanged>
+<TimeChanged>64317,41229.856309</TimeChanged>
 <TimeCreated>64302,56720.653792</TimeCreated>
 
 <Method name="createNew">
@@ -939,7 +1047,7 @@ if website is private, this will be set to the cod.objPerson.ID of that logged i
 <Private>1</Private>
 <Implementation><![CDATA[
 	set eventIdFromUrl = ##class(shared.pageMethods).requestGetEventID()
-	set pageIdFromUrl = ..contextData.request.Get("pageID")
+	set pageIdFromUrl = ..contextData.cspRequest.Get("pageID")
 	
 	set eventIdFromPageId = ##class(sc.xModules.objPage).getEventID(pageIdFromUrl)
 	if (eventIdFromUrl) && (eventIdFromUrl '= eventIdFromPageId) {
@@ -991,7 +1099,7 @@ if website is private, this will be set to the cod.objPerson.ID of that logged i
 ;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>EF.pageController.containerElement.CLS/EV.23</td><td>CLS.EF.pageController.containerElement</td><td>LargeDev</td><td style='white-space: nowrap;'>27-Jan-17 09:45</td><td>AdrianM2</td></tr></table>
 ]]></Description>
 <Super>EF.pageController.element</Super>
-<TimeChanged>64310,51913.663283</TimeChanged>
+<TimeChanged>64316,50567.718293</TimeChanged>
 <TimeCreated>63372,47273.826383</TimeCreated>
 
 <Property name="getContentsMethod">
@@ -1385,24 +1493,6 @@ When submitted, the page controller will be validated and updated, but it will n
 ]]></Implementation>
 </Method>
 
-<Method name="addTranslateButton">
-<Description>
-Adds a translation button with warning icon which opens an in-form modal</Description>
-<FormalSpec><![CDATA[identifier:%String,description:%String,baseUrl:%String,contentClass:%String,showWarning:%Boolean,title:%String,&modalRequestData]]></FormalSpec>
-<ReturnType>EF.pageController.buttons.openInFormModal</ReturnType>
-<Implementation><![CDATA[
-	set element=..addOpenInFormModalButton(identifier,description,baseUrl,contentClass,.modalRequestData)
-	set element.uiComponent.title=title
-	do element.uiComponent.addClass("ef-translate-button")
-	set warningIcon=##class(EF.ui.components.backend.warningIcon).%New(identifier_"-warning-icon")
-	do element.uiComponent.addChild(warningIcon)
-	if showWarning {
-		do element.uiComponent.addClass("ef-translate-button-show-warning")
-	}
-	return element
-]]></Implementation>
-</Method>
-
 <Method name="addModalHeader">
 <FormalSpec>identifier:%String,description:%String</FormalSpec>
 <ReturnType>EF.pageController.text</ReturnType>
@@ -1535,37 +1625,6 @@ Adds a translation button with warning icon which opens an in-form modal</Descri
 <Method name="addMultiLingualInput">
 <FormalSpec>identifier:%String,label:%String,translatablePhrase:translations.translatablePhrase,translationTitle:%String</FormalSpec>
 <Implementation><![CDATA[	return ##class(EF.pageController.inputElements.multiLingualInput).addMultiLingualInput($this, identifier, label, translatablePhrase, translationTitle)
-]]></Implementation>
-</Method>
-
-<Method name="addTranslatableTextInput">
-<FormalSpec><![CDATA[identifier:%String,label:%String,translatablePhrase:translations.translatablePhrase,translationPageName,translationPageClass,&translationPageRequestData]]></FormalSpec>
-<Implementation><![CDATA[
-	#dim translation As translations.translation
-	if translatablePhrase.hasTranslation() {
-		set inputGroup=..addInputGroup(identifier_"-group",label)
-		set translations=translatablePhrase.getTranslationsOrderedByLanguageName()
-		set title=""
-		set key=""
-		set hasMissingTranslation=0
-		for {
-			set translation=translations.GetNext(.key)
-			if key="" quit
-			if title'="" {
-				set title=title_$$$CRLF
-			}
-			set title=title_translation.languageName_": "_translation.translation
-			if '$l(translation.translation) set hasMissingTranslation=1
-		}
-		set eventNameButton=inputGroup.addTextInput(identifier,"",translatablePhrase.getPhrase())
-		set span=inputGroup.addSpan(identifier_"-translate-span")
-		do span.uiComponent.addClass("input-group-btn")
-		set translateButton=span.addTranslateButton(identifier_"-translate-button","Translate...",translationPageName,translationPageClass,hasMissingTranslation,title,.translationPageRequestData)	
-		
-	} else {
-		set eventNameButton=..addTextInput(identifier,label,translatablePhrase.getPhrase())
-	}
-	return eventNameButton
 ]]></Implementation>
 </Method>
 
@@ -2037,11 +2096,11 @@ Should be run if any of the sub-classes are deleted</Description>
 ;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>EF.pageController.buttons.button.CLS/EV.1</td><td>CLS.EF.pageController.buttons.button</td><td>LargeDev</td><td style='white-space: nowrap;'>05-Feb-16 15:28</td><td>AdrianM2</td></tr></table>
 ]]></Description>
 <Super>EF.pageController.buttonElement,EF.pageController.proweb.prowebBase</Super>
-<TimeChanged>64232,38855.957185</TimeChanged>
+<TimeChanged>64321,49133.12355</TimeChanged>
 <TimeCreated>63404,34415.706614</TimeCreated>
 
 <Method name="getDefaultUIComponent">
-<ReturnType>EF.ui.components.backend.button</ReturnType>
+<ReturnType>EF.ui.components.frontend.buttonAddGuest</ReturnType>
 <Implementation><![CDATA[	return ##class(EF.ui.components.frontend.buttonAddGuest).%New(..identifier)
 ]]></Implementation>
 </Method>
@@ -2073,11 +2132,11 @@ Should be run if any of the sub-classes are deleted</Description>
 ;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>EF.pageController.buttons.button.CLS/EV.1</td><td>CLS.EF.pageController.buttons.button</td><td>LargeDev</td><td style='white-space: nowrap;'>05-Feb-16 15:28</td><td>AdrianM2</td></tr></table>
 ]]></Description>
 <Super>EF.pageController.buttonElement,EF.pageController.proweb.prowebBase</Super>
-<TimeChanged>64239,63460.568345</TimeChanged>
+<TimeChanged>64321,49133.753584</TimeChanged>
 <TimeCreated>63404,34415.706614</TimeCreated>
 
 <Method name="getDefaultUIComponent">
-<ReturnType>EF.ui.components.backend.button</ReturnType>
+<ReturnType>EF.ui.components.frontend.buttonDeleteGuest</ReturnType>
 <Implementation><![CDATA[	return ##class(EF.ui.components.frontend.buttonDeleteGuest).%New(..identifier)
 ]]></Implementation>
 </Method>
@@ -2086,7 +2145,6 @@ Should be run if any of the sub-classes are deleted</Description>
 <Type>%Library.CacheStorage</Type>
 <DefaultData>buttonDeleteGuestDefaultData</DefaultData>
 <Data name="buttonDeleteGuestDefaultData">
-<Structure>listnode</Structure>
 <Subscript>"buttonDeleteGuest"</Subscript>
 <Value name="1">
 <Value>prowebItem</Value>
@@ -2173,11 +2231,11 @@ Should be run if any of the sub-classes are deleted</Description>
 
 <Class name="EF.pageController.proweb.checkboxGroup">
 <Super>EF.pageController.proweb.inputElement</Super>
-<TimeChanged>64247,25070.066295</TimeChanged>
+<TimeChanged>64317,42062.652959</TimeChanged>
 <TimeCreated>64189,53206.554402</TimeCreated>
 
 <Method name="getDefaultUIComponent">
-<ReturnType>EF.ui.components.backend.checkbox</ReturnType>
+<ReturnType>EF.ui.components.frontend.checkboxGroup</ReturnType>
 <Implementation><![CDATA[	quit ##class(EF.ui.components.frontend.checkboxGroup).%New(..identifier)
 ]]></Implementation>
 </Method>
@@ -2187,8 +2245,8 @@ Should be run if any of the sub-classes are deleted</Description>
 <FormalSpec>alternative:%String,valueString:%String</FormalSpec>
 <ReturnType>%Boolean</ReturnType>
 <Implementation><![CDATA[
-	for i = 1:1:$Length(valueString,"|") {
-		if $ZCVT($ZSTRIP($Piece(valueString,"|",i),"<>W"),"U") = $ZCVT($ZSTRIP(alternative,"<>W"),"U") {
+	for i = 1:1:$Length(valueString, "|") {
+		if $ZCVT($ZSTRIP($Piece(valueString, "|" ,i), "<>W"), "U") = $ZCVT($ZSTRIP(alternative, "<>W"), "U") {
 			return 1	
 		}	
 	}
@@ -2200,7 +2258,7 @@ Should be run if any of the sub-classes are deleted</Description>
 <FormalSpec>parent:EF.pageController.proweb.checkboxGroup,identifier:%String,description:%String,value:%String,isReadOnly=0</FormalSpec>
 <ReturnType>EF.pageController.inputElements.checkbox</ReturnType>
 <Implementation><![CDATA[
-	set element = ##class(EF.pageController.proweb.checkbox).addElementToParent(parent, identifier,description,value,isReadOnly)
+	set element = ##class(EF.pageController.proweb.checkbox).addElementToParent(parent, identifier, description, value, isReadOnly)
 	quit element
 ]]></Implementation>
 </Method>
@@ -2252,11 +2310,11 @@ Should be run if any of the sub-classes are deleted</Description>
 
 <Class name="EF.pageController.proweb.datePicker">
 <Super>EF.pageController.proweb.inputElement</Super>
-<TimeChanged>64202,34967.838153</TimeChanged>
+<TimeChanged>64321,49134.271467</TimeChanged>
 <TimeCreated>63384,38321.657735</TimeCreated>
 
 <Method name="getDefaultUIComponent">
-<ReturnType>EF.ui.components.inputBase</ReturnType>
+<ReturnType>EF.ui.components.frontend.datePicker</ReturnType>
 <Implementation><![CDATA[
 	set uiElement=##class(EF.ui.components.frontend.datePicker).%New(..identifier)
 	quit uiElement
@@ -2271,11 +2329,11 @@ Should be run if any of the sub-classes are deleted</Description>
 
 <Class name="EF.pageController.proweb.dateRange">
 <Super>EF.pageController.proweb.inputElement</Super>
-<TimeChanged>64202,41832.54542</TimeChanged>
+<TimeChanged>64321,49135.090529</TimeChanged>
 <TimeCreated>63384,38321.657735</TimeCreated>
 
 <Method name="getDefaultUIComponent">
-<ReturnType>EF.ui.components.inputBase</ReturnType>
+<ReturnType>EF.ui.components.frontend.dateRange</ReturnType>
 <Implementation><![CDATA[
 	set uiElement=##class(EF.ui.components.frontend.dateRange).%New(..identifier)
 	quit uiElement
@@ -2290,7 +2348,7 @@ Should be run if any of the sub-classes are deleted</Description>
 
 <Class name="EF.pageController.proweb.divider">
 <Super>EF.pageController.proweb.prowebBase</Super>
-<TimeChanged>64203,63320.354946</TimeChanged>
+<TimeChanged>64321,49135.593296</TimeChanged>
 <TimeCreated>64183,49747.663252</TimeCreated>
 
 <Parameter name="canBeDependent">
@@ -2299,7 +2357,7 @@ Should be run if any of the sub-classes are deleted</Description>
 </Parameter>
 
 <Method name="getDefaultUIComponent">
-<ReturnType>EF.ui.components.base</ReturnType>
+<ReturnType>EF.ui.components.frontend.divider</ReturnType>
 <Implementation><![CDATA[	quit ##class(EF.ui.components.frontend.divider).%New(..identifier)
 ]]></Implementation>
 </Method>
@@ -2318,11 +2376,11 @@ Should be run if any of the sub-classes are deleted</Description>
 
 <Class name="EF.pageController.proweb.dropdown">
 <Super>EF.pageController.proweb.inputElement</Super>
-<TimeChanged>64237,58616.153112</TimeChanged>
+<TimeChanged>64317,57702.657326</TimeChanged>
 <TimeCreated>64189,53206.554402</TimeCreated>
 
 <Method name="getDefaultUIComponent">
-<ReturnType>EF.ui.components.backend.checkbox</ReturnType>
+<ReturnType>EF.ui.components.frontend.dropdown</ReturnType>
 <Implementation><![CDATA[	quit ##class(EF.ui.components.frontend.dropdown).%New(..identifier)
 ]]></Implementation>
 </Method>
@@ -2342,11 +2400,11 @@ Should be run if any of the sub-classes are deleted</Description>
 
 <Class name="EF.pageController.proweb.emailInput">
 <Super>EF.pageController.proweb.textInput</Super>
-<TimeChanged>64198,32956.969715</TimeChanged>
+<TimeChanged>64321,49136.008922</TimeChanged>
 <TimeCreated>64189,53629.035726</TimeCreated>
 
 <Method name="getDefaultUIComponent">
-<ReturnType>EF.ui.components.inputBase</ReturnType>
+<ReturnType>EF.ui.components.frontend.emailInput</ReturnType>
 <Implementation><![CDATA[	quit ##class(EF.ui.components.frontend.emailInput).%New(..identifier)
 ]]></Implementation>
 </Method>
@@ -2359,11 +2417,11 @@ Should be run if any of the sub-classes are deleted</Description>
 
 <Class name="EF.pageController.proweb.emailInputMulti">
 <Super>EF.pageController.proweb.textInput</Super>
-<TimeChanged>64201,44206.111927</TimeChanged>
+<TimeChanged>64321,49136.491844</TimeChanged>
 <TimeCreated>64189,53629.035726</TimeCreated>
 
 <Method name="getDefaultUIComponent">
-<ReturnType>EF.ui.components.inputBase</ReturnType>
+<ReturnType>EF.ui.components.frontend.emailInputMulti</ReturnType>
 <Implementation><![CDATA[	quit ##class(EF.ui.components.frontend.emailInputMulti).%New(..identifier)
 ]]></Implementation>
 </Method>
@@ -2376,7 +2434,7 @@ Should be run if any of the sub-classes are deleted</Description>
 
 <Class name="EF.pageController.proweb.fileUpload">
 <Super>EF.pageController.proweb.inputElement</Super>
-<TimeChanged>64209,44648.61035</TimeChanged>
+<TimeChanged>64321,49137.124564</TimeChanged>
 <TimeCreated>64183,49747.663252</TimeCreated>
 
 <Parameter name="canBeDependent">
@@ -2385,7 +2443,7 @@ Should be run if any of the sub-classes are deleted</Description>
 </Parameter>
 
 <Method name="getDefaultUIComponent">
-<ReturnType>EF.ui.components.inputBase</ReturnType>
+<ReturnType>EF.ui.components.frontend.fileUpload</ReturnType>
 <Implementation><![CDATA[	quit ##class(EF.ui.components.frontend.fileUpload).%New(..identifier)
 ]]></Implementation>
 </Method>
@@ -2407,7 +2465,7 @@ Should be run if any of the sub-classes are deleted</Description>
 
 <Class name="EF.pageController.proweb.guestPanel">
 <Super>EF.pageController.proweb.panel</Super>
-<TimeChanged>64310,33647.733122</TimeChanged>
+<TimeChanged>64321,49137.657077</TimeChanged>
 <TimeCreated>63372,47064.603748</TimeCreated>
 
 <Property name="guestNumber">
@@ -2419,7 +2477,7 @@ Should be run if any of the sub-classes are deleted</Description>
 </Property>
 
 <Method name="getDefaultUIComponent">
-<ReturnType>EF.ui.components.container</ReturnType>
+<ReturnType>EF.ui.components.frontend.panel</ReturnType>
 <Implementation><![CDATA[
 	set panel = ##class(EF.ui.components.frontend.panel).%New(..identifier)
 	return panel
@@ -2659,11 +2717,11 @@ Should be run if any of the sub-classes are deleted</Description>
 
 <Class name="EF.pageController.proweb.integerInput">
 <Super>EF.pageController.proweb.textInput</Super>
-<TimeChanged>64201,43333.133276</TimeChanged>
+<TimeChanged>64321,49138.237115</TimeChanged>
 <TimeCreated>64189,53629.035726</TimeCreated>
 
 <Method name="getDefaultUIComponent">
-<ReturnType>EF.ui.components.inputBase</ReturnType>
+<ReturnType>EF.ui.components.frontend.integerInput</ReturnType>
 <Implementation><![CDATA[	quit ##class(EF.ui.components.frontend.integerInput).%New(..identifier)
 ]]></Implementation>
 </Method>
@@ -2678,18 +2736,13 @@ Should be run if any of the sub-classes are deleted</Description>
 <Description>
 Should have a one-to-one relationship with sc.objList</Description>
 <Super>EF.pageController.containerElement</Super>
-<TimeChanged>64314,42109.979171</TimeChanged>
+<TimeChanged>64321,40914.328813</TimeChanged>
 <TimeCreated>64231,55587.036042</TimeCreated>
 
 <Property name="prowebListID">
 <Description>
 refers to sc.xModules.objList</Description>
 <Type>%Integer</Type>
-</Property>
-
-<Property name="listOfGuestControllerIDs">
-<Type>%ListOfDataTypes</Type>
-<Transient>1</Transient>
 </Property>
 
 <Property name="listOfControllerIDsSorted">
@@ -2759,32 +2812,6 @@ refers to sc.xModules.objList</Description>
 ]]></Implementation>
 </Method>
 
-<UDLText name="T">
-<Content><![CDATA[
-/*
-/// This method overrides the one in element because the parent of a list, which is a page, cannot have the 'page' property set. It would be cyclical.
-ClassMethod xxxaddElementToParent(page As EF.pageController.proweb.page, identifier As %String, description As %String) As EF.pageController.element
-{
-	set element = ..%New(identifier,description)
-	set element.elementParent = page
-	if page.getElementByIdentifier(element.identifier) {
- 		throw ##class(shared.exceptions.generalException).%New("Element identifier must be unique for page, identifier="_element.identifier)
-	}
-	set element.page = page
-	if page.isPageReadOnly {
-		set element.isReadOnly=1	
-	}
-	
-	do page.elementChildren.Insert(element)
-	
-	do page.allPageElements.SetAt(element,element.identifier)
-	
-	return element
-}
-*/
-]]></Content>
-</UDLText>
-
 <Method name="addElementForProwebItem">
 <FormalSpec>prowebItem:sc.facade.prowebItem,optionalGuestNumber:%Integer=""</FormalSpec>
 <ReturnType>EF.pageController.element</ReturnType>
@@ -2850,7 +2877,7 @@ ClassMethod xxxaddElementToParent(page As EF.pageController.proweb.page, identif
 		if element.%Extends("EF.pageController.proweb.list") {
 			do element.renderElements()	
 		} elseif element.isOkToRender() {
-			if (hasRenderedAtLeastOne = 0) && (element.uiComponent.%Extends("EF.ui.components.frontend.textInput")) && ('..page.mvcPage.isEditMode){
+			if (hasRenderedAtLeastOne = 0) && (element.uiComponent.%Extends("EF.ui.components.frontend.textInput")) && ('..page.mvcPageHandler.isEditMode){
 				set element.uiComponent.hasAutoFocus = 1 	
 			}
 			set element.uiComponent.nameOfControllerListClass = $ClassName($this)
@@ -2940,7 +2967,7 @@ ClassMethod xxxaddElementToParent(page As EF.pageController.proweb.page, identif
 	}
 	
 	if optionalGuestNumber  {
-		if ..page.mvcPage.isEditMode {
+		if ..page.mvcPageHandler.isEditMode {
 			set tempPersonID = "n/a"
 		} else {
 			set tempPersonID = ..page.getTempPersonIdForGuestNumber(optionalGuestNumber)	
@@ -3029,7 +3056,7 @@ ClassMethod xxxaddElementToParent(page As EF.pageController.proweb.page, identif
 	#dim currencyID as %Integer = ..page.contextData.currencyID
 	#dim eventID as %Integer = ..page.contextData.eventID
 	
-	if ..page.mvcPage.isEditMode {
+	if ..page.mvcPageHandler.isEditMode {
 		set currencyID = ##class(setup.objEvent).getBaseCurrency(eventID)
 	}
 	if ..page.isTestMode {
@@ -3067,7 +3094,7 @@ ClassMethod xxxaddElementToParent(page As EF.pageController.proweb.page, identif
 
 <Method name="renderEmptyListHTML">
 <Implementation><![CDATA[
-	if ..page.mvcPage.isEditMode {
+	if ..page.mvcPageHandler.isEditMode {
 		set allowedElementTypes = ..getAllowedElementTypesForThisListType( $CLASSNAME($this) )
 		&HTML<
 			<div class="row ef-draggable-div ef-form-row ef-form-row-editable ef-empty-list" 
@@ -3156,7 +3183,7 @@ Should have a one-to-one relationship with sc.objList</Description>
 
 <Class name="EF.pageController.proweb.listWithQuestionsRegistration">
 <Super>EF.pageController.proweb.listWithQuestions</Super>
-<TimeChanged>64310,37796.916971</TimeChanged>
+<TimeChanged>64321,41033.79931</TimeChanged>
 <TimeCreated>64233,52209.241492</TimeCreated>
 
 <Method name="loadProwebListElementsFromDatabase">
@@ -3165,7 +3192,7 @@ Should have a one-to-one relationship with sc.objList</Description>
 		throw ##class(shared.exceptions.generalException).%New("The 'page' property is missing from the listWithQuestions object")	
 	}
 	for guestNumber = 1:1:..page.getEventConfiguration().getMaxGuestsPerAttendee() {
-		if (..page.mvcPage.isEditMode) {
+		if (..page.mvcPageHandler.isEditMode) {
 			if guestNumber = 1 {
 				set isActive = 1
 			} else {
@@ -3194,7 +3221,7 @@ Should have a one-to-one relationship with sc.objList</Description>
 
 <Class name="EF.pageController.proweb.menuBlock">
 <Super>EF.pageController.proweb.prowebBase</Super>
-<TimeChanged>64223,57337.284006</TimeChanged>
+<TimeChanged>64321,40698.079407</TimeChanged>
 <TimeCreated>64183,49747.663252</TimeCreated>
 
 <Parameter name="canBeDependent">
@@ -3202,7 +3229,7 @@ Should have a one-to-one relationship with sc.objList</Description>
 </Parameter>
 
 <Method name="getDefaultUIComponent">
-<ReturnType>EF.ui.components.base</ReturnType>
+<ReturnType>EF.ui.components.frontend.menuBlock</ReturnType>
 <Implementation><![CDATA[	quit ##class(EF.ui.components.frontend.menuBlock).%New(..identifier)
 ]]></Implementation>
 </Method>
@@ -3215,11 +3242,11 @@ Should have a one-to-one relationship with sc.objList</Description>
 
 <Class name="EF.pageController.proweb.numericInput">
 <Super>EF.pageController.proweb.textInput</Super>
-<TimeChanged>64201,43313.656158</TimeChanged>
+<TimeChanged>64321,40651.900586</TimeChanged>
 <TimeCreated>63939,36505.690987</TimeCreated>
 
 <Method name="getDefaultUIComponent">
-<ReturnType>EF.ui.components.inputBase</ReturnType>
+<ReturnType>EF.ui.components.frontend.numericInput</ReturnType>
 <Implementation><![CDATA[	quit ##class(EF.ui.components.frontend.numericInput).%New(..identifier)
 ]]></Implementation>
 </Method>
@@ -3232,10 +3259,10 @@ Should have a one-to-one relationship with sc.objList</Description>
 
 <Class name="EF.pageController.proweb.page">
 <Super>EF.pageController.page</Super>
-<TimeChanged>64310,52773.386154</TimeChanged>
+<TimeChanged>64321,41777.091612</TimeChanged>
 <TimeCreated>64189,51696.559047</TimeCreated>
 
-<Property name="mvcPage">
+<Property name="mvcPageHandler">
 <Type>EF.mvcHandler.frontendProweb</Type>
 </Property>
 
@@ -3275,7 +3302,7 @@ Should have a one-to-one relationship with sc.objList</Description>
 </Method>
 
 <Method name="load">
-<FormalSpec>mvcPage:EF.mvcHandler.frontendProweb=""</FormalSpec>
+<FormalSpec>mvcPageHandler:EF.mvcHandler.frontendProweb=""</FormalSpec>
 <Implementation><![CDATA[
 	if '$IsObject(..contextData) {
 		throw ##class(shared.exceptions.generalException).%New("context data missing")	
@@ -3284,7 +3311,7 @@ Should have a one-to-one relationship with sc.objList</Description>
 		throw ##class(shared.exceptions.generalException).%New("..contextData.eventWebsiteLanguage missing")	
 	}
 
-	set ..mvcPage = mvcPage
+	set ..mvcPageHandler = mvcPageHandler
 	
 	if ..isTestMode {
 		do ..insertMockProwebItems()	
@@ -3450,13 +3477,9 @@ opens the pageController without reloading the elements.</Description>
 </Method>
 
 <Method name="validate">
-<Implementation><![CDATA[	// ###### do we need to do anything here? #########
-]]></Implementation>
 </Method>
 
 <Method name="saveData">
-<Implementation><![CDATA[	// ###### do we need to do anything here? #########
-]]></Implementation>
 </Method>
 
 <Method name="getTempPersonIdForGuestNumber">
@@ -3671,7 +3694,7 @@ also an entry point from unit tests</Description>
 ]]></Implementation>
 </Method>
 
-<Method name="copyAllDataToEComTemp">
+<Method name="copyAllDataToEcomTempCodData">
 <Implementation><![CDATA[
 	#dim key as %Integer = ""
 	#dim element as EF.pageController.proweb.inputElement
@@ -3770,6 +3793,9 @@ also an entry point from unit tests</Description>
 <Value name="8">
 <Value>securityHandler</Value>
 </Value>
+<Value name="9">
+<Value>mvcPageHandler</Value>
+</Value>
 </Data>
 </Storage>
 </Class>
@@ -3777,11 +3803,11 @@ also an entry point from unit tests</Description>
 
 <Class name="EF.pageController.proweb.pageHeader">
 <Super>EF.pageController.proweb.textBlock</Super>
-<TimeChanged>64264,58769.911576</TimeChanged>
+<TimeChanged>64321,41867.812614</TimeChanged>
 <TimeCreated>64264,58677.694749</TimeCreated>
 
 <Method name="getDefaultUIComponent">
-<ReturnType>EF.ui.components.base</ReturnType>
+<ReturnType>EF.ui.components.frontend.pageHeader</ReturnType>
 <Implementation><![CDATA[	quit ##class(EF.ui.components.frontend.pageHeader).%New(..identifier)
 ]]></Implementation>
 </Method>
@@ -3794,7 +3820,7 @@ also an entry point from unit tests</Description>
 
 <Class name="EF.pageController.proweb.panel">
 <Super>EF.pageController.proweb.list</Super>
-<TimeChanged>64233,57523.763651</TimeChanged>
+<TimeChanged>64321,41887.325336</TimeChanged>
 <TimeCreated>63372,47064.603748</TimeCreated>
 
 <Property name="isOpeningOrClosing">
@@ -3802,7 +3828,7 @@ also an entry point from unit tests</Description>
 </Property>
 
 <Method name="getDefaultUIComponent">
-<ReturnType>EF.ui.components.container</ReturnType>
+<ReturnType>EF.ui.components.frontend.panel</ReturnType>
 <Implementation><![CDATA[	quit ##class(EF.ui.components.frontend.panel).%New(..identifier)
 ]]></Implementation>
 </Method>
@@ -3831,11 +3857,11 @@ also an entry point from unit tests</Description>
 
 <Class name="EF.pageController.proweb.passwordInput">
 <Super>EF.pageController.proweb.textInput</Super>
-<TimeChanged>64217,39528.320164</TimeChanged>
+<TimeChanged>64321,49139.127638</TimeChanged>
 <TimeCreated>64189,53629.035726</TimeCreated>
 
 <Method name="getDefaultUIComponent">
-<ReturnType>EF.ui.components.inputBase</ReturnType>
+<ReturnType>EF.ui.components.frontend.passwordInput</ReturnType>
 <Implementation><![CDATA[	quit ##class(EF.ui.components.frontend.passwordInput).%New(..identifier)
 ]]></Implementation>
 </Method>
@@ -3857,11 +3883,11 @@ also an entry point from unit tests</Description>
 
 <Class name="EF.pageController.proweb.phoneNumber">
 <Super>EF.pageController.proweb.inputElement</Super>
-<TimeChanged>64232,41994.153962</TimeChanged>
+<TimeChanged>64321,49139.647937</TimeChanged>
 <TimeCreated>64189,53629.035726</TimeCreated>
 
 <Method name="getDefaultUIComponent">
-<ReturnType>EF.ui.components.inputBase</ReturnType>
+<ReturnType>EF.ui.components.frontend.phoneNumber</ReturnType>
 <Implementation><![CDATA[	quit ##class(EF.ui.components.frontend.phoneNumber).%New(..identifier)
 ]]></Implementation>
 </Method>
@@ -3874,11 +3900,11 @@ also an entry point from unit tests</Description>
 
 <Class name="EF.pageController.proweb.privateData">
 <Super>EF.pageController.proweb.textInput</Super>
-<TimeChanged>64217,38879.722364</TimeChanged>
+<TimeChanged>64321,49140.037883</TimeChanged>
 <TimeCreated>64189,53629.035726</TimeCreated>
 
 <Method name="getDefaultUIComponent">
-<ReturnType>EF.ui.components.inputBase</ReturnType>
+<ReturnType>EF.ui.components.frontend.privateData</ReturnType>
 <Implementation><![CDATA[	quit ##class(EF.ui.components.frontend.privateData).%New(..identifier)
 ]]></Implementation>
 </Method>
@@ -3931,11 +3957,11 @@ also an entry point from unit tests</Description>
 
 <Class name="EF.pageController.proweb.radioGroup">
 <Super>EF.pageController.proweb.inputElement</Super>
-<TimeChanged>64237,58441.085418</TimeChanged>
+<TimeChanged>64321,49140.824364</TimeChanged>
 <TimeCreated>64189,53206.554402</TimeCreated>
 
 <Method name="getDefaultUIComponent">
-<ReturnType>EF.ui.components.backend.checkbox</ReturnType>
+<ReturnType>EF.ui.components.frontend.radioGroup</ReturnType>
 <Implementation><![CDATA[	quit ##class(EF.ui.components.frontend.radioGroup).%New(..identifier)
 ]]></Implementation>
 </Method>
@@ -4906,11 +4932,11 @@ also an entry point from unit tests</Description>
 
 <Class name="EF.pageController.proweb.textArea">
 <Super>EF.pageController.proweb.inputElement</Super>
-<TimeChanged>64232,42435.73754</TimeChanged>
+<TimeChanged>64321,49141.516837</TimeChanged>
 <TimeCreated>63403,57168.063256</TimeCreated>
 
 <Method name="getDefaultUIComponent">
-<ReturnType>EF.ui.components.inputBase</ReturnType>
+<ReturnType>EF.ui.components.frontend.textArea</ReturnType>
 <Implementation><![CDATA[	quit ##class(EF.ui.components.frontend.textArea).%New(..identifier)
 ]]></Implementation>
 </Method>
@@ -4946,11 +4972,11 @@ also an entry point from unit tests</Description>
 
 <Class name="EF.pageController.proweb.textBlock">
 <Super>EF.pageController.proweb.prowebBase</Super>
-<TimeChanged>64264,58744.678496</TimeChanged>
+<TimeChanged>64321,49141.98836</TimeChanged>
 <TimeCreated>64183,49747.663252</TimeCreated>
 
 <Method name="getDefaultUIComponent">
-<ReturnType>EF.ui.components.base</ReturnType>
+<ReturnType>EF.ui.components.frontend.textBlock</ReturnType>
 <Implementation><![CDATA[	quit ##class(EF.ui.components.frontend.textBlock).%New(..identifier)
 ]]></Implementation>
 </Method>
@@ -4971,11 +4997,11 @@ also an entry point from unit tests</Description>
 
 <Class name="EF.pageController.proweb.textInput">
 <Super>EF.pageController.proweb.inputElement</Super>
-<TimeChanged>64232,42377.018545</TimeChanged>
+<TimeChanged>64321,49142.397047</TimeChanged>
 <TimeCreated>64189,53629.035726</TimeCreated>
 
 <Method name="getDefaultUIComponent">
-<ReturnType>EF.ui.components.inputBase</ReturnType>
+<ReturnType>EF.ui.components.frontend.textInput</ReturnType>
 <Implementation><![CDATA[	quit ##class(EF.ui.components.frontend.textInput).%New(..identifier)
 ]]></Implementation>
 </Method>
@@ -5011,11 +5037,11 @@ also an entry point from unit tests</Description>
 
 <Class name="EF.pageController.proweb.timeInput">
 <Super>EF.pageController.proweb.textInput</Super>
-<TimeChanged>64198,33582.083553</TimeChanged>
+<TimeChanged>64321,49143.210471</TimeChanged>
 <TimeCreated>64189,53629.035726</TimeCreated>
 
 <Method name="getDefaultUIComponent">
-<ReturnType>EF.ui.components.inputBase</ReturnType>
+<ReturnType>EF.ui.components.frontend.timeInput</ReturnType>
 <Implementation><![CDATA[	quit ##class(EF.ui.components.frontend.timeInput).%New(..identifier)
 ]]></Implementation>
 </Method>
@@ -5028,11 +5054,11 @@ also an entry point from unit tests</Description>
 
 <Class name="EF.pageController.proweb.webAddress">
 <Super>EF.pageController.proweb.textInput</Super>
-<TimeChanged>64198,62804.621561</TimeChanged>
+<TimeChanged>64321,49143.632303</TimeChanged>
 <TimeCreated>64189,53629.035726</TimeCreated>
 
 <Method name="getDefaultUIComponent">
-<ReturnType>EF.ui.components.inputBase</ReturnType>
+<ReturnType>EF.ui.components.frontend.webAddress</ReturnType>
 <Implementation><![CDATA[	quit ##class(EF.ui.components.frontend.webAddress).%New(..identifier)
 ]]></Implementation>
 </Method>
@@ -5045,7 +5071,7 @@ also an entry point from unit tests</Description>
 
 <Class name="EF.pageController.proweb.youTubeVideo">
 <Super>EF.pageController.proweb.prowebBase</Super>
-<TimeChanged>64208,58565.902899</TimeChanged>
+<TimeChanged>64321,49144.071139</TimeChanged>
 <TimeCreated>64183,49747.663252</TimeCreated>
 
 <Parameter name="canBeDependent">
@@ -5054,7 +5080,7 @@ also an entry point from unit tests</Description>
 </Parameter>
 
 <Method name="getDefaultUIComponent">
-<ReturnType>EF.ui.components.base</ReturnType>
+<ReturnType>EF.ui.components.frontend.youTubeVideo</ReturnType>
 <Implementation><![CDATA[	quit ##class(EF.ui.components.frontend.youTubeVideo).%New(..identifier)
 ]]></Implementation>
 </Method>
@@ -5089,7 +5115,7 @@ also an entry point from unit tests</Description>
 
 <Class name="EF.pages.base">
 <Super>%CSP.Page,EF.htmlGenerator</Super>
-<TimeChanged>64310,57964.851482</TimeChanged>
+<TimeChanged>64317,40718.483242</TimeChanged>
 <TimeCreated>64292,52804.615476</TimeCreated>
 
 <Parameter name="contextDataClass">
@@ -5129,7 +5155,7 @@ also an entry point from unit tests</Description>
 			throw ##class(shared.exceptions.generalException).%New("Failed to create contextData in page")
 	}
 
-	set %zMvcHandler.contextData.request = %request
+	set %zMvcHandler.contextData.cspRequest = %request
 	set %zMvcHandler.pageNavProceedKey = ..#pageNavProceedKey
 	
 	// load all the data and populate the security handler
@@ -5173,9 +5199,9 @@ Common page that all frontend pages could/should inherit from.
 ;vc;    Object: EF.pages.frontend.base.CLS/EV.13
 ;vc; Component: CLS.EF.pages.frontend.base
 ;vc;  Location: LargeDev
-;vc; Date/Time: 10-Jan-17 12:23
-;vc;      User: AdrianM2
-;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>EF.pages.frontend.base.CLS/EV.13</td><td>CLS.EF.pages.frontend.base</td><td>LargeDev</td><td style='white-space: nowrap;'>10-Jan-17 12:23</td><td>AdrianM2</td></tr></table>
+;vc; Date/Time: 03-Feb-17 14:38
+;vc;      User: MindaugasL
+;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>EF.pages.frontend.base.CLS/EV.13</td><td>CLS.EF.pages.frontend.base</td><td>LargeDev</td><td style='white-space: nowrap;'>03-Feb-17 14:38</td><td>MindaugasL</td></tr></table>
 ]]></Description>
 <Language>cache</Language>
 <ProcedureBlock>0</ProcedureBlock>
@@ -5640,7 +5666,7 @@ this is for version 1 of proweb</Description>
 
 <Class name="EF.ui.components.frontend.buttonAddGuest">
 <Super>EF.ui.components.buttonBase,EF.ui.components.frontend.prowebBase</Super>
-<TimeChanged>64299,53548.739003</TimeChanged>
+<TimeChanged>64321,41124.521422</TimeChanged>
 <TimeCreated>64183,40678.260093</TimeCreated>
 
 <Property name="maximumNumberOfGuests">
@@ -5704,6 +5730,9 @@ this is for version 1 of proweb</Description>
 <Value name="9">
 <Value>mvcPage</Value>
 </Value>
+<Value name="10">
+<Value>mvcPageHandler</Value>
+</Value>
 </Data>
 </Storage>
 </Class>
@@ -5711,7 +5740,7 @@ this is for version 1 of proweb</Description>
 
 <Class name="EF.ui.components.frontend.buttonDeleteGuest">
 <Super>EF.ui.components.buttonBase,EF.ui.components.frontend.prowebBase</Super>
-<TimeChanged>64299,53548.808332</TimeChanged>
+<TimeChanged>64321,41124.554253</TimeChanged>
 <TimeCreated>64183,40678.260093</TimeCreated>
 
 <Property name="guestNumber">
@@ -5772,6 +5801,9 @@ this is for version 1 of proweb</Description>
 </Value>
 <Value name="8">
 <Value>mvcPage</Value>
+</Value>
+<Value name="9">
+<Value>mvcPageHandler</Value>
 </Value>
 </Data>
 </Storage>
@@ -5868,7 +5900,7 @@ this is for version 1 of proweb</Description>
 
 <Class name="EF.ui.components.frontend.checkbox">
 <Super>EF.ui.components.checkbox,EF.ui.components.frontend.inputElement,EF.ui.components.frontend.alternativeABI</Super>
-<TimeChanged>64299,53548.912575</TimeChanged>
+<TimeChanged>64321,41124.69976</TimeChanged>
 <TimeCreated>63355,62572.097775</TimeCreated>
 
 <Property name="price">
@@ -5991,6 +6023,9 @@ this is for version 1 of proweb</Description>
 <Value name="20">
 <Value>mvcPage</Value>
 </Value>
+<Value name="21">
+<Value>mvcPageHandler</Value>
+</Value>
 </Data>
 </Storage>
 </Class>
@@ -6107,7 +6142,7 @@ this is for version 1 of proweb</Description>
 ;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>EF.ui.components.backend.datePicker.CLS/EV.3</td><td>CLS.EF.ui.components.backend.datePicker</td><td>LargeDev</td><td style='white-space: nowrap;'>02-Feb-16 12:32</td><td>AdrianM2</td></tr></table>
 ]]></Description>
 <Super>EF.ui.components.textInput,EF.ui.components.frontend.inputElement</Super>
-<TimeChanged>64299,53548.977148</TimeChanged>
+<TimeChanged>64321,41124.764953</TimeChanged>
 <TimeCreated>63384,38215.518113</TimeCreated>
 
 <Parameter name="typeAttribute">
@@ -6218,6 +6253,9 @@ this is for version 1 of proweb</Description>
 <Value name="14">
 <Value>mvcPage</Value>
 </Value>
+<Value name="15">
+<Value>mvcPageHandler</Value>
+</Value>
 </Data>
 </Storage>
 </Class>
@@ -6234,7 +6272,7 @@ this is for version 1 of proweb</Description>
 ;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>EF.ui.components.backend.datePicker.CLS/EV.3</td><td>CLS.EF.ui.components.backend.datePicker</td><td>LargeDev</td><td style='white-space: nowrap;'>02-Feb-16 12:32</td><td>AdrianM2</td></tr></table>
 ]]></Description>
 <Super>EF.ui.components.textInput,EF.ui.components.frontend.inputElement</Super>
-<TimeChanged>64299,53548.976689</TimeChanged>
+<TimeChanged>64321,41124.777185</TimeChanged>
 <TimeCreated>63384,38215.518113</TimeCreated>
 
 <Parameter name="typeAttribute">
@@ -6348,6 +6386,9 @@ this is for version 1 of proweb</Description>
 <Value name="14">
 <Value>mvcPage</Value>
 </Value>
+<Value name="15">
+<Value>mvcPageHandler</Value>
+</Value>
 </Data>
 </Storage>
 </Class>
@@ -6376,7 +6417,7 @@ this is for version 1 of proweb</Description>
 
 <Class name="EF.ui.components.frontend.dropdown">
 <Super>EF.ui.components.listInput,EF.ui.components.frontend.inputElement</Super>
-<TimeChanged>64299,53549.102659</TimeChanged>
+<TimeChanged>64321,41124.898711</TimeChanged>
 <TimeCreated>63355,56609.363142</TimeCreated>
 
 <Property name="isPersistent">
@@ -6580,6 +6621,9 @@ this is for version 1 of proweb</Description>
 <Value name="15">
 <Value>mvcPage</Value>
 </Value>
+<Value name="16">
+<Value>mvcPageHandler</Value>
+</Value>
 </Data>
 </Storage>
 </Class>
@@ -6587,19 +6631,19 @@ this is for version 1 of proweb</Description>
 
 <Class name="EF.ui.components.frontend.editorControlPanel">
 <Super>shared.pCSPmanage</Super>
-<TimeChanged>64307,36915.211928</TimeChanged>
+<TimeChanged>64321,40983.605091</TimeChanged>
 <TimeCreated>64203,40625.329831</TimeCreated>
 
 <Method name="outputEditorControlPanel">
 <ClassMethod>1</ClassMethod>
-<FormalSpec>mvcPage:EF.mvcHandler.frontendProweb</FormalSpec>
+<FormalSpec>mvcPageHandler:EF.mvcHandler.frontendProweb</FormalSpec>
 <Implementation><![CDATA[
 	#dim contextData as EF.contextDataFrontend = ##class(EF.contextDataFrontend).createFromFrontendCSPSession()
 	
 	set newPageURL = ..Link("../../system/proweb/start.csp?z=1")
 	set attendeeCategoryID = contextData.attendeeCategoryID
 	if attendeeCategoryID = "" {
-		set attendeeCategoryID = ##class(setup.lnkCategoryEvent).getAttendeeCategoryIDFromRegistrationPageID(mvcPage.pageID)	
+		set attendeeCategoryID = ##class(setup.lnkCategoryEvent).getAttendeeCategoryIDFromRegistrationPageID(mvcPageHandler.pageID)	
 	}	
 
 	&html<
@@ -6634,7 +6678,7 @@ this is for version 1 of proweb</Description>
 									
 									if pageID {
 										&html<
-											<option value=#(..encodeForHTMLAttribute(pageID))# #( $Select(pageID = mvcPage.pageID:"SELECTED",1:"") )#>
+											<option value=#(..encodeForHTMLAttribute(pageID))# #( $Select(pageID = mvcPageHandler.pageID:"SELECTED",1:"") )#>
 												#(..encodeForHTML(pageName) )#
 											</option>
 										>
@@ -6664,7 +6708,7 @@ this is for version 1 of proweb</Description>
 									set languageID = $Order(languageArray(languageID))
 									if languageID = "" quit
 									
-									set targetPageID = ..getEquivalentPageIDForLanguageID(mvcPage.pageID, languageID)
+									set targetPageID = ..getEquivalentPageIDForLanguageID(mvcPageHandler.pageID, languageID)
 									&html<
 										<option value="#(..encodeForHTMLAttribute(targetPageID))#" #( $Select(languageID = contextData.languageID:"SELECTED",1:"") )#>
 											#(..encodeForHTML(languageArray(languageID)))#
@@ -6697,7 +6741,7 @@ this is for version 1 of proweb</Description>
 								for  {
 									set attendeeCategory = listOfCategoryObjects.GetNext(.key)
 									if key = "" quit	
-									set targetPageID = ..getEquivalentPageIDForAttendeeCategoryID(mvcPage.pageID, attendeeCategory.eventCategoryID)
+									set targetPageID = ..getEquivalentPageIDForAttendeeCategoryID(mvcPageHandler.pageID, attendeeCategory.eventCategoryID)
 									if targetPageID > 0 {
 										&html<
 											<option value="#(..encodeForHTMLAttribute(targetPageID))#" #( $Select(attendeeCategory.eventCategoryID = attendeeCategoryID:"SELECTED",1:"") )#>
@@ -6824,7 +6868,7 @@ this is for version 1 of proweb</Description>
 
 <Class name="EF.ui.components.frontend.fileUpload">
 <Super>EF.ui.components.textInput,EF.ui.components.frontend.inputElement</Super>
-<TimeChanged>64299,53549.107569</TimeChanged>
+<TimeChanged>64321,41124.90526</TimeChanged>
 <TimeCreated>63357,57620.613738</TimeCreated>
 
 <Method name="getDefaultClasses">
@@ -6894,6 +6938,9 @@ this is for version 1 of proweb</Description>
 </Value>
 <Value name="14">
 <Value>mvcPage</Value>
+</Value>
+<Value name="15">
+<Value>mvcPageHandler</Value>
 </Value>
 </Data>
 </Storage>
@@ -7055,7 +7102,7 @@ this is for version 1 of proweb</Description>
 
 <Class name="EF.ui.components.frontend.hiddenInput">
 <Super>EF.ui.components.hiddenInput,EF.ui.components.frontend.prowebBase</Super>
-<TimeChanged>64299,53549.136288</TimeChanged>
+<TimeChanged>64321,41124.944674</TimeChanged>
 <TimeCreated>64288,56191.627065</TimeCreated>
 
 <Storage name="Default">
@@ -7081,6 +7128,9 @@ this is for version 1 of proweb</Description>
 </Value>
 <Value name="6">
 <Value>mvcPage</Value>
+</Value>
+<Value name="7">
+<Value>mvcPageHandler</Value>
 </Value>
 </Data>
 </Storage>
@@ -7793,7 +7843,7 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 
 <Class name="EF.ui.components.frontend.prowebBase">
 <Super>EF.ui.components.base</Super>
-<TimeChanged>64299,47988.084053</TimeChanged>
+<TimeChanged>64321,41011.549899</TimeChanged>
 <TimeCreated>64183,41819.123112</TimeCreated>
 
 <Property name="isProwebEditMode">
@@ -7818,7 +7868,7 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 <Type>%String</Type>
 </Property>
 
-<Property name="mvcPage">
+<Property name="mvcPageHandler">
 <Type>EF.mvcHandler.frontendProweb</Type>
 </Property>
 
@@ -7930,6 +7980,9 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 <Value name="7">
 <Value>mvcPage</Value>
 </Value>
+<Value name="8">
+<Value>mvcPageHandler</Value>
+</Value>
 </Data>
 </Storage>
 </Class>
@@ -7937,7 +7990,7 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 
 <Class name="EF.ui.components.frontend.radioGroup">
 <Super>EF.ui.components.listInput,EF.ui.components.frontend.inputElement</Super>
-<TimeChanged>64299,53549.282274</TimeChanged>
+<TimeChanged>64321,41125.092123</TimeChanged>
 <TimeCreated>63356,39686.205586</TimeCreated>
 
 <Method name="getDefaultClasses">
@@ -8065,6 +8118,9 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 <Value name="10">
 <Value>mvcPage</Value>
 </Value>
+<Value name="11">
+<Value>mvcPageHandler</Value>
+</Value>
 </Data>
 </Storage>
 </Class>
@@ -8072,7 +8128,7 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 
 <Class name="EF.ui.components.frontend.textArea">
 <Super>EF.ui.components.textInput,EF.ui.components.frontend.inputElement</Super>
-<TimeChanged>64299,53549.378579</TimeChanged>
+<TimeChanged>64321,41125.191253</TimeChanged>
 <TimeCreated>63357,57620.613738</TimeCreated>
 
 <Parameter name="html5Validation">
@@ -8169,6 +8225,9 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 <Value name="14">
 <Value>mvcPage</Value>
 </Value>
+<Value name="15">
+<Value>mvcPageHandler</Value>
+</Value>
 </Data>
 </Storage>
 </Class>
@@ -8211,7 +8270,7 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 
 <Class name="EF.ui.components.frontend.textInput">
 <Super>EF.ui.components.textInput,EF.ui.components.frontend.inputElement</Super>
-<TimeChanged>64299,53549.414541</TimeChanged>
+<TimeChanged>64321,41125.225964</TimeChanged>
 <TimeCreated>63357,57620.613738</TimeCreated>
 
 <Parameter name="typeAttribute">
@@ -8352,6 +8411,9 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 </Value>
 <Value name="15">
 <Value>mvcPage</Value>
+</Value>
+<Value name="16">
+<Value>mvcPageHandler</Value>
 </Value>
 </Data>
 </Storage>
@@ -16738,7 +16800,7 @@ function updateAlts(codPromptID) {
 		if fromEditor {
 			set streamTemplateStyleSheet=1
 			do ##class(layout.cssDefaultMethods).outputGen2Defaults()
-			do ##class(layout.cssOverrideMethods).outputDynamicCSS(xEventID)
+			do ##class(layout.cssOverrideMethods).outputDynamicCSS(xEventID, xLangID)
 		}
 	}
 	
@@ -16769,7 +16831,7 @@ function updateAlts(codPromptID) {
 		>
 		w "<style>",!
 		if (##class(layout.objTemplate).isTemplateGen2(tmpTemplateID))	{
-			do ##class(layout.cssOverrideMethods).outputDynamicCSS(xEventID)
+			do ##class(layout.cssOverrideMethods).outputDynamicCSS(xEventID, xLangID)
 		}
 	}
 	if (##class(layout.methods).canUseStyleOverrides(xEventID))	{  // we also have a white content area but use body bg colour for our default and standard designs
@@ -16782,7 +16844,7 @@ function updateAlts(codPromptID) {
 
 	if 'noStyleTags w "</style>",!
 	
-	if (##class(layout.objTemplate).isTemplateUsingProweb2(layoutTemplateID)) && (##class(sc.objTemplate).isProweb2ImplementedForPageName(%request.PageName)) {
+	if (##class(layout.objTemplate).isTemplateUsingProweb2(tmpTemplateID)) && (##class(sc.objTemplate).isProweb2ImplementedForPageName(%request.PageName)) {
 		if ##class(shared.pageMethods).getEditMode() = "edit" {
 			&html<
 				<!-- ====== Proweb2 editor styles ============= -->
@@ -16825,13 +16887,13 @@ function updateAlts(codPromptID) {
 	}
 	
 	set ok=1
-	set pageController=##class(EF.pageController.page).open(pageControllerID,contextData) 
+	set pageController = ##class(EF.pageController.page).open(pageControllerID,contextData) 
 	
 	set pageNavProceedKey = %request.Get("pageNavProceedKey") 
 	set backforward=##class(setup.objPageNav).goWhere(pageNavProceedKey, , contextData.tempPersonID, %request.Get("pageID")) 
 	set redirectURL = $Piece(backforward,"|",2)
 
-	set pageController.submitButtonClickedIdentifier=%request.Get("efSubmitButtonIdentifier")
+	set pageController.submitButtonClickedIdentifier = %request.Get("efSubmitButtonIdentifier")
 	
 	if %request.Get("efSaveAndReloadFormOnly") {
 		// copy submitted fields into the pageController
@@ -16846,7 +16908,7 @@ function updateAlts(codPromptID) {
 		// validate all data
 		do pageController.validatePage() 
 		if pageController.errorMessages.Count() {
-			set pageController.hasError=1
+			set pageController.hasError = 1
 		}
 		
 		// save the temp structure to database
@@ -16871,9 +16933,9 @@ function updateAlts(codPromptID) {
 		}
 		do pageController.%Save()
 	}
-	do pageController.copyAllDataToEComTemp()
+	do pageController.copyAllDataToEcomTempCodData()
 	if pageController.hasError {
-		set redirectURL = ##class(EF.htmlGenerator).addParameterToURL("registration.csp", "prowebPageControllerID",pageControllerID) // #######
+		set redirectURL = ##class(EF.htmlGenerator).addParameterToURL("registration.csp", "prowebPageControllerID", pageControllerID)
 		set redirectURL = ##class(EF.htmlGenerator).addParameterToURL(redirectURL, "pageID", %request.Get("pageID"))
 		set redirectURL = ##class(EF.htmlGenerator).addParameterToURL(redirectURL, "eventID", contextData.eventID)
 	}
@@ -18804,19 +18866,19 @@ session pageID=#(%session.Get("pageID"))#
 ;vc;    Object: layout.cssDefaultMethods.CLS/EV.86
 ;vc; Component: CLS.layout.cssDefaultMethods
 ;vc;  Location: LargeDev
-;vc; Date/Time: 31-Jan-17 09:47
-;vc;      User: AdrianM2
-;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>layout.cssDefaultMethods.CLS/EV.86</td><td>CLS.layout.cssDefaultMethods</td><td>LargeDev</td><td style='white-space: nowrap;'>31-Jan-17 09:47</td><td>AdrianM2</td></tr></table>
+;vc; Date/Time: 03-Feb-17 14:38
+;vc;      User: MindaugasL
+;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>layout.cssDefaultMethods.CLS/EV.86</td><td>CLS.layout.cssDefaultMethods</td><td>LargeDev</td><td style='white-space: nowrap;'>03-Feb-17 14:38</td><td>MindaugasL</td></tr></table>
 ]]></Description>
 <Abstract>1</Abstract>
 <ClassType/>
 <ProcedureBlock>1</ProcedureBlock>
-<TimeChanged>64314,35247.114886</TimeChanged>
+<TimeChanged>64316,37654</TimeChanged>
 <TimeCreated>63046,56232.897117</TimeCreated>
 
 <Method name="outputDefaultCSS">
 <ClassMethod>1</ClassMethod>
-<FormalSpec>xEventID,layoutTemplateID,xLangID</FormalSpec>
+<FormalSpec>eventID,layoutTemplateID,languageID</FormalSpec>
 <ReturnType>%String</ReturnType>
 <Implementation><![CDATA[
 	do ..outputComponentCSS()
@@ -18842,7 +18904,7 @@ session pageID=#(%session.Get("pageID"))#
 			<link rel="stylesheet" href="../../media/stylesheets/frontend/gen1-3/ef-website-gen1-3-main.css" type="text/css" />
 		>
 		w "<style>",!
-		do ##class(layout.cssOverrideMethods).outputDynamicCSS(xEventID, xLangID)
+		do ##class(layout.cssOverrideMethods).outputDynamicCSS(eventID, languageID)
 	}
 	w !,"</style>",!
 ]]></Implementation>
@@ -21015,20 +21077,20 @@ The basic frontend default stuff</Description>
 <Abstract>1</Abstract>
 <ClassType/>
 <ProcedureBlock>1</ProcedureBlock>
-<TimeChanged>64314,38333.320109</TimeChanged>
+<TimeChanged>64316,37996.929123</TimeChanged>
 <TimeCreated>63046,56108.531536</TimeCreated>
 
 <Method name="outputDynamicCSS">
 <ClassMethod>1</ClassMethod>
-<FormalSpec>xEventID,xLangID:%Integer,pageName:%String=""</FormalSpec>
+<FormalSpec>eventID,languageID:%Integer,pageName:%String=""</FormalSpec>
 <ReturnType>%String</ReturnType>
 <Implementation><![CDATA[
-	do ..outputAbstractDynamicCSS(xEventID)
-	set labels = ##class(setup.objSessionLabel).getAllLabelsForEvent(xEventID)
-	write ##class(setup.objSessionLabel).getLabelCSSForLabels(labels, xLangID)
+	do ..outputAbstractDynamicCSS(eventID)
+	set labels = ##class(setup.objSessionLabel).getAllLabelsForEvent(eventID)
+	write ##class(setup.objSessionLabel).getLabelCSSForLabels(labels, languageID)
 	
-	if (##class(layout.methods).canUseStyleOverrides(xEventID)) {
-		do ..outputWebsiteAppearanceCss(xEventID, pageName)
+	if (##class(layout.methods).canUseStyleOverrides(eventID)) {
+		do ..outputWebsiteAppearanceCss(eventID, pageName)
 	}
 ]]></Implementation>
 </Method>
@@ -21254,7 +21316,7 @@ The basic frontend default stuff</Description>
 
 <Method name="outputWebsiteAppearanceCss">
 <ClassMethod>1</ClassMethod>
-<FormalSpec>eventID:%Integer,pageName</FormalSpec>
+<FormalSpec>eventID:%Integer,pageName:%String</FormalSpec>
 <Implementation><![CDATA[
 	set templateID=##class(layout.objTemplate).getLayoutForEvent(eventID)
 	if (pageName '= "") && (##class(layout.objTemplate).isTemplateUsingProweb2(templateID)) && (##class(sc.objTemplate).isProweb2ImplementedForPageName(pageName)) {
@@ -24374,8 +24436,9 @@ Returns true if the template is custom made</Description>
 </Class>
 
 
-<Project name="proweb 2" LastModified="2017-01-30 14:41:08.037472" Target="largedevsrc/backEnd/home/login.csp" TargetType="3">
+<Project name="proweb 2" LastModified="2017-02-03 11:12:46.514768" Target="largedevsrc/backEnd/home/login.csp" TargetType="3">
   <Items>
+    <ProjectItem name="EF.contextData" type="CLS"></ProjectItem>
     <ProjectItem name="EF.contextDataFrontend" type="CLS"></ProjectItem>
     <ProjectItem name="EF.contextDataRegistration" type="CLS"></ProjectItem>
     <ProjectItem name="EF.contextDataRegistrationMock" type="CLS"></ProjectItem>
@@ -29947,7 +30010,7 @@ The data type that represents a a page level in the hierachy.
 <ClassType>persistent</ClassType>
 <ProcedureBlock>1</ProcedureBlock>
 <Super>sc.objData</Super>
-<TimeChanged>64308,31426.837242</TimeChanged>
+<TimeChanged>64317,45997.417567</TimeChanged>
 <TimeCreated>58926,57261</TimeCreated>
 
 <Parameter name="EXTENTSIZE">
@@ -31071,16 +31134,16 @@ Used for listing corresponding pages in a different language</Description>
 <Class name="setup.backendMenu">
 <Description><![CDATA[
 <!-- ;vc;-
-;vc;    Object: setup.backendMenu.CLS/EV.77
+;vc;    Object: setup.backendMenu.CLS/EV.78
 ;vc; Component: CLS.setup.backendMenu
 ;vc;  Location: LargeDev
-;vc; Date/Time: 12-Dec-16 09:39
+;vc; Date/Time: 07-Feb-17 14:03
 ;vc;      User: FredG
-;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>setup.backendMenu.CLS/EV.77</td><td>CLS.setup.backendMenu</td><td>LargeDev</td><td style='white-space: nowrap;'>12-Dec-16 09:39</td><td>FredG</td></tr></table>
+;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>setup.backendMenu.CLS/EV.78</td><td>CLS.setup.backendMenu</td><td>LargeDev</td><td style='white-space: nowrap;'>07-Feb-17 14:03</td><td>FredG</td></tr></table>
 ]]></Description>
 <Abstract>1</Abstract>
 <IncludeCode>%occStatus,%occXSLT,EF.common.macros</IncludeCode>
-<TimeChanged>64313,39204.183403</TimeChanged>
+<TimeChanged>64321,50626.224082</TimeChanged>
 <TimeCreated>62734,53934.49686</TimeCreated>
 
 <XData name="backendMenuTree">
@@ -31470,7 +31533,7 @@ E.g. returns grandParentAccessID|parentAccessID|accessID</Description>
 	
 	if (accessID = "CONMAN") && (##class(setup.objEvent).isEventUsingProweb2(xEventID)) {
 		set pageID = ##class(setup.pageIDmethods).getEventHomePage(xEventID, $$$efEnglishLangID)
-		set href = "../../system/proweb/start.csp?pageID="_pageID_"&eventID="_xEventID_"&initialiseSession=1"
+		set href = "../../system/proweb/start.csp?pageID="_pageID_"&eventID="_xEventID_"&initialiseSession=1&mode=edit"
 		set menuItem("newWindow") = 1
 	}	
 	

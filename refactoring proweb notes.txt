@@ -223,12 +223,14 @@ adding text block ends up in the wrong place
 namespace javawscript functions
 
 ===============================================================================
-fix the issues with local dev systems
-drag and drop doesn't save
+the edit control panel is missing when you go to website contents after a test
+Implement the mvcHandler for the StandardSave page
+drag and drop doesn't save becasue its save page hasn't been converted to mvcHandler
 Getting Invalid Oref in event 6415 when trying to register
 why is there a grey empty list onthe reg page?
-introduce the new HTML question property
+introduce the new HTML question property called questionTextHTML
 fix saving the country causes errors
+Add the attendee category name to the page dropdown, if applicable
 date fields takes up too much vertical space
 guests give js errors in edit mode
 refactor objLayout-writeBit
@@ -239,16 +241,14 @@ namespace the bootstrap classes by copying their definition into our classes (eg
 date range control is missing the end date input
 It's very hard to edit a header that is set to empty
 The styles shown in moxie is not what the website uses
-rename and restore the templates
+rename and restore the templates We should move the "george" template into a brand new template name called "Wenlock" and restore the pre-george template and rename it "Narrowboat".
 add upgrade code to populate the 'listYpe' property in sc.objComponent
 the editor panel and the quick edit are not using form-line/form-group
 the buttons are misplaced in small viewfinder
 multi column multicheck boxes
-look at form-horizontal isseuas
 improve the way we preview/edit for specific attendee categories
 move out all the inpage javascripts from frontJS.csp to real JS files
 rewrite frontendHTTPheader/frontednStyles/frontendJS
-home page text block is too far to the left
 there is a JS error generated when you type in the input fioelds that says something about cannot find 'clearMessage'
 social media buttons are in the wrong place in the new templates
 editor panel should cope with narrow mode

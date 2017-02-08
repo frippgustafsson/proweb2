@@ -221,10 +221,11 @@ split up the JS file into smaller chunks
 adding divider crashes
 adding text block ends up in the wrong place
 namespace javawscript functions
-
-===============================================================================
 the edit control panel is missing when you go to website contents after a test
 Implement the mvcHandler for the StandardSave page
+
+===============================================================================
+the ID attribute is now the same as the prompt - not correct
 drag and drop doesn't save becasue its save page hasn't been converted to mvcHandler
 Getting Invalid Oref in event 6415 when trying to register
 why is there a grey empty list onthe reg page?
@@ -238,6 +239,8 @@ make the backend booking mode show banner, menu and indicator (after doing the w
 backend booking is lacking in style
 make all pages priavte and encrypted?
 namespace the bootstrap classes by copying their definition into our classes (eg. copy btn-large into ef-btn-large)
+add sexurity to the reorderProerbElements
+do we really need to output the "data-ef-reorderable-save-url" for every page? Move to super class?
 date range control is missing the end date input
 It's very hard to edit a header that is set to empty
 The styles shown in moxie is not what the website uses

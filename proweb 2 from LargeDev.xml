@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.2 (Build 736U)" ts="2017-02-07 14:04:26">
+<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.2 (Build 736U)" ts="2017-02-08 16:05:43">
 <Class name="EF.contextData">
 <Description><![CDATA[
 <!-- ;vc;-
@@ -2096,12 +2096,18 @@ Should be run if any of the sub-classes are deleted</Description>
 ;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>EF.pageController.buttons.button.CLS/EV.1</td><td>CLS.EF.pageController.buttons.button</td><td>LargeDev</td><td style='white-space: nowrap;'>05-Feb-16 15:28</td><td>AdrianM2</td></tr></table>
 ]]></Description>
 <Super>EF.pageController.buttonElement,EF.pageController.proweb.prowebBase</Super>
-<TimeChanged>64321,49133.12355</TimeChanged>
+<TimeChanged>64321,60482.008162</TimeChanged>
 <TimeCreated>63404,34415.706614</TimeCreated>
 
 <Method name="getDefaultUIComponent">
 <ReturnType>EF.ui.components.frontend.buttonAddGuest</ReturnType>
 <Implementation><![CDATA[	return ##class(EF.ui.components.frontend.buttonAddGuest).%New(..identifier)
+]]></Implementation>
+</Method>
+
+<Method name="isOkToRender">
+<ReturnType>%Boolean</ReturnType>
+<Implementation><![CDATA[	return 1
 ]]></Implementation>
 </Method>
 
@@ -2132,12 +2138,18 @@ Should be run if any of the sub-classes are deleted</Description>
 ;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>EF.pageController.buttons.button.CLS/EV.1</td><td>CLS.EF.pageController.buttons.button</td><td>LargeDev</td><td style='white-space: nowrap;'>05-Feb-16 15:28</td><td>AdrianM2</td></tr></table>
 ]]></Description>
 <Super>EF.pageController.buttonElement,EF.pageController.proweb.prowebBase</Super>
-<TimeChanged>64321,49133.753584</TimeChanged>
+<TimeChanged>64321,60512.750908</TimeChanged>
 <TimeCreated>63404,34415.706614</TimeCreated>
 
 <Method name="getDefaultUIComponent">
 <ReturnType>EF.ui.components.frontend.buttonDeleteGuest</ReturnType>
 <Implementation><![CDATA[	return ##class(EF.ui.components.frontend.buttonDeleteGuest).%New(..identifier)
+]]></Implementation>
+</Method>
+
+<Method name="isOkToRender">
+<ReturnType>%Boolean</ReturnType>
+<Implementation><![CDATA[	return 1
 ]]></Implementation>
 </Method>
 
@@ -2348,13 +2360,19 @@ Should be run if any of the sub-classes are deleted</Description>
 
 <Class name="EF.pageController.proweb.divider">
 <Super>EF.pageController.proweb.prowebBase</Super>
-<TimeChanged>64321,49135.593296</TimeChanged>
+<TimeChanged>64321,60529.37918</TimeChanged>
 <TimeCreated>64183,49747.663252</TimeCreated>
 
 <Parameter name="canBeDependent">
 <Type>%Boolean</Type>
 <Default>0</Default>
 </Parameter>
+
+<Method name="isOkToRender">
+<ReturnType>%Boolean</ReturnType>
+<Implementation><![CDATA[	return 1
+]]></Implementation>
+</Method>
 
 <Method name="getDefaultUIComponent">
 <ReturnType>EF.ui.components.frontend.divider</ReturnType>
@@ -2615,7 +2633,7 @@ Should be run if any of the sub-classes are deleted</Description>
 
 <Class name="EF.pageController.proweb.inputElement">
 <Super>EF.pageController.inputElement,EF.pageController.proweb.prowebBase</Super>
-<TimeChanged>64310,55576.875824</TimeChanged>
+<TimeChanged>64321,60595.202105</TimeChanged>
 <TimeCreated>64189,53012.909524</TimeCreated>
 
 <Property name="guestNumber">
@@ -2648,13 +2666,11 @@ Should be run if any of the sub-classes are deleted</Description>
 <Method name="isOkToRender">
 <ReturnType>%Boolean</ReturnType>
 <Implementation><![CDATA[
-	set isOkToRender = ##super()
-	if isOkToRender {
-		if (..prowebItem.storage.isBackendOnly) && (..page.contextData.isBackendBooking = 0) && (..page.contextData.prowebMode '= "edit") {
-			set isOkToRender = 0	
-		}
+	if (..prowebItem.storage.isBackendOnly) && (..page.contextData.isBackendBooking = 0) && (..page.contextData.prowebMode '= "edit") {
+		return 0	
+	} else {
+		return 1
 	}
-	return isOkToRender
 ]]></Implementation>
 </Method>
 
@@ -3221,7 +3237,7 @@ Should have a one-to-one relationship with sc.objList</Description>
 
 <Class name="EF.pageController.proweb.menuBlock">
 <Super>EF.pageController.proweb.prowebBase</Super>
-<TimeChanged>64321,40698.079407</TimeChanged>
+<TimeChanged>64321,60614.067161</TimeChanged>
 <TimeCreated>64183,49747.663252</TimeCreated>
 
 <Parameter name="canBeDependent">
@@ -3231,6 +3247,12 @@ Should have a one-to-one relationship with sc.objList</Description>
 <Method name="getDefaultUIComponent">
 <ReturnType>EF.ui.components.frontend.menuBlock</ReturnType>
 <Implementation><![CDATA[	quit ##class(EF.ui.components.frontend.menuBlock).%New(..identifier)
+]]></Implementation>
+</Method>
+
+<Method name="isOkToRender">
+<ReturnType>%Boolean</ReturnType>
+<Implementation><![CDATA[	return 1
 ]]></Implementation>
 </Method>
 
@@ -3259,7 +3281,7 @@ Should have a one-to-one relationship with sc.objList</Description>
 
 <Class name="EF.pageController.proweb.page">
 <Super>EF.pageController.page</Super>
-<TimeChanged>64321,41777.091612</TimeChanged>
+<TimeChanged>64322,57818.322417</TimeChanged>
 <TimeCreated>64189,51696.559047</TimeCreated>
 
 <Property name="mvcPageHandler">
@@ -3645,51 +3667,41 @@ also an entry point from unit tests</Description>
 </Method>
 
 <Method name="reorderProwebElements">
-<FormalSpec>orderedElementIds:%String</FormalSpec>
+<FormalSpec>contextData:EF.contextDataFrontend,orderedElementIds:%String</FormalSpec>
 <Implementation><![CDATA[
-	#dim key as %Integer = ""
-	#dim element as EF.pageController.element
-	#dim prowebItemID as %Integer
-	
-	set displayOrder = 0
-	for index = 1:1:$Length(orderedElementIds,"|") {
-		set prowebItemID = $Piece(orderedElementIds,"|",index)
-		if $Length(prowebItemID) {
-			set displayOrder = displayOrder + 1
-			set prowebItems(prowebItemID) = displayOrder
-		}
+	if $Length(orderedElementIds, "|") < 1 {
+		throw ##class(shared.exceptions.generalException).%New("No elements found to re-order")	
+	}
+	if '..okToReorder(contextData) { 
+		throw ##class(shared.exceptions.generalException).%New("Reordering of element is not allowed") 
 	}
 	
-	for {
-		set element = ..allPageElements.GetNext(.key)
-		if key = "" quit
-		if element.%Extends("EF.pageController.proweb.prowebBase") {
-			if element.prowebItem.storage.prowebID {
-				try {
-					if $Data(prowebItems(element.prowebItem.storage.prowebID)) {
-						set prowebElement = ##class(sc.objData).%OpenId(element.prowebID)
-						set oldDisplayOrder = prowebElement.displayOrder
-						set newDisplayOrder = prowebItems(element.prowebID)
-						set prowebElement.displayOrder = prowebItems(element.prowebID)
-						do prowebElement.%Save()
-						
-						if (oldDisplayOrder '= newDisplayOrder) {
-							set eventID = prowebElement.objEvent.%Id()
-							set pageID = ##class(sc.xModules.objCODitem).getPageIDforQuestion(prowebElement.%Id())
-							set pageName = ##class(sc.xModules.objPage).getDescription(pageID)
-							set prowebItemDescription = ##class(sc.xModules.objCODitem).getCODItemName(prowebElement.%Id())
-							if (prowebElement.%Id() && pageID) {
-								do ##class(setup.objEventAudit).add(..contextData.auditPersonID, eventID, "Reg Page '"_pageName_"' ("_pageID_"), Changed '"_prowebItemDescription_"' Registration Question Order: "_newDisplayOrder_" (New Value) - "_oldDisplayOrder_" (Old Value)")
-							}
-						}
-					}
-				} catch error {
-					throw ##class(shared.exceptions.generalException).%New("Failed to get the prowebID of element: "_element)	
-				}
-			} else {
-				write !,"element without prowebID:",element	
-			}
+	for newDisplayOrder = 2:1:$Length(orderedElementIds,"|") {
+
+		set prowebItemID = $Piece(orderedElementIds, "|" ,newDisplayOrder)	
+		set prowebElement = ##class(sc.objData).%OpenId(prowebItemID)
+		set oldDisplayOrder = prowebElement.displayOrder
+		
+		if newDisplayOrder '= oldDisplayOrder {
+			set prowebElement.displayOrder = newDisplayOrder
+			
+			do prowebElement.auditDisplayOrderChange(contextData, newDisplayOrder)
+
+			do prowebElement.%Save()
+			kill prowebElement
 		}
+	}
+]]></Implementation>
+</Method>
+
+<Method name="okToReorder">
+<FormalSpec>contextData:EF.contextDataFrontend</FormalSpec>
+<ReturnType>%Boolean</ReturnType>
+<Implementation><![CDATA[
+	if '##class(access.objFunction).hasFunctionByAccessID(contextData.backendPersonID, "CONMAN") {
+		return 0
+	} else {
+		return 1
 	}
 ]]></Implementation>
 </Method>
@@ -3917,7 +3929,7 @@ also an entry point from unit tests</Description>
 
 <Class name="EF.pageController.proweb.prowebBase">
 <Super>EF.pageController.element</Super>
-<TimeChanged>64216,58260.92232</TimeChanged>
+<TimeChanged>64321,60446.138605</TimeChanged>
 <TimeCreated>64183,49747.663252</TimeCreated>
 
 <Parameter name="canBeDependent">
@@ -3935,7 +3947,7 @@ also an entry point from unit tests</Description>
 
 <Method name="isOkToRender">
 <ReturnType>%Boolean</ReturnType>
-<Implementation><![CDATA[	return 1
+<Implementation><![CDATA[	return 0
 ]]></Implementation>
 </Method>
 
@@ -4972,7 +4984,7 @@ also an entry point from unit tests</Description>
 
 <Class name="EF.pageController.proweb.textBlock">
 <Super>EF.pageController.proweb.prowebBase</Super>
-<TimeChanged>64321,49141.98836</TimeChanged>
+<TimeChanged>64321,60632.807989</TimeChanged>
 <TimeCreated>64183,49747.663252</TimeCreated>
 
 <Method name="getDefaultUIComponent">
@@ -4986,6 +4998,12 @@ also an entry point from unit tests</Description>
 <Implementation><![CDATA[
 	do ##super(uiComponent)
 	set ..uiComponent.text=..description
+]]></Implementation>
+</Method>
+
+<Method name="isOkToRender">
+<ReturnType>%Boolean</ReturnType>
+<Implementation><![CDATA[	return 1
 ]]></Implementation>
 </Method>
 
@@ -5071,7 +5089,7 @@ also an entry point from unit tests</Description>
 
 <Class name="EF.pageController.proweb.youTubeVideo">
 <Super>EF.pageController.proweb.prowebBase</Super>
-<TimeChanged>64321,49144.071139</TimeChanged>
+<TimeChanged>64322,34005.518205</TimeChanged>
 <TimeCreated>64183,49747.663252</TimeCreated>
 
 <Parameter name="canBeDependent">
@@ -5086,8 +5104,14 @@ also an entry point from unit tests</Description>
 </Method>
 
 <Method name="initialiseUIComponent">
-<FormalSpec>uiComponent:EF.ui.components.base</FormalSpec>
+<FormalSpec>uiComponent:EF.ui.components.frontend.youTubeVideo</FormalSpec>
 <Implementation><![CDATA[	do ##super(uiComponent)
+]]></Implementation>
+</Method>
+
+<Method name="isOkToRender">
+<ReturnType>%Boolean</ReturnType>
+<Implementation><![CDATA[	return 1
 ]]></Implementation>
 </Method>
 
@@ -8552,7 +8576,7 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 
 <Class name="EF.ui.components.panel">
 <Super>EF.ui.components.container</Super>
-<TimeChanged>64205,53541.434064</TimeChanged>
+<TimeChanged>64322,57923.905282</TimeChanged>
 <TimeCreated>63361,62973.538498</TimeCreated>
 
 <Property name="heading">
@@ -8568,7 +8592,7 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 <Method name="renderStart">
 <Implementation><![CDATA[
 	set classes="ef-admin-settings-panel"
-	if $l(..errorMessage) {
+	if $Length(..errorMessage) {
 		set classes=classes_" ef-panel-with-error"
 	}
 	&HTML<
@@ -8589,7 +8613,7 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 
 <Method name="renderErrorMessage">
 <Implementation><![CDATA[
-	if $l(..errorMessage) {
+	if $Length(..errorMessage) {
 		&html<
 			<div class="ef-panel-message-area">
 				<div class="alert alert-danger ">#(..rawHTML(..errorMessage))#
@@ -8603,7 +8627,7 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 <Method name="addErrorMessage">
 <FormalSpec>errorMessage</FormalSpec>
 <Implementation><![CDATA[
-	if $l(..errorMessage) {
+	if $Length(..errorMessage) {
 		set ..errorMessage=..errorMessage_..rawHTML("<br>")	
 	}
 	set ..errorMessage=..errorMessage_..encodeHTMLContent(errorMessage)
@@ -8614,7 +8638,6 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 <Type>%Library.CacheStorage</Type>
 <DefaultData>panelDefaultData</DefaultData>
 <Data name="panelDefaultData">
-<Structure>listnode</Structure>
 <Subscript>"panel"</Subscript>
 <Value name="1">
 <Value>heading</Value>
@@ -10019,8 +10042,8 @@ function loadItem(itemNameID) {
 		if gotoPage'="" set backPage=gotoPage
 		set backPage=backPage_$S(backPage["?":"&",1:"?")_"mode=edit"
 	</script>
-	<a href="#(backPage)#"><img src="../../media/images/English/Default/backend/cancel.gif" alt="#" width="65" height="17" border="0"></a></td>
-	<input type="image" src="../../media/images/English/Default/backend/save.gif" border="0" alt="Save" width="65" height="17">
+	<a href="#(backPage)#"><img id="ef-cancel-button-id" src="../../media/images/English/Default/backend/cancel.gif" alt="#" width="65" height="17" border="0"></a></td>
+	<input id="ef-save-button-id" type="image" src="../../media/images/English/Default/backend/save.gif" border="0" alt="Save" width="65" height="17">
 </div>
 <br><br>
 
@@ -15197,7 +15220,7 @@ table table {padding-left:0px;padding-right:0px;}
 </div><!-- end of contentarea -->
 
 <div class="topsave_in_popup">
-	<a href="javascript:cancelUpdate();"><img name="butSave" src="../../media/images/english/default/backend/back.gif" alt="Quit" border="0"></a>
+	<a href="javascript:cancelUpdate();"><img id="ef-back-button-id" name="butSave" src="../../media/images/english/default/backend/back.gif" alt="Quit" border="0"></a>
 	<csp:if condition=(##class(sc.objData).inMail(parent))>
 	<csp:else>
 		<script language="cache" runat="server">
@@ -15207,10 +15230,10 @@ table table {padding-left:0px;padding-right:0px;}
 		</script>
 		<csp:comment><!-- ONly display the publish butto if you have access rights--></csp:comment>
 		<csp:if condition="myStepOrder>1">
-			<a href="javascript: publish();"><img name="butPublish" src="../media/buttons/button_approve.gif" alt="Publish" border="0" title="Save and publish this version. Any current version will be archived."></a>
+			<a href="javascript: publish();"><img id="ef-publish-button-id" name="butPublish" src="../media/buttons/button_approve.gif" alt="Publish" border="0" title="Save and publish this version. Any current version will be archived."></a>
 		</csp:if>
 	</csp:if>
-	<input type="image" name="butSave" src="../../media/images/english/default/backend/save.gif" alt="Save" border="0">
+	<input id="ef-save-button-id" type="image" name="butSave" src="../../media/images/english/default/backend/save.gif" alt="Save" border="0">
 </div>
 
 <input type="hidden" name="imageHeight" value="">
@@ -16969,14 +16992,19 @@ function updateAlts(codPromptID) {
 <csp:class encoded="1" private="1">
 <script language="cache" runat="server">
 	set contextData = ##class(EF.contextDataRegistration).createFromFrontendCSPSession()
+
 	set pageControllerID = %request.Get("prowebPageControllerID")
 	if 'pageControllerID {
 		throw ##class(shared.exceptions.generalException).%New("No pageController passed in to the re-ordering page")
 	}
+
 	set orderedElementIds = %request.Get("orderedElementIds")
 	set pageController = ##class(EF.pageController.proweb.page).open(pageControllerID,contextData)
-	
-	do pageController.reorderProwebElements(orderedElementIds)
+	if '$IsObject(pageController) {
+		throw ##class(shared.exceptions.generalException).%New("Failed to open pageController when re-ordering page elements")	
+	}
+
+	do pageController.reorderProwebElements(contextData ,orderedElementIds)
 </script>
 ]]></CSP>
 
@@ -26684,7 +26712,7 @@ Please note that this class will be the super class of all underlying data items
 <IncludeCode>EF.common.macros</IncludeCode>
 <ProcedureBlock>1</ProcedureBlock>
 <Super>%Library.Persistent,shared.timeStamp</Super>
-<TimeChanged>64314,62792.476794</TimeChanged>
+<TimeChanged>64322,55958.493154</TimeChanged>
 <TimeCreated>59148,67793</TimeCreated>
 <Inheritance>right</Inheritance>
 
@@ -27931,6 +27959,28 @@ note that this must be a classmethod or you will a compile error as the property
 ]]></Implementation>
 </Method>
 
+<Method name="auditDisplayOrderChange">
+<FormalSpec>contextData:EF.contextData,newDisplayOrder:%Integer</FormalSpec>
+<Implementation><![CDATA[
+	#dim pageID  as %Integer = ..getPageID(..%Id())
+	#dim pageName as %String = ##class(sc.xModules.objPage).getDescription(pageID)
+	#dim oldDisplayOrder as %Integer = ..displayOrder
+	#dim personID as %Integer = contextData.auditPersonID
+	#dim eventID as %Integer = contextData.eventID
+	#dim prowebItemDescription  as %String = ..getAuditDescription()
+	
+	do ##class(setup.objEventAudit).add(personID, eventID, "Page '"_pageName_"' ("_pageID_"), Changed '"_prowebItemDescription_"' Order: "_newDisplayOrder_" (New Value) - "_oldDisplayOrder_" (Old Value)")
+]]></Implementation>
+</Method>
+
+<Method name="getAuditDescription">
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	// will only be overridden for questions	
+	return ..dataType
+]]></Implementation>
+</Method>
+
 <Query name="qGetChildren">
 <Type>%SQLQuery</Type>
 <FormalSpec>parentID:%String=""</FormalSpec>
@@ -28082,7 +28132,7 @@ link to a OCD item. Provides a facility for adding questions about COD item in a
 <IncludeCode>EF.common.macros</IncludeCode>
 <ProcedureBlock>1</ProcedureBlock>
 <Super>sc.objData</Super>
-<TimeChanged>64310,38055.883253</TimeChanged>
+<TimeChanged>64322,53002.476175</TimeChanged>
 <TimeCreated>59478,65593.453</TimeCreated>
 
 <Property name="maxAltsChecked">
@@ -29601,6 +29651,12 @@ ORDER BY objItemName->codGroup DESC,displayOrder]]></SqlQuery>
 ]]></Implementation>
 </Method>
 
+<Method name="getAuditDescription">
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[	return ..getPromptTextJSsafe()
+]]></Implementation>
+</Method>
+
 <Storage name="Default">
 <Type>%Library.CacheStorage</Type>
 <DefaultData>objCODitemDefaultData</DefaultData>
@@ -30003,14 +30059,14 @@ The data type that represents a a page level in the hierachy.
 ;vc;    Object: sc.xModules.objPage.CLS/EV.40
 ;vc; Component: CLS.sc.xModules.objPage
 ;vc;  Location: LargeDev
-;vc; Date/Time: 24-Jan-17 15:57
-;vc;      User: FredG
-;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>sc.xModules.objPage.CLS/EV.40</td><td>CLS.sc.xModules.objPage</td><td>LargeDev</td><td style='white-space: nowrap;'>24-Jan-17 15:57</td><td>FredG</td></tr></table>
+;vc; Date/Time: 08-Feb-17 13:24
+;vc;      User: MindaugasL
+;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>sc.xModules.objPage.CLS/EV.40</td><td>CLS.sc.xModules.objPage</td><td>LargeDev</td><td style='white-space: nowrap;'>08-Feb-17 13:24</td><td>MindaugasL</td></tr></table>
 ]]></Description>
 <ClassType>persistent</ClassType>
 <ProcedureBlock>1</ProcedureBlock>
 <Super>sc.objData</Super>
-<TimeChanged>64317,45997.417567</TimeChanged>
+<TimeChanged>64322,48255</TimeChanged>
 <TimeCreated>58926,57261</TimeCreated>
 
 <Parameter name="EXTENTSIZE">
@@ -30286,28 +30342,65 @@ Input TDs are written out in coditem.csp</Description>
 		set beforeItem=beforeItem_" class="""_CSSClass_""""
 		
 		// HTML attributes
-		if (promptAlign '= "") {
-			set beforeItem=beforeItem_" align="""_promptAlign_""""
-		}
-		
-		if (units="percentage"){
-			set units="%"
-		}else{
-			set units="px"	
-		}
-		
-		if (promptHeight) {
-			set beforeItem=beforeItem_" height="""_promptHeight_"px""" // % makes no sense for height measurements
-		}	
-		
-		if (promptWidth) {
-			set beforeItem=beforeItem_" width="""_promptWidth_units_""""
+		if ..allowAlignmentAndSizeOptions(pageID) {
+			if (promptAlign '= "") {
+				set beforeItem=beforeItem_" align="""_promptAlign_""""
+			}
+			
+			if (units="percentage"){
+				set units="%"
+			}else{
+				set units="px"	
+			}
+			
+			if (promptHeight) {
+				set beforeItem=beforeItem_" height="""_promptHeight_"px""" // % makes no sense for height measurements
+			}	
+			
+			if (promptWidth) {
+				set beforeItem=beforeItem_" width="""_promptWidth_units_""""
+			}
 		}
 	}
 	
 	set beforeItem=beforeItem_">" // close the TD
 	
 	quit beforeItem
+]]></Implementation>
+</Method>
+
+<Method name="getTemplateID">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>pageID</FormalSpec>
+<ReturnType>%Integer</ReturnType>
+<Implementation><![CDATA[
+	set templateID = ""
+	
+	set eventID = ..getEventID(pageID)
+	if eventID {
+		set templateID = ##class(layout.objTemplate).getLayoutForEvent(eventID)
+	} else {
+		set surveyID = ##class(shared.pageMethods).getSurveyID(pageID)
+		set templateID = ##class(layout.objTemplate).getLayoutForSurvey(surveyID)
+	}
+	
+	return templateID
+]]></Implementation>
+</Method>
+
+<Method name="allowAlignmentAndSizeOptions">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>pageID</FormalSpec>
+<ReturnType>%Boolean</ReturnType>
+<Implementation><![CDATA[
+	set templateID = ..getTemplateID(pageID)
+	set isDefaultDesign = ##class(layout.methods).isThisDefaultDesign(templateID)
+	
+	if 'isDefaultDesign {
+		return 1
+	}
+	
+	return 0
 ]]></Implementation>
 </Method>
 
@@ -32635,16 +32728,16 @@ please note that you must escape any ampersands in the data</Description>
 ;vc;    Object: setup.eventCreationMethods.CLS/EV.116
 ;vc; Component: CLS.setup.eventCreationMethods
 ;vc;  Location: LargeDev
-;vc; Date/Time: 25-Jan-17 10:53
-;vc;      User: FredG
-;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>setup.eventCreationMethods.CLS/EV.116</td><td>CLS.setup.eventCreationMethods</td><td>LargeDev</td><td style='white-space: nowrap;'>25-Jan-17 10:53</td><td>FredG</td></tr></table>
+;vc; Date/Time: 07-Feb-17 16:28
+;vc;      User: AdrianM2
+;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>setup.eventCreationMethods.CLS/EV.116</td><td>CLS.setup.eventCreationMethods</td><td>LargeDev</td><td style='white-space: nowrap;'>07-Feb-17 16:28</td><td>AdrianM2</td></tr></table>
 ]]></Description>
 <Abstract>1</Abstract>
 <ClassType/>
 <IncludeCode>EF.common.macros</IncludeCode>
 <ProcedureBlock>1</ProcedureBlock>
 <Super>%Persistent</Super>
-<TimeChanged>64308,49963.173076</TimeChanged>
+<TimeChanged>64321,59336</TimeChanged>
 <TimeCreated>61908,40601.453382</TimeCreated>
 
 <Method name="createEventPages">
@@ -33485,11 +33578,6 @@ get a list of all the active links for an event - used in drop-downs for nice UR
 	kill linkArray
 	set objEvent = ##class(setup.objEvent).%OpenId(eventID)
 	set eventConfiguration=##class(setup.eventConfiguration).createForEventID(eventID)
-	if (objEvent.gridList="grid") {
-		set dailyAgendaPageID = ##class(sc.pageMethods).getDailyAgendaGridViewPageID(eventID,langID)
-	} else {
-		set dailyAgendaPageID = ##class(sc.pageMethods).getDailyAgendaListViewPageID(eventID,langID)
-	}
 	// get the full url to use instead of a relative path
 	if returnFullURLs {
 		set fullURL=##class(shared.pageMethods).getFullPath()
@@ -33517,7 +33605,7 @@ get a list of all the active links for an event - used in drop-downs for nice UR
 		}
 		set linkArray($I(linkArray),"Main: Password Reset Link") = "{{PasswordResetLink}}"
 		set linkArray($I(linkArray),"Main: Decline Start")="{{EVENTPAGELINK:"_eventID_"|"_declinePageID_"}}"
-		set linkArray($I(linkArray),"Main: Daily Agenda")="{{EVENTPAGELINK:"_eventID_"|"_dailyAgendaPageID_"}}"
+		set linkArray($I(linkArray),"Main: Daily Agenda")="{{AgendaPageLink}}"
 		set linkArray($I(linkArray),"Main: Personal Event Link")="{{PersonalEventLink}}"
 		set linkArray($I(linkArray),"Main: Personal Registration Link")="{{PersonalRegistrationLink}}"
 		set linkArray($I(linkArray),"Main: Personal Amendment Link")="{{PersonalAmendmentLink}}"
@@ -33536,7 +33624,7 @@ get a list of all the active links for an event - used in drop-downs for nice UR
 		if allowInvitations {
 			set linkArray($I(linkArray),"Main: Decline Start")=fullURL_"/frontend/reg/decline.csp"
 		}
-		set linkArray($I(linkArray),"Main: Daily Agenda")=fullURL_"/system/proweb/start.csp?pageID="_dailyAgendaPageID
+		set linkArray($I(linkArray),"Main: Daily Agenda")=fullURL_"/frontend/reg/dailyAgenda.csp"
 	}
 	
 	// get auto generated proweb pages

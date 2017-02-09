@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.2 (Build 736U)" ts="2017-02-08 16:05:43">
+<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.2 (Build 736_0_16994U)" ts="2017-02-09 11:15:59">
 <Class name="EF.contextData">
 <Description><![CDATA[
 <!-- ;vc;-
@@ -2394,12 +2394,14 @@ Should be run if any of the sub-classes are deleted</Description>
 
 <Class name="EF.pageController.proweb.dropdown">
 <Super>EF.pageController.proweb.inputElement</Super>
-<TimeChanged>64317,57702.657326</TimeChanged>
+<TimeChanged>64323,40449.689465</TimeChanged>
 <TimeCreated>64189,53206.554402</TimeCreated>
 
 <Method name="getDefaultUIComponent">
 <ReturnType>EF.ui.components.frontend.dropdown</ReturnType>
-<Implementation><![CDATA[	quit ##class(EF.ui.components.frontend.dropdown).%New(..identifier)
+<Implementation><![CDATA[
+	set htmlName = ..description
+	quit ##class(EF.ui.components.frontend.dropdown).%New(..identifier, htmlName)
 ]]></Implementation>
 </Method>
 
@@ -3281,7 +3283,7 @@ Should have a one-to-one relationship with sc.objList</Description>
 
 <Class name="EF.pageController.proweb.page">
 <Super>EF.pageController.page</Super>
-<TimeChanged>64322,57818.322417</TimeChanged>
+<TimeChanged>64323,39765.320613</TimeChanged>
 <TimeCreated>64189,51696.559047</TimeCreated>
 
 <Property name="mvcPageHandler">
@@ -3588,11 +3590,8 @@ opens the pageController without reloading the elements.</Description>
 <FormalSpec>prowebItem:sc.facade.prowebItem,optionalGuestNumber:%Integer=""</FormalSpec>
 <ReturnType>%String</ReturnType>
 <Implementation><![CDATA[
-	try {
-		set identifier = prowebItem.storage.databaseItemName
-	} catch {
-		set identifier = "proweb-"_prowebItem.storage.prowebID
-	}
+	set identifier = "proweb-"_prowebItem.storage.prowebID
+
 	if optionalGuestNumber {
 		set identifier = identifier_"-"_optionalGuestNumber		
 	}
@@ -5015,12 +5014,15 @@ also an entry point from unit tests</Description>
 
 <Class name="EF.pageController.proweb.textInput">
 <Super>EF.pageController.proweb.inputElement</Super>
-<TimeChanged>64321,49142.397047</TimeChanged>
+<TimeChanged>64323,40309.334693</TimeChanged>
 <TimeCreated>64189,53629.035726</TimeCreated>
 
 <Method name="getDefaultUIComponent">
 <ReturnType>EF.ui.components.frontend.textInput</ReturnType>
-<Implementation><![CDATA[	quit ##class(EF.ui.components.frontend.textInput).%New(..identifier)
+<Implementation><![CDATA[
+	set htmlName = ..description
+	
+	quit ##class(EF.ui.components.frontend.textInput).%New(..identifier, htmlName)
 ]]></Implementation>
 </Method>
 
@@ -7163,7 +7165,7 @@ this is for version 1 of proweb</Description>
 
 <Class name="EF.ui.components.frontend.inputElement">
 <Super>EF.ui.components.frontend.prowebBase,EF.ui.components.inputBase</Super>
-<TimeChanged>64267,36931.60838</TimeChanged>
+<TimeChanged>64323,37397.014195</TimeChanged>
 <TimeCreated>64183,40678.260093</TimeCreated>
 
 <Property name="alternatives">
@@ -7192,20 +7194,6 @@ this is for version 1 of proweb</Description>
 <Parameter name="html5Validation">
 <Default>0</Default>
 </Parameter>
-
-<Method name="%OnNew">
-<FormalSpec>htmlID:%String</FormalSpec>
-<Private>1</Private>
-<ReturnType>%Status</ReturnType>
-<ServerOnly>1</ServerOnly>
-<Implementation><![CDATA[
-	do ##super(htmlID)
-	set ..htmlName=..htmlID
-	set ..validator=..getDefaultValidator()
-	
-    Quit $$$OK
-]]></Implementation>
-</Method>
 
 <Method name="getDefaultValidator">
 <ReturnType>EF.validator.base</ReturnType>
@@ -7867,7 +7855,7 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 
 <Class name="EF.ui.components.frontend.prowebBase">
 <Super>EF.ui.components.base</Super>
-<TimeChanged>64321,41011.549899</TimeChanged>
+<TimeChanged>64323,37245.215129</TimeChanged>
 <TimeCreated>64183,41819.123112</TimeCreated>
 
 <Property name="isProwebEditMode">
@@ -13960,7 +13948,7 @@ table table {padding-left:0px;padding-right:0px;}
 															<table width="100%" border="0" cellspacing="0" cellpadding="0">
 																<tr>
 																	<td width="45%">
-																		<select name="selCODitem" class="black10px" style="width: 325px;" onChange="loadItem(this.value);">
+																		<select name="selCODitem" id="ef-item-list-id" class="black10px" style="width: 325px;" onChange="loadItem(this.value);">
 																			<option selected>---<tx>Select from List</tx>---</option>
 																			<script name="rs" language="SQL">
 																				SELECT ID,description FROM cod.objItemName
@@ -14027,20 +14015,20 @@ table table {padding-left:0px;padding-right:0px;}
 															set disabled=""
 															if itemNameID'="CREATE" set disabled="disabled  style='background-color: #eeeeee;'"
 														</script>
-														<input type="text" name="txtDescription" size="50" maxlength="44" class="black10px" value="#(description)#" onchange="if (document.forms[0].txtPrompt.value.length <2) {document.forms[0].txtPrompt.value=this.value;}" #(disabled)#>
+														<input type="text" id="ef-item-name-id" name="txtDescription" size="50" maxlength="44" class="black10px" value="#(description)#" onchange="if (document.forms[0].txtPrompt.value.length <2) {document.forms[0].txtPrompt.value=this.value;}" #(disabled)#>
 													</td>
 												</tr>
 												<tr>
 													<td width="13" height="33">&nbsp;</td>
 													<td class="black10px" align="right" height="33" width="184" valign="top"><tx>File Upload Prompt</tx>:&nbsp;&nbsp;</td>
 													<td class="black10px" valign="middle" height="33" colspan="3">
-													<textarea name="txtPrompt" class="black10px" rows=1 cols=60>#(prompt)#</textarea>
+													<textarea name="txtPrompt" id="ef-item-prompt-name-id" class="black10px" rows=1 cols=60>#(prompt)#</textarea>
 													</td>
 													<td class="black10px" valign="top" width="120" height="33">
 														<csp:if condition=((itemNameID="NEW")!(itemNameID="CREATE"))>
-															<img src="../../media/images/English/Default/backend/edit.gif" alt="" width="45" height="17" border="0" style="filter: alpha(opacity=35); opacity: 0.35;" title="You must save the question before you can edit the prompt.">
+															<img id="ef-item-prompt-name-edit-id" src="../../media/images/English/Default/backend/edit.gif" alt="" width="45" height="17" border="0" style="filter: alpha(opacity=35); opacity: 0.35;" title="You must save the question before you can edit the prompt.">
 														<csp:else>
-															<a href="javascript: popup('question');"><img src="../../media/images/English/Default/backend/edit.gif" alt="edit" width="45" height="17" border="0"></a>
+															<a href="javascript: popup('question');"><img id="ef-item-prompt-name-edit-id" src="../../media/images/English/Default/backend/edit.gif" alt="edit" width="45" height="17" border="0"></a>
 														</csp:if>
 													</td>
 												</tr>
@@ -14083,7 +14071,7 @@ table table {padding-left:0px;padding-right:0px;}
 															<tx>Mandatory</tx>:&nbsp;		
 														</td>
 														<td>
-															<input type="checkbox" name='chkMandatory' value="1" class="black10px" #($S(mandatory=1:"checked",1:0))#>
+															<input type="checkbox" id="ef-item-mandatory-id" name='chkMandatory' value="1" class="black10px" #($S(mandatory=1:"checked",1:0))#>
 														</td>
 													</tr>
 												</systemType:if>
@@ -14094,7 +14082,7 @@ table table {padding-left:0px;padding-right:0px;}
 															<tx>Backend Only</tx>:
 														</td>
 														<td>
-															<input type="checkbox" name='chkBackendOnly' value="1" class="black10px" #($S(backendOnly=1:"checked",1:0))#>
+															<input type="checkbox" id="ef-item-backend-only-id" name='chkBackendOnly' value="1" class="black10px" #($S(backendOnly=1:"checked",1:0))#>
 														</td>
 													</tr>
 												</systemType:if>
@@ -14103,8 +14091,8 @@ table table {padding-left:0px;padding-right:0px;}
 													<td width="13">&nbsp;</td>
 													<td class="black10px" align="right"><tx>Applies to</tx>:&nbsp;</td>
 													<td class="black10px">
-														<input type="radio" name="radDelegateOrGuest" value="delegate" #($S((isDelegate)!(('isDelegate)&('isGuest)):"checked",1:0))#><tx>Attendees</tx>&nbsp;&nbsp;
-														<input type="radio" name="radDelegateOrGuest" value="guest" #($S(isGuest:"checked",1:0))#><tx>Guests</tx>&nbsp;&nbsp;
+														<input type="radio" id="ef-item-attendees-id" name="radDelegateOrGuest" value="delegate" #($S((isDelegate)!(('isDelegate)&('isGuest)):"checked",1:0))#><tx>Attendees</tx>&nbsp;&nbsp;
+														<input type="radio" id="ef-item-guests-id" name="radDelegateOrGuest" value="guest" #($S(isGuest:"checked",1:0))#><tx>Guests</tx>&nbsp;&nbsp;
 														<csp:comment><!--<input type="radio" name="radDelegateOrGuest" value="both" #($S((isGuest)&(isDelegate):"checked",1:0))#>Both--></csp:comment>
 													</td>								
 												</tr>
@@ -14114,7 +14102,7 @@ table table {padding-left:0px;padding-right:0px;}
 														<tx>Min File Size</tx>:&nbsp;		
 													</td>
 													<td class="black10px">
-														<input type="text" name='txtMinFileSize' value='#(minFileSize)#' size=4 class="black10px">&nbsp;kb
+														<input type="text" id="ef-item-min-size-id" name='txtMinFileSize' value='#(minFileSize)#' size=4 class="black10px">&nbsp;kb
 													</td>
 												</tr>
 												<tr>
@@ -14123,7 +14111,7 @@ table table {padding-left:0px;padding-right:0px;}
 														<tx>Max File Size</tx>:*&nbsp;		
 													</td>
 													<td class="black10px">
-														<input type="text" name='txtMaxFileSize' value='#(maxFileSize)#' size=4 class="black10px">&nbsp;kb
+														<input type="text" id="ef-item-max-size-id" name='txtMaxFileSize' value='#(maxFileSize)#' size=4 class="black10px">&nbsp;kb
 													</td>
 												</tr>
 												<tr>
@@ -14147,7 +14135,7 @@ table table {padding-left:0px;padding-right:0px;}
 																			<img src="../../media/images/English/Default/backend/cross.gif" alt="File attached" width="14" height="12" />
 																		</csp:if>
 																	<csp:else>
-																		<input type="checkbox" name='chkFileType_CSV' value="1" class="black10px" #($S(isChecked:"checked",1:0))#>
+																		<input type="checkbox" id="ef-item-file-type-csv-id" name='chkFileType_CSV' value="1" class="black10px" #($S(isChecked:"checked",1:0))#>
 																	</csp:if>
 																</td>
 																<td class="black10px" align="right">
@@ -14163,7 +14151,7 @@ table table {padding-left:0px;padding-right:0px;}
 																			<img src="../../media/images/English/Default/backend/cross.gif" alt="File attached" width="14" height="12" />
 																		</csp:if>
 																	<csp:else>
-																		<input type="checkbox" name='chkFileType_DOC' value="1" class="black10px" #($S(isChecked:"checked",1:0))#>
+																		<input type="checkbox" id="ef-item-file-type-doc-id" name='chkFileType_DOC' value="1" class="black10px" #($S(isChecked:"checked",1:0))#>
 																	</csp:if>
 																</td>
 																<td class="black10px" align="right">
@@ -14179,7 +14167,7 @@ table table {padding-left:0px;padding-right:0px;}
 																			<img src="../../media/images/English/Default/backend/cross.gif" alt="File attached" width="14" height="12" />
 																		</csp:if>
 																	<csp:else>
-																		<input type="checkbox" name='chkFileType_DOCX' value="1" class="black10px" #($S(isChecked:"checked",1:0))#>
+																		<input type="checkbox" id="ef-item-file-type-docx-id" name='chkFileType_DOCX' value="1" class="black10px" #($S(isChecked:"checked",1:0))#>
 																	</csp:if>
 																</td>
 																<td class="black10px" align="right">
@@ -14195,7 +14183,7 @@ table table {padding-left:0px;padding-right:0px;}
 																			<img src="../../media/images/English/Default/backend/cross.gif" alt="File attached" width="14" height="12" />
 																		</csp:if>
 																	<csp:else>
-																		<input type="checkbox" name='chkFileType_DWG' value="1" class="black10px" #($S(isChecked:"checked",1:0))#>
+																		<input type="checkbox" id="ef-item-file-type-dwg-id" name='chkFileType_DWG' value="1" class="black10px" #($S(isChecked:"checked",1:0))#>
 																	</csp:if>
 																</td>																
 																<td class="black10px" align="right">
@@ -14211,7 +14199,7 @@ table table {padding-left:0px;padding-right:0px;}
 																			<img src="../../media/images/English/Default/backend/cross.gif" alt="File attached" width="14" height="12" />
 																		</csp:if>
 																	<csp:else>
-																		<input type="checkbox" name='chkFileType_EPS' value="1" class="black10px" #($S(isChecked:"checked",1:0))#>
+																		<input type="checkbox" id="ef-item-file-type-eps-id" name='chkFileType_EPS' value="1" class="black10px" #($S(isChecked:"checked",1:0))#>
 																	</csp:if>
 																</td>
 																<td class="black10px" align="right">
@@ -14227,7 +14215,7 @@ table table {padding-left:0px;padding-right:0px;}
 																			<img src="../../media/images/English/Default/backend/cross.gif" alt="File attached" width="14" height="12" />
 																		</csp:if>
 																	<csp:else>
-																		<input type="checkbox" name='chkFileType_GIF' value="1" class="black10px" #($S(isChecked:"checked",1:0))#>
+																		<input type="checkbox" id="ef-item-file-type-gif-id" name='chkFileType_GIF' value="1" class="black10px" #($S(isChecked:"checked",1:0))#>
 																	</csp:if>
 																</td>
 																<td class="black10px" align="right">
@@ -14243,7 +14231,7 @@ table table {padding-left:0px;padding-right:0px;}
 																			<img src="../../media/images/English/Default/backend/cross.gif" alt="File attached" width="14" height="12" />
 																		</csp:if>
 																	<csp:else>
-																		<input type="checkbox" name='chkFileType_JPG' value="1" class="black10px" #($S(isChecked:"checked",1:0))#>
+																		<input type="checkbox" id="ef-item-file-type-jpg-id" name='chkFileType_JPG' value="1" class="black10px" #($S(isChecked:"checked",1:0))#>
 																	</csp:if>
 																</td>
 															</tr>
@@ -14261,7 +14249,7 @@ table table {padding-left:0px;padding-right:0px;}
 																			<img src="../../media/images/English/Default/backend/cross.gif" alt="File attached" width="14" height="12" />
 																		</csp:if>
 																	<csp:else>
-																		<input type="checkbox" name='chkFileType_JPEG' value="1" class="black10px" #($S(isChecked:"checked",1:0))#>
+																		<input type="checkbox" id="ef-item-file-type-jpeg-id" name='chkFileType_JPEG' value="1" class="black10px" #($S(isChecked:"checked",1:0))#>
 																	</csp:if>
 																</td>
 																<td class="black10px" align="right">
@@ -14277,7 +14265,7 @@ table table {padding-left:0px;padding-right:0px;}
 																			<img src="../../media/images/English/Default/backend/cross.gif" alt="File attached" width="14" height="12" />
 																		</csp:if>
 																	<csp:else>
-																		<input type="checkbox" name='chkFileType_ODF' value="1" class="black10px" #($S(isChecked:"checked",1:0))#>
+																		<input type="checkbox" id="ef-item-file-type-odf-id" name='chkFileType_ODF' value="1" class="black10px" #($S(isChecked:"checked",1:0))#>
 																	</csp:if>
 																</td>
 																<td class="black10px" align="right">
@@ -14293,7 +14281,7 @@ table table {padding-left:0px;padding-right:0px;}
 																			<img src="../../media/images/English/Default/backend/cross.gif" alt="File attached" width="14" height="12" />
 																		</csp:if>
 																	<csp:else>
-																		<input type="checkbox" name='chkFileType_ODG' value="1" class="black10px" #($S(isChecked:"checked",1:0))#>
+																		<input type="checkbox" id="ef-item-file-type-odg-id" name='chkFileType_ODG' value="1" class="black10px" #($S(isChecked:"checked",1:0))#>
 																	</csp:if>
 																</td>
 																<td class="black10px" align="right">
@@ -14309,7 +14297,7 @@ table table {padding-left:0px;padding-right:0px;}
 																			<img src="../../media/images/English/Default/backend/cross.gif" alt="File attached" width="14" height="12" />
 																		</csp:if>
 																	<csp:else>
-																		<input type="checkbox" name='chkFileType_PDF' value="1" class="black10px" #($S(isChecked:"checked",1:0))#>
+																		<input type="checkbox" id="ef-item-file-type-pdf-id" name='chkFileType_PDF' value="1" class="black10px" #($S(isChecked:"checked",1:0))#>
 																	</csp:if>
 																</td>
 																<td class="black10px" align="right">
@@ -14325,7 +14313,7 @@ table table {padding-left:0px;padding-right:0px;}
 																			<img src="../../media/images/English/Default/backend/cross.gif" alt="File attached" width="14" height="12" />
 																		</csp:if>
 																	<csp:else>
-																		<input type="checkbox" name='chkFileType_PNG' value="1" class="black10px" #($S(isChecked:"checked",1:0))#>
+																		<input type="checkbox" id="ef-item-file-type-png-id" name='chkFileType_PNG' value="1" class="black10px" #($S(isChecked:"checked",1:0))#>
 																	</csp:if>
 																</td>
 																<td class="black10px" align="right">
@@ -14341,7 +14329,7 @@ table table {padding-left:0px;padding-right:0px;}
 																			<img src="../../media/images/English/Default/backend/cross.gif" alt="File attached" width="14" height="12" />
 																		</csp:if>
 																	<csp:else>
-																		<input type="checkbox" name='chkFileType_PPT' value="1" class="black10px" #($S(isChecked:"checked",1:0))#>
+																		<input type="checkbox" id="ef-item-file-type-ppt-id" name='chkFileType_PPT' value="1" class="black10px" #($S(isChecked:"checked",1:0))#>
 																	</csp:if>
 																</td>
 																<td class="black10px" align="right">
@@ -14357,7 +14345,7 @@ table table {padding-left:0px;padding-right:0px;}
 																			<img src="../../media/images/English/Default/backend/cross.gif" alt="File attached" width="14" height="12" />
 																		</csp:if>
 																	<csp:else>
-																		<input type="checkbox" name='chkFileType_PPTX' value="1" class="black10px" #($S(isChecked:"checked",1:0))#>
+																		<input type="checkbox" id="ef-item-file-type-pptx-id" name='chkFileType_PPTX' value="1" class="black10px" #($S(isChecked:"checked",1:0))#>
 																	</csp:if>
 																</td>
 															</tr>
@@ -14375,7 +14363,7 @@ table table {padding-left:0px;padding-right:0px;}
 																			<img src="../../media/images/English/Default/backend/cross.gif" alt="File attached" width="14" height="12" />
 																		</csp:if>
 																	<csp:else>
-																		<input type="checkbox" name='chkFileType_RTF' value="1" class="black10px" #($S(isChecked:"checked",1:0))#>
+																		<input type="checkbox" id="ef-item-file-type-rtf-id" name='chkFileType_RTF' value="1" class="black10px" #($S(isChecked:"checked",1:0))#>
 																	</csp:if>
 																</td>
 																<td class="black10px" align="right">
@@ -14391,7 +14379,7 @@ table table {padding-left:0px;padding-right:0px;}
 																			<img src="../../media/images/English/Default/backend/cross.gif" alt="File attached" width="14" height="12" />
 																		</csp:if>
 																	<csp:else>
-																		<input type="checkbox" name='chkFileType_TIF' value="1" class="black10px" #($S(isChecked:"checked",1:0))#>
+																		<input type="checkbox" id="ef-item-file-type-tif-id" name='chkFileType_TIF' value="1" class="black10px" #($S(isChecked:"checked",1:0))#>
 																	</csp:if>
 																</td>
 
@@ -14409,7 +14397,7 @@ table table {padding-left:0px;padding-right:0px;}
 																			<img src="../../media/images/English/Default/backend/cross.gif" alt="File attached" width="14" height="12" />
 																		</csp:if>
 																	<csp:else>
-																		<input type="checkbox" name='chkFileType_TIFF' value="1" class="black10px" #($S(isChecked:"checked",1:0))#>
+																		<input type="checkbox" id="ef-item-file-type-tiff-id" name='chkFileType_TIFF' value="1" class="black10px" #($S(isChecked:"checked",1:0))#>
 																	</csp:if>
 																</td>																
 																<td class="black10px" align="right">
@@ -14425,7 +14413,7 @@ table table {padding-left:0px;padding-right:0px;}
 																			<img src="../../media/images/English/Default/backend/cross.gif" alt="File attached" width="14" height="12" />
 																		</csp:if>
 																	<csp:else>
-																		<input type="checkbox" name='chkFileType_TXT' value="1" class="black10px" #($S(isChecked:"checked",1:0))#>
+																		<input type="checkbox" id="ef-item-file-type-txt-id" name='chkFileType_TXT' value="1" class="black10px" #($S(isChecked:"checked",1:0))#>
 																	</csp:if>
 																</td>
 																<td class="black10px" align="right">
@@ -14441,7 +14429,7 @@ table table {padding-left:0px;padding-right:0px;}
 																			<img src="../../media/images/English/Default/backend/cross.gif" alt="File attached" width="14" height="12" />
 																		</csp:if>
 																	<csp:else>
-																		<input type="checkbox" name='chkFileType_XLS' value="1" class="black10px" #($S(isChecked:"checked",1:0))#>
+																		<input type="checkbox" id="ef-item-file-type-xls-id" name='chkFileType_XLS' value="1" class="black10px" #($S(isChecked:"checked",1:0))#>
 																	</csp:if>
 																</td>
 																<td class="black10px" align="right">
@@ -14457,7 +14445,7 @@ table table {padding-left:0px;padding-right:0px;}
 																			<img src="../../media/images/English/Default/backend/cross.gif" alt="File attached" width="14" height="12" />
 																		</csp:if>
 																	<csp:else>
-																		<input type="checkbox" name='chkFileType_XLSX' value="1" class="black10px" #($S(isChecked:"checked",1:0))#>
+																		<input type="checkbox" id="ef-item-file-type-xlsx-id" name='chkFileType_XLSX' value="1" class="black10px" #($S(isChecked:"checked",1:0))#>
 																	</csp:if>
 																</td>
 																<td class="black10px" align="right">
@@ -14473,7 +14461,7 @@ table table {padding-left:0px;padding-right:0px;}
 																			<img src="../../media/images/English/Default/backend/cross.gif" alt="File attached" width="14" height="12" />
 																		</csp:if>
 																	<csp:else>
-																		<input type="checkbox" name='chkFileType_ZIP' value="1" class="black10px" #($S(isChecked:"checked",1:0))#>
+																		<input type="checkbox" id="ef-item-file-type-zip-id" name='chkFileType_ZIP' value="1" class="black10px" #($S(isChecked:"checked",1:0))#>
 																	</csp:if>
 																</td>
 
@@ -14498,7 +14486,7 @@ table table {padding-left:0px;padding-right:0px;}
 													<td width="20">&nbsp;</td>
 													<td class="black10px" align="right" height="15" width="160" valign="top"><tx>Help Text</tx>:&nbsp;&nbsp;</td>
 													<td class="black10px" width="334" valign="top">
-														<textarea name="txtHelpText" rows=2 cols=60 class="black10px">#(helpText)#</textarea>
+														<textarea name="txtHelpText" id="ef-item-help-text-id" rows=2 cols=60 class="black10px">#(helpText)#</textarea>
 													</td>
 												</tr>
 												<tr>
@@ -14575,8 +14563,8 @@ table table {padding-left:0px;padding-right:0px;}
 		if gotoPage'="" set backPage=gotoPage
 		set backPage=backPage_$S(backPage["?":"&",1:"?")_"mode=edit"
 	</script>
-	<a href="#(backPage)#"><img src="../../media/images/English/Default/backend/cancel.gif" alt="#" width="65" height="17" border="0"></a>
-	<input type="image" src="../../media/images/English/Default/backend/save.gif" border="0" alt="Save" width="65" height="17">
+	<a href="#(backPage)#"><img id="ef-cancel-button-id" src="../../media/images/English/Default/backend/cancel.gif" alt="#" width="65" height="17" border="0"></a>
+	<input type="image" id="ef-save-button-id" src="../../media/images/English/Default/backend/save.gif" border="0" alt="Save" width="65" height="17">
 </div>
 	
 	<input type="Hidden" name="gotoPage" value="#(gotoPage)#">
@@ -25019,7 +25007,7 @@ Property displayOrder As %Integer [ Required ];</Description>
 
 <Class name="sc.facade.prowebItemStorageInputElement">
 <Super>sc.facade.prowebItemStorage</Super>
-<TimeChanged>64265,56598.252711</TimeChanged>
+<TimeChanged>64323,39659.985867</TimeChanged>
 <TimeCreated>64206,40073.01042</TimeCreated>
 
 <Property name="inputType">
@@ -32725,19 +32713,19 @@ please note that you must escape any ampersands in the data</Description>
 <Class name="setup.eventCreationMethods">
 <Description><![CDATA[
 <!-- ;vc;-
-;vc;    Object: setup.eventCreationMethods.CLS/EV.116
+;vc;    Object: setup.eventCreationMethods.CLS/EV.120
 ;vc; Component: CLS.setup.eventCreationMethods
 ;vc;  Location: LargeDev
-;vc; Date/Time: 07-Feb-17 16:28
-;vc;      User: AdrianM2
-;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>setup.eventCreationMethods.CLS/EV.116</td><td>CLS.setup.eventCreationMethods</td><td>LargeDev</td><td style='white-space: nowrap;'>07-Feb-17 16:28</td><td>AdrianM2</td></tr></table>
+;vc; Date/Time: 08-Feb-17 16:09
+;vc;      User: MindaugasL
+;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>setup.eventCreationMethods.CLS/EV.120</td><td>CLS.setup.eventCreationMethods</td><td>LargeDev</td><td style='white-space: nowrap;'>08-Feb-17 16:09</td><td>MindaugasL</td></tr></table>
 ]]></Description>
 <Abstract>1</Abstract>
 <ClassType/>
 <IncludeCode>EF.common.macros</IncludeCode>
 <ProcedureBlock>1</ProcedureBlock>
 <Super>%Persistent</Super>
-<TimeChanged>64321,59336</TimeChanged>
+<TimeChanged>64322,60737.61436</TimeChanged>
 <TimeCreated>61908,40601.453382</TimeCreated>
 
 <Method name="createEventPages">
@@ -34184,7 +34172,20 @@ runs the same checks as the eventStatus page (used to do)</Description>
 		if objEvent.hasAnyOverridingVATCodes() {
 			set out($I(out))="An additional item, quantity bookable item or a session is not using the default VAT rate for the event. This means that discounts applied to the Grand Total can only be a percentage of the grand total. Use the default VAT rate to apply a currency discount."		
 		}
-	}		
+	}
+	
+	// =====================================================================================================================================
+	// warn if any review criteria is on and any topic has no review criteria
+	if ##class(abstract.objCriteria).isEventUsingReviewingCriteria(eventConfiguration.getEventID()) {
+		set rsTopics = ##class(abstract.objTopic).getAllActiveTopicsAsResultSet(eventConfiguration.getEventID())
+		while rsTopics.%Next() {
+			if '##class(abstract.objTopic).hasReviewCriteria(rsTopics.%Get("ID")) {
+				set warningMessage = "Abstract topic "_rsTopics.%Get("description")_" can't be graded because it is missing review criteria."
+				set out($I(out)) = warningMessage
+			}
+		}
+	}
+			
 	quit
 ]]></Implementation>
 </Method>

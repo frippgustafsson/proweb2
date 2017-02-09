@@ -223,10 +223,11 @@ adding text block ends up in the wrong place
 namespace javawscript functions
 the edit control panel is missing when you go to website contents after a test
 Implement the mvcHandler for the StandardSave page
-
-===============================================================================
 the ID attribute is now the same as the prompt - not correct
 drag and drop doesn't save becasue its save page hasn't been converted to mvcHandler
+
+===============================================================================
+
 Getting Invalid Oref in event 6415 when trying to register
 why is there a grey empty list onthe reg page?
 introduce the new HTML question property called questionTextHTML

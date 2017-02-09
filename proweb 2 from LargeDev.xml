@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.2 (Build 736_0_16994U)" ts="2017-02-09 14:37:03">
+<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.2 (Build 736_0_16994U)" ts="2017-02-09 15:31:55">
 <Class name="EF.contextData">
 <Description><![CDATA[
 <!-- ;vc;-
@@ -3285,7 +3285,7 @@ Should have a one-to-one relationship with sc.objList</Description>
 
 <Class name="EF.pageController.proweb.page">
 <Super>EF.pageController.page</Super>
-<TimeChanged>64323,42421.990909</TimeChanged>
+<TimeChanged>64323,52720.815631</TimeChanged>
 <TimeCreated>64189,51696.559047</TimeCreated>
 
 <Property name="mvcPageHandler">
@@ -3351,7 +3351,7 @@ Should have a one-to-one relationship with sc.objList</Description>
 			do ..loadIncludePage(..contextData.eventWebsiteLanguage.getFooterPageID(), "footer page")
 		}
 	}
-	do ..updateUIComponents() ;############
+	do ..updateUIComponents()
 ]]></Implementation>
 </Method>
 
@@ -3994,7 +3994,7 @@ also an entry point from unit tests</Description>
 
 <Class name="EF.pageController.proweb.testCases.checkboxGroupTestCase">
 <Super>EF.ISC.UnitTest.TestCase</Super>
-<TimeChanged>64309,56641.938683</TimeChanged>
+<TimeChanged>64323,54709.201174</TimeChanged>
 <TimeCreated>64204,52598.182886</TimeCreated>
 
 <Method name="TestWithMulticheckboxNoneSelected">
@@ -4031,7 +4031,7 @@ also an entry point from unit tests</Description>
 		
 	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(pageController,"renderComponent", "unit test")
 	set returnedHTML = $ZStrip(returnedHTML,"*WC")
-	set expectedHTML = "<divclass=""rowef-form-row""><divclass=""form-group""><divclass=""col-sm-4ef-label-containeref-label-container-vertical-group""><labelid=""ef-display-label-mymulticheck""class=""control-labelef-control-label""for=""mymulticheck"">Pleaseselectyouroptions</label></div><divclass=""col-sm-8ef-checkbox-container""><div><divclass=""inputs-listef-proweb-input-elementef-checkbox-group""><labelclass=""ef-control-label""><inputtype=""checkbox""value=""1""id=""mymulticheck-1""class=""ef-control-labelef-check-box""name=""mymulticheck-1""title="""">option1&nbsp;</label><br/><labelclass=""ef-control-label""><inputtype=""checkbox""value=""1""id=""mymulticheck-2""class=""ef-control-labelef-check-box""name=""mymulticheck-2""title="""">option2&nbsp;</label><br/><labelclass=""ef-control-label""><inputtype=""checkbox""value=""1""id=""mymulticheck-3""class=""ef-control-labelef-check-box""name=""mymulticheck-3""title="""">option2&nbsp;</label><br/></div></div></div></div></div>"
+	set expectedHTML = "<divclass=""rowef-form-row""><divclass=""form-group""><divclass=""col-sm-4ef-label-containeref-label-container-vertical-group""><labelid=""ef-display-label-ef-proweb-1-id""class=""control-labelef-control-label""for=""ef-proweb-1-id"">Pleaseselectyouroptions</label></div><divclass=""col-sm-8ef-checkbox-container""><div><divclass=""inputs-listef-proweb-input-elementef-checkbox-group""><labelclass=""ef-control-label""><inputtype=""checkbox""value=""1""id=""ef-proweb-1-id-1""class=""ef-control-labelef-check-box""name=""ef-proweb-1-id-1""title="""">option1&nbsp;</label><br/><labelclass=""ef-control-label""><inputtype=""checkbox""value=""1""id=""ef-proweb-1-id-2""class=""ef-control-labelef-check-box""name=""ef-proweb-1-id-2""title="""">option2&nbsp;</label><br/><labelclass=""ef-control-label""><inputtype=""checkbox""value=""1""id=""ef-proweb-1-id-3""class=""ef-control-labelef-check-box""name=""ef-proweb-1-id-3""title="""">option2&nbsp;</label><br/></div></div></div></div></div>"
 	do $$$AssertEquals(returnedHTML,expectedHTML)
 ]]></Implementation>
 </Method>
@@ -4040,7 +4040,7 @@ also an entry point from unit tests</Description>
 
 <Class name="EF.pageController.proweb.testCases.datePIckerTestCase">
 <Super>EF.ISC.UnitTest.TestCase</Super>
-<TimeChanged>64309,58846.454125</TimeChanged>
+<TimeChanged>64323,54675.874879</TimeChanged>
 <TimeCreated>64204,52627.550246</TimeCreated>
 
 <Method name="TestDatePicker">
@@ -4062,7 +4062,7 @@ also an entry point from unit tests</Description>
 		
 	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(pageController,"renderComponent","unit test")
 	set returnedHTML = $ZStrip(returnedHTML,"*WC")
-	set expectedHTML = "<divclass=""rowef-form-row""><divclass=""form-group""><divclass=""col-sm-4ef-label-container""><labelid=""ef-display-label-Mydatepicker""class=""control-labelef-control-label""for=""Mydatepicker"">PleaseenteryourDOB</label></div><divclass=""col-sm-8ef-input-container""><divstyle=""width:40%""class=""ef-inputef-date-pickeref-kendo-form-control""><inputtype=""date""class=""ef-date-pickeref-kendo-form-controlefDatePicker""title=""""id=""Mydatepicker""name=""Mydatepicker""value=""""placeholder=""DD/MM/YYYY""efKendoDateFormat=""dd/MM/yyyy""></div></div></div></div>"
+	set expectedHTML = "<divclass=""rowef-form-row""><divclass=""form-group""><divclass=""col-sm-4ef-label-container""><labelid=""ef-display-label-ef-proweb-1-id""class=""control-labelef-control-label""for=""ef-proweb-1-id"">PleaseenteryourDOB</label></div><divclass=""col-sm-8ef-input-container""><divstyle=""width:40%""class=""ef-inputef-date-pickeref-kendo-form-control""><inputtype=""date""class=""ef-date-pickeref-kendo-form-controlefDatePicker""title=""""id=""ef-proweb-1-id""name=""ef-proweb-1-id""value=""""placeholder=""DD/MM/YYYY""efKendoDateFormat=""dd/MM/yyyy""></div></div></div></div>"
 	do $$$AssertEquals(returnedHTML,expectedHTML)
 ]]></Implementation>
 </Method>
@@ -4071,7 +4071,7 @@ also an entry point from unit tests</Description>
 
 <Class name="EF.pageController.proweb.testCases.dateRangeTestCase">
 <Super>EF.ISC.UnitTest.TestCase</Super>
-<TimeChanged>64309,58872.381542</TimeChanged>
+<TimeChanged>64323,54823.764109</TimeChanged>
 <TimeCreated>64204,52642.759507</TimeCreated>
 
 <Method name="TestDateRange">
@@ -4092,7 +4092,7 @@ also an entry point from unit tests</Description>
 	set pageController = ##class(EF.pageController.proweb.page).createMock(contextData)		
 	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(pageController,"renderComponent", "unit test")
 	set returnedHTML = $ZStrip(returnedHTML,"*WC")
-	set expectedHTML = "<divclass=""rowef-form-row""><divclass=""form-group""><divclass=""col-sm-4ef-label-container""><labelid=""ef-display-label-Mydateranger""class=""control-labelef-control-label""for=""Mydateranger"">Pleaseenteryourdatespan</label></div><divclass=""col-sm-8ef-input-container""><divclass=""ef-input-short""><inputtype=""date""class=""ef-date-pickeref-kendo-form-controlefDateRangeStartefDatePicker""title=""""id=""Mydateranger-startDate""name=""Mydateranger-startDate""value=""""placeholder=""DD/MM/YYYY""efdaterangeendid=""Mydateranger-endDate""efKendoDateFormat=""dd/MM/yyyy""></div><divstyle='float:left;text-align:left;margin-left:15px;margin-right:15px;'>to</div><divclass=""ef-input-short""><inputtype=""date""class=""ef-date-pickeref-kendo-form-controlefDateRangeEndefDatePicker""title=""""id=""Mydateranger-endDate""name=""Mydateranger-endDate""value=""""placeholder=""DD/MM/YYYY""efdaterangestartid=""Mydateranger-startDate""efKendoDateFormat=""dd/MM/yyyy""></div></div></div></div>"
+	set expectedHTML = "<divclass=""rowef-form-row""><divclass=""form-group""><divclass=""col-sm-4ef-label-container""><labelid=""ef-display-label-ef-proweb-1-id""class=""control-labelef-control-label""for=""ef-proweb-1-id"">Pleaseenteryourdatespan</label></div><divclass=""col-sm-8ef-input-container""><divclass=""ef-input-short""><inputtype=""date""class=""ef-date-pickeref-kendo-form-controlefDateRangeStartefDatePicker""title=""""id=""ef-proweb-1-id-startDate""name=""ef-proweb-1-id-startDate""value=""""placeholder=""DD/MM/YYYY""efdaterangeendid=""ef-proweb-1-id-endDate""efKendoDateFormat=""dd/MM/yyyy""></div><divstyle='float:left;text-align:left;margin-left:15px;margin-right:15px;'>to</div><divclass=""ef-input-short""><inputtype=""date""class=""ef-date-pickeref-kendo-form-controlefDateRangeEndefDatePicker""title=""""id=""ef-proweb-1-id-endDate""name=""ef-proweb-1-id-endDate""value=""""placeholder=""DD/MM/YYYY""efdaterangestartid=""ef-proweb-1-id-startDate""efKendoDateFormat=""dd/MM/yyyy""></div></div></div></div>"
 	do $$$AssertEquals(returnedHTML,expectedHTML)
 ]]></Implementation>
 </Method>
@@ -4101,7 +4101,7 @@ also an entry point from unit tests</Description>
 
 <Class name="EF.pageController.proweb.testCases.dropdownTestCase">
 <Super>EF.ISC.UnitTest.TestCase</Super>
-<TimeChanged>64309,58920.134497</TimeChanged>
+<TimeChanged>64323,54943.441348</TimeChanged>
 <TimeCreated>64204,52666.398429</TimeCreated>
 
 <Method name="TestPageWithDropdown">
@@ -4137,7 +4137,7 @@ also an entry point from unit tests</Description>
 		
 	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(pageController,"renderComponent", "unit test")
 	set returnedHTML = $ZStrip(returnedHTML,"*WC")
-	set expectedHTML = "<divclass=""rowef-form-row""><divclass=""form-group""><divclass=""col-sm-4ef-label-container""><labelid=""ef-display-label-Mydropdown""class=""control-labelef-control-label""for=""Mydropdown"">Pleasechooseyourweapon</label></div><divclass=""col-sm-8ef-input-container""><selectclass=""form-controlef-inputef-dropdown-list""name=""Mydropdown""id=""Mydropdown""title=""""><optionvalue=""option1""class="""">option1</option><optionvalue=""option2""class="""">option2</option><optionvalue=""option2""class="""">option2</option></select></div></div></div>"
+	set expectedHTML = "<divclass=""rowef-form-row""><divclass=""form-group""><divclass=""col-sm-4ef-label-container""><labelid=""ef-display-label-ef-proweb-1-id""class=""control-labelef-control-label""for=""ef-proweb-1-id"">Pleasechooseyourweapon</label></div><divclass=""col-sm-8ef-input-container""><selectclass=""form-controlef-inputef-dropdown-list""name=""Pleasechooseyourweapon""id=""ef-proweb-1-id""title=""""><optionvalue=""option1""class="""">option1</option><optionvalue=""option2""class="""">option2</option><optionvalue=""option2""class="""">option2</option></select></div></div></div>"
 	do $$$AssertEquals(returnedHTML,expectedHTML)
 ]]></Implementation>
 </Method>
@@ -4177,7 +4177,7 @@ also an entry point from unit tests</Description>
 		
 	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(pageController,"renderComponent", "unit test")	
 	set returnedHTML = $ZStrip(returnedHTML,"*WC")
-	set expectedHTML = "<divclass=""rowef-form-row""><divclass=""form-group""><divclass=""col-sm-4ef-label-container""><labelid=""ef-display-label-Mydropdown""class=""control-labelef-control-labelef-required-field""for=""Mydropdown"">Pleasechooseyourweapon</label></div><divclass=""col-sm-8ef-input-container""><selectclass=""form-controlef-inputef-dropdown-list""name=""Mydropdown""id=""Mydropdown""title=""""><optionvalue=''selecteddisabled>Chooseone...</option><optionvalue=""option1""class="""">option1</option><optionvalue=""option2""class="""">option2</option><optionvalue=""option2""class="""">option2</option></select></div></div></div>"
+	set expectedHTML = "<divclass=""rowef-form-row""><divclass=""form-group""><divclass=""col-sm-4ef-label-container""><labelid=""ef-display-label-ef-proweb-1-id""class=""control-labelef-control-labelef-required-field""for=""ef-proweb-1-id"">Pleasechooseyourweapon</label></div><divclass=""col-sm-8ef-input-container""><selectclass=""form-controlef-inputef-dropdown-list""name=""Pleasechooseyourweapon""id=""ef-proweb-1-id""title=""""><optionvalue=''selecteddisabled>Chooseone...</option><optionvalue=""option1""class="""">option1</option><optionvalue=""option2""class="""">option2</option><optionvalue=""option2""class="""">option2</option></select></div></div></div>"
 	do $$$AssertEquals(returnedHTML,expectedHTML)
 ]]></Implementation>
 </Method>
@@ -4217,7 +4217,7 @@ also an entry point from unit tests</Description>
 		
 	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(pageController,"renderComponent", "unit test")	
 	set returnedHTML = $ZStrip(returnedHTML,"*WC")
-	set expectedHTML = "<divclass=""rowef-form-row""><divclass=""form-group""><divclass=""col-sm-4ef-label-container""><labelid=""ef-display-label-Mydropdown""class=""control-labelef-control-label""for=""Mydropdown"">Pleasechooseyourweapon</label></div><divclass=""col-sm-8ef-input-container""><selectclass=""form-controlef-inputef-dropdown-list""name=""Mydropdown""id=""Mydropdown""title=""""><optionselected=""""value=""option1""class="""">option1</option><optionvalue=""option2""class="""">option2</option><optionvalue=""option2""class="""">option2</option></select></div></div></div>"
+	set expectedHTML = "<divclass=""rowef-form-row""><divclass=""form-group""><divclass=""col-sm-4ef-label-container""><labelid=""ef-display-label-ef-proweb-1-id""class=""control-labelef-control-label""for=""ef-proweb-1-id"">Pleasechooseyourweapon</label></div><divclass=""col-sm-8ef-input-container""><selectclass=""form-controlef-inputef-dropdown-list""name=""Pleasechooseyourweapon""id=""ef-proweb-1-id""title=""""><optionselected=""""value=""option1""class="""">option1</option><optionvalue=""option2""class="""">option2</option><optionvalue=""option2""class="""">option2</option></select></div></div></div>"
 	do $$$AssertEquals(returnedHTML,expectedHTML)
 ]]></Implementation>
 </Method>
@@ -4226,7 +4226,7 @@ also an entry point from unit tests</Description>
 
 <Class name="EF.pageController.proweb.testCases.emailInputMultiTestCase">
 <Super>EF.ISC.UnitTest.TestCase</Super>
-<TimeChanged>64309,59163.420373</TimeChanged>
+<TimeChanged>64323,54978.889765</TimeChanged>
 <TimeCreated>64204,52684.401246</TimeCreated>
 
 <Method name="TestMultiEmail">
@@ -4248,7 +4248,7 @@ also an entry point from unit tests</Description>
 	
 	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(pageController,"renderComponent","unit test")
 	set returnedHTML = $ZStrip(returnedHTML,"*WC")
-	set expectedHTML = "<divclass=""rowef-form-row""><divclass=""form-group""><divclass=""col-sm-4ef-label-container""><labelid=""ef-display-label-email""class=""control-labelef-control-label""for=""email"">Pleaseenterallyouremailaddresses</label></div><divclass=""col-sm-8ef-input-container""><inputtype=""email""class=""ef-inputform-controlef-input-text-field""title=""""id=""email""name=""email""value=""""placeholder=""""pattern=""^(([a-zA-Z0-9_\-\.&#39;]+)(\+[a-zA-Z0-9_\-\.&#39;]+){0,1}@(([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([a-zA-Z0-9\-]+\.)+))([a-zA-Z]{2,63}|[0-9]{1,3}))(\s*[;,]\s*(([a-zA-Z0-9_\-\.&#39;]+)(\+[a-zA-Z0-9_\-\.&#39;]+){0,1}@(([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([a-zA-Z0-9\-]+\.)+))([a-zA-Z]{2,63}|[0-9]{1,3})))*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;Pleaseenterallyouremailaddresses\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""autofocus=""autofocus""0></div></div></div>"
+	set expectedHTML = "<divclass=""rowef-form-row""><divclass=""form-group""><divclass=""col-sm-4ef-label-container""><labelid=""ef-display-label-ef-proweb-1-id""class=""control-labelef-control-label""for=""ef-proweb-1-id"">Pleaseenterallyouremailaddresses</label></div><divclass=""col-sm-8ef-input-container""><inputtype=""email""class=""ef-inputform-controlef-input-text-field""title=""""id=""ef-proweb-1-id""name=""ef-proweb-1-id""value=""""placeholder=""""pattern=""^(([a-zA-Z0-9_\-\.&#39;]+)(\+[a-zA-Z0-9_\-\.&#39;]+){0,1}@(([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([a-zA-Z0-9\-]+\.)+))([a-zA-Z]{2,63}|[0-9]{1,3}))(\s*[;,]\s*(([a-zA-Z0-9_\-\.&#39;]+)(\+[a-zA-Z0-9_\-\.&#39;]+){0,1}@(([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([a-zA-Z0-9\-]+\.)+))([a-zA-Z]{2,63}|[0-9]{1,3})))*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;Pleaseenterallyouremailaddresses\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""autofocus=""autofocus""0></div></div></div>"
 	do $$$AssertEquals(returnedHTML,expectedHTML)
 ]]></Implementation>
 </Method>
@@ -4257,7 +4257,7 @@ also an entry point from unit tests</Description>
 
 <Class name="EF.pageController.proweb.testCases.emailInputTestCase">
 <Super>EF.ISC.UnitTest.TestCase</Super>
-<TimeChanged>64309,61633.556618</TimeChanged>
+<TimeChanged>64323,55011.555446</TimeChanged>
 <TimeCreated>64204,52696.984856</TimeCreated>
 
 <Method name="TestEmail">
@@ -4279,7 +4279,7 @@ also an entry point from unit tests</Description>
 	
 	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(pageController,"renderComponent", "unit test")
 	set returnedHTML = $ZStrip(returnedHTML,"*WC")
-	set expectedHTML = "<divclass=""rowef-form-row""><divclass=""form-group""><divclass=""col-sm-4ef-label-container""><labelid=""ef-display-label-email""class=""control-labelef-control-label""for=""email"">Pleaseenteryouremailaddress</label></div><divclass=""col-sm-8ef-input-container""><inputtype=""email""class=""ef-inputform-controlef-input-text-field""title=""""id=""email""name=""email""value=""""placeholder=""""pattern=""^(([a-zA-Z0-9_\-\.&#39;]+)(\+[a-zA-Z0-9_\-\.&#39;]+){0,1}@(([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([a-zA-Z0-9\-]+\.)+))([a-zA-Z]{2,63}|[0-9]{1,3}))$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;Pleaseenteryouremailaddress\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""autofocus=""autofocus""0></div></div></div>"
+	set expectedHTML = "<divclass=""rowef-form-row""><divclass=""form-group""><divclass=""col-sm-4ef-label-container""><labelid=""ef-display-label-ef-proweb-1-id""class=""control-labelef-control-label""for=""ef-proweb-1-id"">Pleaseenteryouremailaddress</label></div><divclass=""col-sm-8ef-input-container""><inputtype=""email""class=""ef-inputform-controlef-input-text-field""title=""""id=""ef-proweb-1-id""name=""ef-proweb-1-id""value=""""placeholder=""""pattern=""^(([a-zA-Z0-9_\-\.&#39;]+)(\+[a-zA-Z0-9_\-\.&#39;]+){0,1}@(([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([a-zA-Z0-9\-]+\.)+))([a-zA-Z]{2,63}|[0-9]{1,3}))$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;Pleaseenteryouremailaddress\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""autofocus=""autofocus""0></div></div></div>"
 	do $$$AssertEquals(returnedHTML,expectedHTML)
 ]]></Implementation>
 </Method>
@@ -4324,7 +4324,7 @@ also an entry point from unit tests</Description>
 
 <Class name="EF.pageController.proweb.testCases.integerInputTestCase">
 <Super>EF.ISC.UnitTest.TestCase</Super>
-<TimeChanged>64309,61699.894626</TimeChanged>
+<TimeChanged>64323,55103.085151</TimeChanged>
 <TimeCreated>64204,52712.809439</TimeCreated>
 
 <Method name="TestInteger">
@@ -4346,7 +4346,7 @@ also an entry point from unit tests</Description>
 	
 	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(pageController, "renderComponent", "unit test")
 	set returnedHTML = $ZStrip(returnedHTML,"*WC")
-	set expectedHTML = "<divclass=""rowef-form-row""><divclass=""form-group""><divclass=""col-sm-4ef-label-container""><labelid=""ef-display-label-myint""class=""control-labelef-control-label""for=""myint"">Pleaseenteryourheightincm</label></div><divclass=""col-sm-8ef-input-container""><inputtype=""number""class=""form-controlef-inputef-input-shortef-input-short""title=""""id=""myint""name=""myint""value=""""placeholder=""""pattern=""^([\+\-]){0,1}\d+$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;Pleaseenteryourheightincm\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""autofocus=""autofocus""0></div></div></div>"
+	set expectedHTML = "<divclass=""rowef-form-row""><divclass=""form-group""><divclass=""col-sm-4ef-label-container""><labelid=""ef-display-label-ef-proweb-1-id""class=""control-labelef-control-label""for=""ef-proweb-1-id"">Pleaseenteryourheightincm</label></div><divclass=""col-sm-8ef-input-container""><inputtype=""number""class=""form-controlef-inputef-input-shortef-input-short""title=""""id=""ef-proweb-1-id""name=""ef-proweb-1-id""value=""""placeholder=""""pattern=""^([\+\-]){0,1}\d+$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;Pleaseenteryourheightincm\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""autofocus=""autofocus""0></div></div></div>"
 	do $$$AssertEquals(returnedHTML,expectedHTML)
 ]]></Implementation>
 </Method>
@@ -4355,7 +4355,7 @@ also an entry point from unit tests</Description>
 
 <Class name="EF.pageController.proweb.testCases.numericInputTestCase">
 <Super>EF.ISC.UnitTest.TestCase</Super>
-<TimeChanged>64309,61746.002591</TimeChanged>
+<TimeChanged>64323,55134.76844</TimeChanged>
 <TimeCreated>64204,52723.013439</TimeCreated>
 
 <Method name="TestNumeric">
@@ -4377,7 +4377,7 @@ also an entry point from unit tests</Description>
 	
 	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(pageController,"renderComponent","unit test")
 	set returnedHTML = $ZStrip(returnedHTML,"*WC")
-	set expectedHTML = "<divclass=""rowef-form-row""><divclass=""form-group""><divclass=""col-sm-4ef-label-container""><labelid=""ef-display-label-myfloatingpointnumber""class=""control-labelef-control-label""for=""myfloatingpointnumber"">Pleaseenteryourheightinkilometers</label></div><divclass=""col-sm-8ef-input-container""><inputtype=""text""class=""form-controlef-inputef-input-short""title=""""id=""myfloatingpointnumber""name=""myfloatingpointnumber""value=""""placeholder=""""pattern=""^[+-]?((0)|([1-9][0-9]*?))?(\.[0-9]{1,2})?$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;Pleaseenteryourheightinkilometers\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""autofocus=""autofocus""0></div></div></div>"
+	set expectedHTML = "<divclass=""rowef-form-row""><divclass=""form-group""><divclass=""col-sm-4ef-label-container""><labelid=""ef-display-label-ef-proweb-1-id""class=""control-labelef-control-label""for=""ef-proweb-1-id"">Pleaseenteryourheightinkilometers</label></div><divclass=""col-sm-8ef-input-container""><inputtype=""text""class=""form-controlef-inputef-input-short""title=""""id=""ef-proweb-1-id""name=""ef-proweb-1-id""value=""""placeholder=""""pattern=""^[+-]?((0)|([1-9][0-9]*?))?(\.[0-9]{1,2})?$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;Pleaseenteryourheightinkilometers\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""autofocus=""autofocus""0></div></div></div>"
 	do $$$AssertEquals(returnedHTML,expectedHTML)
 ]]></Implementation>
 </Method>
@@ -4386,7 +4386,7 @@ also an entry point from unit tests</Description>
 
 <Class name="EF.pageController.proweb.testCases.pageTestCase">
 <Super>EF.ISC.UnitTest.TestCase</Super>
-<TimeChanged>64310,53192.860447</TimeChanged>
+<TimeChanged>64323,55167.337324</TimeChanged>
 <TimeCreated>64189,44993.632692</TimeCreated>
 
 <Method name="TestEditModeHTML">
@@ -4433,7 +4433,7 @@ also an entry point from unit tests</Description>
 	
 	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(pageController,"renderComponent","unit test")
 	set returnedHTML = $ZStrip(returnedHTML,"*WC")
-	set expectedHTML = "<divclass=""ef-panelef-draggable-div""data-show-hide-dependency-list=""{&quot;logic&quot;:&quot;and&quot;,&quot;dependencies&quot;:[{&quot;parentName&quot;:&quot;ef-is-guest-active-1&quot;,&quot;parentId&quot;:&quot;ef-is-guest-active-1&quot;,&quot;operator&quot;:&quot;eq&quot;,&quot;value&quot;:&quot;1&quot;}]}""><divclass=""ef-panel-heading""id="""">Guest<divclass=""ef-delete-guest-button""data-ef-guest-number=""1""><spanclass=""glyphiconglyphicon-trash""/></div></div><divclass=""ef-panel-bodyef-proweb-reorderable-guest""><divclass=""rowef-form-row""><divclass=""form-group""><divclass=""col-sm-4ef-label-container""><labelid=""ef-display-label-Firstname-1""class=""control-labelef-control-labelef-required-field""for=""Firstname-1"">AttendeeFirstName</label></div><divclass=""col-sm-8ef-input-container""><inputtype=""text""class=""ef-inputform-controlef-input-text-field""title=""""id=""Firstname-1""name=""Firstname-1""value=""""placeholder=""""data-enable-disable-dependency-list=""{&quot;logic&quot;:&quot;and&quot;,&quot;dependencies&quot;:[{&quot;parentName&quot;:&quot;ef-is-guest-active-1&quot;,&quot;parentId&quot;:&quot;ef-is-guest-active-1&quot;,&quot;operator&quot;:&quot;eq&quot;,&quot;value&quot;:&quot;1&quot;}]}""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;AttendeeFirstName\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""autofocus=""autofocus""0></div></div></div><divclass=""rowef-form-row""><divclass=""form-group""><divclass=""col-sm-4ef-label-container""><labelid=""ef-display-label-Lastname-1""class=""control-labelef-control-labelef-required-field""for=""Lastname-1"">AttendeeLastName</label></div><divclass=""col-sm-8ef-input-container""><inputtype=""text""class=""ef-inputform-controlef-input-text-field""title=""""id=""Lastname-1""name=""Lastname-1""value=""""placeholder=""""data-enable-disable-dependency-list=""{&quot;logic&quot;:&quot;and&quot;,&quot;dependencies&quot;:[{&quot;parentName&quot;:&quot;ef-is-guest-active-1&quot;,&quot;parentId&quot;:&quot;ef-is-guest-active-1&quot;,&quot;operator&quot;:&quot;eq&quot;,&quot;value&quot;:&quot;1&quot;}]}""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;AttendeeLastName\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""0></div></div></div></div></div><divclass=""ef-panelef-draggable-div""data-show-hide-dependency-list=""{&quot;logic&quot;:&quot;and&quot;,&quot;dependencies&quot;:[{&quot;parentName&quot;:&quot;ef-is-guest-active-2&quot;,&quot;parentId&quot;:&quot;ef-is-guest-active-2&quot;,&quot;operator&quot;:&quot;eq&quot;,&quot;value&quot;:&quot;1&quot;}]}""><divclass=""ef-panel-heading""id="""">Guest<divclass=""ef-delete-guest-button""data-ef-guest-number=""2""><spanclass=""glyphiconglyphicon-trash""/></div></div><divclass=""ef-panel-bodyef-proweb-reorderable-guest""><divclass=""rowef-form-row""><divclass=""form-group""><divclass=""col-sm-4ef-label-container""><labelid=""ef-display-label-Firstname-2""class=""control-labelef-control-labelef-required-field""for=""Firstname-2"">AttendeeFirstName</label></div><divclass=""col-sm-8ef-input-container""><inputtype=""text""class=""ef-inputform-controlef-input-text-field""title=""""id=""Firstname-2""name=""Firstname-2""value=""""placeholder=""""data-enable-disable-dependency-list=""{&quot;logic&quot;:&quot;and&quot;,&quot;dependencies&quot;:[{&quot;parentName&quot;:&quot;ef-is-guest-active-2&quot;,&quot;parentId&quot;:&quot;ef-is-guest-active-2&quot;,&quot;operator&quot;:&quot;eq&quot;,&quot;value&quot;:&quot;1&quot;}]}""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;AttendeeFirstName\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""autofocus=""autofocus""0></div></div></div><divclass=""rowef-form-row""><divclass=""form-group""><divclass=""col-sm-4ef-label-container""><labelid=""ef-display-label-Lastname-2""class=""control-labelef-control-labelef-required-field""for=""Lastname-2"">AttendeeLastName</label></div><divclass=""col-sm-8ef-input-container""><inputtype=""text""class=""ef-inputform-controlef-input-text-field""title=""""id=""Lastname-2""name=""Lastname-2""value=""""placeholder=""""data-enable-disable-dependency-list=""{&quot;logic&quot;:&quot;and&quot;,&quot;dependencies&quot;:[{&quot;parentName&quot;:&quot;ef-is-guest-active-2&quot;,&quot;parentId&quot;:&quot;ef-is-guest-active-2&quot;,&quot;operator&quot;:&quot;eq&quot;,&quot;value&quot;:&quot;1&quot;}]}""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;AttendeeLastName\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""0></div></div></div></div></div>"
+	set expectedHTML = "<divclass=""ef-panelef-draggable-div""data-show-hide-dependency-list=""{&quot;logic&quot;:&quot;and&quot;,&quot;dependencies&quot;:[{&quot;parentName&quot;:&quot;ef-is-guest-active-1&quot;,&quot;parentId&quot;:&quot;ef-is-guest-active-1&quot;,&quot;operator&quot;:&quot;eq&quot;,&quot;value&quot;:&quot;1&quot;}]}""><divclass=""ef-panel-heading""id="""">Guest<divclass=""ef-delete-guest-button""data-ef-guest-number=""1""><spanclass=""glyphiconglyphicon-trash""/></div></div><divclass=""ef-panel-bodyef-proweb-reorderable-guest""><divclass=""rowef-form-row""><divclass=""form-group""><divclass=""col-sm-4ef-label-container""><labelid=""ef-display-label-ef-proweb-1-id-1""class=""control-labelef-control-labelef-required-field""for=""ef-proweb-1-id-1"">AttendeeFirstName</label></div><divclass=""col-sm-8ef-input-container""><inputtype=""text""class=""ef-inputform-controlef-input-text-field""title=""""id=""ef-proweb-1-id-1""name=""AttendeeFirstName""value=""""placeholder=""""data-enable-disable-dependency-list=""{&quot;logic&quot;:&quot;and&quot;,&quot;dependencies&quot;:[{&quot;parentName&quot;:&quot;ef-is-guest-active-1&quot;,&quot;parentId&quot;:&quot;ef-is-guest-active-1&quot;,&quot;operator&quot;:&quot;eq&quot;,&quot;value&quot;:&quot;1&quot;}]}""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;AttendeeFirstName\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""autofocus=""autofocus""0></div></div></div><divclass=""rowef-form-row""><divclass=""form-group""><divclass=""col-sm-4ef-label-container""><labelid=""ef-display-label-ef-proweb-2-id-1""class=""control-labelef-control-labelef-required-field""for=""ef-proweb-2-id-1"">AttendeeLastName</label></div><divclass=""col-sm-8ef-input-container""><inputtype=""text""class=""ef-inputform-controlef-input-text-field""title=""""id=""ef-proweb-2-id-1""name=""AttendeeLastName""value=""""placeholder=""""data-enable-disable-dependency-list=""{&quot;logic&quot;:&quot;and&quot;,&quot;dependencies&quot;:[{&quot;parentName&quot;:&quot;ef-is-guest-active-1&quot;,&quot;parentId&quot;:&quot;ef-is-guest-active-1&quot;,&quot;operator&quot;:&quot;eq&quot;,&quot;value&quot;:&quot;1&quot;}]}""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;AttendeeLastName\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""0></div></div></div></div></div><divclass=""ef-panelef-draggable-div""data-show-hide-dependency-list=""{&quot;logic&quot;:&quot;and&quot;,&quot;dependencies&quot;:[{&quot;parentName&quot;:&quot;ef-is-guest-active-2&quot;,&quot;parentId&quot;:&quot;ef-is-guest-active-2&quot;,&quot;operator&quot;:&quot;eq&quot;,&quot;value&quot;:&quot;1&quot;}]}""><divclass=""ef-panel-heading""id="""">Guest<divclass=""ef-delete-guest-button""data-ef-guest-number=""2""><spanclass=""glyphiconglyphicon-trash""/></div></div><divclass=""ef-panel-bodyef-proweb-reorderable-guest""><divclass=""rowef-form-row""><divclass=""form-group""><divclass=""col-sm-4ef-label-container""><labelid=""ef-display-label-ef-proweb-1-id-2""class=""control-labelef-control-labelef-required-field""for=""ef-proweb-1-id-2"">AttendeeFirstName</label></div><divclass=""col-sm-8ef-input-container""><inputtype=""text""class=""ef-inputform-controlef-input-text-field""title=""""id=""ef-proweb-1-id-2""name=""AttendeeFirstName""value=""""placeholder=""""data-enable-disable-dependency-list=""{&quot;logic&quot;:&quot;and&quot;,&quot;dependencies&quot;:[{&quot;parentName&quot;:&quot;ef-is-guest-active-2&quot;,&quot;parentId&quot;:&quot;ef-is-guest-active-2&quot;,&quot;operator&quot;:&quot;eq&quot;,&quot;value&quot;:&quot;1&quot;}]}""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;AttendeeFirstName\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""autofocus=""autofocus""0></div></div></div><divclass=""rowef-form-row""><divclass=""form-group""><divclass=""col-sm-4ef-label-container""><labelid=""ef-display-label-ef-proweb-2-id-2""class=""control-labelef-control-labelef-required-field""for=""ef-proweb-2-id-2"">AttendeeLastName</label></div><divclass=""col-sm-8ef-input-container""><inputtype=""text""class=""ef-inputform-controlef-input-text-field""title=""""id=""ef-proweb-2-id-2""name=""AttendeeLastName""value=""""placeholder=""""data-enable-disable-dependency-list=""{&quot;logic&quot;:&quot;and&quot;,&quot;dependencies&quot;:[{&quot;parentName&quot;:&quot;ef-is-guest-active-2&quot;,&quot;parentId&quot;:&quot;ef-is-guest-active-2&quot;,&quot;operator&quot;:&quot;eq&quot;,&quot;value&quot;:&quot;1&quot;}]}""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;AttendeeLastName\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""0></div></div></div></div></div>"
 	do $$$AssertEquals(returnedHTML,expectedHTML)
 ]]></Implementation>
 </Method>
@@ -4442,7 +4442,7 @@ also an entry point from unit tests</Description>
 
 <Class name="EF.pageController.proweb.testCases.passwordInputTestCase">
 <Super>EF.ISC.UnitTest.TestCase</Super>
-<TimeChanged>64309,61808.836257</TimeChanged>
+<TimeChanged>64323,55215.856359</TimeChanged>
 <TimeCreated>64208,51641.871984</TimeCreated>
 
 <Method name="TestPasswordInput">
@@ -4464,7 +4464,7 @@ also an entry point from unit tests</Description>
 	
 	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(pageController,"renderComponent","unit test")
 	set returnedHTML = $ZStrip(returnedHTML,"*WC")
-	set expectedHTML = "<divclass=""rowef-form-row""><divclass=""form-group""><divclass=""col-sm-4ef-label-container""><labelid=""ef-display-label-Password""class=""control-labelef-control-label""for=""Password"">Pleaseenteryourpassword</label></div><divclass=""col-sm-8ef-input-container""><inputtype=""password""class=""ef-inputform-controlef-input-text-field""title=""""id=""Password""name=""Password""value=""""placeholder=""""autofocus=""autofocus""0></div></div></div>"
+	set expectedHTML = "<divclass=""rowef-form-row""><divclass=""form-group""><divclass=""col-sm-4ef-label-container""><labelid=""ef-display-label-ef-proweb-1-id""class=""control-labelef-control-label""for=""ef-proweb-1-id"">Pleaseenteryourpassword</label></div><divclass=""col-sm-8ef-input-container""><inputtype=""password""class=""ef-inputform-controlef-input-text-field""title=""""id=""ef-proweb-1-id""name=""ef-proweb-1-id""value=""""placeholder=""""autofocus=""autofocus""0></div></div></div>"
 	do $$$AssertEquals(returnedHTML,expectedHTML)
 ]]></Implementation>
 </Method>
@@ -4473,7 +4473,7 @@ also an entry point from unit tests</Description>
 
 <Class name="EF.pageController.proweb.testCases.phoneNumberTestCase">
 <Super>EF.ISC.UnitTest.TestCase</Super>
-<TimeChanged>64309,61894.308212</TimeChanged>
+<TimeChanged>64323,55254.425922</TimeChanged>
 <TimeCreated>64204,52750.117876</TimeCreated>
 
 <Method name="TestPhoneNumber">
@@ -4495,7 +4495,7 @@ also an entry point from unit tests</Description>
 	
 	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(pageController,"renderComponent","unit test")
 	set returnedHTML = $ZStrip(returnedHTML,"*WC")
-	set expectedHTML = "<divclass=""rowef-form-row""><divclass=""form-group""><divclass=""col-sm-4ef-label-container""><labelid=""ef-display-label-phoneNumber""class=""control-labelef-control-label""for=""phoneNumber"">Pleaseenteryourphonenumber</label></div><divclass=""col-sm-8ef-input-container""><inputtype=""tel""class=""ef-inputform-controlef-input-text-fieldef-input-short""title=""""id=""phoneNumber""name=""phoneNumber""value=""""placeholder=""""pattern=""^(?!(.*-(\s)*-.*))(?!(.*\.(\s)*\..*))(?=.*[\d\)](\s)*$)(?=.*(\d)+.*)(\+(\d){1,3}){0,1}(?=\s*([\d\(]).*)(([\d\s\-\.])|(\(([\d\-\.\s])+\)))*(\s)*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;Pleaseenteryourphonenumber\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""autofocus=""autofocus""0></div></div></div>"
+	set expectedHTML = "<divclass=""rowef-form-row""><divclass=""form-group""><divclass=""col-sm-4ef-label-container""><labelid=""ef-display-label-ef-proweb-1-id""class=""control-labelef-control-label""for=""ef-proweb-1-id"">Pleaseenteryourphonenumber</label></div><divclass=""col-sm-8ef-input-container""><inputtype=""tel""class=""ef-inputform-controlef-input-text-fieldef-input-short""title=""""id=""ef-proweb-1-id""name=""ef-proweb-1-id""value=""""placeholder=""""pattern=""^(?!(.*-(\s)*-.*))(?!(.*\.(\s)*\..*))(?=.*[\d\)](\s)*$)(?=.*(\d)+.*)(\+(\d){1,3}){0,1}(?=\s*([\d\(]).*)(([\d\s\-\.])|(\(([\d\-\.\s])+\)))*(\s)*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;Pleaseenteryourphonenumber\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""autofocus=""autofocus""0></div></div></div>"
 	do $$$AssertEquals(returnedHTML,expectedHTML)
 ]]></Implementation>
 </Method>
@@ -4504,7 +4504,7 @@ also an entry point from unit tests</Description>
 
 <Class name="EF.pageController.proweb.testCases.radioButtonsTestCase">
 <Super>EF.ISC.UnitTest.TestCase</Super>
-<TimeChanged>64309,62059.38508</TimeChanged>
+<TimeChanged>64323,55316.939397</TimeChanged>
 <TimeCreated>64204,52760.35415</TimeCreated>
 
 <Method name="TestRadioButtonsABI">
@@ -4536,7 +4536,7 @@ also an entry point from unit tests</Description>
 			
 	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(pageController,"renderComponent", "unit test")
 	set returnedHTML = $ZStrip(returnedHTML,"*WC")
-	set expectedHTML = "<divclass=""rowef-form-row""><divclass=""form-group""><divclass=""col-sm-4ef-label-containeref-label-container-vertical-group""><labelid=""ef-display-label-MYRADIO""class=""control-labelef-control-label""for=""MYRADIO"">Pleaseselectyouroption</label></div><divclass=""col-sm-8ef-input-containeref-radio-group""><divclass=""ef-input""><divclass=""ef-radio-button""><labelclass=""ef-control-labelactive""class=""ef-radio-button""id=""MYRADIO_1-label""><inputtype=""radio""checkedclass=""ef-radio-button""value=""option1""name=""MYRADIO""id=""MYRADIO_1"">&nbsp;option1&nbsp;&nbsp;</label></div><divclass=""ef-radio-button""><labelclass=""ef-control-label""class=""ef-radio-button""id=""MYRADIO_2-label""><inputtype=""radio""class=""ef-radio-button""value=""option2""name=""MYRADIO""id=""MYRADIO_2"">&nbsp;option2</label></div><divclass=""ef-radio-button""><labelclass=""ef-control-label""class=""ef-radio-button""id=""MYRADIO_3-label""><inputtype=""radio""class=""ef-radio-button""value=""option3""name=""MYRADIO""id=""MYRADIO_3"">&nbsp;option3</label></div></div></div></div></div>"
+	set expectedHTML = "<divclass=""rowef-form-row""><divclass=""form-group""><divclass=""col-sm-4ef-label-containeref-label-container-vertical-group""><labelid=""ef-display-label-ef-proweb-1-id""class=""control-labelef-control-label""for=""ef-proweb-1-id"">Pleaseselectyouroption</label></div><divclass=""col-sm-8ef-input-containeref-radio-group""><divclass=""ef-input""><divclass=""ef-radio-button""><labelclass=""ef-control-labelactive""class=""ef-radio-button""id=""ef-proweb-1-id_1-label""><inputtype=""radio""checkedclass=""ef-radio-button""value=""option1""name=""ef-proweb-1-id""id=""ef-proweb-1-id_1"">&nbsp;option1&nbsp;&nbsp;</label></div><divclass=""ef-radio-button""><labelclass=""ef-control-label""class=""ef-radio-button""id=""ef-proweb-1-id_2-label""><inputtype=""radio""class=""ef-radio-button""value=""option2""name=""ef-proweb-1-id""id=""ef-proweb-1-id_2"">&nbsp;option2</label></div><divclass=""ef-radio-button""><labelclass=""ef-control-label""class=""ef-radio-button""id=""ef-proweb-1-id_3-label""><inputtype=""radio""class=""ef-radio-button""value=""option3""name=""ef-proweb-1-id""id=""ef-proweb-1-id_3"">&nbsp;option3</label></div></div></div></div></div>"
 	do $$$AssertEquals(returnedHTML,expectedHTML)
 ]]></Implementation>
 </Method>
@@ -4567,7 +4567,7 @@ also an entry point from unit tests</Description>
 			
 	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(pageController,"renderComponent", "unit test")
 	set returnedHTML = $ZStrip(returnedHTML,"*WC")
-	set expectedHTML = "<divclass=""rowef-form-row""><divclass=""form-group""><divclass=""col-sm-4ef-label-containeref-label-container-vertical-group""><labelid=""ef-display-label-MYRADIO""class=""control-labelef-control-label""for=""MYRADIO"">Pleaseselectyouroption</label></div><divclass=""col-sm-8ef-input-containeref-radio-group""><divclass=""ef-input""><divclass=""ef-radio-button""><labelclass=""ef-control-labelactive""class=""ef-radio-button""id=""MYRADIO_1-label""><inputtype=""radio""checkedclass=""ef-radio-button""value=""option1""name=""MYRADIO""id=""MYRADIO_1"">&nbsp;option1</label></div><divclass=""ef-radio-button""><labelclass=""ef-control-label""class=""ef-radio-button""id=""MYRADIO_2-label""><inputtype=""radio""class=""ef-radio-button""value=""option2""name=""MYRADIO""id=""MYRADIO_2"">&nbsp;option2</label></div><divclass=""ef-radio-button""><labelclass=""ef-control-label""class=""ef-radio-button""id=""MYRADIO_3-label""><inputtype=""radio""class=""ef-radio-button""value=""option3""name=""MYRADIO""id=""MYRADIO_3"">&nbsp;option3</label></div></div></div></div></div>"
+	set expectedHTML = "<divclass=""rowef-form-row""><divclass=""form-group""><divclass=""col-sm-4ef-label-containeref-label-container-vertical-group""><labelid=""ef-display-label-ef-proweb-1-id""class=""control-labelef-control-label""for=""ef-proweb-1-id"">Pleaseselectyouroption</label></div><divclass=""col-sm-8ef-input-containeref-radio-group""><divclass=""ef-input""><divclass=""ef-radio-button""><labelclass=""ef-control-labelactive""class=""ef-radio-button""id=""ef-proweb-1-id_1-label""><inputtype=""radio""checkedclass=""ef-radio-button""value=""option1""name=""ef-proweb-1-id""id=""ef-proweb-1-id_1"">&nbsp;option1</label></div><divclass=""ef-radio-button""><labelclass=""ef-control-label""class=""ef-radio-button""id=""ef-proweb-1-id_2-label""><inputtype=""radio""class=""ef-radio-button""value=""option2""name=""ef-proweb-1-id""id=""ef-proweb-1-id_2"">&nbsp;option2</label></div><divclass=""ef-radio-button""><labelclass=""ef-control-label""class=""ef-radio-button""id=""ef-proweb-1-id_3-label""><inputtype=""radio""class=""ef-radio-button""value=""option3""name=""ef-proweb-1-id""id=""ef-proweb-1-id_3"">&nbsp;option3</label></div></div></div></div></div>"
 	do $$$AssertEquals(returnedHTML,expectedHTML)
 ]]></Implementation>
 </Method>
@@ -4576,7 +4576,7 @@ also an entry point from unit tests</Description>
 
 <Class name="EF.pageController.proweb.testCases.textAreaTestCase">
 <Super>EF.ISC.UnitTest.TestCase</Super>
-<TimeChanged>64309,62154.222185</TimeChanged>
+<TimeChanged>64323,55343.653449</TimeChanged>
 <TimeCreated>64204,52770.974784</TimeCreated>
 
 <Method name="TestTextArea">
@@ -4599,7 +4599,7 @@ also an entry point from unit tests</Description>
 	
 	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(pageController,"renderComponent", "unit test")
 	set returnedHTML = $ZStrip(returnedHTML,"*WC")
-	set expectedHTML = "<divclass=""rowef-form-row""><divclass=""form-group""><divclass=""col-sm-4ef-label-container""><labelid=""ef-display-label-mytext""class=""control-labelef-control-label""for=""mytext"">Pleaseenteryouressay</label></div><divclass=""col-sm-8ef-input-container""><textareatype=""text""class=""ef-inputform-controlef-input-text-area""title=""""id=""mytext""name=""mytext""rows=""""placeholder="""">LOREMIPSUM</textArea></div></div></div>"
+	set expectedHTML = "<divclass=""rowef-form-row""><divclass=""form-group""><divclass=""col-sm-4ef-label-container""><labelid=""ef-display-label-ef-proweb-1-id""class=""control-labelef-control-label""for=""ef-proweb-1-id"">Pleaseenteryouressay</label></div><divclass=""col-sm-8ef-input-container""><textareatype=""text""class=""ef-inputform-controlef-input-text-area""title=""""id=""ef-proweb-1-id""name=""ef-proweb-1-id""rows=""""placeholder="""">LOREMIPSUM</textArea></div></div></div>"
 					 
 	do $$$AssertEquals(returnedHTML,expectedHTML)
 ]]></Implementation>
@@ -4638,34 +4638,8 @@ also an entry point from unit tests</Description>
 
 <Class name="EF.pageController.proweb.testCases.textInputTestCase">
 <Super>EF.ISC.UnitTest.TestCase</Super>
-<TimeChanged>64310,55680.591549</TimeChanged>
+<TimeChanged>64323,55821.222353</TimeChanged>
 <TimeCreated>64204,52795.592181</TimeCreated>
-
-<Method name="TestbasicInputField">
-<Implementation><![CDATA[
-	;set eventConfiguration = ##class(setup.eventConfiguration.storageMock).createEventConfiguration() // ### change
-	
-	set contextData = ##class(EF.contextDataRegistrationMock).createMock()
-	//set contextData.prowebMode = "preview" // #### change
-	
-	set storage = ##class(sc.facade.prowebItemStorageInputElementMock).createNew()
-	set storage.prowebID = "1"
-	set storage.databaseItemName = "name"
-	set storage.inputType = "text"
-	set storage.labelText = "Please enter your name"
-	
-	
-	set prowebItem = ##class(sc.facade.prowebItem).createNew(storage)
-	do contextData.listOfProwebItemsToAdd.Insert(prowebItem)
-
-	set pageController = ##class(EF.pageController.proweb.page).createMock(contextData) // #### change
-	
-	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(pageController,"renderComponent", "unit test")
-	set returnedHTML = $ZStrip(returnedHTML,"*WC")
-	set expectedHTML = "<divclass=""rowef-form-row""><divclass=""form-group""><divclass=""col-sm-4ef-label-container""><labelid=""ef-display-label-name""class=""control-labelef-control-label""for=""name"">Pleaseenteryourname</label></div><divclass=""col-sm-8ef-input-container""><inputtype=""text""class=""ef-inputform-controlef-input-text-field""title=""""id=""name""name=""name""value=""""placeholder=""""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;Pleaseenteryourname\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""autofocus=""autofocus""0></div></div></div>"
-	do $$$AssertEquals(returnedHTML,expectedHTML)
-]]></Implementation>
-</Method>
 
 <Method name="TestAriaLabel">
 <Implementation><![CDATA[
@@ -4683,7 +4657,7 @@ also an entry point from unit tests</Description>
 	
 	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(pageController,"renderComponent", "unit test")
 	set returnedHTML = $ZStrip(returnedHTML,"*WC")
-	set expectedHTML = "<divclass=""rowef-form-row""><divclass=""form-group""><divclass=""col-sm-4ef-label-container""></div><divclass=""col-sm-8ef-input-container""><inputtype=""text""class=""ef-inputform-controlef-input-text-field""title=""""id=""name""name=""name""value=""""placeholder=""""aria-label=""name""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""autofocus=""autofocus""0></div></div></div>"
+	set expectedHTML = "<divclass=""rowef-form-row""><divclass=""form-group""><divclass=""col-sm-4ef-label-container""></div><divclass=""col-sm-8ef-input-container""><inputtype=""text""class=""ef-inputform-controlef-input-text-field""title=""""id=""ef-proweb-1-id""name=""ef-proweb-1-id""value=""""placeholder=""""aria-label=""name""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""autofocus=""autofocus""0></div></div></div>"
 	do $$$AssertEquals(returnedHTML,expectedHTML)
 ]]></Implementation>
 </Method>
@@ -4708,30 +4682,7 @@ also an entry point from unit tests</Description>
 	
 	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(pageController,"renderComponent", "unit test")
 	set returnedHTML = $ZStrip(returnedHTML,"*WC")
-	set expectedHTML = "<divclass=""rowef-form-row""><divclass=""form-group""><divclass=""col-sm-4ef-label-container""><labelid=""ef-display-label-name""class=""control-labelef-control-labelef-required-field""for=""name"">Pleaseenteryourname</label></div><divclass=""col-sm-8ef-input-container""><inputtype=""text""class=""ef-inputform-controlef-input-text-fieldef-admin-only""title=""""id=""name""name=""name""value=""""placeholder=""(Adminportalonly)""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;Pleaseenteryourname\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""autofocus=""autofocus""0></div></div></div>"
-	do $$$AssertEquals(returnedHTML,expectedHTML)
-]]></Implementation>
-</Method>
-
-<Method name="TestBasicPageWithMandatoryTextField">
-<Implementation><![CDATA[
-	set contextData = ##class(EF.contextDataRegistrationMock).createMock()
-	
-	set storage = ##class(sc.facade.prowebItemStorageInputElementMock).createNew()
-	set storage.prowebID = "1"
-	set storage.databaseItemName = "name"
-	set storage.inputType = "text"
-	set storage.labelText = "Please enter your name"
-	set storage.isMandatory = 1
-	
-	set prowebItem = ##class(sc.facade.prowebItem).createNew(storage)
-	do contextData.listOfProwebItemsToAdd.Insert(prowebItem)
-
-	set pageController = ##class(EF.pageController.proweb.page).createMock(contextData)
-	
-	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(pageController,"renderComponent", "unit test")
-	set returnedHTML = $ZStrip(returnedHTML,"*WC")
-	set expectedHTML = "<divclass=""rowef-form-row""><divclass=""form-group""><divclass=""col-sm-4ef-label-container""><labelid=""ef-display-label-name""class=""control-labelef-control-labelef-required-field""for=""name"">Pleaseenteryourname</label></div><divclass=""col-sm-8ef-input-container""><inputtype=""text""class=""ef-inputform-controlef-input-text-field""title=""""id=""name""name=""name""value=""""placeholder=""""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;Pleaseenteryourname\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""autofocus=""autofocus""0></div></div></div>"
+	set expectedHTML = "<divclass=""rowef-form-row""><divclass=""form-group""><divclass=""col-sm-4ef-label-container""><labelid=""ef-display-label-ef-proweb-1-id""class=""control-labelef-control-labelef-required-field""for=""ef-proweb-1-id"">Pleaseenteryourname</label></div><divclass=""col-sm-8ef-input-container""><inputtype=""text""class=""ef-inputform-controlef-input-text-fieldef-admin-only""title=""""id=""ef-proweb-1-id""name=""Pleaseenteryourname""value=""""placeholder=""(Adminportalonly)""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;Pleaseenteryourname\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""autofocus=""autofocus""0></div></div></div>"
 	do $$$AssertEquals(returnedHTML,expectedHTML)
 ]]></Implementation>
 </Method>
@@ -4781,7 +4732,30 @@ also an entry point from unit tests</Description>
 	
 	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(pageController,"renderComponent", "unit test")
 	set returnedHTML = $ZStrip(returnedHTML,"*WC")
-	set expectedHTML = "<divclass=""rowef-draggable-divef-form-rowef-form-row-editable""id=""ef-field-proweb-1""data-proweb-id=""1""data-proweb-list-id=""""data-ui-component-type=""textInput""data-proweb-allowed-types=""Question,ABI,QBI,Collection,Divider,Text,Fileupload,Video""><divclass=""form-group""><divclass=""col-sm-4ef-label-container""><labelid=""ef-display-label-name""class=""control-labelef-control-label""for=""name"">Pleaseenteryourname</label><divclass=""ef-proweb-direct-label-edit""style=""display:none;""id=""ef-edit-label-input-name""data-proweb-id=""1""><inputclass=""ef-control-label""id=""quick-edit-name""type=""text""value=""Pleaseenteryourname""></div></div><divclass=""col-sm-8ef-input-container""><inputtype=""text""class=""ef-inputform-controlef-input-text-fieldef-admin-only""title=""""id=""name""name=""name""value=""""placeholder=""(Adminportalonly)""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;Pleaseenteryourname\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""autofocus=""autofocus""0></div></div></div>"
+	set expectedHTML = "<divclass=""rowef-draggable-divef-form-rowef-form-row-editable""id=""ef-field-proweb-1""data-proweb-id=""1""data-proweb-list-id=""""data-ui-component-type=""textInput""data-proweb-allowed-types=""Question,ABI,QBI,Collection,Divider,Text,Fileupload,Video""><divclass=""form-group""><divclass=""col-sm-4ef-label-container""><labelid=""ef-display-label-ef-proweb-1-id""class=""control-labelef-control-label""for=""ef-proweb-1-id"">Pleaseenteryourname</label><divclass=""ef-proweb-direct-label-edit""style=""display:none;""id=""ef-edit-label-input-ef-proweb-1-id""data-proweb-id=""1""><inputclass=""ef-control-label""id=""quick-edit-ef-proweb-1-id""type=""text""value=""Pleaseenteryourname""></div></div><divclass=""col-sm-8ef-input-container""><inputtype=""text""class=""ef-inputform-controlef-input-text-fieldef-admin-only""title=""""id=""ef-proweb-1-id""name=""Pleaseenteryourname""value=""""placeholder=""(Adminportalonly)""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;Pleaseenteryourname\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""autofocus=""autofocus""0></div></div></div>"
+	do $$$AssertEquals(returnedHTML,expectedHTML)
+]]></Implementation>
+</Method>
+
+<Method name="TestBasicPageWithMandatoryTextField">
+<Implementation><![CDATA[
+	set contextData = ##class(EF.contextDataRegistrationMock).createMock()
+	
+	set storage = ##class(sc.facade.prowebItemStorageInputElementMock).createNew()
+	set storage.prowebID = "1"
+	set storage.databaseItemName = "name"
+	set storage.inputType = "text"
+	set storage.labelText = "Please enter your name"
+	set storage.isMandatory = 1
+	
+	set prowebItem = ##class(sc.facade.prowebItem).createNew(storage)
+	do contextData.listOfProwebItemsToAdd.Insert(prowebItem)
+
+	set pageController = ##class(EF.pageController.proweb.page).createMock(contextData)
+	
+	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(pageController,"renderComponent", "unit test")
+	set returnedHTML = $ZStrip(returnedHTML,"*WC")
+	set expectedHTML = "<divclass=""rowef-form-row""><divclass=""form-group""><divclass=""col-sm-4ef-label-container""><labelid=""ef-display-label-ef-proweb-1-id""class=""control-labelef-control-labelef-required-field""for=""ef-proweb-1-id"">Pleaseenteryourname</label></div><divclass=""col-sm-8ef-input-container""><inputtype=""text""class=""ef-inputform-controlef-input-text-field""title=""""id=""ef-proweb-1-id""name=""Pleaseenteryourname""value=""""placeholder=""""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;Pleaseenteryourname\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""autofocus=""autofocus""0></div></div></div>"
 	do $$$AssertEquals(returnedHTML,expectedHTML)
 ]]></Implementation>
 </Method>
@@ -4804,7 +4778,7 @@ also an entry point from unit tests</Description>
 	
 	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(pageController,"renderComponent", "unit test")
 	set returnedHTML = $ZStrip(returnedHTML,"*WC")
-	set expectedHTML = "<divclass=""rowef-form-row""><divclass=""form-group""><divclass=""col-sm-4ef-label-container""><labelid=""ef-display-label-name""class=""control-labelef-control-label""for=""name"">Pleaseenteryourname</label></div><divclass=""col-sm-8ef-input-container""><inputtype=""text""class=""ef-inputform-controlef-input-text-field""title=""""id=""name""name=""name""value=""""placeholder=""""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;Pleaseenteryourname\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""autofocus=""autofocus""0></div></div></div>"
+	set expectedHTML = "<divclass=""rowef-form-row""><divclass=""form-group""><divclass=""col-sm-4ef-label-container""><labelid=""ef-display-label-ef-proweb-1-id""class=""control-labelef-control-label""for=""ef-proweb-1-id"">Pleaseenteryourname</label></div><divclass=""col-sm-8ef-input-container""><inputtype=""text""class=""ef-inputform-controlef-input-text-field""title=""""id=""ef-proweb-1-id""name=""Pleaseenteryourname""value=""""placeholder=""""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;Pleaseenteryourname\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""autofocus=""autofocus""0></div></div></div>"
 	do $$$AssertEquals(returnedHTML,expectedHTML)
 ]]></Implementation>
 </Method>
@@ -4827,7 +4801,7 @@ also an entry point from unit tests</Description>
 	
 	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(pageController,"renderComponent", "unit test")
 	set returnedHTML = $ZStrip(returnedHTML,"*WC")
-	set expectedHTML = "<divclass=""rowef-form-row""><divclass=""form-group""><divclass=""col-sm-4ef-label-container""><labelid=""ef-display-label-name""class=""control-labelef-control-label""for=""name"">Pleaseenteryourname</label></div><divclass=""col-sm-8ef-input-container""><inputtype=""text""class=""ef-inputform-controlef-input-text-field""title=""""id=""name""name=""name""value=""""placeholder=""""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;Pleaseenteryourname\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""autofocus=""autofocus""0><spanclass=""glyphiconglyphicon-question-signef-help-icon""title=""Helpme!""></span></div></div></div>"
+	set expectedHTML = "<divclass=""rowef-form-row""><divclass=""form-group""><divclass=""col-sm-4ef-label-container""><labelid=""ef-display-label-ef-proweb-1-id""class=""control-labelef-control-label""for=""ef-proweb-1-id"">Pleaseenteryourname</label></div><divclass=""col-sm-8ef-input-container""><inputtype=""text""class=""ef-inputform-controlef-input-text-field""title=""""id=""ef-proweb-1-id""name=""Pleaseenteryourname""value=""""placeholder=""""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;Pleaseenteryourname\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""autofocus=""autofocus""0><spanclass=""glyphiconglyphicon-question-signef-help-icon""title=""Helpme!""></span></div></div></div>"
 	do $$$AssertEquals(returnedHTML,expectedHTML)
 ]]></Implementation>
 </Method>
@@ -4839,7 +4813,7 @@ also an entry point from unit tests</Description>
 	set storage = ##class(sc.facade.prowebItemStorageInputElementMock).createNew()
 	set storage.prowebID = "1"
 	set storage.databaseItemName = "name"
-	set storage.inputType = "text"
+	
 	set storage.labelText = "Please enter your name"
 	set storage.isReadOnly = 1
 	
@@ -4850,7 +4824,30 @@ also an entry point from unit tests</Description>
 	
 	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(pageController,"renderComponent", "unit test")
 	set returnedHTML = $ZStrip(returnedHTML,"*WC")
-	set expectedHTML = "<divclass=""rowef-form-row""><divclass=""form-group""><divclass=""col-sm-4ef-label-container""><labelid=""ef-display-label-name""class=""control-labelef-control-label""for=""name"">Pleaseenteryourname</label></div><divclass=""col-sm-8ef-input-container""><inputtype=""text""class=""ef-inputform-controlef-input-text-field""disabled='disabled'title=""""id=""name""name=""name""value=""""placeholder=""""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;Pleaseenteryourname\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""autofocus=""autofocus""0></div></div></div>"
+	set expectedHTML = "<divclass=""rowef-form-row""><divclass=""form-group""><divclass=""col-sm-4ef-label-container""><labelid=""ef-display-label-ef-proweb-1-id""class=""control-labelef-control-label""for=""ef-proweb-1-id"">Pleaseenteryourname</label></div><divclass=""col-sm-8ef-input-container""><inputtype=""text""class=""ef-inputform-controlef-input-text-field""disabled='disabled'title=""""id=""ef-proweb-1-id""name=""Pleaseenteryourname""value=""""placeholder=""""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;Pleaseenteryourname\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""autofocus=""autofocus""0></div></div></div>"
+	do $$$AssertEquals(returnedHTML,expectedHTML)
+]]></Implementation>
+</Method>
+
+<Method name="TestbasicInputField">
+<Implementation><![CDATA[
+	set contextData = ##class(EF.contextDataRegistrationMock).createMock()
+	
+	set storage = ##class(sc.facade.prowebItemStorageInputElementMock).createNew()
+	set storage.prowebID = "1"
+	set storage.databaseItemName = "name"
+	set storage.inputType = "text"
+	set storage.labelText = "Please enter your name"
+	
+	
+	set prowebItem = ##class(sc.facade.prowebItem).createNew(storage)
+	do contextData.listOfProwebItemsToAdd.Insert(prowebItem)
+
+	set pageController = ##class(EF.pageController.proweb.page).createMock(contextData)
+	
+	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(pageController,"renderComponent", "unit test")
+	set returnedHTML = $ZStrip(returnedHTML,"*WC")
+	set expectedHTML = "<divclass=""rowef-form-row""><divclass=""form-group""><divclass=""col-sm-4ef-label-container""><labelid=""ef-display-label-ef-proweb-1-id""class=""control-labelef-control-label""for=""ef-proweb-1-id"">Pleaseenteryourname</label></div><divclass=""col-sm-8ef-input-container""><inputtype=""text""class=""ef-inputform-controlef-input-text-field""title=""""id=""ef-proweb-1-id""name=""Pleaseenteryourname""value=""""placeholder=""""pattern=""^[^\x00-\x1F\x7F]*$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;Pleaseenteryourname\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""autofocus=""autofocus""0></div></div></div>"
 	do $$$AssertEquals(returnedHTML,expectedHTML)
 ]]></Implementation>
 </Method>
@@ -4859,7 +4856,7 @@ also an entry point from unit tests</Description>
 
 <Class name="EF.pageController.proweb.testCases.timeInputTestCase">
 <Super>EF.ISC.UnitTest.TestCase</Super>
-<TimeChanged>64309,62284.186726</TimeChanged>
+<TimeChanged>64323,55857.52535</TimeChanged>
 <TimeCreated>64204,52806.787409</TimeCreated>
 
 <Method name="TestTime">
@@ -4880,7 +4877,7 @@ also an entry point from unit tests</Description>
 
 	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(pageController,"renderComponent", "unit test")
 	set returnedHTML = $ZStrip(returnedHTML,"*WC")
-	set expectedHTML = "<divclass=""rowef-form-row""><divclass=""form-group""><divclass=""col-sm-4ef-label-container""><labelid=""ef-display-label-name""class=""control-labelef-control-label""for=""name"">Pleaseenteryourtime</label></div><divclass=""col-sm-8ef-input-container""><divstyle=""width:40%""class=""ef-time-pickeref_proweb_form_field_container_type_timeef-kendo-form-control""><inputtype=""text""class=""ef-time-pickeref_proweb_form_field_container_type_timeef-kendo-form-controlefTimePicker""title=""""id=""name""name=""name""value=""""placeholder=""HH:MM24hour""autofocus=""autofocus""efKendoTimeFormat=""24""efKendoTimeInterval=15style=""width:100%;""></div></div></div></div>"
+	set expectedHTML = "<divclass=""rowef-form-row""><divclass=""form-group""><divclass=""col-sm-4ef-label-container""><labelid=""ef-display-label-ef-proweb-1-id""class=""control-labelef-control-label""for=""ef-proweb-1-id"">Pleaseenteryourtime</label></div><divclass=""col-sm-8ef-input-container""><divstyle=""width:40%""class=""ef-time-pickeref_proweb_form_field_container_type_timeef-kendo-form-control""><inputtype=""text""class=""ef-time-pickeref_proweb_form_field_container_type_timeef-kendo-form-controlefTimePicker""title=""""id=""ef-proweb-1-id""name=""ef-proweb-1-id""value=""""placeholder=""HH:MM24hour""autofocus=""autofocus""efKendoTimeFormat=""24""efKendoTimeInterval=15style=""width:100%;""></div></div></div></div>"
 	do $$$AssertEquals(returnedHTML,expectedHTML)
 ]]></Implementation>
 </Method>
@@ -4889,7 +4886,7 @@ also an entry point from unit tests</Description>
 
 <Class name="EF.pageController.proweb.testCases.webAddressTestCase">
 <Super>EF.ISC.UnitTest.TestCase</Super>
-<TimeChanged>64309,62332.86746</TimeChanged>
+<TimeChanged>64323,55897.476992</TimeChanged>
 <TimeCreated>64204,51604.334511</TimeCreated>
 
 <Method name="TestWebAddress">
@@ -4910,7 +4907,7 @@ also an entry point from unit tests</Description>
 	
 	set returnedHTML = ##class(EF.utils.outputRedirection).redirectMethodOutputToString(pageController,"renderComponent", "unit test")
 	set returnedHTML = $ZStrip(returnedHTML,"*WC")
-	set expectedHTML = "<divclass=""rowef-form-row""><divclass=""form-group""><divclass=""col-sm-4ef-label-container""><labelid=""ef-display-label-url""class=""control-labelef-control-label""for=""url"">PleaseenteryourURL</label></div><divclass=""col-sm-8ef-input-container""><inputtype=""url""class=""ef-inputform-controlef-input-text-field""title=""""id=""url""name=""url""value=""""placeholder=""""pattern=""^(?:https?:\/\/)?(?:\S+(?::\S*)?@)?(?:(?:[1-9]\d?|1\d\d|2[01]\d|22[0-3])(?:\.(?:1?\d{1,2}|2[0-4]\d|25[0-5])){2}(?:\.(?:[1-9]\d?|1\d\d|2[0-4]\d|25[0-4]))|(?:(?:[a-z\u00a1-\uffff0-9]+-?)*[a-z\u00a1-\uffff0-9]+)(?:\.(?:[a-z\u00a1-\uffff0-9]+-?)*[a-z\u00a1-\uffff0-9]+)*(?:\.(?:[a-z\u00a1-\uffff]{2,})))(?::\d{2,5})?(?:\/.*)?$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;PleaseenteryourURL\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""autofocus=""autofocus""0></div></div></div>"
+	set expectedHTML = "<divclass=""rowef-form-row""><divclass=""form-group""><divclass=""col-sm-4ef-label-container""><labelid=""ef-display-label-ef-proweb-1-id""class=""control-labelef-control-label""for=""ef-proweb-1-id"">PleaseenteryourURL</label></div><divclass=""col-sm-8ef-input-container""><inputtype=""url""class=""ef-inputform-controlef-input-text-field""title=""""id=""ef-proweb-1-id""name=""ef-proweb-1-id""value=""""placeholder=""""pattern=""^(?:https?:\/\/)?(?:\S+(?::\S*)?@)?(?:(?:[1-9]\d?|1\d\d|2[01]\d|22[0-3])(?:\.(?:1?\d{1,2}|2[0-4]\d|25[0-5])){2}(?:\.(?:[1-9]\d?|1\d\d|2[0-4]\d|25[0-4]))|(?:(?:[a-z\u00a1-\uffff0-9]+-?)*[a-z\u00a1-\uffff0-9]+)(?:\.(?:[a-z\u00a1-\uffff0-9]+-?)*[a-z\u00a1-\uffff0-9]+)*(?:\.(?:[a-z\u00a1-\uffff]{2,})))(?::\d{2,5})?(?:\/.*)?$""oninvalid=""ef.html5CustomMessages.setMessage(this,&quot;\&quot;PleaseenteryourURL\&quot;isincorrect&quot;);""oninput=""ef.html5CustomMessages.clearMessage(this);""autofocus=""autofocus""0></div></div></div>"
 	do $$$AssertEquals(returnedHTML,expectedHTML)
 ]]></Implementation>
 </Method>
@@ -16911,8 +16908,9 @@ function updateAlts(codPromptID) {
 
 <script language="cache" method="OnPreHTTPafter" arguments="" returntype="%Library.Boolean"> 
 	#dim pageController as EF.pageController.page
+	
 	set contextData = ##class(EF.contextDataRegistration).createFromFrontendCSPSession()
-	set pageControllerID=%request.Get("prowebPageControllerID")
+	set pageControllerID = %request.Get("prowebPageControllerID")
 	if 'pageControllerID {
 		throw ##class(shared.exceptions.generalException).%New("No pageControllerID passed in to standardSave")
 	}
@@ -16921,8 +16919,8 @@ function updateAlts(codPromptID) {
 	set pageController = ##class(EF.pageController.page).open(pageControllerID,contextData) 
 	
 	set pageNavProceedKey = %request.Get("pageNavProceedKey") 
-	set backforward=##class(setup.objPageNav).goWhere(pageNavProceedKey, , contextData.tempPersonID, %request.Get("pageID")) 
-	set redirectURL = $Piece(backforward,"|",2)
+	set backforward = ##class(setup.objPageNav).goWhere(pageNavProceedKey, , contextData.tempPersonID, %request.Get("pageID")) 
+	set redirectURL = $Piece(backforward, "|", 2)
 
 	set pageController.submitButtonClickedIdentifier = %request.Get("efSubmitButtonIdentifier")
 	
@@ -16950,16 +16948,16 @@ function updateAlts(codPromptID) {
 				do pageController.save()
 
 			} Catch exObj {
-				set ok=0
+				set ok = 0
 				If exObj.%IsA("shared.exceptions.generalException") {
-					set error=exObj.DisplayString()
+					set error = exObj.DisplayString()
 				} else {
 					// don't know what this error was (like a sub method throwing an error)
-					set error="There was an error saving this page"
+					set error = "There was an error saving this page"
 					throw exObj
 				}
 				do pageController.setErrorMessage(error)
-				set pageController.hasError=1
+				set pageController.hasError = 1
 			}
 		}
 		do pageController.%Save()
@@ -18847,7 +18845,7 @@ FRRE RULE
 	
 	set eventID = ##class(sc.objData).getEventID(pageID)
 	if (eventID) && (##class(setup.objEvent).isEventUsingProweb2(eventID)) {
-		set pageID = ##class(sc.xModules.objPage).getHomePageIdInsteadOfIncludePageId(pageID) // we should never render an include page on it's own
+		set pageID = ##class(sc.xModules.objPage).getValidatedPageID(pageID) // we should never render an include page on it's own
 	}
 	
 	set cspFileName = ##class(sc.xModules.objPage).getTemplateFile(pageID)
@@ -24472,7 +24470,7 @@ Returns true if the template is custom made</Description>
 </Class>
 
 
-<Project name="proweb 2" LastModified="2017-02-03 11:12:46.514768" Target="largedevsrc/backEnd/home/login.csp" TargetType="3">
+<Project name="proweb 2" LastModified="2017-02-09 14:57:13.570884" Target="largedevsrc/backEnd/home/login.csp" TargetType="3">
   <Items>
     <ProjectItem name="EF.contextData" type="CLS"></ProjectItem>
     <ProjectItem name="EF.contextDataFrontend" type="CLS"></ProjectItem>
@@ -24667,6 +24665,7 @@ Returns true if the template is custom made</Description>
     <ProjectItem name="setup.eventCreationMethods" type="CLS"></ProjectItem>
     <ProjectItem name="setup.objPageNav" type="CLS"></ProjectItem>
     <ProjectItem name="shared.pageMethods" type="CLS"></ProjectItem>
+    <ProjectItem name="setup.lnkCategoryEvent" type="CLS"></ProjectItem>
   </Items>
   <BreakPoints>
     <BreakPoint Routine="cspRealEV.frontend.reg.pagecontrollerstandardsave.CLS" Offset="OnPreHTTPafter+35"></BreakPoint>
@@ -24811,7 +24810,7 @@ Is this data type a simple HTML text input type?</Description>
 <Description>
 Facade class for the sc.objData</Description>
 <Super>%RegisteredObject</Super>
-<TimeChanged>64206,39804.000095</TimeChanged>
+<TimeChanged>64323,53349.92316</TimeChanged>
 <TimeCreated>64206,36952.573447</TimeCreated>
 
 <Property name="storage">
@@ -24821,7 +24820,7 @@ Facade class for the sc.objData</Description>
 <Method name="createNew">
 <ClassMethod>1</ClassMethod>
 <FormalSpec>storage:sc.facade.prowebItemStorage</FormalSpec>
-<ReturnType>sc.facade.prowebItemStorage</ReturnType>
+<ReturnType>sc.facade.prowebItem</ReturnType>
 <Implementation><![CDATA[
 	set prowebItem = ..%New()
 	set prowebItem.storage = storage
@@ -24955,13 +24954,13 @@ Property displayOrder As %Integer [ Required ];</Description>
 
 <Class name="sc.facade.prowebItemStorageDivider">
 <Super>sc.facade.prowebItemStorage</Super>
-<TimeChanged>64212,33280.177807</TimeChanged>
+<TimeChanged>64323,53362.162838</TimeChanged>
 <TimeCreated>64206,41722.621925</TimeCreated>
 
 <Method name="createNew">
 <ClassMethod>1</ClassMethod>
 <FormalSpec>prowebItemID:%Integer,contextData:EF.contextDataRegistration</FormalSpec>
-<ReturnType>sc.facade.prowebItemStorage</ReturnType>
+<ReturnType>sc.facade.prowebItemStorageDivider</ReturnType>
 <Implementation><![CDATA[
 	#dim prowebItem as sc.xModules.objCODitem
 	
@@ -24977,13 +24976,13 @@ Property displayOrder As %Integer [ Required ];</Description>
 
 <Class name="sc.facade.prowebItemStorageFileUpload">
 <Super>sc.facade.prowebItemStorageInputElement</Super>
-<TimeChanged>64210,56671.066979</TimeChanged>
+<TimeChanged>64323,53371.725578</TimeChanged>
 <TimeCreated>64209,36902.156071</TimeCreated>
 
 <Method name="createNew">
 <ClassMethod>1</ClassMethod>
 <FormalSpec>prowebItemID:%Integer,contextData:EF.contextDataRegistration</FormalSpec>
-<ReturnType>sc.facade.prowebItemStorage</ReturnType>
+<ReturnType>sc.facade.prowebItemStorageFileUpload</ReturnType>
 <Implementation><![CDATA[
 	#dim prowebItem as sc.xModules.objFileUpload
 	
@@ -25001,7 +25000,7 @@ Property displayOrder As %Integer [ Required ];</Description>
 
 <Class name="sc.facade.prowebItemStorageFileUploadMock">
 <Super>sc.facade.prowebItemStorageFileUpload</Super>
-<TimeChanged>64223,61248.111216</TimeChanged>
+<TimeChanged>64323,53379.284298</TimeChanged>
 <TimeCreated>64209,55230.373856</TimeCreated>
 
 <Property name="testValue">
@@ -25012,7 +25011,7 @@ Property displayOrder As %Integer [ Required ];</Description>
 <Method name="createNew">
 <ClassMethod>1</ClassMethod>
 <FormalSpec>prowebItemID:%Integer,contextData:EF.contextDataRegistration</FormalSpec>
-<ReturnType>sc.facade.prowebItemStorage</ReturnType>
+<ReturnType>sc.facade.prowebItemStorageFileUploadMock</ReturnType>
 <Implementation><![CDATA[
 	
 	
@@ -25027,7 +25026,7 @@ Property displayOrder As %Integer [ Required ];</Description>
 
 <Class name="sc.facade.prowebItemStorageInputElement">
 <Super>sc.facade.prowebItemStorage</Super>
-<TimeChanged>64323,39659.985867</TimeChanged>
+<TimeChanged>64323,53388.222729</TimeChanged>
 <TimeCreated>64206,40073.01042</TimeCreated>
 
 <Property name="inputType">
@@ -25139,7 +25138,7 @@ Property displayOrder As %Integer [ Required ];</Description>
 <Method name="createNew">
 <ClassMethod>1</ClassMethod>
 <FormalSpec>prowebItemID:%Integer,contextData:EF.contextDataRegistration</FormalSpec>
-<ReturnType>sc.facade.prowebItemStorage</ReturnType>
+<ReturnType>sc.facade.prowebItemStorageInputElement</ReturnType>
 <Implementation><![CDATA[
 	#dim prowebItem as sc.xModules.objCODitem
 	
@@ -25348,7 +25347,7 @@ to make sure group bookers can't see already existing data of attendees</Descrip
 
 <Class name="sc.facade.prowebItemStorageInputElementMock">
 <Super>sc.facade.prowebItemStorageInputElement</Super>
-<TimeChanged>64223,60485.795637</TimeChanged>
+<TimeChanged>64323,53404.923588</TimeChanged>
 <TimeCreated>64206,37060.296556</TimeCreated>
 
 <Property name="testValue">
@@ -25358,7 +25357,7 @@ to make sure group bookers can't see already existing data of attendees</Descrip
 
 <Method name="createNew">
 <ClassMethod>1</ClassMethod>
-<ReturnType>sc.facade.prowebItemStorage</ReturnType>
+<ReturnType>sc.facade.prowebItemStorageInputElementMock</ReturnType>
 <Implementation><![CDATA[
 	set storage = ..%New()
 	set storage.inputType = "text"
@@ -25370,7 +25369,7 @@ to make sure group bookers can't see already existing data of attendees</Descrip
 
 <Class name="sc.facade.prowebItemStorageMenuBlock">
 <Super>sc.facade.prowebItemStorage</Super>
-<TimeChanged>64223,57288.253857</TimeChanged>
+<TimeChanged>64323,53413.963087</TimeChanged>
 <TimeCreated>64223,41312.114214</TimeCreated>
 
 <Property name="listOfMenuItems">
@@ -25381,7 +25380,7 @@ to make sure group bookers can't see already existing data of attendees</Descrip
 <Method name="createNew">
 <ClassMethod>1</ClassMethod>
 <FormalSpec>prowebItemID:%Integer,contextData:EF.contextDataRegistration</FormalSpec>
-<ReturnType>sc.facade.prowebItemStorage</ReturnType>
+<ReturnType>sc.facade.prowebItemStorageMenuBlock</ReturnType>
 <Implementation><![CDATA[
 	#dim prowebItem as sc.xModules.objMenuBlock
 	
@@ -25461,7 +25460,7 @@ to make sure group bookers can't see already existing data of attendees</Descrip
 
 <Class name="sc.facade.prowebItemStorageTextBlock">
 <Super>sc.facade.prowebItemStorage</Super>
-<TimeChanged>64223,41363.221653</TimeChanged>
+<TimeChanged>64323,53432.462392</TimeChanged>
 <TimeCreated>64206,41475.453349</TimeCreated>
 
 <Property name="text">
@@ -25472,7 +25471,7 @@ to make sure group bookers can't see already existing data of attendees</Descrip
 <Method name="createNew">
 <ClassMethod>1</ClassMethod>
 <FormalSpec>prowebItemID:%Integer,contextData:EF.contextDataRegistration</FormalSpec>
-<ReturnType>sc.facade.prowebItemStorage</ReturnType>
+<ReturnType>sc.facade.prowebItemStorageTextBlock</ReturnType>
 <Implementation><![CDATA[
 	#dim prowebItem as sc.xModules.objText
 	
@@ -25492,12 +25491,12 @@ to make sure group bookers can't see already existing data of attendees</Descrip
 
 <Class name="sc.facade.prowebItemStorageTextBlockMock">
 <Super>sc.facade.prowebItemStorageTextBlock</Super>
-<TimeChanged>64223,74073.587616</TimeChanged>
+<TimeChanged>64323,53441.777106</TimeChanged>
 <TimeCreated>64223,62062.865015</TimeCreated>
 
 <Method name="createNew">
 <ClassMethod>1</ClassMethod>
-<ReturnType>sc.facade.prowebItemStorage</ReturnType>
+<ReturnType>sc.facade.prowebItemStorageTextBlockMock</ReturnType>
 <Implementation><![CDATA[
 	set storage = ..%New()
 
@@ -25511,7 +25510,7 @@ to make sure group bookers can't see already existing data of attendees</Descrip
 
 <Class name="sc.facade.prowebItemStorageYouTubeVideo">
 <Super>sc.facade.prowebItemStorage</Super>
-<TimeChanged>64210,56672.319609</TimeChanged>
+<TimeChanged>64323,53448.698262</TimeChanged>
 <TimeCreated>64208,57300.34753</TimeCreated>
 
 <Property name="youTubeVideoURL">
@@ -25533,7 +25532,7 @@ to make sure group bookers can't see already existing data of attendees</Descrip
 <Method name="createNew">
 <ClassMethod>1</ClassMethod>
 <FormalSpec>prowebItemID:%Integer,contextData:EF.contextDataRegistration</FormalSpec>
-<ReturnType>sc.facade.prowebItemStorage</ReturnType>
+<ReturnType>sc.facade.prowebItemStorageYouTubeVideo</ReturnType>
 <Implementation><![CDATA[
 	#dim prowebItem as sc.xModules.objFlash
 	
@@ -25554,12 +25553,12 @@ to make sure group bookers can't see already existing data of attendees</Descrip
 
 <Class name="sc.facade.prowebItemStorageYouTubeVideoMock">
 <Super>sc.facade.prowebItemStorageYouTubeVideo</Super>
-<TimeChanged>64210,56672.614741</TimeChanged>
+<TimeChanged>64323,53457.032513</TimeChanged>
 <TimeCreated>64208,59949.51444</TimeCreated>
 
 <Method name="createNew">
 <ClassMethod>1</ClassMethod>
-<ReturnType>sc.facade.prowebItemStorage</ReturnType>
+<ReturnType>sc.facade.prowebItemStorageYouTubeVideoMock</ReturnType>
 <Implementation><![CDATA[
 	set storage = ..%New()
 	set storage.youTubeVideoURL = "https://www.youtube.com/watch?feature=player_embedded&v=sJ363mnyHEk"
@@ -30074,7 +30073,7 @@ The data type that represents a a page level in the hierachy.
 <ClassType>persistent</ClassType>
 <ProcedureBlock>1</ProcedureBlock>
 <Super>sc.objData</Super>
-<TimeChanged>64322,48255</TimeChanged>
+<TimeChanged>64323,53645.534851</TimeChanged>
 <TimeCreated>58926,57261</TimeCreated>
 
 <Parameter name="EXTENTSIZE">
@@ -30975,7 +30974,7 @@ Gets the description without the language modifier</Description>
 ]]></Implementation>
 </Method>
 
-<Method name="getHomePageIdInsteadOfIncludePageId">
+<Method name="getValidatedPageID">
 <Description>
 return the homePageID in case someone is trying to load an include page without the surrounding sc template page</Description>
 <ClassMethod>1</ClassMethod>
@@ -34638,6 +34637,1083 @@ Returns the correct style of the button depending on what mode are available and
 	quit isValid
 ]]></Implementation>
 </Method>
+</Class>
+
+
+<Class name="setup.lnkCategoryEvent">
+<Description><![CDATA[
+This is actually a link table between (objEventCategory, objEvent And Registration Pages).
+The link between category and event is now held in setup.lnkAttendeeCategoryDetailsEvent 
+<!-- ;vc;
+;vc;    Object: setup.lnkCategoryEvent.CLS/EV.48
+;vc; Component: CLS.setup.lnkCategoryEvent
+;vc;  Location: LargeDev
+;vc; Date/Time: 11-Jan-17 12:58
+;vc;      User: AdrianM2
+;vc; --><p>VC/m status:<table id='vcm' border='1'><tr><th>Object</th><th>Component</th><th>Location</th><th>Date/Time</th><th>User</th></tr><tr><td>setup.lnkCategoryEvent.CLS/EV.48</td><td>CLS.setup.lnkCategoryEvent</td><td>LargeDev</td><td style='white-space: nowrap;'>11-Jan-17 12:58</td><td>AdrianM2</td></tr></table>
+]]></Description>
+<ClassType>persistent</ClassType>
+<ProcedureBlock>1</ProcedureBlock>
+<Super>%Library.Persistent,shared.timeStamp</Super>
+<TimeChanged>64313,62721.792832</TimeChanged>
+<TimeCreated>60220,57619.341169</TimeCreated>
+<Inheritance>right</Inheritance>
+
+<Parameter name="EXTENTSIZE">
+<Default>651</Default>
+</Parameter>
+
+<Property name="objEvent">
+<Type>setup.objEvent</Type>
+<Cardinality>one</Cardinality>
+<Inverse>objEventCategories</Inverse>
+<Relationship>1</Relationship>
+</Property>
+
+<Property name="objEventCategory">
+<Type>objEventCategory</Type>
+<Cardinality>one</Cardinality>
+<Inverse>objEvents</Inverse>
+<Relationship>1</Relationship>
+</Property>
+
+<Property name="active">
+<Type>%Boolean</Type>
+</Property>
+
+<Property name="langID">
+<Type>%String</Type>
+<Parameter name="TRUNCATE" value="1"/>
+</Property>
+
+<Property name="backendOnly">
+<Type>%Boolean</Type>
+</Property>
+
+<Property name="description">
+<Description>
+this is the name of the "section" for a particular person category to allow for a delegate registration to be split into more than one ref page</Description>
+<Type>%String</Type>
+<Parameter name="MAXLEN" value="125"/>
+<Parameter name="TRUNCATE" value="1"/>
+</Property>
+
+<Property name="displayOrder">
+<Type>%Integer</Type>
+</Property>
+
+<Property name="pageID">
+<Type>%String</Type>
+<Parameter name="TRUNCATE" value="1"/>
+</Property>
+
+<Property name="sameAs">
+<Description>
+The ID of another row
+used to link this row with another - when I want to use the same reg page for a speaker as a delegate</Description>
+<Type>setup.lnkCategoryEvent</Type>
+</Property>
+
+<Property name="isDefault">
+<Description>
+This will be moved into setup.lnkAttendeeCategoryDetailsEvent</Description>
+<Type>%Boolean</Type>
+</Property>
+
+<Property name="isMeetingMan">
+<Description>
+used if the page is the one used by meeting manager</Description>
+<Type>%Boolean</Type>
+</Property>
+
+<Property name="dependsOnPromptPageID">
+<Description>
+Use to hold the pageID of the depedent question</Description>
+<Type>%String</Type>
+<Parameter name="TRUNCATE" value="1"/>
+</Property>
+
+<Property name="dependsOnPrompt">
+<Description>
+Dependencies are handled by refferring to another questions answer
+Please note that it is pointing to a code object rather than an sc object because there are no sc objects for alternatives
+it is a string rather than a real object because of cross namespace compability issues
+*** This property has been deprecated -  use dependsOnObjItemName instead ***</Description>
+<Type>%String</Type>
+<Parameter name="TRUNCATE" value="1"/>
+</Property>
+
+<Property name="dependsOnObjItemName">
+<Type>cod.objItemName</Type>
+</Property>
+
+<Property name="dependsOnAlternative">
+<Type>%String</Type>
+<Parameter name="MAXLEN" value="500"/>
+<Parameter name="TRUNCATE" value="1"/>
+</Property>
+
+<Index name="objEventCategoryIndex">
+<Properties>objEventCategory</Properties>
+</Index>
+
+<Index name="objEventIndex">
+<Properties>objEvent</Properties>
+</Index>
+
+<Index name="dependsOnPromptPageIDIndex">
+<Properties>dependsOnPromptPageID</Properties>
+</Index>
+
+<Index name="dependsOnPromptIndex">
+<Properties>dependsOnPrompt</Properties>
+</Index>
+
+<Index name="dependsOnAlternativeIndex">
+<Properties>dependsOnAlternative</Properties>
+</Index>
+
+<Index name="dependsOnObjItemNameIndex">
+<Properties>dependsOnObjItemName</Properties>
+</Index>
+
+<Method name="add">
+<Description>
+pageID is optional - if not supplied a new page is created</Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec>eventID:%String,description:%String,pageID:%String,backendOnly:%String,sameAs:%String,xLangID:%String="",newDescription:%String="",addRegistrationQuestions=1</FormalSpec>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	set pageID=$G(pageID)
+	set backendOnly=+$G(backendOnly)
+	set sameAs=+$G(sameAs)
+	set eventCategoryID=##class(setup.objEventCategory).get(description)
+	set newDescription=$G(newDescription)
+	if $L(newDescription)=0 set newDescription=description_" details"  // used as the page description
+	// create category if doesn't exist
+	if 'eventCategoryID	{
+		set eventCategoryID=##class(setup.objEventCategory).add(description)
+	}
+	set eventLanguage=##class(setup.objEventSetting).getParameter("system","language",eventID)
+	set langID=##class(shared.objLanguage).getLanguageID(eventLanguage)
+	if xLangID {
+		set langID=xLangID	
+	}
+	if 'pageID	{
+		set eventGroupID=##class(sc.methods).getEventGroupID(eventID)
+		set registrationPagesGroupID=##class(sc.xModules.objGroup).findGroupID("Registration Pages",eventGroupID)
+		set extraBit=""
+		
+		if xLangID set extraBit=" - "_##class(shared.objLanguage).getLanguageDesc(langID)
+		
+		set pageID=##class(setup.objEventDetails).addNewPage("Registration Page",description_" Page"_extraBit,registrationPagesGroupID,eventID,xLangID)
+		if addRegistrationQuestions do ##class(setup.eventCreationMethods).addDefaultRegistrationPromptsToPage(pageID,"Main List","registration page")
+	}
+	set isDefault=0
+	set displayOrder=0
+	&SQL(
+		SELECT displayOrder,isDefault INTO :tmp,:tmp2 FROM setup.lnkCategoryEvent 
+		WHERE (objEventCategory = :eventCategoryID) AND (objEvent = :eventID)
+		ORDER BY displayOrder DESC
+		)
+	if +SQLCODE=0 set displayOrder=tmp,isDefault=tmp2
+	set displayOrder=displayOrder+1
+	
+	&SQL(INSERT INTO setup.lnkCategoryEvent (objEvent,objEventCategory,langID,description,active,displayOrder,pageID,backendOnly,isDefault) VALUES (:eventID,:eventCategoryID,:langID,:newDescription,1,:displayOrder,:pageID,:backendOnly,:isDefault))
+	
+	quit %ROWID
+]]></Implementation>
+</Method>
+
+<Method name="getLangIDfromRegistrationPageID">
+<Description>
+so we can avoid passing xLangID all round the universe - different from ##class(sc.methods).getLangFromPageID(pageID)</Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec>pageID</FormalSpec>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	set langID=""
+	&SQL(SELECT langID INTO :tmp FROM setup.lnkCategoryEvent WHERE pageID=:pageID)
+	if +SQLCODE=0 set langID=tmp
+	quit langID
+]]></Implementation>
+</Method>
+
+<Method name="getAllRegistrationProcessPagesForEventOrdered">
+<Description>
+Returns an ordered list of pageIDs (no duplicates)</Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec>eventConfiguration:setup.eventConfiguration</FormalSpec>
+<ReturnType>%ListOfDataTypes</ReturnType>
+<Implementation><![CDATA[
+	#define showBackendPages 1
+	set pageIDList = ##class(%Library.ListOfDataTypes).%New()
+	set websiteLanguages = eventConfiguration.websiteLanguages.getActiveLanguages()
+	set eventID = eventConfiguration.getEventID()
+	set key=""
+	for {
+		set websiteLanguage=websiteLanguages.GetNext(.languageID)
+		if languageID="" quit
+		kill tmpPageIDs
+		if eventConfiguration.getAllowGroupBookings() {
+			set bookerPageID = ##class(sc.xModules.objPage).getBookerPageID(eventID, languageID)
+			if '$Data(pageIDs(bookerPageID)) {
+				set pageName = ##class(sc.xModules.objPage).getDescription(bookerPageID)
+				do pageIDList.Insert($ListBuild(bookerPageID,"Registration Contact Details"))	
+			}
+			set pageIDs(bookerPageID) = ""
+		}
+		do ##class(setup.lnkCategoryEvent).getAllRegPages(eventConfiguration.getEventID(), websiteLanguage.languageID, $$$showBackendPages,.pageList)
+		set tmpCategoryID = ""
+		for {
+			set tmpCategoryID = $Order(pageList(tmpCategoryID))
+			if tmpCategoryID = "" quit
+			set displayOrder = ""
+			for {
+				set displayOrder = $Order(pageList(tmpCategoryID,displayOrder))
+				if displayOrder = "" quit
+				set pageID = pageList(tmpCategoryID,displayOrder)
+				if '$Data(pageIDs(pageID)) {
+					set pageName = ..getPageDescription(eventID, tmpCategoryID, pageID)
+					do pageIDList.Insert($ListBuild(pageID,pageName))	
+				}
+				set pageIDs(pageID) = ""	
+			}
+		}
+		set rsPaymentMethods=##class(%ResultSet).%New("links.lnkEventPaymentMethod:qPayMethodByEvent")
+		do rsPaymentMethods.Execute(eventID)
+		while rsPaymentMethods.Next() {
+			set paymentMethodID=rsPaymentMethods.Get("payID")
+			set paymentPageID=##class(links.lnkEventPaymentMethod).getPaymentPageID(eventID,paymentMethodID,languageID)
+			if paymentPageID {
+				if '$Data(pageIDs(paymentPageID)) {
+					set pageName = ##class(sc.xModules.objPage).getDescription(paymentPageID)
+					do pageIDList.Insert($ListBuild(paymentPageID,pageName))	
+				}
+				set pageIDs(paymentPageID) = ""
+			}
+		}
+	}
+	return pageIDList
+]]></Implementation>
+</Method>
+
+<Method name="getAllRegPages">
+<Description>
+method to get all the registration pages for the multi reg page system for all categories
+passing in tempPersonID or (purchaseID AND personID) removes any dependent pages that are not active</Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec><![CDATA[eventID:%String,langID:%String,showBackendPages:%Boolean=0,&pageList:%String,&pageListIDs:%String,&pageIDs:%String,showMeetingProfilePages:%String=1,tempPersonID:%String="",purchaseID:%String="",personID:%String=""]]></FormalSpec>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	kill pageList,pageListIDs,pageIDs
+	
+	// In case it is called by a survey page
+	if 'eventID quit 1
+	
+	set tmpTPemail=""
+	// have we got someone who is logged in - if so, check if they are restricted to one category
+	//  - but only if not backend as backend users must be able to see all to do bookings
+	set loggedInPersonID=""
+	if 'showBackendPages,$D(%session)	{
+		set loggedInPersonID=$G(%session.Data("eventsforce","xtfrontend","MyAccount","personID"))
+		// special Jon Jensen
+		if 'loggedInPersonID,##class(setup.objEventSetting).getParameter("preRegistration","pre-select attendee type",eventID)	{
+			set tmpTP=$G(%session.Data("eventsforce","frontend","currentPersonID"))
+			if tmpTP	{
+				//set tmpTPemail=##class(eCom.tempCodData).get(tmpTP,"email")
+				set tmpP=##class(eCom.tempPerson).getPersonID(tmpTP)
+				// if the person is on the pre-reg list, try to use the category(s) they've been given
+				if tmpP,##class(setup.objPreRegister).onPreregList(tmpP,eventID)	{
+					set loggedInPersonID=tmpP   // pretend to be loggedIn - this forces a check of the pre-assigned category tables
+				}
+			}
+		}
+	}
+	
+	set controllerID=##class(setup.objEvent).getControllerID(eventID)
+	
+	// Work out the booker page as there could be dependencies to this page
+	set eventAllowsGroupBookings=##class(setup.objEventSetting).getParameter("bookings","allow group bookings",eventID)
+	if eventAllowsGroupBookings {
+		set extraBit=""
+		if langID'=1 set extraBit=" - "_##class(shared.objLanguage).getLanguageDesc(langID)
+		set bookerPageID=##class(setup.objEventSetting).getParameter("bookings","bookerRegPageID"_extraBit,eventID)
+		if tempPersonID,$D(%session) {
+			set sessionID=%session.SessionId
+			// work out the booker page
+			 set tempBookerID=##class(eCom.tempPerson).getBookerID(sessionID)
+		}
+		if personID,purchaseID {
+			set bookerID=##class(eCom.objPurchase).getBookerID(purchaseID)
+			
+		}
+	}
+	// get all the categories that have active pages
+	set rs=##class(%ResultSet).%New("setup.lnkAttendeeCategoryDetailsEvent:qAllActiveCategories")
+	do rs.Execute(eventID)
+	while rs.Next() {
+		set eventCategoryID=rs.Data("objEventCategory")
+		set description=##class(setup.objEventCategory).getDescription(eventCategoryID,langID)
+		// if we have a loggedInPerson, check they can see this category - a person can have more than one category
+		if loggedInPersonID	{
+			set numCatForPerson=0
+			&SQL(SELECT COUNT(ID) INTO :tmp FROM links.lnkPersonEventCategory WHERE (objEvent=:eventID) AND (objPerson=:loggedInPersonID))
+			if +SQLCODE=0 set numCatForPerson=tmp
+			if numCatForPerson=0	{
+				// if the logged in person has not been assigned to a category,
+				//  let them see all categories so they can select during registration	
+				set showCategory=1
+			} elseif ##class(links.lnkPersonEventCategory).hasCategory(eventID,eventCategoryID,loggedInPersonID)	{
+				set showCategory=1
+			} else {
+				set objEvCat = ""
+				&SQL(SELECT objEventCategory INTO :objEvCat FROM links.lnkPersonPurchase WHERE (objPerson=:loggedInPersonID) AND (objPurchase->objEvent=:eventID) AND (objPurchase->status!='cancelled') AND (personType <>'cancelledDelegate') )
+				if +SQLCODE=0, objEvCat=eventCategoryID {
+					set showCategory=1
+				} else {
+					set showCategory=0
+				}
+			}
+		} else {
+			set showCategory=1
+			
+		}
+		if showCategory	{
+			// get all the pages for this category and store in the order in which they are to be shown
+			set rs2=##class(%ResultSet).%New("setup.lnkCategoryEvent:qAllActivePagesCategory")
+			do rs2.Execute(eventID,langID,showBackendPages,eventCategoryID,showMeetingProfilePages)
+			while rs2.Next()	{
+				set pageList(eventCategoryID)=description  // store this here so that we know for sure we have a page (even though the same thing will be stored lots)
+				set show=1
+				// If a tempPerson is passed in check the dependencies
+				if tempPersonID!(personID&purchaseID) {
+					set dependsOnPrompt=rs2.Get("dependsOnPrompt"),dependsOnAlternative=rs2.Get("dependsOnAlternative")
+					if $l(dependsOnPrompt),$l(dependsOnAlternative) {
+						if tempPersonID {
+							// Check whether it is on the booker page or the delegate page
+							if (eventAllowsGroupBookings),(rs2.Get("dependsOnPromptPageID")=bookerPageID) {
+								set result=##class(eCom.tempCodData).get(tempBookerID,dependsOnPrompt)
+							} else {
+								set result=##class(eCom.tempCodData).get(tempPersonID,dependsOnPrompt)
+							}
+						} elseif (personID&purchaseID) {
+							// Check whether it is on the booker page or the delegate page
+							if (eventAllowsGroupBookings),(rs2.Get("dependsOnPromptPageID")=bookerPageID) {
+								set result=##class(cod.objItemData).get(bookerID,dependsOnPrompt,controllerID)
+							} else {
+								set result=##class(cod.objItemData).get(personID,dependsOnPrompt,controllerID)
+							}
+						}
+						if $ZCVT(result,"L")'=$ZCVT(dependsOnAlternative,"L") {
+							set show=0
+						}
+					}
+				}
+				if show {
+					if 'rs2.Get("sameAs") {
+						set pageList(eventCategoryID,rs2.Data("displayOrder"))=rs2.Data("pageID")
+						// also store an index
+						set pageListIDs(eventCategoryID,rs2.Data("pageID"))=rs2.Data("displayOrder")
+						set pageIDs(rs2.Data("pageID"))=""    // store all pageIDs too to easily check if a page is a reg page
+					} else {
+						set pageList(eventCategoryID,rs2.Data("displayOrder"))=rs2.Data("linkedToPage")
+						// also store an index
+						set pageListIDs(eventCategoryID,rs2.Data("linkedToPage"))=rs2.Data("displayOrder")
+						set pageIDs(rs2.Data("linkedToPage"))=""    // store all pageIDs too to easily check if a page is a reg page
+					}
+				}
+			}
+		}
+	}
+	
+	quit 1
+]]></Implementation>
+</Method>
+
+<Method name="getAllRegPromptsForTempPerson">
+<Description>
+get all the registration questions for a tempPerson for all pages currently valid (so does not include dependent pages that will not get shown)</Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec><![CDATA[xEventID,xLangID,showBackendPages,tempPersonID,&tempPersonRegPrompts,includeBackendOnlyPrompts=0]]></FormalSpec>
+<Implementation><![CDATA[
+	kill tempPersonRegPrompts
+	do ..getAllRegPages(xEventID,xLangID,showBackendPages,.pageList,.pageListIDs,.pageIDs,,tempPersonID)
+	&SQL(SELECT tempPurchase->sessionID INTO :tmp FROM eCom.tempPerson WHERE ID=:tempPersonID)
+	set sessionID=tmp
+	
+	set eventCategoryID=##class(eCom.tempPurchase).getEventCategory(sessionID,tempPersonID,xLangID)
+	
+	set pageID=""
+	for  {
+		set pageID=$O(pageListIDs(eventCategoryID,pageID))
+		if pageID="" quit
+		kill tmpRegPrompts
+		set ok=##class(setup.lnkCategoryEvent).getPromptsForPageForTempPerson(xEventID,pageID,xLangID,sessionID,tempPersonID,includeBackendOnlyPrompts,,.tmpRegPrompts)
+		set i=""
+		for  {
+			set i=$O(tmpRegPrompts(i))
+			if i="" quit
+			set itemName=tmpRegPrompts(i,"itemName")
+			set itemNameID=tmpRegPrompts(i,"ID")
+			set tempPersonRegPrompts(itemName)=itemNameID
+		}
+	}
+	quit
+]]></Implementation>
+</Method>
+
+<Method name="getDefault">
+<Description>
+method to return the default category for an event</Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec>eventID:%String</FormalSpec>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	set out=""
+	&SQL(SELECT objEventCategory INTO :tmp FROM setup.lnkAttendeeCategoryDetailsEvent WHERE (objEvent=:eventID) AND (isDefault='1'))
+	if +SQLCODE=0 set out=tmp
+	quit out
+]]></Implementation>
+</Method>
+
+<Method name="updateDependentPrompt">
+<Description>
+Updates a dependent prompt as well as any dependencies of this prompt</Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec><![CDATA[eventID:%String,pageID:%String,eventCategoryID:%String,tempPersonID:%String,parentPrompt:%String,alternative:%String,&dependentPrompts:%String]]></FormalSpec>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+
+	set langID=##class(sc.methods).getLangFromPageID(pageID)   // this includes all pages (booker etc.)
+	if 'langID set langID=..getLangIDfromRegistrationPageID(pageID)   // fallback to this in case first method does not return langID as I don't think it's been used that much
+	
+	// for efficiency, get all reg prompts here
+	do ##class(setup.lnkCategoryEvent).getAllRegPromptsForTempPerson(eventID,langID,1,tempPersonID,.allRegPromptsForTempPerson)  // also get backend pages otherwise we may remove valid data that backend users have entered
+
+	set childPrompt="",parentAlternative=""
+	for {
+		set childPrompt=$O(dependentPrompts(eventCategoryID,parentPrompt,childPrompt))
+		if childPrompt="" quit
+		
+		// find the things to delete
+		set parentAlternative=""
+		for {
+			set parentAlternative=$O(dependentPrompts(eventCategoryID,parentPrompt,childPrompt,parentAlternative))
+			if parentAlternative="" quit
+			if alternative'=parentAlternative {
+				set clearMe=1,clearDependentChildren=1
+				
+				// if the question is still used (is added to another page that is still used) then we don't want to remove the data
+				if $D(allRegPromptsForTempPerson(childPrompt)) set clearMe=0,clearDependentChildren=1
+		
+				// Don't do anything if already blank (otherwise we could enter an endless loop)
+				if ##class(eCom.tempCodData).get(tempPersonID,childPrompt)="" set clearMe=0,clearDependentChildren=0
+				
+				if clearMe {
+					// reset the item
+					do ##class(eCom.tempCodData).set(tempPersonID,childPrompt,"",pageID,eventID)
+				}
+				// for same questions on multi pages, this will also run for the children of the child, 
+				// eg. if I have "Lunch"=childPrompt and where Lunch is, there is a dependency on Lunch: "what to eat" - that needs to be checked and cleared if no longer in the page flow
+				if clearDependentChildren { 
+					if $D(dependentPrompts(eventCategoryID,childPrompt)) {
+						// Also rest any dependencies of this item  
+						do ..updateDependentPrompt(eventID,pageID,eventCategoryID,tempPersonID,childPrompt,"",.dependentPrompts)
+					}
+				}
+			}
+		}
+	}
+	quit 1
+]]></Implementation>
+</Method>
+
+<Method name="setPageDependency">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>lnkCategoryEventID,xUserID,dependsOnPromptPageID,dependsOnItemNameID,dependsOnAlternativeID</FormalSpec>
+<Implementation><![CDATA[
+	set lnkCategoryEvent=..%OpenId(lnkCategoryEventID)
+	if '$ISOBJECT(lnkCategoryEvent) {
+		throw ##class(shared.exceptions.generalException).%New("Registation page does not exist")
+	}
+	set eventID=lnkCategoryEvent.objEvent.%Id()
+	set dependsOnAlternative=##class(cod.objItemAlternatives).getDescriptionByID(dependsOnAlternativeID)
+	set dependsOnItemName=##class(cod.objItemName).getDescFromID(dependsOnItemNameID)
+	
+	set oldDependsOnPromptPageID=lnkCategoryEvent.dependsOnPromptPageID
+	set oldDependsOnAlternative=lnkCategoryEvent.dependsOnAlternative
+	set oldDependsOnItemName=""
+	if $ISOBJECT(lnkCategoryEvent.dependsOnObjItemName) {
+		set oldDependsOnItemName=lnkCategoryEvent.dependsOnObjItemName.description
+	}
+	
+	
+	set lnkCategoryEvent.dependsOnPromptPageID=dependsOnPromptPageID
+	set lnkCategoryEvent.dependsOnAlternative=dependsOnAlternative
+	do lnkCategoryEvent.dependsOnObjItemNameSetObjectId(dependsOnItemNameID)
+	set lnkCategoryEvent.dependsOnPrompt=dependsOnItemName
+	set ok=lnkCategoryEvent.%Save()
+	if 'ok {
+		throw ##class(shared.exceptions.generalStatusException).CreateFromStatus(ok)	
+	}
+	
+	/// Aufit the changes
+	if (oldDependsOnPromptPageID'=dependsOnPromptPageID)!(oldDependsOnItemName'=dependsOnItemName)!(oldDependsOnAlternative'=dependsOnAlternative) {
+		set auditText="Reg Page Setup '"_lnkCategoryEvent.description_"' ("_lnkCategoryEvent.pageID_"), Category "_lnkCategoryEvent.objEventCategory.description
+		if lnkCategoryEvent.langID'=1 {
+			set auditText=auditText_", "_"Lang "_##class(shared.objLanguage).getLanguageDesc(lnkCategoryEvent.langID)
+		}
+		set auditText=auditText_", Dependencies Amended, Old PageID: "_oldDependsOnPromptPageID_", Prompt: "_dependsOnItemName_", Alternative: "_oldDependsOnAlternative
+		set auditText=auditText_", New PageID: "_dependsOnPromptPageID_", Prompt: "_dependsOnItemName_", Alternative: "_dependsOnAlternative
+		do ##class(setup.objEventAudit).add(xUserID,eventID,auditText)
+	}
+]]></Implementation>
+</Method>
+
+<Method name="getDependentPrompts">
+<Description>
+gets all dependent prompts for a page</Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec><![CDATA[eventID,langID,pageID,&delegateDepPrompts,&pageDepPrompts,&bookerDepPrompts]]></FormalSpec>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	set extraBit=""
+	if langID'=1 set extraBit=" - "_##class(shared.objLanguage).getLanguageDesc(langID)
+	set bookersPageID=##class(setup.objEventSetting).getParameter("bookings","bookerRegPageID"_extraBit,eventID)
+	
+	set rs2=##class(%ResultSet).%New("%Library.DynamicQuery:SQL")
+	set query="SELECT pageID,objEventCategory,dependsOnObjItemName->description As dependsOnItemName,dependsOnAlternative,dependsOnPromptPageID FROM setup.lnkCategoryEvent WHERE (objEvent=?) AND (active=1) AND (langID=?)"
+	do rs2.Prepare(query)
+	do rs2.Execute(eventID,langID)
+	while rs2.Next() {
+		set depPageID=rs2.Get("pageID")
+		set eventCategoryID=rs2.Get("objEventCategory")
+		if ##class(setup.lnkAttendeeCategoryDetailsEvent).isCategoryActive(eventID,eventCategoryID) {
+			// All the dependent registration pages
+			if ##class(setup.objSystemTypes).isModuleAllowed("Dependent Registration Pages") {
+				set dependsOnPromptPageID=rs2.Get("dependsOnPromptPageID")
+				set dependsOnItemName=rs2.Get("dependsOnItemName")
+				set dependsOnAlternative=rs2.Get("dependsOnAlternative")
+			
+				// We don't need to look at prompts dependent on the booker's page here
+				if dependsOnPromptPageID,$l(dependsOnItemName),$l(dependsOnAlternative),depPageID {
+					/// Add all of them to the array
+					set rsPrompts=##class(%ResultSet).%New("%Library.DynamicQuery:SQL")
+					do rsPrompts.Prepare("SELECT objItemName->description As codItem,objItemName->carryOver as carryOver,ID,objItemName FROM sc_xModules.objCODitem  WHERE (parent->parent=?) AND (active=1) AND (isDelegate=1)")
+					do rsPrompts.Execute(depPageID)
+					while rsPrompts.Next() {
+						set childPrompt=rsPrompts.Data("codItem")
+						if 'rsPrompts.Get("carryOver") {
+							// Is it a delegate prompt?
+							if dependsOnPromptPageID'=bookersPageID {
+								set delegateDepPrompts(eventCategoryID,dependsOnItemName,childPrompt,dependsOnAlternative)=""
+							} else {
+								set bookerDepPrompts(eventCategoryID,dependsOnItemName,childPrompt,dependsOnAlternative)=""
+							}
+							// Check if they exist on this page
+							if dependsOnPromptPageID=pageID {
+								// Store this page's dependent prompts
+								set pageDepPrompts(dependsOnItemName)=""
+							}
+						}
+					}
+				}
+			}
+			// Now all the dependent prompts on other pages
+			set rsPrompts=##class(%ResultSet).%New("%Library.DynamicQuery:SQL")
+			do rsPrompts.Prepare("SELECT objItemName->description As codItem,dependsOnPrompt,dependsOnAlternative FROM sc_xModules.objCODitem  WHERE (parent->parent=?) AND (active=1) AND (isDelegate=1) AND (dependsOnPrompt>0)")
+			do rsPrompts.Execute(depPageID)
+			while rsPrompts.Next() {
+				set childPrompt=rsPrompts.Data("codItem")
+				if 'rsPrompts.Get("carryOver") {
+					set parentID=rsPrompts.Data("dependsOnPrompt")
+					set dependsOnAlternativeID=rsPrompts.Data("dependsOnAlternative")
+					&SQL(SELECT parent->parent,objItemName->description INTO :dependsOnPromptPageID,:dependsOnPrompt FROM sc_xModules.objCODitem WHERE ID=:parentID)
+					if +SQLCODE=0 {
+					
+						&SQL(SELECT description INTO :dependsOnAlternative FROM cod.objItemAlternatives WHERE ID = :dependsOnAlternativeID)
+						if +SQLCODE=0 {
+							if dependsOnPromptPageID'=bookersPageID {
+								set delegateDepPrompts(eventCategoryID,dependsOnPrompt,childPrompt,dependsOnAlternative)=""
+							} else {
+								set bookerDepPrompts(eventCategoryID,dependsOnPrompt,childPrompt,dependsOnAlternative)=""
+							}
+							// Check if they exist on this page
+							if dependsOnPromptPageID=pageID {
+								// Store this page's dependent prompts
+								set pageDepPrompts(dependsOnPrompt)=""
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	quit 1
+]]></Implementation>
+</Method>
+
+<Method name="hasCrossPageDependencies">
+<Description>
+Work out if there are any x-page dependencies</Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec>eventID</FormalSpec>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	set hasDependencies=0
+	set rs=##class(%ResultSet).%New("%Library.DynamicQuery:SQL")
+	do rs.Prepare("SELECT * FROM setup.viewActiveRegistrationPages WHERE (objEvent=?)")
+	do rs.Execute(eventID)
+	while (rs.Next())&('hasDependencies)	{
+		set pageID=rs.Get("pageID")
+		if rs.Get("dependsOnPromptPageID") set hasDependencies=1
+		set rs2=##class(%ResultSet).%New("%Library.DynamicQuery:SQL")
+		do rs2.Prepare("SELECT dependsOnPrompt FROM sc_xModules.objCodItem WHERE (parent->parent=?) AND (active=1)")
+		do rs2.Execute(pageID)
+		while rs2.Next() {
+			set dependsOnPrompt=rs2.Get("dependsOnPrompt")
+			&SQL(SELECT parent->parent INTO :tmp
+				FROM sc_xModules.objCodItem
+				WHERE ID = :dependsOnPrompt
+			)
+			if +SQLCODE=0 {
+				if tmp'=pageID set hasDependencies=1
+			}
+		}
+	}
+	quit hasDependencies
+]]></Implementation>
+</Method>
+
+<Method name="getPromptsForPageForTempPerson">
+<Description>
+AJM 12/12/2011 15186-5536 15186-5535
+Method for getting all the relevent registration prompts from a page for a temp Person.
+Checks dependencies attendee categories, etc</Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec><![CDATA[eventID,pageID,langID,sessionID="",tempPersonID="",showBackendOnly=0,isGuest=0,&regPrompts]]></FormalSpec>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	set eventCategoryID=""
+	set isGroupBookings=+##class(setup.objEventSetting).getParameter("bookings","allow group bookings",eventID)
+	set controllerID=##class(setup.objEvent).getControllerID(eventID)
+	
+	if tempPersonID,$l(sessionID) {
+		set tempBookerID=##class(eCom.tempPerson).getBookerID(sessionID)
+		set eventCategoryID=##class(eCom.tempPurchase).getEventCategory(sessionID,tempPersonID)
+	}
+	
+	set extraBit=" - "_##class(shared.objLanguage).getLanguageDesc(langID)
+	set bookerPageID=##class(setup.objEventSetting).getParameter("bookings","bookerRegPageID"_extraBit,eventID)
+	
+	set index=0
+	set rs2=##class(%ResultSet).%New("%Library.DynamicQuery:SQL")
+	set query="SELECT * FROM sc_xModules.objCODitem WHERE (objItemName->description <> 'Password') AND (objItemName->description <> 'Password Re-typed') AND (active=1) AND (parent->parent=?) "
+	if isGuest {
+		set query=query_"AND (isGuest=1) "
+	} else {
+		set query=query_"AND (isDelegate=1) " 
+	}
+	set query=query_" ORDER BY displayOrder"
+	do rs2.Prepare(query)
+	do rs2.Execute(pageID)
+	while rs2.Next() {
+		set show=1
+		if 'showBackendOnly {
+			if rs2.Get("backendOnly") set show=0
+		}
+		set itemName=##class(cod.objItemName).getDescFromID(rs2.Get("objItemName"))
+		
+		set dependsOnPrompt=rs2.Get("dependsOnPrompt")
+		set dependsOnAlternative=rs2.Get("dependsOnAlternative")
+		if $l(dependsOnAlternative),$l(dependsOnPrompt) { 
+			// Get the actual cod details
+			set (dependsOnPromptDesc,depPageID,depDescription)=""
+			&SQL(SELECT objItemName->description,parent->parent INTO :tmp,:tmp2 FROM sc_xModules.objCODitem WHERE ID = :dependsOnPrompt)
+			if +SQLCODE=0 set dependsOnPromptDesc=tmp,depPageID=tmp2
+			&SQL(SELECT description  INTO :tmp FROM cod.objItemAlternatives WHERE ID = :dependsOnAlternative)
+			if +SQLCODE=0 set depDescription=tmp
+			
+			set dependInBookerPage=0
+			if isGroupBookings,depPageID=bookerPageID {
+				set dependInBookerPage=1
+			}
+			
+			// If it is in the booker page then check with the booker data
+			if dependInBookerPage {
+				if ##class(eCom.tempCodData).get(tempBookerID,dependsOnPromptDesc)'=depDescription {
+					set show=0
+				}
+			} else {
+				if ##class(eCom.tempCodData).get(tempPersonID,dependsOnPromptDesc)'=depDescription {
+					set show=0
+				}
+			}
+			
+		}
+		if (+##class(links.lnkEventCategoryData).allow(eventCategoryID,rs2.Get("ID"))=0) set show=0  //check if this question is allowed to be displayed in this category.
+		
+		if show {
+			set regPrompts($I(index),"ID")=rs2.Get("ID")
+			set regPrompts(index,"itemName")=itemName
+			set regPrompts(index,"codQuestionPrompt")=##class(sc.xModules.objCODitem).getQuestPrompt(rs2.Get("ID"),langID)
+			set regPrompts(index,"result")=##class(eCom.tempCodData).get(tempPersonID,itemName)
+		}
+	}
+	//set ^xAdrian("tempPersonID")=tempPersonID
+	quit 1
+]]></Implementation>
+</Method>
+
+<Method name="numCategories">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>eventID:%String,langID:%String,showBackendPages:%Boolean=0</FormalSpec>
+<ReturnType>%Integer</ReturnType>
+<Implementation><![CDATA[
+	set numCategories=0
+	
+	// use the above method to avoid code duplication
+	set ok=..getAllRegPages(eventID,langID,showBackendPages,.pageList,.pageListIDs)
+	
+	// now count the number of categories we have
+	set i=""
+	for  {
+		set i=$O(pageList(i))
+		if i="" quit
+		set numCategories=numCategories+1
+	}
+	
+	quit numCategories
+]]></Implementation>
+</Method>
+
+<Method name="useCategoryDesc">
+<Description>
+returns whether we should use the description stored at event level OR the description held for each category
+- if we should use the event level desc, then returns the value (or the default of delegate)</Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec>eventID:%String,inLangID</FormalSpec>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	set useCategoryDesc=0
+	set deleDesc=##class(setup.objEventSetting).getParameter("frontend","delegate description",eventID)
+	if $L(deleDesc)=0 set deleDesc="Attendee",useCategoryDesc=1
+ 	if deleDesc="delegate" set deleDesc=##class(translations.objPhraseWebsite).translatePhrase("delegate",inLangID)
+ 	if deleDesc="Delegate" set deleDesc=##class(translations.objPhraseWebsite).translatePhrase("Delegate",inLangID)
+ 	if deleDesc="attendee" set deleDesc=##class(translations.objPhraseWebsite).translatePhrase("attendee",inLangID)
+ 	if deleDesc="Attendee" set deleDesc=##class(translations.objPhraseWebsite).translatePhrase("Attendee",inLangID)
+	quit useCategoryDesc_"|"_deleDesc
+]]></Implementation>
+</Method>
+
+<Method name="isPageActive">
+<Description>
+This will check whether a page is an active registration or booker's page</Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec>eventID:%String,pageID:%String,langID:%String</FormalSpec>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	set out=0
+	// Is it in the booker's page (for group bookings)
+	if ##class(setup.objEventSetting).getParameter("bookings","allow group bookings",eventID) {
+		set extraBit=""
+		if langID'=1 set extraBit=" - "_##class(shared.objLanguage).getLanguageDesc(langID)
+		if pageID=##class(setup.objEventSetting).getParameter("bookings","bookerRegPageID"_extraBit,eventID) {
+			quit 1
+		}
+	}
+	// Get the category
+	&SQL(SELECT objEventCategory INTO :tmp
+		FROM setup.lnkCategoryEvent
+		WHERE pageID=:pageID
+		AND langID = :langID
+		AND sameAs IS NULL
+		AND active = 1
+	)
+	if +SQLCODE=0 {
+		set eventCategoryID=tmp
+		set out=##class(setup.lnkAttendeeCategoryDetailsEvent).isCategoryActive(eventID,eventCategoryID)
+	}
+	quit out
+]]></Implementation>
+</Method>
+
+<Method name="move">
+<Description>
+Moves an object upwards or downwards in the displayOrder. Pass in "up" or "down"</Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec>ID:%Library.String="",dir:%Library.String=""</FormalSpec>
+<ReturnType>%Library.String</ReturnType>
+<Implementation><![CDATA[
+ set adjacent=""
+ // tests
+ if '..%ExistsId(ID) quit "0|Could not find item"
+ if $zcvt(dir,"l")'="up",$zcvt(dir,"l")'="down" quit "0|incorrect direction"
+ set myObj=..%OpenId(ID)
+ set eventID=myObj.objEvent.%Id()
+ set eventCategoryID=myObj.objEventCategory.%Id()
+ set langID=myObj.langID
+ set myPos=+myObj.displayOrder
+ // Find previous one if we moving up
+ if $ZCVT(dir,"l")="up" {
+	 &SQL(	SELECT ID INTO :adjacent 
+	 FROM setup.lnkCategoryEvent
+	 WHERE (displayOrder < :myPos) AND (objEvent = :eventID) AND (objEventCategory = :eventCategoryID) AND (langID = :langID) AND (active=1)
+	 ORDER BY displayOrder DESC)
+ }
+ // find next one if we are moving down
+ if $ZCVT(dir,"l")="down" {
+	 &SQL(	SELECT ID INTO :adjacent 
+	 FROM setup.lnkCategoryEvent
+	 WHERE (displayOrder > :myPos) AND (objEvent = :eventID) AND (objEventCategory = :eventCategoryID) AND (langID = :langID) AND (active=1)
+	 ORDER BY displayOrder)
+ }
+ 
+ if adjacent'="" {
+	 // Swap the displayOrder betwixt the two objects
+	 set adjObj=..%OpenId(adjacent)
+	 set temp=+myObj.displayOrder
+	 set myObj.displayOrder=+adjObj.displayOrder
+	 set adjObj.displayOrder=+temp
+	 do myObj.%Save()
+	 do adjObj.%Save()
+	 do myObj.%Close()
+	 do adjObj.%Close()
+	 quit 1
+ } else {
+	 set myObj.displayOrder=+myPos
+	 do myObj.%Save()
+	 do myObj.%Close()
+	
+	 quit "0|could not find adjacent"
+ }
+]]></Implementation>
+</Method>
+
+<Method name="getPageDescription">
+<Description>
+Pass in an event, category and PageID and get the page description.
+Note langID is not necsessary as you cannot have the same PageID for more than one language</Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec>eventID,eventCategoryID,pageID</FormalSpec>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	set description=""
+	&SQL(SELECT description INTO :tmp
+		FROM setup.lnkCategoryEvent
+		WHERE (objEvent=:eventID) AND (objEventCategory=:eventCategoryID) 
+		AND (active = 1) AND (pageID=:pageID OR sameAs->pageID=:pageID)
+	)
+	if +SQLCODE=0 {
+		set description=tmp
+	}
+	quit description
+]]></Implementation>
+</Method>
+
+<Method name="getAttendeeCategoryIDFromRegistrationPageID">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>pageID:%Integer</FormalSpec>
+<ReturnType>%Integer</ReturnType>
+<Implementation><![CDATA[
+	&SQL(SELECT objEventCategory INTO :attendeeCategoryID FROM setup.lnkCategoryEvent WHERE pageID = :pageID)
+	if +SQLCODE = 0 {	
+		return attendeeCategoryID
+	} else {
+		return ""	
+	}
+]]></Implementation>
+</Method>
+
+<Method name="isPageLinkedToFromAnyActiveCategory">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>pageID</FormalSpec>
+<ReturnType>%Boolean</ReturnType>
+<Implementation><![CDATA[
+	set result = 0
+	
+	set eventID = ##class(sc.methods).getEventIDfromPageID(pageID)
+	set rsPages = ##class(%ResultSet).%New("%Library.DynamicQuery:SQL")
+	set query="SELECT objEventCategory FROM setup.lnkCategoryEvent WHERE (sameAs->pageID = ?) AND (objEvent = ?)"
+	set sc = rsPages.Prepare(query)
+	if ($$$ISERR(sc)) {
+		throw ##class(shared.exceptions.generalStatusException).CreateFromStatus(sc)
+	}
+	
+	set sc = rsPages.Execute(pageID, eventID)
+	if ($$$ISERR(sc)) {
+		throw ##class(shared.exceptions.generalStatusException).CreateFromStatus(sc)
+	}
+	
+	while rsPages.Next() {
+		if (##class(setup.lnkAttendeeCategoryDetailsEvent).isCategoryActive(eventID, rsPages.Get("objEventCategory"))) {
+			set result = 1
+		}
+	}
+	
+	return result
+]]></Implementation>
+</Method>
+
+<Query name="qAllActivePagesCategory">
+<Type>%SQLQuery</Type>
+<FormalSpec>eventID:%String,langID:%String,showBackendPages:%Boolean=0,eventCategoryID:%String,showMeetingProfilePages:%Boolean=1</FormalSpec>
+<SqlQuery><![CDATA[	SELECT pageID,displayOrder,description,backendOnly,dependsOnObjItemName->description As dependsOnPrompt,dependsOnAlternative,dependsOnPromptPageID,sameAs,sameAs->pageID as linkedToPage,active,sameAs->description As sameAsDescription,isMeetingMan,COUNT(ID) As total,ID
+	FROM setup.lnkCategoryEvent 
+	WHERE (objEvent=:eventID) AND (active=1) AND (langID=:langID) AND (objEventCategory=:eventCategoryID)
+	AND ( ( (backendOnly=0) AND (:showBackendPages=0) ) OR ( (:showBackendPages=1) ) )
+	AND ( ( ((isMeetingMan=0) OR (isMeetingMan IS NULL) OR (isMeetingMan = '')) AND (:showMeetingProfilePages=0) ) OR ( (:showMeetingProfilePages=1) ) )
+	ORDER BY displayOrder]]></SqlQuery>
+<Parameter name="CONTAINID" value="1"/>
+</Query>
+
+<Query name="qAllPagesCategory">
+<Type>%SQLQuery</Type>
+<FormalSpec>eventID:%String,langID:%String,showBackendPages:%Boolean=0,eventCategoryID:%String,showMeetingProfilePages:%Boolean=1</FormalSpec>
+<SqlQuery><![CDATA[	SELECT pageID,displayOrder,description,backendOnly,dependsOnObjItemName->description As dependsOnPrompt,dependsOnAlternative,dependsOnPromptPageID,sameAs,sameAs->pageID as linkedToPage,active,sameAs->description As sameAsDescription,isMeetingMan,COUNT(ID) As total,ID
+	FROM setup.lnkCategoryEvent 
+	WHERE (objEvent=:eventID) AND (langID=:langID) AND (objEventCategory=:eventCategoryID)
+	AND ( ( (backendOnly=0) AND (:showBackendPages=0) ) OR ( (:showBackendPages=1) ) )
+	AND ( ( ((isMeetingMan=0) OR (isMeetingMan IS NULL) OR (isMeetingMan = '')) AND (:showMeetingProfilePages=0) ) OR ( (:showMeetingProfilePages=1) ) )
+	ORDER BY displayOrder]]></SqlQuery>
+<Parameter name="CONTAINID" value="1"/>
+</Query>
+
+<Storage name="Default">
+<Type>%Library.CacheStorage</Type>
+<DataLocation>^setup.lnkCategoryEventD</DataLocation>
+<DefaultData>lnkCategoryEventDefaultData</DefaultData>
+<IdLocation>^setup.lnkCategoryEventD</IdLocation>
+<IndexLocation>^setup.lnkCategoryEventI</IndexLocation>
+<StreamLocation>^setup.lnkCategoryEventS</StreamLocation>
+<ExtentSize>651</ExtentSize>
+<Data name="lnkCategoryEventDefaultData">
+<Value name="1">
+<Value>%%CLASSNAME</Value>
+</Value>
+<Value name="2">
+<Value>objEvent</Value>
+</Value>
+<Value name="3">
+<Value>objEventCategory</Value>
+</Value>
+<Value name="4">
+<Value>xCRstamp</Value>
+</Value>
+<Value name="5">
+<Value>xMOstamp</Value>
+</Value>
+<Value name="6">
+<Value>active</Value>
+</Value>
+<Value name="7">
+<Value>langID</Value>
+</Value>
+<Value name="8">
+<Value>pageID</Value>
+</Value>
+<Value name="9">
+<Value>xCRuserID</Value>
+</Value>
+<Value name="10">
+<Value>xMOuserID</Value>
+</Value>
+<Value name="11">
+<Value>backendOnly</Value>
+</Value>
+<Value name="12">
+<Value>displayOrder</Value>
+</Value>
+<Value name="13">
+<Value>description</Value>
+</Value>
+<Value name="14">
+<Value>sameAs</Value>
+</Value>
+<Value name="15">
+<Value>isDefault</Value>
+</Value>
+<Value name="16">
+<Value>isMeetingMan</Value>
+</Value>
+<Value name="17">
+<Value>dependsOnPrompt</Value>
+</Value>
+<Value name="18">
+<Value>dependsOnAlternative</Value>
+</Value>
+<Value name="19">
+<Value>dependsOnPromptPageID</Value>
+</Value>
+<Value name="20">
+<Value>dependsOnObjItemName</Value>
+</Value>
+<Value name="21">
+<Value>copiedFromID</Value>
+</Value>
+</Data>
+<Property name="%%CLASSNAME">
+<Selectivity>1</Selectivity>
+</Property>
+<Property name="%%ID">
+<Selectivity>1</Selectivity>
+</Property>
+<Property name="active">
+<Selectivity>50.0000%</Selectivity>
+</Property>
+<Property name="backendOnly">
+<Selectivity>50.0000%</Selectivity>
+</Property>
+<Property name="dependsOnAlternative">
+<Selectivity>1</Selectivity>
+</Property>
+<Property name="dependsOnPrompt">
+<Selectivity>1</Selectivity>
+</Property>
+<Property name="dependsOnPromptPageID">
+<Selectivity>1</Selectivity>
+</Property>
+<Property name="description">
+<Selectivity>8.3333%</Selectivity>
+</Property>
+<Property name="displayOrder">
+<Selectivity>25.0000%</Selectivity>
+</Property>
+<Property name="isDefault">
+<Selectivity>1</Selectivity>
+</Property>
+<Property name="isMeetingMan">
+<Selectivity>1</Selectivity>
+</Property>
+<Property name="langID">
+<Selectivity>100.0000%</Selectivity>
+</Property>
+<Property name="objEvent">
+<Selectivity>0.6369%</Selectivity>
+</Property>
+<Property name="objEventCategory">
+<Selectivity>12.5000%</Selectivity>
+</Property>
+<Property name="pageID">
+<Selectivity>0.2398%</Selectivity>
+</Property>
+<Property name="sameAs">
+<Selectivity>1.9231%</Selectivity>
+</Property>
+<Property name="xCRstamp">
+<Selectivity>0.6667%</Selectivity>
+</Property>
+<Property name="xCRuserID">
+<Selectivity>10.0000%</Selectivity>
+</Property>
+<Property name="xMOstamp">
+<Selectivity>0.5181%</Selectivity>
+</Property>
+<Property name="xMOuserID">
+<Selectivity>6.2500%</Selectivity>
+</Property>
+</Storage>
 </Class>
 
 

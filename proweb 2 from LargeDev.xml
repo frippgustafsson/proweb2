@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.2 (Build 736_0_16994U)" ts="2017-02-09 11:15:59">
+<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.2 (Build 736_0_16994U)" ts="2017-02-09 14:37:03">
 <Class name="EF.contextData">
 <Description><![CDATA[
 <!-- ;vc;-
@@ -2243,12 +2243,12 @@ Should be run if any of the sub-classes are deleted</Description>
 
 <Class name="EF.pageController.proweb.checkboxGroup">
 <Super>EF.pageController.proweb.inputElement</Super>
-<TimeChanged>64317,42062.652959</TimeChanged>
+<TimeChanged>64323,51094.734387</TimeChanged>
 <TimeCreated>64189,53206.554402</TimeCreated>
 
 <Method name="getDefaultUIComponent">
 <ReturnType>EF.ui.components.frontend.checkboxGroup</ReturnType>
-<Implementation><![CDATA[	quit ##class(EF.ui.components.frontend.checkboxGroup).%New(..identifier)
+<Implementation><![CDATA[	return ##class(EF.ui.components.frontend.checkboxGroup).%New(..identifier)
 ]]></Implementation>
 </Method>
 
@@ -2306,6 +2306,7 @@ Should be run if any of the sub-classes are deleted</Description>
 
 <Method name="updateUIComponent">
 <Implementation><![CDATA[
+	// The problem is that there is no validator set for the checkboxGroup at this time. other types seems to have it. ##############################
 	do ##super()
 	
 	set ..uiComponent.validator.minAltsChecked = ..prowebItem.storage.minAltsChecked
@@ -2635,7 +2636,7 @@ Should be run if any of the sub-classes are deleted</Description>
 
 <Class name="EF.pageController.proweb.inputElement">
 <Super>EF.pageController.inputElement,EF.pageController.proweb.prowebBase</Super>
-<TimeChanged>64321,60595.202105</TimeChanged>
+<TimeChanged>64323,42756.67713</TimeChanged>
 <TimeCreated>64189,53012.909524</TimeCreated>
 
 <Property name="guestNumber">
@@ -2754,7 +2755,7 @@ Should be run if any of the sub-classes are deleted</Description>
 <Description>
 Should have a one-to-one relationship with sc.objList</Description>
 <Super>EF.pageController.containerElement</Super>
-<TimeChanged>64321,40914.328813</TimeChanged>
+<TimeChanged>64323,50526.783577</TimeChanged>
 <TimeCreated>64231,55587.036042</TimeCreated>
 
 <Property name="prowebListID">
@@ -3049,11 +3050,12 @@ refers to sc.xModules.objList</Description>
 		if prowebItem.storage.inputType = "multibox" {
 			set counter = counter + 1
 			set isChecked = ##class(EF.pageController.proweb.checkboxGroup).isAlternativeInValueString(alternative.displayText, value)
-			set childController = element.addProwebCheckbox(element, elementIdentifier_"-"_counter, alternative.displayText, isChecked)
+			 set childController = element.addProwebCheckbox(element, elementIdentifier_"-"_counter, alternative.displayText, isChecked)
 			set childController.price = ..getPrice(alternative, prowebItem) 
 			set childController.capacity = alternative.ABICapacity
 			set childController.currentBookingLevel = alternative.ABICurrentBookingLevel
 			set childController.isBookingStopped = alternative.ABIIsBookingStopped
+			
 		} else {
 			set childController = element.addAlternative(alternative, ..getPrice(alternative, prowebItem))	
 		} 
@@ -3283,7 +3285,7 @@ Should have a one-to-one relationship with sc.objList</Description>
 
 <Class name="EF.pageController.proweb.page">
 <Super>EF.pageController.page</Super>
-<TimeChanged>64323,39765.320613</TimeChanged>
+<TimeChanged>64323,42421.990909</TimeChanged>
 <TimeCreated>64189,51696.559047</TimeCreated>
 
 <Property name="mvcPageHandler">
@@ -3349,7 +3351,7 @@ Should have a one-to-one relationship with sc.objList</Description>
 			do ..loadIncludePage(..contextData.eventWebsiteLanguage.getFooterPageID(), "footer page")
 		}
 	}
-	do ..updateUIComponents()
+	do ..updateUIComponents() ;############
 ]]></Implementation>
 </Method>
 
@@ -3590,7 +3592,7 @@ opens the pageController without reloading the elements.</Description>
 <FormalSpec>prowebItem:sc.facade.prowebItem,optionalGuestNumber:%Integer=""</FormalSpec>
 <ReturnType>%String</ReturnType>
 <Implementation><![CDATA[
-	set identifier = "proweb-"_prowebItem.storage.prowebID
+	set identifier = "ef-proweb-"_prowebItem.storage.prowebID_"-id"
 
 	if optionalGuestNumber {
 		set identifier = identifier_"-"_optionalGuestNumber		
@@ -6059,7 +6061,7 @@ this is for version 1 of proweb</Description>
 
 <Class name="EF.ui.components.frontend.checkboxGroup">
 <Super>EF.ui.components.frontend.inputElement</Super>
-<TimeChanged>64253,39628.464312</TimeChanged>
+<TimeChanged>64323,51211.473305</TimeChanged>
 <TimeCreated>63356,56848.077942</TimeCreated>
 
 <Property name="label">
@@ -7164,8 +7166,8 @@ this is for version 1 of proweb</Description>
 
 
 <Class name="EF.ui.components.frontend.inputElement">
-<Super>EF.ui.components.frontend.prowebBase,EF.ui.components.inputBase</Super>
-<TimeChanged>64323,37397.014195</TimeChanged>
+<Super>EF.ui.components.inputBase,EF.ui.components.frontend.prowebBase</Super>
+<TimeChanged>64323,51532.941997</TimeChanged>
 <TimeCreated>64183,40678.260093</TimeCreated>
 
 <Property name="alternatives">
@@ -7379,6 +7381,24 @@ this is for version 1 of proweb</Description>
 </Value>
 <Value name="13">
 <Value>maxCharacters</Value>
+</Value>
+<Value name="14">
+<Value>isProwebEditMode</Value>
+</Value>
+<Value name="15">
+<Value>prowebItemID</Value>
+</Value>
+<Value name="16">
+<Value>prowebItem</Value>
+</Value>
+<Value name="17">
+<Value>contextData</Value>
+</Value>
+<Value name="18">
+<Value>nameOfControllerListClass</Value>
+</Value>
+<Value name="19">
+<Value>mvcPageHandler</Value>
 </Value>
 </Data>
 </Storage>
@@ -10254,7 +10274,7 @@ function loadItem(itemNameID) {
 									<table border=0 cellpadding=0>
 										<tr>
 											<td class="black10px">
-												<input type="text" name="txtDescription" maxlength="44" class="black10px" value="#(description)#" onchange="if (document.forms[0].txtPrompt.value.length <2) {document.forms[0].txtPrompt.value=this.value;}" disabled style="background-color: #eeeeee; width: 285px; padding-left: 4px;">
+												<input type="text" id="ef-item-name-id" name="txtDescription" maxlength="44" class="black10px" value="#(description)#" onchange="if (document.forms[0].txtPrompt.value.length <2) {document.forms[0].txtPrompt.value=this.value;}" disabled style="background-color: #eeeeee; width: 285px; padding-left: 4px;">
 											</td>
 											<script language="cache" runat="server">
 												set show=1
@@ -10306,9 +10326,9 @@ function loadItem(itemNameID) {
 									</script>
 									 <csp:if condition=(show)>
 										<csp:if condition=(dataID)>
-											<ef-a href="#(codCollectionDetailsURL)#"><img src="../../media/images/English/Default/backend/collections.gif" border="0" alt="Registration question collections" width="85" height="17"></ef-a>
+											<ef-a href="#(codCollectionDetailsURL)#"><img id="ef-item-collections-id" src="../../media/images/English/Default/backend/collections.gif" border="0" alt="Registration question collections" width="85" height="17"></ef-a>
 										<csp:else>
-											<img src="../../media/images/English/Default/backend/collections.gif" border="0" alt="Registration question collections" style="filter: alpha(opacity=35); opacity: 0.35;"   width="85" height="17" title="Registration question collections is only available after you have saved the question prompt">
+											<img id="ef-item-collections-id" src="../../media/images/English/Default/backend/collections.gif" border="0" alt="Registration question collections" style="filter: alpha(opacity=35); opacity: 0.35;"   width="85" height="17" title="Registration question collections is only available after you have saved the question prompt">
 										</csp:if>
 									 </csp:if>
                                 </td>
@@ -10317,12 +10337,12 @@ function loadItem(itemNameID) {
 								<td width="13" height="33">&nbsp;</td>
 								<td class="black10px" align="right" valign="top"><tx>Question text</tx>:&nbsp;</td>
 								<td class="black10px" colspan="3" style="padding-left: 2px;">
-									<textarea name="txtPrompt" class="black10px" style="width: 292px; height: 40px; padding-left: 4px; padding-top: 4px;">#(..encodeHTMLContentForTinyMCETextarea(prompt))#</textarea>
+									<textarea name="txtPrompt" id="ef-item-prompt-text-id" class="black10px" style="width: 292px; height: 40px; padding-left: 4px; padding-top: 4px;">#(..encodeHTMLContentForTinyMCETextarea(prompt))#</textarea>
 								</td><td valign="top">
 									<csp:if condition=((itemNameID="NEW")!(itemNameID="CREATE"))>
-										<img src="../../media/images/English/Default/backend/advanced.gif" alt="advanced"  border="0" style="filter: alpha(opacity=35); opacity: 0.35;" title="You must save the database item before you can edit the question text.">
+										<img id="ef-item-prompt-text-advanced-button-id" src="../../media/images/English/Default/backend/advanced.gif" alt="advanced"  border="0" style="filter: alpha(opacity=35); opacity: 0.35;" title="You must save the database item before you can edit the question text.">
 									<csp:else>
-										<a href="javascript: popup('question');"><img src="../../media/images/English/Default/backend/advanced.gif" alt="advanced" border="0"></a>
+										<a href="javascript: popup('question');"><img id="ef-item-prompt-text-advanced-button-id" src="../../media/images/English/Default/backend/advanced.gif" alt="advanced" border="0"></a>
 									</csp:if>
 								</td>
 							</tr>
@@ -10542,7 +10562,7 @@ function loadItem(itemNameID) {
 												set isChecked=objCODitem.searchAsYouType
 											}
 										</script>
-										<input type="checkbox" name="chkSearchAsYouType" value=1 #($Select(isChecked:"CHECKED",1:""))# style="vertical-align: sub;">
+										<input type="checkbox" id="ef-item-type-search-as-you-type-id" name="chkSearchAsYouType" value=1 #($Select(isChecked:"CHECKED",1:""))# style="vertical-align: sub;">
 										Search-as-you-type
 									</span>
 									<script language="cache" runat="server">
@@ -10577,7 +10597,7 @@ function loadItem(itemNameID) {
 														<csp:if condition=(alwaysMandatory)>
 															<img src="../../media/images/English/Default/backend/tick.gif" alt="" width="14" height="12" border="0">
 														<csp:else>
-															<input type="checkbox" name='chkMandatory' value="1" #($S(mandatory=1:"checked",1:0))# style="margin-left:0px;">
+															<input id="ef-item-mandatory-id" type="checkbox" name='chkMandatory' value="1" #($S(mandatory=1:"checked",1:0))# style="margin-left:0px;">
 														</csp:if>
 													</td>
 													<td class="black10px">
@@ -10587,7 +10607,7 @@ function loadItem(itemNameID) {
 												</systemType:if>
 												<systemType:if module="Backend Only Questions">
 													<td>
-														<input type="checkbox" name='chkBackendOnly' value="1" class="black10px" #($S(backendOnly=1:"checked",1:0))#>
+														<input type="checkbox" id="ef-item-backend-id" name='chkBackendOnly' value="1" class="black10px" #($S(backendOnly=1:"checked",1:0))#>
 													</td>
 													<td class="black10px">
 														<tx>Admin portal only</tx>
@@ -10597,7 +10617,7 @@ function loadItem(itemNameID) {
 												<input type="hidden" name='chkReportOn' value="1">
 												<systemType:if module="Read Only Questions">
 													<td>
-														<input type="checkbox" name='chkReadonlyFrontend' value="1" class="black10px" #($S(readonlyFrontend=1:"checked",1:0))#>
+														<input type="checkbox" id="ef-item-read-only-id" name='chkReadonlyFrontend' value="1" class="black10px" #($S(readonlyFrontend=1:"checked",1:0))#>
 													</td>
 													<td class="black10px">
 														<tx>Read only</tx>
@@ -10606,7 +10626,7 @@ function loadItem(itemNameID) {
 												</systemType:if>
 												<systemType:if module="Stop Amendments for Questions">
 													<td>
-														<input type="checkbox" name='chkNoAmendments' value="1" class="black10px" #($S(noAmendments=1:"checked",1:0))# title='#(..out("If checked, event website users will not be able to change the value when amending their registration"))#'>
+														<input type="checkbox" id="ef-item-no-amendments-id" name='chkNoAmendments' value="1" class="black10px" #($S(noAmendments=1:"checked",1:0))# title='#(..out("If checked, event website users will not be able to change the value when amending their registration"))#'>
 													</td>
 													<td class="black10px">
 														<tx>Stop amendments</tx>
@@ -10631,13 +10651,13 @@ function loadItem(itemNameID) {
 													<tx>Min no. of alternatives:</tx>
 												</td>
 												<td>
-													<input type="text" name="multiCheckboxMin" size=2 class="black10px" value="#(multiCheckboxMin)#">
+													<input type="text" id="ef-item-min-alternatives-id" name="multiCheckboxMin" size=2 class="black10px" value="#(multiCheckboxMin)#">
 												</td>
 												<td class="black10px" width=133 align="right">
 													<tx>Max no. of alternatives:</tx>
 												</td>
 												<td>
-													<input type="text" name="multiCheckboxMax" size=2 class="black10px" value="#(multiCheckboxMax)#">
+													<input type="text" id="ef-item-max-alternatives-id" name="multiCheckboxMax" size=2 class="black10px" value="#(multiCheckboxMax)#">
 												</td>
 											</tr>
 										</table>
@@ -10657,7 +10677,7 @@ function loadItem(itemNameID) {
 										</csp:if>
 									</td>
 									<td class="black10px" valign="middle" height="33" colspan="3">
-										<input type="text" name="reportDescription" value="#(reportDescription)#" style="width: 285px;" class="black10px">
+										<input type="text" id="ef-item-alternative-name-id" name="reportDescription" value="#(reportDescription)#" style="width: 285px;" class="black10px">
 									</td>
 								</tr>
 							</systemType:if>
@@ -10668,13 +10688,13 @@ function loadItem(itemNameID) {
 									<table cellpadding=0 cellspacing=0 border=0>
 										<tr>
 											<td class="black10px" valign="middle">
-												<input type="text" name="txtFieldWidth" size="3" class="black9px" value="#(fieldWidth)#" title="Enter width in pixels">&nbsp;pixels
+												<input type="text" id="ef-item-field-width-id" name="txtFieldWidth" size="3" class="black9px" value="#(fieldWidth)#" title="Enter width in pixels">&nbsp;pixels
 											</td>
 											<td class="black10px" width="65" align="right">
 												<tx>Height</tx>:&nbsp;
 											</td>
 											<td class="black10px" valign="middle">
-												<input type="text" name="txtFieldHeight" size="3" class="black9px" value="#(fieldHeight)#" title="Enter the height in number of text rows">&nbsp;lines
+												<input type="text" id="ef-item-field-height-id" name="txtFieldHeight" size="3" class="black9px" value="#(fieldHeight)#" title="Enter the height in number of text rows">&nbsp;lines
 											</td>
 											<script language="cache" runat="server">
 												// phased out for new and copied events as of Feb 2015
@@ -10689,7 +10709,7 @@ function loadItem(itemNameID) {
 											</script>
 											<csp:if condition="showPlaceOnSameLine">
 												<td width=40 align="right">
-													<input type="checkbox" name="suppressNewLine" value=1 #(checked)#  title="Places this item on the same line as the one next to it (requires that the other item also has this checked).">
+													<input type="checkbox" id="ef-item-suppress-id" name="suppressNewLine" value=1 #(checked)#  title="Places this item on the same line as the one next to it (requires that the other item also has this checked).">
 												</td>
 												<td class="black10px" width=120 >
 													<tx>Place on same line</tx>
@@ -10727,7 +10747,7 @@ function loadItem(itemNameID) {
 													<td width="120px"></td>
 													<td class="black10px" nowrap><tx>Applies to</tx>:&nbsp;</td>
 													<td class="black10px">
-														<input type="radio" name="radDelegateOrGuest" value="delegate" #($S((isDelegate)!(('isDelegate)&('isGuest)):"checked",1:""))#>
+														<input type="radio" id="ef-item-attendees-id" name="radDelegateOrGuest" value="delegate" #($S((isDelegate)!(('isDelegate)&('isGuest)):"checked",1:""))#>
 													</td>
 													<td class="black10px" align="left">
 														<tx>Attendees</tx>
@@ -10738,7 +10758,7 @@ function loadItem(itemNameID) {
 												<tr>
 													<td colspan=2></td>
 													<td class="black10px">
-														<input type="radio" name="radDelegateOrGuest" value="guest" #($S(isGuest:"checked",1:""))# #($S(type="multibox":"DISABLED",1:""))#>
+														<input type="radio" id="ef-item-guests-id" name="radDelegateOrGuest" value="guest" #($S(isGuest:"checked",1:""))# #($S(type="multibox":"DISABLED",1:""))#>
 													<td class="black10px">
 														<tx>Guests</tx>	
 													</td>
@@ -10816,7 +10836,7 @@ function loadItem(itemNameID) {
 								<td width="13"></td>
 								<td class="black10px" align="right"><tx>Custom validation</tx>:&nbsp;</td>
 								<td colspan=4>
-									<input type="Text" name="requiredAnswer" class="black10px" style="width: 283px;" value="#(..encodeForHTMLAttribute(requiredAnswer))#" title="#(..encodeForHTMLAttribute(tmpTitle))#">
+									<input type="Text" id="ef-item-custom-validation-id" name="requiredAnswer" class="black10px" style="width: 283px;" value="#(..encodeForHTMLAttribute(requiredAnswer))#" title="#(..encodeForHTMLAttribute(tmpTitle))#">
 									&nbsp;<csp:if condition=(isCallout)><span class="redbold10px"><tx>Warning: Custom validation is using bespoke validation</tx></span></csp:if>
 								</td>
 							<tr>
@@ -10825,7 +10845,7 @@ function loadItem(itemNameID) {
 								<td width="13"></td>
 								<td class="black10px" align="right"><tx>Validation error message</tx>:&nbsp;</td>
 								<td colspan=4>
-									<input type="Text" name="validationErrorMessage" class="black10px" style="width: 283px;" value="#(..encodeForHTMLAttribute(validationErrorMessage))#" >
+									<input type="Text" id="ef-item-validation-error-message-id" name="validationErrorMessage" class="black10px" style="width: 283px;" value="#(..encodeForHTMLAttribute(validationErrorMessage))#" >
 								</td>
 							<tr>
 							<tr><td height=10></td></tr>
@@ -10915,11 +10935,11 @@ function loadItem(itemNameID) {
 													</script>
 
 													<td class="black10px">
-														<input type="Text" name="maxCharacters" class="black10px" size="5" value="#(..EscapeHTML($S(useCharacters:maxCharacters,1:maxWords)))#" title="The page cannot be saved if the answer is longer than this number of characters.">&nbsp;&nbsp;
+														<input type="Text" id="ef-item-max-length-id" name="maxCharacters" class="black10px" size="5" value="#(..EscapeHTML($S(useCharacters:maxCharacters,1:maxWords)))#" title="The page cannot be saved if the answer is longer than this number of characters.">&nbsp;&nbsp;
 													</td>
 													<td class="black10px">
-														<input type="radio" name="radCharsOrWords" value="chars" #($S(useCharacters:"CHECKED",1:""))#>&nbsp;<tx>Characters</tx>
-														<input type="radio" name="radCharsOrWords" value="words"  #($S('useCharacters:"CHECKED",1:""))#>&nbsp;<tx>Words</tx>
+														<input type="radio" id="ef-item-max-length-characters-id" name="radCharsOrWords" value="chars" #($S(useCharacters:"CHECKED",1:""))#>&nbsp;<tx>Characters</tx>
+														<input type="radio" id="ef-item-max-length-words-id" name="radCharsOrWords" value="words"  #($S('useCharacters:"CHECKED",1:""))#>&nbsp;<tx>Words</tx>
 													</td>
 												</tr>
 											</table>
@@ -11048,8 +11068,8 @@ function loadItem(itemNameID) {
                                                <table width="100%" border="0" cellspacing="0" cellpadding="0">
                                                    <tr>
                                                      	<td width="20%" height="30">
-													   		<img src="../../media/images/English/Default/backend/up.gif" alt="up" title="Move up one step" width="15" height="12" border="0" onClick="move('up');">
-													   		<img src="../../media/images/English/Default/backend/top.gif" alt="top" title="Move to top" width="15" height="12" border="0" onClick="move('top');">
+													   		<img src="../../media/images/English/Default/backend/up.gif" id="ef-item-alternatives-move-up-id" alt="up" title="Move up one step" width="15" height="12" border="0" onClick="move('up');">
+													   		<img src="../../media/images/English/Default/backend/top.gif" id="ef-item-alternatives-move-top-id" alt="top" title="Move to top" width="15" height="12" border="0" onClick="move('top');">
 														</td>
 														<td width="30%" height="30">
 															<img src="../../media/images/English/Default/backend/delete.gif" name="butDelete" id="butDelete" alt="Delete selected alternative" width="50" height="17" border="0" onClick="deleteAlternative();">
@@ -11058,8 +11078,8 @@ function loadItem(itemNameID) {
 													</tr>
 													<tr>
 														<td  height="30">
-															<img src="../../media/images/English/Default/backend/down.gif" alt="down" title="Move down one step" width="15" height="12" border="0" onClick="move('down');">
-															<img src="../../media/images/English/Default/backend/bottom.gif" alt="bottom" title="Move to bottom" width="15" height="12" border="0" onClick="move('bottom');">
+															<img src="../../media/images/English/Default/backend/down.gif" id="ef-item-alternatives-move-down-id" alt="down" title="Move down one step" width="15" height="12" border="0" onClick="move('down');">
+															<img src="../../media/images/English/Default/backend/bottom.gif" id="ef-item-alternatives-move-bottom-id" alt="bottom" title="Move to bottom" width="15" height="12" border="0" onClick="move('bottom');">
 														</td>
 														<td  height="30">
 															<csp:if condition=(additional)>
@@ -11089,13 +11109,13 @@ function loadItem(itemNameID) {
 													<tr>
 														<td></td>
 														<td class="black10px" colspan=3>
-															<input type="radio" name="radLayout" value="horizontal" #($S(layout="horizontal":"CHECKED",1:""))#>&nbsp;
+															<input type="radio" id="ef-item-horizontal-id" name="radLayout" value="horizontal" #($S(layout="horizontal":"CHECKED",1:""))#>&nbsp;
 															<tx>Horizontal</tx></td>
 													</tr>
 													<tr>
 														<td></td>
 														<td class="black10px" colspan=3>
-															<input type="radio" name="radLayout" value="vertical"  #($S(layout="vertical":"CHECKED",1:""))#>&nbsp;
+															<input type="radio" id="ef-item-vertical-id" name="radLayout" value="vertical"  #($S(layout="vertical":"CHECKED",1:""))#>&nbsp;
 															<tx>Vertical</tx></td>
 													</tr>
                                                  </table>
@@ -11211,10 +11231,10 @@ function loadItem(itemNameID) {
 										<tr>
  											<td class="black10px" align="right" height="25"><tx>Optional booking levels - minimum</tx>:&nbsp;&nbsp;</td>
 											<td class="black10px">
-												<input type="text" name="txtqMin" value="#(qMin)#" size="5" class="black10px">
+												<input type="text" id="ef-item-min-booking-level-id" name="txtqMin" value="#(qMin)#" size="5" class="black10px">
 											</td>
 											<td class="black10px" align="right" valign="middle">  <tx>maximum</tx>:&nbsp;&nbsp;</td>
-											<td class="black10px"><input type="text" name="txtqMax" value="#(qMax)#" size="5" class="black10px">
+											<td class="black10px"><input type="text" id="ef-item-max-booking-level-id" name="txtqMax" value="#(qMax)#" size="5" class="black10px">
 											</td>
 										</tr>
 										<script language="cache" runat="server">
@@ -11232,7 +11252,7 @@ function loadItem(itemNameID) {
 											  	<tx>Should this question create real attendees?</tx>&nbsp;&nbsp;
 											  </td>
 									          <td height="25">
-											  	<input type="checkbox" name="chkqCreatesAttendees" value="1" onChange="updateAttendeeCategory()" #($S(createsAttendees=1:"checked",1:""))# class="black10px">
+											  	<input type="checkbox" id="ef-item-creates-attendees-id" name="chkqCreatesAttendees" value="1" onChange="updateAttendeeCategory()" #($S(createsAttendees=1:"checked",1:""))# class="black10px">
 									          </td>
 									          <td colspan="2">
 											  </td>
@@ -11259,7 +11279,7 @@ function loadItem(itemNameID) {
 													set rs=##class(%ResultSet).%New("setup.lnkAttendeeCategoryDetailsEvent:qAllActiveCategories")
 													do rs.Execute(xEventID)
 												</script>
-											  	<select name="selqAttendeeCategory" size="1" class="black10px" style="width:200px;">
+											  	<select name="selqAttendeeCategory" id="ef-item-attendee-categories-id" size="1" class="black10px" style="width:200px;">
 												<csp:while condition="rs.Next()">
 													<script language="cache" runat="server">
 														set eventCategoryID=rs.Data("objEventCategory")
@@ -11273,7 +11293,7 @@ function loadItem(itemNameID) {
 															if eventCategoryID=defaultCategoryID set selected="SELECTED"
 														}
 													</script>
-													<option value="#(eventCategoryID)#" #(selected)#>#(rs.Data("description"))#</option>
+													<option id="ef-item-attendee-category-#(..encodeForHTMLAttribute(eventCategoryID))#-id" value="#(..encodeForHTMLAttribute(eventCategoryID))#" #(..rawHTML(selected))#>#(..encodeForHTML(rs.Data("description")))#</option>
 												</csp:while>
 									          	</select>
 											</csp:if>
@@ -11295,17 +11315,17 @@ function loadItem(itemNameID) {
 										<tr>
 											<td class="black10px" align="right">Registrations:&nbsp;&nbsp;</td>
 											<td class="black10px">
-												<select name="selRegistrationStatus" class="black10px">
-													<option value="unlimited" #(..rawHTML($Select(qRegistrationStatus="unlimited":"selected",1:"")))#>Unlimited</option>
-													<option value="limited" #(..rawHTML($Select(qRegistrationStatus="limited":"selected",1:"")))#>Limited</option>
-													<option value="stopped" #(..rawHTML($Select(qRegistrationStatus="stopped":"selected",1:"")))#>Stopped</option>
+												<select name="selRegistrationStatus" id="ef-item-registration-status-id" class="black10px">
+													<option id="ef-item-registration-status-unlimited-id" value="unlimited" #(..rawHTML($Select(qRegistrationStatus="unlimited":"selected",1:"")))#>Unlimited</option>
+													<option id="ef-item-registration-status-limited-id" value="limited" #(..rawHTML($Select(qRegistrationStatus="limited":"selected",1:"")))#>Limited</option>
+													<option id="ef-item-registration-status-stopped-id" value="stopped" #(..rawHTML($Select(qRegistrationStatus="stopped":"selected",1:"")))#>Stopped</option>
 												</select>
 											</td>
 										</tr>
 										<tr data-show-hide-dependency-list="#(..encodeForHTMLAttribute("{""logic"":""and"",""dependencies"":[{""parentName"":""selRegistrationStatus"",""operator"":""eq"",""value"":""limited""}]}"))#">
 											<td class="black10px" align="right"><tx>Capacity</tx>:&nbsp;&nbsp;</td>
 											<td class="black10px">
-											<input type="text" name="txtqCapacity" value="#(qCapacity)#" size="5" class="black10px">
+											<input type="text" id="ef-item-registration-capacity-id" name="txtqCapacity" value="#(qCapacity)#" size="5" class="black10px">
 											</td>
 											<td colspan="2" class="black10px" >&nbsp;</td>
 										</tr>
@@ -11333,11 +11353,11 @@ function loadItem(itemNameID) {
 											<tr>
 												<td class="black10px" align="right" height="25"><tx>Send notification</tx>:&nbsp;&nbsp;</td>
 												<td class="black10px">
-													<input type="checkbox" name="chkqNotification" value="1" #($S(qNotification=1:"checked",1:""))# class="black10px">
+													<input type="checkbox" id="ef-item-send-notification-id" name="chkqNotification" value="1" #($S(qNotification=1:"checked",1:""))# class="black10px">
 												</td>
 												<td class="black10px" align="right" data-show-hide-dependency-list="#(..encodeForHTMLAttribute("{""logic"":""and"",""dependencies"":[{""parentName"":""chkqNotification"",""operator"":""eq"",""value"":""1""}]}"))#"><tx>Level</tx>:&nbsp;&nbsp;</td>
 												<td class="black10px" data-show-hide-dependency-list="#(..encodeForHTMLAttribute("{""logic"":""and"",""dependencies"":[{""parentName"":""chkqNotification"",""operator"":""eq"",""value"":""1""}]}"))#">
-													<input type="text" name="txtqNotificationLevel" value="#(qNotificationLevel)#" size="4" class="black10px"> %
+													<input type="text" id="ef-item-notification-level-id" name="txtqNotificationLevel" value="#(qNotificationLevel)#" size="4" class="black10px"> %
 												</td>
 											</tr>
 										</systemType:if>
@@ -11351,7 +11371,7 @@ function loadItem(itemNameID) {
 											<csp:if condition=(hasPricing)>
 												<td class="black10px" align="right" height="25"><tx>Price by attendee category</tx>:&nbsp;&nbsp;</td>
 													<td>
-														<input type="Checkbox" name="chkPriceByAttendeeCategory" value=1  onclick="toggleAttendeeCategory()" #($S(priceByAttendeeCategory:"CHECKED",1:""))#>
+														<input type="Checkbox" id="ef-item-price-by-attendee-category-id" name="chkPriceByAttendeeCategory" value=1  onclick="toggleAttendeeCategory()" #($S(priceByAttendeeCategory:"CHECKED",1:""))#>
 													</td>
 												</td>
 											</csp:if>
@@ -11418,7 +11438,7 @@ function loadItem(itemNameID) {
 														<td >&nbsp;</td>
 														<td class="black10px" width="100"  bgcolor="#efefef" height=25><tx>Use same prices as...</tx></td>
 														<td class="black10px" width="130"  bgcolor="#efefef" height=25>
-															<select name="selSameAs_#(eventCategoryID)#" onchange="saveSameAs(#(eventCategoryID)#);" class="black10px" style="width:150px;">
+															<select id="ef-item-price-same-as-id" name="selSameAs_#(..encodeForHTMLAttribute(eventCategoryID))#" onchange="saveSameAs(#(..encodeForHTMLAttribute(eventCategoryID))#);" class="black10px" style="width:150px;">
 																<option value=""> - <tx>not linked</tx> - </option>
 																<csp:while condition="$o(selection(selIndex))">
 																	<script language="cache" runat="server">
@@ -11441,7 +11461,7 @@ function loadItem(itemNameID) {
 																if directPrice set priceType="direct"
 																if priceDescriptorID set priceType="descriptor"
 															</script>
-															<input type="radio" value="noPrice" name="radPriceType_#(eventCategoryID)#" onClick="updatePricing_#(eventCategoryID)#();" #($S(priceType="noPrice":"CHECKED",1:""))#>
+															<input type="radio" value="noPrice" id="ef-item-no-price-id" name="radPriceType_#(eventCategoryID)#" onClick="updatePricing_#(eventCategoryID)#();" #($S(priceType="noPrice":"CHECKED",1:""))#>
 															<span style="vertical-align: 50%;"><tx>No Price</tx></span>
 														</td>
 														<td width="395" height=25 bgcolor="#efefef" class="black10px"> </td>
@@ -11453,13 +11473,13 @@ function loadItem(itemNameID) {
 																set directActive=1
 																if ##class(setup.objEventSetting).getParameter("currency","allow currency selection",xEventID) set directActive=0
 															</script>
-															<input type="radio" value="direct" name="radPriceType_#(eventCategoryID)#" onClick="updatePricing_#(eventCategoryID)#();" #($S(priceType="direct":"CHECKED",1:""))#  #($S(directActive=0:"disabled title='Not available in multi currency mode'",1:""))#>
+															<input type="radio" value="direct" id="ef-item-basic-price-id" name="radPriceType_#(eventCategoryID)#" onClick="updatePricing_#(eventCategoryID)#();" #($S(priceType="direct":"CHECKED",1:""))#  #($S(directActive=0:"disabled title='Not available in multi currency mode'",1:""))#>
 															<span style="vertical-align: 50%;"><tx>Basic price</tx></span>
 														</td>
 														<td class="black10px" bgcolor="#efefef" height=25>
-															<input type="text" name="txtDirectPrice_#(eventCategoryID)#" value="#(directPrice)#" size="10" class="black9px" style="text-align: right;">
+															<input type="text" id="ef-item-direct-price-id" name="txtDirectPrice_#(eventCategoryID)#" value="#(directPrice)#" size="10" class="black9px" style="text-align: right;">
 															&nbsp;<span style="vertical-align: 30%;"><tx>Currency</tx>:</span>
-															<select name="selCurrency_#(eventCategoryID)#" class="black9px" size=1 style="width: 50px">
+															<select id="ef-item-currency-id" name="selCurrency_#(eventCategoryID)#" class="black9px" size=1 style="width: 50px">
 																<script language="cache" runat="server">
 																	&SQL(SELECT objBaseCurrency,objBaseCurrency->code INTO :currencyID,:currencyCode FROM setup.objEvent WHERE ID=:xEventID)
 																</script>
@@ -11469,14 +11489,14 @@ function loadItem(itemNameID) {
 													</tr>
 													<tr>
 														<td>&nbsp;</td>
-														<td class="black10px" width="199"  bgcolor="#efefef" height=25> <input type="radio" value="descriptor" name="radPriceType_#(eventCategoryID)#" onClick="updatePricing_#(eventCategoryID)#();" #($S(priceType="descriptor":"CHECKED",1:""))#>
+														<td class="black10px" width="199"  bgcolor="#efefef" height=25> <input type="radio" id="ef-item-price-descriptor-id" value="descriptor" name="radPriceType_#(eventCategoryID)#" onClick="updatePricing_#(eventCategoryID)#();" #($S(priceType="descriptor":"CHECKED",1:""))#>
 															<span style="vertical-align: 50%;"><tx>Price descriptor</tx></span>
 														</td>
 														<td class="black10px" bgcolor="#efefef">
 															<table width="93%" border="0" cellspacing="0" cellpadding="0">
 																<tr>
 																	<td width="415">
-																		<select size="1" name="selPriceDescriptor_#(eventCategoryID)#" class="black10px" style="width: 250px;">
+																		<select size="1" id="ef-item-price-descriptors-id" name="selPriceDescriptor_#(eventCategoryID)#" class="black10px" style="width: 250px;">
 																			<csp:query name="rs" classname="eCom.objPriceDescriptor" queryname="qAllActivePricesDelegate" P1=#(xControllerID)#>
 																			<option value=""></option>
 																			<csp:while condition="rs.Next()">
@@ -11546,7 +11566,7 @@ function loadItem(itemNameID) {
 																				<csp:LOOP COUNTER="x" FROM="1" TO="#(count)#">
 																					<tr class="black10px">
 																						<td width="25" height="25" align="right">
-																							<input type="checkbox" name="chkDiscount_#(IDs(x))#_#(eventCategoryID)#" class="black10px" #($S(data(x):"checked",1:""))#>
+																							<input type="checkbox" id="ef-item-discount-#(..encodeForHTMLAttribute(IDs(x)))#-id" name="chkDiscount_#(..encodeForHTMLAttribute(IDs(x)))#_#(..encodeForHTMLAttribute(eventCategoryID))#" class="black10px" #(..rawHTML($S(data(x):"checked",1:"")))#>
 																						</td>
 																						<td width="100" class="black10px">
 																							#(descs(x))#
@@ -11556,7 +11576,7 @@ function loadItem(itemNameID) {
 																								set x=x+1
 																							</script>
 																							<td width="25" height="25" align="right">
-																								<input type="checkbox" name="chkDiscount_#(IDs(x))#_#(eventCategoryID)#" class="black10px" #($S(data(x):"checked",1:""))#>
+																								<input type="checkbox" id="ef-item-discount-#(..encodeForHTMLAttribute(IDs(x)))#-id" name="chkDiscount_#(..encodeForHTMLAttribute(IDs(x)))#_#(..encodeForHTMLAttribute(eventCategoryID))#" class="black10px" #(..rawHTML($S(data(x):"checked",1:"")))#>
 																							</td>
 																							<td width="100">
 																								#(descs(x))#
@@ -11586,7 +11606,7 @@ function loadItem(itemNameID) {
 															<td width="20">&nbsp;</td>
 															<td class="black10px" width="100" align="right"><tx>Overriding VAT code</tx>:&nbsp;&nbsp;</td>
 															<td class="black10px" colSpan=3 height=35>
-																<select name="selVatCode_#(eventCategoryID)#" class="black10px" style="width:250px">
+																<select id="ef-item-overriding-vats-id" name="selVatCode_#(eventCategoryID)#" class="black10px" style="width:250px">
 																	<option #($s(vatCodeID="":"selected",1:""))# value="">--<tx>Same as event</tx>--</option>
 																	<csp:query name="rs" classname="eCom.objVatCode" queryname="qActiveVatCodes">
 																	<csp:while condition="rs.Next()">
@@ -11629,14 +11649,14 @@ function loadItem(itemNameID) {
 																<tx>Initial cost</tx>:&nbsp;&nbsp;
 															</td>
 															<td width=100 class="black10px" title="The startup cost, e.g. venue booking fee">
-																<input type="text" name="initialCost" value="#(initialCost)#" class="black10px" style="width: 50px;">&nbsp;#(currencyCode)#
+																<input type="text" id="ef-item-initial-cost-id" name="initialCost" value="#(initialCost)#" class="black10px" style="width: 50px;">&nbsp;#(currencyCode)#
 															</td>
 															<td height="25" width="10">&nbsp;</td>
 															<td class="black10px" width=75  title="Cost per sold item, e.g. meal cost">
 																<tx>Unit cost</tx>:
 															</td>
 															<td width=100 class="black10px" title="Cost per sold item, e.g. meal cost">
-																<input type="text" name="unitCost" value="#(unitCost)#"  class="black10px" style="width: 50px;">&nbsp;#(currencyCode)#
+																<input type="text" id="ef-item-unit-cost-id" name="unitCost" value="#(unitCost)#"  class="black10px" style="width: 50px;">&nbsp;#(currencyCode)#
 															</td>
 														</tr>
 													</table>
@@ -11673,7 +11693,7 @@ function loadItem(itemNameID) {
 													<td class="black10px" align="right" height="15" width="315">#(extItemCodeDesc)#</td>
 													<td height="25" width="10">&nbsp;</td>
 			                                   		<td class="black10px" height="30" width="100">
-														<input type="text" name="txtExtItemCode" value="#(extItemCode)#" size="30" width="20" class="black10px">
+														<input type="text" id="ef-item-external-code-id" name="txtExtItemCode" value="#(extItemCode)#" size="30" width="20" class="black10px">
 													</td>
 												</tr>
 											</csp:if>
@@ -11682,7 +11702,7 @@ function loadItem(itemNameID) {
 													<td class="black10px" align="right" height="15" width="315">#(extItemCode2Desc)#</td>
 													<td height="25" width="10">&nbsp;</td>
 			                                   		<td class="black10px" height="30" width="100">
-														<input type="text" name="txtExtItemCode2" value="#(extItemCode2)#" size="30" width="20" class="black10px">
+														<input type="text" id="ef-item-external-code2-id" name="txtExtItemCode2" value="#(extItemCode2)#" size="30" width="20" class="black10px">
 													</td>
 												</tr>
 											</csp:if>
@@ -11697,7 +11717,7 @@ function loadItem(itemNameID) {
 							<td width="20">&nbsp;</td>
 							<td class="black10px" align="right" height="15" width="177" valign="top"><tx>Help text</tx>:&nbsp;&nbsp;</td>
 							<td class="black10px" valign="top">
-								<textarea name="txtHelpText" style="width: 298px; height: 75px;" class="black10px">#(helpText)#</textarea>
+								<textarea name="txtHelpText" id="ef-item-help-text-id" style="width: 298px; height: 75px;" class="black10px">#(helpText)#</textarea>
 							</td>
 						</tr>
 					</table>
@@ -11741,7 +11761,7 @@ function loadItem(itemNameID) {
 											if ##class(links.lnkEventCategoryData).isSet(eventCategoryID,dataID) set CHECKED="CHECKED"
 										</script>
 										<td align="right" class="black10px">#(##class(shared.stringFunctions).sentenceCase(rs.Data("description")))#</td>
-										<td align="left"><input type="checkbox" name="chkEventCategory_#(eventCategoryID)#" #(CHECKED)#></td>
+										<td align="left"><input type="checkbox" id="ef-item-restrict-category-#(..encodeForHTMLAttribute(eventCategoryID))#-id" name="chkEventCategory_#(..encodeForHTMLAttribute(eventCategoryID))#" #(..rawHTML(CHECKED))#></td>
 										<csp:if condition=(x#2=0)>
 											<td width="50">&nbsp;</td>
 											</tr>
@@ -11781,7 +11801,7 @@ function loadItem(itemNameID) {
 					           					set isChecked=""	
 				           					}
 				           				</script>
-				           				<input type="checkbox" name="chkAbsShowToReviewers" value=1 #(isChecked)#>
+				           				<input type="checkbox" id="ef-item-show-to-reviewers-id" name="chkAbsShowToReviewers" value=1 #(isChecked)#>
 				           			</td>
 				           			<td class="black10px">
 				           				Show to reviewers

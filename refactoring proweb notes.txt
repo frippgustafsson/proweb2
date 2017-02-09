@@ -240,6 +240,7 @@ make the backend booking mode show banner, menu and indicator (after doing the w
 backend booking is lacking in style
 make all pages priavte and encrypted?
 namespace the bootstrap classes by copying their definition into our classes (eg. copy btn-large into ef-btn-large)
+remove the hidden input field that was used for direct label change
 add sexurity to the reorderProerbElements
 do we really need to output the "data-ef-reorderable-save-url" for every page? Move to super class?
 date range control is missing the end date input

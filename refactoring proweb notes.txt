@@ -235,6 +235,7 @@ refactor objLayout-writeBit
 make the backend booking mode show banner, menu and indicator (after doing the writeBit)
 rename and restore the templates We should move the "george" template into a brand new template name called "Wenlock" and restore the pre-george template and rename it "Narrowboat".
 add upgrade code to populate the 'listYpe' property in sc.objComponent
+the other layout are not showing the menu correctly
 
 why is there a grey empty list onthe reg page?
 date fields takes up too much vertical space
@@ -252,6 +253,7 @@ The styles shown in moxie is not what the website uses
 the editor panel and the quick edit are not using form-line/form-group
 the buttons are misplaced in small viewfinder
 multi column multicheck boxes
+subsequent guests are not hidden at load time
 improve the way we preview/edit for specific attendee categories
 move out all the inpage javascripts from frontJS.csp to real JS files
 rewrite frontendHTTPheader/frontednStyles/frontendJS

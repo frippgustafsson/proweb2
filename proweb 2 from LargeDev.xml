@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.2 (Build 736_0_16994U)" ts="2017-02-13 14:25:26">
+<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.2 (Build 736_0_16994U)" ts="2017-02-14 18:46:11">
 <Class name="EF.contextData">
 <Description><![CDATA[
 <!-- ;vc;-
@@ -498,7 +498,7 @@ if website is private, this will be set to the cod.objPerson.ID of that logged i
 
 <Class name="EF.mvcHandler.frontendProweb">
 <Super>EF.mvcHandler.frontend</Super>
-<TimeChanged>64327,39530.287542</TimeChanged>
+<TimeChanged>64328,41629.003577</TimeChanged>
 <TimeCreated>64292,52952.708564</TimeCreated>
 
 <Property name="showRegistrationProgressBar">
@@ -553,9 +553,9 @@ if website is private, this will be set to the cod.objPerson.ID of that logged i
 	merge requestData = ..contextData.cspRequest.Data
 
 	if pageControllerID { // when reloading the page after an validation error
-		set pageController = ##class(EF.pageController.proweb.page).open(pageControllerID, ..contextData)
+		set pageController = ##class(EF.pageController.proweb.page).reopen(pageControllerID, ..contextData)
 		set pageController.securityHandler = ..getSecurityHandler()
-		set pageController.isReload = 1
+		;set pageController.isReload = 1
 
 	} else { // regular loading of a page
 		set pageController = ##class(EF.pageController.proweb.page).%New()
@@ -1677,7 +1677,7 @@ When submitted, the page controller will be validated and updated, but it will n
 ]]></Description>
 <IncludeCode>EF.common.macros</IncludeCode>
 <Super>%Library.Persistent,shared.timeStamp</Super>
-<TimeChanged>64327,40553.911319</TimeChanged>
+<TimeChanged>64328,50903.69074</TimeChanged>
 <TimeCreated>63350,63749.535929</TimeCreated>
 
 <Property name="elementParent">
@@ -1819,6 +1819,24 @@ Anything marked with isModalTempData set will be cleared down when a modal is re
 		set child=..elementChildren.GetNext(.key)
 		if key="" quit
 		do child.updateAllPageElements()
+	}
+]]></Implementation>
+</Method>
+
+<Method name="recreateListOfControllerIDsSorted">
+<FormalSpec>parent:EF.pageController.element=""</FormalSpec>
+<Implementation><![CDATA[
+	s x=$I(^xfg)
+	if parent, parent.%IsA("EF.pageController.proweb.list") {
+		do parent.listOfControllerIDsSorted.Insert($this.identifier)
+		s ^xfg(x,"z added")=$this_"|"_$this.identifier
+		w "<br>",$this_"|"_$this.identifier
+	}
+	set key = ""
+	for {
+		set child = ..elementChildren.GetNext(.key)
+		if key = "" quit
+		do child.recreateListOfControllerIDsSorted($this)
 	}
 ]]></Implementation>
 </Method>
@@ -2765,7 +2783,7 @@ Should be run if any of the sub-classes are deleted</Description>
 <Description>
 Should have a one-to-one relationship with sc.objList</Description>
 <Super>EF.pageController.containerElement</Super>
-<TimeChanged>64327,51923.16997</TimeChanged>
+<TimeChanged>64328,67525.26776</TimeChanged>
 <TimeCreated>64231,55587.036042</TimeCreated>
 
 <Property name="prowebListID">
@@ -2776,6 +2794,7 @@ refers to sc.xModules.objList</Description>
 
 <Property name="listOfControllerIDsSorted">
 <Type>%ListOfDataTypes</Type>
+<Transient>1</Transient>
 </Property>
 
 <Property name="positionOfNextNonGuestQuestion">
@@ -2878,10 +2897,11 @@ refers to sc.xModules.objList</Description>
 
 	set element.uiComponent.isProwebEditMode = (..page.contextData.prowebMode = "edit")
 	
-	set element.uiComponent.prowebItem = prowebItem
 	set element.prowebItem = prowebItem
 	set element.prowebID = prowebItem.storage.prowebID
-	set element.uiComponent.prowebItemID = prowebItem.storage.prowebID
+	do element.uiComponent.assignProwebItem(prowebItem)
+	;set element.uiComponent.prowebItemID = prowebItem.storage.prowebID
+	;set element.uiComponent.prowebItem = prowebItem
 	set element.uiComponent.contextData = ..page.contextData
 	
 	if (element.#canBeDependent) {
@@ -2899,13 +2919,12 @@ refers to sc.xModules.objList</Description>
 	
 	for position = 1:1:..listOfControllerIDsSorted.Count() {
 		set elementID = ..listOfControllerIDsSorted.GetAt(position)
-		
 		set element = ..page.getElementByIdentifier(elementID)
-		
 		if element.%Extends("EF.pageController.proweb.list") {
 			do element.renderElements()	
+		
 		} elseif element.isOkToRender() {
-			if (hasRenderedAtLeastOne = 0) && (element.uiComponent.%Extends("EF.ui.components.frontend.textInput")) && ('..page.mvcPageHandler.isEditMode){
+			if (hasRenderedAtLeastOne = 0) && (element.uiComponent.%Extends("EF.ui.components.frontend.textInput")) && ('..page.mvcPageHandler.isEditMode) {
 				set element.uiComponent.hasAutoFocus = 1 	
 			}
 			set element.uiComponent.nameOfControllerListClass = $ClassName($this)
@@ -3297,7 +3316,7 @@ Should have a one-to-one relationship with sc.objList</Description>
 
 <Class name="EF.pageController.proweb.page">
 <Super>EF.pageController.page</Super>
-<TimeChanged>64327,42531.096037</TimeChanged>
+<TimeChanged>64328,64063.209723</TimeChanged>
 <TimeCreated>64189,51696.559047</TimeCreated>
 
 <Property name="mvcPageHandler">
@@ -3339,6 +3358,81 @@ Should have a one-to-one relationship with sc.objList</Description>
 ]]></Implementation>
 </Method>
 
+<Method name="open">
+<Description>
+open the pageController after it has been completly built but just before we start to render the view
+####### this whole method might not be needed, the super class should be able to do it ##########</Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec>pageControllerID,contextData:EF.contextData</FormalSpec>
+<ReturnType>EF.pageController.proweb.page</ReturnType>
+<Implementation><![CDATA[
+	if 'pageControllerID {
+		throw ##class(shared.exceptions.generalException).%New("No pageControllerID passed in to the open method")	
+	}
+	set pageController = ##class(EF.pageController.proweb.page).%OpenId(pageControllerID)
+	;do pageController.%Reload() // ###### this is not working ######
+	
+	if '$IsObject(pageController) {
+		throw ##class(shared.exceptions.generalException).%New("Failed to open pageController with ID='"_pageControllerID_"'")
+		
+	}
+	set pageController.contextData = contextData	
+	;do pageController.updateAllPageElements()
+	;do pageController.reloadUIComponents()
+	;set pageController.isReload = 1
+	;do pageController.load()
+
+	return pageController
+]]></Implementation>
+</Method>
+
+<Method name="reopen">
+<Description>
+reopens the pageController after a failed server side validation</Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec>pageControllerID,contextData:EF.contextData</FormalSpec>
+<ReturnType>EF.pageController.proweb.page</ReturnType>
+<Implementation><![CDATA[
+	if 'pageControllerID {
+		throw ##class(shared.exceptions.generalException).%New("No pageControllerID passed in to the open method")	
+	}
+	set pageController = ##class(EF.pageController.proweb.page).%OpenId(pageControllerID)
+	;do pageController.%Reload() // ###### this is not working ######
+	
+	if '$IsObject(pageController) {
+		throw ##class(shared.exceptions.generalException).%New("Failed to open pageController with ID='"_pageControllerID_"'")
+		
+	}
+	set pageController.contextData = contextData	
+	do pageController.updateAllPageElements()
+	k ^xfg
+	do pageController.recreateListOfControllerIDsSorted() 
+	set pageController.isReload = 1
+	do pageController.reloadUIComponents()
+	do pageController.updateUIComponents()
+	
+	
+	return pageController
+]]></Implementation>
+</Method>
+
+<Method name="updateUIComponents">
+<Description>
+add the facade item to the uiComponents</Description>
+<Implementation><![CDATA[
+	set key=""
+	for {
+		set element=..allPageElements.GetNext(.key)
+		if key="" quit
+		if ('element.%IsA("EF.pageController.proweb.list")) && ('element.%IsA("EF.pageController.proweb.page")) {
+	    	do element.uiComponent.assignProwebItem(element.prowebItem)
+	    	s x=$I(^xfg)
+	    	s ^xfg(x,"assigned proweb item to: ")=element.description
+		}
+ 	}
+]]></Implementation>
+</Method>
+
 <Method name="load">
 <FormalSpec>mvcPageHandler:EF.mvcHandler.frontendProweb=""</FormalSpec>
 <Implementation><![CDATA[
@@ -3366,53 +3460,6 @@ Should have a one-to-one relationship with sc.objList</Description>
 	do ..updateUIComponents()
 ]]></Implementation>
 </Method>
-
-<Method name="open">
-<Description>
-opens the pageController.
-Note that the 'open' is called both during the inital page rendering and then also when rendering after failing validation
-####### this whole method might not be needed, the super class should be able to do it ##########</Description>
-<ClassMethod>1</ClassMethod>
-<FormalSpec>pageControllerID,contextData:EF.contextData</FormalSpec>
-<ReturnType>EF.pageController.proweb.page</ReturnType>
-<Implementation><![CDATA[
-	if 'pageControllerID {
-		throw ##class(shared.exceptions.generalException).%New("No pageControllerID passed in to the open method")	
-	}
-	set pageController = ##class(EF.pageController.proweb.page).%OpenId(pageControllerID)
-	;do pageController.%Reload() // ###### this is not working ######
-	
-	if '$IsObject(pageController) {
-		throw ##class(shared.exceptions.generalException).%New("Failed to open pageController with ID='"_pageControllerID_"'")
-		
-	}
-	set pageController.contextData = contextData	
-	do pageController.updateAllPageElements()
-	;do pageController.recreateListOfControllerIDsSorted() //do ..listOfControllerIDsSorted.Insert(child.identifier)
-	;do pageController.reloadUIComponents()
-	;set pageController.isReload=1
-	;do pageController.load()
-	return pageController
-]]></Implementation>
-</Method>
-
-<UDLText name="T">
-<Content><![CDATA[
-/* delete me
-Method updateAllPageElements()
-{
-	do ..page.allPageElements.SetAt($this,..identifier)
-	set key=""
-	for {
-		set child=..elementChildren.GetNext(.key)
-		if key="" quit
-		do child.updateAllPageElements()
-		
-	}
-}
-*/
-]]></Content>
-</UDLText>
 
 <Method name="renderErrorMessages">
 <Implementation><![CDATA[
@@ -7618,13 +7665,12 @@ eventid</Description>
 
 <Class name="EF.ui.components.frontend.menuBlock">
 <Super>EF.ui.components.frontend.prowebBase</Super>
-<TimeChanged>64308,55170.970459</TimeChanged>
+<TimeChanged>64328,67509.405266</TimeChanged>
 <TimeCreated>64183,38661.128484</TimeCreated>
 
 <Method name="render">
 <Implementation><![CDATA[
 	#dim menuItem as sc.facade.prowebItemStorageMenuBlockItem
-
 	do ..renderRowOpening()
 		do ..renderCellOpening()
 			&html<
@@ -7913,7 +7959,7 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 
 <Class name="EF.ui.components.frontend.prowebBase">
 <Super>EF.ui.components.base</Super>
-<TimeChanged>64323,37245.215129</TimeChanged>
+<TimeChanged>64328,62518.831901</TimeChanged>
 <TimeCreated>64183,41819.123112</TimeCreated>
 
 <Property name="isProwebEditMode">
@@ -7941,6 +7987,14 @@ this cannot be set to 'number' as Chrome will then require you to define step in
 <Property name="mvcPageHandler">
 <Type>EF.mvcHandler.frontendProweb</Type>
 </Property>
+
+<Method name="assignProwebItem">
+<FormalSpec>prowebItem:sc.facade.prowebItem</FormalSpec>
+<Implementation><![CDATA[
+	set ..prowebItem = prowebItem
+	set ..prowebItemID = prowebItem.storage.prowebID
+]]></Implementation>
+</Method>
 
 <Method name="renderRowOpening">
 <Implementation><![CDATA[
@@ -16896,7 +16950,7 @@ function updateAlts(codPromptID) {
 		}
 		w !,"</style>",!
 		&html<
-			<link rel="stylesheet" href="../../media/stylesheets/frontend/gen1-3/ef-website-gen1-3-main.css" type="text/css" />
+			<link rel="stylesheet" href="../../media/stylesheets/frontend/ef-website-gen-1-2.css" type="text/css" />
 		>
 		w "<style>",!
 		if (##class(layout.objTemplate).isTemplateGen2(tmpTemplateID))	{
@@ -18856,7 +18910,7 @@ FRRE RULE
 	set pageID = ##class(shared.pageMethods).getPageID()
 	set eventID = ##class(sc.objData).getEventID(pageID)
 
-	if (eventID) && (##class(setup.objEvent).isEventUsingProweb2(eventID)) & (%request.Get("initialiseSession") = 1) {
+	if (eventID) && (##class(setup.objEvent).isEventUsingProweb2(eventID)) && (%request.Get("initialiseSession") = 1) {
 		kill %session.Data("eventsforce","frontend")
 		set tempPurchaseID=##class(eCom.tempPurchase).getID(%session.SessionId)
 		do ##class(eCom.tempPurchase).delete(tempPurchaseID)
@@ -18949,7 +19003,7 @@ session pageID=#(%session.Get("pageID"))#
 <Abstract>1</Abstract>
 <ClassType/>
 <ProcedureBlock>1</ProcedureBlock>
-<TimeChanged>64327,45913.927263</TimeChanged>
+<TimeChanged>64328,39767.133818</TimeChanged>
 <TimeCreated>63046,56232.897117</TimeCreated>
 
 <Method name="outputDefaultCSS">
@@ -18960,7 +19014,7 @@ session pageID=#(%session.Get("pageID"))#
 	do ..outputComponentCSS()
 	if ##class(layout.objTemplate).isTemplateGen3(layoutTemplateID)	{
 		&html<
-			<link rel="stylesheet" href="../../media/stylesheets/frontend/gen1-3/ef-website-gen-3-main.css" type="text/css" />
+			<link rel="stylesheet" href="../../media/stylesheets/frontend/ef-website-gen-3.css" type="text/css" />
 		>	
 	}
 	w "<style>",!
@@ -23001,7 +23055,7 @@ Looks for "style.css" file to update "templateCSSFile" with</Description>
 <ClassType>persistent</ClassType>
 <ProcedureBlock>1</ProcedureBlock>
 <Super>%Library.Persistent,shared.timeStamp</Super>
-<TimeChanged>64327,45824.444427</TimeChanged>
+<TimeChanged>64328,39157.647612</TimeChanged>
 <TimeCreated>60782,60196.270659</TimeCreated>
 <Inheritance>right</Inheritance>
 
@@ -23761,7 +23815,7 @@ outputs each section of code doing the banner, menu and footer when needed
 					
 					&html<
 						<!-- ====== Default generation 4 frontend base styles ============= -->
-						<link rel="stylesheet" href="../../media/stylesheets/frontend/gen4/ef-website-gen4-base-styles.css" type="text/css" />
+						<link rel="stylesheet" href="../../media/stylesheets/frontend/ef-website-gen-4.css" type="text/css" />
 					>
 					w "<style>"
 					do ##class(layout.cssOverrideMethods).outputDynamicCSS(xEventID, xLangID ,%request.PageName)
@@ -23857,7 +23911,7 @@ outputs each section of code doing the banner, menu and footer when needed
 			if before="[[ef_banner]]",'##class(eCom.tempPurchase).isBackendBooking(%session.SessionId),'isSurvey {
 				//do banner
 				if isUsingProweb2 { 
-					set parentListElement = pageController.getElementByIdentifier("banner page")
+					set parentListElement = pageController.getElementByIdentifier("banner page") // ### debug= are we not getting this?
 					write !,"<div class=""ef-banner-section"">"
 					do parentListElement.renderElements()
 					w !,"</div>"
@@ -24503,7 +24557,7 @@ Returns true if the template is custom made</Description>
 </Class>
 
 
-<Project name="proweb 2" LastModified="2017-02-13 09:10:56.021304" Target="largedevsrc/backEnd/home/login.csp" TargetType="3">
+<Project name="proweb 2" LastModified="2017-02-14 18:41:53.297953" Target="largedevsrc/backEnd/home/login.csp" TargetType="3">
   <Items>
     <ProjectItem name="EF.contextData" type="CLS"></ProjectItem>
     <ProjectItem name="EF.contextDataFrontend" type="CLS"></ProjectItem>
@@ -24695,12 +24749,12 @@ Returns true if the template is custom made</Description>
     <ProjectItem name="setup.backendMenu" type="CLS"></ProjectItem>
     <ProjectItem name="setup.bookingLevelCounterFrontendSession" type="CLS"></ProjectItem>
     <ProjectItem name="setup.eventCreationMethods" type="CLS"></ProjectItem>
+    <ProjectItem name="setup.lnkCategoryEvent" type="CLS"></ProjectItem>
     <ProjectItem name="setup.objPageNav" type="CLS"></ProjectItem>
     <ProjectItem name="shared.pageMethods" type="CLS"></ProjectItem>
-    <ProjectItem name="setup.lnkCategoryEvent" type="CLS"></ProjectItem>
   </Items>
   <BreakPoints>
-    <BreakPoint Routine="cspRealEV.frontend.reg.pagecontrollerstandardsave.CLS" Offset="OnPreHTTPafter+35"></BreakPoint>
+    <BreakPoint Routine="EF.pageController.proweb.list.CLS" Offset="renderElements+5"></BreakPoint>
   </BreakPoints>
 </Project>
 
@@ -24841,8 +24895,8 @@ Is this data type a simple HTML text input type?</Description>
 <Class name="sc.facade.prowebItem">
 <Description>
 Facade class for the sc.objData</Description>
-<Super>%RegisteredObject</Super>
-<TimeChanged>64323,53349.92316</TimeChanged>
+<Super>%Library.Persistent</Super>
+<TimeChanged>64328,57282.460399</TimeChanged>
 <TimeCreated>64206,36952.573447</TimeCreated>
 
 <Property name="storage">
@@ -24859,12 +24913,31 @@ Facade class for the sc.objData</Description>
 	return prowebItem
 ]]></Implementation>
 </Method>
+
+<Storage name="Default">
+<Type>%Library.CacheStorage</Type>
+<DataLocation>^sc.facade.prowebItemD</DataLocation>
+<DefaultData>prowebItemDefaultData</DefaultData>
+<IdLocation>^sc.facade.prowebItemD</IdLocation>
+<IndexLocation>^sc.facade.prowebItemI</IndexLocation>
+<StreamLocation>^sc.facade.prowebItemS</StreamLocation>
+<Data name="prowebItemDefaultData">
+<Structure>listnode</Structure>
+<Subscript/>
+<Value name="1">
+<Value>%%CLASSNAME</Value>
+</Value>
+<Value name="2">
+<Value>storage</Value>
+</Value>
+</Data>
+</Storage>
 </Class>
 
 
 <Class name="sc.facade.prowebItemStorage">
-<Super>%RegisteredObject</Super>
-<TimeChanged>64293,61468.814234</TimeChanged>
+<Super>%Library.Persistent</Super>
+<TimeChanged>64328,57270.983547</TimeChanged>
 <TimeCreated>64206,37017.045507</TimeCreated>
 
 <Property name="prowebID">
@@ -24981,12 +25054,46 @@ Property displayOrder As %Integer [ Required ];</Description>
 	return ..dependsOnProwebItem
 ]]></Implementation>
 </Method>
+
+<Storage name="Default">
+<Type>%Library.CacheStorage</Type>
+<DataLocation>^sc.facade.prowebItemStorageD</DataLocation>
+<DefaultData>prowebItemStorageDefaultData</DefaultData>
+<IdLocation>^sc.facade.prowebItemStorageD</IdLocation>
+<IndexLocation>^sc.facade.prowebItemStorageI</IndexLocation>
+<StreamLocation>^sc.facade.prowebItemStorageS</StreamLocation>
+<Data name="prowebItemStorageDefaultData">
+<Structure>listnode</Structure>
+<Subscript/>
+<Value name="1">
+<Value>%%CLASSNAME</Value>
+</Value>
+<Value name="2">
+<Value>prowebID</Value>
+</Value>
+<Value name="3">
+<Value>pageID</Value>
+</Value>
+<Value name="4">
+<Value>dependsOnProwebAlternativeID</Value>
+</Value>
+<Value name="5">
+<Value>dependsOnProwebID</Value>
+</Value>
+<Value name="6">
+<Value>dependsOnProwebItem</Value>
+</Value>
+<Value name="7">
+<Value>dependencyHoverText</Value>
+</Value>
+</Data>
+</Storage>
 </Class>
 
 
 <Class name="sc.facade.prowebItemStorageDivider">
 <Super>sc.facade.prowebItemStorage</Super>
-<TimeChanged>64323,53362.162838</TimeChanged>
+<TimeChanged>64328,57415.140786</TimeChanged>
 <TimeCreated>64206,41722.621925</TimeCreated>
 
 <Method name="createNew">
@@ -25003,12 +25110,16 @@ Property displayOrder As %Integer [ Required ];</Description>
 	return storage
 ]]></Implementation>
 </Method>
+
+<Storage name="Default">
+<Type>%Library.CacheStorage</Type>
+</Storage>
 </Class>
 
 
 <Class name="sc.facade.prowebItemStorageFileUpload">
 <Super>sc.facade.prowebItemStorageInputElement</Super>
-<TimeChanged>64323,53371.725578</TimeChanged>
+<TimeChanged>64328,57416.446961</TimeChanged>
 <TimeCreated>64209,36902.156071</TimeCreated>
 
 <Method name="createNew">
@@ -25027,12 +25138,16 @@ Property displayOrder As %Integer [ Required ];</Description>
 	return storage
 ]]></Implementation>
 </Method>
+
+<Storage name="Default">
+<Type>%Library.CacheStorage</Type>
+</Storage>
 </Class>
 
 
 <Class name="sc.facade.prowebItemStorageFileUploadMock">
 <Super>sc.facade.prowebItemStorageFileUpload</Super>
-<TimeChanged>64323,53379.284298</TimeChanged>
+<TimeChanged>64328,57416.83811</TimeChanged>
 <TimeCreated>64209,55230.373856</TimeCreated>
 
 <Property name="testValue">
@@ -25053,12 +25168,24 @@ Property displayOrder As %Integer [ Required ];</Description>
 	return storage
 ]]></Implementation>
 </Method>
+
+<Storage name="Default">
+<Type>%Library.CacheStorage</Type>
+<DefaultData>prowebItemStorageFileUploadMockDefaultData</DefaultData>
+<Data name="prowebItemStorageFileUploadMockDefaultData">
+<Structure>listnode</Structure>
+<Subscript>"prowebItemStorageFileUploadMock"</Subscript>
+<Value name="1">
+<Value>testValue</Value>
+</Value>
+</Data>
+</Storage>
 </Class>
 
 
 <Class name="sc.facade.prowebItemStorageInputElement">
 <Super>sc.facade.prowebItemStorage</Super>
-<TimeChanged>64323,53388.222729</TimeChanged>
+<TimeChanged>64328,57631.670194</TimeChanged>
 <TimeCreated>64206,40073.01042</TimeCreated>
 
 <Property name="inputType">
@@ -25163,8 +25290,7 @@ Property displayOrder As %Integer [ Required ];</Description>
 </Property>
 
 <Property name="caseConversionCommand">
-<Type>%Boolean</Type>
-<InitialExpression>0</InitialExpression>
+<Type>%String</Type>
 </Property>
 
 <Method name="createNew">
@@ -25289,12 +25415,86 @@ to make sure group bookers can't see already existing data of attendees</Descrip
 	}
 ]]></Implementation>
 </Method>
+
+<Storage name="Default">
+<Type>%Library.CacheStorage</Type>
+<DefaultData>prowebItemStorageInputElementDefaultData</DefaultData>
+<Data name="prowebItemStorageInputElementDefaultData">
+<Subscript>"prowebItemStorageInputElement"</Subscript>
+<Value name="1">
+<Value>inputType</Value>
+</Value>
+<Value name="2">
+<Value>databaseItemName</Value>
+</Value>
+<Value name="3">
+<Value>databaseItemID</Value>
+</Value>
+<Value name="4">
+<Value>listOfAlternatives</Value>
+</Value>
+<Value name="5">
+<Value>isGuest</Value>
+</Value>
+<Value name="6">
+<Value>labelText</Value>
+</Value>
+<Value name="7">
+<Value>helpText</Value>
+</Value>
+<Value name="8">
+<Value>isBackendOnly</Value>
+</Value>
+<Value name="9">
+<Value>isReadOnly</Value>
+</Value>
+<Value name="10">
+<Value>isMandatory</Value>
+</Value>
+<Value name="11">
+<Value>requiredAnswer</Value>
+</Value>
+<Value name="12">
+<Value>defaultValue</Value>
+</Value>
+<Value name="13">
+<Value>isSearchAsYouType</Value>
+</Value>
+<Value name="14">
+<Value>customValidation</Value>
+</Value>
+<Value name="15">
+<Value>bespokeValidationMethod</Value>
+</Value>
+<Value name="16">
+<Value>validationErrorMessage</Value>
+</Value>
+<Value name="17">
+<Value>maxWords</Value>
+</Value>
+<Value name="18">
+<Value>maxCharacters</Value>
+</Value>
+<Value name="19">
+<Value>fieldHeight</Value>
+</Value>
+<Value name="20">
+<Value>minAltsChecked</Value>
+</Value>
+<Value name="21">
+<Value>maxAltsChecked</Value>
+</Value>
+<Value name="22">
+<Value>caseConversionCommand</Value>
+</Value>
+</Data>
+</Storage>
 </Class>
 
 
 <Class name="sc.facade.prowebItemStorageInputElementAlternative">
-<Super>%RegisteredObject</Super>
-<TimeChanged>64247,30922.188857</TimeChanged>
+<Super>%Persistent</Super>
+<TimeChanged>64328,67288.405208</TimeChanged>
 <TimeCreated>64211,61761.805017</TimeCreated>
 
 <Property name="value">
@@ -25374,12 +25574,52 @@ to make sure group bookers can't see already existing data of attendees</Descrip
 	return alternative
 ]]></Implementation>
 </Method>
+
+<Storage name="Default">
+<Type>%Library.CacheStorage</Type>
+<DataLocation>^sc.facade.prowebItemSDD72D</DataLocation>
+<DefaultData>prowebItemStorageInputElementAlternativeDefaultData</DefaultData>
+<IdLocation>^sc.facade.prowebItemSDD72D</IdLocation>
+<IndexLocation>^sc.facade.prowebItemSDD72I</IndexLocation>
+<StreamLocation>^sc.facade.prowebItemSDD72S</StreamLocation>
+<Data name="prowebItemStorageInputElementAlternativeDefaultData">
+<Structure>listnode</Structure>
+<Subscript/>
+<Value name="1">
+<Value>%%CLASSNAME</Value>
+</Value>
+<Value name="2">
+<Value>value</Value>
+</Value>
+<Value name="3">
+<Value>displayText</Value>
+</Value>
+<Value name="4">
+<Value>alternativeID</Value>
+</Value>
+<Value name="5">
+<Value>isABI</Value>
+</Value>
+<Value name="6">
+<Value>ABIPrice</Value>
+</Value>
+<Value name="7">
+<Value>ABICapacity</Value>
+</Value>
+<Value name="8">
+<Value>ABICurrentBookingLevel</Value>
+</Value>
+<Value name="9">
+<Value>ABIIsBookingStopped</Value>
+</Value>
+</Data>
+</Storage>
 </Class>
 
 
 <Class name="sc.facade.prowebItemStorageInputElementMock">
 <Super>sc.facade.prowebItemStorageInputElement</Super>
-<TimeChanged>64323,53404.923588</TimeChanged>
+<TimeChanged>64328,57416.450316</TimeChanged>
 <TimeCreated>64206,37060.296556</TimeCreated>
 
 <Property name="testValue">
@@ -25396,12 +25636,24 @@ to make sure group bookers can't see already existing data of attendees</Descrip
 	return storage
 ]]></Implementation>
 </Method>
+
+<Storage name="Default">
+<Type>%Library.CacheStorage</Type>
+<DefaultData>prowebItemStorageInputElementMockDefaultData</DefaultData>
+<Data name="prowebItemStorageInputElementMockDefaultData">
+<Structure>listnode</Structure>
+<Subscript>"prowebItemStorageInputElementMock"</Subscript>
+<Value name="1">
+<Value>testValue</Value>
+</Value>
+</Data>
+</Storage>
 </Class>
 
 
 <Class name="sc.facade.prowebItemStorageMenuBlock">
 <Super>sc.facade.prowebItemStorage</Super>
-<TimeChanged>64323,53413.963087</TimeChanged>
+<TimeChanged>64328,57415.20607</TimeChanged>
 <TimeCreated>64223,41312.114214</TimeCreated>
 
 <Property name="listOfMenuItems">
@@ -25436,12 +25688,24 @@ to make sure group bookers can't see already existing data of attendees</Descrip
 	return storage
 ]]></Implementation>
 </Method>
+
+<Storage name="Default">
+<Type>%Library.CacheStorage</Type>
+<DefaultData>prowebItemStorageMenuBlockDefaultData</DefaultData>
+<Data name="prowebItemStorageMenuBlockDefaultData">
+<Structure>listnode</Structure>
+<Subscript>"prowebItemStorageMenuBlock"</Subscript>
+<Value name="1">
+<Value>listOfMenuItems</Value>
+</Value>
+</Data>
+</Storage>
 </Class>
 
 
 <Class name="sc.facade.prowebItemStorageMenuBlockItem">
-<Super>%RegisteredObject</Super>
-<TimeChanged>64223,57670.129916</TimeChanged>
+<Super>%Persistent</Super>
+<TimeChanged>64328,67244.761925</TimeChanged>
 <TimeCreated>64223,55863.589205</TimeCreated>
 
 <Property name="text">
@@ -25480,19 +25744,48 @@ to make sure group bookers can't see already existing data of attendees</Descrip
 	return menuBlockItem
 ]]></Implementation>
 </Method>
+
+<Storage name="Default">
+<Type>%Library.CacheStorage</Type>
+<DataLocation>^sc.facade.prowebItemSB43DD</DataLocation>
+<DefaultData>prowebItemStorageMenuBlockItemDefaultData</DefaultData>
+<IdLocation>^sc.facade.prowebItemSB43DD</IdLocation>
+<IndexLocation>^sc.facade.prowebItemSB43DI</IndexLocation>
+<StreamLocation>^sc.facade.prowebItemSB43DS</StreamLocation>
+<Data name="prowebItemStorageMenuBlockItemDefaultData">
+<Structure>listnode</Structure>
+<Subscript/>
+<Value name="1">
+<Value>%%CLASSNAME</Value>
+</Value>
+<Value name="2">
+<Value>text</Value>
+</Value>
+<Value name="3">
+<Value>linkURL</Value>
+</Value>
+<Value name="4">
+<Value>linkTarget</Value>
+</Value>
+</Data>
+</Storage>
 </Class>
 
 
 <Class name="sc.facade.prowebItemStoragePageHeader">
 <Super>sc.facade.prowebItemStorageTextBlock</Super>
-<TimeChanged>64264,59532.3045</TimeChanged>
+<TimeChanged>64328,57416.428382</TimeChanged>
 <TimeCreated>64264,59532.3045</TimeCreated>
+
+<Storage name="Default">
+<Type>%Library.CacheStorage</Type>
+</Storage>
 </Class>
 
 
 <Class name="sc.facade.prowebItemStorageTextBlock">
 <Super>sc.facade.prowebItemStorage</Super>
-<TimeChanged>64323,53432.462392</TimeChanged>
+<TimeChanged>64328,57415.202362</TimeChanged>
 <TimeCreated>64206,41475.453349</TimeCreated>
 
 <Property name="text">
@@ -25518,12 +25811,24 @@ to make sure group bookers can't see already existing data of attendees</Descrip
 	return storage
 ]]></Implementation>
 </Method>
+
+<Storage name="Default">
+<Type>%Library.CacheStorage</Type>
+<DefaultData>prowebItemStorageTextBlockDefaultData</DefaultData>
+<Data name="prowebItemStorageTextBlockDefaultData">
+<Structure>listnode</Structure>
+<Subscript>"prowebItemStorageTextBlock"</Subscript>
+<Value name="1">
+<Value>text</Value>
+</Value>
+</Data>
+</Storage>
 </Class>
 
 
 <Class name="sc.facade.prowebItemStorageTextBlockMock">
 <Super>sc.facade.prowebItemStorageTextBlock</Super>
-<TimeChanged>64323,53441.777106</TimeChanged>
+<TimeChanged>64328,57416.43956</TimeChanged>
 <TimeCreated>64223,62062.865015</TimeCreated>
 
 <Method name="createNew">
@@ -25537,12 +25842,16 @@ to make sure group bookers can't see already existing data of attendees</Descrip
 	return storage
 ]]></Implementation>
 </Method>
+
+<Storage name="Default">
+<Type>%Library.CacheStorage</Type>
+</Storage>
 </Class>
 
 
 <Class name="sc.facade.prowebItemStorageYouTubeVideo">
 <Super>sc.facade.prowebItemStorage</Super>
-<TimeChanged>64323,53448.698262</TimeChanged>
+<TimeChanged>64328,57415.22758</TimeChanged>
 <TimeCreated>64208,57300.34753</TimeCreated>
 
 <Property name="youTubeVideoURL">
@@ -25580,12 +25889,33 @@ to make sure group bookers can't see already existing data of attendees</Descrip
 	return storage
 ]]></Implementation>
 </Method>
+
+<Storage name="Default">
+<Type>%Library.CacheStorage</Type>
+<DefaultData>prowebItemStorageYouTubeVideoDefaultData</DefaultData>
+<Data name="prowebItemStorageYouTubeVideoDefaultData">
+<Structure>listnode</Structure>
+<Subscript>"prowebItemStorageYouTubeVideo"</Subscript>
+<Value name="1">
+<Value>youTubeVideoURL</Value>
+</Value>
+<Value name="2">
+<Value>width</Value>
+</Value>
+<Value name="3">
+<Value>height</Value>
+</Value>
+<Value name="4">
+<Value>isLooped</Value>
+</Value>
+</Data>
+</Storage>
 </Class>
 
 
 <Class name="sc.facade.prowebItemStorageYouTubeVideoMock">
 <Super>sc.facade.prowebItemStorageYouTubeVideo</Super>
-<TimeChanged>64323,53457.032513</TimeChanged>
+<TimeChanged>64328,57416.510051</TimeChanged>
 <TimeCreated>64208,59949.51444</TimeCreated>
 
 <Method name="createNew">
@@ -25601,6 +25931,10 @@ to make sure group bookers can't see already existing data of attendees</Descrip
 	return storage
 ]]></Implementation>
 </Method>
+
+<Storage name="Default">
+<Type>%Library.CacheStorage</Type>
+</Storage>
 </Class>
 
 

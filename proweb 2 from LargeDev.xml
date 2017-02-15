@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.2 (Build 736_0_16994U)" ts="2017-02-15 08:45:19">
+<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.2 (Build 736_0_16994U)" ts="2017-02-15 10:11:43">
 <Class name="EF.contextData">
 <Description><![CDATA[
 <!-- ;vc;-
@@ -2420,7 +2420,7 @@ Should be run if any of the sub-classes are deleted</Description>
 
 <Class name="EF.pageController.proweb.dropdown">
 <Super>EF.pageController.proweb.inputElement</Super>
-<TimeChanged>64323,40449.689465</TimeChanged>
+<TimeChanged>64329,36595.610094</TimeChanged>
 <TimeCreated>64189,53206.554402</TimeCreated>
 
 <Method name="getDefaultUIComponent">
@@ -2432,9 +2432,27 @@ Should be run if any of the sub-classes are deleted</Description>
 </Method>
 
 <Method name="addAlternative">
-<FormalSpec>alternative,price:%Numeric</FormalSpec>
+<FormalSpec>alternative:sc.facade.prowebItemStorageInputElementAlternative,price:%Numeric</FormalSpec>
 <ReturnType>EF.ui.components.alternative</ReturnType>
 <Implementation><![CDATA[	return ..uiComponent.addDropdownAlternative(alternative, ..page.contextData, price)
+]]></Implementation>
+</Method>
+
+<Method name="updateUIComponent">
+<Implementation><![CDATA[
+	do ##super()
+	do ..updateAllUIAlternatives()
+]]></Implementation>
+</Method>
+
+<Method name="updateAllUIAlternatives">
+<Private>1</Private>
+<Implementation><![CDATA[
+	for  {
+		set alternative = ..prowebItem.storage.listOfAlternatives.GetNext(.key)
+		if key ="" quit
+		do ..addAlternative(alternative, 666) // ##### need to implement price here
+	}
 ]]></Implementation>
 </Method>
 
@@ -2661,7 +2679,7 @@ Should be run if any of the sub-classes are deleted</Description>
 
 <Class name="EF.pageController.proweb.inputElement">
 <Super>EF.pageController.inputElement,EF.pageController.proweb.prowebBase</Super>
-<TimeChanged>64329,31420.737626</TimeChanged>
+<TimeChanged>64329,33127.258757</TimeChanged>
 <TimeCreated>64189,53012.909524</TimeCreated>
 
 <Property name="guestNumber">
@@ -2704,7 +2722,7 @@ Should be run if any of the sub-classes are deleted</Description>
 
 <Method name="updateUIComponent">
 <Implementation><![CDATA[
-	do ##super()
+	do ##super() // this assign a proweb item (and value?)
 	set contextData = ..page.contextData
 	
 	set ..uiComponent.validator.isMandatory = +..prowebItem.storage.isMandatory
@@ -3311,7 +3329,7 @@ Should have a one-to-one relationship with sc.objList</Description>
 
 <Class name="EF.pageController.proweb.page">
 <Super>EF.pageController.page</Super>
-<TimeChanged>64329,31443.040686</TimeChanged>
+<TimeChanged>64329,32069.187731</TimeChanged>
 <TimeCreated>64189,51696.559047</TimeCreated>
 
 <Property name="mvcPageHandler">
@@ -3374,7 +3392,7 @@ open the pageController after it has been completly built but just before we sta
 	set pageController.contextData = contextData	
 	do pageController.updateAllPageElements()
 	do pageController.reloadUIComponents()
-	;set pageController.isReload = 1
+	set pageController.isReload = 0
 	;do pageController.load()
 
 	return pageController
@@ -3396,16 +3414,15 @@ reopens the pageController after a failed server side validation</Description>
 	
 	if '$IsObject(pageController) {
 		throw ##class(shared.exceptions.generalException).%New("Failed to open pageController with ID='"_pageControllerID_"'")
-		
 	}
+	
 	set pageController.contextData = contextData	
 	do pageController.updateAllPageElements()
 	do pageController.recreateListOfControllerIDsSorted() 
 	set pageController.isReload = 1
-	do pageController.reloadUIComponents()
-	do pageController.updateUIComponents()
-	
-	
+	do pageController.reloadUIComponents() // just sets the uiComponent to the default uiComponent
+	do pageController.updateUIComponents() // assigns a proweb item and sets the value
+		
 	return pageController
 ]]></Implementation>
 </Method>
@@ -3995,7 +4012,7 @@ also an entry point from unit tests</Description>
 
 <Class name="EF.pageController.proweb.prowebBase">
 <Super>EF.pageController.element</Super>
-<TimeChanged>64329,31452.00273</TimeChanged>
+<TimeChanged>64329,33266.418298</TimeChanged>
 <TimeCreated>64183,49747.663252</TimeCreated>
 
 <Parameter name="canBeDependent">
@@ -4018,7 +4035,9 @@ also an entry point from unit tests</Description>
 </Method>
 
 <Method name="updateUIComponent">
-<Implementation><![CDATA[	do ..uiComponent.assignProwebItem(..prowebItem)
+<Implementation><![CDATA[
+	do ##super()
+	do ..uiComponent.assignProwebItem(..prowebItem)
 ]]></Implementation>
 </Method>
 

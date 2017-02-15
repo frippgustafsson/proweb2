@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.2 (Build 736_0_16994U)" ts="2017-02-15 10:11:43">
+<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.2 (Build 736_0_16994U)" ts="2017-02-15 10:32:41">
 <Class name="EF.contextData">
 <Description><![CDATA[
 <!-- ;vc;-
@@ -2420,7 +2420,7 @@ Should be run if any of the sub-classes are deleted</Description>
 
 <Class name="EF.pageController.proweb.dropdown">
 <Super>EF.pageController.proweb.inputElement</Super>
-<TimeChanged>64329,36595.610094</TimeChanged>
+<TimeChanged>64329,37945.970746</TimeChanged>
 <TimeCreated>64189,53206.554402</TimeCreated>
 
 <Method name="getDefaultUIComponent">
@@ -2442,6 +2442,7 @@ Should be run if any of the sub-classes are deleted</Description>
 <Implementation><![CDATA[
 	do ##super()
 	do ..updateAllUIAlternatives()
+	set ..uiComponent.value = ..value
 ]]></Implementation>
 </Method>
 
@@ -2452,6 +2453,7 @@ Should be run if any of the sub-classes are deleted</Description>
 		set alternative = ..prowebItem.storage.listOfAlternatives.GetNext(.key)
 		if key ="" quit
 		do ..addAlternative(alternative, 666) // ##### need to implement price here
+
 	}
 ]]></Implementation>
 </Method>
@@ -6531,7 +6533,7 @@ this is for version 1 of proweb</Description>
 
 <Class name="EF.ui.components.frontend.dropdown">
 <Super>EF.ui.components.listInput,EF.ui.components.frontend.inputElement</Super>
-<TimeChanged>64321,41124.898711</TimeChanged>
+<TimeChanged>64329,37954.877491</TimeChanged>
 <TimeCreated>63355,56609.363142</TimeCreated>
 
 <Property name="isPersistent">

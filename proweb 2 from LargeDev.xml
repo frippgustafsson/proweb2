@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.2 (Build 736_0_16994U)" ts="2017-02-14 18:46:11">
+<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2016.2 (Build 736_0_16994U)" ts="2017-02-15 08:45:19">
 <Class name="EF.contextData">
 <Description><![CDATA[
 <!-- ;vc;-
@@ -1677,7 +1677,7 @@ When submitted, the page controller will be validated and updated, but it will n
 ]]></Description>
 <IncludeCode>EF.common.macros</IncludeCode>
 <Super>%Library.Persistent,shared.timeStamp</Super>
-<TimeChanged>64328,50903.69074</TimeChanged>
+<TimeChanged>64328,67874.693969</TimeChanged>
 <TimeCreated>63350,63749.535929</TimeCreated>
 
 <Property name="elementParent">
@@ -1826,11 +1826,8 @@ Anything marked with isModalTempData set will be cleared down when a modal is re
 <Method name="recreateListOfControllerIDsSorted">
 <FormalSpec>parent:EF.pageController.element=""</FormalSpec>
 <Implementation><![CDATA[
-	s x=$I(^xfg)
 	if parent, parent.%IsA("EF.pageController.proweb.list") {
 		do parent.listOfControllerIDsSorted.Insert($this.identifier)
-		s ^xfg(x,"z added")=$this_"|"_$this.identifier
-		w "<br>",$this_"|"_$this.identifier
 	}
 	set key = ""
 	for {
@@ -2664,7 +2661,7 @@ Should be run if any of the sub-classes are deleted</Description>
 
 <Class name="EF.pageController.proweb.inputElement">
 <Super>EF.pageController.inputElement,EF.pageController.proweb.prowebBase</Super>
-<TimeChanged>64323,42756.67713</TimeChanged>
+<TimeChanged>64329,31420.737626</TimeChanged>
 <TimeCreated>64189,53012.909524</TimeCreated>
 
 <Property name="guestNumber">
@@ -2783,7 +2780,7 @@ Should be run if any of the sub-classes are deleted</Description>
 <Description>
 Should have a one-to-one relationship with sc.objList</Description>
 <Super>EF.pageController.containerElement</Super>
-<TimeChanged>64328,67525.26776</TimeChanged>
+<TimeChanged>64329,29491.709703</TimeChanged>
 <TimeCreated>64231,55587.036042</TimeCreated>
 
 <Property name="prowebListID">
@@ -2900,8 +2897,6 @@ refers to sc.xModules.objList</Description>
 	set element.prowebItem = prowebItem
 	set element.prowebID = prowebItem.storage.prowebID
 	do element.uiComponent.assignProwebItem(prowebItem)
-	;set element.uiComponent.prowebItemID = prowebItem.storage.prowebID
-	;set element.uiComponent.prowebItem = prowebItem
 	set element.uiComponent.contextData = ..page.contextData
 	
 	if (element.#canBeDependent) {
@@ -2909,33 +2904,6 @@ refers to sc.xModules.objList</Description>
 	}
 	do ..listOfControllerIDsSorted.Insert(element.identifier)
 	return element
-]]></Implementation>
-</Method>
-
-<Method name="renderElements">
-<Implementation><![CDATA[
-	#dim element as EF.pageController.element
-	#dim hasRenderedAtLeastOne as %Boolean = 0
-	
-	for position = 1:1:..listOfControllerIDsSorted.Count() {
-		set elementID = ..listOfControllerIDsSorted.GetAt(position)
-		set element = ..page.getElementByIdentifier(elementID)
-		if element.%Extends("EF.pageController.proweb.list") {
-			do element.renderElements()	
-		
-		} elseif element.isOkToRender() {
-			if (hasRenderedAtLeastOne = 0) && (element.uiComponent.%Extends("EF.ui.components.frontend.textInput")) && ('..page.mvcPageHandler.isEditMode) {
-				set element.uiComponent.hasAutoFocus = 1 	
-			}
-			set element.uiComponent.nameOfControllerListClass = $ClassName($this)
-			do element.render()		
-			set hasRenderedAtLeastOne =1
-		}
-	}
-	
-	if 'hasRenderedAtLeastOne {
-		do ..renderEmptyListHTML()	
-	}
 ]]></Implementation>
 </Method>
 
@@ -3175,6 +3143,33 @@ refers to sc.xModules.objList</Description>
 ]]></Implementation>
 </Method>
 
+<Method name="renderElements">
+<Implementation><![CDATA[
+	#dim element as EF.pageController.element
+	#dim hasRenderedAtLeastOne as %Boolean = 0
+	
+	for position = 1:1:..listOfControllerIDsSorted.Count() {
+		set elementID = ..listOfControllerIDsSorted.GetAt(position)
+		set element = ..page.getElementByIdentifier(elementID)
+		if element.%Extends("EF.pageController.proweb.list") {
+			do element.renderElements()	
+		
+		} elseif element.isOkToRender() {
+			if (hasRenderedAtLeastOne = 0) && (element.uiComponent.%Extends("EF.ui.components.frontend.textInput")) && ('..page.mvcPageHandler.isEditMode) {
+				set element.uiComponent.hasAutoFocus = 1 	
+			}
+			set element.uiComponent.nameOfControllerListClass = $ClassName($this)
+			do element.render()		
+			set hasRenderedAtLeastOne =1
+		}
+	}
+	
+	if 'hasRenderedAtLeastOne {
+		do ..renderEmptyListHTML()	
+	}
+]]></Implementation>
+</Method>
+
 <Storage name="Default">
 <Type>%Library.CacheStorage</Type>
 <DefaultData>listDefaultData</DefaultData>
@@ -3316,7 +3311,7 @@ Should have a one-to-one relationship with sc.objList</Description>
 
 <Class name="EF.pageController.proweb.page">
 <Super>EF.pageController.page</Super>
-<TimeChanged>64328,64063.209723</TimeChanged>
+<TimeChanged>64329,31443.040686</TimeChanged>
 <TimeCreated>64189,51696.559047</TimeCreated>
 
 <Property name="mvcPageHandler">
@@ -3377,8 +3372,8 @@ open the pageController after it has been completly built but just before we sta
 		
 	}
 	set pageController.contextData = contextData	
-	;do pageController.updateAllPageElements()
-	;do pageController.reloadUIComponents()
+	do pageController.updateAllPageElements()
+	do pageController.reloadUIComponents()
 	;set pageController.isReload = 1
 	;do pageController.load()
 
@@ -3405,7 +3400,6 @@ reopens the pageController after a failed server side validation</Description>
 	}
 	set pageController.contextData = contextData	
 	do pageController.updateAllPageElements()
-	k ^xfg
 	do pageController.recreateListOfControllerIDsSorted() 
 	set pageController.isReload = 1
 	do pageController.reloadUIComponents()
@@ -3413,23 +3407,6 @@ reopens the pageController after a failed server side validation</Description>
 	
 	
 	return pageController
-]]></Implementation>
-</Method>
-
-<Method name="updateUIComponents">
-<Description>
-add the facade item to the uiComponents</Description>
-<Implementation><![CDATA[
-	set key=""
-	for {
-		set element=..allPageElements.GetNext(.key)
-		if key="" quit
-		if ('element.%IsA("EF.pageController.proweb.list")) && ('element.%IsA("EF.pageController.proweb.page")) {
-	    	do element.uiComponent.assignProwebItem(element.prowebItem)
-	    	s x=$I(^xfg)
-	    	s ^xfg(x,"assigned proweb item to: ")=element.description
-		}
- 	}
 ]]></Implementation>
 </Method>
 
@@ -4018,7 +3995,7 @@ also an entry point from unit tests</Description>
 
 <Class name="EF.pageController.proweb.prowebBase">
 <Super>EF.pageController.element</Super>
-<TimeChanged>64321,60446.138605</TimeChanged>
+<TimeChanged>64329,31452.00273</TimeChanged>
 <TimeCreated>64183,49747.663252</TimeCreated>
 
 <Parameter name="canBeDependent">
@@ -4037,6 +4014,11 @@ also an entry point from unit tests</Description>
 <Method name="isOkToRender">
 <ReturnType>%Boolean</ReturnType>
 <Implementation><![CDATA[	return 0
+]]></Implementation>
+</Method>
+
+<Method name="updateUIComponent">
+<Implementation><![CDATA[	do ..uiComponent.assignProwebItem(..prowebItem)
 ]]></Implementation>
 </Method>
 
@@ -24557,7 +24539,7 @@ Returns true if the template is custom made</Description>
 </Class>
 
 
-<Project name="proweb 2" LastModified="2017-02-14 18:41:53.297953" Target="largedevsrc/backEnd/home/login.csp" TargetType="3">
+<Project name="proweb 2" LastModified="2017-02-15 08:45:19.763691" Target="largedevsrc/backEnd/home/login.csp" TargetType="3">
   <Items>
     <ProjectItem name="EF.contextData" type="CLS"></ProjectItem>
     <ProjectItem name="EF.contextDataFrontend" type="CLS"></ProjectItem>
@@ -24753,9 +24735,6 @@ Returns true if the template is custom made</Description>
     <ProjectItem name="setup.objPageNav" type="CLS"></ProjectItem>
     <ProjectItem name="shared.pageMethods" type="CLS"></ProjectItem>
   </Items>
-  <BreakPoints>
-    <BreakPoint Routine="EF.pageController.proweb.list.CLS" Offset="renderElements+5"></BreakPoint>
-  </BreakPoints>
 </Project>
 
 
